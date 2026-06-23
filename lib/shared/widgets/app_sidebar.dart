@@ -216,7 +216,7 @@ class _SidebarFooter extends ConsumerWidget {
             icon: appTabs[currentIndex].selectedIcon,
             label: '登录 / 我的',
             highlighted: true,
-            onTap: () => context.go('/profile'),
+            onTap: () => context.go('/configuration'),
           ),
         ],
       ),

@@ -20,7 +20,7 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('我的')),
+      appBar: AppBar(title: const Text('Configuration')),
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Mobile(),
@@ -32,14 +32,14 @@ class ProfilePage extends ConsumerWidget {
 
 /// 桌面端 master-detail 区段。
 enum _ProfileSection {
-  pro('PRO 升级', Icons.workspace_premium_outlined, AppColors.brand),
-  collect('收藏的主题', Icons.bookmark_outline, AppColors.info),
-  developers('关注的开发者', Icons.people_outline, AppColors.success),
-  monitorTopics('监控的主题', Icons.visibility_outlined, AppColors.brand),
-  monitorRules('监控规则', Icons.bolt_rounded, AppColors.warning),
-  data('数据与缓存', Icons.storage_outlined, AppColors.info),
-  settings('偏好设置', Icons.tune, AppColors.brand),
-  about('关于', Icons.info_outline, AppColors.textSecondaryLight);
+  pro('Upgrade PRO', Icons.workspace_premium_outlined, AppColors.brand),
+  collect('Bookmarked Topics', Icons.bookmark_outline, AppColors.info),
+  developers('Followed Developers', Icons.people_outline, AppColors.success),
+  monitorTopics('Monitored Topics', Icons.visibility_outlined, AppColors.brand),
+  monitorRules('Monitor Rules', Icons.bolt_rounded, AppColors.warning),
+  data('Data & Cache', Icons.storage_outlined, AppColors.info),
+  settings('Preferences', Icons.tune, AppColors.brand),
+  about('About', Icons.info_outline, AppColors.textSecondaryLight);
 
   const _ProfileSection(this.label, this.icon, this.accent);
 
@@ -138,7 +138,7 @@ class _SectionList extends ConsumerWidget {
               AppSpacing.lg,
               AppSpacing.sm,
             ),
-            child: Text('设置', style: AppTypography.titleMedium),
+            child: Text('Settings', style: AppTypography.titleMedium),
           ),
           const Divider(height: 1),
           for (final s in _ProfileSection.values)
@@ -287,14 +287,14 @@ class _UserCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '匿名浏览 · 登录后可同步数据',
+                  'Anonymous · sign in to sync data',
                   style: AppTypography.bodySmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '登录入口已移至左侧底部',
+                  'Sign-in is in the sidebar footer',
                   style: AppTypography.labelSmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
@@ -318,19 +318,19 @@ class _ProCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: 'GitHub 开发者情报 PRO',
-            subtitle: '解锁全部高级功能',
+            title: 'GitHub Intelligence PRO',
+            subtitle: 'Unlock all premium features',
           ),
           const SizedBox(height: AppSpacing.md),
-          const _Bullet('无限监控仓库'),
-          const _Bullet('高级告警与每日报告'),
-          const _Bullet('GitHub 与 Gitee 数据导出'),
+          const _Bullet('Unlimited monitored repositories'),
+          const _Bullet('Advanced alerts & daily reports'),
+          const _Bullet('GitHub & Gitee data export'),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: () {},
-              child: const Text('升级 PRO'),
+              child: const Text('Upgrade PRO'),
             ),
           ),
         ],
@@ -350,17 +350,17 @@ class _CollectListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bookmark_outline, color: AppColors.info),
-            title: const Text('收藏的主题', style: AppTypography.titleMedium),
+            title: const Text('Bookmarked Topics', style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
-            onTap: () => context.go('/profile/collect'),
+            onTap: () => context.go('/configuration/collect'),
           ),
           const Divider(height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.people_outline, color: AppColors.success),
-            title: const Text('监控的开发者', style: AppTypography.titleMedium),
+            title: const Text('Followed Developers', style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
-            onTap: () => context.go('/profile/developers'),
+            onTap: () => context.go('/configuration/developers'),
           ),
         ],
       ),
@@ -380,17 +380,17 @@ class _MonitorListCard extends StatelessWidget {
             contentPadding: EdgeInsets.zero,
             leading:
                 const Icon(Icons.visibility_outlined, color: AppColors.brand),
-            title: const Text('监控的主题', style: AppTypography.titleMedium),
+            title: const Text('Monitored Topics', style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
-            onTap: () => context.go('/profile/monitor'),
+            onTap: () => context.go('/configuration/monitor'),
           ),
           const Divider(height: 1),
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bolt_rounded, color: AppColors.warning),
-            title: const Text('监控规则', style: AppTypography.titleMedium),
+            title: const Text('Monitor Rules', style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
-            onTap: () => context.go('/profile/rules'),
+            onTap: () => context.go('/configuration/rules'),
           ),
         ],
       ),
@@ -408,30 +408,30 @@ class _CollectDetailCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: '收藏的主题',
-            subtitle: '你长期追踪的 GitHub 主题',
+            title: 'Bookmarked Topics',
+            subtitle: 'GitHub topics you track long-term',
           ),
           const SizedBox(height: AppSpacing.md),
           const _DetailRow(
             icon: Icons.bookmark_outline,
             iconColor: AppColors.info,
-            label: '收藏主题(12)',
-            value: '查看全部',
+            label: 'Bookmarked (12)',
+            value: 'View all',
           ),
           const Divider(height: 1),
           const _DetailRow(
             icon: Icons.history,
             iconColor: AppColors.textSecondaryLight,
-            label: '最近收藏',
+            label: 'Recent',
             value: 'agent · llm · devops',
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton.tonalIcon(
-              onPressed: () => context.go('/profile/collect'),
+              onPressed: () => context.go('/configuration/collect'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开收藏页'),
+              label: const Text('Open Bookmarks'),
             ),
           ),
         ],
@@ -450,30 +450,30 @@ class _DevelopersDetailCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: '关注的开发者',
-            subtitle: '第一时间拿到他们的最新动态',
+            title: 'Followed Developers',
+            subtitle: 'Get their latest activity first',
           ),
           const SizedBox(height: AppSpacing.md),
           const _DetailRow(
             icon: Icons.people_outline,
             iconColor: AppColors.success,
-            label: '关注开发者(8)',
-            value: '查看全部',
+            label: 'Followed (8)',
+            value: 'View all',
           ),
           const Divider(height: 1),
           const _DetailRow(
             icon: Icons.notifications_active_outlined,
             iconColor: AppColors.warning,
-            label: '通知策略',
+            label: 'Notification policy',
             value: 'Star / Fork / Release',
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton.tonalIcon(
-              onPressed: () => context.go('/profile/developers'),
+              onPressed: () => context.go('/configuration/developers'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开开发者页'),
+              label: const Text('Open Developers'),
             ),
           ),
         ],
@@ -492,30 +492,30 @@ class _MonitorTopicsDetailCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: '监控的主题',
-            subtitle: '持续追踪仓库的 Star / Issue / Release',
+            title: 'Monitored Topics',
+            subtitle: 'Track Star / Issue / Release continuously',
           ),
           const SizedBox(height: AppSpacing.md),
           const _DetailRow(
             icon: Icons.visibility_outlined,
             iconColor: AppColors.brand,
-            label: '正在监控(5)',
-            value: '查看全部',
+            label: 'Monitoring (5)',
+            value: 'View all',
           ),
           const Divider(height: 1),
           const _DetailRow(
             icon: Icons.timeline,
             iconColor: AppColors.info,
-            label: '最新告警',
-            value: '2 条未读',
+            label: 'Recent alerts',
+            value: '2 unread',
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton.tonalIcon(
-              onPressed: () => context.go('/profile/monitor'),
+              onPressed: () => context.go('/configuration/monitor'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开监控主题'),
+              label: const Text('Open Monitored Topics'),
             ),
           ),
         ],
@@ -534,37 +534,37 @@ class _MonitorRulesDetailCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: '监控规则',
-            subtitle: '自定义告警触发条件',
+            title: 'Monitor Rules',
+            subtitle: 'Custom alert trigger conditions',
           ),
           const SizedBox(height: AppSpacing.md),
           const _DetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
-            label: 'Star 增速 ≥ 30 / 天',
-            value: '已开启',
+            label: 'Star velocity ≥ 30 / day',
+            value: 'On',
           ),
           const Divider(height: 1),
           const _DetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
-            label: 'Issue 数小时 ≥ 5',
-            value: '已开启',
+            label: 'Issue count / hour ≥ 5',
+            value: 'On',
           ),
           const Divider(height: 1),
           const _DetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
-            label: '新 Release',
-            value: '已开启',
+            label: 'New Release',
+            value: 'On',
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton.tonalIcon(
-              onPressed: () => context.go('/profile/rules'),
+              onPressed: () => context.go('/configuration/rules'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('管理规则'),
+              label: const Text('Manage Rules'),
             ),
           ),
         ],
@@ -582,18 +582,18 @@ class _DataCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '数据与缓存', subtitle: '本地数据管理'),
+          const SectionHeader(title: 'Data & Cache', subtitle: 'Local data management'),
           const SizedBox(height: AppSpacing.md),
-          const _DataRow(label: '主题(2 分钟更新)', value: '12.8 MB'),
-          const _DataRow(label: '主题主题(7 天)', value: '156 MB'),
-          const _DataRow(label: '主题(30 天)', value: '624 MB'),
+          const _DataRow(label: 'Topics (2 min refresh)', value: '12.8 MB'),
+          const _DataRow(label: 'Topics (7 days)', value: '156 MB'),
+          const _DataRow(label: 'Topics (30 days)', value: '624 MB'),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.cleaning_services_outlined, size: 16),
-              label: const Text('清理缓存'),
+              label: const Text('Clear Cache'),
             ),
           ),
         ],
@@ -611,38 +611,38 @@ class _SettingsCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '偏好设置', subtitle: '主题 / 通知 / 启动'),
+          const SectionHeader(title: 'Preferences', subtitle: 'Theme / Notification / Startup'),
           const SizedBox(height: AppSpacing.md),
           _SettingRow(
             icon: Icons.dark_mode_outlined,
-            label: '深色模式',
+            label: 'Dark Mode',
             trailing: const _ThemeToggle(),
           ),
           _SettingRow(
             icon: Icons.language_outlined,
-            label: '主题',
-            trailing: Text('跟随系统', style: AppTypography.labelMedium),
+            label: 'Theme',
+            trailing: Text('Follow system', style: AppTypography.labelMedium),
           ),
           _SettingRow(
             icon: Icons.notifications_none,
-            label: '通知权限',
-            trailing: Text('已开启', style: AppTypography.labelMedium),
+            label: 'Notifications',
+            trailing: Text('Enabled', style: AppTypography.labelMedium),
           ),
           _SettingRow(
             icon: Icons.rocket_launch_outlined,
-            label: '启动主题',
-            trailing: Text('首页', style: AppTypography.labelMedium),
+            label: 'Startup Tab',
+            trailing: Text('Overview', style: AppTypography.labelMedium),
           ),
           _SettingRow(
             icon: Icons.cloud_outlined,
-            label: '数据源',
+            label: 'Data Source',
             trailing: Text('GitHub', style: AppTypography.labelMedium),
           ),
           _SettingRow(
             icon: Icons.code,
-            label: '开发者选项',
+            label: 'Developer Options',
             trailing: const Icon(Icons.chevron_right, size: 18),
-            onTap: () => context.go('/profile/developer'),
+            onTap: () => context.go('/configuration/developer'),
           ),
         ],
       ),
@@ -659,11 +659,11 @@ class _AboutCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '关于', subtitle: 'GitHub 开发者情报'),
+          const SectionHeader(title: 'About', subtitle: 'GitHub developer intelligence'),
           const SizedBox(height: AppSpacing.md),
-          const _AboutRow(label: '版本', value: '0.1.0'),
-          const _AboutRow(label: '构建', value: '2026-06-23'),
-          const _AboutRow(label: '官方网站', value: 'github-news.app'),
+          const _AboutRow(label: 'Version', value: '0.1.0'),
+          const _AboutRow(label: 'Build', value: '2026-06-23'),
+          const _AboutRow(label: 'Website', value: 'github-news.app'),
         ],
       ),
     );

@@ -59,8 +59,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: '实时趋势',
-                subtitle: '最近 24 小时 Star / Fork 变化',
+                title: 'Realtime Trends',
+                subtitle: 'Star / Fork in the last 24h',
               ),
               SizedBox(height: AppSpacing.md),
             ],
@@ -87,8 +87,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: '告警历史',
-                subtitle: '本仓库触发的所有告警',
+                title: 'Alert History',
+                subtitle: 'All alerts triggered by this repo',
               ),
               SizedBox(height: AppSpacing.md),
             ],

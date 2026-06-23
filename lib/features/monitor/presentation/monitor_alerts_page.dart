@@ -17,7 +17,7 @@ class MonitorAlertsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('告警列表'),
+        title: const Text('Alert List'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -59,8 +59,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '所有告警',
-                  subtitle: '近 24 小时 · 共 ${items.length} 条',
+                  title: 'All Alerts',
+                  subtitle: 'Last 24h · ${items.length} items',
                 ),
               ),
               for (var i = 0; i < items.length; i++) ...[

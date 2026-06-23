@@ -17,7 +17,7 @@ class LanguageTrendPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('语言趋势'),
+        title: const Text('Language Trends'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -51,8 +51,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SectionHeader(
-                title: '语言趋势总览',
-                subtitle: '热门仓库的编程语言占比 · 最近 30 天',
+                title: 'Language Trends Overview',
+                subtitle: 'Language share in hot repos · last 30 days',
               ),
               const SizedBox(height: AppSpacing.lg),
               _DonutChart(holeColor: AppColors.surfaceLight),
@@ -75,8 +75,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: '语言增长率排行',
-                subtitle: '本周 vs 上周',
+                title: 'Language Growth Ranking',
+                subtitle: 'This week vs last week',
               ),
               SizedBox(height: AppSpacing.md),
               _GrowthBars(),

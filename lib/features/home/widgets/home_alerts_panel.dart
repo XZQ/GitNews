@@ -35,8 +35,8 @@ class HomeAlertsPanel extends StatelessWidget {
                 AppSpacing.xs,
               ),
               child: SectionHeader(
-                title: '监控告警',
-                subtitle: '未读 ${items.length} 条',
+                title: 'Monitor Alerts',
+                subtitle: '${items.length} unread',
                 onTap: () => context.go('/monitor'),
               ),
             ),

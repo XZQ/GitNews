@@ -15,11 +15,11 @@ class FollowedDevelopersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('关注的开发者'),
+        title: const Text('Followed Developers'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+              context.canPop() ? context.pop() : context.go('/configuration'),
         ),
       ),
       body: ResponsiveLayout(
@@ -76,10 +76,10 @@ class _Body extends StatelessWidget {
                     style: AppTypography.titleSmall,
                   ),
                   subtitle:
-                      Text('+${DemoData.contributors[i].contributions} 本周贡献'),
+                      Text('+${DemoData.contributors[i].contributions} this week'),
                   trailing: OutlinedButton(
                     onPressed: () {},
-                    child: const Text('取消关注'),
+                    child: const Text('Unfollow'),
                   ),
                 ),
               ],

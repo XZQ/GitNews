@@ -16,9 +16,9 @@ class DevIntelSidebar extends StatelessWidget {
     _MenuSpec('Market Trends', Icons.show_chart_rounded, '/trending', false),
     _MenuSpec('Repositories', Icons.code_rounded, '/trending/repos', false),
     _MenuSpec(
-        'Developers', Icons.people_alt_rounded, '/profile/developers', false),
+        'Developers', Icons.people_alt_rounded, '/configuration/developers', false),
     _MenuSpec(
-        'Configuration', Icons.settings_rounded, '/profile/developer', false),
+        'Configuration', Icons.settings_rounded, '/configuration/developer', false),
   ];
 
   @override
