@@ -7,13 +7,12 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/breakpoint.dart';
 import 'app_sidebar.dart';
-import 'window_title_bar.dart';
 
 /// 三档响应式根 Scaffold。
 ///
 /// - compact(< 600):底部 NavigationBar
-/// - medium(600–1024):紧凑 NavigationRail(图标 + 选中标签) + 自绘标题栏
-/// - expanded(≥ 1024):宽侧栏(品牌 + 大字号 + hover + 底部主题/登录) + 自绘标题栏
+/// - medium(600–1024):紧凑 NavigationRail(图标 + 选中标签)
+/// - expanded(≥ 1024):宽侧栏(品牌 + 大字号 + hover + 底部主题/登录)
 class ResponsiveScaffold extends ConsumerWidget {
   const ResponsiveScaffold({required this.navigationShell, super.key});
 
@@ -26,12 +25,13 @@ class ResponsiveScaffold extends ConsumerWidget {
         : GoRouterState.of(context).matchedLocation;
     final index = appTabs.indexOfLocation(location);
     final formFactor = Breakpoints.of(context);
+    final body = SafeArea(child: navigationShell);
     final onTap = (int i) => navigationShell.goBranch(i,
         initialLocation: i == navigationShell.currentIndex);
 
     return switch (formFactor) {
       FormFactor.compact => Scaffold(
-          body: navigationShell,
+          body: body,
           bottomNavigationBar: _BottomBar(currentIndex: index, onTap: onTap),
         ),
       FormFactor.medium => Scaffold(
@@ -39,14 +39,7 @@ class ResponsiveScaffold extends ConsumerWidget {
             children: [
               _SideRail(currentIndex: index, onTap: onTap),
               const VerticalDivider(width: 1, thickness: 1),
-              Expanded(
-                child: Column(
-                  children: [
-                    const WindowTitleBar(),
-                    Expanded(child: navigationShell),
-                  ],
-                ),
-              ),
+              Expanded(child: body),
             ],
           ),
         ),
@@ -54,14 +47,7 @@ class ResponsiveScaffold extends ConsumerWidget {
           body: Row(
             children: [
               AppSidebar(currentIndex: index, onTap: onTap),
-              Expanded(
-                child: Column(
-                  children: [
-                    const WindowTitleBar(),
-                    Expanded(child: navigationShell),
-                  ],
-                ),
-              ),
+              Expanded(child: body),
             ],
           ),
         ),

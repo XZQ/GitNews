@@ -2,10 +2,6 @@
 
 #include <optional>
 
-#include <flutter/encodable_value.h>
-#include <flutter/method_channel.h>
-#include <flutter/standard_method_codec.h>
-
 #include "flutter/generated_plugin_registrant.h"
 
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
@@ -30,44 +26,6 @@ bool FlutterWindow::OnCreate() {
   }
   RegisterPlugins(flutter_controller_->engine());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
-
-  // Register a MethodChannel for window controls (minimize/maximize/close),
-  // consumed by Flutter's custom title bar.
-  auto messenger = flutter_controller_->engine()->messenger();
-  flutter::MethodChannel<flutter::EncodableValue> channel(
-      messenger, "github_news/window",
-      &flutter::StandardMethodCodec::GetInstance());
-  channel.SetMethodCallHandler(
-      [this](const flutter::MethodCall<flutter::EncodableValue>& call,
-             std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>>
-                 result) {
-        HWND hwnd = GetHandle();
-        if (!hwnd) {
-          result->Error("no_window", "Window handle not available");
-          return;
-        }
-        if (call.method_name() == "minimize") {
-          ShowWindow(hwnd, SW_MINIMIZE);
-          result->Success();
-        } else if (call.method_name() == "maximize") {
-          bool is_max = (GetWindowLongPtr(hwnd, GWL_STYLE) & WS_MAXIMIZE) != 0;
-          if (is_max) {
-            ShowWindow(hwnd, SW_RESTORE);
-          } else {
-            ShowWindow(hwnd, SW_MAXIMIZE);
-          }
-          result->Success();
-        } else if (call.method_name() == "close") {
-          PostMessage(hwnd, WM_CLOSE, 0, 0);
-          result->Success();
-        } else if (call.method_name() == "isMaximized") {
-          bool is_max = (GetWindowLongPtr(hwnd, GWL_STYLE) & WS_MAXIMIZE) != 0;
-          result->Success(flutter::EncodableValue(is_max));
-        } else {
-          result->NotImplemented();
-        }
-      });
-  // channel destructor does not unregister the handler held by the messenger.
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
     this->Show();
