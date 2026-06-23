@@ -15,11 +15,11 @@ class CollectPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('收藏的主题'),
+        title: const Text('Bookmarked Topics'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+              context.canPop() ? context.pop() : context.go('/configuration'),
         ),
       ),
       body: ResponsiveLayout(

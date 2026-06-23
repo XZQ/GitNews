@@ -18,7 +18,7 @@ class TrendingOverviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Star 增长趋势'),
+        title: const Text('Star Growth Trends'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -52,8 +52,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SectionHeader(
-                title: '总体 Star 增长趋势',
-                subtitle: '最近 30 天 · 所有语言聚合',
+                title: 'Overall Star Growth',
+                subtitle: 'Last 30 days · all languages',
               ),
               const SizedBox(height: AppSpacing.md),
               StarTrendChart(
@@ -74,8 +74,8 @@ class _Body extends StatelessWidget {
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.sm,
                 children: const [
-                  _LegendDot(color: AppColors.brand, label: '本周'),
-                  _LegendDot(color: AppColors.info, label: '上周'),
+                  _LegendDot(color: AppColors.brand, label: 'This week'),
+                  _LegendDot(color: AppColors.info, label: 'Last week'),
                 ],
               ),
             ],
@@ -87,8 +87,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: '按时间窗统计',
-                subtitle: '不同时段的 Star 增长总量',
+                title: 'By Time Window',
+                subtitle: 'Star growth totals by time window',
               ),
               SizedBox(height: AppSpacing.md),
               _WindowStatsTable(),

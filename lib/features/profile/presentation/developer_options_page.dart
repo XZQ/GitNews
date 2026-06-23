@@ -14,11 +14,11 @@ class DeveloperOptionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('开发者选项'),
+        title: const Text('Developer Options'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+              context.canPop() ? context.pop() : context.go('/configuration'),
         ),
       ),
       body: ResponsiveLayout(

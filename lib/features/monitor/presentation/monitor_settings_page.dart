@@ -15,7 +15,7 @@ class MonitorSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('通知设置'),
+        title: const Text('Notification Settings'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -48,13 +48,13 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: '通知渠道', subtitle: '应用内 / 邮件 / 推送'),
+              SectionHeader(title: 'Notification Channels', subtitle: 'In-app / Email / Push'),
               SizedBox(height: AppSpacing.md),
-              _NotifRow(label: '应用内通知', value: true),
-              _NotifRow(label: '邮件摘要', value: false),
-              _NotifRow(label: '每日报告', value: true),
-              _NotifRow(label: '周报推送', value: false),
-              _NotifRow(label: '仅关键告警', value: true),
+              _NotifRow(label: 'In-app notifications', value: true),
+              _NotifRow(label: 'Email digest', value: false),
+              _NotifRow(label: 'Daily report', value: true),
+              _NotifRow(label: 'Weekly digest', value: false),
+              _NotifRow(label: 'Critical alerts only', value: true),
             ],
           ),
         ),
@@ -63,10 +63,10 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: '免打扰', subtitle: '夜间与工作时段'),
+              SectionHeader(title: 'Do Not Disturb', subtitle: 'Night and work hours'),
               SizedBox(height: AppSpacing.md),
-              _NotifRow(label: '夜间 22:00 - 08:00 静默', value: true),
-              _NotifRow(label: '工作时段仅推送关键', value: false),
+              _NotifRow(label: 'Quiet 22:00 - 08:00', value: true),
+              _NotifRow(label: 'Critical-only at work hours', value: false),
             ],
           ),
         ),

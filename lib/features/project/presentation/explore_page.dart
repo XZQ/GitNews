@@ -19,11 +19,11 @@ class ExplorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('探索'),
+        title: const Text('Explore'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/project'),
+              context.canPop() ? context.pop() : context.go('/repositories'),
         ),
       ),
       body: ResponsiveLayout(
@@ -53,8 +53,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: '热门话题',
-                subtitle: '基于本周 Star 增速与讨论热度',
+                title: 'Hot Topics',
+                subtitle: 'Based on weekly Star velocity and discussion heat',
               ),
               SizedBox(height: AppSpacing.md),
             ],
@@ -88,8 +88,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '推荐仓库',
-                  subtitle: '基于你的关注 · 共 ${DemoData.trending.length} 个',
+                  title: 'Recommended Repos',
+                  subtitle: 'Based on your follows · ${DemoData.trending.length} items',
                 ),
               ),
               for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -110,8 +110,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: '可关注的开发者',
-                subtitle: '本周 Star 增长贡献 Top 5',
+                title: 'Developers to Follow',
+                subtitle: 'Top 5 Star contributors this week',
               ),
               SizedBox(height: AppSpacing.md),
             ],
@@ -133,7 +133,7 @@ class _Body extends StatelessWidget {
                 subtitle: Text('+${c.contributions} 本周贡献'),
                 trailing: OutlinedButton(
                   onPressed: () {},
-                  child: const Text('关注'),
+                  child: const Text('Follow'),
                 ),
               ),
           ]),

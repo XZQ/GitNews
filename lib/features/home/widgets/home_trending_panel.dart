@@ -34,8 +34,8 @@ class HomeTrendingPanel extends StatelessWidget {
                 AppSpacing.xs,
               ),
               child: SectionHeader(
-                title: 'Star 增长榜',
-                subtitle: '今日 Star 增速 Top ${items.length}',
+                title: 'Star Growth Ranking',
+                subtitle: 'Top ${items.length} Star velocity today',
                 trailing: const _FilterChip(text: '今日'),
                 onTap: () => context.go('/trending'),
               ),
