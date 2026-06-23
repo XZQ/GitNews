@@ -134,11 +134,8 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
-  // Borderless window: WS_POPUP + WS_THICKFRAME so Flutter content starts
-  // from the top edge. Drag is enabled via WM_NCHITTEST (see below).
   HWND window = CreateWindow(
-      window_class, title.c_str(),
-      WS_POPUP | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX,
+      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
       Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
       Scale(size.width, scale_factor), Scale(size.height, scale_factor),
       nullptr, nullptr, GetModuleHandle(nullptr), this);
@@ -219,20 +216,6 @@ Win32Window::MessageHandler(HWND hwnd,
     case WM_DWMCOLORIZATIONCOLORCHANGED:
       UpdateTheme(hwnd);
       return 0;
-
-    case WM_NCHITTEST: {
-      // Make the top 32px behave like a title bar so Flutter-drawn title bar
-      // can drag the borderless window.
-      LRESULT hit = DefWindowProc(hwnd, message, wparam, lparam);
-      if (hit == HTCLIENT) {
-        POINT pt = {LOWORD(lparam), HIWORD(lparam)};
-        ScreenToClient(hwnd, &pt);
-        if (pt.y >= 0 && pt.y < 32) {
-          return HTCAPTION;
-        }
-      }
-      return hit;
-    }
   }
 
   return DefWindowProc(window_handle_, message, wparam, lparam);
