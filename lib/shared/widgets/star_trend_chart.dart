@@ -9,6 +9,7 @@ class StarTrendChart extends StatelessWidget {
     required this.series,
     this.height = 180,
     this.showArea = true,
+    this.xLabels,
     super.key,
   });
 
@@ -16,6 +17,9 @@ class StarTrendChart extends StatelessWidget {
   final List<ChartSeries> series;
   final double height;
   final bool showArea;
+
+  /// 自定义 X 轴标签(按数据点 index 取值)。null 时默认显示 `'${i}d'`。
+  final List<String>? xLabels;
 
   @override
   Widget build(BuildContext context) {
@@ -73,10 +77,13 @@ class StarTrendChart extends StatelessWidget {
                 interval: (series.first.values.length / 5).clamp(1, 30),
                 getTitlesWidget: (value, _) {
                   final i = value.toInt();
+                  final label = (xLabels != null && i < xLabels!.length)
+                      ? xLabels![i]
+                      : '${i}d';
                   return Padding(
                     padding: const EdgeInsets.only(top: 6),
                     child: Text(
-                      '${i}d',
+                      label,
                       style: TextStyle(
                         fontSize: 10,
                         color: colors.onSurfaceVariant,

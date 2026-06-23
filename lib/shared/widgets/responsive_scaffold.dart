@@ -13,6 +13,9 @@ import 'app_sidebar.dart';
 /// - compact(< 600):底部 NavigationBar
 /// - medium(600–1024):紧凑 NavigationRail(图标 + 选中标签)
 /// - expanded(≥ 1024):宽侧栏(品牌 + 大字号 + hover + 底部主题/登录)
+///
+/// 当停留在 **home** (`index == 0`) 时,expanded 不显示全局 [AppSidebar]
+/// 而由 home 页面自身渲染带侧栏的 `DevIntelDesktopPage`。
 class ResponsiveScaffold extends ConsumerWidget {
   const ResponsiveScaffold({required this.navigationShell, super.key});
 
@@ -25,13 +28,12 @@ class ResponsiveScaffold extends ConsumerWidget {
         : GoRouterState.of(context).matchedLocation;
     final index = appTabs.indexOfLocation(location);
     final formFactor = Breakpoints.of(context);
-    final body = SafeArea(child: navigationShell);
     final onTap = (int i) => navigationShell.goBranch(i,
         initialLocation: i == navigationShell.currentIndex);
 
     return switch (formFactor) {
       FormFactor.compact => Scaffold(
-          body: body,
+          body: SafeArea(child: navigationShell),
           bottomNavigationBar: _BottomBar(currentIndex: index, onTap: onTap),
         ),
       FormFactor.medium => Scaffold(
@@ -39,17 +41,19 @@ class ResponsiveScaffold extends ConsumerWidget {
             children: [
               _SideRail(currentIndex: index, onTap: onTap),
               const VerticalDivider(width: 1, thickness: 1),
-              Expanded(child: body),
+              Expanded(child: SafeArea(child: navigationShell)),
             ],
           ),
         ),
       FormFactor.expanded => Scaffold(
-          body: Row(
-            children: [
-              AppSidebar(currentIndex: index, onTap: onTap),
-              Expanded(child: body),
-            ],
-          ),
+          body: index == 0
+              ? navigationShell
+              : Row(
+                  children: [
+                    AppSidebar(currentIndex: index, onTap: onTap),
+                    Expanded(child: SafeArea(child: navigationShell)),
+                  ],
+                ),
         ),
     };
   }
