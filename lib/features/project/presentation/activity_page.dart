@@ -17,11 +17,11 @@ class ActivityPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Activity Feed'),
+        title: const Text('活动速览'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/repositories'),
+              context.canPop() ? context.pop() : context.go('/project'),
         ),
       ),
       body: ResponsiveLayout(
@@ -102,8 +102,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: 'Last 7 days activity',
-                  subtitle: 'Commit / Issue / Release across repos',
+                  title: '近 7 天活动',
+                  subtitle: '跨仓库的 Commit / Issue / Release',
                 ),
               ),
               for (var i = 0; i < events.length; i++) ...[
@@ -125,8 +125,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: 'Developers you may like',
-                subtitle: 'Active in the last 7 days',
+                title: '可能感兴趣的开发者',
+                subtitle: '近 7 天活跃',
               ),
               SizedBox(height: AppSpacing.md),
             ],

@@ -17,7 +17,7 @@ class HotReposPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Hot Repositories'),
+        title: const Text('热门仓库'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -59,8 +59,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: 'Hot Repositories · Full List',
-                  subtitle: 'Sorted by Star velocity · ${repos.length} items',
+                  title: '热门仓库 · 完整列表',
+                  subtitle: '按 Star 增速排序 · 共 ${repos.length} 个',
                 ),
               ),
               for (var i = 0; i < repos.length; i++) ...[
@@ -81,8 +81,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: 'Notes',
-                subtitle: 'Data source and refresh policy',
+                title: '说明',
+                subtitle: '数据来源与刷新策略',
               ),
               SizedBox(height: AppSpacing.sm),
               _Bullet('GitHub Trending 与社区聚合 · 每 5 分钟刷新'),

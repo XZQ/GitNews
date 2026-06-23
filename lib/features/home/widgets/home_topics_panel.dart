@@ -29,8 +29,8 @@ class HomeTopicsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SectionHeader(
-            title: 'Hot Topics',
-            subtitle: 'Based on weekly Star velocity and discussion heat',
+            title: '热门话题',
+            subtitle: '基于本周 Star 增速与讨论热度',
           ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
@@ -42,8 +42,8 @@ class HomeTopicsPanel extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           const SectionHeader(
-            title: 'Developers to Follow',
-            subtitle: 'Top 5 Star contributors this week',
+            title: '可关注的开发者',
+            subtitle: '本周 Star 增长贡献 Top 5',
           ),
           const SizedBox(height: AppSpacing.md),
           for (final c in DemoData.contributors)

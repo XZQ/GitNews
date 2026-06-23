@@ -229,7 +229,7 @@ class _DesktopTopBar extends StatelessWidget {
           _IconAction(
             icon: Icons.settings_outlined,
             tooltip: '偏好设置',
-            onTap: () => context.go('/configuration'),
+            onTap: () => context.go('/profile'),
           ),
           const SizedBox(width: AppSpacing.sm),
           const _Avatar(),
@@ -336,7 +336,7 @@ class _Avatar extends StatelessWidget {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () => context.go('/configuration'),
+        onTap: () => context.go('/profile'),
         child: Container(
           width: 36,
           height: 36,

@@ -12,13 +12,13 @@ class DevIntelSidebar extends StatelessWidget {
   static const Color _hover = Color(0xFF23232B);
 
   static const List<_MenuSpec> _menu = <_MenuSpec>[
-    _MenuSpec('Overview', Icons.dashboard_rounded, '/home', true),
-    _MenuSpec('Market Trends', Icons.show_chart_rounded, '/trending', false),
-    _MenuSpec('Repositories', Icons.code_rounded, '/trending/repos', false),
+    _MenuSpec('总览', Icons.dashboard_rounded, '/home', true),
+    _MenuSpec('趋势', Icons.show_chart_rounded, '/trending', false),
+    _MenuSpec('报告', Icons.code_rounded, '/trending/repos', false),
     _MenuSpec(
-        'Developers', Icons.people_alt_rounded, '/configuration/developers', false),
+        '开发者', Icons.people_alt_rounded, '/profile/developers', false),
     _MenuSpec(
-        'Configuration', Icons.settings_rounded, '/configuration/developer', false),
+        '设置', Icons.settings_rounded, '/profile/developer', false),
   ];
 
   @override

@@ -39,27 +39,27 @@ class TabSpec {
 
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
-    label: 'Overview',
+    label: '首页',
     icon: Icons.dashboard_outlined,
     selectedIcon: Icons.dashboard_rounded,
   ),
   TabSpec(
-    label: 'Market Trends',
+    label: '趋势',
     icon: Icons.trending_up_outlined,
     selectedIcon: Icons.trending_up_rounded,
   ),
   TabSpec(
-    label: 'Monitoring',
+    label: '监控',
     icon: Icons.notifications_outlined,
     selectedIcon: Icons.notifications_rounded,
   ),
   TabSpec(
-    label: 'Repositories',
+    label: '报告',
     icon: Icons.assessment_outlined,
     selectedIcon: Icons.assessment_rounded,
   ),
   TabSpec(
-    label: 'Configuration',
+    label: '我的',
     icon: Icons.person_outline,
     selectedIcon: Icons.person_rounded,
   ),
@@ -82,9 +82,9 @@ extension TabIndexLookup on List<TabSpec> {
       case 2:
         return 'monitor';
       case 3:
-        return 'repositories';
+        return 'project';
       case 4:
-        return 'configuration';
+        return 'profile';
       default:
         return 'home';
     }
@@ -158,8 +158,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/repositories',
-              name: 'repositories',
+              path: '/project',
+              name: 'project',
               builder: (_, __) => const ProjectPage(),
               routes: [
                 GoRoute(
@@ -182,8 +182,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ]),
           StatefulShellBranch(routes: [
             GoRoute(
-              path: '/configuration',
-              name: 'configuration',
+              path: '/profile',
+              name: 'profile',
               builder: (_, __) => const ProfilePage(),
               routes: [
                 GoRoute(
@@ -232,12 +232,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
     ],
     errorBuilder: (_, state) => Scaffold(
-      appBar: AppBar(title: const Text('Page Not Found')),
+      appBar: AppBar(title: const Text('页面不存在')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(
-            'Unmatched path:${state.uri}',
+            '未匹配的路径:${state.uri}',
             style: const TextStyle(fontSize: 14),
           ),
         ),

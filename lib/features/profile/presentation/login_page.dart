@@ -16,11 +16,11 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign In'),
+        title: const Text('登录'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/configuration'),
+              context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: ResponsiveLayout(
@@ -59,7 +59,7 @@ class _Body extends StatelessWidget {
               width: double.infinity,
               child: FilledButton(
                 onPressed: () {},
-                child: const Text('Sign In'),
+                child: const Text('登录'),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -68,7 +68,7 @@ class _Body extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.code, size: 16),
-                label: const Text('Sign in with GitHub'),
+                label: const Text('使用 GitHub 登录'),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
