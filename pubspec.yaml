@@ -1,0 +1,43 @@
+name: github_news
+description: GitHub情报站 — 仓库 Star 趋势分析与监控告警客户端。
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # 状态管理
+  flutter_riverpod: ^2.5.1
+
+  # 路由
+  go_router: ^14.2.0
+
+  # 网络
+  dio: ^5.4.3+1
+
+  # 存储
+  shared_preferences: ^2.3.0
+
+  # 图表
+  fl_chart: ^0.68.0
+
+  # 图片
+  cached_network_image: ^3.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  # 测试
+  mocktail: ^1.0.4
+
+flutter:
+  uses-material-design: true
