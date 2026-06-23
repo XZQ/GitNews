@@ -13,7 +13,7 @@ class GitHubNewsApp extends ConsumerWidget {
     final router = ref.watch(appRouterProvider);
     final mode = ref.watch(themeModeControllerProvider);
     return MaterialApp.router(
-      title: 'DevIntel',
+      title: 'GitHub情报站',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),

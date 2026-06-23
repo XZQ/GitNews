@@ -15,7 +15,7 @@ class HomeQuickNav extends StatelessWidget {
       children: [
         Expanded(
           child: _Metric(
-            label: 'New today',
+            label: '今日新增',
             value: '128',
             delta: '+18.5%',
             icon: Icons.star_rounded,
@@ -26,7 +26,7 @@ class HomeQuickNav extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _Metric(
-            label: 'Star growth',
+            label: 'Star 增长',
             value: '42.8K',
             delta: '+7.2%',
             icon: Icons.trending_up_rounded,
@@ -37,7 +37,7 @@ class HomeQuickNav extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _Metric(
-            label: 'Monitoring',
+            label: '监控中',
             value: '36',
             delta: '+3',
             icon: Icons.visibility_outlined,
@@ -48,7 +48,7 @@ class HomeQuickNav extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _Metric(
-            label: 'Alerts today',
+            label: '今日告警',
             value: '12',
             delta: '-2',
             icon: Icons.notifications_active_outlined,

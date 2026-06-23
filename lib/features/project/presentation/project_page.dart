@@ -18,7 +18,7 @@ class ProjectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Repositories')),
+      appBar: AppBar(title: const Text('报告')),
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Desktop(),
@@ -93,7 +93,7 @@ class _SummaryMetrics extends StatelessWidget {
       children: [
         Expanded(
           child: _MetricBlock(
-            label: 'Stars gained this week',
+            label: '本周 Star 增长',
             value: '124',
             delta: '+18.5%',
             color: AppColors.success,
@@ -103,7 +103,7 @@ class _SummaryMetrics extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _MetricBlock(
-            label: 'New repos',
+            label: '新增仓库',
             value: '2.36K',
             delta: '+7.2%',
             color: AppColors.brand,
@@ -113,7 +113,7 @@ class _SummaryMetrics extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _MetricBlock(
-            label: 'Active contributors',
+            label: '活跃贡献者',
             value: '156',
             delta: '+12.3%',
             color: AppColors.info,
@@ -123,7 +123,7 @@ class _SummaryMetrics extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _MetricBlock(
-            label: 'Total forks',
+            label: '总 Fork 数',
             value: '47.8K',
             delta: '+5.1%',
             color: AppColors.warning,
@@ -201,7 +201,7 @@ class _LanguageDistribution extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
-          SectionHeader(title: 'Language Distribution', subtitle: 'Share in hot repos'),
+          SectionHeader(title: '语言分布', subtitle: '热门仓库的编程语言占比'),
           SizedBox(height: AppSpacing.md),
           _DonutLegend(),
         ],
@@ -262,8 +262,8 @@ class _TrendOverview extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
           SectionHeader(
-            title: 'Trend Comparison',
-            subtitle: 'Last 7 days vs last week',
+            title: '趋势对比',
+            subtitle: '最近 7 天 vs 上周',
           ),
           SizedBox(height: AppSpacing.md),
         ],
@@ -303,7 +303,7 @@ class _PopularRepos extends StatelessWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: 'Hot This Week',
+              title: '本周热门',
               subtitle: '按 Star 增速排序',
             ),
           ),
@@ -339,8 +339,8 @@ class _RecentlyUpdated extends StatelessWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: 'Recently Active',
-              subtitle: 'Repos with recent updates',
+              title: '最近活跃',
+              subtitle: '近期有更新的仓库',
             ),
           ),
           for (var i = 0; i < DemoData.recent.length; i++) ...[

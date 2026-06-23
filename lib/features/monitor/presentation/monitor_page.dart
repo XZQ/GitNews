@@ -16,7 +16,7 @@ class MonitorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Monitoring')),
+      appBar: AppBar(title: const Text('监控')),
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Desktop(),
@@ -85,7 +85,7 @@ class _StatusRow extends StatelessWidget {
       children: [
         Expanded(
           child: _StatusCard(
-            label: 'Monitored Repos',
+            label: '监控仓库',
             value: '28',
             delta: '+4',
             icon: Icons.visibility_outlined,
@@ -95,7 +95,7 @@ class _StatusRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatusCard(
-            label: 'Unread Alerts',
+            label: '未读告警',
             value: '4',
             delta: '-2',
             icon: Icons.error_outline,
@@ -105,7 +105,7 @@ class _StatusRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatusCard(
-            label: 'Triggered Today',
+            label: '今日触发',
             value: '3',
             delta: '+1',
             icon: Icons.bolt_rounded,
@@ -115,7 +115,7 @@ class _StatusRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatusCard(
-            label: 'Total Alerts',
+            label: '告警总数',
             value: '12',
             delta: '-5',
             icon: Icons.history_rounded,
@@ -201,8 +201,8 @@ class _MonitoredRepos extends StatelessWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: 'My Monitored Repos',
-              subtitle: 'Star velocity and alerts in last 30 days',
+              title: '我的监控仓库',
+              subtitle: '近 30 天 Star 增速与告警',
             ),
           ),
           for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -289,7 +289,7 @@ class _MonitoredRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                'Healthy',
+                '正常',
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.success,
                   fontWeight: FontWeight.w600,
@@ -320,8 +320,8 @@ class _RecentAlerts extends StatelessWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: 'Recent Alerts',
-              subtitle: 'Alert stream today and yesterday',
+              title: '最近告警',
+              subtitle: '今日与昨日告警流',
             ),
           ),
           for (var i = 0; i < DemoData.alerts.length; i++) ...[
@@ -443,7 +443,7 @@ class _RulesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
-          SectionHeader(title: 'Monitor Rules', subtitle: '3 enabled'),
+          SectionHeader(title: '监控规则', subtitle: '3 enabled'),
           SizedBox(height: AppSpacing.md),
         ],
       ).copyChildren([
@@ -480,12 +480,12 @@ class _NotificationCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
-          SectionHeader(title: 'Notifications', subtitle: 'Channels and frequency'),
+          SectionHeader(title: '通知设置', subtitle: '推送渠道与频次'),
           SizedBox(height: AppSpacing.md),
-          _NotifRow(label: 'In-app notifications', value: true),
-          _NotifRow(label: 'Email digest', value: false),
-          _NotifRow(label: 'Daily report', value: true),
-          _NotifRow(label: 'Weekly digest', value: false),
+          _NotifRow(label: '应用内通知', value: true),
+          _NotifRow(label: '邮件摘要', value: false),
+          _NotifRow(label: '每日报告', value: true),
+          _NotifRow(label: '周报推送', value: false),
         ],
       ),
     );

@@ -19,11 +19,11 @@ class DiscoverPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Discover'),
+        title: const Text('发现推荐'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/repositories'),
+              context.canPop() ? context.pop() : context.go('/project'),
         ),
       ),
       body: ResponsiveLayout(
@@ -53,8 +53,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: 'Trending Topics',
-                subtitle: 'Based on your follows and history',
+                title: '热门主题',
+                subtitle: '基于你的关注和浏览历史',
               ),
               SizedBox(height: AppSpacing.md),
             ],
@@ -64,15 +64,15 @@ class _Body extends StatelessWidget {
               runSpacing: 8,
               children: [
                 _TopicCard(
-                    label: 'AI Agent', desc: '32 repos', color: AppColors.brand),
+                    label: 'AI Agent', desc: '32 个仓库', color: AppColors.brand),
                 _TopicCard(
-                    label: 'LLM', desc: '128 repos', color: AppColors.info),
+                    label: 'LLM', desc: '128 个仓库', color: AppColors.info),
                 _TopicCard(
                     label: 'DevTools',
                     desc: '64 个仓库',
                     color: AppColors.success),
                 _TopicCard(
-                    label: 'RAG', desc: '24 repos', color: AppColors.warning),
+                    label: 'RAG', desc: '24 个仓库', color: AppColors.warning),
               ],
             ),
           ]),
@@ -90,8 +90,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: 'Recommended Repos',
-                  subtitle: 'Most relevant to your interests',
+                  title: '推荐仓库',
+                  subtitle: '与你的兴趣最相关的项目',
                 ),
               ),
               for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -112,8 +112,8 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: const [
               SectionHeader(
-                title: 'Recommended Developers',
-                subtitle: 'Active contributors you should follow',
+                title: '推荐开发者',
+                subtitle: '你应该关注的活跃贡献者',
               ),
               SizedBox(height: AppSpacing.md),
             ],
@@ -135,7 +135,7 @@ class _Body extends StatelessWidget {
                 subtitle: Text('+${c.contributions} 本周贡献'),
                 trailing: OutlinedButton(
                   onPressed: () {},
-                  child: const Text('Follow'),
+                  child: const Text('关注'),
                 ),
               ),
           ]),

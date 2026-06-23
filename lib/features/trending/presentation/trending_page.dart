@@ -17,7 +17,7 @@ class TrendingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Market Trends')),
+      appBar: AppBar(title: const Text('趋势')),
       body: ResponsiveLayout(
         compact: (_) => const _TrendingMobile(),
         medium: (_) => const _TrendingDesktop(),
@@ -36,8 +36,8 @@ class _TrendingMobile extends StatefulWidget {
 }
 
 class _TrendingMobileState extends State<_TrendingMobile> {
-  String _window = 'Today';
-  String _lang = 'All Languages';
+  String _window = '今日';
+  String _lang = '全部语言';
 
   @override
   Widget build(BuildContext context) {
@@ -58,20 +58,20 @@ class _TrendingMobileState extends State<_TrendingMobile> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Star Growth Ranking',
+                      'Star 增长榜',
                       style: AppTypography.titleLarge,
                     ),
                   ),
                   _PopupMenu(
                     value: _lang,
-                    options: const ['All Languages', 'TypeScript', 'Python', 'Rust'],
+                    options: const ['全部语言', 'TypeScript', 'Python', 'Rust'],
                     onSelected: (v) => setState(() => _lang = v),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Tracking $_window · Star velocity ranking',
+                '追踪 $_window · Star 增速排名',
                 style: AppTypography.bodySmall.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -113,11 +113,11 @@ class _TrendingMobileState extends State<_TrendingMobile> {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: 'Hot Repositories',
-                  subtitle: '$_window · ${DemoData.trending.length} items',
+                  title: '热门仓库',
+                  subtitle: '$_window · ${DemoData.trending.length} 个项目',
                   trailing: TextButton(
                     onPressed: () {},
-                    child: const Text('Filter'),
+                    child: const Text('筛选'),
                   ),
                 ),
               ),
@@ -162,8 +162,8 @@ class _TrendingDesktopState extends State<_TrendingDesktop> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SectionHeader(
-                  title: 'Star Growth Trends',
-                  subtitle: 'New Stars in the active window · all languages',
+                  title: 'Star 增长趋势',
+                  subtitle: '追踪时间窗内的新增 Star 总量 · 包含所有语言',
                 ),
                 const SizedBox(height: AppSpacing.md),
                 StarTrendChart(
@@ -229,8 +229,8 @@ class _TrendingList extends StatelessWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: 'Hot Repositories',
-              subtitle: 'Sorted by Star velocity',
+              title: '热门仓库',
+              subtitle: '按 Star 增速排序',
             ),
           ),
           for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -257,9 +257,9 @@ class _WindowSegmented extends StatelessWidget {
   Widget build(BuildContext context) {
     return SegmentedButton<String>(
       segments: const [
-        ButtonSegment(value: 'today', label: Text('Today')),
-        ButtonSegment(value: 'week', label: Text('This Week')),
-        ButtonSegment(value: 'month', label: Text('This Month')),
+        ButtonSegment(value: '今日', label: Text('今日')),
+        ButtonSegment(value: '本周', label: Text('本周')),
+        ButtonSegment(value: '本月', label: Text('本月')),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
@@ -314,19 +314,19 @@ class _HeroMetrics extends StatelessWidget {
     return Row(
       children: const [
         Expanded(
-          child: _Metric(value: '42.8K', label: 'Stars Gained', delta: '+7.2%'),
+          child: _Metric(value: '42.8K', label: 'Star 增长总量', delta: '+7.2%'),
         ),
         SizedBox(width: 12),
         Expanded(
-          child: _Metric(value: '1.20K', label: 'Weekly Active Repos', delta: '+12.4%'),
+          child: _Metric(value: '1.20K', label: '周活跃仓库', delta: '+12.4%'),
         ),
         SizedBox(width: 12),
         Expanded(
-          child: _Metric(value: '10.6K', label: 'New Forks', delta: '+5.1%'),
+          child: _Metric(value: '10.6K', label: '新增 Fork', delta: '+5.1%'),
         ),
         SizedBox(width: 12),
         Expanded(
-          child: _Metric(value: '623', label: 'Trending Topics', delta: '+3.4%'),
+          child: _Metric(value: '623', label: '热门话题', delta: '+3.4%'),
         ),
       ],
     );
@@ -391,16 +391,16 @@ class _LanguagePanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: 'Language Distribution',
+            title: '语言分布',
             subtitle: subtitle,
           ),
           const SizedBox(height: AppSpacing.md),
           SegmentedButton<String>(
             segments: const [
-              ButtonSegment(value: 'all', label: Text('All')),
-              ButtonSegment(value: 'ai', label: Text('AI')),
-              ButtonSegment(value: 'web', label: Text('Web')),
-              ButtonSegment(value: 'system', label: Text('System')),
+              ButtonSegment(value: 'All', label: Text('全部')),
+              ButtonSegment(value: 'AI', label: Text('AI')),
+              ButtonSegment(value: 'Web', label: Text('Web')),
+              ButtonSegment(value: 'System', label: Text('系统')),
             ],
             selected: {value},
             onSelectionChanged: (s) => onChanged(s.first),
@@ -514,8 +514,8 @@ class _TopicsPanel extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: const [
           SectionHeader(
-            title: 'Topic Trends',
-            subtitle: 'Frequent tech topics this week',
+            title: '话题趋势',
+            subtitle: '本周高频出现的技术话题',
           ),
           SizedBox(height: AppSpacing.md),
           _TopicWordCloud(),
