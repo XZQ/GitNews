@@ -22,13 +22,13 @@
 
 ### 桌面端
 
-![桌面端](docs/暗色.png)
+![桌面端深色主题](docs/desktop-dark.png)
 
 ### 移动端
 
 | 首页 | 报告 | 监控列表 | 监控详情 | 我的 |
 | :---: | :---: | :---: | :---: | :---: |
-| ![首页](docs/首页手机.png) | ![报告](docs/报告手机.png) | ![监控列表](docs/监控手机.png) | ![监控详情](docs/监控页.png) | ![我的](docs/我的手机.png) |
+| ![首页](docs/mobile-home.png) | ![报告](docs/mobile-report.png) | ![监控列表](docs/mobile-monitor-list.png) | ![监控详情](docs/mobile-monitor-detail.png) | ![我的](docs/mobile-profile.png) |
 
 > 截图位于 `docs/`。
 
