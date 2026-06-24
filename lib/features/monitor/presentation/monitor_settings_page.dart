@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -15,7 +16,7 @@ class MonitorSettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('通知设置'),
+        title: Text(context.t.t('monitor.settingsAppBar')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -43,30 +44,36 @@ class _Body extends StatelessWidget {
         AppSpacing.lg,
         AppSpacing.xl,
       ),
-      children: const [
+      children: [
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: '通知渠道', subtitle: '应用内 / 邮件 / 推送'),
-              SizedBox(height: AppSpacing.md),
-              _NotifRow(label: '应用内通知', value: true),
-              _NotifRow(label: '邮件摘要', value: false),
-              _NotifRow(label: '每日报告', value: true),
-              _NotifRow(label: '周报推送', value: false),
-              _NotifRow(label: '仅关键告警', value: true),
+              SectionHeader(
+                title: context.t.t('monitor.settings.chTitle'),
+                subtitle: context.t.t('monitor.settings.chSubtitle'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _NotifRow(labelKey: 'monitor.settings.chRow1', value: true),
+              _NotifRow(labelKey: 'monitor.settings.chRow2', value: false),
+              _NotifRow(labelKey: 'monitor.settings.chRow3', value: true),
+              _NotifRow(labelKey: 'monitor.settings.chRow4', value: false),
+              _NotifRow(labelKey: 'monitor.settings.chRow5', value: true),
             ],
           ),
         ),
-        SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: '免打扰', subtitle: '夜间与工作时段'),
-              SizedBox(height: AppSpacing.md),
-              _NotifRow(label: '夜间 22:00 - 08:00 静默', value: true),
-              _NotifRow(label: '工作时段仅推送关键', value: false),
+              SectionHeader(
+                title: context.t.t('monitor.settings.dndTitle'),
+                subtitle: context.t.t('monitor.settings.dndSubtitle'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _NotifRow(labelKey: 'monitor.settings.dndRow1', value: true),
+              _NotifRow(labelKey: 'monitor.settings.dndRow2', value: false),
             ],
           ),
         ),
@@ -76,8 +83,8 @@ class _Body extends StatelessWidget {
 }
 
 class _NotifRow extends StatelessWidget {
-  const _NotifRow({required this.label, required this.value});
-  final String label;
+  const _NotifRow({required this.labelKey, required this.value});
+  final String labelKey;
   final bool value;
 
   @override
@@ -86,7 +93,12 @@ class _NotifRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         children: [
-          Expanded(child: Text(label, style: AppTypography.bodyMedium)),
+          Expanded(
+            child: Text(
+              context.t.t(labelKey),
+              style: AppTypography.bodyMedium,
+            ),
+          ),
           Switch(value: value, onChanged: (_) {}),
         ],
       ),

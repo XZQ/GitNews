@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
@@ -28,8 +29,10 @@ class ResponsiveScaffold extends ConsumerWidget {
         : GoRouterState.of(context).matchedLocation;
     final index = appTabs.indexOfLocation(location);
     final formFactor = Breakpoints.of(context);
-    final onTap = (int i) => navigationShell.goBranch(i,
-        initialLocation: i == navigationShell.currentIndex);
+    void onTap(int i) => navigationShell.goBranch(
+          i,
+          initialLocation: i == navigationShell.currentIndex,
+        );
 
     return switch (formFactor) {
       FormFactor.compact => Scaffold(
@@ -46,16 +49,68 @@ class ResponsiveScaffold extends ConsumerWidget {
           ),
         ),
       FormFactor.expanded => Scaffold(
-          body: index == 0
-              ? navigationShell
-              : Row(
-                  children: [
-                    AppSidebar(currentIndex: index, onTap: onTap),
-                    Expanded(child: SafeArea(child: navigationShell)),
-                  ],
-                ),
+          body: Row(
+            children: [
+              AppSidebar(currentIndex: index, onTap: onTap),
+              const _SidebarDragHandle(),
+              Expanded(child: SafeArea(child: navigationShell)),
+            ],
+          ),
         ),
     };
+  }
+}
+
+/// 侧栏拖拽手柄:用户拖动以改变侧栏宽度(200–800px)。
+class _SidebarDragHandle extends ConsumerStatefulWidget {
+  const _SidebarDragHandle();
+
+  @override
+  ConsumerState<_SidebarDragHandle> createState() => _SidebarDragHandleState();
+}
+
+class _SidebarDragHandleState extends ConsumerState<_SidebarDragHandle> {
+  bool _hovered = false;
+  bool _dragging = false;
+
+  void _updateWidth(double delta) {
+    final current = ref.read(sidebarWidthProvider);
+    final next = (current + delta).clamp(kSidebarMinWidth, kSidebarMaxWidth);
+    if (next != current) {
+      ref.read(sidebarWidthProvider.notifier).state = next;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final highlight = _hovered || _dragging;
+    return MouseRegion(
+      cursor: SystemMouseCursors.resizeColumn,
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onHorizontalDragStart: (_) => setState(() => _dragging = true),
+        onHorizontalDragUpdate: (d) => _updateWidth(d.delta.dx),
+        onHorizontalDragEnd: (_) => setState(() => _dragging = false),
+        onHorizontalDragCancel: () => setState(() => _dragging = false),
+        child: SizedBox(
+          width: 6,
+          height: double.infinity,
+          child: Center(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 120),
+              width: 2,
+              height: double.infinity,
+              color: highlight
+                  ? colors.primary.withValues(alpha: 0.6)
+                  : colors.outlineVariant,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -67,15 +122,16 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: onTap,
       destinations: [
-        for (final t in appTabs)
+        for (final spec in appTabs)
           NavigationDestination(
-            icon: Icon(t.icon),
-            selectedIcon: Icon(t.selectedIcon),
-            label: t.label,
+            icon: Icon(spec.icon),
+            selectedIcon: Icon(spec.selectedIcon),
+            label: t.t(spec.labelKey),
           ),
       ],
     );
@@ -90,6 +146,7 @@ class _SideRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return NavigationRail(
       selectedIndex: currentIndex,
       onDestinationSelected: onTap,
@@ -97,11 +154,11 @@ class _SideRail extends StatelessWidget {
       minExtendedWidth: 80,
       labelType: NavigationRailLabelType.selected,
       destinations: [
-        for (final t in appTabs)
+        for (final spec in appTabs)
           NavigationRailDestination(
-            icon: Icon(t.icon),
-            selectedIcon: Icon(t.selectedIcon),
-            label: Text(t.label),
+            icon: Icon(spec.icon),
+            selectedIcon: Icon(spec.selectedIcon),
+            label: Text(t.t(spec.labelKey)),
           ),
       ],
     );
@@ -142,7 +199,7 @@ class PlaceholderPanel extends StatelessWidget {
                   spacing: AppSpacing.sm,
                   children: [
                     Chip(
-                      label: const Text('响应式断点已生效'),
+                      label: Text(context.t.t('placeholder.responsiveActive')),
                       side: BorderSide(color: Theme.of(context).dividerColor),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.pill),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/errors/app_exception.dart';
+import '../../core/i18n/app_localizations.dart';
 
 /// 统一错误视图:按 AppException.kind 渲染不同文案与操作。
 class ErrorView extends StatelessWidget {
@@ -17,7 +18,7 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (icon, text, action) = _resolve();
+    final (icon, text, action) = _resolve(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(24),
@@ -29,7 +30,10 @@ class ErrorView extends StatelessWidget {
             Text(text, style: Theme.of(context).textTheme.bodyMedium),
             if (action != null) ...[
               const SizedBox(height: 16),
-              FilledButton(onPressed: action, child: const Text('重试')),
+              FilledButton(
+                onPressed: action,
+                child: Text(context.t.t('app.retry')),
+              ),
             ],
           ],
         ),
@@ -37,25 +41,30 @@ class ErrorView extends StatelessWidget {
     );
   }
 
-  (IconData, String, VoidCallback?) _resolve() {
+  (IconData, String, VoidCallback?) _resolve(BuildContext context) {
+    final t = context.t;
     switch (error.kind) {
       case AppExceptionKind.network:
-        return (Icons.wifi_off, '网络连接异常,请检查后重试', onRetry);
+        return (Icons.wifi_off, t.t('error.network'), onRetry);
       case AppExceptionKind.rateLimit:
         final secs = error.retryAfterSeconds ?? 60;
         return (
           Icons.hourglass_bottom,
-          '请求过于频繁,$secs 秒后再试',
+          t.tr('error.rateLimit', {'secs': secs}),
           onRetry,
         );
       case AppExceptionKind.unauthorized:
-        return (Icons.lock_outline, '需要登录', onLogin ?? onRetry);
+        return (
+          Icons.lock_outline,
+          t.t('error.unauthorized'),
+          onLogin ?? onRetry
+        );
       case AppExceptionKind.notFound:
-        return (Icons.search_off, '未找到资源', onRetry);
+        return (Icons.search_off, t.t('error.notFound'), onRetry);
       case AppExceptionKind.parse:
       case AppExceptionKind.server:
       case AppExceptionKind.unknown:
-        return (Icons.error_outline, '出错了,请稍后重试', onRetry);
+        return (Icons.error_outline, t.t('error.generic'), onRetry);
     }
   }
 }

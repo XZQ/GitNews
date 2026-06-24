@@ -3,16 +3,19 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// DevIntel 桌面端 home 演示数据(全部 const,便于后续替换为真实 API)。
+///
+/// 注:`title` / `name` / `tag` / `statusLabel` / `body` / 列名 / X 轴标签
+/// 等是 i18n key,UI 渲染时通过 `context.t.t(key)` 解析。
 class DevIntelMetricSpec {
   const DevIntelMetricSpec({
-    required this.title,
+    required this.titleKey,
     required this.value,
     required this.delta,
     required this.icon,
     required this.color,
   });
 
-  final String title;
+  final String titleKey;
   final String value;
   final String delta;
   final IconData icon;
@@ -23,7 +26,7 @@ class DevIntelRepoRow {
   const DevIntelRepoRow({
     required this.rank,
     required this.name,
-    required this.category,
+    required this.categoryKey,
     required this.lang,
     required this.newStars,
     required this.total,
@@ -32,7 +35,7 @@ class DevIntelRepoRow {
 
   final String rank;
   final String name;
-  final String category;
+  final String categoryKey;
   final String lang;
   final String newStars;
   final String total;
@@ -42,69 +45,69 @@ class DevIntelRepoRow {
 class DevIntelHotspot {
   const DevIntelHotspot({
     required this.abbr,
-    required this.name,
-    required this.tag,
+    required this.nameKey,
+    required this.tagKey,
     required this.color,
     required this.progress,
   });
 
   final String abbr;
-  final String name;
-  final String tag;
+  final String nameKey;
+  final String tagKey;
   final Color color;
   final double progress;
 }
 
 class DevIntelSignal {
   const DevIntelSignal({
-    required this.title,
-    required this.body,
+    required this.titleKey,
+    required this.bodyKey,
     required this.dotColor,
   });
 
-  final String title;
-  final String body;
+  final String titleKey;
+  final String bodyKey;
   final Color dotColor;
 }
 
 class DevIntelMonitoring {
   const DevIntelMonitoring({
     required this.name,
-    required this.statusLabel,
+    required this.statusKey,
     required this.statusColor,
     this.note,
   });
 
   final String name;
-  final String statusLabel;
+  final String statusKey;
   final Color statusColor;
   final String? note;
 }
 
 const List<DevIntelMetricSpec> kDevIntelMetrics = <DevIntelMetricSpec>[
   DevIntelMetricSpec(
-    title: 'Trending Repos',
+    titleKey: 'devintel.metric.trendingRepos',
     value: '128',
     delta: '+18.7%',
     icon: Icons.show_chart_rounded,
     color: AppColors.info,
   ),
   DevIntelMetricSpec(
-    title: 'New Stars (24h)',
+    titleKey: 'devintel.metric.newStars24h',
     value: '42.8K',
     delta: '+24.3%',
     icon: Icons.star_rounded,
     color: AppColors.warning,
   ),
   DevIntelMetricSpec(
-    title: 'Active Projects',
+    titleKey: 'devintel.metric.activeProjects',
     value: '36',
     delta: '+5%',
     icon: Icons.rocket_launch_rounded,
     color: Color(0xFF8B73E5),
   ),
   DevIntelMetricSpec(
-    title: 'Starred Repos',
+    titleKey: 'devintel.metric.starredRepos',
     value: '12',
     delta: '+2%',
     icon: Icons.bookmark_rounded,
@@ -116,7 +119,7 @@ const List<DevIntelRepoRow> kDevIntelRepoRows = <DevIntelRepoRow>[
   DevIntelRepoRow(
     rank: '01',
     name: 'shadcn-ui/ui',
-    category: 'UI LIBRARY',
+    categoryKey: 'devintel.cat.uiLibrary',
     lang: 'TypeScript',
     newStars: '+1,204',
     total: '84.2K',
@@ -125,7 +128,7 @@ const List<DevIntelRepoRow> kDevIntelRepoRows = <DevIntelRepoRow>[
   DevIntelRepoRow(
     rank: '02',
     name: 'langchain-ai/langchain',
-    category: 'AI AGENT',
+    categoryKey: 'devintel.cat.aiAgent',
     lang: 'Python',
     newStars: '+892',
     total: '102K',
@@ -134,7 +137,7 @@ const List<DevIntelRepoRow> kDevIntelRepoRows = <DevIntelRepoRow>[
   DevIntelRepoRow(
     rank: '03',
     name: 'tokio-rs/tokio',
-    category: 'SYSTEMS',
+    categoryKey: 'devintel.cat.systems',
     lang: 'Rust',
     newStars: '+456',
     total: '27.4K',
@@ -143,7 +146,7 @@ const List<DevIntelRepoRow> kDevIntelRepoRows = <DevIntelRepoRow>[
   DevIntelRepoRow(
     rank: '04',
     name: 'fabric/fabric.js',
-    category: 'CANVAS',
+    categoryKey: 'devintel.cat.canvas',
     lang: 'TypeScript',
     newStars: '+234',
     total: '30.1K',
@@ -154,29 +157,29 @@ const List<DevIntelRepoRow> kDevIntelRepoRows = <DevIntelRepoRow>[
 const List<DevIntelHotspot> kDevIntelHotspots = <DevIntelHotspot>[
   DevIntelHotspot(
     abbr: 'AI',
-    name: 'Generative Models',
-    tag: 'HOT',
+    nameKey: 'devintel.hot.ai.name',
+    tagKey: 'devintel.hot.ai.tag',
     color: AppColors.success,
     progress: 0.92,
   ),
   DevIntelHotspot(
     abbr: 'RST',
-    name: 'Rust Ecosystem',
-    tag: 'STABLE',
+    nameKey: 'devintel.hot.rust.name',
+    tagKey: 'devintel.hot.stable.tag',
     color: AppColors.warning,
     progress: 0.68,
   ),
   DevIntelHotspot(
     abbr: 'WEB',
-    name: 'Edge Computing',
-    tag: 'TRENDING',
+    nameKey: 'devintel.hot.web.name',
+    tagKey: 'devintel.hot.trending.tag',
     color: AppColors.info,
     progress: 0.45,
   ),
   DevIntelHotspot(
     abbr: 'AGN',
-    name: 'Agent Frameworks',
-    tag: 'TRENDING',
+    nameKey: 'devintel.hot.agent.name',
+    tagKey: 'devintel.hot.trending.tag',
     color: Color(0xFFA78BFA),
     progress: 0.78,
   ),
@@ -184,20 +187,18 @@ const List<DevIntelHotspot> kDevIntelHotspots = <DevIntelHotspot>[
 
 const List<DevIntelSignal> kDevIntelSignals = <DevIntelSignal>[
   DevIntelSignal(
-    title: 'Massive migration detected to Bun 1.0 runtime',
-    body:
-        'Bun adoption accelerates as Node.js alternatives gain traction across the ecosystem.',
+    titleKey: 'devintel.signal.1.title',
+    bodyKey: 'devintel.signal.1.body',
     dotColor: AppColors.success,
   ),
   DevIntelSignal(
-    title: 'Potential security vulnerability in npm/event-stream',
-    body: 'Low severity advisory published — review before next deploy.',
+    titleKey: 'devintel.signal.2.title',
+    bodyKey: 'devintel.signal.2.body',
     dotColor: AppColors.danger,
   ),
   DevIntelSignal(
-    title: 'OpenAI DevDay repositories surging',
-    body:
-        'Multiple trending repos correlate with DevDay announcements and SDK releases.',
+    titleKey: 'devintel.signal.3.title',
+    bodyKey: 'devintel.signal.3.body',
     dotColor: AppColors.info,
   ),
 ];
@@ -205,41 +206,42 @@ const List<DevIntelSignal> kDevIntelSignals = <DevIntelSignal>[
 const List<DevIntelMonitoring> kDevIntelMonitoring = <DevIntelMonitoring>[
   DevIntelMonitoring(
     name: 'typescript-eslint',
-    statusLabel: 'Syncing',
+    statusKey: 'devintel.status.syncing',
     statusColor: AppColors.info,
   ),
   DevIntelMonitoring(
     name: 'react-query',
-    statusLabel: 'Stable',
+    statusKey: 'devintel.status.stable',
     statusColor: AppColors.success,
   ),
   DevIntelMonitoring(
     name: 'next.js',
-    statusLabel: 'High Latency',
+    statusKey: 'devintel.status.highLatency',
     statusColor: AppColors.warning,
   ),
   DevIntelMonitoring(
     name: 'tailwindcss',
-    statusLabel: 'Scheduled',
+    statusKey: 'devintel.status.scheduled',
     statusColor: Color(0xFF71717A),
     note: '(12m)',
   ),
 ];
 
+/// X 轴标签(按数据点 index 取值),通过 i18n 解析。
 const List<String> kDevIntelXLabels = <String>[
-  'OCT 1',
+  'devintel.chart.month1',
   '',
-  'OCT 8',
+  'devintel.chart.month8',
   '',
-  'OCT 15',
+  'devintel.chart.month15',
   '',
-  'OCT 22',
+  'devintel.chart.month22',
   '',
-  'OCT 29',
+  'devintel.chart.month29',
   '',
   '',
   '',
-  'TODAY',
+  'devintel.chart.today',
 ];
 
 const List<double> kDevIntelChartValues7 = <double>[

@@ -1,8 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
-
 /// 折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。
 class StarTrendChart extends StatelessWidget {
   const StarTrendChart({
@@ -151,6 +149,7 @@ class MiniBars extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final maxV = values.isEmpty ? 1.0 : values.reduce((a, b) => a > b ? a : b);
+    final color = Theme.of(context).colorScheme.primary;
     return SizedBox(
       height: height,
       child: Row(
@@ -165,7 +164,7 @@ class MiniBars extends StatelessWidget {
                   widthFactor: 1,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: AppColors.brand.withValues(alpha: 0.6),
+                      color: color.withValues(alpha: 0.6),
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(2),
                       ),
@@ -184,23 +183,24 @@ class MiniBars extends StatelessWidget {
 class Sparkline extends StatelessWidget {
   const Sparkline({
     required this.values,
-    this.color = AppColors.success,
+    this.color,
     this.width = 64,
     this.height = 20,
     super.key,
   });
 
   final List<double> values;
-  final Color color;
+  final Color? color;
   final double width;
   final double height;
 
   @override
   Widget build(BuildContext context) {
+    final resolved = color ?? Theme.of(context).colorScheme.tertiary;
     if (values.isEmpty) return SizedBox(width: width, height: height);
     return CustomPaint(
       size: Size(width, height),
-      painter: _SparklinePainter(values: values, color: color),
+      painter: _SparklinePainter(values: values, color: resolved),
     );
   }
 }

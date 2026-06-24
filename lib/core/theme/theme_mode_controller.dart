@@ -25,6 +25,7 @@ class ThemeModeController extends Notifier<ThemeMode> {
   }
 
   Future<void> setMode(ThemeMode mode) async {
+    if (state == mode) return;
     state = mode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kKey, mode.name);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/platform/window_service.dart';
 import '../../core/theme/app_spacing.dart';
 import 'app_logo.dart';
@@ -68,7 +69,7 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
             const LogoMark(size: 18),
             const SizedBox(width: AppSpacing.sm),
             Text(
-              'GitHub情报站',
+              context.t.t('nav.brand'),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -77,19 +78,21 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
             _WindowButton(
               icon: Icons.remove_rounded,
               onPressed: _onMinimize,
-              tooltip: '最小化',
+              tooltip: context.t.t('app.minimize'),
             ),
             _WindowButton(
               icon: _isMaximized
                   ? Icons.filter_drama_rounded
                   : Icons.crop_square_rounded,
               onPressed: _onToggleMaximize,
-              tooltip: _isMaximized ? '还原' : '最大化',
+              tooltip: _isMaximized
+                  ? context.t.t('app.restore')
+                  : context.t.t('app.maximize'),
             ),
             _WindowButton(
               icon: Icons.close_rounded,
               onPressed: _onClose,
-              tooltip: '关闭',
+              tooltip: context.t.t('app.close'),
               isClose: true,
             ),
           ],
@@ -123,10 +126,10 @@ class _WindowButtonState extends State<_WindowButton> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hoverColor = widget.isClose
-        ? const Color(0xFFE81123)
+        ? theme.colorScheme.error
         : theme.colorScheme.onSurface.withValues(alpha: 0.08);
     final iconColor = widget.isClose && _hover
-        ? Colors.white
+        ? theme.colorScheme.onError
         : theme.colorScheme.onSurface.withValues(alpha: 0.8);
 
     return MouseRegion(

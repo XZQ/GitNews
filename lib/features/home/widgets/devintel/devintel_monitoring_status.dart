@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import 'devintel_demo.dart';
@@ -10,28 +11,30 @@ class DevIntelMonitoringStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161B),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A2A30)),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Repository Monitoring Status',
+          Text(
+            t.t('devintel.monitoringTitle'),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: colors.onSurface,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < kDevIntelMonitoring.length; i++) ...[
-            _StatusTile(item: kDevIntelMonitoring[i]),
+            _StatusTile(item: kDevIntelMonitoring[i], t: t),
             if (i != kDevIntelMonitoring.length - 1)
               const SizedBox(height: AppSpacing.md),
           ],
@@ -44,12 +47,14 @@ class DevIntelMonitoringStatus extends StatelessWidget {
 }
 
 class _StatusTile extends StatelessWidget {
-  const _StatusTile({required this.item});
+  const _StatusTile({required this.item, required this.t});
 
   final DevIntelMonitoring item;
+  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
@@ -64,10 +69,10 @@ class _StatusTile extends StatelessWidget {
         Expanded(
           child: Text(
             item.name,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: colors.onSurface,
             ),
           ),
         ),
@@ -78,7 +83,7 @@ class _StatusTile extends StatelessWidget {
             borderRadius: BorderRadius.circular(6),
           ),
           child: Text(
-            item.statusLabel,
+            t.t(item.statusKey),
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -90,9 +95,9 @@ class _StatusTile extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             item.note!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 11,
-              color: AppColors.textMutedDark,
+              color: colors.onSurfaceVariant,
             ),
           ),
         ],
@@ -106,6 +111,7 @@ class _ConfigureButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
@@ -120,9 +126,9 @@ class _ConfigureButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
         ),
-        child: const Text(
-          'CONFIGURE WATCHLIST',
-          style: TextStyle(
+        child: Text(
+          t.t('devintel.configureWatchlist'),
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,

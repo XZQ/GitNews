@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import 'devintel_demo.dart';
@@ -10,32 +11,34 @@ class DevIntelRepoTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161B),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A2A30)),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            "Today's Hot Repositories",
+          Text(
+            t.t('devintel.repoTableTitle'),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: colors.onSurface,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          const _HeaderRow(),
+          _HeaderRow(t: t),
           const SizedBox(height: AppSpacing.sm),
-          const Divider(color: Color(0xFF2A2A30), height: 1),
+          Divider(color: colors.outlineVariant, height: 1),
           for (var i = 0; i < kDevIntelRepoRows.length; i++) ...[
-            if (i != 0) const Divider(color: Color(0xFF1F1F25), height: 1),
-            _RepoRowTile(row: kDevIntelRepoRows[i]),
+            if (i != 0) Divider(color: colors.outlineVariant, height: 1),
+            _RepoRowTile(row: kDevIntelRepoRows[i], t: t),
           ],
         ],
       ),
@@ -44,48 +47,52 @@ class DevIntelRepoTable extends StatelessWidget {
 }
 
 class _HeaderRow extends StatelessWidget {
-  const _HeaderRow();
+  const _HeaderRow({required this.t});
+
+  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
-    const style = TextStyle(
+    final colors = Theme.of(context).colorScheme;
+    final style = TextStyle(
       fontSize: 10,
       fontWeight: FontWeight.w600,
-      color: AppColors.textMutedDark,
+      color: colors.onSurfaceVariant,
       letterSpacing: 0.6,
     );
     return Row(
       children: [
-        const SizedBox(width: 32, child: Text('RANK', style: style)),
+        SizedBox(
+            width: 32, child: Text(t.t('devintel.col.rank'), style: style)),
         const SizedBox(width: 12),
-        const Expanded(
+        Expanded(
           flex: 5,
-          child: Text('REPOSITORY', style: style),
+          child: Text(t.t('devintel.col.repository'), style: style),
         ),
-        const SizedBox(
+        SizedBox(
           width: 100,
-          child: Text('CATEGORY', style: style),
+          child: Text(t.t('devintel.col.category'), style: style),
         ),
-        const SizedBox(
+        SizedBox(
           width: 80,
           child: Text(
-            'LANG',
+            t.t('devintel.col.lang'),
             textAlign: TextAlign.right,
             style: style,
           ),
         ),
-        const SizedBox(
+        SizedBox(
           width: 90,
           child: Text(
-            'NEW STARS',
+            t.t('devintel.col.newStars'),
             textAlign: TextAlign.right,
             style: style,
           ),
         ),
-        const SizedBox(
+        SizedBox(
           width: 70,
           child: Text(
-            'TOTAL',
+            t.t('devintel.col.total'),
             textAlign: TextAlign.right,
             style: style,
           ),
@@ -96,12 +103,14 @@ class _HeaderRow extends StatelessWidget {
 }
 
 class _RepoRowTile extends StatelessWidget {
-  const _RepoRowTile({required this.row});
+  const _RepoRowTile({required this.row, required this.t});
 
   final DevIntelRepoRow row;
+  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () => context.go(
         '/repo_detail/${Uri.encodeComponent(row.name)}',
@@ -135,26 +144,27 @@ class _RepoRowTile extends StatelessWidget {
               flex: 5,
               child: Text(
                 row.name,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: colors.onSurface,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
             ),
             SizedBox(
               width: 100,
-              child: _CategoryBadge(text: row.category, color: row.color),
+              child:
+                  _CategoryBadge(text: t.t(row.categoryKey), color: row.color),
             ),
             SizedBox(
               width: 80,
               child: Text(
                 row.lang,
                 textAlign: TextAlign.right,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondaryDark,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
             ),
@@ -175,9 +185,9 @@ class _RepoRowTile extends StatelessWidget {
               child: Text(
                 row.total,
                 textAlign: TextAlign.right,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondaryDark,
+                  color: colors.onSurfaceVariant,
                 ),
                 overflow: TextOverflow.fade,
                 softWrap: false,

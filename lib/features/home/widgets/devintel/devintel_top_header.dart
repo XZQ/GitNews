@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
@@ -9,53 +10,55 @@ class DevIntelTopHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     return SizedBox(
       height: 64,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-        decoration: const BoxDecoration(
-          color: Color(0xFF0F0F12),
+        decoration: BoxDecoration(
+          color: colors.surface,
           border: Border(
-            bottom: BorderSide(color: Color(0xFF2A2A30), width: 1),
+            bottom: BorderSide(color: colors.outlineVariant, width: 1),
           ),
         ),
         child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Developer Intelligence',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    height: 1.0,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    t.t('devintel.title'),
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: colors.onSurface,
+                      height: 1.0,
+                    ),
                   ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Real-time ecosystem insights',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.textMutedDark,
+                  const SizedBox(height: 4),
+                  Text(
+                    t.t('devintel.subtitle'),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const _SearchField(),
-          const SizedBox(width: 12),
-          const _BellWithDot(),
-          const SizedBox(width: 12),
-          const _LiveSyncBadge(),
-        ],
+            const _SearchField(),
+            const SizedBox(width: 12),
+            const _BellWithDot(),
+            const SizedBox(width: 12),
+            const _LiveSyncBadge(),
+          ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -65,6 +68,8 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     return SizedBox(
       width: 320,
       height: 38,
@@ -74,22 +79,22 @@ class _SearchField extends StatelessWidget {
           context.go('/trending/repos');
         },
         textInputAction: TextInputAction.search,
-        style: const TextStyle(fontSize: 13, color: Colors.white),
+        style: TextStyle(fontSize: 13, color: colors.onSurface),
         decoration: InputDecoration(
-          prefixIcon: const Icon(
+          prefixIcon: Icon(
             Icons.search_rounded,
             size: 18,
-            color: AppColors.textMutedDark,
+            color: colors.onSurfaceVariant,
           ),
-          hintText: 'Search repos, tags...',
-          hintStyle: const TextStyle(
+          hintText: t.t('devintel.searchHint'),
+          hintStyle: TextStyle(
             fontSize: 13,
-            color: AppColors.textMutedDark,
+            color: colors.onSurfaceVariant,
           ),
           isDense: true,
           contentPadding: const EdgeInsets.symmetric(horizontal: 12),
           filled: true,
-          fillColor: const Color(0xFF16161B),
+          fillColor: colors.surfaceContainerHighest,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
@@ -100,7 +105,7 @@ class _SearchField extends StatelessWidget {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: AppColors.success, width: 1.4),
+            borderSide: BorderSide(color: colors.primary, width: 1.4),
           ),
         ),
       ),
@@ -113,6 +118,7 @@ class _BellWithDot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -122,11 +128,11 @@ class _BellWithDot extends StatelessWidget {
           height: 38,
           child: Stack(
             children: [
-              const Center(
+              Center(
                 child: Icon(
                   Icons.notifications_none_rounded,
                   size: 20,
-                  color: AppColors.textSecondaryDark,
+                  color: colors.onSurfaceVariant,
                 ),
               ),
               Positioned(
@@ -154,6 +160,7 @@ class _LiveSyncBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -165,12 +172,12 @@ class _LiveSyncBadge extends StatelessWidget {
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: const [
-          _LivePulseDot(),
-          SizedBox(width: 6),
+        children: [
+          const _LivePulseDot(),
+          const SizedBox(width: 6),
           Text(
-            'Live Sync',
-            style: TextStyle(
+            t.t('devintel.liveSync'),
+            style: const TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
               color: AppColors.success,

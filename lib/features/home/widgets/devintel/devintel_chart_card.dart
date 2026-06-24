@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/star_trend_chart.dart';
@@ -17,6 +18,8 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     final values =
         _window == 7 ? kDevIntelChartValues7 : kDevIntelChartValues30;
     final series = <ChartSeries>[
@@ -29,12 +32,14 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
         color: AppColors.success,
       ),
     ];
+    final labels =
+        kDevIntelXLabels.map((key) => key.isEmpty ? '' : t.t(key)).toList();
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161B),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A2A30)),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -42,24 +47,24 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Star Growth Trends',
+                      t.t('devintel.chartTitle'),
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: colors.onSurface,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    const SizedBox(height: 2),
                     Text(
-                      'Aggregated growth across monitored repositories',
+                      t.t('devintel.chartSubtitle'),
                       style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textMutedDark,
+                        color: colors.onSurfaceVariant,
                       ),
                     ),
                   ],
@@ -76,7 +81,7 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
             height: 240,
             child: StarTrendChart(
               series: series,
-              xLabels: kDevIntelXLabels,
+              xLabels: labels,
               height: 240,
             ),
           ),
@@ -94,10 +99,12 @@ class _WindowSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     return SegmentedButton<int>(
-      segments: const [
-        ButtonSegment(value: 7, label: Text('7 Days')),
-        ButtonSegment(value: 30, label: Text('30 Days')),
+      segments: [
+        ButtonSegment(value: 7, label: Text(t.t('devintel.window7d'))),
+        ButtonSegment(value: 30, label: Text(t.t('devintel.window30d'))),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
@@ -106,12 +113,12 @@ class _WindowSegment extends StatelessWidget {
         backgroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
               ? AppColors.success
-              : const Color(0xFF1F1F25),
+              : colors.surfaceContainerHighest,
         ),
         foregroundColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
               ? Colors.white
-              : AppColors.textSecondaryDark,
+              : colors.onSurfaceVariant,
         ),
         side: WidgetStateProperty.all(BorderSide.none),
         textStyle: WidgetStateProperty.all(

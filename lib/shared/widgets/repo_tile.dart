@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/demo_data.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import 'star_trend_chart.dart';
@@ -76,10 +75,10 @@ class RepoTile extends StatelessWidget {
                     children: [
                       _Pill(text: repo.language, color: Color(repo.color)),
                       const SizedBox(width: 8),
-                      const Icon(
+                      Icon(
                         Icons.star_rounded,
                         size: 12,
-                        color: AppColors.starGold,
+                        color: colors.tertiary,
                       ),
                       const SizedBox(width: 2),
                       Text(
@@ -92,7 +91,7 @@ class RepoTile extends StatelessWidget {
                       Text(
                         '+${_shortNumber(repo.starDelta)}',
                         style: AppTypography.labelSmall.copyWith(
-                          color: AppColors.success,
+                          color: colors.tertiary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -105,7 +104,7 @@ class RepoTile extends StatelessWidget {
               const SizedBox(width: AppSpacing.md),
               Sparkline(
                 values: trend,
-                color: AppColors.success,
+                color: colors.tertiary,
                 width: 64,
                 height: 28,
               ),

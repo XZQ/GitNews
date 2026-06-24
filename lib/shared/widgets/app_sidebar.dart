@@ -2,17 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/theme/theme_mode_controller.dart';
 import 'app_logo.dart';
+
+/// 桌面侧栏宽度(用户可拖动,默认 240,范围 200–800)。
+final sidebarWidthProvider = StateProvider<double>((ref) => 240);
+
+const double kSidebarMinWidth = 200;
+const double kSidebarMaxWidth = 800;
 
 /// 桌面侧边栏:
 /// - 顶部:品牌标识
 /// - 中部:Tab 列表(整条 hover 高亮、selected 强调色)
-/// - 底部:主题切换 + 我的 / 登录
+/// - 底部:头像 + 设置 图标按钮
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({
     required this.currentIndex,
@@ -26,38 +32,41 @@ class AppSidebar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
+    final width = ref.watch(sidebarWidthProvider);
     return Material(
       color: colors.surface,
-      child: Container(
-        width: 240,
-        decoration: BoxDecoration(
-          border: Border(
-            right: BorderSide(color: colors.outlineVariant, width: 1),
-          ),
-        ),
-        child: Column(
-          children: [
-            const _SidebarHeader(),
-            const SizedBox(height: AppSpacing.md),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                children: [
-                  for (var i = 0; i < appTabs.length; i++)
-                    _SidebarItem(
-                      tab: appTabs[i],
-                      selected: i == currentIndex,
-                      onTap: () => onTap(i),
-                    ),
-                ],
-              ),
+      child: SizedBox(
+        width: width,
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border(
+              right: BorderSide(color: colors.outlineVariant, width: 1),
             ),
-            const Divider(height: 1),
-            _SidebarFooter(currentIndex: currentIndex),
-          ],
+          ),
+          child: Column(
+            children: [
+              const _SidebarHeader(),
+              const SizedBox(height: AppSpacing.md),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
+                  children: [
+                    for (var i = 0; i < appTabs.length; i++)
+                      _SidebarItem(
+                        tab: appTabs[i],
+                        selected: i == currentIndex,
+                        onTap: () => onTap(i),
+                      ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              const _SidebarFooter(),
+            ],
+          ),
         ),
       ),
     );
@@ -77,13 +86,13 @@ class _SidebarHeader extends StatelessWidget {
         AppSpacing.sm,
       ),
       child: Row(
-        children: const [
-          LogoMark(size: 32),
-          SizedBox(width: 10),
+        children: [
+          const LogoMark(size: 32),
+          const SizedBox(width: 10),
           Flexible(
             child: Text(
-              'GitHub情报站',
-              style: TextStyle(
+              context.t.t('nav.brand'),
+              style: const TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.2,
@@ -160,7 +169,7 @@ class _SidebarItemState extends State<_SidebarItem> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      widget.tab.label,
+                      context.t.t(widget.tab.labelKey),
                       style: AppTypography.titleSmall.copyWith(
                         color: fgStrong,
                         fontWeight:
@@ -188,14 +197,11 @@ class _SidebarItemState extends State<_SidebarItem> {
 }
 
 class _SidebarFooter extends ConsumerWidget {
-  const _SidebarFooter({required this.currentIndex});
-
-  final int currentIndex;
+  const _SidebarFooter();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final mode = ref.watch(themeModeControllerProvider);
-    final isDark = mode == ThemeMode.dark;
+    final t = context.t;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -203,19 +209,18 @@ class _SidebarFooter extends ConsumerWidget {
         AppSpacing.md,
         AppSpacing.lg,
       ),
-      child: Column(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _FooterButton(
-            icon: isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            label: isDark ? '切换到浅色' : '切换到深色',
-            onTap: () =>
-                ref.read(themeModeControllerProvider.notifier).toggle(),
+          _FooterIconButton(
+            icon: Icons.account_circle_rounded,
+            tooltip: t.t('nav.profileCta'),
+            onTap: () => context.go('/profile'),
+            avatar: true,
           ),
-          const SizedBox(height: 6),
-          _FooterButton(
-            icon: appTabs[currentIndex].selectedIcon,
-            label: '登录 / 我的',
-            highlighted: true,
+          _FooterIconButton(
+            icon: Icons.settings_outlined,
+            tooltip: t.t('app.settings'),
             onTap: () => context.go('/profile'),
           ),
         ],
@@ -224,82 +229,68 @@ class _SidebarFooter extends ConsumerWidget {
   }
 }
 
-class _FooterButton extends StatefulWidget {
-  const _FooterButton({
+class _FooterIconButton extends StatefulWidget {
+  const _FooterIconButton({
     required this.icon,
-    required this.label,
+    required this.tooltip,
     required this.onTap,
-    this.highlighted = false,
+    this.avatar = false,
   });
 
   final IconData icon;
-  final String label;
+  final String tooltip;
   final VoidCallback onTap;
-  final bool highlighted;
+  final bool avatar;
 
   @override
-  State<_FooterButton> createState() => _FooterButtonState();
+  State<_FooterIconButton> createState() => _FooterIconButtonState();
 }
 
-class _FooterButtonState extends State<_FooterButton> {
+class _FooterIconButtonState extends State<_FooterIconButton> {
   bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final baseBg = widget.highlighted
-        ? colors.primary.withValues(alpha: 0.10)
-        : colors.surfaceContainerHighest;
-    final hoverBg = widget.highlighted
-        ? colors.primary.withValues(alpha: 0.18)
-        : colors.surfaceContainerHigh;
-    final fg = widget.highlighted ? colors.primary : colors.onSurfaceVariant;
+    final bg =
+        _hovered ? colors.primary.withValues(alpha: 0.16) : Colors.transparent;
+    final fg = _hovered ? colors.primary : colors.onSurfaceVariant;
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: widget.onTap,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: 10,
-            ),
-            decoration: BoxDecoration(
-              color: _hovered ? hoverBg : baseBg,
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border.all(
-                color: widget.highlighted
-                    ? colors.primary.withValues(alpha: 0.30)
-                    : Colors.transparent,
+      child: Tooltip(
+        message: widget.tooltip,
+        waitDuration: const Duration(milliseconds: 400),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: widget.onTap,
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 140),
+              width: widget.avatar ? 40 : 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: widget.avatar
+                    ? (_hovered
+                        ? colors.primaryContainer
+                        : colors.surfaceContainerHighest)
+                    : bg,
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                gradient: widget.avatar && !_hovered
+                    ? LinearGradient(
+                        colors: [colors.primaryContainer, colors.primary],
+                      )
+                    : null,
               ),
-            ),
-            child: Row(
-              children: [
-                Icon(widget.icon, size: 18, color: fg),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    widget.label,
-                    style: AppTypography.labelLarge.copyWith(
-                      color: widget.highlighted
-                          ? colors.primary
-                          : colors.onSurface,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  size: 16,
-                  color: fg,
-                ),
-              ],
+              alignment: Alignment.center,
+              child: Icon(
+                widget.icon,
+                size: widget.avatar ? 22 : 20,
+                color: widget.avatar && !_hovered ? colors.onPrimary : fg,
+              ),
             ),
           ),
         ),

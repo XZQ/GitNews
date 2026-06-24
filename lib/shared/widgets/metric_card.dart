@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
@@ -32,6 +31,7 @@ class MetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
+    final deltaColor = deltaPositive ? colors.tertiary : colors.error;
     return Card(
       child: InkWell(
         onTap: onTap,
@@ -87,16 +87,13 @@ class MetricCard extends StatelessWidget {
                           ? Icons.arrow_upward_rounded
                           : Icons.arrow_downward_rounded,
                       size: 12,
-                      color:
-                          deltaPositive ? AppColors.success : AppColors.danger,
+                      color: deltaColor,
                     ),
                     const SizedBox(width: 2),
                     Text(
                       delta!,
                       style: AppTypography.labelSmall.copyWith(
-                        color: deltaPositive
-                            ? AppColors.success
-                            : AppColors.danger,
+                        color: deltaColor,
                         fontWeight: FontWeight.w600,
                       ),
                     ),

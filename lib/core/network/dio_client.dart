@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 /// dio 客户端工厂:统一超时与拦截器链。
 ///
-/// 拦截器链:`LoggingInterceptor` → `RetryInterceptor` → 业务拦截器
+/// 拦截器链:`RetryInterceptor` → 业务拦截器
 /// - 5xx / 网络错误重试 2 次,指数退避(500ms / 1500ms)
 /// - 429 不重试,把 `Retry-After` 留给异常层处理
 class DioClient {
@@ -21,14 +21,15 @@ class DioClient {
         },
       ),
     );
-    dio.interceptors
-      ..add(_RetryInterceptor())
-      ..add(_LoggingInterceptor());
+    dio.interceptors.add(_RetryInterceptor(dio: dio));
     return dio;
   }
 }
 
 class _RetryInterceptor extends Interceptor {
+  const _RetryInterceptor({required this.dio});
+
+  final Dio dio;
   static const int maxRetries = 2;
   static const Duration baseDelay = Duration(milliseconds: 500);
 
@@ -47,7 +48,8 @@ class _RetryInterceptor extends Interceptor {
 
     final req = err.requestOptions..extra['retryAttempt'] = attempt + 1;
     try {
-      final dio = Dio(BaseOptions(baseUrl: req.baseUrl));
+      // Reuse the original dio instance so headers / timeouts / auth are
+      // preserved across retries.
       final response = await dio.fetch<dynamic>(req);
       return handler.resolve(response);
     } on DioException catch (e) {
@@ -70,23 +72,5 @@ class _RetryInterceptor extends Interceptor {
       case DioExceptionType.unknown:
         return false;
     }
-  }
-}
-
-/// 占位日志拦截器,生产可换 `package:logger` 或 `talker_dio_logger`。
-class _LoggingInterceptor extends Interceptor {
-  @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // ignore: avoid_print
-    print('[dio →] ${options.method} ${options.uri}');
-    handler.next(options);
-  }
-
-  @override
-  void onResponse(
-      Response<dynamic> response, ResponseInterceptorHandler handler) {
-    // ignore: avoid_print
-    print('[dio ←] ${response.statusCode} ${response.requestOptions.uri}');
-    handler.next(response);
   }
 }

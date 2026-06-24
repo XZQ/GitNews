@@ -34,8 +34,8 @@ class ResponsiveLayout extends StatelessWidget {
 class CenteredContent extends StatelessWidget {
   const CenteredContent({
     required this.child,
-    this.maxWidth = 1200,
-    this.padding = const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    this.maxWidth = 1680,
+    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
     super.key,
   });
 

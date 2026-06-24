@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -24,7 +25,7 @@ class MonitorDetailPage extends StatelessWidget {
     );
     return Scaffold(
       appBar: AppBar(
-        title: Text(repo.fullName),
+        title: Text(context.t.t('monitor.detail.appBar')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -57,12 +58,12 @@ class _Body extends StatelessWidget {
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
-                title: '实时趋势',
-                subtitle: '最近 24 小时 Star / Fork 变化',
+                title: context.t.t('monitor.detail.realtimeTitle'),
+                subtitle: context.t.t('monitor.detail.realtimeSubtitle'),
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             StarTrendChart(
@@ -70,7 +71,7 @@ class _Body extends StatelessWidget {
                 ChartSeries(
                   values:
                       DemoData.generateStarTrend(repo.starCount - 5000, 5000),
-                  color: AppColors.brand,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 ChartSeries(
                   values: DemoData.generateStarTrend(repo.forkCount, 800),
@@ -85,18 +86,19 @@ class _Body extends StatelessWidget {
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
-                title: '告警历史',
-                subtitle: '本仓库触发的所有告警',
+                title: context.t.t('monitor.detail.historyTitle'),
+                subtitle: context.t.t('monitor.detail.historySubtitle'),
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             for (final a in DemoData.alerts.take(5)) ...[
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(Icons.history_rounded, color: AppColors.brand),
+                leading: Icon(Icons.history_rounded,
+                    color: Theme.of(context).colorScheme.primary),
                 title: Text(a.repo, style: AppTypography.titleSmall),
                 subtitle: Text('${a.metric} · ${a.time}'),
                 trailing: Text(
