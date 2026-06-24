@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -16,7 +17,7 @@ class MonitorPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('监控')),
+      appBar: AppBar(title: Text(context.t.t('monitor.appBar'))),
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Desktop(),
@@ -81,21 +82,22 @@ class _StatusRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return Row(
       children: [
         Expanded(
           child: _StatusCard(
-            label: '监控仓库',
+            label: t.t('monitor.status.monitored'),
             value: '28',
             delta: '+4',
             icon: Icons.visibility_outlined,
-            color: AppColors.brand,
+            color: Theme.of(context).colorScheme.primary,
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatusCard(
-            label: '未读告警',
+            label: t.t('monitor.status.unread'),
             value: '4',
             delta: '-2',
             icon: Icons.error_outline,
@@ -105,7 +107,7 @@ class _StatusRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatusCard(
-            label: '今日触发',
+            label: t.t('monitor.status.todayTriggered'),
             value: '3',
             delta: '+1',
             icon: Icons.bolt_rounded,
@@ -115,7 +117,7 @@ class _StatusRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatusCard(
-            label: '告警总数',
+            label: t.t('monitor.status.totalAlerts'),
             value: '12',
             delta: '-5',
             icon: Icons.history_rounded,
@@ -189,6 +191,7 @@ class _MonitoredRepos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -201,8 +204,8 @@ class _MonitoredRepos extends StatelessWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: '我的监控仓库',
-              subtitle: '近 30 天 Star 增速与告警',
+              title: t.t('monitor.myMonitored'),
+              subtitle: t.t('monitor.myMonitoredSubtitle'),
             ),
           ),
           for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -222,6 +225,7 @@ class _MonitoredRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final t = context.t;
     return InkWell(
       onTap: () => context.go(
         '/repo_detail/${Uri.encodeComponent(repo.fullName)}',
@@ -289,7 +293,7 @@ class _MonitoredRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
-                '正常',
+                t.t('monitor.status.normal'),
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.success,
                   fontWeight: FontWeight.w600,
@@ -308,20 +312,21 @@ class _RecentAlerts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: '最近告警',
-              subtitle: '今日与昨日告警流',
+              title: t.t('monitor.recentAlerts'),
+              subtitle: t.t('monitor.recentAlertsSubtitle'),
             ),
           ),
           for (var i = 0; i < DemoData.alerts.length; i++) ...[
@@ -433,18 +438,23 @@ class _RulesCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rules = const [
-      ('Star 增速 ≥ 200/天', AppColors.success, true),
-      ('单日增长 ≥ 10%', AppColors.brand, true),
-      ('Fork 增速 ≥ 50/天', AppColors.info, false),
-      ('讨论热度 ≥ 5x', AppColors.warning, true),
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
+    final rules = <(String, Color, bool)>[
+      (t.t('monitor.rule.1'), AppColors.success, true),
+      (t.t('monitor.rule.2'), colors.primary, true),
+      (t.t('monitor.rule.3'), AppColors.info, false),
+      (t.t('monitor.rule.4'), AppColors.warning, true),
     ];
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          SectionHeader(title: '监控规则', subtitle: '3 enabled'),
-          SizedBox(height: AppSpacing.md),
+        children: [
+          SectionHeader(
+            title: t.t('monitor.rules'),
+            subtitle: '3 ${t.t('monitor.rules.enabledSuffix')}',
+          ),
+          const SizedBox(height: AppSpacing.md),
         ],
       ).copyChildren([
         for (final r in rules)
@@ -476,16 +486,20 @@ class _NotificationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          SectionHeader(title: '通知设置', subtitle: '推送渠道与频次'),
-          SizedBox(height: AppSpacing.md),
-          _NotifRow(label: '应用内通知', value: true),
-          _NotifRow(label: '邮件摘要', value: false),
-          _NotifRow(label: '每日报告', value: true),
-          _NotifRow(label: '周报推送', value: false),
+        children: [
+          SectionHeader(
+            title: t.t('monitor.notif'),
+            subtitle: t.t('monitor.notifSubtitle'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          _NotifRow(label: t.t('monitor.notifRow.1'), value: true),
+          _NotifRow(label: t.t('monitor.notifRow.2'), value: false),
+          _NotifRow(label: t.t('monitor.notifRow.3'), value: true),
+          _NotifRow(label: t.t('monitor.notifRow.4'), value: false),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -19,7 +20,7 @@ class ExplorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('探索'),
+        title: Text(context.t.t('project.explore.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -35,11 +36,32 @@ class ExplorePage extends StatelessWidget {
   }
 }
 
+class _TopicChipSpec {
+  const _TopicChipSpec({required this.labelKey, required this.color});
+  final String labelKey;
+  final Color color;
+}
+
 class _Body extends StatelessWidget {
   const _Body();
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final chips = <_TopicChipSpec>[
+      _TopicChipSpec(labelKey: 'project.topic.aiAgent', color: colors.primary),
+      _TopicChipSpec(labelKey: 'project.topic.llm', color: AppColors.info),
+      _TopicChipSpec(
+          labelKey: 'project.topic.devTools', color: AppColors.success),
+      _TopicChipSpec(labelKey: 'project.topic.rag', color: AppColors.warning),
+      _TopicChipSpec(labelKey: 'project.topic.web3', color: AppColors.danger),
+      _TopicChipSpec(
+          labelKey: 'project.topic.cloudNative', color: colors.primary),
+      _TopicChipSpec(
+          labelKey: 'project.topic.dataInfra', color: AppColors.info),
+      _TopicChipSpec(
+          labelKey: 'project.topic.security', color: AppColors.success),
+    ];
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -51,26 +73,23 @@ class _Body extends StatelessWidget {
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
-                title: '热门话题',
-                subtitle: '基于本周 Star 增速与讨论热度',
+                title: context.t.t('project.explore.hotTopicsTitle'),
+                subtitle: context.t.t('project.explore.hotTopicsSubtitle'),
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
-            const Wrap(
+            Wrap(
               spacing: 8,
               runSpacing: 8,
               children: [
-                _TopicChip(label: 'AI Agent', color: AppColors.brand),
-                _TopicChip(label: 'LLM', color: AppColors.info),
-                _TopicChip(label: 'DevTools', color: AppColors.success),
-                _TopicChip(label: 'RAG', color: AppColors.warning),
-                _TopicChip(label: 'Web3', color: AppColors.danger),
-                _TopicChip(label: 'Cloud Native', color: AppColors.brand),
-                _TopicChip(label: 'Data Infra', color: AppColors.info),
-                _TopicChip(label: 'Security', color: AppColors.success),
+                for (final c in chips)
+                  _TopicChip(
+                    label: context.t.t(c.labelKey),
+                    color: c.color,
+                  ),
               ],
             ),
           ]),
@@ -88,8 +107,10 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '推荐仓库',
-                  subtitle: '基于你的关注 · 共 ${DemoData.trending.length} 个',
+                  title: context.t.t('project.explore.recommendTitle'),
+                  subtitle: context.t.tr(
+                      'project.explore.recommendSubtitleFull',
+                      {'count': DemoData.trending.length}),
                 ),
               ),
               for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -108,12 +129,12 @@ class _Body extends StatelessWidget {
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
-                title: '可关注的开发者',
-                subtitle: '本周 Star 增长贡献 Top 5',
+                title: context.t.t('project.explore.developersTitle'),
+                subtitle: context.t.t('project.explore.developersSubtitle'),
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             for (final c in DemoData.contributors)
@@ -130,10 +151,13 @@ class _Body extends StatelessWidget {
                   ),
                 ),
                 title: Text(c.login, style: AppTypography.titleSmall),
-                subtitle: Text('+${c.contributions} 本周贡献'),
+                subtitle: Text(
+                  context.t.tr('developers.weeklyContribWithCount',
+                      {'count': c.contributions}),
+                ),
                 trailing: OutlinedButton(
                   onPressed: () {},
-                  child: const Text('关注'),
+                  child: Text(context.t.t('project.explore.follow')),
                 ),
               ),
           ]),

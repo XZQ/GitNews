@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import 'devintel_demo.dart';
 
@@ -9,28 +9,30 @@ class DevIntelSignalsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161B),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A2A30)),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            "Today's Developer Signals",
+          Text(
+            t.t('devintel.signalsTitle'),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: colors.onSurface,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < kDevIntelSignals.length; i++) ...[
-            _SignalTile(signal: kDevIntelSignals[i]),
+            _SignalTile(signal: kDevIntelSignals[i], t: t),
             if (i != kDevIntelSignals.length - 1) const SizedBox(height: 18),
           ],
         ],
@@ -40,12 +42,14 @@ class DevIntelSignalsList extends StatelessWidget {
 }
 
 class _SignalTile extends StatelessWidget {
-  const _SignalTile({required this.signal});
+  const _SignalTile({required this.signal, required this.t});
 
   final DevIntelSignal signal;
+  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -66,20 +70,20 @@ class _SignalTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                signal.title,
-                style: const TextStyle(
+                t.t(signal.titleKey),
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: Colors.white,
+                  color: colors.onSurface,
                   height: 1.4,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                signal.body,
-                style: const TextStyle(
+                t.t(signal.bodyKey),
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textMutedDark,
+                  color: colors.onSurfaceVariant,
                   height: 1.45,
                 ),
               ),

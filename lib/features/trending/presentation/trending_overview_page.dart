@@ -60,7 +60,7 @@ class _Body extends StatelessWidget {
                 series: [
                   ChartSeries(
                     values: DemoData.generateStarTrend(42000, 4200),
-                    color: AppColors.brand,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   ChartSeries(
                     values: DemoData.generateStarTrend(39500, 3100),
@@ -73,8 +73,10 @@ class _Body extends StatelessWidget {
               Wrap(
                 spacing: AppSpacing.sm,
                 runSpacing: AppSpacing.sm,
-                children: const [
-                  _LegendDot(color: AppColors.brand, label: '本周'),
+                children: [
+                  _LegendDot(
+                      color: Theme.of(context).colorScheme.primary,
+                      label: '本周'),
                   _LegendDot(color: AppColors.info, label: '上周'),
                 ],
               ),

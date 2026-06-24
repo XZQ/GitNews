@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/home/presentation/home_page.dart';
+import '../i18n/app_localizations.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
 import '../../features/monitor/presentation/monitor_detail_page.dart';
 import '../../features/monitor/presentation/monitor_page.dart';
@@ -27,39 +28,48 @@ import '../../shared/widgets/responsive_scaffold.dart';
 
 class TabSpec {
   const TabSpec({
-    required this.label,
+    required this.labelKey,
+    required this.pathSegment,
     required this.icon,
     required this.selectedIcon,
   });
 
-  final String label;
+  final String labelKey;
+
+  /// 路由路径段(无前导斜杠),用于把 location 解析回 tab index。
+  final String pathSegment;
   final IconData icon;
   final IconData selectedIcon;
 }
 
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
-    label: '首页',
+    labelKey: 'nav.home',
+    pathSegment: 'home',
     icon: Icons.dashboard_outlined,
     selectedIcon: Icons.dashboard_rounded,
   ),
   TabSpec(
-    label: '趋势',
+    labelKey: 'nav.trending',
+    pathSegment: 'trending',
     icon: Icons.trending_up_outlined,
     selectedIcon: Icons.trending_up_rounded,
   ),
   TabSpec(
-    label: '监控',
+    labelKey: 'nav.monitor',
+    pathSegment: 'monitor',
     icon: Icons.notifications_outlined,
     selectedIcon: Icons.notifications_rounded,
   ),
   TabSpec(
-    label: '报告',
+    labelKey: 'nav.reports',
+    pathSegment: 'project',
     icon: Icons.assessment_outlined,
     selectedIcon: Icons.assessment_rounded,
   ),
   TabSpec(
-    label: '我的',
+    labelKey: 'nav.profile',
+    pathSegment: 'profile',
     icon: Icons.person_outline,
     selectedIcon: Icons.person_rounded,
   ),
@@ -68,26 +78,9 @@ const List<TabSpec> appTabs = <TabSpec>[
 extension TabIndexLookup on List<TabSpec> {
   int indexOfLocation(String location) {
     for (var i = 0; i < length; i++) {
-      if (location.startsWith('/${_slug(i)}')) return i;
+      if (location.startsWith('/${this[i].pathSegment}')) return i;
     }
     return 0;
-  }
-
-  static String _slug(int i) {
-    switch (i) {
-      case 0:
-        return 'home';
-      case 1:
-        return 'trending';
-      case 2:
-        return 'monitor';
-      case 3:
-        return 'project';
-      case 4:
-        return 'profile';
-      default:
-        return 'home';
-    }
   }
 }
 
@@ -231,14 +224,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const LoginPage(),
       ),
     ],
-    errorBuilder: (_, state) => Scaffold(
-      appBar: AppBar(title: const Text('页面不存在')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text(
-            '未匹配的路径:${state.uri}',
-            style: const TextStyle(fontSize: 14),
+    errorBuilder: (_, state) => Builder(
+      builder: (context) => Scaffold(
+        appBar: AppBar(title: Text(context.t.t('app.notFoundTitle'))),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              '${context.t.t('app.notFoundBody')} ${state.uri}',
+              style: const TextStyle(fontSize: 14),
+            ),
           ),
         ),
       ),

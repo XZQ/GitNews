@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -17,7 +18,7 @@ class MonitorAlertsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('告警列表'),
+        title: Text(context.t.t('monitor.alertsAppBar')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -38,7 +39,7 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = [...DemoData.alerts, ...DemoData.alerts];
+    final items = DemoData.alerts;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -59,8 +60,9 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '所有告警',
-                  subtitle: '近 24 小时 · 共 ${items.length} 条',
+                  title: context.t.t('monitor.alertsTitle'),
+                  subtitle: context.t.tr(
+                      'monitor.alertsSubtitleFull', {'count': items.length}),
                 ),
               ),
               for (var i = 0; i < items.length; i++) ...[

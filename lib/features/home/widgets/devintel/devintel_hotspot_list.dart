@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import 'devintel_demo.dart';
 
@@ -9,36 +9,38 @@ class DevIntelHotspotList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
+    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF16161B),
+        color: colors.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF2A2A30)),
+        border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Text(
-            'Tech Hotspots',
+          Text(
+            t.t('devintel.hotspotTitle'),
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Colors.white,
+              color: colors.onSurface,
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Trending categories with momentum',
+          Text(
+            t.t('devintel.hotspotSubtitle'),
             style: TextStyle(
               fontSize: 12,
-              color: AppColors.textMutedDark,
+              color: colors.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < kDevIntelHotspots.length; i++) ...[
-            _HotspotTile(hotspot: kDevIntelHotspots[i]),
+            _HotspotTile(hotspot: kDevIntelHotspots[i], t: t),
             if (i != kDevIntelHotspots.length - 1)
               const SizedBox(height: AppSpacing.md),
           ],
@@ -49,12 +51,14 @@ class DevIntelHotspotList extends StatelessWidget {
 }
 
 class _HotspotTile extends StatelessWidget {
-  const _HotspotTile({required this.hotspot});
+  const _HotspotTile({required this.hotspot, required this.t});
 
   final DevIntelHotspot hotspot;
+  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -86,21 +90,26 @@ class _HotspotTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      hotspot.name.toUpperCase(),
-                      style: const TextStyle(
+                      t.t(hotspot.nameKey).toUpperCase(),
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white,
+                        color: colors.onSurface,
                         letterSpacing: 0.4,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  _HotspotBadge(tag: hotspot.tag, color: hotspot.color),
+                  _HotspotBadge(
+                      text: t.t(hotspot.tagKey), color: hotspot.color),
                 ],
               ),
               const SizedBox(height: 8),
-              _ProgressBar(value: hotspot.progress, color: hotspot.color),
+              _ProgressBar(
+                value: hotspot.progress,
+                color: hotspot.color,
+                track: colors.surfaceContainerHighest,
+              ),
             ],
           ),
         ),
@@ -110,9 +119,9 @@ class _HotspotTile extends StatelessWidget {
 }
 
 class _HotspotBadge extends StatelessWidget {
-  const _HotspotBadge({required this.tag, required this.color});
+  const _HotspotBadge({required this.text, required this.color});
 
-  final String tag;
+  final String text;
   final Color color;
 
   @override
@@ -124,7 +133,7 @@ class _HotspotBadge extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        tag,
+        text,
         style: TextStyle(
           fontSize: 9,
           fontWeight: FontWeight.w800,
@@ -137,10 +146,15 @@ class _HotspotBadge extends StatelessWidget {
 }
 
 class _ProgressBar extends StatelessWidget {
-  const _ProgressBar({required this.value, required this.color});
+  const _ProgressBar({
+    required this.value,
+    required this.color,
+    required this.track,
+  });
 
   final double value;
   final Color color;
+  final Color track;
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +162,7 @@ class _ProgressBar extends StatelessWidget {
       borderRadius: BorderRadius.circular(2),
       child: Stack(
         children: [
-          Container(height: 4, color: const Color(0xFF23232B)),
+          Container(height: 4, color: track),
           FractionallySizedBox(
             widthFactor: value.clamp(0.0, 1.0),
             child: Container(height: 4, color: color),

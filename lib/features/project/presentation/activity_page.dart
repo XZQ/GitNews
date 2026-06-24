@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -17,7 +18,7 @@ class ActivityPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('活动速览'),
+        title: Text(context.t.t('project.activity.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -33,53 +34,74 @@ class ActivityPage extends StatelessWidget {
   }
 }
 
+class _EventSpec {
+  const _EventSpec({
+    required this.repo,
+    required this.title,
+    required this.timeBuilder,
+    required this.icon,
+    required this.color,
+  });
+
+  final String repo;
+  final String title;
+  final String Function(BuildContext) timeBuilder;
+  final IconData icon;
+  final Color color;
+}
+
 class _Body extends StatelessWidget {
   const _Body();
 
   @override
   Widget build(BuildContext context) {
-    final events = const [
-      (
-        'openai/whisper',
-        'feat: support streaming response',
-        '4 小时前 · main',
-        Icons.commit,
-        AppColors.success
+    final colors = Theme.of(context).colorScheme;
+    final events = <_EventSpec>[
+      _EventSpec(
+        repo: 'openai/whisper',
+        title: 'feat: support streaming response',
+        timeBuilder: (_) => context.t
+            .tr('time.hoursAgoWithBranch', {'hours': 4, 'branch': 'main'}),
+        icon: Icons.commit,
+        color: AppColors.success,
       ),
-      (
-        'anthropics/claude-code',
-        'fix: cache invalidation race',
-        '6 小时前 · main',
-        Icons.bug_report_outlined,
-        AppColors.info
+      _EventSpec(
+        repo: 'anthropics/claude-code',
+        title: 'fix: cache invalidation race',
+        timeBuilder: (_) => context.t
+            .tr('time.hoursAgoWithBranch', {'hours': 6, 'branch': 'main'}),
+        icon: Icons.bug_report_outlined,
+        color: AppColors.info,
       ),
-      (
-        'denoland/deno',
-        'chore: bump dependencies',
-        '昨天 18:24 · main',
-        Icons.upgrade,
-        AppColors.warning
+      _EventSpec(
+        repo: 'denoland/deno',
+        title: 'chore: bump dependencies',
+        timeBuilder: (_) => context.t.tr(
+            'time.yesterdayWithBranch', {'time': '18:24', 'branch': 'main'}),
+        icon: Icons.upgrade,
+        color: AppColors.warning,
       ),
-      (
-        'mrdoob/three.js',
-        'release v0.42.1',
-        '3 天前',
-        Icons.local_fire_department,
-        AppColors.brand
+      _EventSpec(
+        repo: 'mrdoob/three.js',
+        title: 'release v0.42.1',
+        timeBuilder: (_) => context.t.tr('time.daysAgo', {'days': 3}),
+        icon: Icons.local_fire_department,
+        color: colors.primary,
       ),
-      (
-        'withastro/astro',
-        'docs: new tutorial',
-        '3 天前 · main',
-        Icons.description,
-        AppColors.info
+      _EventSpec(
+        repo: 'withastro/astro',
+        title: 'docs: new tutorial',
+        timeBuilder: (_) => context.t
+            .tr('time.daysAgoWithBranch', {'days': 3, 'branch': 'main'}),
+        icon: Icons.description,
+        color: AppColors.info,
       ),
-      (
-        'vitejs/vite',
-        'feat: optimize build pipeline',
-        '4 天前',
-        Icons.flash_on,
-        AppColors.success
+      _EventSpec(
+        repo: 'vitejs/vite',
+        title: 'feat: optimize build pipeline',
+        timeBuilder: (_) => context.t.tr('time.daysAgo', {'days': 4}),
+        icon: Icons.flash_on,
+        color: AppColors.success,
       ),
     ];
     return ListView(
@@ -94,26 +116,26 @@ class _Body extends StatelessWidget {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              const Padding(
-                padding: EdgeInsets.fromLTRB(
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
                   AppSpacing.lg,
                   AppSpacing.md,
                   AppSpacing.lg,
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '近 7 天活动',
-                  subtitle: '跨仓库的 Commit / Issue / Release',
+                  title: context.t.t('project.activity.recentTitle'),
+                  subtitle: context.t.t('project.activity.recentSubtitle'),
                 ),
               ),
               for (var i = 0; i < events.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
                 _EventTile(
-                  repo: events[i].$1,
-                  title: events[i].$2,
-                  time: events[i].$3,
-                  icon: events[i].$4,
-                  color: events[i].$5,
+                  repo: events[i].repo,
+                  title: events[i].title,
+                  time: events[i].timeBuilder(context),
+                  icon: events[i].icon,
+                  color: events[i].color,
                 ),
               ],
             ],
@@ -123,12 +145,12 @@ class _Body extends StatelessWidget {
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
-                title: '可能感兴趣的开发者',
-                subtitle: '近 7 天活跃',
+                title: context.t.t('project.activity.developersTitle'),
+                subtitle: context.t.t('project.activity.developersSubtitle'),
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             for (final c in DemoData.contributors)
@@ -145,7 +167,10 @@ class _Body extends StatelessWidget {
                   ),
                 ),
                 title: Text(c.login, style: AppTypography.titleSmall),
-                subtitle: Text('+${c.contributions} 本周贡献'),
+                subtitle: Text(
+                  context.t.tr('developers.weeklyContribWithCount',
+                      {'count': c.contributions}),
+                ),
               ),
           ]),
         ),

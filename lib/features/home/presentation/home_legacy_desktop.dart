@@ -62,7 +62,8 @@ class _MobileHeroState extends State<_MobileHero> {
 
   @override
   Widget build(BuildContext context) {
-    final series = _seriesForWindow(_window, _HomeTab.trending);
+    final series = _seriesForWindow(
+        _window, _HomeTab.trending, Theme.of(context).colorScheme.primary);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,6 +334,7 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -341,8 +343,8 @@ class _Avatar extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [AppColors.brand, AppColors.brandDark],
+            gradient: LinearGradient(
+              colors: [colors.primaryContainer, colors.primary],
             ),
             borderRadius: BorderRadius.circular(18),
           ),
@@ -506,7 +508,7 @@ class _OverviewMetricsRow extends StatelessWidget {
 
   final _HomeTab tab;
 
-  List<_MetricSpec> _specsFor(_HomeTab tab) {
+  List<_MetricSpec> _specsFor(_HomeTab tab, Color primary) {
     switch (tab) {
       case _HomeTab.trending:
         return const [
@@ -608,14 +610,14 @@ class _OverviewMetricsRow extends StatelessWidget {
           ),
         ];
       case _HomeTab.starred:
-        return const [
+        return [
           _MetricSpec(
             title: '收藏仓库',
             value: '24',
             delta: '+3',
             subtitle: '本周新增',
             icon: Icons.bookmark_rounded,
-            accent: AppColors.brand,
+            accent: primary,
           ),
           _MetricSpec(
             title: '收藏总 Star',
@@ -647,7 +649,7 @@ class _OverviewMetricsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMedium = Breakpoints.isMedium(context);
-    final specs = _specsFor(tab);
+    final specs = _specsFor(tab, Theme.of(context).colorScheme.primary);
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 200),
       child: GridView.count(
@@ -736,11 +738,12 @@ class _ChartCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final series = _seriesForWindow(window, tab);
+    final series =
+        _seriesForWindow(window, tab, Theme.of(context).colorScheme.primary);
     final windowLabel = _windowLabel(window);
     final title = _chartTitle(tab);
     final subtitle = _chartSubtitle(tab, windowLabel);
-    final legends = _chartLegends(tab);
+    final legends = _chartLegends(tab, Theme.of(context).colorScheme.primary);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -806,11 +809,11 @@ String _chartSubtitle(_HomeTab tab, String windowLabel) {
   }
 }
 
-List<_LegendItem> _chartLegends(_HomeTab tab) {
+List<_LegendItem> _chartLegends(_HomeTab tab, Color primary) {
   switch (tab) {
     case _HomeTab.trending:
-      return const [
-        _LegendItem(color: AppColors.brand, label: '本周'),
+      return [
+        _LegendItem(color: primary, label: '本周'),
         _LegendItem(color: AppColors.info, label: '上周'),
       ];
     case _HomeTab.growth:
@@ -819,8 +822,8 @@ List<_LegendItem> _chartLegends(_HomeTab tab) {
         _LegendItem(color: AppColors.warning, label: '基线'),
       ];
     case _HomeTab.health:
-      return const [
-        _LegendItem(color: AppColors.brand, label: '提交数'),
+      return [
+        _LegendItem(color: primary, label: '提交数'),
         _LegendItem(color: AppColors.success, label: '贡献者'),
       ];
     case _HomeTab.starred:
@@ -882,6 +885,7 @@ class _TodayStack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primary = Theme.of(context).colorScheme.primary;
     final cards = switch (tab) {
       _HomeTab.trending => const [
           _TodayCard(
@@ -909,7 +913,7 @@ class _TodayStack extends StatelessWidget {
             items: 4,
           ),
         ],
-      _HomeTab.growth => const [
+      _HomeTab.growth => [
           _TodayCard(
             icon: Icons.trending_up_rounded,
             iconColor: AppColors.success,
@@ -920,7 +924,7 @@ class _TodayStack extends StatelessWidget {
           ),
           _TodayCard(
             icon: Icons.show_chart_rounded,
-            iconColor: AppColors.brand,
+            iconColor: primary,
             label: '增长中仓库',
             value: '1,284',
             delta: '+96',
@@ -935,10 +939,10 @@ class _TodayStack extends StatelessWidget {
             items: 3,
           ),
         ],
-      _HomeTab.health => const [
+      _HomeTab.health => [
           _TodayCard(
             icon: Icons.people_rounded,
-            iconColor: AppColors.brand,
+            iconColor: primary,
             label: '活跃贡献者',
             value: '8.2K',
             delta: '+4.1%',
@@ -961,10 +965,10 @@ class _TodayStack extends StatelessWidget {
             items: 3,
           ),
         ],
-      _HomeTab.starred => const [
+      _HomeTab.starred => [
           _TodayCard(
             icon: Icons.bookmark_rounded,
-            iconColor: AppColors.brand,
+            iconColor: primary,
             label: '收藏仓库',
             value: '24',
             delta: '+3',
@@ -1563,7 +1567,7 @@ class _LangBar extends StatelessWidget {
   }
 }
 
-List<ChartSeries> _seriesForWindow(int days, _HomeTab tab) {
+List<ChartSeries> _seriesForWindow(int days, _HomeTab tab, Color primary) {
   final baseA = 38000 + days * 110;
   final deltaA = 3500 + days * 110;
   final baseB = 36000 + days * 95;
@@ -1573,7 +1577,7 @@ List<ChartSeries> _seriesForWindow(int days, _HomeTab tab) {
       return [
         ChartSeries(
           values: DemoData.generateStarTrend(baseA, deltaA, count: days),
-          color: AppColors.brand,
+          color: primary,
         ),
         ChartSeries(
           values: DemoData.generateStarTrend(baseB, deltaB, count: days),
@@ -1595,7 +1599,7 @@ List<ChartSeries> _seriesForWindow(int days, _HomeTab tab) {
       return [
         ChartSeries(
           values: DemoData.generateStarTrend(baseA, deltaA, count: days),
-          color: AppColors.brand,
+          color: primary,
         ),
         ChartSeries(
           values: DemoData.generateStarTrend(baseB, deltaB ~/ 2, count: days),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -12,9 +13,10 @@ class DeveloperOptionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('开发者选项'),
+        title: Text(t.t('developerOptions.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -35,32 +37,43 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      children: const [
+      children: [
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: 'API 调试', subtitle: '开发者工具'),
-              SizedBox(height: AppSpacing.md),
-              _Row(label: 'GitHub API 端点', value: 'api.github.com'),
-              _Row(label: '请求超时', value: '10s'),
-              _Row(label: '重试次数', value: '2'),
-              _Row(label: '当前主题', value: 'Light'),
+              SectionHeader(
+                title: t.t('developerOptions.apiTitle'),
+                subtitle: t.t('developerOptions.apiSubtitle'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _Row(
+                  label: t.t('developerOptions.apiRow1'),
+                  value: 'api.github.com'),
+              _Row(label: t.t('developerOptions.apiRow2'), value: '10s'),
+              _Row(label: t.t('developerOptions.apiRow3'), value: '2'),
+              _Row(
+                  label: t.t('developerOptions.apiRow4'),
+                  value: t.t('app.light')),
             ],
           ),
         ),
-        SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: '实验功能', subtitle: '可能不稳定'),
-              SizedBox(height: AppSpacing.md),
-              _Row(label: '新缓存策略', value: 'OFF'),
-              _Row(label: '实时趋势', value: 'OFF'),
-              _Row(label: 'AI 总结', value: 'BETA'),
+              SectionHeader(
+                title: t.t('developerOptions.expTitle'),
+                subtitle: t.t('developerOptions.expSubtitle'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _Row(label: t.t('developerOptions.expRow1'), value: 'OFF'),
+              _Row(label: t.t('developerOptions.expRow2'), value: 'OFF'),
+              _Row(label: t.t('developerOptions.expRow3'), value: 'BETA'),
             ],
           ),
         ),

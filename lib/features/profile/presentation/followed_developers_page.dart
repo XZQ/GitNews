@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -13,9 +14,10 @@ class FollowedDevelopersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('关注的开发者'),
+        title: Text(t.t('developers.title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -36,6 +38,7 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -51,8 +54,9 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '关注的开发者',
-                  subtitle: '共 ${DemoData.contributors.length} 位',
+                  title: t.t('developers.title'),
+                  subtitle:
+                      '${t.t('developers.subtitle')} ${DemoData.contributors.length}',
                 ),
               ),
               for (var i = 0; i < DemoData.contributors.length; i++) ...[
@@ -75,11 +79,12 @@ class _Body extends StatelessWidget {
                     DemoData.contributors[i].login,
                     style: AppTypography.titleSmall,
                   ),
-                  subtitle:
-                      Text('+${DemoData.contributors[i].contributions} this week'),
+                  subtitle: Text(
+                    '+${DemoData.contributors[i].contributions} ${t.t('developers.weeklyContrib')}',
+                  ),
                   trailing: OutlinedButton(
                     onPressed: () {},
-                    child: const Text('取消关注'),
+                    child: Text(t.t('developers.unfollow')),
                   ),
                 ),
               ],

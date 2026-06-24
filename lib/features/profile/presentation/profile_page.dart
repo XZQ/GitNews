@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
+import '../../../core/i18n/app_locale.dart';
+import '../../../core/i18n/locale_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_theme_preset.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/theme/theme_mode_controller.dart';
+import '../../../core/theme/theme_preset_controller.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
@@ -20,7 +25,7 @@ class ProfilePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(title: const Text('我的')),
+      appBar: AppBar(title: Text(context.t.t('profile.appBar'))),
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Mobile(),
@@ -32,20 +37,34 @@ class ProfilePage extends ConsumerWidget {
 
 /// 桌面端 master-detail 区段。
 enum _ProfileSection {
-  pro('Upgrade PRO', Icons.workspace_premium_outlined, AppColors.brand),
-  collect('Bookmarked Topics', Icons.bookmark_outline, AppColors.info),
-  developers('Followed Developers', Icons.people_outline, AppColors.success),
-  monitorTopics('Monitored Topics', Icons.visibility_outlined, AppColors.brand),
-  monitorRules('Monitor Rules', Icons.bolt_rounded, AppColors.warning),
-  data('Data & Cache', Icons.storage_outlined, AppColors.info),
-  settings('Preferences', Icons.tune, AppColors.brand),
-  about('About', Icons.info_outline, AppColors.textSecondaryLight);
+  pro('profile.section.pro', Icons.workspace_premium_outlined),
+  collect('profile.section.collect', Icons.bookmark_outline),
+  developers('profile.section.developers', Icons.people_outline),
+  monitorTopics('profile.section.monitorTopics', Icons.visibility_outlined),
+  monitorRules('profile.section.monitorRules', Icons.bolt_rounded),
+  data('profile.section.data', Icons.storage_outlined),
+  settings('profile.section.settings', Icons.tune),
+  about('profile.section.about', Icons.info_outline);
 
-  const _ProfileSection(this.label, this.icon, this.accent);
+  const _ProfileSection(this.labelKey, this.icon);
 
-  final String label;
+  final String labelKey;
   final IconData icon;
-  final Color accent;
+
+  /// 区段强调色:跟随当前主题色(主区段)或保留语义色(子区段)。
+  Color accentOf(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return switch (this) {
+      _ProfileSection.pro ||
+      _ProfileSection.monitorTopics ||
+      _ProfileSection.settings =>
+        colors.primary,
+      _ProfileSection.collect || _ProfileSection.data => AppColors.info,
+      _ProfileSection.developers => AppColors.success,
+      _ProfileSection.monitorRules => AppColors.warning,
+      _ProfileSection.about => colors.onSurfaceVariant,
+    };
+  }
 }
 
 /// 当前选中的桌面区段。NotFound → 默认 settings。
@@ -138,7 +157,10 @@ class _SectionList extends ConsumerWidget {
               AppSpacing.lg,
               AppSpacing.sm,
             ),
-            child: Text('设置', style: AppTypography.titleMedium),
+            child: Text(
+              context.t.t('profile.settings'),
+              style: AppTypography.titleMedium,
+            ),
           ),
           const Divider(height: 1),
           for (final s in _ProfileSection.values)
@@ -169,9 +191,9 @@ class _SectionListItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final bg =
-        selected ? section.accent.withValues(alpha: 0.12) : Colors.transparent;
-    final fg = selected ? section.accent : colors.onSurfaceVariant;
+    final accent = section.accentOf(context);
+    final bg = selected ? accent.withValues(alpha: 0.12) : Colors.transparent;
+    final fg = selected ? accent : colors.onSurfaceVariant;
     return InkWell(
       onTap: onTap,
       child: Container(
@@ -186,15 +208,14 @@ class _SectionListItem extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                section.label,
+                context.t.t(section.labelKey),
                 style: AppTypography.bodyMedium.copyWith(
                   color: selected ? colors.onSurface : null,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
                 ),
               ),
             ),
-            if (selected)
-              Icon(Icons.chevron_right, size: 16, color: section.accent),
+            if (selected) Icon(Icons.chevron_right, size: 16, color: accent),
           ],
         ),
       ),
@@ -234,6 +255,7 @@ class _UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return AppCard(
       child: Row(
@@ -242,15 +264,15 @@ class _UserCard extends StatelessWidget {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.brand, AppColors.brandDark],
+              gradient: LinearGradient(
+                colors: [colors.primaryContainer, colors.primary],
               ),
               borderRadius: BorderRadius.circular(20),
             ),
             alignment: Alignment.center,
-            child: const Icon(
+            child: Icon(
               Icons.person,
-              color: Colors.white,
+              color: colors.onPrimary,
               size: 32,
             ),
           ),
@@ -262,7 +284,7 @@ class _UserCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'dev_explorer',
+                      t.t('profile.user.nickname'),
                       style: AppTypography.titleLarge,
                     ),
                     const SizedBox(width: 6),
@@ -272,13 +294,13 @@ class _UserCard extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.brandLight,
+                        color: colors.primaryContainer,
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
-                        'PRO',
+                        t.t('app.pro'),
                         style: AppTypography.labelSmall.copyWith(
-                          color: AppColors.brandDark,
+                          color: colors.onPrimaryContainer,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -287,14 +309,14 @@ class _UserCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '匿名浏览 · 登录后可同步数据',
+                  t.t('profile.user.anonHint'),
                   style: AppTypography.bodySmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  '登录入口已移至左侧底部',
+                  t.t('profile.user.loginHint'),
                   style: AppTypography.labelSmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
@@ -313,24 +335,25 @@ class _ProCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: 'GitHub 开发者情报 PRO',
-            subtitle: '解锁全部高级功能',
+          SectionHeader(
+            title: t.t('profile.pro.title'),
+            subtitle: t.t('profile.pro.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const _Bullet('无限监控仓库'),
-          const _Bullet('高级告警与每日报告'),
-          const _Bullet('GitHub 与 Gitee 数据导出'),
+          _Bullet(t.t('profile.pro.b1')),
+          _Bullet(t.t('profile.pro.b2')),
+          _Bullet(t.t('profile.pro.b3')),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
               onPressed: () {},
-              child: const Text('升级 PRO'),
+              child: Text(t.t('profile.pro.upgrade')),
             ),
           ),
         ],
@@ -344,13 +367,15 @@ class _CollectListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bookmark_outline, color: AppColors.info),
-            title: const Text('收藏的主题', style: AppTypography.titleMedium),
+            title: Text(t.t('profile.list.bookmarked'),
+                style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/collect'),
           ),
@@ -358,7 +383,8 @@ class _CollectListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.people_outline, color: AppColors.success),
-            title: const Text('关注的开发者', style: AppTypography.titleMedium),
+            title: Text(t.t('profile.list.followed'),
+                style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/developers'),
           ),
@@ -373,14 +399,16 @@ class _MonitorListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading:
-                const Icon(Icons.visibility_outlined, color: AppColors.brand),
-            title: const Text('监控的主题', style: AppTypography.titleMedium),
+            leading: Icon(Icons.visibility_outlined,
+                color: Theme.of(context).colorScheme.primary),
+            title: Text(t.t('profile.list.monitorTopics'),
+                style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/monitor'),
           ),
@@ -388,7 +416,8 @@ class _MonitorListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bolt_rounded, color: AppColors.warning),
-            title: const Text('监控规则', style: AppTypography.titleMedium),
+            title: Text(t.t('profile.list.monitorRules'),
+                style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/rules'),
           ),
@@ -403,26 +432,27 @@ class _CollectDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '收藏的主题',
-            subtitle: '你长期追踪的 GitHub 主题',
+          SectionHeader(
+            title: t.t('profile.detail.collectTitle'),
+            subtitle: t.t('profile.detail.collectSubtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.bookmark_outline,
             iconColor: AppColors.info,
-            label: '收藏主题(12)',
-            value: '查看全部',
+            label: '${t.t('profile.detail.collectCount')}(12)',
+            value: t.t('app.all'),
           ),
           const Divider(height: 1),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.history,
             iconColor: AppColors.textSecondaryLight,
-            label: '最近收藏',
+            label: t.t('profile.detail.collectRecent'),
             value: 'agent · llm · devops',
           ),
           const SizedBox(height: AppSpacing.md),
@@ -431,7 +461,7 @@ class _CollectDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/collect'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开收藏页'),
+              label: Text(t.t('profile.detail.open')),
             ),
           ),
         ],
@@ -445,26 +475,27 @@ class _DevelopersDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '关注的开发者',
-            subtitle: '第一时间拿到他们的最新动态',
+          SectionHeader(
+            title: t.t('profile.detail.developersTitle'),
+            subtitle: t.t('profile.detail.developersSubtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.people_outline,
             iconColor: AppColors.success,
-            label: '关注开发者(8)',
-            value: '查看全部',
+            label: '${t.t('profile.detail.developersCount')}(8)',
+            value: t.t('app.all'),
           ),
           const Divider(height: 1),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.notifications_active_outlined,
             iconColor: AppColors.warning,
-            label: '通知策略',
+            label: t.t('profile.detail.developersNotif'),
             value: 'Star / Fork / Release',
           ),
           const SizedBox(height: AppSpacing.md),
@@ -473,7 +504,7 @@ class _DevelopersDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/developers'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开开发者页'),
+              label: Text(t.t('profile.detail.developersOpen')),
             ),
           ),
         ],
@@ -487,27 +518,28 @@ class _MonitorTopicsDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '监控的主题',
-            subtitle: '持续追踪仓库的 Star / Issue / Release',
+          SectionHeader(
+            title: t.t('profile.detail.monitorTopicsTitle'),
+            subtitle: t.t('profile.detail.monitorTopicsSubtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.visibility_outlined,
-            iconColor: AppColors.brand,
-            label: '正在监控(5)',
-            value: '查看全部',
+            iconColor: Theme.of(context).colorScheme.primary,
+            label: '${t.t('profile.detail.monitorTopicsCount')}(5)',
+            value: t.t('app.all'),
           ),
           const Divider(height: 1),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.timeline,
             iconColor: AppColors.info,
-            label: '最新告警',
-            value: '2 条未读',
+            label: t.t('profile.detail.monitorTopicsLatest'),
+            value: t.t('profile.detail.unread2'),
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
@@ -515,7 +547,7 @@ class _MonitorTopicsDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/monitor'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开监控主题'),
+              label: Text(t.t('profile.detail.monitorTopicsOpen')),
             ),
           ),
         ],
@@ -529,34 +561,35 @@ class _MonitorRulesDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '监控规则',
-            subtitle: '自定义告警触发条件',
+          SectionHeader(
+            title: t.t('profile.detail.monitorRulesTitle'),
+            subtitle: t.t('profile.detail.monitorRulesSubtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
-            label: 'Star 增速 ≥ 30 / 天',
-            value: '已开启',
+            label: t.t('profile.detail.monitorRulesRow1'),
+            value: t.t('app.enabled'),
           ),
           const Divider(height: 1),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
-            label: 'Issue 数小时 ≥ 5',
-            value: '已开启',
+            label: t.t('profile.detail.monitorRulesRow2'),
+            value: t.t('app.enabled'),
           ),
           const Divider(height: 1),
-          const _DetailRow(
+          _DetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
-            label: '新 Release',
-            value: '已开启',
+            label: t.t('profile.detail.monitorRulesRow3'),
+            value: t.t('app.enabled'),
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
@@ -564,7 +597,7 @@ class _MonitorRulesDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/rules'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('管理规则'),
+              label: Text(t.t('profile.detail.monitorRulesManage')),
             ),
           ),
         ],
@@ -578,22 +611,26 @@ class _DataCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '数据与缓存', subtitle: '本地数据管理'),
+          SectionHeader(
+            title: t.t('profile.detail.dataTitle'),
+            subtitle: t.t('profile.detail.dataSubtitle'),
+          ),
           const SizedBox(height: AppSpacing.md),
-          const _DataRow(label: '主题(2 分钟更新)', value: '12.8 MB'),
-          const _DataRow(label: '主题主题(7 天)', value: '156 MB'),
-          const _DataRow(label: '主题(30 天)', value: '624 MB'),
+          _DataRow(label: t.t('profile.detail.dataRow1'), value: '12.8 MB'),
+          _DataRow(label: t.t('profile.detail.dataRow2'), value: '156 MB'),
+          _DataRow(label: t.t('profile.detail.dataRow3'), value: '624 MB'),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.cleaning_services_outlined, size: 16),
-              label: const Text('清理缓存'),
+              label: Text(t.t('profile.detail.dataClear')),
             ),
           ),
         ],
@@ -607,44 +644,164 @@ class _SettingsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '偏好设置', subtitle: '主题 / 通知 / 启动'),
+          SectionHeader(
+            title: t.t('profile.settings.title'),
+            subtitle: t.t('profile.settings.subtitle'),
+          ),
           const SizedBox(height: AppSpacing.md),
+          const _ThemeColorRow(),
+          const SizedBox(height: AppSpacing.sm),
           _SettingRow(
             icon: Icons.dark_mode_outlined,
-            label: '深色模式',
+            label: t.t('profile.settings.darkMode'),
             trailing: const _ThemeToggle(),
           ),
-          _SettingRow(
-            icon: Icons.language_outlined,
-            label: '主题',
-            trailing: Text('跟随系统', style: AppTypography.labelMedium),
-          ),
+          _LanguageSwitcher(),
           _SettingRow(
             icon: Icons.notifications_none,
-            label: '通知权限',
-            trailing: Text('已开启', style: AppTypography.labelMedium),
+            label: t.t('profile.settings.notificationPerm'),
+            trailing: Text(
+              t.t('app.enabled'),
+              style: AppTypography.labelMedium,
+            ),
           ),
           _SettingRow(
             icon: Icons.rocket_launch_outlined,
-            label: '启动主题',
-            trailing: Text('首页', style: AppTypography.labelMedium),
+            label: t.t('profile.settings.startup'),
+            trailing: Text(
+              t.t('nav.home'),
+              style: AppTypography.labelMedium,
+            ),
           ),
           _SettingRow(
             icon: Icons.cloud_outlined,
-            label: '数据源',
+            label: t.t('profile.settings.dataSource'),
             trailing: Text('GitHub', style: AppTypography.labelMedium),
           ),
           _SettingRow(
             icon: Icons.code,
-            label: '开发者选项',
+            label: t.t('profile.settings.developerOptions'),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/developer'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LanguageSwitcher extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
+    final current = ref.watch(localeControllerProvider);
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Row(
+        children: [
+          Icon(
+            Icons.language_outlined,
+            size: 18,
+            color: colors.onSurfaceVariant,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              t.t('profile.settings.language'),
+              style: AppTypography.bodyMedium,
+            ),
+          ),
+          _LanguageToggle(
+            current: current,
+            onChanged: (locale) =>
+                ref.read(localeControllerProvider.notifier).setLocale(locale),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// 中/英 二选一 toggle 按钮组(单击即切换,无须弹窗)。
+class _LanguageToggle extends StatelessWidget {
+  const _LanguageToggle({required this.current, required this.onChanged});
+
+  final AppLocale current;
+  final ValueChanged<AppLocale> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _LanguageChip(
+            label: '中',
+            selected: current == AppLocale.zh,
+            onTap: () => onChanged(AppLocale.zh),
+          ),
+          _LanguageChip(
+            label: 'EN',
+            selected: current == AppLocale.en,
+            onTap: () => onChanged(AppLocale.en),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LanguageChip extends StatelessWidget {
+  const _LanguageChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 140),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected ? colors.surface : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 4,
+                    offset: const Offset(0, 1),
+                  ),
+                ]
+              : null,
+        ),
+        child: Text(
+          label,
+          style: AppTypography.labelMedium.copyWith(
+            color: selected ? colors.onSurface : colors.onSurfaceVariant,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          ),
+        ),
       ),
     );
   }
@@ -655,15 +812,20 @@ class _AboutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '关于', subtitle: 'GitHub 开发者情报'),
+          SectionHeader(
+            title: t.t('profile.about.title'),
+            subtitle: t.t('profile.about.subtitle'),
+          ),
           const SizedBox(height: AppSpacing.md),
-          const _AboutRow(label: '版本', value: '0.1.0'),
-          const _AboutRow(label: '构建', value: '2026-06-23'),
-          const _AboutRow(label: '官方网站', value: 'github-news.app'),
+          _AboutRow(label: t.t('profile.about.version'), value: '0.1.0'),
+          _AboutRow(label: t.t('profile.about.build'), value: '2026-06-23'),
+          _AboutRow(
+              label: t.t('profile.about.website'), value: 'github-news.app'),
         ],
       ),
     );
@@ -679,6 +841,121 @@ class _ThemeToggle extends ConsumerWidget {
     return Switch(
       value: mode == ThemeMode.dark,
       onChanged: (_) => ref.read(themeModeControllerProvider.notifier).toggle(),
+    );
+  }
+}
+
+/// 主题色选择行:展示 10 个色圆,点击切换 seed。
+class _ThemeColorRow extends ConsumerWidget {
+  const _ThemeColorRow();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = context.t;
+    final current = ref.watch(themePresetControllerProvider);
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.palette_outlined,
+                size: 18,
+                color: colors.onSurfaceVariant,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  t.t('theme.presetTitle'),
+                  style: AppTypography.bodyMedium,
+                ),
+              ),
+              Text(
+                t.t(current.nameKey),
+                style: AppTypography.labelMedium.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: [
+              for (final p in AppThemePreset.values)
+                _ColorSwatch(
+                  preset: p,
+                  selected: p == current,
+                  onTap: () => ref
+                      .read(themePresetControllerProvider.notifier)
+                      .setPreset(p),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            t.t('theme.presetSubtitle'),
+            style: AppTypography.labelSmall.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ColorSwatch extends StatelessWidget {
+  const _ColorSwatch({
+    required this.preset,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final AppThemePreset preset;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Semantics(
+      label: context.t.t(preset.nameKey),
+      selected: selected,
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          width: 28,
+          height: 28,
+          decoration: BoxDecoration(
+            color: preset.seed,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: selected ? colors.onSurface : Colors.transparent,
+              width: 2,
+            ),
+            boxShadow: selected
+                ? [
+                    BoxShadow(
+                      color: preset.seed.withValues(alpha: 0.4),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          child: selected
+              ? Icon(Icons.check, size: 14, color: colors.onPrimary)
+              : null,
+        ),
+      ),
     );
   }
 }

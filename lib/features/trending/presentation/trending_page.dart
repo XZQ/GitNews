@@ -88,7 +88,7 @@ class _TrendingMobileState extends State<_TrendingMobile> {
                 series: [
                   ChartSeries(
                     values: DemoData.generateStarTrend(40000, 3200),
-                    color: AppColors.brand,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                   ChartSeries(
                     values: DemoData.generateStarTrend(42000, 3500),
@@ -170,7 +170,7 @@ class _TrendingDesktopState extends State<_TrendingDesktop> {
                   series: [
                     ChartSeries(
                       values: DemoData.generateStarTrend(38000, 4200),
-                      color: AppColors.brand,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                     ChartSeries(
                       values: DemoData.generateStarTrend(35200, 3100),
