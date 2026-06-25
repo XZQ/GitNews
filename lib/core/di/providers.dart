@@ -17,5 +17,6 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
 /// SharedPreferences 单例(异步初始化,在 main 中 override)。
 final sharedPreferencesProvider = Provider<SharedPreferences>(
   (ref) => throw StateError(
-      'sharedPreferencesProvider must be overridden in main()'),
+    'sharedPreferencesProvider must be overridden in main()',
+  ),
 );

@@ -26,8 +26,8 @@ class HotReposPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -76,10 +76,10 @@ class _Body extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppCard(
+        const AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
                 title: '说明',
                 subtitle: '数据来源与刷新策略',

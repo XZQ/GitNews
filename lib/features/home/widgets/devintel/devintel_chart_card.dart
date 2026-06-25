@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/star_trend_chart.dart';
 import 'devintel_demo.dart';
 
@@ -18,7 +18,6 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     final values =
         _window == 7 ? kDevIntelChartValues7 : kDevIntelChartValues30;
@@ -32,13 +31,12 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
         color: AppColors.success,
       ),
     ];
-    final labels =
-        kDevIntelXLabels.map((key) => key.isEmpty ? '' : t.t(key)).toList();
+    const labels = kDevIntelXLabels;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const BorderRadius.all(Radius.circular(AppSpacing.lg)),
         border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
@@ -52,18 +50,15 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      t.t('devintel.chartTitle'),
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+                      'Star 增长趋势',
+                      style: AppTypography.titleMedium.copyWith(
                         color: colors.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      t.t('devintel.chartSubtitle'),
-                      style: TextStyle(
-                        fontSize: 12,
+                      '监控仓库聚合增长',
+                      style: AppTypography.bodySmall.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
                     ),
@@ -99,12 +94,11 @@ class _WindowSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return SegmentedButton<int>(
-      segments: [
-        ButtonSegment(value: 7, label: Text(t.t('devintel.window7d'))),
-        ButtonSegment(value: 30, label: Text(t.t('devintel.window30d'))),
+      segments: const [
+        ButtonSegment(value: 7, label: Text('7 天')),
+        ButtonSegment(value: 30, label: Text('30 天')),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
@@ -122,7 +116,7 @@ class _WindowSegment extends StatelessWidget {
         ),
         side: WidgetStateProperty.all(BorderSide.none),
         textStyle: WidgetStateProperty.all(
-          const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w600),
         ),
         padding: WidgetStateProperty.all(
           const EdgeInsets.symmetric(horizontal: 14, vertical: 6),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'devintel_demo.dart';
 
 class DevIntelSignalsList extends StatelessWidget {
@@ -9,13 +9,12 @@ class DevIntelSignalsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const BorderRadius.all(Radius.circular(AppSpacing.lg)),
         border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
@@ -23,17 +22,16 @@ class DevIntelSignalsList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            t.t('devintel.signalsTitle'),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            '今日开发者信号',
+            style: AppTypography.titleMedium.copyWith(
               color: colors.onSurface,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < kDevIntelSignals.length; i++) ...[
-            _SignalTile(signal: kDevIntelSignals[i], t: t),
-            if (i != kDevIntelSignals.length - 1) const SizedBox(height: 18),
+            _SignalTile(signal: kDevIntelSignals[i]),
+            if (i != kDevIntelSignals.length - 1)
+              const SizedBox(height: AppSpacing.lg + AppSpacing.xs),
           ],
         ],
       ),
@@ -42,10 +40,9 @@ class DevIntelSignalsList extends StatelessWidget {
 }
 
 class _SignalTile extends StatelessWidget {
-  const _SignalTile({required this.signal, required this.t});
+  const _SignalTile({required this.signal});
 
   final DevIntelSignal signal;
-  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +51,7 @@ class _SignalTile extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: 6, right: 12),
+          padding: const EdgeInsets.only(top: 6, right: AppSpacing.md),
           child: Container(
             width: 8,
             height: 8,
@@ -70,21 +67,17 @@ class _SignalTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                t.t(signal.titleKey),
-                style: TextStyle(
+                signal.title,
+                style: AppTypography.titleSmall.copyWith(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
                   color: colors.onSurface,
-                  height: 1.4,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.xs),
               Text(
-                t.t(signal.bodyKey),
-                style: TextStyle(
-                  fontSize: 12,
+                signal.body,
+                style: AppTypography.bodySmall.copyWith(
                   color: colors.onSurfaceVariant,
-                  height: 1.45,
                 ),
               ),
             ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/i18n/app_localizations.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
@@ -78,8 +77,8 @@ class _SidebarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
+    return const Padding(
+      padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.lg,
         AppSpacing.lg,
@@ -87,12 +86,12 @@ class _SidebarHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          const LogoMark(size: 32),
-          const SizedBox(width: 10),
+          LogoMark(size: 32),
+          SizedBox(width: 10),
           Flexible(
             child: Text(
-              context.t.t('nav.brand'),
-              style: const TextStyle(
+              'GitHub 情报站',
+              style: TextStyle(
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.2,
@@ -169,7 +168,7 @@ class _SidebarItemState extends State<_SidebarItem> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      context.t.t(widget.tab.labelKey),
+                      widget.tab.label,
                       style: AppTypography.titleSmall.copyWith(
                         color: fgStrong,
                         fontWeight:
@@ -201,7 +200,6 @@ class _SidebarFooter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = context.t;
     return Padding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.md,
@@ -214,13 +212,13 @@ class _SidebarFooter extends ConsumerWidget {
         children: [
           _FooterIconButton(
             icon: Icons.account_circle_rounded,
-            tooltip: t.t('nav.profileCta'),
+            tooltip: '登录 / 我的',
             onTap: () => context.go('/profile'),
             avatar: true,
           ),
           _FooterIconButton(
             icon: Icons.settings_outlined,
-            tooltip: t.t('app.settings'),
+            tooltip: '设置',
             onTap: () => context.go('/profile'),
           ),
         ],

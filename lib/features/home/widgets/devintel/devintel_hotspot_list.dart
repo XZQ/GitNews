@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'devintel_demo.dart';
 
 class DevIntelHotspotList extends StatelessWidget {
@@ -9,13 +9,12 @@ class DevIntelHotspotList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const BorderRadius.all(Radius.circular(AppSpacing.lg)),
         border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
@@ -23,24 +22,21 @@ class DevIntelHotspotList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            t.t('devintel.hotspotTitle'),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            '技术热点',
+            style: AppTypography.titleMedium.copyWith(
               color: colors.onSurface,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            t.t('devintel.hotspotSubtitle'),
-            style: TextStyle(
-              fontSize: 12,
+            '趋势增长分类',
+            style: AppTypography.bodySmall.copyWith(
               color: colors.onSurfaceVariant,
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < kDevIntelHotspots.length; i++) ...[
-            _HotspotTile(hotspot: kDevIntelHotspots[i], t: t),
+            _HotspotTile(hotspot: kDevIntelHotspots[i]),
             if (i != kDevIntelHotspots.length - 1)
               const SizedBox(height: AppSpacing.md),
           ],
@@ -51,10 +47,9 @@ class DevIntelHotspotList extends StatelessWidget {
 }
 
 class _HotspotTile extends StatelessWidget {
-  const _HotspotTile({required this.hotspot, required this.t});
+  const _HotspotTile({required this.hotspot});
 
   final DevIntelHotspot hotspot;
-  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
@@ -67,20 +62,21 @@ class _HotspotTile extends StatelessWidget {
           height: 44,
           decoration: BoxDecoration(
             color: hotspot.color.withValues(alpha: 0.14),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(AppSpacing.sm + 2),
+            ),
           ),
           alignment: Alignment.center,
           child: Text(
             hotspot.abbr,
-            style: TextStyle(
-              fontSize: 12,
+            style: AppTypography.labelMedium.copyWith(
               fontWeight: FontWeight.w800,
               color: hotspot.color,
               letterSpacing: 0.5,
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,9 +86,8 @@ class _HotspotTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      t.t(hotspot.nameKey).toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 12,
+                      hotspot.name.toUpperCase(),
+                      style: AppTypography.labelMedium.copyWith(
                         fontWeight: FontWeight.w700,
                         color: colors.onSurface,
                         letterSpacing: 0.4,
@@ -100,11 +95,10 @@ class _HotspotTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  _HotspotBadge(
-                      text: t.t(hotspot.tagKey), color: hotspot.color),
+                  _HotspotBadge(text: hotspot.tag, color: hotspot.color),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               _ProgressBar(
                 value: hotspot.progress,
                 color: hotspot.color,
@@ -127,14 +121,17 @@ class _HotspotBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs + 2,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.18),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: const BorderRadius.all(Radius.circular(AppSpacing.xs)),
       ),
       child: Text(
         text,
-        style: TextStyle(
+        style: AppTypography.labelSmall.copyWith(
           fontSize: 9,
           fontWeight: FontWeight.w800,
           color: color,
@@ -159,7 +156,7 @@ class _ProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(2),
+      borderRadius: const BorderRadius.all(Radius.circular(2)),
       child: Stack(
         children: [
           Container(height: 4, color: track),

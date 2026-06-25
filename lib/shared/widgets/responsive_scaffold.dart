@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/i18n/app_localizations.dart';
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
@@ -122,7 +121,6 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: onTap,
@@ -131,7 +129,7 @@ class _BottomBar extends StatelessWidget {
           NavigationDestination(
             icon: Icon(spec.icon),
             selectedIcon: Icon(spec.selectedIcon),
-            label: t.t(spec.labelKey),
+            label: spec.label,
           ),
       ],
     );
@@ -146,7 +144,6 @@ class _SideRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return NavigationRail(
       selectedIndex: currentIndex,
       onDestinationSelected: onTap,
@@ -158,7 +155,7 @@ class _SideRail extends StatelessWidget {
           NavigationRailDestination(
             icon: Icon(spec.icon),
             selectedIcon: Icon(spec.selectedIcon),
-            label: Text(t.t(spec.labelKey)),
+            label: Text(spec.label),
           ),
       ],
     );
@@ -199,7 +196,7 @@ class PlaceholderPanel extends StatelessWidget {
                   spacing: AppSpacing.sm,
                   children: [
                     Chip(
-                      label: Text(context.t.t('placeholder.responsiveActive')),
+                      label: const Text('响应式断点已生效'),
                       side: BorderSide(color: Theme.of(context).dividerColor),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.pill),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'devintel_demo.dart';
 
 class DevIntelRepoTable extends StatelessWidget {
@@ -11,13 +11,12 @@ class DevIntelRepoTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.lg),
         border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
@@ -25,20 +24,16 @@ class DevIntelRepoTable extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            t.t('devintel.repoTableTitle'),
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: colors.onSurface,
-            ),
+            '今日热门仓库',
+            style: AppTypography.titleMedium.copyWith(color: colors.onSurface),
           ),
           const SizedBox(height: AppSpacing.lg),
-          _HeaderRow(t: t),
+          const _HeaderRow(),
           const SizedBox(height: AppSpacing.sm),
           Divider(color: colors.outlineVariant, height: 1),
           for (var i = 0; i < kDevIntelRepoRows.length; i++) ...[
             if (i != 0) Divider(color: colors.outlineVariant, height: 1),
-            _RepoRowTile(row: kDevIntelRepoRows[i], t: t),
+            _RepoRowTile(row: kDevIntelRepoRows[i]),
           ],
         ],
       ),
@@ -47,36 +42,32 @@ class DevIntelRepoTable extends StatelessWidget {
 }
 
 class _HeaderRow extends StatelessWidget {
-  const _HeaderRow({required this.t});
-
-  final AppStrings t;
+  const _HeaderRow();
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final style = TextStyle(
+    final style = AppTypography.labelSmall.copyWith(
       fontSize: 10,
-      fontWeight: FontWeight.w600,
       color: colors.onSurfaceVariant,
       letterSpacing: 0.6,
     );
     return Row(
       children: [
-        SizedBox(
-            width: 32, child: Text(t.t('devintel.col.rank'), style: style)),
-        const SizedBox(width: 12),
+        SizedBox(width: 32, child: Text('排名', style: style)),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           flex: 5,
-          child: Text(t.t('devintel.col.repository'), style: style),
+          child: Text('仓库', style: style),
         ),
         SizedBox(
           width: 100,
-          child: Text(t.t('devintel.col.category'), style: style),
+          child: Text('分类', style: style),
         ),
         SizedBox(
           width: 80,
           child: Text(
-            t.t('devintel.col.lang'),
+            '语言',
             textAlign: TextAlign.right,
             style: style,
           ),
@@ -84,7 +75,7 @@ class _HeaderRow extends StatelessWidget {
         SizedBox(
           width: 90,
           child: Text(
-            t.t('devintel.col.newStars'),
+            '新增 Star',
             textAlign: TextAlign.right,
             style: style,
           ),
@@ -92,7 +83,7 @@ class _HeaderRow extends StatelessWidget {
         SizedBox(
           width: 70,
           child: Text(
-            t.t('devintel.col.total'),
+            '总 Star',
             textAlign: TextAlign.right,
             style: style,
           ),
@@ -103,10 +94,9 @@ class _HeaderRow extends StatelessWidget {
 }
 
 class _RepoRowTile extends StatelessWidget {
-  const _RepoRowTile({required this.row, required this.t});
+  const _RepoRowTile({required this.row});
 
   final DevIntelRepoRow row;
-  final AppStrings t;
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +106,7 @@ class _RepoRowTile extends StatelessWidget {
         '/repo_detail/${Uri.encodeComponent(row.name)}',
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(
           children: [
             SizedBox(
@@ -126,12 +116,12 @@ class _RepoRowTile extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: row.color.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppSpacing.sm),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   row.rank,
-                  style: TextStyle(
+                  style: AppTypography.labelSmall.copyWith(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: row.color,
@@ -139,14 +129,13 @@ class _RepoRowTile extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             Expanded(
               flex: 5,
               child: Text(
                 row.name,
-                style: TextStyle(
+                style: AppTypography.labelLarge.copyWith(
                   fontSize: 13,
-                  fontWeight: FontWeight.w600,
                   color: colors.onSurface,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -154,16 +143,14 @@ class _RepoRowTile extends StatelessWidget {
             ),
             SizedBox(
               width: 100,
-              child:
-                  _CategoryBadge(text: t.t(row.categoryKey), color: row.color),
+              child: _CategoryBadge(text: row.category, color: row.color),
             ),
             SizedBox(
               width: 80,
               child: Text(
                 row.lang,
                 textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontSize: 12,
+                style: AppTypography.bodySmall.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
               ),
@@ -173,7 +160,7 @@ class _RepoRowTile extends StatelessWidget {
               child: Text(
                 row.newStars,
                 textAlign: TextAlign.right,
-                style: const TextStyle(
+                style: AppTypography.labelLarge.copyWith(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.success,
@@ -185,8 +172,7 @@ class _RepoRowTile extends StatelessWidget {
               child: Text(
                 row.total,
                 textAlign: TextAlign.right,
-                style: TextStyle(
-                  fontSize: 12,
+                style: AppTypography.bodySmall.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
                 overflow: TextOverflow.fade,
@@ -209,14 +195,17 @@ class _CategoryBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs + 1,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(AppSpacing.xs + 2),
       ),
       child: Text(
         text,
-        style: TextStyle(
+        style: AppTypography.labelSmall.copyWith(
           fontSize: 10,
           fontWeight: FontWeight.w700,
           color: color,

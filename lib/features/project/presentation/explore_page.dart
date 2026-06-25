@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -20,7 +19,7 @@ class ExplorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t.t('project.explore.title')),
+        title: const Text('探索'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -29,16 +28,16 @@ class ExplorePage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
 }
 
 class _TopicChipSpec {
-  const _TopicChipSpec({required this.labelKey, required this.color});
-  final String labelKey;
+  const _TopicChipSpec({required this.label, required this.color});
+  final String label;
   final Color color;
 }
 
@@ -49,18 +48,14 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final chips = <_TopicChipSpec>[
-      _TopicChipSpec(labelKey: 'project.topic.aiAgent', color: colors.primary),
-      _TopicChipSpec(labelKey: 'project.topic.llm', color: AppColors.info),
-      _TopicChipSpec(
-          labelKey: 'project.topic.devTools', color: AppColors.success),
-      _TopicChipSpec(labelKey: 'project.topic.rag', color: AppColors.warning),
-      _TopicChipSpec(labelKey: 'project.topic.web3', color: AppColors.danger),
-      _TopicChipSpec(
-          labelKey: 'project.topic.cloudNative', color: colors.primary),
-      _TopicChipSpec(
-          labelKey: 'project.topic.dataInfra', color: AppColors.info),
-      _TopicChipSpec(
-          labelKey: 'project.topic.security', color: AppColors.success),
+      _TopicChipSpec(label: 'AI 智能体', color: colors.primary),
+      const _TopicChipSpec(label: '大语言模型', color: AppColors.info),
+      const _TopicChipSpec(label: '开发工具', color: AppColors.success),
+      const _TopicChipSpec(label: '检索增强生成', color: AppColors.warning),
+      const _TopicChipSpec(label: 'Web3', color: AppColors.danger),
+      _TopicChipSpec(label: '云原生', color: colors.primary),
+      const _TopicChipSpec(label: '数据基建', color: AppColors.info),
+      const _TopicChipSpec(label: '安全', color: AppColors.success),
     ];
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -71,14 +66,14 @@ class _Body extends StatelessWidget {
       ),
       children: [
         AppCard(
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('project.explore.hotTopicsTitle'),
-                subtitle: context.t.t('project.explore.hotTopicsSubtitle'),
+                title: '热门话题',
+                subtitle: '基于本周 Star 增速与讨论热度',
               ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             Wrap(
@@ -87,7 +82,7 @@ class _Body extends StatelessWidget {
               children: [
                 for (final c in chips)
                   _TopicChip(
-                    label: context.t.t(c.labelKey),
+                    label: c.label,
                     color: c.color,
                   ),
               ],
@@ -107,10 +102,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: context.t.t('project.explore.recommendTitle'),
-                  subtitle: context.t.tr(
-                      'project.explore.recommendSubtitleFull',
-                      {'count': DemoData.trending.length}),
+                  title: '推荐仓库',
+                  subtitle: '基于你的关注 · 共 ${DemoData.trending.length} 个',
                 ),
               ),
               for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -127,14 +120,14 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('project.explore.developersTitle'),
-                subtitle: context.t.t('project.explore.developersSubtitle'),
+                title: '可关注的开发者',
+                subtitle: '本周 Star 增长贡献 Top 5',
               ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             for (final c in DemoData.contributors)
@@ -152,12 +145,11 @@ class _Body extends StatelessWidget {
                 ),
                 title: Text(c.login, style: AppTypography.titleSmall),
                 subtitle: Text(
-                  context.t.tr('developers.weeklyContribWithCount',
-                      {'count': c.contributions}),
+                  '+${c.contributions} 本周贡献',
                 ),
                 trailing: OutlinedButton(
                   onPressed: () {},
-                  child: Text(context.t.t('project.explore.follow')),
+                  child: const Text('关注'),
                 ),
               ),
           ]),

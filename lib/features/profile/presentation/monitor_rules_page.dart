@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -15,7 +14,7 @@ class MonitorRulesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t.t('monitorRules.title')),
+        title: const Text('监控规则'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -24,8 +23,8 @@ class MonitorRulesPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -36,13 +35,13 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ruleKeys = const [
-      'monitor.rule.1',
-      'monitor.rule.2',
-      'monitor.rule.3',
-      'monitor.rule.4',
+    const rules = [
+      'Star 增速 ≥ 200/天',
+      '单日增长 ≥ 10%',
+      'Fork 增速 ≥ 50/天',
+      '讨论热度 ≥ 5x',
     ];
-    final enabledFlags = const [true, true, false, true];
+    const enabledFlags = [true, true, false, true];
     final enabledCount = enabledFlags.where((e) => e).length;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -52,28 +51,25 @@ class _Body extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('monitorRules.title'),
-                subtitle: context.t
-                    .tr('monitorRules.subtitleFull', {'count': enabledCount}),
+                title: '监控规则',
+                subtitle: '已启用 $enabledCount 条',
               ),
               const SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
-            for (var i = 0; i < ruleKeys.length; i++)
+            for (var i = 0; i < rules.length; i++)
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: Row(
                   children: [
                     Expanded(
                       child: Text(
-                        context.t.t(ruleKeys[i]),
+                        rules[i],
                         style: AppTypography.bodyMedium,
                       ),
                     ),
                     Text(
-                      context.t.t(enabledFlags[i]
-                          ? 'monitorRules.enabled'
-                          : 'monitorRules.disabled'),
+                      enabledFlags[i] ? '已启用' : '已禁用',
                       style: AppTypography.labelSmall.copyWith(
                         color: enabledFlags[i]
                             ? Theme.of(context).colorScheme.primary

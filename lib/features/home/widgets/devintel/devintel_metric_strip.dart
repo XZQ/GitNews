@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'devintel_demo.dart';
 
 class DevIntelMetricStrip extends StatelessWidget {
@@ -31,13 +31,12 @@ class _MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: const BorderRadius.all(Radius.circular(AppSpacing.lg)),
         border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
@@ -51,16 +50,17 @@ class _MetricTile extends StatelessWidget {
                 height: 32,
                 decoration: BoxDecoration(
                   color: spec.color.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(AppSpacing.sm),
+                  ),
                 ),
                 child: Icon(spec.icon, size: 16, color: spec.color),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(
-                  t.t(spec.titleKey),
-                  style: TextStyle(
-                    fontSize: 12,
+                  spec.title,
+                  style: AppTypography.labelMedium.copyWith(
                     fontWeight: FontWeight.w500,
                     color: colors.onSurfaceVariant,
                   ),
@@ -68,15 +68,13 @@ class _MetricTile extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 spec.value,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
+                style: AppTypography.displayMedium.copyWith(
                   color: colors.onSurface,
                   height: 1.0,
                 ),
@@ -99,10 +97,13 @@ class _DeltaPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
       decoration: BoxDecoration(
         color: AppColors.success.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: const BorderRadius.all(Radius.circular(999)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -112,11 +113,10 @@ class _DeltaPill extends StatelessWidget {
             size: 10,
             color: AppColors.success,
           ),
-          const SizedBox(width: 2),
+          const SizedBox(width: AppSpacing.xxs),
           Text(
             delta,
-            style: const TextStyle(
-              fontSize: 11,
+            style: AppTypography.labelSmall.copyWith(
               fontWeight: FontWeight.w700,
               color: AppColors.success,
             ),

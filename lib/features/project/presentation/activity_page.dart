@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -18,7 +17,7 @@ class ActivityPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t.t('project.activity.title')),
+        title: const Text('活动速览'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -27,8 +26,8 @@ class ActivityPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -60,46 +59,42 @@ class _Body extends StatelessWidget {
       _EventSpec(
         repo: 'openai/whisper',
         title: 'feat: support streaming response',
-        timeBuilder: (_) => context.t
-            .tr('time.hoursAgoWithBranch', {'hours': 4, 'branch': 'main'}),
+        timeBuilder: (_) => '4 小时前 · main',
         icon: Icons.commit,
         color: AppColors.success,
       ),
       _EventSpec(
         repo: 'anthropics/claude-code',
         title: 'fix: cache invalidation race',
-        timeBuilder: (_) => context.t
-            .tr('time.hoursAgoWithBranch', {'hours': 6, 'branch': 'main'}),
+        timeBuilder: (_) => '6 小时前 · main',
         icon: Icons.bug_report_outlined,
         color: AppColors.info,
       ),
       _EventSpec(
         repo: 'denoland/deno',
         title: 'chore: bump dependencies',
-        timeBuilder: (_) => context.t.tr(
-            'time.yesterdayWithBranch', {'time': '18:24', 'branch': 'main'}),
+        timeBuilder: (_) => '昨天 18:24 · main',
         icon: Icons.upgrade,
         color: AppColors.warning,
       ),
       _EventSpec(
         repo: 'mrdoob/three.js',
         title: 'release v0.42.1',
-        timeBuilder: (_) => context.t.tr('time.daysAgo', {'days': 3}),
+        timeBuilder: (_) => '3 天前',
         icon: Icons.local_fire_department,
         color: colors.primary,
       ),
       _EventSpec(
         repo: 'withastro/astro',
         title: 'docs: new tutorial',
-        timeBuilder: (_) => context.t
-            .tr('time.daysAgoWithBranch', {'days': 3, 'branch': 'main'}),
+        timeBuilder: (_) => '3 天前 · main',
         icon: Icons.description,
         color: AppColors.info,
       ),
       _EventSpec(
         repo: 'vitejs/vite',
         title: 'feat: optimize build pipeline',
-        timeBuilder: (_) => context.t.tr('time.daysAgo', {'days': 4}),
+        timeBuilder: (_) => '4 天前',
         icon: Icons.flash_on,
         color: AppColors.success,
       ),
@@ -116,16 +111,16 @@ class _Body extends StatelessWidget {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
+              const Padding(
+                padding: EdgeInsets.fromLTRB(
                   AppSpacing.lg,
                   AppSpacing.md,
                   AppSpacing.lg,
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: context.t.t('project.activity.recentTitle'),
-                  subtitle: context.t.t('project.activity.recentSubtitle'),
+                  title: '近 7 天活动',
+                  subtitle: '跨仓库的 Commit / Issue / Release',
                 ),
               ),
               for (var i = 0; i < events.length; i++) ...[
@@ -143,14 +138,14 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('project.activity.developersTitle'),
-                subtitle: context.t.t('project.activity.developersSubtitle'),
+                title: '可能感兴趣的开发者',
+                subtitle: '近 7 天活跃',
               ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             for (final c in DemoData.contributors)
@@ -168,8 +163,7 @@ class _Body extends StatelessWidget {
                 ),
                 title: Text(c.login, style: AppTypography.titleSmall),
                 subtitle: Text(
-                  context.t.tr('developers.weeklyContribWithCount',
-                      {'count': c.contributions}),
+                  '+${c.contributions} 本周贡献',
                 ),
               ),
           ]),
