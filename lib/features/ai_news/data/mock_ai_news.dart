@@ -1,0 +1,203 @@
+import '../domain/ai_news_item.dart';
+
+/// AI 资讯 mock 数据(脚手架阶段)。
+///
+/// 所有时间戳写死为 const DateTime,保证 UI 截图与单测稳定。
+class MockAiNews {
+  const MockAiNews._();
+
+  static final List<AiNewsItem> all = [
+    AiNewsItem(
+      id: 'ai-001',
+      category: AiNewsCategory.breakthrough,
+      title: 'Anthropic 发布 Claude Opus 4.7:上下文 1M、原生视觉与执行模式',
+      summary:
+          'Anthropic 推出第四代旗舰模型,支持 100 万 tokens 上下文、原生多模态理解以及持久化执行模式,可独立完成长任务。早期基准测试在 SWE-bench 与 Terminal-Bench 上领先。',
+      source: 'Anthropic Blog',
+      author: 'Anthropic',
+      publishedAt: DateTime(2026, 6, 25, 9, 30),
+      readMinutes: 6,
+      reads: 28430,
+      likes: 1820,
+      tags: ['Anthropic', 'Claude', '长上下文', 'Agent'],
+      isHero: true,
+      coverColor: 0xFF6E56CF,
+    ),
+    AiNewsItem(
+      id: 'ai-002',
+      category: AiNewsCategory.industry,
+      title: 'OpenAI 与苹果合作落地:ChatGPT 深度集成 iOS 19',
+      summary:
+          'ChatGPT 将作为 iOS 19 系统级智能助手,支持跨 App 上下文、本地小模型与端云混合推理。苹果隐私团队表示所有用户数据采用端侧加密。',
+      source: 'The Verge',
+      author: 'Casey Newton',
+      publishedAt: DateTime(2026, 6, 25, 9, 5),
+      readMinutes: 4,
+      reads: 15620,
+      likes: 940,
+      tags: ['OpenAI', '苹果', '端侧 AI'],
+      isHero: false,
+      coverColor: 0xFF4CB5FF,
+    ),
+    AiNewsItem(
+      id: 'ai-003',
+      category: AiNewsCategory.funding,
+      title: 'Mistral AI 完成 6 亿欧元 D 轮融资,估值升至 70 亿欧元',
+      summary:
+          '由 General Catalyst 领投,Mistral 表示资金将用于训练下一代开源大模型 Magistral 2,并扩展欧洲市场企业版图。',
+      source: 'TechCrunch',
+      author: 'Romain Dillet',
+      publishedAt: DateTime(2026, 6, 25, 8, 0),
+      readMinutes: 3,
+      reads: 9820,
+      likes: 510,
+      tags: ['Mistral', '融资', '开源'],
+      isHero: false,
+      coverColor: 0xFFE5A150,
+    ),
+    AiNewsItem(
+      id: 'ai-004',
+      category: AiNewsCategory.application,
+      title: '字节跳动豆包大模型接入上汽智己车机',
+      summary:
+          '智己 L7 / LS7 OTA 升级后将搭载豆包 MaaS,支持多轮对话、导航规划与车控语音指令。这是豆包首次进入量产车机系统。',
+      source: '36 氪',
+      author: '邱晓芬',
+      publishedAt: DateTime(2026, 6, 25, 7, 0),
+      readMinutes: 5,
+      reads: 7340,
+      likes: 280,
+      tags: ['豆包', '字节', '车机', 'B 端'],
+      isHero: false,
+      coverColor: 0xFF30A46C,
+    ),
+    AiNewsItem(
+      id: 'ai-005',
+      category: AiNewsCategory.breakthrough,
+      title: 'DeepMind AlphaProof 2 在 IMO 拿到金牌',
+      summary:
+          'DeepMind 形式化数学证明模型 AlphaProof 2 在 2026 国际数学奥林匹克(IMO)中取得 39/42 分,接近满分。',
+      source: 'DeepMind Blog',
+      author: 'DeepMind',
+      publishedAt: DateTime(2026, 6, 25, 5, 30),
+      readMinutes: 7,
+      reads: 12150,
+      likes: 760,
+      tags: ['DeepMind', '数学', '推理'],
+      isHero: false,
+      coverColor: 0xFF3178C6,
+    ),
+    AiNewsItem(
+      id: 'ai-006',
+      category: AiNewsCategory.industry,
+      title: 'Meta 裁减 Llama 团队 5%,重心转向 Llama 4 Behemoth',
+      summary: 'Meta AI 部门重组,Llama 4 系列中参数最大的 Behemoth 模型训练进入收尾阶段,预计 Q3 开源权重。',
+      source: 'Reuters',
+      author: 'Anna Tong',
+      publishedAt: DateTime(2026, 6, 25, 3, 0),
+      readMinutes: 4,
+      reads: 6280,
+      likes: 320,
+      tags: ['Meta', 'Llama', '开源'],
+      isHero: false,
+      coverColor: 0xFF0866FF,
+    ),
+    AiNewsItem(
+      id: 'ai-007',
+      category: AiNewsCategory.application,
+      title: 'Cursor 1.0 发布:新增 Agent Mode 与多仓库支持',
+      summary:
+          'Cursor 1.0 引入 Agent Mode,可在多个仓库间跳转、读写文件并执行终端命令。企业版新增 SSO 与代码审计。',
+      source: 'Cursor Blog',
+      author: 'Michael Truell',
+      publishedAt: DateTime(2026, 6, 25, 0, 30),
+      readMinutes: 5,
+      reads: 9120,
+      likes: 580,
+      tags: ['Cursor', '编程', 'IDE'],
+      isHero: false,
+      coverColor: 0xFFA97BFF,
+    ),
+    AiNewsItem(
+      id: 'ai-008',
+      category: AiNewsCategory.funding,
+      title: '智谱 AI 完成 30 亿元战略融资,中关村科学城领投',
+      summary: 'GLM 系列开发商智谱 AI 完成 30 亿元战略融资,投后估值约 300 亿元。资金将用于智算中心建设与开源生态。',
+      source: '极客公园',
+      author: '郑辰',
+      publishedAt: DateTime(2026, 6, 24, 21, 30),
+      readMinutes: 3,
+      reads: 5210,
+      likes: 240,
+      tags: ['智谱', 'GLM', '融资'],
+      isHero: false,
+      coverColor: 0xFFE5464D,
+    ),
+    AiNewsItem(
+      id: 'ai-009',
+      category: AiNewsCategory.breakthrough,
+      title: 'Google Gemini 3 支持 2 小时视频原生理解',
+      summary:
+          'Gemini 3 Pro 模型支持直接输入最长 2 小时的视频,无需分段采样。在长视频 QA 基准 LongVideoBench 上提升 23%。',
+      source: 'Google Blog',
+      author: 'Google DeepMind',
+      publishedAt: DateTime(2026, 6, 24, 15, 30),
+      readMinutes: 6,
+      reads: 8430,
+      likes: 410,
+      tags: ['Google', 'Gemini', '多模态'],
+      isHero: false,
+      coverColor: 0xFFFA7343,
+    ),
+    AiNewsItem(
+      id: 'ai-010',
+      category: AiNewsCategory.industry,
+      title: 'Hugging Face 收购 Argilla,加码数据标注业务',
+      summary: 'HF 收购开源数据标注工具 Argilla,将其整合进 HF Hub,标注数据集将获得原生版本管理与可视化。',
+      source: 'Hugging Face Blog',
+      author: 'Clément Delangue',
+      publishedAt: DateTime(2026, 6, 24, 7, 30),
+      readMinutes: 3,
+      reads: 4180,
+      likes: 180,
+      tags: ['HF', 'Argilla', '数据'],
+      isHero: false,
+      coverColor: 0xFFFFD21E,
+    ),
+  ];
+
+  /// 热门话题(用于右侧栏)。
+  static const List<String> hotTopics = [
+    'Claude Opus 4.7',
+    'GPT-5 临近',
+    'Llama 4 Behemoth',
+    '豆包车机',
+    'Cursor 1.0',
+    'AI 推理芯片',
+    '形式化证明',
+    '长上下文',
+  ];
+
+  /// 头部企业(用于右侧栏)。
+  static const List<CompanyMention> topCompanies = [
+    CompanyMention(name: 'Anthropic', mentions: 32, trend: 18),
+    CompanyMention(name: 'OpenAI', mentions: 28, trend: 5),
+    CompanyMention(name: 'Google DeepMind', mentions: 21, trend: 12),
+    CompanyMention(name: 'Meta AI', mentions: 17, trend: -3),
+    CompanyMention(name: 'Mistral', mentions: 14, trend: 22),
+    CompanyMention(name: '智谱 AI', mentions: 11, trend: 8),
+  ];
+}
+
+/// 公司曝光度条目(用于 [MockAiNews.topCompanies])。
+class CompanyMention {
+  const CompanyMention({
+    required this.name,
+    required this.mentions,
+    required this.trend,
+  });
+
+  final String name;
+  final int mentions;
+  final int trend;
+}

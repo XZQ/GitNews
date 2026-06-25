@@ -63,7 +63,7 @@ class AppTheme {
       surface: surface,
       onSurface: textPrimary,
       surfaceContainerHighest: surfaceAlt,
-    );
+    ).copyWith(outlineVariant: border);
 
     final textTheme = TextTheme(
       displayLarge: AppTypography.displayLarge.copyWith(color: textPrimary),

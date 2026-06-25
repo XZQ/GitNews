@@ -12,6 +12,7 @@ import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import 'widgets/profile_page_header.dart';
 
 /// "我的"页面:
 /// - 手机/平板:卡片纵向堆叠(单列)。
@@ -21,8 +22,9 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('我的')),
+      appBar: isCompact ? AppBar(title: const Text('我的')) : null,
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Mobile(),
@@ -105,32 +107,43 @@ class _Desktop extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selected = ref.watch(_selectedSectionProvider);
-    final isCompact = Breakpoints.isCompact(context);
-    final maxWidth = isCompact ? 960.0 : 1120.0;
 
-    return CenteredContent(
-      maxWidth: maxWidth,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-        children: [
-          const _UserCard(),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 4,
-                child: _SectionList(selected: selected),
-              ),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                flex: 6,
-                child: _SectionDetail(section: selected),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const ProfilePageHeader(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const _UserCard(),
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 4,
+                      child: _SectionList(selected: selected),
+                    ),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(
+                      flex: 6,
+                      child: _SectionDetail(section: selected),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
