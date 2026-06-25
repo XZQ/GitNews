@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/ai_news/presentation/ai_news_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
 import '../../features/monitor/presentation/monitor_detail_page.dart';
@@ -19,6 +20,7 @@ import '../../features/project/presentation/discover_page.dart';
 import '../../features/project/presentation/explore_page.dart';
 import '../../features/project/presentation/project_page.dart';
 import '../../features/repo_detail/presentation/repo_detail_page.dart';
+import '../../features/tech_hotspot/presentation/tech_hotspot_page.dart';
 import '../../features/trending/presentation/hot_repos_page.dart';
 import '../../features/trending/presentation/language_trend_page.dart';
 import '../../features/trending/presentation/trending_overview_page.dart';
@@ -41,6 +43,8 @@ class TabSpec {
   final IconData selectedIcon;
 }
 
+/// 桌面侧栏 7 栏 IA:
+/// 首页(情报总览) → AI 资讯 → GitHub 热榜 → 技术热点 → 仓库监控 → 深度报告 → 我的
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
     label: '首页',
@@ -49,22 +53,34 @@ const List<TabSpec> appTabs = <TabSpec>[
     selectedIcon: Icons.dashboard_rounded,
   ),
   TabSpec(
-    label: '趋势',
-    pathSegment: 'trending',
-    icon: Icons.trending_up_outlined,
-    selectedIcon: Icons.trending_up_rounded,
+    label: 'AI 资讯',
+    pathSegment: 'ai_news',
+    icon: Icons.auto_awesome_outlined,
+    selectedIcon: Icons.auto_awesome_rounded,
   ),
   TabSpec(
-    label: '监控',
+    label: 'GitHub 热榜',
+    pathSegment: 'trending',
+    icon: Icons.local_fire_department_outlined,
+    selectedIcon: Icons.local_fire_department_rounded,
+  ),
+  TabSpec(
+    label: '技术热点',
+    pathSegment: 'tech_hotspot',
+    icon: Icons.whatshot_outlined,
+    selectedIcon: Icons.whatshot_rounded,
+  ),
+  TabSpec(
+    label: '仓库监控',
     pathSegment: 'monitor',
     icon: Icons.notifications_outlined,
     selectedIcon: Icons.notifications_rounded,
   ),
   TabSpec(
-    label: '报告',
+    label: '深度报告',
     pathSegment: 'project',
-    icon: Icons.assessment_outlined,
-    selectedIcon: Icons.assessment_rounded,
+    icon: Icons.insights_outlined,
+    selectedIcon: Icons.insights_rounded,
   ),
   TabSpec(
     label: '我的',
@@ -104,6 +120,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/ai_news',
+                name: 'ai_news',
+                builder: (_, __) => const AiNewsPage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/trending',
                 name: 'trending',
                 builder: (_, __) => const TrendingPage(),
@@ -124,6 +149,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (_, __) => const HotReposPage(),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/tech_hotspot',
+                name: 'tech_hotspot',
+                builder: (_, __) => const TechHotspotPage(),
               ),
             ],
           ),

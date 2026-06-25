@@ -5,18 +5,21 @@ import '../../../core/demo_data.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
+import '../widgets/monitor_page_header.dart';
 
 class MonitorPage extends StatelessWidget {
   const MonitorPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('监控')),
+      appBar: isCompact ? AppBar(title: const Text('监控')) : null,
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Desktop(),
@@ -56,22 +59,36 @@ class _Desktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CenteredContent(
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-        children: const [
-          _StatusRow(),
-          SizedBox(height: AppSpacing.lg),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 8, child: _MonitoredRepos()),
-              SizedBox(width: AppSpacing.lg),
-              Expanded(flex: 4, child: _RightColumn()),
-            ],
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        MonitorPageHeader(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _StatusRow(),
+                SizedBox(height: AppSpacing.lg),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 8, child: _MonitoredRepos()),
+                    SizedBox(width: AppSpacing.lg),
+                    Expanded(flex: 4, child: _RightColumn()),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

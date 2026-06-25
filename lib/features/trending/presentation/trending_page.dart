@@ -5,6 +5,7 @@ import '../../../core/demo_data.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
@@ -12,6 +13,7 @@ import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../widgets/trending_language_panel.dart';
 import '../widgets/trending_metrics.dart';
+import '../widgets/trending_page_header.dart';
 import '../widgets/trending_topics_panel.dart';
 
 class TrendingPage extends StatelessWidget {
@@ -19,8 +21,9 @@ class TrendingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('趋势')),
+      appBar: isCompact ? AppBar(title: const Text('趋势')) : null,
       body: ResponsiveLayout(
         compact: (_) => const _TrendingMobile(),
         medium: (_) => const _TrendingDesktop(),
@@ -163,62 +166,76 @@ class _TrendingDesktopState extends State<_TrendingDesktop> {
 
   @override
   Widget build(BuildContext context) {
-    return CenteredContent(
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-        children: [
-          AppCard(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const TrendingPageHeader(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SectionHeader(
-                  title: 'Star 增长趋势',
-                  subtitle: '追踪时间窗内的新增 Star 总量 · 包含所有语言',
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SectionHeader(
+                        title: 'Star 增长趋势',
+                        subtitle: '追踪时间窗内的新增 Star 总量 · 包含所有语言',
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      StarTrendChart(
+                        series: [
+                          ChartSeries(
+                            values: DemoData.generateStarTrend(38000, 4200),
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          ChartSeries(
+                            values: DemoData.generateStarTrend(35200, 3100),
+                            color: AppColors.info,
+                          ),
+                          ChartSeries(
+                            values: DemoData.generateStarTrend(32000, 2800),
+                            color: AppColors.success,
+                          ),
+                        ],
+                        height: 280,
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                StarTrendChart(
-                  series: [
-                    ChartSeries(
-                      values: DemoData.generateStarTrend(38000, 4200),
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    ChartSeries(
-                      values: DemoData.generateStarTrend(35200, 3100),
-                      color: AppColors.info,
-                    ),
-                    ChartSeries(
-                      values: DemoData.generateStarTrend(32000, 2800),
-                      color: AppColors.success,
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Expanded(flex: 8, child: _TrendingList()),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(
+                      flex: 4,
+                      child: Column(
+                        children: [
+                          TrendingLanguagePanel(
+                            value: _lang,
+                            onChanged: (v) => setState(() => _lang = v),
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          const TrendingTopicsPanel(),
+                        ],
+                      ),
                     ),
                   ],
-                  height: 280,
                 ),
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Expanded(flex: 8, child: _TrendingList()),
-              const SizedBox(width: AppSpacing.lg),
-              Expanded(
-                flex: 4,
-                child: Column(
-                  children: [
-                    TrendingLanguagePanel(
-                      value: _lang,
-                      onChanged: (v) => setState(() => _lang = v),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    const TrendingTopicsPanel(),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

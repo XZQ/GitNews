@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/bordered_row.dart';
 import 'devintel_hotspot_list.dart';
 import 'devintel_monitoring_status.dart';
 import 'devintel_repo_table.dart';
@@ -14,26 +15,14 @@ class DevIntelBottomGrid extends StatelessWidget {
     return const Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(flex: 7, child: DevIntelRepoTable()),
-              SizedBox(width: AppSpacing.lg),
-              Expanded(flex: 5, child: DevIntelHotspotList()),
-            ],
-          ),
+        BorderedRow(
+          flexValues: [7, 5],
+          children: [DevIntelRepoTable(), DevIntelHotspotList()],
         ),
         SizedBox(height: AppSpacing.lg),
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(flex: 7, child: DevIntelSignalsList()),
-              SizedBox(width: AppSpacing.lg),
-              Expanded(flex: 5, child: DevIntelMonitoringStatus()),
-            ],
-          ),
+        BorderedRow(
+          flexValues: [7, 5],
+          children: [DevIntelSignalsList(), DevIntelMonitoringStatus()],
         ),
       ],
     );

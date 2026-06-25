@@ -23,6 +23,7 @@ class ResponsiveScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final colors = Theme.of(context).colorScheme;
     final location = navigationShell.currentIndex == 0
         ? '/home'
         : GoRouterState.of(context).matchedLocation;
@@ -42,7 +43,11 @@ class ResponsiveScaffold extends ConsumerWidget {
           body: Row(
             children: [
               _SideRail(currentIndex: index, onTap: onTap),
-              const VerticalDivider(width: 1, thickness: 1),
+              VerticalDivider(
+                width: 1,
+                thickness: 1,
+                color: colors.outlineVariant.withValues(alpha: 0.5),
+              ),
               Expanded(child: SafeArea(child: navigationShell)),
             ],
           ),
@@ -100,11 +105,11 @@ class _SidebarDragHandleState extends ConsumerState<_SidebarDragHandle> {
           child: Center(
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 120),
-              width: 2,
+              width: highlight ? 2 : 1,
               height: double.infinity,
               color: highlight
                   ? colors.primary.withValues(alpha: 0.6)
-                  : colors.outlineVariant,
+                  : colors.outlineVariant.withValues(alpha: 0.5),
             ),
           ),
         ),

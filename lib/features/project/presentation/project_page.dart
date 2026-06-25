@@ -5,11 +5,13 @@ import '../../../core/demo_data.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
+import 'widgets/project_page_header.dart';
 
 /// "项目 / 报告 / 探索" 三栏内容,集中在一个 Tab(对应设计稿"报告.png"和桌面"探索"风格)。
 class ProjectPage extends StatelessWidget {
@@ -17,8 +19,9 @@ class ProjectPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('报告')),
+      appBar: isCompact ? AppBar(title: const Text('报告')) : null,
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Desktop(),
@@ -60,26 +63,43 @@ class _Desktop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CenteredContent(
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-        children: const [
-          _SummaryMetrics(),
-          SizedBox(height: AppSpacing.lg),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 6, child: _TrendOverview()),
-              SizedBox(width: AppSpacing.lg),
-              Expanded(flex: 4, child: _LanguageDistribution()),
-            ],
+    return const Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ProjectPageHeader(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SummaryMetrics(),
+                SizedBox(height: AppSpacing.lg),
+                SizedBox(
+                  height: 340,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(flex: 6, child: _TrendOverview()),
+                      SizedBox(width: AppSpacing.lg),
+                      Expanded(flex: 4, child: _LanguageDistribution()),
+                    ],
+                  ),
+                ),
+                SizedBox(height: AppSpacing.lg),
+                _PopularRepos(),
+                SizedBox(height: AppSpacing.lg),
+                _RecentlyUpdated(),
+              ],
+            ),
           ),
-          SizedBox(height: AppSpacing.lg),
-          _PopularRepos(),
-          SizedBox(height: AppSpacing.lg),
-          _RecentlyUpdated(),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
