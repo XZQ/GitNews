@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -72,9 +71,9 @@ class _Mobile extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         _Chart(repo: repo),
         const SizedBox(height: AppSpacing.lg),
-        _Contributors(),
+        const _Contributors(),
         const SizedBox(height: AppSpacing.lg),
-        _Activity(),
+        const _Activity(),
       ],
     );
   }
@@ -111,7 +110,6 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final t = context.t;
     return AppCard(
       child: Row(
         children: [
@@ -149,11 +147,8 @@ class _Header extends StatelessWidget {
                   runSpacing: 6,
                   children: [
                     _Pill(text: repo.language, color: Color(repo.color)),
-                    _Pill(
-                        text: t.t('repoDetail.public'), color: AppColors.info),
-                    _Pill(
-                        text: t.t('repoDetail.monitored'),
-                        color: AppColors.success),
+                    const _Pill(text: '公开仓库', color: AppColors.info),
+                    const _Pill(text: '已加入监控', color: AppColors.success),
                   ],
                 ),
               ],
@@ -165,13 +160,13 @@ class _Header extends StatelessWidget {
               FilledButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.notifications_active, size: 16),
-                label: Text(t.t('repoDetail.monitorCta')),
+                label: const Text('监控'),
               ),
               const SizedBox(height: 6),
               OutlinedButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.bookmark_border, size: 16),
-                label: Text(t.t('repoDetail.bookmarkCta')),
+                label: const Text('收藏'),
               ),
             ],
           ),
@@ -187,12 +182,11 @@ class _Stats extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return Row(
       children: [
         Expanded(
           child: _StatCard(
-            label: t.t('repoDetail.statTotalStar'),
+            label: '总 Star',
             value: _shortNumber(repo.starCount),
             icon: Icons.star_rounded,
             color: AppColors.starGold,
@@ -201,7 +195,7 @@ class _Stats extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatCard(
-            label: t.t('repoDetail.statTodayNew'),
+            label: '今日新增',
             value: '+${_shortNumber(repo.starDelta)}',
             icon: Icons.trending_up_rounded,
             color: AppColors.success,
@@ -210,7 +204,7 @@ class _Stats extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatCard(
-            label: t.t('repoDetail.statFork'),
+            label: 'Fork',
             value: _shortNumber(repo.forkCount),
             icon: Icons.call_split_rounded,
             color: AppColors.info,
@@ -219,7 +213,7 @@ class _Stats extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatCard(
-            label: t.t('repoDetail.statContributors'),
+            label: '贡献者',
             value: '24',
             icon: Icons.people_outline,
             color: Theme.of(context).colorScheme.primary,
@@ -277,27 +271,23 @@ class _Chart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
+              const Expanded(
                 child: SectionHeader(
-                  title: t.t('repoDetail.chartTitle'),
-                  subtitle: t.t('repoDetail.chartSubtitle'),
+                  title: 'Star 增长趋势',
+                  subtitle: '最近 30 天 · 包含本仓库 + 同期均',
                 ),
               ),
               SegmentedButton<int>(
-                segments: [
-                  ButtonSegment(
-                      value: 7, label: Text(t.t('repoDetail.window7d'))),
-                  ButtonSegment(
-                      value: 30, label: Text(t.t('repoDetail.window30d'))),
-                  ButtonSegment(
-                      value: 90, label: Text(t.t('repoDetail.window90d'))),
+                segments: const [
+                  ButtonSegment(value: 7, label: Text('7天')),
+                  ButtonSegment(value: 30, label: Text('30天')),
+                  ButtonSegment(value: 90, label: Text('90天')),
                 ],
                 selected: const {30},
                 onSelectionChanged: (_) {},
@@ -330,17 +320,16 @@ class _Contributors extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
-    return AppCard(
+    return const AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: t.t('repoDetail.contributorsTitle'),
-            subtitle: t.t('repoDetail.contributorsSubtitle'),
+            title: '贡献者活跃度',
+            subtitle: '本周贡献排行',
           ),
-          const SizedBox(height: AppSpacing.md),
-          const _ContribList(),
+          SizedBox(height: AppSpacing.md),
+          _ContribList(),
         ],
       ),
     );
@@ -369,8 +358,7 @@ class _ContribList extends StatelessWidget {
             ),
             title: Text(c.login, style: AppTypography.titleSmall),
             subtitle: Text(
-              context.t.tr('developers.weeklyContribWithCount',
-                  {'count': c.contributions}),
+              '+${c.contributions} 本周贡献',
             ),
             trailing: const Icon(Icons.chevron_right, size: 18),
           ),
@@ -386,17 +374,16 @@ class _Activity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
-    return AppCard(
+    return const AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: t.t('repoDetail.activityTitle'),
-            subtitle: t.t('repoDetail.activitySubtitle'),
+            title: '活动速览',
+            subtitle: '近期 Commit / Issue / Release',
           ),
-          const SizedBox(height: AppSpacing.md),
-          const _ActivityList(),
+          SizedBox(height: AppSpacing.md),
+          _ActivityList(),
         ],
       ),
     );
@@ -409,30 +396,27 @@ class _ActivityList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = <_ActivityItem>[
-      _ActivityItem(
+      const _ActivityItem(
         title: 'feat: support streaming response',
-        time: context.t
-            .tr('time.hoursAgoWithBranch', {'hours': 4, 'branch': 'main'}),
+        time: '4 小时前 · main',
         color: AppColors.success,
         icon: Icons.commit,
       ),
-      _ActivityItem(
+      const _ActivityItem(
         title: 'fix: cache invalidation race',
-        time: context.t
-            .tr('time.hoursAgoWithBranch', {'hours': 6, 'branch': 'main'}),
+        time: '6 小时前 · main',
         color: AppColors.info,
         icon: Icons.bug_report_outlined,
       ),
-      _ActivityItem(
+      const _ActivityItem(
         title: 'chore: bump dependencies',
-        time: context.t.tr(
-            'time.yesterdayWithBranch', {'time': '18:24', 'branch': 'main'}),
+        time: '昨天 18:24 · main',
         color: AppColors.warning,
         icon: Icons.upgrade,
       ),
       _ActivityItem(
         title: 'release v0.42.1',
-        time: context.t.tr('time.daysAgo', {'days': 3}),
+        time: '3 天前',
         color: Theme.of(context).colorScheme.primary,
         icon: Icons.local_fire_department,
       ),
@@ -487,9 +471,9 @@ class _Left extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         _Chart(repo: repo),
         const SizedBox(height: AppSpacing.lg),
-        _Contributors(),
+        const _Contributors(),
         const SizedBox(height: AppSpacing.lg),
-        _Activity(),
+        const _Activity(),
       ],
     );
   }
@@ -500,8 +484,8 @@ class _Right extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: const [
+    return const Column(
+      children: [
         _AboutCard(),
         SizedBox(height: AppSpacing.lg),
         _TopicsCard(),
@@ -517,18 +501,17 @@ class _AboutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
-    return AppCard(
+    return const AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: t.t('repoDetail.aboutTitle'),
-            subtitle: t.t('repoDetail.aboutSubtitle'),
+            title: '关于',
+            subtitle: 'README 摘要',
           ),
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: AppSpacing.md),
           Text(
-            t.t('repoDetail.aboutBody'),
+            'A modern runtime for JavaScript and TypeScript. Built on V8, Rust, and Tokio. Provides a secure, production-ready environment for building web apps.',
             style: AppTypography.bodyMedium,
           ),
         ],
@@ -542,25 +525,24 @@ class _TopicsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
-    return AppCard(
+    return const AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: t.t('repoDetail.topicsTitle'),
-            subtitle: t.t('repoDetail.topicsSubtitle'),
+            title: '话题',
+            subtitle: '仓库相关技术话题',
           ),
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: [
-              Chip(label: Text(t.t('topic.runtime'))),
-              Chip(label: Text(t.t('topic.typescript'))),
-              Chip(label: Text(t.t('topic.rust'))),
-              Chip(label: Text(t.t('topic.cli'))),
-              Chip(label: Text(t.t('topic.web'))),
+              Chip(label: Text('运行时')),
+              Chip(label: Text('TypeScript')),
+              Chip(label: Text('Rust')),
+              Chip(label: Text('命令行')),
+              Chip(label: Text('Web')),
             ],
           ),
         ],
@@ -574,21 +556,20 @@ class _RelatedReposCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
+          const Padding(
+            padding: EdgeInsets.fromLTRB(
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: t.t('repoDetail.relatedTitle'),
-              subtitle: t.t('repoDetail.relatedSubtitle'),
+              title: '相关仓库',
+              subtitle: '同领域的热门项目',
             ),
           ),
           for (final r in DemoData.trending.take(4)) ...[

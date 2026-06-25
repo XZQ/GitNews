@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -12,14 +13,14 @@ class HomeTopicsPanel extends StatelessWidget {
   const HomeTopicsPanel({super.key});
 
   static const _topics = [
-    'AI Agent',
-    'LLM',
-    'DevTools',
-    'RAG',
+    'AI 智能体',
+    '大语言模型',
+    '开发工具',
+    '检索增强生成',
     'Web3',
-    'Security',
-    'Cloud Native',
-    'Data Infra',
+    '安全',
+    '云原生',
+    '数据基建',
   ];
 
   @override
@@ -37,7 +38,7 @@ class HomeTopicsPanel extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              for (final t in _topics) _TopicChip(label: t),
+              for (final topic in _topics) _TopicChip(label: topic),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -52,16 +53,18 @@ class HomeTopicsPanel extends StatelessWidget {
               dense: true,
               leading: CircleAvatar(
                 radius: 16,
-                backgroundColor: const Color(0xFFEEEAFE),
+                backgroundColor: AppColors.brandLight,
                 child: Text(
                   c.login[0].toUpperCase(),
                   style: AppTypography.labelMedium.copyWith(
-                    color: const Color(0xFF5840B5),
+                    color: AppColors.brandDark,
                   ),
                 ),
               ),
               title: Text(c.login, style: AppTypography.titleSmall),
-              subtitle: Text('+${c.contributions} 本周贡献'),
+              subtitle: Text(
+                '+${c.contributions} 本周贡献',
+              ),
               trailing: const Icon(Icons.chevron_right, size: 18),
             ),
         ],

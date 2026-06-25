@@ -26,8 +26,8 @@ class LanguageTrendPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -38,6 +38,7 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -55,7 +56,10 @@ class _Body extends StatelessWidget {
                 subtitle: '热门仓库的编程语言占比 · 最近 30 天',
               ),
               const SizedBox(height: AppSpacing.lg),
-              _DonutChart(holeColor: AppColors.surfaceLight),
+              _DonutChart(
+                holeColor:
+                    isLight ? AppColors.surfaceLight : AppColors.surfaceDark,
+              ),
               const SizedBox(height: AppSpacing.lg),
               for (final l in DemoData.languages) ...[
                 _LangRow(
@@ -70,10 +74,10 @@ class _Body extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppCard(
+        const AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
                 title: '语言增长率排行',
                 subtitle: '本周 vs 上周',

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -17,7 +16,7 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t.t('login.title')),
+        title: const Text('登录'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -26,8 +25,8 @@ class LoginPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(maxWidth: 480, child: const _Body()),
-        expanded: (_) => CenteredContent(maxWidth: 480, child: const _Body()),
+        medium: (_) => const CenteredContent(maxWidth: 480, child: _Body()),
+        expanded: (_) => const CenteredContent(maxWidth: 480, child: _Body()),
       ),
     );
   }
@@ -42,32 +41,32 @@ class _Body extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         AppCard(
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('login.headerTitle'),
-                subtitle: context.t.t('login.headerSubtitle'),
+                title: '登录 GitHub',
+                subtitle: '解锁数据同步、跨设备、监控告警推送',
               ),
-              const SizedBox(height: AppSpacing.lg),
+              SizedBox(height: AppSpacing.lg),
               _InputField(
-                labelKey: 'login.username',
+                label: '用户名 / 邮箱',
                 hint: 'your-name',
               ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: AppSpacing.md),
               _InputField(
-                labelKey: 'login.password',
+                label: '密码',
                 hint: '********',
                 obscure: true,
               ),
-              const SizedBox(height: AppSpacing.lg),
+              SizedBox(height: AppSpacing.lg),
             ],
           ).copyChildren([
             SizedBox(
               width: double.infinity,
               child: FilledButton(
                 onPressed: () {},
-                child: Text(context.t.t('login.submit')),
+                child: const Text('登录'),
               ),
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -76,13 +75,13 @@ class _Body extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: () {},
                 icon: const Icon(Icons.code, size: 16),
-                label: Text(context.t.t('login.withGithub')),
+                label: const Text('使用 GitHub 登录'),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Center(
               child: Text(
-                context.t.t('login.agreement'),
+                '登录即代表同意《服务条款》与《隐私政策》',
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.textMutedLight,
                 ),
@@ -91,18 +90,18 @@ class _Body extends StatelessWidget {
           ]),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppCard(
+        const AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('login.whyTitle'),
-                subtitle: context.t.t('login.whySubtitle'),
+                title: '为什么登录?',
+                subtitle: '匿名也能使用大部分功能',
               ),
-              const SizedBox(height: AppSpacing.md),
-              _Bullet('login.whyB1'),
-              _Bullet('login.whyB2'),
-              _Bullet('login.whyB3'),
+              SizedBox(height: AppSpacing.md),
+              _Bullet('同步监控规则与告警'),
+              _Bullet('跨设备访问'),
+              _Bullet('GitHub API 配额提升至 5000/h'),
             ],
           ),
         ),
@@ -113,12 +112,12 @@ class _Body extends StatelessWidget {
 
 class _InputField extends StatelessWidget {
   const _InputField({
-    required this.labelKey,
+    required this.label,
     required this.hint,
     this.obscure = false,
   });
 
-  final String labelKey;
+  final String label;
   final String hint;
   final bool obscure;
 
@@ -127,7 +126,7 @@ class _InputField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.t.t(labelKey), style: AppTypography.labelMedium),
+        Text(label, style: AppTypography.labelMedium),
         const SizedBox(height: 6),
         TextField(
           obscureText: obscure,
@@ -139,8 +138,9 @@ class _InputField extends StatelessWidget {
 }
 
 class _Bullet extends StatelessWidget {
-  const _Bullet(this.textKey);
-  final String textKey;
+  const _Bullet(this.text);
+
+  final String text;
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +156,7 @@ class _Bullet extends StatelessWidget {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              context.t.t(textKey),
+              text,
               style: AppTypography.bodyMedium,
             ),
           ),

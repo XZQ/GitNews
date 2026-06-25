@@ -27,8 +27,8 @@ class TrendingOverviewPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -75,19 +75,20 @@ class _Body extends StatelessWidget {
                 runSpacing: AppSpacing.sm,
                 children: [
                   _LegendDot(
-                      color: Theme.of(context).colorScheme.primary,
-                      label: '本周'),
-                  _LegendDot(color: AppColors.info, label: '上周'),
+                    color: Theme.of(context).colorScheme.primary,
+                    label: '本周',
+                  ),
+                  const _LegendDot(color: AppColors.info, label: '上周'),
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        AppCard(
+        const AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
+            children: [
               SectionHeader(
                 title: '按时间窗统计',
                 subtitle: '不同时段的 Star 增长总量',
@@ -132,7 +133,7 @@ class _WindowStatsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rows = const [
+    final rows = [
       ['今日', '+18.5%', '4,231', '128'],
       ['本周', '+12.4%', '28,420', '1,082'],
       ['本月', '+9.6%', '124,830', '4,210'],
@@ -146,13 +147,13 @@ class _WindowStatsTable extends StatelessWidget {
         3: FlexColumnWidth(1),
       },
       children: [
-        const TableRow(
+        TableRow(
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: Color(0xFFE6E7EE)),
+              bottom: BorderSide(color: Theme.of(context).dividerColor),
             ),
           ),
-          children: [
+          children: const [
             _Th('时间窗'),
             _Th('增长率'),
             _Th('新增 Star'),

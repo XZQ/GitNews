@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../core/errors/app_exception.dart';
-import '../../core/i18n/app_localizations.dart';
 
 /// 统一错误视图:按 AppException.kind 渲染不同文案与操作。
 class ErrorView extends StatelessWidget {
@@ -32,7 +31,7 @@ class ErrorView extends StatelessWidget {
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: action,
-                child: Text(context.t.t('app.retry')),
+                child: const Text('重试'),
               ),
             ],
           ],
@@ -42,29 +41,24 @@ class ErrorView extends StatelessWidget {
   }
 
   (IconData, String, VoidCallback?) _resolve(BuildContext context) {
-    final t = context.t;
     switch (error.kind) {
       case AppExceptionKind.network:
-        return (Icons.wifi_off, t.t('error.network'), onRetry);
+        return (Icons.wifi_off, '网络连接异常,请检查后重试', onRetry);
       case AppExceptionKind.rateLimit:
         final secs = error.retryAfterSeconds ?? 60;
         return (
           Icons.hourglass_bottom,
-          t.tr('error.rateLimit', {'secs': secs}),
+          '请求过于频繁,$secs 秒后再试',
           onRetry,
         );
       case AppExceptionKind.unauthorized:
-        return (
-          Icons.lock_outline,
-          t.t('error.unauthorized'),
-          onLogin ?? onRetry
-        );
+        return (Icons.lock_outline, '需要登录', onLogin ?? onRetry);
       case AppExceptionKind.notFound:
-        return (Icons.search_off, t.t('error.notFound'), onRetry);
+        return (Icons.search_off, '未找到资源', onRetry);
       case AppExceptionKind.parse:
       case AppExceptionKind.server:
       case AppExceptionKind.unknown:
-        return (Icons.error_outline, t.t('error.generic'), onRetry);
+        return (Icons.error_outline, '出错了,请稍后重试', onRetry);
     }
   }
 }

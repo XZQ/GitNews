@@ -11,24 +11,24 @@ class DevIntelBottomGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return const Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: const [
+            children: [
               Expanded(flex: 7, child: DevIntelRepoTable()),
               SizedBox(width: AppSpacing.lg),
               Expanded(flex: 5, child: DevIntelHotspotList()),
             ],
           ),
         ),
-        const SizedBox(height: AppSpacing.lg),
+        SizedBox(height: AppSpacing.lg),
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: const [
+            children: [
               Expanded(flex: 7, child: DevIntelSignalsList()),
               SizedBox(width: AppSpacing.lg),
               Expanded(flex: 5, child: DevIntelMonitoringStatus()),

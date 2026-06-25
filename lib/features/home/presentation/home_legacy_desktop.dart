@@ -28,7 +28,7 @@ import '../widgets/home_alerts_panel.dart';
 import '../widgets/home_topics_panel.dart';
 
 class HomeMobileBody extends StatelessWidget {
-  const HomeMobileBody();
+  const HomeMobileBody({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,14 +63,17 @@ class _MobileHeroState extends State<_MobileHero> {
   @override
   Widget build(BuildContext context) {
     final series = _seriesForWindow(
-        _window, _HomeTab.trending, Theme.of(context).colorScheme.primary);
+      _window,
+      _HomeTab.trending,
+      Theme.of(context).colorScheme.primary,
+    );
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
+              const Expanded(
                 child: Text(
                   'Star 增长趋势',
                   style: AppTypography.titleLarge,
@@ -98,7 +101,7 @@ class _MobileHeroState extends State<_MobileHero> {
 }
 
 class HomeTabletBody extends StatefulWidget {
-  const HomeTabletBody();
+  const HomeTabletBody({super.key});
 
   @override
   State<HomeTabletBody> createState() => _HomeTabletBodyState();
@@ -106,7 +109,7 @@ class HomeTabletBody extends StatefulWidget {
 
 class _HomeTabletBodyState extends State<HomeTabletBody> {
   int _chartWindow = 7;
-  _HomeTab _tab = _HomeTab.trending;
+  final _HomeTab _tab = _HomeTab.trending;
 
   @override
   Widget build(BuildContext context) {
@@ -121,7 +124,7 @@ class _HomeTabletBodyState extends State<HomeTabletBody> {
           tab: _tab,
         ),
         const SizedBox(height: AppSpacing.lg),
-        HomeTopicsPanel(),
+        const HomeTopicsPanel(),
       ],
     );
   }
@@ -139,6 +142,9 @@ enum _HomeTab {
   final IconData activeIcon;
   final IconData idleIcon;
 }
+
+/// 仓库表格列类型:用枚举而非本地化字符串做 dispatch。
+enum _ColumnType { totalStar, today, growthRate, fork }
 
 class _HomeDesktopBody extends StatefulWidget {
   const _HomeDesktopBody();
@@ -511,8 +517,8 @@ class _OverviewMetricsRow extends StatelessWidget {
   List<_MetricSpec> _specsFor(_HomeTab tab, Color primary) {
     switch (tab) {
       case _HomeTab.trending:
-        return const [
-          _MetricSpec(
+        return [
+          const _MetricSpec(
             title: '今日新增 Star',
             value: '128',
             delta: '+18.5%',
@@ -520,21 +526,21 @@ class _OverviewMetricsRow extends StatelessWidget {
             icon: Icons.star_rounded,
             accent: AppColors.starGold,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: 'Star 增长榜仓库',
             value: '42.8K',
             delta: '+7.2%',
-            subtitle: 'Top trending',
+            subtitle: '趋势榜首',
             icon: Icons.trending_up_rounded,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '监控中仓库',
             value: '36',
             delta: '+3',
             subtitle: '本周新增',
             icon: Icons.visibility_outlined,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '今日告警',
             value: '12',
             delta: '-2',
@@ -544,8 +550,8 @@ class _OverviewMetricsRow extends StatelessWidget {
           ),
         ];
       case _HomeTab.growth:
-        return const [
-          _MetricSpec(
+        return [
+          const _MetricSpec(
             title: '7 日新增 Star',
             value: '892',
             delta: '+24.3%',
@@ -553,21 +559,21 @@ class _OverviewMetricsRow extends StatelessWidget {
             icon: Icons.star_rounded,
             accent: AppColors.starGold,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '增长率 Top 1',
             value: '62.4%',
             delta: '+12.8%',
             subtitle: 'llama.cpp',
             icon: Icons.trending_up_rounded,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '增长中仓库',
             value: '1,284',
             delta: '+96',
             subtitle: '过去 24h',
             icon: Icons.show_chart_rounded,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '回落预警',
             value: '5',
             delta: '+1',
@@ -577,15 +583,15 @@ class _OverviewMetricsRow extends StatelessWidget {
           ),
         ];
       case _HomeTab.health:
-        return const [
-          _MetricSpec(
+        return [
+          const _MetricSpec(
             title: '活跃贡献者',
             value: '8.2K',
             delta: '+4.1%',
             subtitle: '过去 30 天',
             icon: Icons.people_rounded,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '平均 Issue 响应',
             value: '6.4h',
             delta: '-0.8h',
@@ -593,14 +599,14 @@ class _OverviewMetricsRow extends StatelessWidget {
             icon: Icons.support_agent_rounded,
             accent: AppColors.success,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '最近提交',
             value: '3 天内',
             delta: '92%',
             subtitle: '持续维护',
             icon: Icons.commit_rounded,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '弃用风险',
             value: '7',
             delta: '-2',
@@ -619,7 +625,7 @@ class _OverviewMetricsRow extends StatelessWidget {
             icon: Icons.bookmark_rounded,
             accent: primary,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '收藏总 Star',
             value: '128K',
             delta: '+1,840',
@@ -627,14 +633,14 @@ class _OverviewMetricsRow extends StatelessWidget {
             icon: Icons.star_rounded,
             accent: AppColors.starGold,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '近 7 日更新',
             value: '11',
             delta: '+4',
             subtitle: '有动态',
             icon: Icons.notifications_active_outlined,
           ),
-          _MetricSpec(
+          const _MetricSpec(
             title: '待跟进',
             value: '6',
             delta: '-1',
@@ -740,7 +746,7 @@ class _ChartCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final series =
         _seriesForWindow(window, tab, Theme.of(context).colorScheme.primary);
-    final windowLabel = _windowLabel(window);
+    final windowLabel = '近 $window 天';
     final title = _chartTitle(tab);
     final subtitle = _chartSubtitle(tab, windowLabel);
     final legends = _chartLegends(tab, Theme.of(context).colorScheme.primary);
@@ -796,16 +802,16 @@ String _chartTitle(_HomeTab tab) {
   }
 }
 
-String _chartSubtitle(_HomeTab tab, String windowLabel) {
+String _chartSubtitle(_HomeTab tab, String window) {
   switch (tab) {
     case _HomeTab.trending:
-      return '$windowLabel · 与上 $windowLabel 对比';
+      return '$window · 与上周对比';
     case _HomeTab.growth:
-      return '$windowLabel · 增长率排名变动';
+      return '$window · 增长率排名变动';
     case _HomeTab.health:
-      return '$windowLabel · 提交与活跃贡献者';
+      return '$window · 提交与活跃贡献者';
     case _HomeTab.starred:
-      return '$windowLabel · 收藏仓库总体增长';
+      return '$window · 收藏仓库总体增长';
   }
 }
 
@@ -814,22 +820,22 @@ List<_LegendItem> _chartLegends(_HomeTab tab, Color primary) {
     case _HomeTab.trending:
       return [
         _LegendItem(color: primary, label: '本周'),
-        _LegendItem(color: AppColors.info, label: '上周'),
+        const _LegendItem(color: AppColors.info, label: '上周'),
       ];
     case _HomeTab.growth:
-      return const [
-        _LegendItem(color: AppColors.success, label: '增长率'),
-        _LegendItem(color: AppColors.warning, label: '基线'),
+      return [
+        const _LegendItem(color: AppColors.success, label: '增长率'),
+        const _LegendItem(color: AppColors.warning, label: '基线'),
       ];
     case _HomeTab.health:
       return [
         _LegendItem(color: primary, label: '提交数'),
-        _LegendItem(color: AppColors.success, label: '贡献者'),
+        const _LegendItem(color: AppColors.success, label: '贡献者'),
       ];
     case _HomeTab.starred:
-      return const [
-        _LegendItem(color: AppColors.starGold, label: '收藏 Star'),
-        _LegendItem(color: AppColors.info, label: '全网平均'),
+      return [
+        const _LegendItem(color: AppColors.starGold, label: '收藏 Star'),
+        const _LegendItem(color: AppColors.info, label: '全网平均'),
       ];
   }
 }
@@ -887,8 +893,8 @@ class _TodayStack extends StatelessWidget {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
     final cards = switch (tab) {
-      _HomeTab.trending => const [
-          _TodayCard(
+      _HomeTab.trending => [
+          const _TodayCard(
             icon: Icons.star_rounded,
             iconColor: AppColors.starGold,
             label: '今日 Star 增长',
@@ -896,7 +902,7 @@ class _TodayStack extends StatelessWidget {
             delta: '+18.5%',
             items: 3,
           ),
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.forum_outlined,
             iconColor: AppColors.info,
             label: '今日讨论',
@@ -904,7 +910,7 @@ class _TodayStack extends StatelessWidget {
             delta: '+9.2%',
             items: 2,
           ),
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.commit_rounded,
             iconColor: AppColors.success,
             label: '今日 Commits',
@@ -914,7 +920,7 @@ class _TodayStack extends StatelessWidget {
           ),
         ],
       _HomeTab.growth => [
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.trending_up_rounded,
             iconColor: AppColors.success,
             label: '最快增长仓库',
@@ -930,7 +936,7 @@ class _TodayStack extends StatelessWidget {
             delta: '+96',
             items: 2,
           ),
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.warning_amber_rounded,
             iconColor: AppColors.warning,
             label: '增速回落',
@@ -948,7 +954,7 @@ class _TodayStack extends StatelessWidget {
             delta: '+4.1%',
             items: 1,
           ),
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.commit_rounded,
             iconColor: AppColors.success,
             label: '今日 Commits',
@@ -956,7 +962,7 @@ class _TodayStack extends StatelessWidget {
             delta: '+4.1%',
             items: 2,
           ),
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.support_agent_rounded,
             iconColor: AppColors.info,
             label: 'Issue 响应中位',
@@ -974,7 +980,7 @@ class _TodayStack extends StatelessWidget {
             delta: '+3',
             items: 1,
           ),
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.star_rounded,
             iconColor: AppColors.starGold,
             label: '近 7 日 Star',
@@ -982,7 +988,7 @@ class _TodayStack extends StatelessWidget {
             delta: '+12.8%',
             items: 2,
           ),
-          _TodayCard(
+          const _TodayCard(
             icon: Icons.notifications_active_outlined,
             iconColor: AppColors.warning,
             label: '待跟进',
@@ -1046,18 +1052,26 @@ class _TodayCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label,
-                    style: AppTypography.labelMedium.copyWith(
-                      color: colors.onSurfaceVariant,
-                    )),
+                Text(
+                  label,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
                   children: [
-                    Text(
-                      value,
-                      style: AppTypography.headlineMedium,
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          value,
+                          style: AppTypography.headlineMedium,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Text(
@@ -1146,41 +1160,51 @@ class _RepoTableCard extends StatelessWidget {
               children: [
                 Expanded(
                   flex: 4,
-                  child: Text('仓库',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      )),
+                  child: Text(
+                    '仓库',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 80,
-                  child: Text('语言',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      )),
+                  child: Text(
+                    '语言',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 76,
-                  child: Text(header.col1,
-                      textAlign: TextAlign.right,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      )),
+                  child: Text(
+                    _colTypeLabel(header.col1),
+                    textAlign: TextAlign.right,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 72,
-                  child: Text(header.col2,
-                      textAlign: TextAlign.right,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      )),
+                  child: Text(
+                    _colTypeLabel(header.col2),
+                    textAlign: TextAlign.right,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 60,
-                  child: Text(header.col3,
-                      textAlign: TextAlign.right,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      )),
+                  child: Text(
+                    _colTypeLabel(header.col3),
+                    textAlign: TextAlign.right,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -1190,9 +1214,9 @@ class _RepoTableCard extends StatelessWidget {
             if (i != 0) const Divider(height: 1),
             _RepoRow(
               repo: repos[i],
-              col1Label: header.col1,
-              col2Label: header.col2,
-              col3Label: header.col3,
+              col1Type: header.col1,
+              col2Type: header.col2,
+              col3Type: header.col3,
               onTap: () => context.go(
                 '/repo_detail/${Uri.encodeComponent(repos[i].fullName)}',
               ),
@@ -1229,33 +1253,33 @@ class _RepoTableCard extends StatelessWidget {
         return const _TableHeader(
           title: '趋势增长榜',
           subtitle: '今日 Star 增长 Top 6 · 按增速排序',
-          col1: '总 Star',
-          col2: '今日',
-          col3: 'Fork',
+          col1: _ColumnType.totalStar,
+          col2: _ColumnType.today,
+          col3: _ColumnType.fork,
         );
       case _HomeTab.growth:
         return const _TableHeader(
           title: '增长率榜',
           subtitle: '近 7 日增长率排序 · Top 6',
-          col1: '总 Star',
-          col2: '增长率',
-          col3: 'Fork',
+          col1: _ColumnType.totalStar,
+          col2: _ColumnType.growthRate,
+          col3: _ColumnType.fork,
         );
       case _HomeTab.health:
         return const _TableHeader(
           title: '活跃仓库榜',
           subtitle: '按 Fork 与维护活跃度排序',
-          col1: '总 Star',
-          col2: 'Fork',
-          col3: '今日',
+          col1: _ColumnType.totalStar,
+          col2: _ColumnType.fork,
+          col3: _ColumnType.today,
         );
       case _HomeTab.starred:
         return const _TableHeader(
           title: '收藏候选榜',
           subtitle: '按总 Star 排序 · 高质量仓库',
-          col1: '总 Star',
-          col2: '今日',
-          col3: 'Fork',
+          col1: _ColumnType.totalStar,
+          col2: _ColumnType.today,
+          col3: _ColumnType.fork,
         );
     }
   }
@@ -1271,24 +1295,37 @@ class _TableHeader {
   });
   final String title;
   final String subtitle;
-  final String col1;
-  final String col2;
-  final String col3;
+  final _ColumnType col1;
+  final _ColumnType col2;
+  final _ColumnType col3;
+}
+
+String _colTypeLabel(_ColumnType type) {
+  switch (type) {
+    case _ColumnType.totalStar:
+      return '总 Star';
+    case _ColumnType.today:
+      return '今日';
+    case _ColumnType.growthRate:
+      return '增长率';
+    case _ColumnType.fork:
+      return 'Fork';
+  }
 }
 
 class _RepoRow extends StatelessWidget {
   const _RepoRow({
     required this.repo,
     required this.onTap,
-    required this.col1Label,
-    required this.col2Label,
-    required this.col3Label,
+    required this.col1Type,
+    required this.col2Type,
+    required this.col3Type,
   });
   final DemoRepo repo;
   final VoidCallback onTap;
-  final String col1Label;
-  final String col2Label;
-  final String col3Label;
+  final _ColumnType col1Type;
+  final _ColumnType col2Type;
+  final _ColumnType col3Type;
 
   double get _growthPct =>
       repo.starCount == 0 ? 0.0 : (repo.starDelta / repo.starCount * 100);
@@ -1348,15 +1385,17 @@ class _RepoRow extends StatelessWidget {
             ),
             SizedBox(
               width: 80,
-              child: Text(repo.language,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  )),
+              child: Text(
+                repo.language,
+                style: AppTypography.bodySmall.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
             ),
             SizedBox(
               width: 76,
               child: Text(
-                _colValue(col1Label),
+                _colValue(col1Type),
                 textAlign: TextAlign.right,
                 style: AppTypography.titleSmall,
               ),
@@ -1364,7 +1403,7 @@ class _RepoRow extends StatelessWidget {
             SizedBox(
               width: 72,
               child: Text(
-                _colDelta(col2Label),
+                _colDelta(col2Type),
                 textAlign: TextAlign.right,
                 style: AppTypography.titleSmall.copyWith(
                   color: AppColors.success,
@@ -1375,7 +1414,7 @@ class _RepoRow extends StatelessWidget {
             SizedBox(
               width: 60,
               child: Text(
-                _colTertiary(col3Label),
+                _colTertiary(col3Type),
                 textAlign: TextAlign.right,
                 style: AppTypography.bodySmall.copyWith(
                   color: colors.onSurfaceVariant,
@@ -1388,39 +1427,40 @@ class _RepoRow extends StatelessWidget {
     );
   }
 
-  String _colValue(String label) {
-    switch (label) {
-      case '总 Star':
+  String _colValue(_ColumnType type) {
+    switch (type) {
+      case _ColumnType.totalStar:
         return _compact(repo.starCount);
-      case '增长率':
+      case _ColumnType.growthRate:
         return '+${_growthPct.toStringAsFixed(1)}%';
-      case 'Fork':
+      case _ColumnType.fork:
         return _compact(repo.forkCount);
-      default:
+      case _ColumnType.today:
         return _compact(repo.starCount);
     }
   }
 
-  String _colDelta(String label) {
-    switch (label) {
-      case '今日':
+  String _colDelta(_ColumnType type) {
+    switch (type) {
+      case _ColumnType.today:
         return '+${_compact(repo.starDelta)}';
-      case '增长率':
+      case _ColumnType.growthRate:
         return '+${_growthPct.toStringAsFixed(1)}%';
-      case 'Fork':
+      case _ColumnType.fork:
         return _compact(repo.forkCount);
-      default:
+      case _ColumnType.totalStar:
         return '+${_compact(repo.starDelta)}';
     }
   }
 
-  String _colTertiary(String label) {
-    switch (label) {
-      case 'Fork':
+  String _colTertiary(_ColumnType type) {
+    switch (type) {
+      case _ColumnType.fork:
         return _compact(repo.forkCount);
-      case '今日':
+      case _ColumnType.today:
         return '+${_compact(repo.starDelta)}';
-      default:
+      case _ColumnType.totalStar:
+      case _ColumnType.growthRate:
         return _compact(repo.forkCount);
     }
   }
@@ -1444,7 +1484,7 @@ class _LanguageDistributionCard extends StatelessWidget {
         children: [
           SectionHeader(
             title: _langTitle(tab),
-            subtitle: _langSubtitle(tab, data.length),
+            subtitle: _langSubtitle(tab),
           ),
           const SizedBox(height: AppSpacing.md),
           for (final l in data)
@@ -1474,7 +1514,7 @@ class _LanguageDistributionCard extends StatelessWidget {
     }
   }
 
-  String _langSubtitle(_HomeTab tab, int count) {
+  String _langSubtitle(_HomeTab tab) {
     switch (tab) {
       case _HomeTab.trending:
         return '当前榜单仓库的编程语言占比';
@@ -1523,10 +1563,12 @@ class _LangBar extends StatelessWidget {
       children: [
         SizedBox(
           width: 72,
-          child: Text(name,
-              style: AppTypography.bodySmall.copyWith(
-                color: colors.onSurface,
-              )),
+          child: Text(
+            name,
+            style: AppTypography.bodySmall.copyWith(
+              color: colors.onSurface,
+            ),
+          ),
         ),
         Expanded(
           child: ClipRRect(
@@ -1619,5 +1661,3 @@ List<ChartSeries> _seriesForWindow(int days, _HomeTab tab, Color primary) {
       ];
   }
 }
-
-String _windowLabel(int days) => '近 $days 天';

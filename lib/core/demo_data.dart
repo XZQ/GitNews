@@ -232,13 +232,22 @@ class DemoData {
 
   static const List<DemoContributor> contributors = [
     DemoContributor(
-        login: 'ggerganov', contributions: 1284, avatarColor: 0xFF6E56CF),
+      login: 'ggerganov',
+      contributions: 1284,
+      avatarColor: 0xFF6E56CF,
+    ),
     DemoContributor(login: 'sama', contributions: 982, avatarColor: 0xFFE5A150),
     DemoContributor(
-        login: 'yyx990803', contributions: 712, avatarColor: 0xFF30A46C),
+      login: 'yyx990803',
+      contributions: 712,
+      avatarColor: 0xFF30A46C,
+    ),
     DemoContributor(login: 'tj', contributions: 645, avatarColor: 0xFFE5464D),
     DemoContributor(
-        login: 'yyx990803', contributions: 521, avatarColor: 0xFF4CB5FF),
+      login: 'yyx990803',
+      contributions: 521,
+      avatarColor: 0xFF4CB5FF,
+    ),
   ];
 
   /// Star 趋势生成(演示)。[count] 控制点数。

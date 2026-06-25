@@ -5,21 +5,21 @@ import 'package:flutter/material.dart';
 /// UI 通过 `themePresetControllerProvider` 选当前预设;
 /// `AppTheme.fromSeed` 用 preset.seed 派生整套 Material 3 ColorScheme。
 enum AppThemePreset {
-  slate('slate', 'theme.preset.slate', Color(0xFF64748B)),
-  blue('blue', 'theme.preset.blue', Color(0xFF1E88E5)),
-  indigo('indigo', 'theme.preset.indigo', Color(0xFF4F46E5)),
-  violet('violet', 'theme.preset.violet', Color(0xFF7C3AED)),
-  purple('purple', 'theme.preset.purple', Color(0xFF6E56CF)),
-  teal('teal', 'theme.preset.teal', Color(0xFF0D9488)),
-  emerald('emerald', 'theme.preset.emerald', Color(0xFF10B981)),
-  amber('amber', 'theme.preset.amber', Color(0xFFF59E0B)),
-  orange('orange', 'theme.preset.orange', Color(0xFFF97316)),
-  rose('rose', 'theme.preset.rose', Color(0xFFF43F5E));
+  slate('slate', '灰白', Color(0xFF64748B)),
+  blue('blue', '宝蓝', Color(0xFF1E88E5)),
+  indigo('indigo', '靛蓝', Color(0xFF4F46E5)),
+  violet('violet', '紫罗兰', Color(0xFF7C3AED)),
+  purple('purple', '暗紫', Color(0xFF6E56CF)),
+  teal('teal', '青绿', Color(0xFF0D9488)),
+  emerald('emerald', '翡翠', Color(0xFF10B981)),
+  amber('amber', '琥珀', Color(0xFFF59E0B)),
+  orange('orange', '橙红', Color(0xFFF97316)),
+  rose('rose', '玫红', Color(0xFFF43F5E));
 
-  const AppThemePreset(this.id, this.nameKey, this.seed);
+  const AppThemePreset(this.id, this.name, this.seed);
 
   final String id;
-  final String nameKey;
+  final String name;
   final Color seed;
 
   static AppThemePreset byId(String id) {

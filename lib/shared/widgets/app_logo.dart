@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 
 /// GitHub情报站 品牌标识。
@@ -33,7 +32,7 @@ class AppLogo extends StatelessWidget {
         if (showText) ...[
           SizedBox(width: size * 0.32),
           Text(
-            context.t.t('nav.brand'),
+            'GitHub 情报站',
             style: TextStyle(
               fontSize: size * 0.5,
               fontWeight: FontWeight.w700,

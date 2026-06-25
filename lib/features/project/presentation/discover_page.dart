@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -20,7 +19,7 @@ class DiscoverPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t.t('project.discover.title')),
+        title: const Text('发现推荐'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -29,8 +28,8 @@ class DiscoverPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -38,12 +37,12 @@ class DiscoverPage extends StatelessWidget {
 
 class _TopicSpec {
   const _TopicSpec({
-    required this.labelKey,
+    required this.label,
     required this.count,
     required this.color,
   });
 
-  final String labelKey;
+  final String label;
   final int count;
   final Color color;
 }
@@ -55,16 +54,10 @@ class _Body extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final topics = <_TopicSpec>[
-      _TopicSpec(
-          labelKey: 'project.topic.aiAgent', count: 32, color: colors.primary),
-      _TopicSpec(
-          labelKey: 'project.topic.llm', count: 128, color: AppColors.info),
-      _TopicSpec(
-          labelKey: 'project.topic.devTools',
-          count: 64,
-          color: AppColors.success),
-      _TopicSpec(
-          labelKey: 'project.topic.rag', count: 24, color: AppColors.warning),
+      _TopicSpec(label: 'AI 智能体', count: 32, color: colors.primary),
+      const _TopicSpec(label: '大语言模型', count: 128, color: AppColors.info),
+      const _TopicSpec(label: '开发工具', count: 64, color: AppColors.success),
+      const _TopicSpec(label: '检索增强生成', count: 24, color: AppColors.warning),
     ];
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -75,14 +68,14 @@ class _Body extends StatelessWidget {
       ),
       children: [
         AppCard(
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('project.discover.hotTitle'),
-                subtitle: context.t.t('project.discover.hotSubtitle'),
+                title: '热门主题',
+                subtitle: '基于你的关注和浏览历史',
               ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             Wrap(
@@ -91,9 +84,8 @@ class _Body extends StatelessWidget {
               children: [
                 for (final t in topics)
                   _TopicCard(
-                    label: context.t.t(t.labelKey),
-                    desc: context.t.tr(
-                        'project.discover.reposCountFull', {'count': t.count}),
+                    label: t.label,
+                    desc: '${t.count} 个仓库',
                     color: t.color,
                   ),
               ],
@@ -105,16 +97,16 @@ class _Body extends StatelessWidget {
           padding: EdgeInsets.zero,
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
+              const Padding(
+                padding: EdgeInsets.fromLTRB(
                   AppSpacing.lg,
                   AppSpacing.md,
                   AppSpacing.lg,
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: context.t.t('project.discover.recommendTitle'),
-                  subtitle: context.t.t('project.discover.recommendSubtitle'),
+                  title: '推荐仓库',
+                  subtitle: '与你的兴趣最相关的项目',
                 ),
               ),
               for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -131,14 +123,14 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
-          child: Column(
+          child: const Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: context.t.t('project.discover.devsTitle'),
-                subtitle: context.t.t('project.discover.devsSubtitle'),
+                title: '推荐开发者',
+                subtitle: '你应该关注的活跃贡献者',
               ),
-              const SizedBox(height: AppSpacing.md),
+              SizedBox(height: AppSpacing.md),
             ],
           ).copyChildren([
             for (final c in DemoData.contributors)
@@ -156,12 +148,11 @@ class _Body extends StatelessWidget {
                 ),
                 title: Text(c.login, style: AppTypography.titleSmall),
                 subtitle: Text(
-                  context.t.tr('developers.weeklyContribWithCount',
-                      {'count': c.contributions}),
+                  '+${c.contributions} 本周贡献',
                 ),
                 trailing: OutlinedButton(
                   onPressed: () {},
-                  child: Text(context.t.t('project.discover.follow')),
+                  child: const Text('关注'),
                 ),
               ),
           ]),

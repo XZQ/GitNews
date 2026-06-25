@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/i18n/app_localizations.dart';
 import '../../core/platform/window_service.dart';
 import '../../core/theme/app_spacing.dart';
 import 'app_logo.dart';
@@ -69,7 +68,7 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
             const LogoMark(size: 18),
             const SizedBox(width: AppSpacing.sm),
             Text(
-              context.t.t('nav.brand'),
+              'GitHub 情报站',
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -78,21 +77,19 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
             _WindowButton(
               icon: Icons.remove_rounded,
               onPressed: _onMinimize,
-              tooltip: context.t.t('app.minimize'),
+              tooltip: '最小化',
             ),
             _WindowButton(
               icon: _isMaximized
                   ? Icons.filter_drama_rounded
                   : Icons.crop_square_rounded,
               onPressed: _onToggleMaximize,
-              tooltip: _isMaximized
-                  ? context.t.t('app.restore')
-                  : context.t.t('app.maximize'),
+              tooltip: _isMaximized ? '还原' : '最大化',
             ),
             _WindowButton(
               icon: Icons.close_rounded,
               onPressed: _onClose,
-              tooltip: context.t.t('app.close'),
+              tooltip: '关闭',
               isClose: true,
             ),
           ],

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
@@ -16,7 +15,7 @@ class MonitorTopicsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(context.t.t('monitorTopics.title')),
+        title: const Text('监控的主题'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -25,8 +24,8 @@ class MonitorTopicsPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -53,9 +52,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: context.t.t('monitorTopics.sectionTitle'),
-                  subtitle: context.t.tr('monitorTopics.sectionSubtitleFull',
-                      {'count': repos.length}),
+                  title: '正在监控',
+                  subtitle: '共 ${repos.length} 个仓库',
                 ),
               ),
               for (var i = 0; i < repos.length; i++) ...[

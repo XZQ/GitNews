@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -19,7 +18,7 @@ class ProjectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(context.t.t('project.appBar'))),
+      appBar: AppBar(title: const Text('报告')),
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Desktop(),
@@ -90,12 +89,11 @@ class _SummaryMetrics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return Row(
       children: [
-        Expanded(
+        const Expanded(
           child: _MetricBlock(
-            label: t.t('project.metric.weekStar'),
+            label: '本周 Star 增长',
             value: '124',
             delta: '+18.5%',
             color: AppColors.success,
@@ -105,7 +103,7 @@ class _SummaryMetrics extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _MetricBlock(
-            label: t.t('project.metric.newRepos'),
+            label: '新增仓库',
             value: '2.36K',
             delta: '+7.2%',
             color: Theme.of(context).colorScheme.primary,
@@ -113,9 +111,9 @@ class _SummaryMetrics extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(
+        const Expanded(
           child: _MetricBlock(
-            label: t.t('project.metric.activeDevs'),
+            label: '活跃贡献者',
             value: '156',
             delta: '+12.3%',
             color: AppColors.info,
@@ -123,9 +121,9 @@ class _SummaryMetrics extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(
+        const Expanded(
           child: _MetricBlock(
-            label: t.t('project.metric.totalForks'),
+            label: '总 Fork 数',
             value: '47.8K',
             delta: '+5.1%',
             color: AppColors.warning,
@@ -199,17 +197,16 @@ class _LanguageDistribution extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
-    return AppCard(
+    return const AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: t.t('project.langDist'),
-            subtitle: t.t('project.langDistSubtitle'),
+            title: '语言分布',
+            subtitle: '热门仓库的编程语言占比',
           ),
-          const SizedBox(height: AppSpacing.md),
-          const _DonutLegend(),
+          SizedBox(height: AppSpacing.md),
+          _DonutLegend(),
         ],
       ),
     );
@@ -263,16 +260,15 @@ class _TrendOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return AppCard(
-      child: Column(
+      child: const Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: t.t('project.trendCompare'),
-            subtitle: t.t('project.trendCompareSubtitle'),
+            title: '趋势对比',
+            subtitle: '最近 7 天 vs 上周',
           ),
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: AppSpacing.md),
         ],
       ).copyChildren([
         StarTrendChart(
@@ -298,21 +294,20 @@ class _PopularRepos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
+          const Padding(
+            padding: EdgeInsets.fromLTRB(
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: t.t('project.popular'),
-              subtitle: t.t('project.popularSubtitle'),
+              title: '本周热门',
+              subtitle: '按 Star 增速排序',
             ),
           ),
           for (var i = 0; i < DemoData.trending.length; i++) ...[
@@ -335,21 +330,20 @@ class _RecentlyUpdated extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
+          const Padding(
+            padding: EdgeInsets.fromLTRB(
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: t.t('project.recent'),
-              subtitle: t.t('project.recentSubtitle'),
+              title: '最近活跃',
+              subtitle: '近期有更新的仓库',
             ),
           ),
           for (var i = 0; i < DemoData.recent.length; i++) ...[

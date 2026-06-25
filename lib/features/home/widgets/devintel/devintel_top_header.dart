@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 
 class DevIntelTopHeader extends StatelessWidget {
   const DevIntelTopHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
       height: 64,
@@ -32,19 +31,16 @@ class DevIntelTopHeader extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    t.t('devintel.title'),
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
+                    '开发者情报',
+                    style: AppTypography.titleLarge.copyWith(
                       color: colors.onSurface,
                       height: 1.0,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.xs),
                   Text(
-                    t.t('devintel.subtitle'),
-                    style: TextStyle(
-                      fontSize: 12,
+                    '实时生态洞察',
+                    style: AppTypography.bodySmall.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
                   ),
@@ -52,9 +48,9 @@ class DevIntelTopHeader extends StatelessWidget {
               ),
             ),
             const _SearchField(),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             const _BellWithDot(),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.md),
             const _LiveSyncBadge(),
           ],
         ),
@@ -68,43 +64,41 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
       width: 320,
-      height: 38,
+      height: 44,
       child: TextField(
         onSubmitted: (v) {
           if (v.trim().isEmpty) return;
           context.go('/trending/repos');
         },
         textInputAction: TextInputAction.search,
-        style: TextStyle(fontSize: 13, color: colors.onSurface),
+        style: AppTypography.bodyMedium.copyWith(color: colors.onSurface),
         decoration: InputDecoration(
           prefixIcon: Icon(
             Icons.search_rounded,
             size: 18,
             color: colors.onSurfaceVariant,
           ),
-          hintText: t.t('devintel.searchHint'),
-          hintStyle: TextStyle(
-            fontSize: 13,
+          hintText: '搜索仓库、标签...',
+          hintStyle: AppTypography.bodyMedium.copyWith(
             color: colors.onSurfaceVariant,
           ),
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
           filled: true,
           fillColor: colors.surfaceContainerHighest,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
             borderSide: BorderSide(color: colors.primary, width: 1.4),
           ),
         ),
@@ -119,38 +113,33 @@ class _BellWithDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => context.go('/monitor'),
-        child: SizedBox(
-          width: 38,
-          height: 38,
-          child: Stack(
-            children: [
-              Center(
-                child: Icon(
-                  Icons.notifications_none_rounded,
-                  size: 20,
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-              Positioned(
-                right: 8,
-                top: 8,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: const BoxDecoration(
-                    color: AppColors.danger,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
+    return IconButton(
+      onPressed: () => context.go('/monitor'),
+      icon: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Icon(
+            Icons.notifications_none_rounded,
+            size: 20,
+            color: colors.onSurfaceVariant,
           ),
-        ),
+          Positioned(
+            right: -2,
+            top: -2,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppColors.danger,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        ],
       ),
+      tooltip: '监控中心',
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      padding: EdgeInsets.zero,
     );
   }
 }
@@ -160,9 +149,11 @@ class _LiveSyncBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm + 2,
+        vertical: AppSpacing.xs + 2,
+      ),
       decoration: BoxDecoration(
         color: AppColors.success.withValues(alpha: 0.14),
         border: Border.all(
@@ -174,14 +165,12 @@ class _LiveSyncBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const _LivePulseDot(),
-          const SizedBox(width: 6),
+          const SizedBox(width: AppSpacing.xs + 2),
           Text(
-            t.t('devintel.liveSync'),
-            style: const TextStyle(
-              fontSize: 11,
+            '实时同步',
+            style: AppTypography.labelSmall.copyWith(
               fontWeight: FontWeight.w700,
               color: AppColors.success,
-              letterSpacing: 0.5,
             ),
           ),
         ],

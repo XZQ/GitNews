@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/home/presentation/home_page.dart';
-import '../i18n/app_localizations.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
 import '../../features/monitor/presentation/monitor_detail_page.dart';
 import '../../features/monitor/presentation/monitor_page.dart';
@@ -28,13 +27,13 @@ import '../../shared/widgets/responsive_scaffold.dart';
 
 class TabSpec {
   const TabSpec({
-    required this.labelKey,
+    required this.label,
     required this.pathSegment,
     required this.icon,
     required this.selectedIcon,
   });
 
-  final String labelKey;
+  final String label;
 
   /// 路由路径段(无前导斜杠),用于把 location 解析回 tab index。
   final String pathSegment;
@@ -44,31 +43,31 @@ class TabSpec {
 
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
-    labelKey: 'nav.home',
+    label: '首页',
     pathSegment: 'home',
     icon: Icons.dashboard_outlined,
     selectedIcon: Icons.dashboard_rounded,
   ),
   TabSpec(
-    labelKey: 'nav.trending',
+    label: '趋势',
     pathSegment: 'trending',
     icon: Icons.trending_up_outlined,
     selectedIcon: Icons.trending_up_rounded,
   ),
   TabSpec(
-    labelKey: 'nav.monitor',
+    label: '监控',
     pathSegment: 'monitor',
     icon: Icons.notifications_outlined,
     selectedIcon: Icons.notifications_rounded,
   ),
   TabSpec(
-    labelKey: 'nav.reports',
+    label: '报告',
     pathSegment: 'project',
     icon: Icons.assessment_outlined,
     selectedIcon: Icons.assessment_rounded,
   ),
   TabSpec(
-    labelKey: 'nav.profile',
+    label: '我的',
     pathSegment: 'profile',
     icon: Icons.person_outline,
     selectedIcon: Icons.person_rounded,
@@ -93,120 +92,131 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, __, navigationShell) =>
             ResponsiveScaffold(navigationShell: navigationShell),
         branches: [
-          StatefulShellBranch(routes: [
-            GoRoute(
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/home',
                 name: 'home',
-                builder: (_, __) => const HomePage()),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/trending',
-              name: 'trending',
-              builder: (_, __) => const TrendingPage(),
-              routes: [
-                GoRoute(
-                  path: 'overview',
-                  name: 'trending_overview',
-                  builder: (_, __) => const TrendingOverviewPage(),
-                ),
-                GoRoute(
-                  path: 'language',
-                  name: 'trending_language',
-                  builder: (_, __) => const LanguageTrendPage(),
-                ),
-                GoRoute(
-                  path: 'repos',
-                  name: 'trending_repos',
-                  builder: (_, __) => const HotReposPage(),
-                ),
-              ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/monitor',
-              name: 'monitor',
-              builder: (_, __) => const MonitorPage(),
-              routes: [
-                GoRoute(
-                  path: 'alerts',
-                  name: 'monitor_alerts',
-                  builder: (_, __) => const MonitorAlertsPage(),
-                ),
-                GoRoute(
-                  path: 'settings',
-                  name: 'monitor_settings',
-                  builder: (_, __) => const MonitorSettingsPage(),
-                ),
-                GoRoute(
-                  path: 'detail/:fullName',
-                  name: 'monitor_detail',
-                  builder: (_, state) => MonitorDetailPage(
-                    repoFullName: state.pathParameters['fullName']!,
+                builder: (_, __) => const HomePage(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/trending',
+                name: 'trending',
+                builder: (_, __) => const TrendingPage(),
+                routes: [
+                  GoRoute(
+                    path: 'overview',
+                    name: 'trending_overview',
+                    builder: (_, __) => const TrendingOverviewPage(),
                   ),
-                ),
-              ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/project',
-              name: 'project',
-              builder: (_, __) => const ProjectPage(),
-              routes: [
-                GoRoute(
-                  path: 'explore',
-                  name: 'project_explore',
-                  builder: (_, __) => const ExplorePage(),
-                ),
-                GoRoute(
-                  path: 'activity',
-                  name: 'project_activity',
-                  builder: (_, __) => const ActivityPage(),
-                ),
-                GoRoute(
-                  path: 'discover',
-                  name: 'project_discover',
-                  builder: (_, __) => const DiscoverPage(),
-                ),
-              ],
-            ),
-          ]),
-          StatefulShellBranch(routes: [
-            GoRoute(
-              path: '/profile',
-              name: 'profile',
-              builder: (_, __) => const ProfilePage(),
-              routes: [
-                GoRoute(
-                  path: 'collect',
-                  name: 'profile_collect',
-                  builder: (_, __) => const CollectPage(),
-                ),
-                GoRoute(
-                  path: 'developers',
-                  name: 'profile_developers',
-                  builder: (_, __) => const FollowedDevelopersPage(),
-                ),
-                GoRoute(
-                  path: 'monitor',
-                  name: 'profile_monitor',
-                  builder: (_, __) => const MonitorTopicsPage(),
-                ),
-                GoRoute(
-                  path: 'rules',
-                  name: 'profile_rules',
-                  builder: (_, __) => const MonitorRulesPage(),
-                ),
-                GoRoute(
-                  path: 'developer',
-                  name: 'profile_developer',
-                  builder: (_, __) => const DeveloperOptionsPage(),
-                ),
-              ],
-            ),
-          ]),
+                  GoRoute(
+                    path: 'language',
+                    name: 'trending_language',
+                    builder: (_, __) => const LanguageTrendPage(),
+                  ),
+                  GoRoute(
+                    path: 'repos',
+                    name: 'trending_repos',
+                    builder: (_, __) => const HotReposPage(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/monitor',
+                name: 'monitor',
+                builder: (_, __) => const MonitorPage(),
+                routes: [
+                  GoRoute(
+                    path: 'alerts',
+                    name: 'monitor_alerts',
+                    builder: (_, __) => const MonitorAlertsPage(),
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    name: 'monitor_settings',
+                    builder: (_, __) => const MonitorSettingsPage(),
+                  ),
+                  GoRoute(
+                    path: 'detail/:fullName',
+                    name: 'monitor_detail',
+                    builder: (_, state) => MonitorDetailPage(
+                      repoFullName: state.pathParameters['fullName']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/project',
+                name: 'project',
+                builder: (_, __) => const ProjectPage(),
+                routes: [
+                  GoRoute(
+                    path: 'explore',
+                    name: 'project_explore',
+                    builder: (_, __) => const ExplorePage(),
+                  ),
+                  GoRoute(
+                    path: 'activity',
+                    name: 'project_activity',
+                    builder: (_, __) => const ActivityPage(),
+                  ),
+                  GoRoute(
+                    path: 'discover',
+                    name: 'project_discover',
+                    builder: (_, __) => const DiscoverPage(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                name: 'profile',
+                builder: (_, __) => const ProfilePage(),
+                routes: [
+                  GoRoute(
+                    path: 'collect',
+                    name: 'profile_collect',
+                    builder: (_, __) => const CollectPage(),
+                  ),
+                  GoRoute(
+                    path: 'developers',
+                    name: 'profile_developers',
+                    builder: (_, __) => const FollowedDevelopersPage(),
+                  ),
+                  GoRoute(
+                    path: 'monitor',
+                    name: 'profile_monitor',
+                    builder: (_, __) => const MonitorTopicsPage(),
+                  ),
+                  GoRoute(
+                    path: 'rules',
+                    name: 'profile_rules',
+                    builder: (_, __) => const MonitorRulesPage(),
+                  ),
+                  GoRoute(
+                    path: 'developer',
+                    name: 'profile_developer',
+                    builder: (_, __) => const DeveloperOptionsPage(),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
       // 全局仓库详情(任何 Tab 都能进入)
@@ -226,12 +236,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
     errorBuilder: (_, state) => Builder(
       builder: (context) => Scaffold(
-        appBar: AppBar(title: Text(context.t.t('app.notFoundTitle'))),
+        appBar: AppBar(title: const Text('页面不存在')),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              '${context.t.t('app.notFoundBody')} ${state.uri}',
+              '${'未匹配的路径:'} ${state.uri}',
               style: const TextStyle(fontSize: 14),
             ),
           ),

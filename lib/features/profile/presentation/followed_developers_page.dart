@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
-import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -14,10 +13,9 @@ class FollowedDevelopersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return Scaffold(
       appBar: AppBar(
-        title: Text(t.t('developers.title')),
+        title: const Text('关注的开发者'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -26,8 +24,8 @@ class FollowedDevelopersPage extends StatelessWidget {
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
-        medium: (_) => CenteredContent(child: const _Body()),
-        expanded: (_) => CenteredContent(child: const _Body()),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
       ),
     );
   }
@@ -38,7 +36,6 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = context.t;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -54,9 +51,8 @@ class _Body extends StatelessWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: t.t('developers.title'),
-                  subtitle:
-                      '${t.t('developers.subtitle')} ${DemoData.contributors.length}',
+                  title: '关注的开发者',
+                  subtitle: '${'共'} ${DemoData.contributors.length}',
                 ),
               ),
               for (var i = 0; i < DemoData.contributors.length; i++) ...[
@@ -80,11 +76,11 @@ class _Body extends StatelessWidget {
                     style: AppTypography.titleSmall,
                   ),
                   subtitle: Text(
-                    '+${DemoData.contributors[i].contributions} ${t.t('developers.weeklyContrib')}',
+                    '+${DemoData.contributors[i].contributions} ${'本周贡献'}',
                   ),
                   trailing: OutlinedButton(
                     onPressed: () {},
-                    child: Text(t.t('developers.unfollow')),
+                    child: const Text('取消关注'),
                   ),
                 ),
               ],
