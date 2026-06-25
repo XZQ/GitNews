@@ -40,30 +40,29 @@ class AiNewsPageHeader extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'AI 资讯',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: colors.onSurface,
-                    height: 1.0,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'AI 资讯',
+                style: AppTypography.titleLarge.copyWith(
+                  color: colors.onSurface,
+                  height: 1.0,
                 ),
-                const SizedBox(height: 2),
-                Text(
-                  '每日 5 分钟读完 AI 世界',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                '每日 5 分钟读完 AI 世界',
+                style: AppTypography.bodySmall.copyWith(
+                  color: colors.onSurfaceVariant,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          const _HeaderSearchField(),
+          const SizedBox(width: AppSpacing.xl),
+          const Expanded(child: _HeaderSearchField()),
           const SizedBox(width: AppSpacing.md),
           IconButton(
             tooltip: '刷新',
@@ -120,7 +119,6 @@ class _HeaderSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
-      width: 280,
       height: 40,
       child: TextField(
         style: AppTypography.bodyMedium.copyWith(color: colors.onSurface),
