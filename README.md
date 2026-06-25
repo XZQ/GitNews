@@ -22,15 +22,15 @@
 
 ### 桌面端
 
-![桌面端深色主题](https://raw.githubusercontent.com/XZQ/GitNews/main/docs/desktop-dark.png)
+| AI 资讯 | 概览仪表盘 | 开发者情报 |
+| :---: | :---: | :---: |
+| <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/image/desktop-ai-news.png" width="320"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/image/desktop-home.png" width="320"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/image/desktop-overview.png" width="320"> |
 
-### 移动端
+| 仓库监控 | 趋势榜 |
+| :---: | :---: |
+| <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/image/desktop-monitor.png" width="320"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/image/desktop-trending.png" width="320"> |
 
-| 首页 | 报告 | 监控列表 | 监控详情 | 我的 |
-| :---: | :---: | :---: | :---: | :---: |
-| <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-home.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-report.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-monitor-list.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-monitor-detail.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-profile.png" width="160"> |
-
-> 截图位于 `docs/`。
+> 截图位于 `docs/image/`。
 
 ## 🛠️ 技术栈
 

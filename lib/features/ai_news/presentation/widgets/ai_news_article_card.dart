@@ -23,6 +23,8 @@ class AiNewsArticleCard extends StatelessWidget {
     final accent = aiNewsCategoryColor(item.category);
     return Material(
       color: colors.surface,
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.lg),

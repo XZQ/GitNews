@@ -15,7 +15,7 @@ class TechHotspotLanguagePanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -23,6 +23,7 @@ class TechHotspotLanguagePanel extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Row(
             children: [
@@ -44,9 +45,9 @@ class TechHotspotLanguagePanel extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           _LangBar(),
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.md),
           for (var i = 0; i < MockTechHotspot.languages.length; i++)
             _LangRow(
               stat: MockTechHotspot.languages[i],
@@ -91,7 +92,7 @@ class _LangRow extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final isUp = stat.delta >= 0;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
           SizedBox(
@@ -112,39 +113,22 @@ class _LangRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(width: AppSpacing.sm + 2),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      stat.name,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: colors.onSurface,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Text(
-                      '${stat.percent.toStringAsFixed(1)}%',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '${stat.repoCount} 个仓库',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            stat.name,
+            style: AppTypography.bodyMedium.copyWith(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w600,
             ),
           ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            '${stat.percent.toStringAsFixed(1)}% · ${stat.repoCount}',
+            style: AppTypography.labelSmall.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          const Spacer(),
           Icon(
             isUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
             size: 12,

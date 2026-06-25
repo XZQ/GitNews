@@ -23,6 +23,8 @@ class TechHotspotTopicCard extends StatelessWidget {
     final heatColor = _heatColor(topic.heat);
     return Material(
       color: colors.surface,
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.lg),

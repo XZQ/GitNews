@@ -76,13 +76,15 @@ class _Desktop extends StatelessWidget {
               children: [
                 _StatusRow(),
                 SizedBox(height: AppSpacing.lg),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 8, child: _MonitoredRepos()),
-                    SizedBox(width: AppSpacing.lg),
-                    Expanded(flex: 4, child: _RightColumn()),
-                  ],
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(flex: 8, child: _MonitoredRepos()),
+                      SizedBox(width: AppSpacing.lg),
+                      Expanded(flex: 4, child: _RightColumn()),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -222,9 +224,15 @@ class _MonitoredRepos extends StatelessWidget {
               subtitle: '近 30 天 Star 增速与告警',
             ),
           ),
-          for (var i = 0; i < DemoData.trending.length; i++) ...[
+          for (var i = 0;
+              i < DemoData.trending.length + DemoData.recent.length;
+              i++) ...[
             if (i != 0) const Divider(height: 1),
-            _MonitoredRow(repo: DemoData.trending[i]),
+            _MonitoredRow(
+              repo: i < DemoData.trending.length
+                  ? DemoData.trending[i]
+                  : DemoData.recent[i - DemoData.trending.length],
+            ),
           ],
         ],
       ),
@@ -282,21 +290,14 @@ class _MonitoredRow extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(
-              width: 90,
-              child: StarTrendChart(
-                series: [
-                  ChartSeries(
-                    values: DemoData.generateStarTrend(
-                      repo.starCount - 5000,
-                      5000,
-                    ),
-                    color: AppColors.success,
-                  ),
-                ],
-                height: 40,
-                showArea: false,
+            Sparkline(
+              values: DemoData.generateStarTrend(
+                repo.starCount - 5000,
+                5000,
               ),
+              color: AppColors.success,
+              width: 90,
+              height: 32,
             ),
             const SizedBox(width: 8),
             Container(

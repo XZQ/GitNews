@@ -33,7 +33,7 @@ class AiNewsCategoryChips extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.xl,
-        vertical: AppSpacing.md,
+        vertical: 15,
       ),
       decoration: BoxDecoration(
         color: colors.surface,
