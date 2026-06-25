@@ -22,13 +22,13 @@
 
 ### 桌面端
 
-![桌面端深色主题](docs/desktop-dark.png)
+![桌面端深色主题](https://raw.githubusercontent.com/XZQ/GitNews/main/docs/desktop-dark.png)
 
 ### 移动端
 
 | 首页 | 报告 | 监控列表 | 监控详情 | 我的 |
 | :---: | :---: | :---: | :---: | :---: |
-| ![首页](docs/mobile-home.png) | ![报告](docs/mobile-report.png) | ![监控列表](docs/mobile-monitor-list.png) | ![监控详情](docs/mobile-monitor-detail.png) | ![我的](docs/mobile-profile.png) |
+| <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-home.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-report.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-monitor-list.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-monitor-detail.png" width="160"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/mobile-profile.png" width="160"> |
 
 > 截图位于 `docs/`。
 
