@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../data/mock_tech_hotspot.dart';
+import '../../../core/utils/breakpoint.dart';
+import '../application/tech_hotspot_providers.dart';
+import '../domain/tech_hotspot_models.dart';
 import 'widgets/tech_hotspot_heat_chart.dart';
 import 'widgets/tech_hotspot_language_panel.dart';
 import 'widgets/tech_hotspot_page_header.dart';
@@ -13,35 +16,38 @@ import 'widgets/tech_hotspot_topic_card.dart';
 ///
 /// 结构:
 /// - 顶部条 [TechHotspotPageHeader]
-/// - 行 1:热度曲线(8) + 语言占比(4)
-/// - 行 2:主题网格(2 列)
-/// - 行 3:热门标签云
-class TechHotspotPage extends StatelessWidget {
+/// - 行 1:热门标签云
+/// - 行 2:热度曲线(8) + 语言占比(4)
+/// - 行 3:主题网格(2 列)
+class TechHotspotPage extends ConsumerWidget {
   const TechHotspotPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final digest = ref.watch(techHotspotDigestProvider);
+    final isCompact = Breakpoints.of(context) == FormFactor.compact;
+
+    return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          TechHotspotPageHeader(),
+          const TechHotspotPageHeader(),
           Expanded(
             child: SingleChildScrollView(
               padding: EdgeInsets.fromLTRB(
-                AppSpacing.xl,
+                isCompact ? AppSpacing.lg : AppSpacing.xl,
                 AppSpacing.lg,
-                AppSpacing.xl,
+                isCompact ? AppSpacing.lg : AppSpacing.xl,
                 AppSpacing.xxxl,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  _TopRow(),
-                  SizedBox(height: AppSpacing.lg),
-                  _TopicGrid(),
-                  SizedBox(height: AppSpacing.lg),
-                  _TagsCloud(),
+                  _TagsCloud(tags: digest.hotTags),
+                  const SizedBox(height: AppSpacing.lg),
+                  _TopRow(digest: digest),
+                  const SizedBox(height: AppSpacing.lg),
+                  _TopicGrid(topics: digest.topics),
                 ],
               ),
             ),
@@ -53,53 +59,77 @@ class TechHotspotPage extends StatelessWidget {
 }
 
 class _TopRow extends StatelessWidget {
-  const _TopRow();
+  const _TopRow({required this.digest});
+
+  final TechHotspotDigest digest;
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      height: 280,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(flex: 8, child: TechHotspotHeatChart()),
-          SizedBox(width: AppSpacing.lg),
-          Expanded(flex: 4, child: TechHotspotLanguagePanel()),
-        ],
-      ),
+    final formFactor = Breakpoints.of(context);
+    if (formFactor == FormFactor.expanded) {
+      return SizedBox(
+        height: 280,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 8,
+              child: TechHotspotHeatChart(values: digest.heatTrend),
+            ),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(
+              flex: 4,
+              child: TechHotspotLanguagePanel(languages: digest.languages),
+            ),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: 260,
+          child: TechHotspotHeatChart(values: digest.heatTrend),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        TechHotspotLanguagePanel(languages: digest.languages),
+      ],
     );
   }
 }
 
 class _TopicGrid extends StatelessWidget {
-  const _TopicGrid();
+  const _TopicGrid({required this.topics});
+
+  final List<TechTopic> topics;
 
   @override
   Widget build(BuildContext context) {
-    const topics = MockTechHotspot.topics;
+    final formFactor = Breakpoints.of(context);
+    final crossAxisCount = formFactor == FormFactor.expanded ? 2 : 1;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        for (var i = 0; i < topics.length; i += 2)
+        for (var i = 0; i < topics.length; i += crossAxisCount)
           Padding(
             padding: EdgeInsets.only(
-              bottom: i + 2 < topics.length ? AppSpacing.lg : 0,
+              bottom: i + crossAxisCount < topics.length ? AppSpacing.lg : 0,
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: TechHotspotTopicCard(topic: topics[i], onTap: () {}),
-                ),
-                if (i + 1 < topics.length) ...[
-                  const SizedBox(width: AppSpacing.lg),
+                for (var j = 0; j < crossAxisCount; j++) ...[
+                  if (j > 0) const SizedBox(width: AppSpacing.lg),
                   Expanded(
-                    child: TechHotspotTopicCard(
-                      topic: topics[i + 1],
-                      onTap: () {},
-                    ),
+                    child: i + j < topics.length
+                        ? TechHotspotTopicCard(
+                            topic: topics[i + j],
+                            onTap: () {},
+                          )
+                        : const SizedBox(),
                   ),
-                ] else
-                  const Expanded(child: SizedBox()),
+                ],
               ],
             ),
           ),
@@ -109,7 +139,9 @@ class _TopicGrid extends StatelessWidget {
 }
 
 class _TagsCloud extends StatelessWidget {
-  const _TagsCloud();
+  const _TagsCloud({required this.tags});
+
+  final List<String> tags;
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +154,7 @@ class _TagsCloud extends StatelessWidget {
         border: Border.all(color: colors.outlineVariant),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
@@ -142,7 +174,7 @@ class _TagsCloud extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              for (final tag in MockTechHotspot.hotTags) _Tag(label: tag),
+              for (final tag in tags) _Tag(label: tag),
             ],
           ),
         ],

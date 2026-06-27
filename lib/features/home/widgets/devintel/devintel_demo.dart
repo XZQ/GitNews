@@ -101,7 +101,7 @@ const List<DevIntelMetricSpec> kDevIntelMetrics = <DevIntelMetricSpec>[
     value: '36',
     delta: '+5%',
     icon: Icons.rocket_launch_rounded,
-    color: Color(0xFF8B73E5),
+    color: Color(0xFF0D9488),
   ),
   DevIntelMetricSpec(
     title: '已收藏仓库',

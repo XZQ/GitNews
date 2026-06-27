@@ -3,6 +3,8 @@
 #include <optional>
 
 #include "flutter/generated_plugin_registrant.h"
+#include "flutter/method_channel.h"
+#include "flutter/standard_method_codec.h"
 
 FlutterWindow::FlutterWindow(const flutter::DartProject& project)
     : project_(project) {}
@@ -25,6 +27,34 @@ bool FlutterWindow::OnCreate() {
     return false;
   }
   RegisterPlugins(flutter_controller_->engine());
+
+  auto channel =
+      std::make_unique<flutter::MethodChannel<flutter::EncodableValue>>(
+          flutter_controller_->engine()->messenger(), "github_news/window",
+          &flutter::StandardMethodCodec::GetInstance());
+  HWND window = GetHandle();
+  channel->SetMethodCallHandler(
+      [window](const flutter::MethodCall<flutter::EncodableValue>& call,
+               std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>>
+                   result) {
+        const std::string& method = call.method_name();
+        if (method == "minimize") {
+          ShowWindow(window, SW_MINIMIZE);
+          result->Success();
+        } else if (method == "maximize") {
+          ShowWindow(window, IsZoomed(window) ? SW_RESTORE : SW_MAXIMIZE);
+          result->Success();
+        } else if (method == "close") {
+          PostMessage(window, WM_CLOSE, 0, 0);
+          result->Success();
+        } else if (method == "isMaximized") {
+          result->Success(flutter::EncodableValue(IsZoomed(window) != 0));
+        } else {
+          result->NotImplemented();
+        }
+      });
+  window_channel_ = std::move(channel);
+
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {

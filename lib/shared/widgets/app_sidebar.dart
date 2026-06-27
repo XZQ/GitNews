@@ -34,7 +34,7 @@ class AppSidebar extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final width = ref.watch(sidebarWidthProvider);
     return Material(
-      color: colors.surface,
+      color: colors.surface.withValues(alpha: 0.98),
       child: SizedBox(
         width: width,
         child: Column(
@@ -125,8 +125,10 @@ class _SidebarItemState extends State<_SidebarItem> {
     final isSelected = widget.selected;
 
     final bg = isSelected
-        ? accent.withValues(alpha: 0.14)
-        : (_hovered ? colors.surfaceContainerHighest : Colors.transparent);
+        ? accent.withValues(alpha: 0.12)
+        : (_hovered
+            ? colors.surfaceContainerHighest.withValues(alpha: 0.72)
+            : Colors.transparent);
 
     final fg = isSelected ? accent : colors.onSurfaceVariant;
     final fgStrong = isSelected ? accent : colors.onSurface;
@@ -173,7 +175,7 @@ class _SidebarItemState extends State<_SidebarItem> {
                   if (isSelected)
                     Container(
                       width: 4,
-                      height: 18,
+                      height: 16,
                       decoration: BoxDecoration(
                         color: accent,
                         borderRadius: BorderRadius.circular(2),

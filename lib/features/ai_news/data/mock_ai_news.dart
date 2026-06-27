@@ -1,6 +1,6 @@
 import '../domain/ai_news_item.dart';
 
-/// AI 资讯 mock 数据(脚手架阶段)。
+/// AI 资讯本地模拟数据。
 ///
 /// 所有时间戳写死为 const DateTime,保证 UI 截图与单测稳定。
 class MockAiNews {
@@ -21,7 +21,7 @@ class MockAiNews {
       likes: 1820,
       tags: ['Anthropic', 'Claude', '长上下文', 'Agent'],
       isHero: true,
-      coverColor: 0xFF6E56CF,
+      coverColor: 0xFF0D9488,
     ),
     AiNewsItem(
       id: 'ai-002',
@@ -187,17 +187,4 @@ class MockAiNews {
     CompanyMention(name: 'Mistral', mentions: 14, trend: 22),
     CompanyMention(name: '智谱 AI', mentions: 11, trend: 8),
   ];
-}
-
-/// 公司曝光度条目(用于 [MockAiNews.topCompanies])。
-class CompanyMention {
-  const CompanyMention({
-    required this.name,
-    required this.mentions,
-    required this.trend,
-  });
-
-  final String name;
-  final int mentions;
-  final int trend;
 }

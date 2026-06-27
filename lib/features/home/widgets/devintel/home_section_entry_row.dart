@@ -5,22 +5,28 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/bordered_row.dart';
 
-/// 首页情报总览入口行:5 个栏目跳转 + KPI。
+/// 首页情报总览入口行:5 个栏目跳转入口卡。
+///
+/// 视觉:5 张独立的浮动卡片,16px 间距,每张卡顶部一条 4px 语义色装饰条。
+/// 替代旧版"5 个 tile 拼在一个共享外框里"的方案 —— 拼框视觉过重、且
+/// 5 个 entry 之间没有真正的分隔需求。
 class HomeSectionEntryRow extends StatelessWidget {
   const HomeSectionEntryRow({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return const BorderedRow(
-      children: [
-        _EntryTile(spec: _aiNews),
-        _EntryTile(spec: _trending),
-        _EntryTile(spec: _hotspot),
-        _EntryTile(spec: _monitor),
-        _EntryTile(spec: _report),
-      ],
+    return SizedBox(
+      height: 168,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < _specs.length; i++) ...[
+            if (i > 0) const SizedBox(width: AppSpacing.lg),
+            Expanded(child: _EntryTile(spec: _specs[i])),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -84,6 +90,8 @@ const _report = _EntrySpec(
   path: '/project',
 );
 
+const _specs = [_aiNews, _trending, _hotspot, _monitor, _report];
+
 class _EntryTile extends StatelessWidget {
   const _EntryTile({required this.spec});
 
@@ -92,74 +100,117 @@ class _EntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => context.go(spec.path),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: colors.outlineVariant),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => context.go(spec.path),
+          child: Stack(
             children: [
-              Row(
-                children: [
-                  Container(
-                    width: 32,
-                    height: 32,
-                    decoration: BoxDecoration(
-                      color: spec.color.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                    ),
-                    alignment: Alignment.center,
-                    child: Icon(spec.icon, size: 16, color: spec.color),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    size: 18,
-                    color: colors.onSurfaceVariant,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                spec.label,
-                style: AppTypography.labelMedium.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
+              Positioned.fill(child: _AccentStrip(color: spec.color)),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                  AppSpacing.lg,
+                  AppSpacing.lg,
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                spec.kpi,
-                style: AppTypography.titleLarge.copyWith(
-                  color: colors.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm - 1,
-                      vertical: 2,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 36,
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: spec.color.withValues(alpha: 0.14),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                          ),
+                          alignment: Alignment.center,
+                          child: Icon(spec.icon, size: 18, color: spec.color),
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ],
                     ),
-                    decoration: BoxDecoration(
-                      color: spec.color.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
+                    const SizedBox(height: AppSpacing.md),
+                    Text(
+                      spec.label,
+                      style: AppTypography.labelMedium.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    child: Text(
-                      spec.delta,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: spec.color,
+                    const SizedBox(height: 4),
+                    Text(
+                      spec.kpi,
+                      style: AppTypography.titleLarge.copyWith(
+                        color: colors.onSurface,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: AppSpacing.sm),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.sm + 1,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: spec.color.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(AppRadius.xs),
+                      ),
+                      child: Text(
+                        spec.delta,
+                        style: AppTypography.labelSmall.copyWith(
+                          color: spec.color,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// 顶部 4px 装饰条:水平方向用 [LinearGradient] 让两端淡出,避免硬切边。
+class _AccentStrip extends StatelessWidget {
+  const _AccentStrip({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        height: 4,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              color.withValues(alpha: 0.0),
+              color.withValues(alpha: 0.9),
+              color.withValues(alpha: 0.0),
+            ],
+            stops: const [0.0, 0.5, 1.0],
           ),
         ),
       ),

@@ -11,7 +11,7 @@ class AppTheme {
 
   /// 当前主题色 seed(默认 Slate)。由 app.dart 从
   /// `themePresetControllerProvider` 注入,UI 不应直接读此值。
-  static const Color defaultSeed = Color(0xFF64748B);
+  static const Color defaultSeed = Color(0xFF0D9488);
 
   /// 以指定 seed 构造浅色主题。
   static ThemeData light(Color seed) => _build(
@@ -63,7 +63,11 @@ class AppTheme {
       surface: surface,
       onSurface: textPrimary,
       surfaceContainerHighest: surfaceAlt,
-    ).copyWith(outlineVariant: border);
+    ).copyWith(
+      outline: border,
+      outlineVariant: border,
+      primary: seed,
+    );
 
     final textTheme = TextTheme(
       displayLarge: AppTypography.displayLarge.copyWith(color: textPrimary),
@@ -96,10 +100,13 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: surface,
         surfaceTintColor: Colors.transparent,
-        elevation: 0,
+        elevation: isLight ? 1 : 0,
+        shadowColor: Colors.black.withValues(alpha: isLight ? 0.08 : 0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: BorderSide(color: border),
+          side: BorderSide(
+            color: border.withValues(alpha: isLight ? 0.72 : 0.9),
+          ),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -114,7 +121,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.14),
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => AppTypography.labelSmall.copyWith(
             color: states.contains(WidgetState.selected)
@@ -136,7 +143,7 @@ class AppTheme {
       ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.14),
+        indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
         selectedIconTheme: IconThemeData(color: colorScheme.primary, size: 22),
         unselectedIconTheme: IconThemeData(color: textSecondary, size: 22),
         selectedLabelTextStyle: AppTypography.labelMedium
