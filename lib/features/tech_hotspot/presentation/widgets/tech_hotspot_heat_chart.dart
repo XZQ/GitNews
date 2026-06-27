@@ -5,16 +5,17 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../data/mock_tech_hotspot.dart';
+import '../../domain/tech_hotspot_models.dart';
 
 /// 技术热度周线图(线图 + 区域填充)。
 class TechHotspotHeatChart extends StatelessWidget {
-  const TechHotspotHeatChart({super.key});
+  const TechHotspotHeatChart({required this.values, super.key});
+
+  final List<TechHeatPoint> values;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    const values = MockTechHotspot.heatTrend;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(

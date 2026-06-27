@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/breakpoint.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../data/mock_ai_news.dart';
+import '../application/ai_news_providers.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_article_card.dart';
 import 'widgets/ai_news_category_chips.dart';
@@ -15,22 +17,25 @@ import 'widgets/ai_news_topic_sidebar.dart';
 /// - 顶部条 [AiNewsPageHeader]
 /// - 分类筛选条 [AiNewsCategoryChips]
 /// - 主体:左 8 列 Hero + 列表 / 右 4 列 [AiNewsTopicSidebar]
-class AiNewsPage extends StatefulWidget {
+class AiNewsPage extends ConsumerStatefulWidget {
   const AiNewsPage({super.key});
 
   @override
-  State<AiNewsPage> createState() => _AiNewsPageState();
+  ConsumerState<AiNewsPage> createState() => _AiNewsPageState();
 }
 
-class _AiNewsPageState extends State<AiNewsPage> {
+class _AiNewsPageState extends ConsumerState<AiNewsPage> {
   AiNewsCategory? _category;
   String _window = '24h';
 
   @override
   Widget build(BuildContext context) {
-    final items = _filtered();
+    final digest = ref.watch(aiNewsDigestProvider);
+    final items = _filtered(digest.items);
     final hero = items.where((e) => e.isHero).firstOrNull;
     final rest = items.where((e) => !e.isHero).toList();
+    final formFactor = Breakpoints.of(context);
+    final isCompact = formFactor == FormFactor.compact;
 
     return Scaffold(
       body: Column(
@@ -45,19 +50,18 @@ class _AiNewsPageState extends State<AiNewsPage> {
           ),
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.xl,
+              padding: EdgeInsets.fromLTRB(
+                isCompact ? AppSpacing.lg : AppSpacing.xl,
                 AppSpacing.lg,
-                AppSpacing.xl,
+                isCompact ? AppSpacing.lg : AppSpacing.xl,
                 AppSpacing.xxxl,
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(flex: 8, child: _MainList(hero: hero, rest: rest)),
-                  const SizedBox(width: AppSpacing.lg),
-                  const Expanded(flex: 4, child: AiNewsTopicSidebar()),
-                ],
+              child: _ResponsiveBody(
+                main: _MainList(hero: hero, rest: rest),
+                sidebar: AiNewsTopicSidebar(
+                  hotTopics: digest.hotTopics,
+                  topCompanies: digest.topCompanies,
+                ),
               ),
             ),
           ),
@@ -66,9 +70,39 @@ class _AiNewsPageState extends State<AiNewsPage> {
     );
   }
 
-  List<AiNewsItem> _filtered() {
-    if (_category == null) return MockAiNews.all;
-    return MockAiNews.all.where((e) => e.category == _category).toList();
+  List<AiNewsItem> _filtered(List<AiNewsItem> items) {
+    if (_category == null) return items;
+    return items.where((e) => e.category == _category).toList();
+  }
+}
+
+class _ResponsiveBody extends StatelessWidget {
+  const _ResponsiveBody({required this.main, required this.sidebar});
+
+  final Widget main;
+  final Widget sidebar;
+
+  @override
+  Widget build(BuildContext context) {
+    final formFactor = Breakpoints.of(context);
+    if (formFactor == FormFactor.expanded) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(flex: 8, child: main),
+          const SizedBox(width: AppSpacing.lg),
+          Expanded(flex: 4, child: sidebar),
+        ],
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        main,
+        const SizedBox(height: AppSpacing.lg),
+        sidebar,
+      ],
+    );
   }
 }
 

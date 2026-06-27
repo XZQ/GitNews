@@ -34,7 +34,7 @@ class AiNewsItem {
     required this.likes,
     required this.tags,
     required this.isHero,
-    this.coverColor = 0xFF6E56CF,
+    this.coverColor = 0xFF0D9488,
   });
 
   final String id;
@@ -50,4 +50,30 @@ class AiNewsItem {
   final List<String> tags;
   final bool isHero;
   final int coverColor;
+}
+
+/// 公司曝光度条目。
+class CompanyMention {
+  const CompanyMention({
+    required this.name,
+    required this.mentions,
+    required this.trend,
+  });
+
+  final String name;
+  final int mentions;
+  final int trend;
+}
+
+/// AI 资讯页需要的一组本地情报数据。
+class AiNewsDigest {
+  const AiNewsDigest({
+    required this.items,
+    required this.hotTopics,
+    required this.topCompanies,
+  });
+
+  final List<AiNewsItem> items;
+  final List<String> hotTopics;
+  final List<CompanyMention> topCompanies;
 }

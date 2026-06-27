@@ -69,3 +69,18 @@ class TechHeatPoint {
   final String label;
   final double value;
 }
+
+/// 技术热点页需要的一组本地情报数据。
+class TechHotspotDigest {
+  const TechHotspotDigest({
+    required this.languages,
+    required this.topics,
+    required this.heatTrend,
+    required this.hotTags,
+  });
+
+  final List<LanguageStat> languages;
+  final List<TechTopic> topics;
+  final List<TechHeatPoint> heatTrend;
+  final List<String> hotTags;
+}

@@ -1,6 +1,6 @@
 import '../domain/tech_hotspot_models.dart';
 
-/// 技术热点 mock 数据。
+/// 技术热点本地模拟数据。
 class MockTechHotspot {
   const MockTechHotspot._();
 

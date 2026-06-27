@@ -4,29 +4,38 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../data/mock_ai_news.dart';
+import '../../domain/ai_news_item.dart';
 
 /// AI 资讯右侧栏:热门话题 + 头部企业 + 订阅源。
 class AiNewsTopicSidebar extends StatelessWidget {
-  const AiNewsTopicSidebar({super.key});
+  const AiNewsTopicSidebar({
+    required this.hotTopics,
+    required this.topCompanies,
+    super.key,
+  });
+
+  final List<String> hotTopics;
+  final List<CompanyMention> topCompanies;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _HotTopicsCard(),
-        SizedBox(height: AppSpacing.lg),
-        _TopCompaniesCard(),
-        SizedBox(height: AppSpacing.lg),
-        _SubscribeCard(),
+        _HotTopicsCard(topics: hotTopics),
+        const SizedBox(height: AppSpacing.lg),
+        _TopCompaniesCard(companies: topCompanies),
+        const SizedBox(height: AppSpacing.lg),
+        const _SubscribeCard(),
       ],
     );
   }
 }
 
 class _HotTopicsCard extends StatelessWidget {
-  const _HotTopicsCard();
+  const _HotTopicsCard({required this.topics});
+
+  final List<String> topics;
 
   @override
   Widget build(BuildContext context) {
@@ -63,8 +72,7 @@ class _HotTopicsCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              for (final topic in MockAiNews.hotTopics)
-                _TopicChip(label: topic),
+              for (final topic in topics) _TopicChip(label: topic),
             ],
           ),
         ],
@@ -109,7 +117,9 @@ class _TopicChip extends StatelessWidget {
 }
 
 class _TopCompaniesCard extends StatelessWidget {
-  const _TopCompaniesCard();
+  const _TopCompaniesCard({required this.companies});
+
+  final List<CompanyMention> companies;
 
   @override
   Widget build(BuildContext context) {
@@ -142,10 +152,10 @@ class _TopCompaniesCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          for (var i = 0; i < MockAiNews.topCompanies.length; i++)
+          for (var i = 0; i < companies.length; i++)
             _CompanyRow(
               rank: i + 1,
-              company: MockAiNews.topCompanies[i],
+              company: companies[i],
             ),
         ],
       ),

@@ -6,11 +6,11 @@ import 'package:flutter/material.dart';
 /// `AppTheme.fromSeed` 用 preset.seed 派生整套 Material 3 ColorScheme。
 enum AppThemePreset {
   slate('slate', '灰白', Color(0xFF64748B)),
+  teal('teal', '青绿', Color(0xFF0D9488)),
   blue('blue', '宝蓝', Color(0xFF1E88E5)),
   indigo('indigo', '靛蓝', Color(0xFF4F46E5)),
   violet('violet', '紫罗兰', Color(0xFF7C3AED)),
   purple('purple', '暗紫', Color(0xFF6E56CF)),
-  teal('teal', '青绿', Color(0xFF0D9488)),
   emerald('emerald', '翡翠', Color(0xFF10B981)),
   amber('amber', '琥珀', Color(0xFFF59E0B)),
   orange('orange', '橙红', Color(0xFFF97316)),
@@ -26,6 +26,6 @@ enum AppThemePreset {
     for (final p in AppThemePreset.values) {
       if (p.id == id) return p;
     }
-    return AppThemePreset.slate;
+    return AppThemePreset.teal;
   }
 }

@@ -234,7 +234,7 @@ class DemoData {
     DemoContributor(
       login: 'ggerganov',
       contributions: 1284,
-      avatarColor: 0xFF6E56CF,
+      avatarColor: 0xFF0D9488,
     ),
     DemoContributor(login: 'sama', contributions: 982, avatarColor: 0xFFE5A150),
     DemoContributor(

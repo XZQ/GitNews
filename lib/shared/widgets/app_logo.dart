@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
@@ -49,7 +51,7 @@ class AppLogo extends StatelessWidget {
   }
 }
 
-/// 自绘品牌图标:圆角方形 + "G" 字 + 上升柱状。
+/// 自绘品牌图标:深色情报雷达 + 趋势轨迹 + 星标节点。
 class LogoMark extends StatelessWidget {
   const LogoMark({this.size = 32, super.key});
 
@@ -71,63 +73,107 @@ class _LogoMarkPainter extends CustomPainter {
   static const _grad = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF8B73E5), Color(0xFF5840B5)],
+    colors: [Color(0xFF101828), Color(0xFF0F766E)],
   );
 
   @override
   void paint(Canvas canvas, Size size) {
-    final r = size.width * 0.22;
+    final r = size.width * 0.24;
     final rect = Offset.zero & size;
     final rrect = RRect.fromRectAndRadius(rect, Radius.circular(r));
 
-    // 1) 渐变背景
+    // 1) 深色渐变背景。
     final bg = Paint()..shader = _grad.createShader(rect);
     canvas.drawRRect(rrect, bg);
 
-    // 2) 内部 "G" 字轮廓(用 Path 模拟,环形 + 内横线)
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final outerR = size.width * 0.30;
-    final innerR = size.width * 0.20;
-    final gPaint = Paint()
-      ..color = Colors.white
+    final clipPath = Path()..addRRect(rrect);
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    // 2) 低对比雷达环,增强情报感但不抢主体。
+    final radarPaint = Paint()
+      ..color = Colors.white.withValues(alpha: 0.09)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = size.width * 0.085
-      ..strokeCap = StrokeCap.round;
-
-    final ring = Path()
-      ..addArc(
-        Rect.fromCircle(center: Offset(cx, cy), radius: (outerR + innerR) / 2),
-        -3.6,
-        5.6,
+      ..strokeWidth = size.width * 0.035;
+    final radarCenter = Offset(size.width * 0.34, size.height * 0.68);
+    for (final scale in const [0.34, 0.56, 0.78]) {
+      canvas.drawArc(
+        Rect.fromCircle(center: radarCenter, radius: size.width * scale),
+        -1.05,
+        1.55,
+        false,
+        radarPaint,
       );
-    canvas.drawPath(ring, gPaint);
-
-    // 3) G 内部的小横线
-    canvas.drawLine(
-      Offset(cx, cy + innerR * 0.05),
-      Offset(cx + innerR * 0.85, cy + innerR * 0.05),
-      Paint()
-        ..color = Colors.white
-        ..strokeWidth = size.width * 0.085
-        ..strokeCap = StrokeCap.round,
-    );
-
-    // 4) 上升柱状(情报感)
-    final bar = Paint()..color = const Color(0xFF30A46C);
-    final bw = size.width * 0.085;
-    final baseY = size.height * 0.78;
-    final gap = size.width * 0.045;
-    final heights = [0.18, 0.30, 0.45];
-    for (var i = 0; i < heights.length; i++) {
-      final x = size.width * 0.22 + i * (bw + gap);
-      final h = size.height * heights[i];
-      final rrectBar = RRect.fromRectAndRadius(
-        Rect.fromLTWH(x, baseY - h, bw, h),
-        Radius.circular(bw * 0.45),
-      );
-      canvas.drawRRect(rrectBar, bar);
     }
+
+    // 3) 主趋势轨迹。
+    final path = Path()
+      ..moveTo(size.width * 0.20, size.height * 0.68)
+      ..cubicTo(
+        size.width * 0.36,
+        size.height * 0.52,
+        size.width * 0.46,
+        size.height * 0.62,
+        size.width * 0.58,
+        size.height * 0.42,
+      )
+      ..cubicTo(
+        size.width * 0.66,
+        size.height * 0.28,
+        size.width * 0.78,
+        size.height * 0.33,
+        size.width * 0.84,
+        size.height * 0.22,
+      );
+    final glowPaint = Paint()
+      ..color = const Color(0xFF22D3EE).withValues(alpha: 0.24)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.17
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(path, glowPaint);
+
+    final linePaint = Paint()
+      ..color = const Color(0xFF67E8F9)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = size.width * 0.075
+      ..strokeCap = StrokeCap.round;
+    canvas.drawPath(path, linePaint);
+
+    // 4) 节点与星标。
+    final nodePaint = Paint()..color = Colors.white;
+    for (final node in [
+      Offset(size.width * 0.20, size.height * 0.68),
+      Offset(size.width * 0.58, size.height * 0.42),
+    ]) {
+      canvas.drawCircle(
+        node,
+        size.width * 0.075,
+        Paint()..color = const Color(0xFF22D3EE).withValues(alpha: 0.28),
+      );
+      canvas.drawCircle(node, size.width * 0.038, nodePaint);
+    }
+
+    final star = Path();
+    final starCenter = Offset(size.width * 0.82, size.height * 0.22);
+    final outer = size.width * 0.12;
+    final inner = size.width * 0.044;
+    for (var i = 0; i < 8; i++) {
+      final angle = -1.5708 + i * 0.7854;
+      final radius = i.isEven ? outer : inner;
+      final p = Offset(
+        starCenter.dx + radius * math.cos(angle),
+        starCenter.dy + radius * math.sin(angle),
+      );
+      if (i == 0) {
+        star.moveTo(p.dx, p.dy);
+      } else {
+        star.lineTo(p.dx, p.dy);
+      }
+    }
+    star.close();
+    canvas.drawPath(star, Paint()..color = Colors.white);
+
+    canvas.restore();
   }
 
   @override

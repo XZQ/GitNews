@@ -13,9 +13,6 @@ import 'app_sidebar.dart';
 /// - compact(< 600):底部 NavigationBar
 /// - medium(600–1024):紧凑 NavigationRail(图标 + 选中标签)
 /// - expanded(≥ 1024):宽侧栏(品牌 + 大字号 + hover + 底部主题/登录)
-///
-/// 当停留在 **home** (`index == 0`) 时,expanded 不显示全局 [AppSidebar]
-/// 而由 home 页面自身渲染带侧栏的 `DevIntelDesktopPage`。
 class ResponsiveScaffold extends ConsumerWidget {
   const ResponsiveScaffold({required this.navigationShell, super.key});
 

@@ -21,12 +21,24 @@ class BorderedRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final colors = Theme.of(context).colorScheme;
+    final isLight = theme.brightness == Brightness.light;
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.72),
+        ),
+        boxShadow: [
+          if (isLight)
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.035),
+              blurRadius: 18,
+              offset: const Offset(0, 8),
+            ),
+        ],
       ),
       clipBehavior: Clip.antiAlias,
       child: IntrinsicHeight(

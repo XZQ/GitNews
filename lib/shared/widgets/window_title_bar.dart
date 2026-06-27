@@ -11,9 +11,9 @@ final windowServiceProvider = Provider<WindowService>((ref) {
 
 /// 自定义窗口标题栏(替代 Windows 系统蓝色标题栏,实现沉浸式)。
 ///
-/// - 顶部 32px 命中区由 native 端识别为 HTCAPTION,可拖动窗口
-/// - 双击顶部最大/还原
 /// - 右侧最小化/最大化/关闭按钮通过 MethodChannel 调用 native
+/// - 如需正式启用沉浸式标题栏,还需要在 Windows runner 中切换为无边框
+///   窗口并补充拖动热区 hit-test
 class WindowTitleBar extends ConsumerStatefulWidget {
   const WindowTitleBar({super.key});
 

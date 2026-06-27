@@ -4,12 +4,13 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../data/mock_tech_hotspot.dart';
 import '../../domain/tech_hotspot_models.dart';
 
 /// 编程语言分布与排行面板。
 class TechHotspotLanguagePanel extends StatelessWidget {
-  const TechHotspotLanguagePanel({super.key});
+  const TechHotspotLanguagePanel({required this.languages, super.key});
+
+  final List<LanguageStat> languages;
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class TechHotspotLanguagePanel extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                'Top ${MockTechHotspot.languages.length}',
+                'Top ${languages.length}',
                 style: AppTypography.labelSmall.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
@@ -46,11 +47,11 @@ class TechHotspotLanguagePanel extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          _LangBar(),
+          _LangBar(languages: languages),
           const SizedBox(height: AppSpacing.md),
-          for (var i = 0; i < MockTechHotspot.languages.length; i++)
+          for (var i = 0; i < languages.length; i++)
             _LangRow(
-              stat: MockTechHotspot.languages[i],
+              stat: languages[i],
               rank: i + 1,
             ),
         ],
@@ -60,13 +61,17 @@ class TechHotspotLanguagePanel extends StatelessWidget {
 }
 
 class _LangBar extends StatelessWidget {
+  const _LangBar({required this.languages});
+
+  final List<LanguageStat> languages;
+
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.pill),
       child: Row(
         children: [
-          for (final s in MockTechHotspot.languages)
+          for (final s in languages)
             Expanded(
               flex: s.percent.round(),
               child: Container(
