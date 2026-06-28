@@ -62,7 +62,7 @@ class MonitorMonitoredRow extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return InkWell(
       onTap: () =>
-          context.go('/repo_detail/${Uri.encodeComponent(repo.fullName)}'),
+          context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,

@@ -26,7 +26,7 @@ class HomeTrendingPreview extends StatelessWidget {
         subtitle: item.description,
         meta: '+${item.starDelta}',
         onTap: () => context.go(
-          '/repo_detail/${Uri.encodeComponent(item.fullName)}',
+          '/home/detail/${Uri.encodeComponent(item.fullName)}',
         ),
       ),
     );

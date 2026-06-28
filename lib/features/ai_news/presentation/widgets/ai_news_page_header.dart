@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -6,13 +7,14 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/header_search_field.dart';
 import '../../../../shared/widgets/page_header_icon.dart';
+import '../../application/ai_news_providers.dart';
 
 /// AI 动态页顶部条:标题 + 副标题 + 搜索 + 通知。
-class AiNewsPageHeader extends StatelessWidget {
+class AiNewsPageHeader extends ConsumerWidget {
   const AiNewsPageHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     return Container(
       height: 64,
@@ -58,7 +60,7 @@ class AiNewsPageHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           IconButton(
             tooltip: '刷新',
-            onPressed: () {},
+            onPressed: () => ref.invalidate(aiNewsDigestProvider),
             icon: Icon(
               Icons.refresh_rounded,
               size: 20,

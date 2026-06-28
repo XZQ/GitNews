@@ -65,7 +65,7 @@ class _Body extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {},
+                onPressed: () => _showNotImplemented(context),
                 child: const Text('登录'),
               ),
             ),
@@ -73,7 +73,7 @@ class _Body extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () {},
+                onPressed: () => _showNotImplemented(context),
                 icon: const Icon(Icons.code, size: 16),
                 label: const Text('使用 GitHub 登录'),
               ),
@@ -164,6 +164,12 @@ class _Bullet extends StatelessWidget {
       ),
     );
   }
+}
+
+void _showNotImplemented(BuildContext context) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('登录服务尚未接入,暂时使用匿名模式')),
+  );
 }
 
 extension _ColumnCopy on Column {

@@ -96,7 +96,7 @@ class _Body extends StatelessWidget {
                 RepoTile(
                   repo: repos[i],
                   onTap: () => context.go(
-                    '/repo_detail/${Uri.encodeComponent(repos[i].fullName)}',
+                    '/trending/detail/${Uri.encodeComponent(repos[i].fullName)}',
                   ),
                 ),
               ],
