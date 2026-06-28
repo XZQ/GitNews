@@ -68,7 +68,11 @@ class TechHotspotPageHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           IconButton(
             tooltip: '筛选',
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('筛选面板即将上线')),
+              );
+            },
             icon: Icon(
               Icons.tune_rounded,
               size: 20,

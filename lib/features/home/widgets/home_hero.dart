@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -40,7 +41,8 @@ class HomeHero extends StatelessWidget {
                 ),
               ),
               IconButton(
-                onPressed: () {},
+                tooltip: '监控中心',
+                onPressed: () => context.go('/monitor'),
                 icon: const Icon(Icons.notifications_none),
               ),
             ],

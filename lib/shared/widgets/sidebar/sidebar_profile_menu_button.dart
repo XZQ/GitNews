@@ -69,7 +69,11 @@ class SidebarProfileMenuButton extends StatelessWidget {
               Text('退出登录'),
             ],
           ),
-          onTap: () {},
+          onTap: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('当前为匿名模式,无需登出')),
+            );
+          },
         ),
       ],
     );

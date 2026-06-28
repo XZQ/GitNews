@@ -224,7 +224,7 @@ class _EventTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return InkWell(
-      onTap: () => context.go('/repo_detail/${Uri.encodeComponent(repo)}'),
+      onTap: () => context.go('/project/detail/${Uri.encodeComponent(repo)}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
@@ -7,13 +8,14 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/header_search_field.dart';
 import '../../../shared/widgets/page_header_icon.dart';
+import '../../trending/application/trending_providers.dart';
 
 /// 趋势页顶部条:与 [AiNewsPageHeader] / [TechHotspotPageHeader] 共享同一规格。
-class TrendingPageHeader extends StatelessWidget {
+class TrendingPageHeader extends ConsumerWidget {
   const TrendingPageHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     return Container(
       height: 64,
@@ -71,7 +73,7 @@ class TrendingPageHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           IconButton(
             tooltip: '刷新',
-            onPressed: () {},
+            onPressed: () => ref.invalidate(trendingDigestProvider),
             icon: Icon(
               Icons.refresh_rounded,
               size: 20,

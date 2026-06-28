@@ -109,7 +109,7 @@ class TrendingMobileView extends ConsumerWidget {
                   title: '热门仓库',
                   subtitle: '$windowLabel · ${digest.trendingRepos.length} 个项目',
                   trailing: TextButton(
-                    onPressed: () {},
+                    onPressed: () => _showFilterSheet(context, ref),
                     child: const Text('筛选'),
                   ),
                 ),
@@ -119,7 +119,7 @@ class TrendingMobileView extends ConsumerWidget {
                 RepoTile(
                   repo: digest.trendingRepos[i],
                   onTap: () => context.go(
-                    '/repo_detail/${Uri.encodeComponent(digest.trendingRepos[i].fullName)}',
+                    '/trending/detail/${Uri.encodeComponent(digest.trendingRepos[i].fullName)}',
                   ),
                 ),
               ],
@@ -131,4 +131,81 @@ class TrendingMobileView extends ConsumerWidget {
       ],
     );
   }
+}
+
+const _windowOptions = {'today': '今日', 'week': '本周', 'month': '本月'};
+
+const _languageOptions = {
+  'all': '全部语言',
+  'dart': 'Dart',
+  'typescript': 'TypeScript',
+  'python': 'Python',
+  'rust': 'Rust',
+  'go': 'Go',
+};
+
+Future<void> _showFilterSheet(BuildContext context, WidgetRef ref) async {
+  await showModalBottomSheet<void>(
+    context: context,
+    builder: (sheetCtx) => StatefulBuilder(
+      builder: (sheetCtx, setSheetState) {
+        final window = ref.read(trendingWindowFilterProvider);
+        final lang = ref.read(trendingLanguageFilterProvider);
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('时间窗', style: AppTypography.titleMedium),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final entry in _windowOptions.entries)
+                      ChoiceChip(
+                        label: Text(entry.value),
+                        selected: window == entry.key,
+                        onSelected: (_) {
+                          ref
+                              .read(trendingWindowFilterProvider.notifier)
+                              .state = entry.key;
+                          setSheetState(() {});
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                const Text('语言', style: AppTypography.titleMedium),
+                Wrap(
+                  spacing: 8,
+                  children: [
+                    for (final entry in _languageOptions.entries)
+                      ChoiceChip(
+                        label: Text(entry.value),
+                        selected: lang == entry.key,
+                        onSelected: (_) {
+                          ref
+                              .read(trendingLanguageFilterProvider.notifier)
+                              .state = entry.key;
+                          setSheetState(() {});
+                        },
+                      ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton(
+                    onPressed: () => Navigator.of(sheetCtx).pop(),
+                    child: const Text('完成'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    ),
+  );
 }

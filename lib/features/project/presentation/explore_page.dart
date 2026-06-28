@@ -140,7 +140,7 @@ class _Body extends StatelessWidget {
                 RepoTile(
                   repo: digest.repos[i],
                   onTap: () => context.go(
-                    '/repo_detail/${Uri.encodeComponent(digest.repos[i].fullName)}',
+                    '/project/detail/${Uri.encodeComponent(digest.repos[i].fullName)}',
                   ),
                 ),
               ],
@@ -174,7 +174,11 @@ class _Body extends StatelessWidget {
                   title: Text(c.login, style: AppTypography.titleSmall),
                   subtitle: Text('+${c.contributions} 本周贡献'),
                   trailing: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('已关注 @${c.login}')),
+                      );
+                    },
                     child: const Text('关注'),
                   ),
                 ),

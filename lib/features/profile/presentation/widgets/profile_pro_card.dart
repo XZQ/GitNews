@@ -26,7 +26,11 @@ class ProfileProCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('PRO 服务尚未上线,敬请期待')),
+                );
+              },
               child: const Text('升级 PRO'),
             ),
           ),

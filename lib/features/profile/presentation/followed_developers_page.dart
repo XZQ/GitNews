@@ -80,7 +80,11 @@ class _Body extends StatelessWidget {
                   title: Text(devs[i].login, style: AppTypography.titleSmall),
                   subtitle: Text('+${devs[i].contributions} 本周贡献'),
                   trailing: OutlinedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('已取消关注 @${devs[i].login}')),
+                      );
+                    },
                     child: const Text('取消关注'),
                   ),
                 ),

@@ -29,7 +29,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
         title: item.title,
         subtitle: '${item.source} · ${aiNewsCategoryLabel(item.category)}',
         meta: '+${item.likes}',
-        onTap: () => context.go('/ai_news/detail/${item.id}'),
+        onTap: () => context.go('/home/ai_news_detail/${item.id}'),
       ),
     );
   }

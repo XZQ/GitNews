@@ -27,7 +27,7 @@ class HomeHotspotPreview extends ConsumerWidget {
         title: item.name,
         subtitle: '${item.category} · ${item.relatedRepos} 仓库',
         meta: '+${item.growth.toStringAsFixed(1)}%',
-        onTap: () => context.go('/tech_hotspot/detail/${item.id}'),
+        onTap: () => context.go('/home/tech_hotspot_detail/${item.id}'),
       ),
     );
   }

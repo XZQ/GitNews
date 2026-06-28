@@ -67,7 +67,11 @@ class ProjectPageHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           IconButton(
             tooltip: '导出',
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('导出功能尚未接入,敬请期待')),
+              );
+            },
             icon: Icon(
               Icons.download_outlined,
               size: 20,

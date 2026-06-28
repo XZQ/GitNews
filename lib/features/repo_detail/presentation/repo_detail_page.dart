@@ -40,7 +40,13 @@ class RepoDetailPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none),
-            onPressed: () {},
+            tooltip: '订阅此仓库',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('已加入监控草单:$fullName')),
+              );
+              context.go('/profile/monitor');
+            },
           ),
         ],
       ),

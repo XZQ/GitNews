@@ -33,7 +33,7 @@ class ProjectPopularRepos extends StatelessWidget {
             RepoTile(
               repo: DemoData.trending[i],
               onTap: () => context.go(
-                '/repo_detail/${Uri.encodeComponent(DemoData.trending[i].fullName)}',
+                '/project/detail/${Uri.encodeComponent(DemoData.trending[i].fullName)}',
               ),
             ),
           ],
@@ -69,7 +69,7 @@ class ProjectRecentlyUpdated extends StatelessWidget {
             RepoTile(
               repo: DemoData.recent[i],
               onTap: () => context.go(
-                '/repo_detail/${Uri.encodeComponent(DemoData.recent[i].fullName)}',
+                '/project/detail/${Uri.encodeComponent(DemoData.recent[i].fullName)}',
               ),
             ),
           ],

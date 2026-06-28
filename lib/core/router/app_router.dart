@@ -46,6 +46,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: '/home',
                 name: 'home',
                 builder: (_, __) => const HomePage(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:fullName',
+                    name: 'home_detail',
+                    builder: (_, state) => RepoDetailPage(
+                      fullName: state.pathParameters['fullName']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'ai_news_detail/:id',
+                    name: 'home_ai_news_detail',
+                    builder: (_, state) => AiNewsDetailPage(
+                      id: state.pathParameters['id']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'tech_hotspot_detail/:id',
+                    name: 'home_tech_hotspot_detail',
+                    builder: (_, state) => TechHotspotDetailPage(
+                      id: state.pathParameters['id']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -70,6 +93,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'repos',
                     name: 'trending_repos',
                     builder: (_, __) => const HotReposPage(),
+                  ),
+                  GoRoute(
+                    path: 'detail/:fullName',
+                    name: 'trending_detail',
+                    builder: (_, state) => RepoDetailPage(
+                      fullName: state.pathParameters['fullName']!,
+                    ),
                   ),
                 ],
               ),
@@ -159,6 +189,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     name: 'project_discover',
                     builder: (_, __) => const DiscoverPage(),
                   ),
+                  GoRoute(
+                    path: 'detail/:fullName',
+                    name: 'project_detail',
+                    builder: (_, state) => RepoDetailPage(
+                      fullName: state.pathParameters['fullName']!,
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -194,6 +231,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'developer',
                     name: 'profile_developer',
                     builder: (_, __) => const DeveloperOptionsPage(),
+                  ),
+                  GoRoute(
+                    path: 'detail/:fullName',
+                    name: 'profile_detail',
+                    builder: (_, state) => RepoDetailPage(
+                      fullName: state.pathParameters['fullName']!,
+                    ),
                   ),
                 ],
               ),

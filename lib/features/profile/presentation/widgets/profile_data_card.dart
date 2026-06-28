@@ -26,7 +26,11 @@ class ProfileDataCard extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('已清理缓存(模拟)')),
+                );
+              },
               icon: const Icon(Icons.cleaning_services_outlined, size: 16),
               label: const Text('清理缓存'),
             ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -67,7 +68,7 @@ class ProfilePageHeader extends StatelessWidget {
           const SizedBox(width: AppSpacing.md),
           IconButton(
             tooltip: '设置',
-            onPressed: () {},
+            onPressed: () => context.go('/profile'),
             icon: Icon(
               Icons.settings_outlined,
               size: 20,
