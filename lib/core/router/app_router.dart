@@ -1,7 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+export 'route_specs.dart';
+
+import '../../features/ai_news/presentation/ai_news_detail_page.dart';
 import '../../features/ai_news/presentation/ai_news_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
@@ -20,84 +22,14 @@ import '../../features/project/presentation/discover_page.dart';
 import '../../features/project/presentation/explore_page.dart';
 import '../../features/project/presentation/project_page.dart';
 import '../../features/repo_detail/presentation/repo_detail_page.dart';
+import '../../features/tech_hotspot/presentation/tech_hotspot_detail_page.dart';
 import '../../features/tech_hotspot/presentation/tech_hotspot_page.dart';
 import '../../features/trending/presentation/hot_repos_page.dart';
 import '../../features/trending/presentation/language_trend_page.dart';
 import '../../features/trending/presentation/trending_overview_page.dart';
 import '../../features/trending/presentation/trending_page.dart';
 import '../../shared/widgets/responsive_scaffold.dart';
-
-class TabSpec {
-  const TabSpec({
-    required this.label,
-    required this.pathSegment,
-    required this.icon,
-    required this.selectedIcon,
-  });
-
-  final String label;
-
-  /// 路由路径段(无前导斜杠),用于把 location 解析回 tab index。
-  final String pathSegment;
-  final IconData icon;
-  final IconData selectedIcon;
-}
-
-/// 桌面侧栏 7 栏 IA:
-/// 总览 → GitHub热榜 → AI 动态 → 技术趋势 → 仓库监控 → 深度报告 → 设置
-const List<TabSpec> appTabs = <TabSpec>[
-  TabSpec(
-    label: '总览',
-    pathSegment: 'home',
-    icon: Icons.dashboard_outlined,
-    selectedIcon: Icons.dashboard_rounded,
-  ),
-  TabSpec(
-    label: 'GitHub热榜',
-    pathSegment: 'trending',
-    icon: Icons.local_fire_department_outlined,
-    selectedIcon: Icons.local_fire_department_rounded,
-  ),
-  TabSpec(
-    label: 'AI 动态',
-    pathSegment: 'ai_news',
-    icon: Icons.auto_awesome_outlined,
-    selectedIcon: Icons.auto_awesome_rounded,
-  ),
-  TabSpec(
-    label: '技术趋势',
-    pathSegment: 'tech_hotspot',
-    icon: Icons.whatshot_outlined,
-    selectedIcon: Icons.whatshot_rounded,
-  ),
-  TabSpec(
-    label: '仓库监控',
-    pathSegment: 'monitor',
-    icon: Icons.notifications_outlined,
-    selectedIcon: Icons.notifications_rounded,
-  ),
-  TabSpec(
-    label: '深度报告',
-    pathSegment: 'project',
-    icon: Icons.insights_outlined,
-    selectedIcon: Icons.insights_rounded,
-  ),
-  TabSpec(
-    label: '设置',
-    pathSegment: 'profile',
-    icon: Icons.person_outline,
-    selectedIcon: Icons.person_rounded,
-  ),
-];
-
-extension TabIndexLookup on List<TabSpec> {
-  int indexOfLocation(String location) {
-    for (var i = 0; i < length; i++) {
-      if (location.startsWith('/${this[i].pathSegment}')) return i;
-    }
-    return 0;
-  }
-}
+import 'route_error_view.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -149,6 +81,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: '/ai_news',
                 name: 'ai_news',
                 builder: (_, __) => const AiNewsPage(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:id',
+                    name: 'ai_news_detail',
+                    builder: (_, state) =>
+                        AiNewsDetailPage(id: state.pathParameters['id']!),
+                  ),
+                ],
               ),
             ],
           ),
@@ -158,6 +98,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 path: '/tech_hotspot',
                 name: 'tech_hotspot',
                 builder: (_, __) => const TechHotspotPage(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:id',
+                    name: 'tech_hotspot_detail',
+                    builder: (_, state) =>
+                        TechHotspotDetailPage(id: state.pathParameters['id']!),
+                  ),
+                ],
               ),
             ],
           ),
@@ -268,19 +216,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (_, __) => const LoginPage(),
       ),
     ],
-    errorBuilder: (_, state) => Builder(
-      builder: (context) => Scaffold(
-        appBar: AppBar(title: const Text('页面不存在')),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Text(
-              '${'未匹配的路径:'} ${state.uri}',
-              style: const TextStyle(fontSize: 14),
-            ),
-          ),
-        ),
-      ),
-    ),
+    errorBuilder: (context, state) => RouteErrorView(error: state.error),
   );
 });

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
@@ -37,6 +38,12 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repos = [...DemoData.trending.take(4), ...DemoData.recent];
+    if (repos.isEmpty) {
+      return const EmptyView(
+        icon: Icons.visibility_off_outlined,
+        message: '还没有监控的仓库',
+      );
+    }
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [

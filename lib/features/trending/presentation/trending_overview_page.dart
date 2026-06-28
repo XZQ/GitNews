@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/demo_data.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/skeleton.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
+import '../../project/application/project_providers.dart';
 
 /// 二级页 1:Star 增长趋势(全量)。
-class TrendingOverviewPage extends StatelessWidget {
+class TrendingOverviewPage extends ConsumerWidget {
   const TrendingOverviewPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(projectDigestProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Star 增长趋势'),
@@ -26,16 +32,48 @@ class TrendingOverviewPage extends StatelessWidget {
         ),
       ),
       body: ResponsiveLayout(
-        compact: (_) => const _Body(),
-        medium: (_) => const CenteredContent(child: _Body()),
-        expanded: (_) => const CenteredContent(child: _Body()),
+        compact: (_) => _buildBody(context, state, ref),
+        medium: (_) => CenteredContent(child: _buildBody(context, state, ref)),
+        expanded: (_) =>
+            CenteredContent(child: _buildBody(context, state, ref)),
       ),
+    );
+  }
+
+  Widget _buildBody(
+    BuildContext context,
+    AsyncValue<ProjectDigest> state,
+    WidgetRef ref,
+  ) {
+    return state.when(
+      data: (digest) => digest.isEmpty
+          ? const EmptyView(
+              icon: Icons.show_chart_rounded,
+              message: '暂无趋势数据',
+            )
+          : _Body(digest: digest),
+      loading: () => const _OverviewSkeleton(),
+      error: (error, stack) => ErrorView(
+        error: _toAppException(error, stack),
+        onRetry: () => ref.invalidate(projectDigestProvider),
+      ),
+    );
+  }
+
+  AppException _toAppException(Object error, StackTrace stack) {
+    if (error is AppException) return error;
+    return AppException(
+      kind: AppExceptionKind.unknown,
+      cause: error,
+      stack: stack,
     );
   }
 }
 
 class _Body extends StatelessWidget {
-  const _Body();
+  const _Body({required this.digest});
+
+  final ProjectDigest digest;
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +97,11 @@ class _Body extends StatelessWidget {
               StarTrendChart(
                 series: [
                   ChartSeries(
-                    values: DemoData.generateStarTrend(42000, 4200),
+                    values: digest.primaryTrend,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   ChartSeries(
-                    values: DemoData.generateStarTrend(39500, 3100),
+                    values: digest.secondaryTrend,
                     color: AppColors.info,
                   ),
                 ],
@@ -208,6 +246,27 @@ class _Td extends StatelessWidget {
           fontWeight: color != null ? FontWeight.w600 : FontWeight.w400,
         ),
       ),
+    );
+  }
+}
+
+class _OverviewSkeleton extends StatelessWidget {
+  const _OverviewSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
+      children: const [
+        Skeleton(height: 320),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 200),
+      ],
     );
   }
 }

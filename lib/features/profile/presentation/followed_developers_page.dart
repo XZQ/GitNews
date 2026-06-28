@@ -5,6 +5,7 @@ import '../../../core/demo_data.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
 
@@ -36,6 +37,13 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const devs = DemoData.contributors;
+    if (devs.isEmpty) {
+      return const EmptyView(
+        icon: Icons.person_add_outlined,
+        message: '还没有关注的开发者',
+      );
+    }
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -52,32 +60,25 @@ class _Body extends StatelessWidget {
                 ),
                 child: SectionHeader(
                   title: '关注的开发者',
-                  subtitle: '${'共'} ${DemoData.contributors.length}',
+                  subtitle: '共 ${devs.length}',
                 ),
               ),
-              for (var i = 0; i < DemoData.contributors.length; i++) ...[
+              for (var i = 0; i < devs.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Color(
-                      DemoData.contributors[i].avatarColor,
+                      devs[i].avatarColor,
                     ).withValues(alpha: 0.16),
                     child: Text(
-                      DemoData.contributors[i].login[0].toUpperCase(),
+                      devs[i].login[0].toUpperCase(),
                       style: AppTypography.titleSmall.copyWith(
-                        color: Color(
-                          DemoData.contributors[i].avatarColor,
-                        ),
+                        color: Color(devs[i].avatarColor),
                       ),
                     ),
                   ),
-                  title: Text(
-                    DemoData.contributors[i].login,
-                    style: AppTypography.titleSmall,
-                  ),
-                  subtitle: Text(
-                    '+${DemoData.contributors[i].contributions} ${'本周贡献'}',
-                  ),
+                  title: Text(devs[i].login, style: AppTypography.titleSmall),
+                  subtitle: Text('+${devs[i].contributions} 本周贡献'),
                   trailing: OutlinedButton(
                     onPressed: () {},
                     child: const Text('取消关注'),

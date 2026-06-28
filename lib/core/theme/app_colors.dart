@@ -20,6 +20,10 @@ class AppColors {
   static const Color trendUp = Color(0xFF30A46C);
   static const Color trendDown = Color(0xFFE5464D);
 
+  // 装饰强调色(图表 / 主题分类)
+  static const Color accentPink = Color(0xFFEC4899);
+  static const Color accentPurple = Color(0xFFA78BFA);
+
   // 语言(图表分布)
   static const Color langRust = Color(0xFFDEA584);
   static const Color langGo = Color(0xFF00ADD8);

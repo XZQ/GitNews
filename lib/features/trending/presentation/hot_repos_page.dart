@@ -47,7 +47,11 @@ class HotReposPage extends ConsumerWidget {
         },
         loading: () => const _PageSkeleton(),
         error: (error, stackTrace) => ErrorView(
-          error: AppException(kind: AppExceptionKind.unknown, cause: error),
+          error: AppException(
+            kind: AppExceptionKind.unknown,
+            cause: error,
+            stack: stackTrace,
+          ),
           onRetry: () => ref.invalidate(trendingDigestProvider),
         ),
       ),

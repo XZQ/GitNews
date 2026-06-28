@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/demo_data.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../application/project_providers.dart';
+import 'widgets/project_page_skeleton.dart';
 
 /// 二级:探索发现(话题 → 仓库 → 推荐)。
-class ExplorePage extends StatelessWidget {
+class ExplorePage extends ConsumerWidget {
   const ExplorePage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(projectDigestProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('探索'),
@@ -27,10 +33,35 @@ class ExplorePage extends StatelessWidget {
         ),
       ),
       body: ResponsiveLayout(
-        compact: (_) => const _Body(),
-        medium: (_) => const CenteredContent(child: _Body()),
-        expanded: (_) => const CenteredContent(child: _Body()),
+        compact: (_) => _buildBody(state, ref),
+        medium: (_) => CenteredContent(child: _buildBody(state, ref)),
+        expanded: (_) => CenteredContent(child: _buildBody(state, ref)),
       ),
+    );
+  }
+
+  Widget _buildBody(AsyncValue<ProjectDigest> state, WidgetRef ref) {
+    return state.when(
+      data: (digest) => digest.isEmpty
+          ? const EmptyView(
+              icon: Icons.explore_outlined,
+              message: '暂无探索内容',
+            )
+          : _Body(digest: digest),
+      loading: () => const ProjectPageSkeleton(),
+      error: (error, stack) => ErrorView(
+        error: _toAppException(error, stack),
+        onRetry: () => ref.invalidate(projectDigestProvider),
+      ),
+    );
+  }
+
+  AppException _toAppException(Object error, StackTrace stack) {
+    if (error is AppException) return error;
+    return AppException(
+      kind: AppExceptionKind.unknown,
+      cause: error,
+      stack: stack,
     );
   }
 }
@@ -42,7 +73,9 @@ class _TopicChipSpec {
 }
 
 class _Body extends StatelessWidget {
-  const _Body();
+  const _Body({required this.digest});
+
+  final ProjectDigest digest;
 
   @override
   Widget build(BuildContext context) {
@@ -66,28 +99,24 @@ class _Body extends StatelessWidget {
       ),
       children: [
         AppCard(
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: '热门话题',
                 subtitle: '基于本周 Star 增速与讨论热度',
               ),
-              SizedBox(height: AppSpacing.md),
+              const SizedBox(height: AppSpacing.md),
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  for (final c in chips)
+                    _TopicChip(label: c.label, color: c.color),
+                ],
+              ),
             ],
-          ).copyChildren([
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                for (final c in chips)
-                  _TopicChip(
-                    label: c.label,
-                    color: c.color,
-                  ),
-              ],
-            ),
-          ]),
+          ),
         ),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
@@ -103,15 +132,15 @@ class _Body extends StatelessWidget {
                 ),
                 child: SectionHeader(
                   title: '推荐仓库',
-                  subtitle: '基于你的关注 · 共 ${DemoData.trending.length} 个',
+                  subtitle: '基于你的关注 · 共 ${digest.repos.length} 个',
                 ),
               ),
-              for (var i = 0; i < DemoData.trending.length; i++) ...[
+              for (var i = 0; i < digest.repos.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
                 RepoTile(
-                  repo: DemoData.trending[i],
+                  repo: digest.repos[i],
                   onTap: () => context.go(
-                    '/repo_detail/${Uri.encodeComponent(DemoData.trending[i].fullName)}',
+                    '/repo_detail/${Uri.encodeComponent(digest.repos[i].fullName)}',
                   ),
                 ),
               ],
@@ -120,39 +149,37 @@ class _Body extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
-          child: const Column(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: '可关注的开发者',
                 subtitle: '本周 Star 增长贡献 Top 5',
               ),
-              SizedBox(height: AppSpacing.md),
-            ],
-          ).copyChildren([
-            for (final c in DemoData.contributors)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Color(c.avatarColor).withValues(alpha: 0.16),
-                  child: Text(
-                    c.login[0].toUpperCase(),
-                    style: AppTypography.titleSmall.copyWith(
-                      color: Color(c.avatarColor),
+              const SizedBox(height: AppSpacing.md),
+              for (final c in digest.contributors)
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: CircleAvatar(
+                    radius: 16,
+                    backgroundColor:
+                        Color(c.avatarColor).withValues(alpha: 0.16),
+                    child: Text(
+                      c.login[0].toUpperCase(),
+                      style: AppTypography.titleSmall.copyWith(
+                        color: Color(c.avatarColor),
+                      ),
                     ),
                   ),
+                  title: Text(c.login, style: AppTypography.titleSmall),
+                  subtitle: Text('+${c.contributions} 本周贡献'),
+                  trailing: OutlinedButton(
+                    onPressed: () {},
+                    child: const Text('关注'),
+                  ),
                 ),
-                title: Text(c.login, style: AppTypography.titleSmall),
-                subtitle: Text(
-                  '+${c.contributions} 本周贡献',
-                ),
-                trailing: OutlinedButton(
-                  onPressed: () {},
-                  child: const Text('关注'),
-                ),
-              ),
-          ]),
+            ],
+          ),
         ),
       ],
     );
@@ -182,17 +209,6 @@ class _TopicChip extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-    );
-  }
-}
-
-extension _ColumnCopy on Column {
-  Column copyChildren(List<Widget> extra) {
-    return Column(
-      crossAxisAlignment: crossAxisAlignment,
-      mainAxisSize: mainAxisSize,
-      mainAxisAlignment: mainAxisAlignment,
-      children: [...children, ...extra],
     );
   }
 }

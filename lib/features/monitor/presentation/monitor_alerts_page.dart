@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -171,7 +172,7 @@ class _AlertFullTile extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: Icon(_icon(), color: color, size: 18),
           ),
@@ -197,7 +198,7 @@ class _AlertFullTile extends StatelessWidget {
               fontWeight: FontWeight.w600,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           Text(
             alert.time,
             style: AppTypography.labelSmall.copyWith(

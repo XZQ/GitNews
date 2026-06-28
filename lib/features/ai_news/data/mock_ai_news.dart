@@ -6,7 +6,7 @@ import '../domain/ai_news_item.dart';
 class MockAiNews {
   const MockAiNews._();
 
-  static final List<AiNewsItem> all = [
+  static final List<AiNewsItem> all = List<AiNewsItem>.unmodifiable([
     AiNewsItem(
       id: 'ai-001',
       category: AiNewsCategory.breakthrough,
@@ -19,7 +19,7 @@ class MockAiNews {
       readMinutes: 6,
       reads: 28430,
       likes: 1820,
-      tags: ['Anthropic', 'Claude', '长上下文', 'Agent'],
+      tags: const ['Anthropic', 'Claude', '长上下文', 'Agent'],
       isHero: true,
       coverColor: 0xFF0D9488,
       sourceUrl: 'https://www.anthropic.com/claude/opus',
@@ -36,7 +36,7 @@ class MockAiNews {
       readMinutes: 4,
       reads: 15620,
       likes: 940,
-      tags: ['OpenAI', '苹果', '端侧 AI'],
+      tags: const ['OpenAI', '苹果', '端侧 AI'],
       isHero: false,
       coverColor: 0xFF2563EB,
       sourceUrl:
@@ -54,7 +54,7 @@ class MockAiNews {
       readMinutes: 3,
       reads: 9820,
       likes: 510,
-      tags: ['Mistral', '融资', '开源'],
+      tags: const ['Mistral', '融资', '开源'],
       isHero: false,
       coverColor: 0xFFD97706,
       sourceUrl: 'https://mistral.ai/news',
@@ -71,7 +71,7 @@ class MockAiNews {
       readMinutes: 5,
       reads: 7340,
       likes: 280,
-      tags: ['豆包', '字节', '车机', 'B 端'],
+      tags: const ['豆包', '字节', '车机', 'B 端'],
       isHero: false,
       coverColor: 0xFF059669,
       sourceUrl: 'https://www.volcengine.com/product/doubao',
@@ -88,7 +88,7 @@ class MockAiNews {
       readMinutes: 7,
       reads: 12150,
       likes: 760,
-      tags: ['DeepMind', '数学', '推理'],
+      tags: const ['DeepMind', '数学', '推理'],
       isHero: false,
       coverColor: 0xFF0284C7,
       sourceUrl: 'https://deepmind.google/discover/blog/',
@@ -104,7 +104,7 @@ class MockAiNews {
       readMinutes: 4,
       reads: 6280,
       likes: 320,
-      tags: ['Meta', 'Llama', '开源'],
+      tags: const ['Meta', 'Llama', '开源'],
       isHero: false,
       coverColor: 0xFF334155,
       sourceUrl: 'https://ai.meta.com/blog/',
@@ -121,7 +121,7 @@ class MockAiNews {
       readMinutes: 5,
       reads: 9120,
       likes: 580,
-      tags: ['Cursor', '编程', 'IDE'],
+      tags: const ['Cursor', '编程', 'IDE'],
       isHero: false,
       coverColor: 0xFF14B8A6,
       sourceUrl: 'https://cursor.com/changelog',
@@ -137,7 +137,7 @@ class MockAiNews {
       readMinutes: 3,
       reads: 5210,
       likes: 240,
-      tags: ['智谱', 'GLM', '融资'],
+      tags: const ['智谱', 'GLM', '融资'],
       isHero: false,
       coverColor: 0xFFBE123C,
       sourceUrl: 'https://www.zhipuai.cn/',
@@ -154,7 +154,7 @@ class MockAiNews {
       readMinutes: 6,
       reads: 8430,
       likes: 410,
-      tags: ['Google', 'Gemini', '多模态'],
+      tags: const ['Google', 'Gemini', '多模态'],
       isHero: false,
       coverColor: 0xFFEA580C,
       sourceUrl: 'https://blog.google/technology/google-deepmind/',
@@ -170,12 +170,12 @@ class MockAiNews {
       readMinutes: 3,
       reads: 4180,
       likes: 180,
-      tags: ['HF', 'Argilla', '数据'],
+      tags: const ['HF', 'Argilla', '数据'],
       isHero: false,
       coverColor: 0xFFCA8A04,
       sourceUrl: 'https://huggingface.co/blog',
     ),
-  ];
+  ]);
 
   /// 热门话题(用于右侧栏)。
   static const List<String> hotTopics = [

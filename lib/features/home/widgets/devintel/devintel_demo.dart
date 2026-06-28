@@ -101,14 +101,14 @@ const List<DevIntelMetricSpec> kDevIntelMetrics = <DevIntelMetricSpec>[
     value: '36',
     delta: '+5%',
     icon: Icons.rocket_launch_rounded,
-    color: Color(0xFF0D9488),
+    color: AppColors.brand,
   ),
   DevIntelMetricSpec(
     title: '已收藏仓库',
     value: '12',
     delta: '+2%',
     icon: Icons.bookmark_rounded,
-    color: Color(0xFFEC4899),
+    color: AppColors.accentPink,
   ),
 ];
 
@@ -147,7 +147,7 @@ const List<DevIntelRepoRow> kDevIntelRepoRows = <DevIntelRepoRow>[
     lang: 'TypeScript',
     newStars: '+234',
     total: '30.1K',
-    color: Color(0xFFA78BFA),
+    color: AppColors.accentPurple,
   ),
 ];
 
@@ -177,7 +177,7 @@ const List<DevIntelHotspot> kDevIntelHotspots = <DevIntelHotspot>[
     abbr: 'AGN',
     name: '代理框架',
     tag: '上升',
-    color: Color(0xFFA78BFA),
+    color: AppColors.accentPurple,
     progress: 0.78,
   ),
 ];
@@ -219,7 +219,7 @@ const List<DevIntelMonitoring> kDevIntelMonitoring = <DevIntelMonitoring>[
   DevIntelMonitoring(
     name: 'tailwindcss',
     status: '已排程',
-    statusColor: Color(0xFF71717A),
+    statusColor: AppColors.textMutedDark,
     note: '(12m)',
   ),
 ];

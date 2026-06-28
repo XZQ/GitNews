@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
@@ -36,6 +37,13 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const repos = DemoData.trending;
+    if (repos.isEmpty) {
+      return const EmptyView(
+        icon: Icons.bookmark_border_rounded,
+        message: '还没有收藏的主题',
+      );
+    }
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -52,15 +60,15 @@ class _Body extends StatelessWidget {
                 ),
                 child: SectionHeader(
                   title: '收藏的主题',
-                  subtitle: '共 ${DemoData.trending.length} 个',
+                  subtitle: '共 ${repos.length} 个',
                 ),
               ),
-              for (var i = 0; i < DemoData.trending.length; i++) ...[
+              for (var i = 0; i < repos.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
                 RepoTile(
-                  repo: DemoData.trending[i],
+                  repo: repos[i],
                   onTap: () => context.go(
-                    '/repo_detail/${Uri.encodeComponent(DemoData.trending[i].fullName)}',
+                    '/repo_detail/${Uri.encodeComponent(repos[i].fullName)}',
                   ),
                 ),
               ],
