@@ -6,7 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
 
-/// AI 资讯右侧栏:热门话题 + 头部企业 + 订阅源。
+/// AI 动态右侧栏:热门话题 + 头部企业 + 订阅源。
 class AiNewsTopicSidebar extends StatelessWidget {
   const AiNewsTopicSidebar({
     required this.hotTopics,
@@ -40,12 +40,16 @@ class _HotTopicsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
+          width: isLight ? 0.6 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,12 +128,16 @@ class _TopCompaniesCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
+          width: isLight ? 0.6 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -229,6 +237,7 @@ class _SubscribeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -239,7 +248,10 @@ class _SubscribeCard extends StatelessWidget {
           ],
         ),
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppColors.brand.withValues(alpha: 0.4)),
+        border: Border.all(
+          color: AppColors.brand.withValues(alpha: isLight ? 0.26 : 0.4),
+          width: isLight ? 0.6 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

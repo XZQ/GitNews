@@ -7,7 +7,7 @@ import '../../../ai_news/presentation/widgets/ai_news_hero_banner.dart'
 import '../../../../core/theme/app_colors.dart';
 import 'home_section_preview_card.dart';
 
-/// 首页 AI 资讯 Top N 预览。
+/// 首页 AI 动态 Top N 预览。
 class HomeAiNewsPreview extends StatelessWidget {
   const HomeAiNewsPreview({super.key});
 
@@ -15,7 +15,7 @@ class HomeAiNewsPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = MockAiNews.all.take(4).toList();
     return HomeSectionPreviewCard<AiNewsItem>(
-      title: 'AI 资讯速递',
+      title: 'AI 动态',
       subtitle: '每日 5 分钟读完 AI 世界',
       accentColor: AppColors.brand,
       icon: Icons.auto_awesome_rounded,

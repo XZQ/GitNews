@@ -1,10 +1,10 @@
-/// AI 资讯领域模型(纯 Dart)。
+/// AI 动态领域模型(纯 Dart)。
 ///
 /// 用于 [AiNewsPage] 的展示数据。当前由 mock 提供,
 /// 接入真实数据源后替换为 Repository。
 library;
 
-/// AI 资讯分类。覆盖信息流的 4 个核心维度。
+/// AI 动态分类。覆盖信息流的 4 个核心维度。
 enum AiNewsCategory {
   /// 行业动态:大公司战略、政策、人事情报。
   industry,
@@ -19,7 +19,7 @@ enum AiNewsCategory {
   funding,
 }
 
-/// AI 资讯条目。
+/// AI 动态条目。
 class AiNewsItem {
   const AiNewsItem({
     required this.id,
@@ -35,6 +35,8 @@ class AiNewsItem {
     required this.tags,
     required this.isHero,
     this.coverColor = 0xFF0D9488,
+    this.sourceUrl,
+    this.isMock = true,
   });
 
   final String id;
@@ -50,6 +52,8 @@ class AiNewsItem {
   final List<String> tags;
   final bool isHero;
   final int coverColor;
+  final String? sourceUrl;
+  final bool isMock;
 }
 
 /// 公司曝光度条目。
@@ -65,7 +69,7 @@ class CompanyMention {
   final int trend;
 }
 
-/// AI 资讯页需要的一组本地情报数据。
+/// AI 动态页需要的一组本地情报数据。
 class AiNewsDigest {
   const AiNewsDigest({
     required this.items,

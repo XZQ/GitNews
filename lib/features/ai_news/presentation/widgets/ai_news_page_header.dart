@@ -4,8 +4,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/header_search_field.dart';
+import '../../../../shared/widgets/page_header_icon.dart';
 
-/// AI 资讯页顶部条:标题 + 副标题 + 搜索 + 通知。
+/// AI 动态页顶部条:标题 + 副标题 + 搜索 + 通知。
 class AiNewsPageHeader extends StatelessWidget {
   const AiNewsPageHeader({super.key});
 
@@ -23,21 +25,9 @@ class AiNewsPageHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.brand, AppColors.brandDark],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.auto_awesome_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+          const PageHeaderIcon(
+            icon: Icons.auto_awesome_rounded,
+            accent: AppColors.brand,
           ),
           const SizedBox(width: AppSpacing.md),
           Column(
@@ -46,7 +36,7 @@ class AiNewsPageHeader extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'AI 资讯',
+                'AI 动态',
                 style: AppTypography.titleLarge.copyWith(
                   color: colors.onSurface,
                   height: 1.0,
@@ -62,7 +52,9 @@ class AiNewsPageHeader extends StatelessWidget {
             ],
           ),
           const SizedBox(width: AppSpacing.xl),
-          const Expanded(child: _HeaderSearchField()),
+          const Expanded(
+            child: HeaderSearchField(hintText: '搜索资讯、模型、公司...'),
+          ),
           const SizedBox(width: AppSpacing.md),
           IconButton(
             tooltip: '刷新',
@@ -107,48 +99,6 @@ class AiNewsPageHeader extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _HeaderSearchField extends StatelessWidget {
-  const _HeaderSearchField();
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 40,
-      child: TextField(
-        style: AppTypography.bodyMedium.copyWith(color: colors.onSurface),
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.search_rounded,
-            size: 18,
-            color: colors.onSurfaceVariant,
-          ),
-          hintText: '搜索资讯、模型、公司...',
-          hintStyle: AppTypography.bodySmall.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-          isDense: true,
-          contentPadding: EdgeInsets.zero,
-          filled: true,
-          fillColor: colors.surfaceContainerHighest,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-            borderSide: BorderSide(color: colors.primary, width: 1.4),
-          ),
-        ),
       ),
     );
   }

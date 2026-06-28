@@ -1,37 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/breakpoint.dart';
+import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/skeleton.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
+import '../application/monitor_providers.dart';
+import '../domain/monitor_repository.dart';
 import '../widgets/monitor_page_header.dart';
+import '../widgets/monitor_settings_cards.dart';
 
-class MonitorPage extends StatelessWidget {
+class MonitorPage extends ConsumerWidget {
   const MonitorPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isCompact = Breakpoints.isCompact(context);
+    final state = ref.watch(monitorDigestProvider);
     return Scaffold(
       appBar: isCompact ? AppBar(title: const Text('监控')) : null,
-      body: ResponsiveLayout(
-        compact: (_) => const _Mobile(),
-        medium: (_) => const _Desktop(),
-        expanded: (_) => const _Desktop(),
+      body: state.when(
+        data: (digest) {
+          if (digest.isEmpty) {
+            return const EmptyView(
+              icon: Icons.visibility_off_outlined,
+              message: '还没有监控仓库',
+            );
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Mobile(digest: digest),
+            medium: (_) => _Desktop(digest: digest),
+            expanded: (_) => _Desktop(digest: digest),
+          );
+        },
+        loading: () => const _MonitorSkeleton(),
+        error: (error, stack) => ErrorView(
+          error: _toAppException(error, stack),
+          onRetry: () => ref.invalidate(monitorDigestProvider),
+        ),
       ),
+    );
+  }
+
+  AppException _toAppException(Object error, StackTrace stack) {
+    if (error is AppException) return error;
+    return AppException(
+      kind: AppExceptionKind.unknown,
+      cause: error,
+      stack: stack,
     );
   }
 }
 
 /// 手机:状态 4 卡 + 我的监控仓库 + 最近告警。
 class _Mobile extends StatelessWidget {
-  const _Mobile();
+  const _Mobile({required this.digest});
+
+  final MonitorDigest digest;
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +77,12 @@ class _Mobile extends StatelessWidget {
         AppSpacing.lg,
         AppSpacing.xl,
       ),
-      children: const [
-        _StatusRow(),
-        SizedBox(height: AppSpacing.lg),
-        _MonitoredRepos(),
-        SizedBox(height: AppSpacing.lg),
-        _RecentAlerts(),
+      children: [
+        _StatusRow(stats: digest.stats),
+        const SizedBox(height: AppSpacing.lg),
+        _MonitoredRepos(repos: digest.monitoredRepos),
+        const SizedBox(height: AppSpacing.lg),
+        _RecentAlerts(alerts: digest.alerts),
       ],
     );
   }
@@ -55,17 +90,19 @@ class _Mobile extends StatelessWidget {
 
 /// 桌面:左 8 列监控仓库表 + 告警 / 右 4 列(规则 + 通知设置)。
 class _Desktop extends StatelessWidget {
-  const _Desktop();
+  const _Desktop({required this.digest});
+
+  final MonitorDigest digest;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        MonitorPageHeader(),
+        const MonitorPageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
+            padding: const EdgeInsets.fromLTRB(
               AppSpacing.xl,
               AppSpacing.lg,
               AppSpacing.xl,
@@ -74,15 +111,21 @@ class _Desktop extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _StatusRow(),
-                SizedBox(height: AppSpacing.lg),
+                _StatusRow(stats: digest.stats),
+                const SizedBox(height: AppSpacing.lg),
                 IntrinsicHeight(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(flex: 8, child: _MonitoredRepos()),
-                      SizedBox(width: AppSpacing.lg),
-                      Expanded(flex: 4, child: _RightColumn()),
+                      Expanded(
+                        flex: 8,
+                        child: _MonitoredRepos(repos: digest.monitoredRepos),
+                      ),
+                      const SizedBox(width: AppSpacing.lg),
+                      Expanded(
+                        flex: 4,
+                        child: _RightColumn(alerts: digest.alerts),
+                      ),
                     ],
                   ),
                 ),
@@ -96,7 +139,9 @@ class _Desktop extends StatelessWidget {
 }
 
 class _StatusRow extends StatelessWidget {
-  const _StatusRow();
+  const _StatusRow({required this.stats});
+
+  final MonitorStats stats;
 
   @override
   Widget build(BuildContext context) {
@@ -105,44 +150,49 @@ class _StatusRow extends StatelessWidget {
         Expanded(
           child: _StatusCard(
             label: '监控仓库',
-            value: '28',
-            delta: '+4',
+            value: '${stats.monitoredCount}',
+            delta: _formatDelta(stats.monitoredDelta),
             icon: Icons.visibility_outlined,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        const Expanded(
+        Expanded(
           child: _StatusCard(
             label: '未读告警',
-            value: '4',
-            delta: '-2',
+            value: '${stats.unreadAlertCount}',
+            delta: _formatDelta(stats.unreadAlertDelta),
             icon: Icons.error_outline,
             color: AppColors.warning,
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        const Expanded(
+        Expanded(
           child: _StatusCard(
             label: '今日触发',
-            value: '3',
-            delta: '+1',
+            value: '${stats.triggeredTodayCount}',
+            delta: _formatDelta(stats.triggeredTodayDelta),
             icon: Icons.bolt_rounded,
             color: AppColors.info,
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        const Expanded(
+        Expanded(
           child: _StatusCard(
             label: '告警总数',
-            value: '12',
-            delta: '-5',
+            value: '${stats.totalAlertCount}',
+            delta: _formatDelta(stats.totalAlertDelta),
             icon: Icons.history_rounded,
             color: AppColors.success,
           ),
         ),
       ],
     );
+  }
+
+  String _formatDelta(int value) {
+    if (value > 0) return '+$value';
+    return '$value';
   }
 }
 
@@ -204,7 +254,9 @@ class _StatusCard extends StatelessWidget {
 }
 
 class _MonitoredRepos extends StatelessWidget {
-  const _MonitoredRepos();
+  const _MonitoredRepos({required this.repos});
+
+  final List<DemoRepo> repos;
 
   @override
   Widget build(BuildContext context) {
@@ -224,15 +276,9 @@ class _MonitoredRepos extends StatelessWidget {
               subtitle: '近 30 天 Star 增速与告警',
             ),
           ),
-          for (var i = 0;
-              i < DemoData.trending.length + DemoData.recent.length;
-              i++) ...[
+          for (var i = 0; i < repos.length; i++) ...[
             if (i != 0) const Divider(height: 1),
-            _MonitoredRow(
-              repo: i < DemoData.trending.length
-                  ? DemoData.trending[i]
-                  : DemoData.recent[i - DemoData.trending.length],
-            ),
+            _MonitoredRow(repo: repos[i]),
           ],
         ],
       ),
@@ -322,7 +368,9 @@ class _MonitoredRow extends StatelessWidget {
 }
 
 class _RecentAlerts extends StatelessWidget {
-  const _RecentAlerts();
+  const _RecentAlerts({required this.alerts});
+
+  final List<DemoAlert> alerts;
 
   @override
   Widget build(BuildContext context) {
@@ -342,9 +390,9 @@ class _RecentAlerts extends StatelessWidget {
               subtitle: '今日与昨日告警流',
             ),
           ),
-          for (var i = 0; i < DemoData.alerts.length; i++) ...[
+          for (var i = 0; i < alerts.length; i++) ...[
             if (i != 0) const Divider(height: 1),
-            _AlertRow(alert: DemoData.alerts[i]),
+            _AlertRow(alert: alerts[i]),
           ],
         ],
       ),
@@ -430,120 +478,51 @@ class _AlertRow extends StatelessWidget {
 }
 
 class _RightColumn extends StatelessWidget {
-  const _RightColumn();
+  const _RightColumn({required this.alerts});
+
+  final List<DemoAlert> alerts;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        _RulesCard(),
-        SizedBox(height: AppSpacing.lg),
-        _NotificationCard(),
-        SizedBox(height: AppSpacing.lg),
-        _RecentAlerts(),
+        const MonitorRulesCard(),
+        const SizedBox(height: AppSpacing.lg),
+        const MonitorNotificationCard(),
+        const SizedBox(height: AppSpacing.lg),
+        _RecentAlerts(alerts: alerts),
       ],
     );
   }
 }
 
-class _RulesCard extends StatelessWidget {
-  const _RulesCard();
+class _MonitorSkeleton extends StatelessWidget {
+  const _MonitorSkeleton();
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final rules = <(String, Color, bool)>[
-      ('Star 增速 ≥ 200/天', AppColors.success, true),
-      ('单日增长 ≥ 10%', colors.primary, true),
-      ('Fork 增速 ≥ 50/天', AppColors.info, false),
-      ('讨论热度 ≥ 5x', AppColors.warning, true),
-    ];
-    return AppCard(
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader(
-            title: '监控规则',
-            subtitle: '3 ${'条'}',
-          ),
-          SizedBox(height: AppSpacing.md),
-        ],
-      ).copyChildren([
-        for (final r in rules)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              children: [
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: r.$2,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(child: Text(r.$1, style: AppTypography.bodyMedium)),
-                Switch(value: r.$3, onChanged: (_) {}),
-              ],
-            ),
-          ),
-      ]),
-    );
-  }
-}
-
-class _NotificationCard extends StatelessWidget {
-  const _NotificationCard();
-
-  @override
-  Widget build(BuildContext context) {
-    return const AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader(
-            title: '通知设置',
-            subtitle: '推送渠道与频次',
-          ),
-          SizedBox(height: AppSpacing.md),
-          _NotifRow(label: '应用内通知', value: true),
-          _NotifRow(label: '邮件摘要', value: false),
-          _NotifRow(label: '每日报告', value: true),
-          _NotifRow(label: '周报推送', value: false),
-        ],
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.xxxl,
       ),
-    );
-  }
-}
-
-class _NotifRow extends StatelessWidget {
-  const _NotifRow({required this.label, required this.value});
-  final String label;
-  final bool value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: AppTypography.bodyMedium)),
-          Switch(value: value, onChanged: (_) {}),
-        ],
-      ),
-    );
-  }
-}
-
-/// 调试用扩展:在 const Column 中拼接额外子项。
-extension _ColumnCopy on Column {
-  Column copyChildren(List<Widget> extra) {
-    return Column(
-      crossAxisAlignment: crossAxisAlignment,
-      mainAxisSize: mainAxisSize,
-      mainAxisAlignment: mainAxisAlignment,
-      children: [...children, ...extra],
+      children: const [
+        Row(
+          children: [
+            Expanded(child: Skeleton(height: 92)),
+            SizedBox(width: AppSpacing.sm),
+            Expanded(child: Skeleton(height: 92)),
+            SizedBox(width: AppSpacing.sm),
+            Expanded(child: Skeleton(height: 92)),
+            SizedBox(width: AppSpacing.sm),
+            Expanded(child: Skeleton(height: 92)),
+          ],
+        ),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 360),
+      ],
     );
   }
 }

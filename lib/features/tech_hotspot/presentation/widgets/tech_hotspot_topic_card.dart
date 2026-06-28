@@ -20,19 +20,26 @@ class TechHotspotTopicCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final heatColor = _heatColor(topic.heat);
+    final radius = BorderRadius.circular(AppRadius.lg);
     return Material(
       color: colors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: radius,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        borderRadius: radius,
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: colors.outlineVariant),
+            borderRadius: radius,
+            border: Border.all(
+              color: colors.outlineVariant.withValues(
+                alpha: isLight ? 0.58 : 1,
+              ),
+              width: isLight ? 0.6 : 1,
+            ),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,

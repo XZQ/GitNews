@@ -57,7 +57,11 @@ class AppSidebar extends ConsumerWidget {
                 ],
               ),
             ),
-            const Divider(height: 1),
+            Divider(
+              height: 1,
+              thickness: 0.5,
+              color: colors.outlineVariant.withValues(alpha: 0.35),
+            ),
             const _SidebarFooter(),
           ],
         ),

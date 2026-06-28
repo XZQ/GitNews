@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../widgets/monitor_settings_cards.dart';
 
 /// 通知设置。
 class MonitorSettingsPage extends StatelessWidget {
@@ -53,11 +53,11 @@ class _Body extends StatelessWidget {
                 subtitle: '应用内 / 邮件 / 推送',
               ),
               SizedBox(height: AppSpacing.md),
-              _NotifRow(label: '应用内通知', value: true),
-              _NotifRow(label: '邮件摘要', value: false),
-              _NotifRow(label: '每日报告', value: true),
-              _NotifRow(label: '周报推送', value: false),
-              _NotifRow(label: '仅关键告警', value: true),
+              MonitorNotificationRow(label: '应用内通知', value: true),
+              MonitorNotificationRow(label: '邮件摘要', value: false),
+              MonitorNotificationRow(label: '每日报告', value: true),
+              MonitorNotificationRow(label: '周报推送', value: false),
+              MonitorNotificationRow(label: '仅关键告警', value: true),
             ],
           ),
         ),
@@ -71,36 +71,15 @@ class _Body extends StatelessWidget {
                 subtitle: '夜间与工作时段',
               ),
               SizedBox(height: AppSpacing.md),
-              _NotifRow(label: '夜间 22:00 - 08:00 静默', value: true),
-              _NotifRow(label: '工作时段仅推送关键', value: false),
+              MonitorNotificationRow(
+                label: '夜间 22:00 - 08:00 静默',
+                value: true,
+              ),
+              MonitorNotificationRow(label: '工作时段仅推送关键', value: false),
             ],
           ),
         ),
       ],
-    );
-  }
-}
-
-class _NotifRow extends StatelessWidget {
-  const _NotifRow({required this.label, required this.value});
-  final String label;
-  final bool value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: AppTypography.bodyMedium,
-            ),
-          ),
-          Switch(value: value, onChanged: (_) {}),
-        ],
-      ),
     );
   }
 }

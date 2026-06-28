@@ -1,6 +1,6 @@
 import '../domain/ai_news_item.dart';
 
-/// AI 资讯本地模拟数据。
+/// AI 动态本地模拟数据。
 ///
 /// 所有时间戳写死为 const DateTime,保证 UI 截图与单测稳定。
 class MockAiNews {
@@ -22,6 +22,7 @@ class MockAiNews {
       tags: ['Anthropic', 'Claude', '长上下文', 'Agent'],
       isHero: true,
       coverColor: 0xFF0D9488,
+      sourceUrl: 'https://www.anthropic.com/claude/opus',
     ),
     AiNewsItem(
       id: 'ai-002',
@@ -37,7 +38,9 @@ class MockAiNews {
       likes: 940,
       tags: ['OpenAI', '苹果', '端侧 AI'],
       isHero: false,
-      coverColor: 0xFF4CB5FF,
+      coverColor: 0xFF2563EB,
+      sourceUrl:
+          'https://support.apple.com/guide/iphone/use-chatgpt-with-apple-intelligence-iph00fd3c8c2/ios',
     ),
     AiNewsItem(
       id: 'ai-003',
@@ -53,7 +56,8 @@ class MockAiNews {
       likes: 510,
       tags: ['Mistral', '融资', '开源'],
       isHero: false,
-      coverColor: 0xFFE5A150,
+      coverColor: 0xFFD97706,
+      sourceUrl: 'https://mistral.ai/news',
     ),
     AiNewsItem(
       id: 'ai-004',
@@ -69,7 +73,8 @@ class MockAiNews {
       likes: 280,
       tags: ['豆包', '字节', '车机', 'B 端'],
       isHero: false,
-      coverColor: 0xFF30A46C,
+      coverColor: 0xFF059669,
+      sourceUrl: 'https://www.volcengine.com/product/doubao',
     ),
     AiNewsItem(
       id: 'ai-005',
@@ -85,7 +90,8 @@ class MockAiNews {
       likes: 760,
       tags: ['DeepMind', '数学', '推理'],
       isHero: false,
-      coverColor: 0xFF3178C6,
+      coverColor: 0xFF0284C7,
+      sourceUrl: 'https://deepmind.google/discover/blog/',
     ),
     AiNewsItem(
       id: 'ai-006',
@@ -100,7 +106,8 @@ class MockAiNews {
       likes: 320,
       tags: ['Meta', 'Llama', '开源'],
       isHero: false,
-      coverColor: 0xFF0866FF,
+      coverColor: 0xFF334155,
+      sourceUrl: 'https://ai.meta.com/blog/',
     ),
     AiNewsItem(
       id: 'ai-007',
@@ -116,7 +123,8 @@ class MockAiNews {
       likes: 580,
       tags: ['Cursor', '编程', 'IDE'],
       isHero: false,
-      coverColor: 0xFFA97BFF,
+      coverColor: 0xFF14B8A6,
+      sourceUrl: 'https://cursor.com/changelog',
     ),
     AiNewsItem(
       id: 'ai-008',
@@ -131,7 +139,8 @@ class MockAiNews {
       likes: 240,
       tags: ['智谱', 'GLM', '融资'],
       isHero: false,
-      coverColor: 0xFFE5464D,
+      coverColor: 0xFFBE123C,
+      sourceUrl: 'https://www.zhipuai.cn/',
     ),
     AiNewsItem(
       id: 'ai-009',
@@ -147,7 +156,8 @@ class MockAiNews {
       likes: 410,
       tags: ['Google', 'Gemini', '多模态'],
       isHero: false,
-      coverColor: 0xFFFA7343,
+      coverColor: 0xFFEA580C,
+      sourceUrl: 'https://blog.google/technology/google-deepmind/',
     ),
     AiNewsItem(
       id: 'ai-010',
@@ -162,7 +172,8 @@ class MockAiNews {
       likes: 180,
       tags: ['HF', 'Argilla', '数据'],
       isHero: false,
-      coverColor: 0xFFFFD21E,
+      coverColor: 0xFFCA8A04,
+      sourceUrl: 'https://huggingface.co/blog',
     ),
   ];
 

@@ -50,7 +50,7 @@ class _EntrySpec {
 }
 
 const _aiNews = _EntrySpec(
-  label: 'AI 资讯',
+  label: 'AI 动态',
   kpi: '10 条新更',
   delta: '+18%',
   icon: Icons.auto_awesome_rounded,
@@ -58,7 +58,7 @@ const _aiNews = _EntrySpec(
   path: '/ai_news',
 );
 const _trending = _EntrySpec(
-  label: 'GitHub 热榜',
+  label: 'GitHub热榜',
   kpi: '36 个项目',
   delta: '+1.2K★',
   icon: Icons.local_fire_department_rounded,
@@ -66,7 +66,7 @@ const _trending = _EntrySpec(
   path: '/trending',
 );
 const _hotspot = _EntrySpec(
-  label: '技术热点',
+  label: '技术趋势',
   kpi: '8 主题',
   delta: '+24%',
   icon: Icons.whatshot_rounded,
@@ -90,7 +90,7 @@ const _report = _EntrySpec(
   path: '/project',
 );
 
-const _specs = [_aiNews, _trending, _hotspot, _monitor, _report];
+const _specs = [_trending, _aiNews, _hotspot, _monitor, _report];
 
 class _EntryTile extends StatelessWidget {
   const _EntryTile({required this.spec});
@@ -100,11 +100,15 @@ class _EntryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return Container(
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colors.outlineVariant),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
+          width: isLight ? 0.6 : 1,
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: Material(

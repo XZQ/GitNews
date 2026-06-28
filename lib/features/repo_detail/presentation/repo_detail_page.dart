@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/skeleton.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
+import '../application/repo_detail_providers.dart';
+import '../domain/repo_detail_repository.dart';
 
-class RepoDetailPage extends StatelessWidget {
+class RepoDetailPage extends ConsumerWidget {
   const RepoDetailPage({required this.fullName, super.key});
 
   final String fullName;
 
   @override
-  Widget build(BuildContext context) {
-    final repo = _lookupRepo();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(repoDetailDigestProvider(fullName));
     return Scaffold(
       appBar: AppBar(
-        title: Text(repo.fullName),
+        title: state.maybeWhen(
+          data: (digest) => Text(digest.repo.fullName),
+          orElse: () => const Text('仓库详情'),
+        ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -34,26 +44,43 @@ class RepoDetailPage extends StatelessWidget {
           ),
         ],
       ),
-      body: ResponsiveLayout(
-        compact: (_) => _Mobile(repo: repo),
-        medium: (_) => CenteredContent(child: _Desktop(repo: repo)),
-        expanded: (_) => CenteredContent(child: _Desktop(repo: repo)),
+      body: state.when(
+        data: (digest) {
+          if (digest.relatedRepos.isEmpty && digest.contributors.isEmpty) {
+            return const EmptyView(
+              icon: Icons.source_outlined,
+              message: '未找到仓库详情',
+            );
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Mobile(digest: digest),
+            medium: (_) => CenteredContent(child: _Desktop(digest: digest)),
+            expanded: (_) => CenteredContent(child: _Desktop(digest: digest)),
+          );
+        },
+        loading: () => const _RepoDetailSkeleton(),
+        error: (error, stack) => ErrorView(
+          error: _toAppException(error, stack),
+          onRetry: () => ref.invalidate(repoDetailDigestProvider(fullName)),
+        ),
       ),
     );
   }
 
-  DemoRepo _lookupRepo() {
-    final all = [...DemoData.trending, ...DemoData.recent];
-    return all.firstWhere(
-      (r) => r.fullName == Uri.decodeComponent(fullName),
-      orElse: () => DemoData.trending.first,
+  AppException _toAppException(Object error, StackTrace stack) {
+    if (error is AppException) return error;
+    return AppException(
+      kind: AppExceptionKind.unknown,
+      cause: error,
+      stack: stack,
     );
   }
 }
 
 class _Mobile extends StatelessWidget {
-  const _Mobile({required this.repo});
-  final DemoRepo repo;
+  const _Mobile({required this.digest});
+
+  final RepoDetailDigest digest;
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +92,13 @@ class _Mobile extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: [
-        _Header(repo: repo),
+        _Header(repo: digest.repo),
         const SizedBox(height: AppSpacing.lg),
-        _Stats(repo: repo),
+        _Stats(repo: digest.repo, contributorCount: digest.contributors.length),
         const SizedBox(height: AppSpacing.lg),
-        _Chart(repo: repo),
+        _Chart(digest: digest),
         const SizedBox(height: AppSpacing.lg),
-        const _Contributors(),
+        _Contributors(contributors: digest.contributors),
         const SizedBox(height: AppSpacing.lg),
         const _Activity(),
       ],
@@ -80,22 +107,23 @@ class _Mobile extends StatelessWidget {
 }
 
 class _Desktop extends StatelessWidget {
-  const _Desktop({required this.repo});
-  final DemoRepo repo;
+  const _Desktop({required this.digest});
+
+  final RepoDetailDigest digest;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
       children: [
-        _Header(repo: repo),
+        _Header(repo: digest.repo),
         const SizedBox(height: AppSpacing.lg),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(flex: 8, child: _Left(repo: repo)),
+            Expanded(flex: 8, child: _Left(digest: digest)),
             const SizedBox(width: AppSpacing.lg),
-            const Expanded(flex: 4, child: _Right()),
+            Expanded(flex: 4, child: _Right(relatedRepos: digest.relatedRepos)),
           ],
         ),
       ],
@@ -177,8 +205,10 @@ class _Header extends StatelessWidget {
 }
 
 class _Stats extends StatelessWidget {
-  const _Stats({required this.repo});
+  const _Stats({required this.repo, required this.contributorCount});
+
   final DemoRepo repo;
+  final int contributorCount;
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +244,7 @@ class _Stats extends StatelessWidget {
         Expanded(
           child: _StatCard(
             label: '贡献者',
-            value: '24',
+            value: '$contributorCount',
             icon: Icons.people_outline,
             color: Theme.of(context).colorScheme.primary,
           ),
@@ -266,8 +296,9 @@ class _StatCard extends StatelessWidget {
 }
 
 class _Chart extends StatelessWidget {
-  const _Chart({required this.repo});
-  final DemoRepo repo;
+  const _Chart({required this.digest});
+
+  final RepoDetailDigest digest;
 
   @override
   Widget build(BuildContext context) {
@@ -299,11 +330,11 @@ class _Chart extends StatelessWidget {
           StarTrendChart(
             series: [
               ChartSeries(
-                values: DemoData.generateStarTrend(repo.starCount - 5000, 5000),
+                values: digest.primaryTrend,
                 color: Theme.of(context).colorScheme.primary,
               ),
               ChartSeries(
-                values: DemoData.generateStarTrend(repo.starCount - 8000, 3500),
+                values: digest.compareTrend,
                 color: AppColors.info,
               ),
             ],
@@ -316,20 +347,22 @@ class _Chart extends StatelessWidget {
 }
 
 class _Contributors extends StatelessWidget {
-  const _Contributors();
+  const _Contributors({required this.contributors});
+
+  final List<DemoContributor> contributors;
 
   @override
   Widget build(BuildContext context) {
-    return const AppCard(
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
+          const SectionHeader(
             title: '贡献者活跃度',
             subtitle: '本周贡献排行',
           ),
-          SizedBox(height: AppSpacing.md),
-          _ContribList(),
+          const SizedBox(height: AppSpacing.md),
+          _ContribList(contributors: contributors),
         ],
       ),
     );
@@ -337,13 +370,15 @@ class _Contributors extends StatelessWidget {
 }
 
 class _ContribList extends StatelessWidget {
-  const _ContribList();
+  const _ContribList({required this.contributors});
+
+  final List<DemoContributor> contributors;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        for (final c in DemoData.contributors) ...[
+        for (final c in contributors) ...[
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: CircleAvatar(
@@ -460,18 +495,22 @@ class _ActivityItem {
 }
 
 class _Left extends StatelessWidget {
-  const _Left({required this.repo});
-  final DemoRepo repo;
+  const _Left({required this.digest});
+
+  final RepoDetailDigest digest;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _Stats(repo: repo),
+        _Stats(
+          repo: digest.repo,
+          contributorCount: digest.contributors.length,
+        ),
         const SizedBox(height: AppSpacing.lg),
-        _Chart(repo: repo),
+        _Chart(digest: digest),
         const SizedBox(height: AppSpacing.lg),
-        const _Contributors(),
+        _Contributors(contributors: digest.contributors),
         const SizedBox(height: AppSpacing.lg),
         const _Activity(),
       ],
@@ -480,17 +519,19 @@ class _Left extends StatelessWidget {
 }
 
 class _Right extends StatelessWidget {
-  const _Right();
+  const _Right({required this.relatedRepos});
+
+  final List<DemoRepo> relatedRepos;
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
-        _AboutCard(),
-        SizedBox(height: AppSpacing.lg),
-        _TopicsCard(),
-        SizedBox(height: AppSpacing.lg),
-        _RelatedReposCard(),
+        const _AboutCard(),
+        const SizedBox(height: AppSpacing.lg),
+        const _TopicsCard(),
+        const SizedBox(height: AppSpacing.lg),
+        _RelatedReposCard(repos: relatedRepos),
       ],
     );
   }
@@ -552,7 +593,9 @@ class _TopicsCard extends StatelessWidget {
 }
 
 class _RelatedReposCard extends StatelessWidget {
-  const _RelatedReposCard();
+  const _RelatedReposCard({required this.repos});
+
+  final List<DemoRepo> repos;
 
   @override
   Widget build(BuildContext context) {
@@ -572,7 +615,7 @@ class _RelatedReposCard extends StatelessWidget {
               subtitle: '同领域的热门项目',
             ),
           ),
-          for (final r in DemoData.trending.take(4)) ...[
+          for (final r in repos) ...[
             const Divider(height: 1),
             ListTile(
               dense: true,
@@ -596,6 +639,31 @@ class _RelatedReposCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _RepoDetailSkeleton extends StatelessWidget {
+  const _RepoDetailSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
+      children: const [
+        Skeleton(height: 132),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 92),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 300),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 260),
+      ],
     );
   }
 }

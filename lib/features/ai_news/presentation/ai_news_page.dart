@@ -11,7 +11,7 @@ import 'widgets/ai_news_hero_banner.dart';
 import 'widgets/ai_news_page_header.dart';
 import 'widgets/ai_news_topic_sidebar.dart';
 
-/// AI 资讯页(桌面 / Expanded 形态)。
+/// AI 动态页(桌面 / Expanded 形态)。
 ///
 /// 结构:
 /// - 顶部条 [AiNewsPageHeader]

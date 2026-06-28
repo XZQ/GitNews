@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/skeleton.dart';
+import '../application/monitor_providers.dart';
 
 /// 告警列表(全量)。
-class MonitorAlertsPage extends StatelessWidget {
+class MonitorAlertsPage extends ConsumerWidget {
   const MonitorAlertsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(monitorDigestProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('告警列表'),
@@ -24,21 +31,47 @@ class MonitorAlertsPage extends StatelessWidget {
               context.canPop() ? context.pop() : context.go('/monitor'),
         ),
       ),
-      body: ResponsiveLayout(
-        compact: (_) => const _Body(),
-        medium: (_) => const CenteredContent(child: _Body()),
-        expanded: (_) => const CenteredContent(child: _Body()),
+      body: state.when(
+        data: (digest) {
+          if (digest.alerts.isEmpty) {
+            return const EmptyView(
+              icon: Icons.notifications_none_rounded,
+              message: '近 24 小时暂无告警',
+            );
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Body(alerts: digest.alerts),
+            medium: (_) => CenteredContent(child: _Body(alerts: digest.alerts)),
+            expanded: (_) =>
+                CenteredContent(child: _Body(alerts: digest.alerts)),
+          );
+        },
+        loading: () => const _AlertsSkeleton(),
+        error: (error, stack) => ErrorView(
+          error: _toAppException(error, stack),
+          onRetry: () => ref.invalidate(monitorDigestProvider),
+        ),
       ),
+    );
+  }
+
+  AppException _toAppException(Object error, StackTrace stack) {
+    if (error is AppException) return error;
+    return AppException(
+      kind: AppExceptionKind.unknown,
+      cause: error,
+      stack: stack,
     );
   }
 }
 
 class _Body extends StatelessWidget {
-  const _Body();
+  const _Body({required this.alerts});
+
+  final List<DemoAlert> alerts;
 
   @override
   Widget build(BuildContext context) {
-    const items = DemoData.alerts;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -60,16 +93,41 @@ class _Body extends StatelessWidget {
                 ),
                 child: SectionHeader(
                   title: '所有告警',
-                  subtitle: '近 24 小时 · 共 ${items.length} 条',
+                  subtitle: '近 24 小时 · 共 ${alerts.length} 条',
                 ),
               ),
-              for (var i = 0; i < items.length; i++) ...[
+              for (var i = 0; i < alerts.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
-                _AlertFullTile(alert: items[i]),
+                _AlertFullTile(alert: alerts[i]),
               ],
             ],
           ),
         ),
+      ],
+    );
+  }
+}
+
+class _AlertsSkeleton extends StatelessWidget {
+  const _AlertsSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
+      children: const [
+        Skeleton(height: 72),
+        SizedBox(height: AppSpacing.md),
+        Skeleton(height: 72),
+        SizedBox(height: AppSpacing.md),
+        Skeleton(height: 72),
+        SizedBox(height: AppSpacing.md),
+        Skeleton(height: 72),
       ],
     );
   }

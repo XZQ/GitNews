@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/header_search_field.dart';
 
 class DevIntelTopHeader extends StatelessWidget {
   const DevIntelTopHeader({super.key});
@@ -24,30 +25,29 @@ class DevIntelTopHeader extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    '开发者情报',
-                    style: AppTypography.titleLarge.copyWith(
-                      color: colors.onSurface,
-                      height: 1.0,
-                    ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '开发者情报',
+                  style: AppTypography.titleLarge.copyWith(
+                    color: colors.onSurface,
+                    height: 1.0,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    '实时生态洞察',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  '实时生态洞察',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: colors.onSurfaceVariant,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const _SearchField(),
+            const SizedBox(width: AppSpacing.xl),
+            const Expanded(child: _SearchField()),
             const SizedBox(width: AppSpacing.md),
             const _BellWithDot(),
             const SizedBox(width: AppSpacing.md),
@@ -64,45 +64,12 @@ class _SearchField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return SizedBox(
-      width: 320,
-      height: 44,
-      child: TextField(
-        onSubmitted: (v) {
-          if (v.trim().isEmpty) return;
-          context.go('/trending/repos');
-        },
-        textInputAction: TextInputAction.search,
-        style: AppTypography.bodyMedium.copyWith(color: colors.onSurface),
-        decoration: InputDecoration(
-          prefixIcon: Icon(
-            Icons.search_rounded,
-            size: 18,
-            color: colors.onSurfaceVariant,
-          ),
-          hintText: '搜索仓库、标签...',
-          hintStyle: AppTypography.bodyMedium.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-          filled: true,
-          fillColor: colors.surfaceContainerHighest,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
-            borderSide: BorderSide.none,
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.sm),
-            borderSide: BorderSide(color: colors.primary, width: 1.4),
-          ),
-        ),
-      ),
+    return HeaderSearchField(
+      hintText: '搜索仓库、标签...',
+      onSubmitted: (v) {
+        if (v.trim().isEmpty) return;
+        context.go('/trending/repos');
+      },
     );
   }
 }
