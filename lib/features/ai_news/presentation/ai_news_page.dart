@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/utils/breakpoint.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -17,21 +18,15 @@ import 'widgets/ai_news_topic_sidebar.dart';
 /// - 顶部条 [AiNewsPageHeader]
 /// - 分类筛选条 [AiNewsCategoryChips]
 /// - 主体:左 8 列 Hero + 列表 / 右 4 列 [AiNewsTopicSidebar]
-class AiNewsPage extends ConsumerStatefulWidget {
+class AiNewsPage extends ConsumerWidget {
   const AiNewsPage({super.key});
 
   @override
-  ConsumerState<AiNewsPage> createState() => _AiNewsPageState();
-}
-
-class _AiNewsPageState extends ConsumerState<AiNewsPage> {
-  AiNewsCategory? _category;
-  String _window = '24h';
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final digest = ref.watch(aiNewsDigestProvider);
-    final items = _filtered(digest.items);
+    final items = ref.watch(aiNewsFilteredItemsProvider);
+    final category = ref.watch(aiNewsCategoryFilterProvider);
+    final window = ref.watch(aiNewsWindowFilterProvider);
     final hero = items.where((e) => e.isHero).firstOrNull;
     final rest = items.where((e) => !e.isHero).toList();
     final formFactor = Breakpoints.of(context);
@@ -43,10 +38,12 @@ class _AiNewsPageState extends ConsumerState<AiNewsPage> {
         children: [
           const AiNewsPageHeader(),
           AiNewsCategoryChips(
-            selected: _category,
-            onSelected: (v) => setState(() => _category = v),
-            window: _window,
-            onWindowChanged: (v) => setState(() => _window = v),
+            selected: category,
+            onSelected: (v) =>
+                ref.read(aiNewsCategoryFilterProvider.notifier).state = v,
+            window: window,
+            onWindowChanged: (v) =>
+                ref.read(aiNewsWindowFilterProvider.notifier).state = v,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -68,11 +65,6 @@ class _AiNewsPageState extends ConsumerState<AiNewsPage> {
         ],
       ),
     );
-  }
-
-  List<AiNewsItem> _filtered(List<AiNewsItem> items) {
-    if (_category == null) return items;
-    return items.where((e) => e.category == _category).toList();
   }
 }
 
@@ -119,7 +111,10 @@ class _MainList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           for (final e in rest) ...[
-            AiNewsArticleCard(item: e, onTap: () {}),
+            AiNewsArticleCard(
+              item: e,
+              onTap: () => context.go('/ai_news/detail/${e.id}'),
+            ),
             const SizedBox(height: AppSpacing.md),
           ],
         ],
@@ -131,11 +126,14 @@ class _MainList extends StatelessWidget {
         AiNewsHeroBanner(
           item: hero!,
           categoryLabel: _label(hero!.category),
-          onTap: () {},
+          onTap: () => context.go('/ai_news/detail/${hero!.id}'),
         ),
         const SizedBox(height: AppSpacing.lg),
         for (final e in rest) ...[
-          AiNewsArticleCard(item: e, onTap: () {}),
+          AiNewsArticleCard(
+            item: e,
+            onTap: () => context.go('/ai_news/detail/${e.id}'),
+          ),
           const SizedBox(height: AppSpacing.md),
         ],
       ],
