@@ -13,10 +13,12 @@ class TrendingLanguagePanel extends StatelessWidget {
     super.key,
     required this.value,
     required this.onChanged,
+    required this.languages,
   });
 
   final String value;
   final ValueChanged<String> onChanged;
+  final List<DemoLanguage> languages;
 
   static const _categoryMap = <String, List<String>>{
     'ai': ['Python', 'TypeScript', 'Rust'],
@@ -26,7 +28,7 @@ class TrendingLanguagePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _filterLanguages(value);
+    final filtered = _filterLanguages(value, languages);
     final subtitle = _subtitleFor(value, filtered.length);
     return AppCard(
       child: Column(
@@ -74,12 +76,15 @@ class TrendingLanguagePanel extends StatelessWidget {
     );
   }
 
-  List<DemoLanguage> _filterLanguages(String category) {
+  List<DemoLanguage> _filterLanguages(
+    String category,
+    List<DemoLanguage> languages,
+  ) {
     if (category == 'all' || !_categoryMap.containsKey(category)) {
-      return DemoData.languages.take(7).toList();
+      return languages.take(7).toList();
     }
     final names = _categoryMap[category]!.toSet();
-    return DemoData.languages.where((l) => names.contains(l.name)).toList();
+    return languages.where((l) => names.contains(l.name)).toList();
   }
 
   String _subtitleFor(String category, int count) {

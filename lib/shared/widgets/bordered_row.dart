@@ -29,14 +29,17 @@ class BorderedRow extends StatelessWidget {
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: 0.72),
+          color: colors.outlineVariant.withValues(
+            alpha: isLight ? 0.54 : 0.72,
+          ),
+          width: isLight ? 0.6 : 1,
         ),
         boxShadow: [
           if (isLight)
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.035),
-              blurRadius: 18,
-              offset: const Offset(0, 8),
+              color: Colors.black.withValues(alpha: 0.018),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
         ],
       ),

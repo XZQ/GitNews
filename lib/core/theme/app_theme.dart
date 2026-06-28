@@ -100,12 +100,13 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: surface,
         surfaceTintColor: Colors.transparent,
-        elevation: isLight ? 1 : 0,
-        shadowColor: Colors.black.withValues(alpha: isLight ? 0.08 : 0),
+        elevation: 0,
+        shadowColor: Colors.black.withValues(alpha: isLight ? 0.03 : 0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
           side: BorderSide(
-            color: border.withValues(alpha: isLight ? 0.72 : 0.9),
+            color: border.withValues(alpha: isLight ? 0.54 : 0.9),
+            width: isLight ? 0.6 : 1,
           ),
         ),
         margin: EdgeInsets.zero,
@@ -157,7 +158,11 @@ class AppTheme {
         ),
         elevation: 0,
       ),
-      dividerTheme: DividerThemeData(color: border, thickness: 1, space: 1),
+      dividerTheme: DividerThemeData(
+        color: border.withValues(alpha: isLight ? 0.68 : 1),
+        thickness: isLight ? 0.6 : 1,
+        space: 1,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isLight ? surface : surfaceAlt,
@@ -226,13 +231,16 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected)
-              ? colorScheme.primary
-              : textMuted,
+          (s) => s.contains(WidgetState.selected) ? AppColors.brand : textMuted,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (s) => s.contains(WidgetState.selected)
-              ? colorScheme.primary.withValues(alpha: 0.4)
+              ? AppColors.brand.withValues(alpha: 0.42)
+              : border,
+        ),
+        trackOutlineColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? AppColors.brand.withValues(alpha: 0.48)
               : border,
         ),
       ),

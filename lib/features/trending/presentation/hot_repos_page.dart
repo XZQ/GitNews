@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/demo_data.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/skeleton.dart';
+import '../application/trending_providers.dart';
+import '../domain/trending_repository.dart';
 
 /// 二级页 3:热门仓库(完整列表 + 表格视图)。
-class HotReposPage extends StatelessWidget {
+class HotReposPage extends ConsumerWidget {
   const HotReposPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(trendingDigestProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('热门仓库'),
@@ -24,21 +31,38 @@ class HotReposPage extends StatelessWidget {
               context.canPop() ? context.pop() : context.go('/trending'),
         ),
       ),
-      body: ResponsiveLayout(
-        compact: (_) => const _Body(),
-        medium: (_) => const CenteredContent(child: _Body()),
-        expanded: (_) => const CenteredContent(child: _Body()),
+      body: state.when(
+        data: (digest) {
+          if (digest.allRepos.isEmpty) {
+            return const EmptyView(
+              icon: Icons.local_fire_department_outlined,
+              message: '暂无热门仓库',
+            );
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Body(digest: digest),
+            medium: (_) => CenteredContent(child: _Body(digest: digest)),
+            expanded: (_) => CenteredContent(child: _Body(digest: digest)),
+          );
+        },
+        loading: () => const _PageSkeleton(),
+        error: (error, stackTrace) => ErrorView(
+          error: AppException(kind: AppExceptionKind.unknown, cause: error),
+          onRetry: () => ref.invalidate(trendingDigestProvider),
+        ),
       ),
     );
   }
 }
 
 class _Body extends StatelessWidget {
-  const _Body();
+  const _Body({required this.digest});
+
+  final TrendingDigest digest;
 
   @override
   Widget build(BuildContext context) {
-    final repos = [...DemoData.trending, ...DemoData.recent];
+    final repos = digest.allRepos;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -122,6 +146,24 @@ class _Bullet extends StatelessWidget {
           Expanded(
             child: Text(text, style: AppTypography.bodyMedium),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PageSkeleton extends StatelessWidget {
+  const _PageSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        children: [
+          Skeleton(height: 280),
+          SizedBox(height: AppSpacing.lg),
+          Skeleton(height: 120),
         ],
       ),
     );

@@ -12,7 +12,7 @@ import 'widgets/tech_hotspot_language_panel.dart';
 import 'widgets/tech_hotspot_page_header.dart';
 import 'widgets/tech_hotspot_topic_card.dart';
 
-/// 技术热点页(桌面 / Expanded)。
+/// 技术趋势页(桌面 / Expanded)。
 ///
 /// 结构:
 /// - 顶部条 [TechHotspotPageHeader]

@@ -6,7 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
 
-/// AI 资讯头版大图卡片(置顶 + isHero)。
+/// AI 动态头版大图卡片(置顶 + isHero)。
 class AiNewsHeroBanner extends StatelessWidget {
   const AiNewsHeroBanner({
     required this.item,
@@ -35,8 +35,8 @@ class AiNewsHeroBanner extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                accent.withValues(alpha: 0.95),
-                Color.lerp(accent, Colors.black, 0.35)!,
+                Color.lerp(accent, AppColors.brand, 0.18)!,
+                Color.lerp(accent, Colors.black, 0.46)!,
               ],
             ),
           ),
@@ -59,7 +59,16 @@ class AiNewsHeroBanner extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _HeroBadge(label: '头版 · $categoryLabel'),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _HeroBadge(label: '头版 · $categoryLabel'),
+                        if (item.isMock) ...[
+                          const SizedBox(width: AppSpacing.sm),
+                          const _HeroBadge(label: '本地样例'),
+                        ],
+                      ],
+                    ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
                       item.title,

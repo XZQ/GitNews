@@ -5,7 +5,7 @@ import '../../../tech_hotspot/data/mock_tech_hotspot.dart';
 import '../../../tech_hotspot/domain/tech_hotspot_models.dart';
 import 'home_section_preview_card.dart';
 
-/// 首页技术热点 Top N 预览。
+/// 首页技术趋势 Top N 预览。
 class HomeHotspotPreview extends StatelessWidget {
   const HomeHotspotPreview({super.key});
 
@@ -13,7 +13,7 @@ class HomeHotspotPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = MockTechHotspot.topics.take(4).toList();
     return HomeSectionPreviewCard<TechTopic>(
-      title: '技术热点',
+      title: '技术趋势',
       subtitle: '主题、语言与栈脉搏',
       accentColor: AppColors.danger,
       icon: Icons.whatshot_rounded,

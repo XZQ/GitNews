@@ -14,7 +14,7 @@ import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
 import 'widgets/profile_page_header.dart';
 
-/// "我的"页面:
+/// 设置页面:
 /// - 手机/平板:卡片纵向堆叠(单列)。
 /// - 桌面:左侧设置项列表,右侧选中项的详情卡片。
 class ProfilePage extends ConsumerWidget {
@@ -24,7 +24,7 @@ class ProfilePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: const Text('我的')) : null,
+      appBar: isCompact ? AppBar(title: const Text('设置')) : null,
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Mobile(),

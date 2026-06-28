@@ -4,6 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../shared/widgets/page_header_icon.dart';
 
 /// 监控页顶部条。
 class MonitorPageHeader extends StatelessWidget {
@@ -23,21 +24,9 @@ class MonitorPageHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.success, AppColors.brand],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.radar_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+          const PageHeaderIcon(
+            icon: Icons.radar_rounded,
+            accent: AppColors.success,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(

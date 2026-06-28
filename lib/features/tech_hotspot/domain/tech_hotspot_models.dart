@@ -1,4 +1,4 @@
-/// 技术热点领域模型(纯 Dart)。
+/// 技术趋势领域模型(纯 Dart)。
 library;
 
 /// 技术栈分类:用于 [TechHotspotPage] 的左侧分类。
@@ -62,7 +62,7 @@ class TechTopic {
   final String summary;
 }
 
-/// 技术热点时间序列(用于趋势小图)。
+/// 技术趋势时间序列(用于趋势小图)。
 class TechHeatPoint {
   const TechHeatPoint({required this.label, required this.value});
 
@@ -70,7 +70,7 @@ class TechHeatPoint {
   final double value;
 }
 
-/// 技术热点页需要的一组本地情报数据。
+/// 技术趋势页需要的一组本地情报数据。
 class TechHotspotDigest {
   const TechHotspotDigest({
     required this.languages,

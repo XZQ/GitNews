@@ -17,7 +17,7 @@ class DevIntelHotspotList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '技术热点',
+            '技术趋势',
             style: AppTypography.titleMedium.copyWith(
               color: colors.onSurface,
             ),
