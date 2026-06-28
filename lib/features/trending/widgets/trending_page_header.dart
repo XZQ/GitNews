@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../shared/widgets/header_search_field.dart';
+import '../../../shared/widgets/page_header_icon.dart';
 
 /// 趋势页顶部条:与 [AiNewsPageHeader] / [TechHotspotPageHeader] 共享同一规格。
 class TrendingPageHeader extends StatelessWidget {
@@ -23,46 +26,43 @@ class TrendingPageHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.info, AppColors.brand],
+          const PageHeaderIcon(
+            icon: Icons.trending_up_rounded,
+            accent: AppColors.info,
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'GitHub热榜',
+                style: AppTypography.titleLarge.copyWith(
+                  color: colors.onSurface,
+                  height: 1.0,
+                ),
               ),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.trending_up_rounded,
-              color: Colors.white,
-              size: 20,
+              const SizedBox(height: 2),
+              Text(
+                'Star 增速榜 · 仓库发现',
+                style: AppTypography.bodySmall.copyWith(
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: AppSpacing.xl),
+          Expanded(
+            child: HeaderSearchField(
+              hintText: '搜索仓库、语言、主题...',
+              onSubmitted: (v) {
+                if (v.trim().isEmpty) return;
+                context.go('/trending/repos');
+              },
             ),
           ),
           const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '趋势',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: colors.onSurface,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Star 增速榜 · 时间窗追踪',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
           const _StatPill(
             icon: Icons.local_fire_department_rounded,
             label: '今日 +124',

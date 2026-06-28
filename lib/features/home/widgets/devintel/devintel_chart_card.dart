@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/star_trend_chart.dart';
@@ -19,6 +20,7 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final values =
         _window == 7 ? kDevIntelChartValues7 : kDevIntelChartValues30;
     final series = <ChartSeries>[
@@ -36,8 +38,11 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: const BorderRadius.all(Radius.circular(AppSpacing.lg)),
-        border: Border.all(color: colors.outlineVariant),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
+          width: isLight ? 0.6 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

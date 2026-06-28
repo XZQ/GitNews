@@ -5,7 +5,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// 我的页顶部条。
+/// 设置页顶部条。
 class ProfilePageHeader extends StatelessWidget {
   const ProfilePageHeader({super.key});
 
@@ -47,7 +47,7 @@ class ProfilePageHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '我的',
+                  '设置',
                   style: AppTypography.titleLarge.copyWith(
                     color: colors.onSurface,
                     height: 1.0,

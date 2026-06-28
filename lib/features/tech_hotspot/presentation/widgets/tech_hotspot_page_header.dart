@@ -4,8 +4,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/page_header_icon.dart';
 
-/// 技术热点页顶部条。
+/// 技术趋势页顶部条。
 class TechHotspotPageHeader extends StatelessWidget {
   const TechHotspotPageHeader({super.key});
 
@@ -25,21 +26,9 @@ class TechHotspotPageHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.warning, AppColors.danger],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.whatshot_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
+          const PageHeaderIcon(
+            icon: Icons.whatshot_rounded,
+            accent: AppColors.warning,
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -49,7 +38,7 @@ class TechHotspotPageHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  '技术热点',
+                  '技术趋势',
                   style: AppTypography.titleLarge.copyWith(
                     color: colors.onSurface,
                     height: 1.0,

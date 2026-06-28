@@ -1,20 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/skeleton.dart';
+import '../application/trending_providers.dart';
+import '../domain/trending_repository.dart';
 
 /// 二级页 2:语言趋势(饼图 + 列表)。
-class LanguageTrendPage extends StatelessWidget {
+class LanguageTrendPage extends ConsumerWidget {
   const LanguageTrendPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(trendingDigestProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('语言趋势'),
@@ -24,17 +32,34 @@ class LanguageTrendPage extends StatelessWidget {
               context.canPop() ? context.pop() : context.go('/trending'),
         ),
       ),
-      body: ResponsiveLayout(
-        compact: (_) => const _Body(),
-        medium: (_) => const CenteredContent(child: _Body()),
-        expanded: (_) => const CenteredContent(child: _Body()),
+      body: state.when(
+        data: (digest) {
+          if (digest.languages.isEmpty) {
+            return const EmptyView(
+              icon: Icons.code_rounded,
+              message: '暂无语言趋势',
+            );
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Body(digest: digest),
+            medium: (_) => CenteredContent(child: _Body(digest: digest)),
+            expanded: (_) => CenteredContent(child: _Body(digest: digest)),
+          );
+        },
+        loading: () => const _PageSkeleton(),
+        error: (error, stackTrace) => ErrorView(
+          error: AppException(kind: AppExceptionKind.unknown, cause: error),
+          onRetry: () => ref.invalidate(trendingDigestProvider),
+        ),
       ),
     );
   }
 }
 
 class _Body extends StatelessWidget {
-  const _Body();
+  const _Body({required this.digest});
+
+  final TrendingDigest digest;
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +82,12 @@ class _Body extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.lg),
               _DonutChart(
+                data: digest.languages,
                 holeColor:
                     isLight ? AppColors.surfaceLight : AppColors.surfaceDark,
               ),
               const SizedBox(height: AppSpacing.lg),
-              for (final l in DemoData.languages) ...[
+              for (final l in digest.languages) ...[
                 _LangRow(
                   name: l.name,
                   percent: l.percent,
@@ -74,16 +100,16 @@ class _Body extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        const AppCard(
+        AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: '语言增长率排行',
                 subtitle: '本周 vs 上周',
               ),
-              SizedBox(height: AppSpacing.md),
-              _GrowthBars(),
+              const SizedBox(height: AppSpacing.md),
+              _GrowthBars(languages: digest.languages),
             ],
           ),
         ),
@@ -93,7 +119,9 @@ class _Body extends StatelessWidget {
 }
 
 class _DonutChart extends StatelessWidget {
-  const _DonutChart({required this.holeColor});
+  const _DonutChart({required this.data, required this.holeColor});
+
+  final List<DemoLanguage> data;
   final Color holeColor;
 
   @override
@@ -102,7 +130,7 @@ class _DonutChart extends StatelessWidget {
       height: 200,
       child: CustomPaint(
         painter: _DonutPainter(
-          data: DemoData.languages,
+          data: data,
           holeColor: holeColor,
         ),
         child: Center(
@@ -210,15 +238,16 @@ class _LangRow extends StatelessWidget {
 }
 
 class _GrowthBars extends StatelessWidget {
-  const _GrowthBars();
+  const _GrowthBars({required this.languages});
+
+  final List<DemoLanguage> languages;
 
   @override
   Widget build(BuildContext context) {
-    final maxV =
-        DemoData.languages.map((l) => l.delta).reduce((a, b) => a > b ? a : b);
+    final maxV = languages.map((l) => l.delta).reduce((a, b) => a > b ? a : b);
     return Column(
       children: [
-        for (final l in DemoData.languages) ...[
+        for (final l in languages) ...[
           _Bar(
             name: l.name,
             value: l.delta,
@@ -290,6 +319,24 @@ class _Bar extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _PageSkeleton extends StatelessWidget {
+  const _PageSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Padding(
+      padding: EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        children: [
+          Skeleton(height: 360),
+          SizedBox(height: AppSpacing.lg),
+          Skeleton(height: 240),
+        ],
+      ),
     );
   }
 }

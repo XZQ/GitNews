@@ -33,7 +33,7 @@ class AppColors {
   static const Color bgLight = Color(0xFFF8FAFC);
   static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color surfaceLightAlt = Color(0xFFF1F5F9);
-  static const Color borderLight = Color(0xFFE2E8F0);
+  static const Color borderLight = Color(0xFFE8EEF6);
   static const Color textPrimaryLight = Color(0xFF1A1B25);
   static const Color textSecondaryLight = Color(0xFF6B6E7A);
   static const Color textMutedLight = Color(0xFF9CA0AC);

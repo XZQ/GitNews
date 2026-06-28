@@ -9,7 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 
 /// 首页"栏目预览卡":统一渲染 标题 / 列表 / 跳转。
 ///
-/// 用于 AI 资讯 / GitHub 热榜 / 技术热点 三栏 Top N 预览。
+/// 用于 AI 动态 / GitHub热榜 / 技术趋势 三栏 Top N 预览。
 class HomeSectionPreviewCard<T> extends StatelessWidget {
   const HomeSectionPreviewCard({
     required this.title,

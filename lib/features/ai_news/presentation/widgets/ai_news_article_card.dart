@@ -6,7 +6,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_hero_banner.dart' show aiNewsCategoryColor, aiNewsCategoryLabel;
 
-/// AI 资讯列表卡片(非头版)。
+/// AI 动态列表卡片(非头版)。
 class AiNewsArticleCard extends StatelessWidget {
   const AiNewsArticleCard({
     required this.item,
@@ -20,19 +20,26 @@ class AiNewsArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     final accent = aiNewsCategoryColor(item.category);
+    final radius = BorderRadius.circular(AppRadius.lg);
     return Material(
       color: colors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      borderRadius: radius,
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
+        borderRadius: radius,
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            border: Border.all(color: colors.outlineVariant),
+            borderRadius: radius,
+            border: Border.all(
+              color: colors.outlineVariant.withValues(
+                alpha: isLight ? 0.58 : 1,
+              ),
+              width: isLight ? 0.6 : 1,
+            ),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,6 +70,7 @@ class _Body extends StatelessWidget {
           category: item.category,
           accent: accent,
           source: item.source,
+          isMock: item.isMock,
         ),
         const SizedBox(height: AppSpacing.sm + 2),
         Text(
@@ -104,14 +112,17 @@ class _CategoryStrip extends StatelessWidget {
     required this.category,
     required this.accent,
     required this.source,
+    required this.isMock,
   });
 
   final AiNewsCategory category;
   final Color accent;
   final String source;
+  final bool isMock;
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Row(
       children: [
         Container(
@@ -146,6 +157,26 @@ class _CategoryStrip extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
+        if (isMock) ...[
+          const SizedBox(width: AppSpacing.sm),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: 2,
+            ),
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(AppRadius.xs),
+            ),
+            child: Text(
+              '本地样例',
+              style: AppTypography.labelSmall.copyWith(
+                color: colors.primary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

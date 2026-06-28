@@ -5,7 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
 
-/// AI 资讯分类筛选条。Chips + 时间窗下拉。
+/// AI 动态分类筛选条。Chips + 时间窗下拉。
 class AiNewsCategoryChips extends StatelessWidget {
   const AiNewsCategoryChips({
     required this.selected,

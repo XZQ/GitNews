@@ -44,28 +44,28 @@ class TabSpec {
 }
 
 /// 桌面侧栏 7 栏 IA:
-/// 首页(情报总览) → AI 资讯 → GitHub 热榜 → 技术热点 → 仓库监控 → 深度报告 → 我的
+/// 总览 → GitHub热榜 → AI 动态 → 技术趋势 → 仓库监控 → 深度报告 → 设置
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
-    label: '首页',
+    label: '总览',
     pathSegment: 'home',
     icon: Icons.dashboard_outlined,
     selectedIcon: Icons.dashboard_rounded,
   ),
   TabSpec(
-    label: 'AI 资讯',
-    pathSegment: 'ai_news',
-    icon: Icons.auto_awesome_outlined,
-    selectedIcon: Icons.auto_awesome_rounded,
-  ),
-  TabSpec(
-    label: 'GitHub 热榜',
+    label: 'GitHub热榜',
     pathSegment: 'trending',
     icon: Icons.local_fire_department_outlined,
     selectedIcon: Icons.local_fire_department_rounded,
   ),
   TabSpec(
-    label: '技术热点',
+    label: 'AI 动态',
+    pathSegment: 'ai_news',
+    icon: Icons.auto_awesome_outlined,
+    selectedIcon: Icons.auto_awesome_rounded,
+  ),
+  TabSpec(
+    label: '技术趋势',
     pathSegment: 'tech_hotspot',
     icon: Icons.whatshot_outlined,
     selectedIcon: Icons.whatshot_rounded,
@@ -83,7 +83,7 @@ const List<TabSpec> appTabs = <TabSpec>[
     selectedIcon: Icons.insights_rounded,
   ),
   TabSpec(
-    label: '我的',
+    label: '设置',
     pathSegment: 'profile',
     icon: Icons.person_outline,
     selectedIcon: Icons.person_rounded,
@@ -120,15 +120,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/ai_news',
-                name: 'ai_news',
-                builder: (_, __) => const AiNewsPage(),
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: '/trending',
                 name: 'trending',
                 builder: (_, __) => const TrendingPage(),
@@ -149,6 +140,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (_, __) => const HotReposPage(),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/ai_news',
+                name: 'ai_news',
+                builder: (_, __) => const AiNewsPage(),
               ),
             ],
           ),
