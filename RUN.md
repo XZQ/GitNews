@@ -43,7 +43,6 @@ flutter test
 | 本地 Repository | 当前先使用本地模拟数据 | 真实 API 阶段替换 Repository 实现 |
 | `lib/core/storage/app_database.dart` | 数据库层仍为占位 | 需要持久缓存时再引入 drift / sqflite |
 | `StarTrendChart` 中 `LineChartData.maxY` 用 `+50` 留白 | 极小数据集可能反序 | 真实接入时按数据动态算 |
-| `home_legacy_desktop.dart` | compact / medium 仍依赖旧归档文件 | 后续拆分为 mobile / tablet 小组件 |
 
 ## 6. 目录速览
 
