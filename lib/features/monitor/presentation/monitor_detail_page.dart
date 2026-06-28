@@ -10,6 +10,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/gradient_hero_header.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
@@ -88,6 +89,31 @@ class _Body extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: [
+        GradientHeroHeader(
+          accent: Color(repo.color),
+          title: repo.fullName,
+          badges: [
+            HeroBadge(
+              label: repo.language,
+              icon: Icons.bolt_rounded,
+            ),
+            HeroBadge(
+              label: '★ ${_shortNumber(repo.starCount)}',
+              icon: Icons.star_rounded,
+            ),
+            HeroBadge(
+              label: '⑂ ${_shortNumber(repo.forkCount)}',
+              icon: Icons.call_split_rounded,
+            ),
+          ],
+          trailing: Text(
+            repo.description,
+            style: AppTypography.bodyMedium.copyWith(
+              color: Colors.white.withValues(alpha: 0.92),
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,10 +192,18 @@ class _DetailSkeleton extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: const [
+        Skeleton(height: 180),
+        SizedBox(height: AppSpacing.lg),
         Skeleton(height: 300),
         SizedBox(height: AppSpacing.lg),
         Skeleton(height: 260),
       ],
     );
   }
+}
+
+String _shortNumber(int n) {
+  if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
+  if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}k';
+  return '$n';
 }

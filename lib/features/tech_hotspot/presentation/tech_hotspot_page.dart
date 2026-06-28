@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -125,7 +126,9 @@ class _TopicGrid extends StatelessWidget {
                     child: i + j < topics.length
                         ? TechHotspotTopicCard(
                             topic: topics[i + j],
-                            onTap: () {},
+                            onTap: () => context.go(
+                              '/tech_hotspot/detail/${topics[i + j].id}',
+                            ),
                           )
                         : const SizedBox(),
                   ),

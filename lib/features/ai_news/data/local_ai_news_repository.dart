@@ -14,4 +14,11 @@ class LocalAiNewsRepository implements AiNewsRepository {
       topCompanies: MockAiNews.topCompanies,
     );
   }
+
+  @override
+  AiNewsItem? getById(String id) =>
+      MockAiNews.all.where((e) => e.id == id).firstOrNull;
+
+  @override
+  List<AiNewsItem> all() => MockAiNews.all;
 }

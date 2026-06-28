@@ -15,4 +15,11 @@ class LocalTechHotspotRepository implements TechHotspotRepository {
       hotTags: MockTechHotspot.hotTags,
     );
   }
+
+  @override
+  TechTopic? getById(String id) =>
+      MockTechHotspot.topics.where((e) => e.id == id).firstOrNull;
+
+  @override
+  List<TechTopic> allTopics() => MockTechHotspot.topics;
 }
