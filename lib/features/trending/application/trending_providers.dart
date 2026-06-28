@@ -10,3 +10,9 @@ final trendingRepositoryProvider = Provider<TrendingRepository>((ref) {
 final trendingDigestProvider = FutureProvider<TrendingDigest>((ref) {
   return ref.watch(trendingRepositoryProvider).getDigest();
 });
+
+/// 时间窗筛选:`today` / `week` / `month`。
+final trendingWindowFilterProvider = StateProvider<String>((ref) => 'today');
+
+/// 语言筛选:`all` / `typescript` / `python` / `rust` …
+final trendingLanguageFilterProvider = StateProvider<String>((ref) => 'all');
