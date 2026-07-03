@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
-import 'ai_news_hero_banner.dart' show aiNewsCategoryColor, aiNewsCategoryLabel;
+import 'ai_news_category_style.dart';
 
-/// AI 动态列表卡片(非头版)。
+/// AI 动态列表卡片。
 class AiNewsArticleCard extends StatelessWidget {
   const AiNewsArticleCard({
     required this.item,
@@ -35,74 +36,59 @@ class AiNewsArticleCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: radius,
             border: Border.all(
-              color: colors.outlineVariant.withValues(
-                alpha: isLight ? 0.58 : 1,
-              ),
+              color:
+                  colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
               width: isLight ? 0.6 : 1,
             ),
           ),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: _Body(item: item, accent: accent)),
-              const SizedBox(width: AppSpacing.lg),
-              _Cover(color: item.coverColor),
+              _CategoryStrip(
+                category: item.category,
+                accent: accent,
+                source: item.source,
+              ),
+              const SizedBox(height: AppSpacing.sm2),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.title,
+                      style: AppTypography.titleMedium.copyWith(
+                        color: colors.onSurface,
+                        fontWeight: FontWeight.w700,
+                        height: 1.35,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (item.selected) ...[
+                    const SizedBox(width: AppSpacing.sm),
+                    const _SelectedPill(),
+                  ],
+                  const SizedBox(width: AppSpacing.sm),
+                  _ScorePill(score: item.score),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                item.summary,
+                style: AppTypography.bodySmall.copyWith(
+                  color: colors.onSurfaceVariant,
+                  height: 1.55,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _Meta(publishedAt: item.publishedAt),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class _Body extends StatelessWidget {
-  const _Body({required this.item, required this.accent});
-
-  final AiNewsItem item;
-  final Color accent;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _CategoryStrip(
-          category: item.category,
-          accent: accent,
-          source: item.source,
-          isMock: item.isMock,
-        ),
-        const SizedBox(height: AppSpacing.sm + 2),
-        Text(
-          item.title,
-          style: AppTypography.titleMedium.copyWith(
-            color: Theme.of(context).colorScheme.onSurface,
-            height: 1.35,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          item.summary,
-          style: AppTypography.bodySmall.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            height: 1.55,
-          ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.xs,
-          children: [
-            for (final tag in item.tags.take(3)) _MiniTag(label: '#$tag'),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.md),
-        _Meta(item: item),
-      ],
     );
   }
 }
@@ -112,13 +98,11 @@ class _CategoryStrip extends StatelessWidget {
     required this.category,
     required this.accent,
     required this.source,
-    required this.isMock,
   });
 
   final AiNewsCategory category;
   final Color accent;
   final String source;
-  final bool isMock;
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +111,7 @@ class _CategoryStrip extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm + 2,
+            horizontal: AppSpacing.sm2,
             vertical: AppSpacing.xs,
           ),
           decoration: BoxDecoration(
@@ -136,7 +120,7 @@ class _CategoryStrip extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.xs),
           ),
           child: Text(
-            aiNewsCategoryLabel(category),
+            category.label,
             style: AppTypography.labelSmall.copyWith(
               color: accent,
               fontWeight: FontWeight.w700,
@@ -147,157 +131,120 @@ class _CategoryStrip extends StatelessWidget {
         Icon(
           Icons.circle,
           size: 4,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
+          color: colors.onSurfaceVariant,
         ),
         const SizedBox(width: AppSpacing.sm),
-        Text(
-          source,
-          style: AppTypography.labelSmall.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w600,
+        Flexible(
+          child: Text(
+            source,
+            style: AppTypography.labelSmall.copyWith(
+              color: colors.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ),
-        if (isMock) ...[
-          const SizedBox(width: AppSpacing.sm),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.sm,
-              vertical: 2,
-            ),
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(AppRadius.xs),
-            ),
-            child: Text(
-              '本地样例',
-              style: AppTypography.labelSmall.copyWith(
-                color: colors.primary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
       ],
     );
   }
 }
 
-class _MiniTag extends StatelessWidget {
-  const _MiniTag({required this.label});
-
-  final String label;
+class _SelectedPill extends StatelessWidget {
+  const _SelectedPill();
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
-        vertical: 2,
+        vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRadius.xs),
+        color: AppColors.starGold.withValues(alpha: 0.16),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.star_rounded,
+            size: 12,
+            color: AppColors.starGold,
+          ),
+          const SizedBox(width: AppSpacing.xxs),
+          Text(
+            '精选',
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.starGold,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScorePill extends StatelessWidget {
+  const _ScorePill({required this.score});
+
+  final int score;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.brandCyanLight.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
-        label,
-        style:
-            AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
+        '$score',
+        style: AppTypography.labelSmall.copyWith(
+          color: AppColors.brand,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
 }
 
 class _Meta extends StatelessWidget {
-  const _Meta({required this.item});
+  const _Meta({required this.publishedAt});
 
-  final AiNewsItem item;
+  final DateTime publishedAt;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Icon(Icons.schedule_rounded, size: 12, color: colors.onSurfaceVariant),
-        const SizedBox(width: AppSpacing.xs),
-        Text(
-          _relativeTime(item.publishedAt),
-          style:
-              AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-        ),
-        const SizedBox(width: AppSpacing.md),
         Icon(
-          Icons.visibility_outlined,
+          Icons.schedule_rounded,
           size: 12,
           color: colors.onSurfaceVariant,
         ),
         const SizedBox(width: AppSpacing.xs),
         Text(
-          _formatCount(item.reads),
+          _relativeTime(publishedAt),
           style:
               AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Icon(
-          Icons.favorite_outline_rounded,
-          size: 12,
-          color: colors.onSurfaceVariant,
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Text(
-          _formatCount(item.likes),
-          style:
-              AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-        ),
-        const Spacer(),
-        Icon(
-          Icons.bookmark_outline_rounded,
-          size: 16,
-          color: colors.onSurfaceVariant,
         ),
       ],
     );
   }
 
-  static String _formatCount(int n) {
-    if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
-    return '$n';
-  }
-
   static String _relativeTime(DateTime t) {
-    final now = DateTime(2026, 6, 25, 10, 0);
+    final now = DateTime.now();
     final diff = now.difference(t);
+    if (diff.inMinutes < 1) return '刚刚';
     if (diff.inMinutes < 60) return '${diff.inMinutes} 分钟前';
     if (diff.inHours < 24) return '${diff.inHours} 小时前';
-    return '${diff.inDays} 天前';
-  }
-}
-
-class _Cover extends StatelessWidget {
-  const _Cover({required this.color});
-
-  final int color;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = Color(color);
-    return Container(
-      width: 96,
-      height: 96,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [c, Color.lerp(c, Colors.black, 0.35)!],
-        ),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-      ),
-      alignment: Alignment.center,
-      child: const Icon(
-        Icons.auto_awesome_rounded,
-        color: Colors.white,
-        size: 28,
-      ),
-    );
+    if (diff.inDays < 30) return '${diff.inDays} 天前';
+    return '${t.month}/${t.day}';
   }
 }

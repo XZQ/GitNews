@@ -1,28 +1,214 @@
+import 'dart:async';
+
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../data/local_ai_news_repository.dart';
+import '../../../core/network/dio_client.dart';
+import '../../../core/storage/storage_providers.dart';
+import '../../../core/utils/app_logger.dart';
+import '../data/ai_news_api_client.dart';
+import '../data/ai_news_cache_dao.dart';
+import '../data/remote_ai_news_repository.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_repository.dart';
 
-final aiNewsRepositoryProvider = Provider<AiNewsRepository>((ref) {
-  return const LocalAiNewsRepository();
-});
+/// AI 资讯专用 dio 工厂:keyed by `baseUrl`,允许在测试中按需 override。
+///
+/// 例如测试可通过
+/// `aiNewsDioProvider(AiNewsApiClient.baseUrl).overrideWithValue(mockDio)`
+/// 注入带 mock adapter 的 Dio。
+final aiNewsDioProvider = Provider.family<Dio, String>(
+  (ref, baseUrl) => DioClient.create(
+    baseUrl: baseUrl,
+    headers: const {
+      'Accept': 'application/json',
+      'User-Agent': 'GitHubNews/0.1 (Flutter)',
+    },
+  ),
+);
 
-final aiNewsDigestProvider = Provider<AiNewsDigest>((ref) {
-  return ref.watch(aiNewsRepositoryProvider).getDigest();
-});
+final aiNewsApiClientProvider = Provider<AiNewsApiClient>(
+  (ref) => AiNewsApiClient.create(
+    ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl)),
+  ),
+);
+
+final aiNewsRepositoryProvider = Provider<AiNewsRepository>(
+  (ref) => RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)),
+);
+
+/// AI 资讯缓存 DAO。共享全局 [appDatabaseProvider] 的 executor。
+final aiNewsCacheDaoProvider = Provider<AiNewsCacheDao>(
+  (ref) => AiNewsCacheDao(
+    ref.watch(appDatabaseProvider).executor,
+    ref.watch(cacheMetaDaoProvider),
+  ),
+);
+
+/// 时钟抽象,便于测试注入固定时刻。
+final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 /// 分类筛选:`null` 表示全部分类。
-final aiNewsCategoryFilterProvider =
-    StateProvider<AiNewsCategory?>((ref) => null);
+final aiNewsCategoryFilterProvider = StateProvider<AiNewsCategory?>(
+  (ref) => null,
+);
 
-/// 时间窗筛选,默认 24h。
-final aiNewsWindowFilterProvider = StateProvider<String>((ref) => '24h');
+/// 单次向用户暴露的条目数(分页步长)。
+const int aiNewsPageSize = 10;
 
-/// 在 digest 之上派生出过滤后的列表。
-final aiNewsFilteredItemsProvider = Provider<List<AiNewsItem>>((ref) {
-  final digest = ref.watch(aiNewsDigestProvider);
-  final category = ref.watch(aiNewsCategoryFilterProvider);
-  if (category == null) return digest.items;
-  return digest.items.where((e) => e.category == category).toList();
-});
+/// 触底预加载阈值:剩余滚动距离(px)低于此值时立即拉取下一页。
+///
+/// 单卡约 168px,3 条约 504px;取整 520 留一点提前量。
+const double aiNewsLoadMoreScrollPixels = 520;
+
+/// 缓存 TTL:同一份查询(category + cursor=head)在此时长内不再发远端请求。
+const Duration aiNewsCacheTtl = Duration(hours: 1);
+
+/// 条目列表(分页 + 触底加载 + 本地缓存优先)。
+///
+/// 加载流程(两阶段):
+/// 1. **Phase A(立即可渲染)**:从 [AiNewsCacheDao] 读缓存,有数据立即
+///    `state = AsyncData(...)`,UI 不出现骨架屏
+/// 2. **Phase B(后台静默)**:若 cache_meta 判定已过期(或从未拉取),
+///    静默发起远端请求;成功后刷新 buffer + state + DB;失败保持现状
+///
+/// 切换分类会触发 [ref.watch] 重建 → 状态自动重置。
+final aiNewsItemsNotifierProvider =
+    AsyncNotifierProvider.autoDispose<AiNewsItemsNotifier, List<AiNewsItem>>(
+  AiNewsItemsNotifier.new,
+);
+
+class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
+  List<AiNewsItem> _buffer = const [];
+  String? _nextCursor;
+  bool _hasApiMore = true;
+  // 仅用于阻止「同 cursor 的并发请求」,不阻塞 loadMore 从已有 buffer 切片。
+  bool _fetching = false;
+  AiNewsCategory? _category;
+  // 代际令牌:每次 build 自增,用于让未完成的旧请求在 resolve 后识别「我已被新分类覆盖」。
+  int _generation = 0;
+
+  @override
+  Future<List<AiNewsItem>> build() async {
+    _generation++;
+    final gen = _generation;
+    _category = ref.watch(aiNewsCategoryFilterProvider);
+    _buffer = const [];
+    _nextCursor = null;
+    _hasApiMore = true;
+    _fetching = false;
+
+    final dao = ref.read(aiNewsCacheDaoProvider);
+    final now = ref.read(clockProvider)();
+
+    // Phase A:优先读缓存,瞬间出列表
+    final cached = await dao.readAll(category: _category);
+    if (gen != _generation) return const [];
+    if (cached.isNotEmpty) {
+      _buffer = cached;
+      // 缓存里没有分页游标信息;乐观认为远端可能还有更多,
+      // 让 loadMore 在 buffer 耗尽时尝试拉远端(走 head 刷新路径)
+      _hasApiMore = true;
+      state = AsyncData(_currentSlice());
+    }
+
+    // Phase B:缓存仍新鲜就不发请求,否则后台静默刷新
+    final fresh = await dao.isFresh(
+      category: _category,
+      cursor: null,
+      ttl: aiNewsCacheTtl,
+      now: now,
+    );
+    if (gen != _generation) return const [];
+    if (fresh) {
+      // 缓存命中且未过期:无需远端
+      return _currentSlice();
+    }
+
+    await _fetchNextPage(generation: gen);
+    if (gen != _generation) return const [];
+    return _currentSlice();
+  }
+
+  /// 触底加载:优先从已缓冲数据切片;缓冲区不足且未在请求中时,再请求下一页。
+  ///
+  /// 设计要点:不依赖 build() 是否完成,只要 buffer 里有数据就能增量展示;
+  /// 当需要请求新 cursor 页时,通过 [Future] 同步步队,避免与 build 阶段的
+  /// 初次请求或后续预取请求打架。
+  Future<void> loadMore() async {
+    if (state.hasError) return;
+    final shown = state.valueOrNull?.length ?? 0;
+    if (shown < _buffer.length) {
+      final nextEnd = (shown + aiNewsPageSize).clamp(0, _buffer.length);
+      if (nextEnd > shown) {
+        state = AsyncData(_buffer.sublist(0, nextEnd));
+      }
+      return;
+    }
+    if (!_hasApiMore) return;
+    await _fetchNextPage();
+    final newShown = state.valueOrNull?.length ?? 0;
+    final nextEnd = (newShown + aiNewsPageSize).clamp(0, _buffer.length);
+    if (nextEnd > newShown) {
+      state = AsyncData(_buffer.sublist(0, nextEnd));
+    }
+  }
+
+  /// 是否还有更多条目可加载(供 UI 决定是否显示底部 loader / 「没有更多」)。
+  bool get hasMore {
+    final shown = state.valueOrNull?.length ?? 0;
+    return shown < _buffer.length || _hasApiMore;
+  }
+
+  List<AiNewsItem> _currentSlice() =>
+      _buffer.sublist(0, _buffer.length.clamp(0, aiNewsPageSize));
+
+  Future<void> _fetchNextPage({int? generation}) async {
+    final gen = generation ?? _generation;
+    if (_fetching && gen == _generation) return;
+    _fetching = true;
+    // 关键不变量:cursor=null 表示「拉 head 页」(初始化或刷新),
+    // 用新结果覆盖 buffer;cursor 非空表示「翻下一页」,追加到 buffer。
+    final isHead = _nextCursor == null;
+    try {
+      final digest = await ref.read(aiNewsRepositoryProvider).fetchItems(
+            category: _category,
+            cursor: _nextCursor,
+          );
+      if (gen != _generation) return;
+      _buffer = isHead ? digest.items : [..._buffer, ...digest.items];
+      _nextCursor = digest.nextCursor;
+      _hasApiMore = digest.hasNext;
+      // 落盘 + 更新 head meta + 容量守卫
+      final dao = ref.read(aiNewsCacheDaoProvider);
+      final now = ref.read(clockProvider)();
+      await dao.upsertPage(
+        category: _category,
+        // meta 始终对齐 head 查询,因为我们只对 head 做 TTL 判定
+        cursor: null,
+        digest: digest,
+        now: now,
+      );
+      unawaited(_safeEnforceCap());
+    } catch (e, st) {
+      if (gen != _generation) return;
+      _fetching = false;
+      // 后台刷新失败容忍:已有缓存数据就不报错
+      if (state.valueOrNull != null) {
+        return;
+      }
+      state = AsyncError(e, st);
+      rethrow;
+    }
+    if (gen == _generation) _fetching = false;
+  }
+
+  Future<void> _safeEnforceCap() async {
+    try {
+      await ref.read(appDatabaseProvider).enforceCap();
+    } catch (e) {
+      // 容量管理是尽力而为,仅记录 kind 便于排查 SQLite 退化。
+      AppLogger.warn('enforceCap', meta: {'error': e.runtimeType.toString()});
+    }
+  }
+}
