@@ -1,0 +1,11 @@
+{
+    "apiVersion": "1.1.0",
+    "skillVersion": "0.3.0",
+    "updatedAt": "2026-06-27",
+    "changelogUrl": "https://aihot.virxact.com/changelog",
+    "recentChanges": [
+        "日报端点（/api/public/daily*）每条新增 permalink 站内中文阅读页深链",
+        "新增「当前热点」端点 /api/public/hot-topics（多源热度排序）",
+        "新增版本端点 /api/public/version（Skill 可据此自动检测更新）"
+    ]
+}
