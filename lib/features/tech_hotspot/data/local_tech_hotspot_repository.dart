@@ -1,25 +1,25 @@
 import '../domain/tech_hotspot_models.dart';
 import '../domain/tech_hotspot_repository.dart';
-import 'mock_tech_hotspot.dart';
+import 'tech_hotspot_seed_data.dart';
 
-/// 基于本地模拟数据的技术趋势仓库。
+/// 基于内置种子数据的技术趋势仓库。
 class LocalTechHotspotRepository implements TechHotspotRepository {
   const LocalTechHotspotRepository();
 
   @override
-  TechHotspotDigest getDigest() {
+  Future<TechHotspotDigest> getDigest() async {
     return const TechHotspotDigest(
-      languages: MockTechHotspot.languages,
-      topics: MockTechHotspot.topics,
-      heatTrend: MockTechHotspot.heatTrend,
-      hotTags: MockTechHotspot.hotTags,
+      languages: TechHotspotSeedData.languages,
+      topics: TechHotspotSeedData.topics,
+      heatTrend: TechHotspotSeedData.heatTrend,
+      hotTags: TechHotspotSeedData.hotTags,
     );
   }
 
   @override
-  TechTopic? getById(String id) =>
-      MockTechHotspot.topics.where((e) => e.id == id).firstOrNull;
+  Future<TechTopic?> getById(String id) async =>
+      TechHotspotSeedData.topics.where((e) => e.id == id).firstOrNull;
 
   @override
-  List<TechTopic> allTopics() => MockTechHotspot.topics;
+  Future<List<TechTopic>> allTopics() async => TechHotspotSeedData.topics;
 }

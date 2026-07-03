@@ -1,6 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
+
 /// 折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。
 class StarTrendChart extends StatelessWidget {
   const StarTrendChart({
@@ -61,8 +64,7 @@ class StarTrendChart extends StatelessWidget {
                 reservedSize: 36,
                 getTitlesWidget: (value, _) => Text(
                   _shortNumber(value),
-                  style: TextStyle(
-                    fontSize: 10,
+                  style: AppTypography.labelSmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
@@ -79,11 +81,10 @@ class StarTrendChart extends StatelessWidget {
                       ? xLabels![i]
                       : '${i}d';
                   return Padding(
-                    padding: const EdgeInsets.only(top: 6),
+                    padding: const EdgeInsets.only(top: AppSpacing.xs2),
                     child: Text(
                       label,
-                      style: TextStyle(
-                        fontSize: 10,
+                      style: AppTypography.labelSmall.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
                     ),

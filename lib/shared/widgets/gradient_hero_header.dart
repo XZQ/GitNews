@@ -87,7 +87,7 @@ class HeroBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs + 2,
+        vertical: AppSpacing.xs2,
       ),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.18),

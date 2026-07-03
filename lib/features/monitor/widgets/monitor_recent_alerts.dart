@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/demo_data.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../domain/entities.dart';
 
 class MonitorRecentAlerts extends StatelessWidget {
   const MonitorRecentAlerts({required this.alerts, super.key});
 
-  final List<DemoAlert> alerts;
+  final List<AlertEntity> alerts;
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class MonitorRecentAlerts extends StatelessWidget {
 class MonitorAlertRow extends StatelessWidget {
   const MonitorAlertRow({required this.alert, super.key});
 
-  final DemoAlert alert;
+  final AlertEntity alert;
 
   Color _accent() {
     return switch (alert.severity) {
@@ -76,8 +76,8 @@ class MonitorAlertRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: AppSpacing.xxl,
+            height: AppSpacing.xxl,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -89,7 +89,7 @@ class MonitorAlertRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(alert.repo, style: AppTypography.titleSmall),
+                Text(alert.repoFullName, style: AppTypography.titleSmall),
                 Text(
                   alert.metric,
                   style: AppTypography.bodySmall.copyWith(

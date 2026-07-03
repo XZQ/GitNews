@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/demo_data.dart';
 import '../../../core/theme/app_typography.dart';
+import '../domain/entities.dart';
 
 /// 语言占比环形图(中心洞口显示总量)。
 class LanguageDonutChart extends StatelessWidget {
@@ -13,7 +13,7 @@ class LanguageDonutChart extends StatelessWidget {
     super.key,
   });
 
-  final List<DemoLanguage> data;
+  final List<LanguageEntity> data;
   final Color holeColor;
   final String centerValue;
   final String centerLabel;
@@ -50,7 +50,7 @@ class LanguageDonutChart extends StatelessWidget {
 
 class _DonutPainter extends CustomPainter {
   _DonutPainter({required this.data, required this.holeColor});
-  final List<DemoLanguage> data;
+  final List<LanguageEntity> data;
   final Color holeColor;
 
   @override
@@ -61,7 +61,7 @@ class _DonutPainter extends CustomPainter {
     final paint = Paint()..style = PaintingStyle.fill;
     for (final l in data) {
       final sweep = (l.percent / 100) * 6.28318;
-      paint.color = Color(l.color);
+      paint.color = Color(l.accentArgb);
       final path = Path()
         ..addArc(
           Rect.fromCircle(center: center, radius: radius),

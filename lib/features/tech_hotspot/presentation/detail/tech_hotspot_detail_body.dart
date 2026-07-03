@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -15,12 +16,16 @@ class TechHotspotDetailSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '主题概述', subtitle: '编辑综述与近期变化'),
+          SectionHeader(
+            title: l10n.tr('tech_hotspot.detail.summary'),
+            subtitle: l10n.tr('tech_hotspot.detail.summary.subtitle'),
+          ),
           const SizedBox(height: AppSpacing.md),
           Text(
             topic.summary,
@@ -43,12 +48,16 @@ class TechHotspotDetailLanguages extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (languages.isEmpty) return const SizedBox.shrink();
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(title: '相关语言', subtitle: '主题领域内活跃语言分布'),
+          SectionHeader(
+            title: l10n.tr('tech_hotspot.detail.languages'),
+            subtitle: l10n.tr('tech_hotspot.detail.languages.subtitle'),
+          ),
           const SizedBox(height: AppSpacing.md),
           for (final lang in languages.take(5)) ...[
             Row(

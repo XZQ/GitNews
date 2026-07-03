@@ -1,4 +1,4 @@
-import '../../../core/demo_data.dart';
+import 'entities.dart';
 
 /// 趋势页需要的一组本地情报数据。
 class TrendingDigest {
@@ -11,14 +11,14 @@ class TrendingDigest {
     required this.tertiaryTrend,
   });
 
-  final List<DemoRepo> trendingRepos;
-  final List<DemoRepo> recentRepos;
-  final List<DemoLanguage> languages;
+  final List<RepoEntity> trendingRepos;
+  final List<RepoEntity> recentRepos;
+  final List<LanguageEntity> languages;
   final List<double> primaryTrend;
   final List<double> secondaryTrend;
   final List<double> tertiaryTrend;
 
-  List<DemoRepo> get allRepos => [...trendingRepos, ...recentRepos];
+  List<RepoEntity> get allRepos => [...trendingRepos, ...recentRepos];
 
   bool get isEmpty => trendingRepos.isEmpty && recentRepos.isEmpty;
 }

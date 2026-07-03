@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -10,11 +11,12 @@ class ProjectSummaryMetrics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: _MetricBlock(
-            label: '本周 Star 增长',
+            label: l10n.tr('project.metric.weekly_stars'),
             value: '124',
             delta: '+18.5%',
             color: AppColors.success,
@@ -24,7 +26,7 @@ class ProjectSummaryMetrics extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _MetricBlock(
-            label: '新增仓库',
+            label: l10n.tr('project.metric.new_repos'),
             value: '2.36K',
             delta: '+7.2%',
             color: Theme.of(context).colorScheme.primary,
@@ -32,9 +34,9 @@ class ProjectSummaryMetrics extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        const Expanded(
+        Expanded(
           child: _MetricBlock(
-            label: '活跃贡献者',
+            label: l10n.tr('project.metric.active_contributors'),
             value: '156',
             delta: '+12.3%',
             color: AppColors.info,
@@ -42,9 +44,9 @@ class ProjectSummaryMetrics extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        const Expanded(
+        Expanded(
           child: _MetricBlock(
-            label: '总 Fork 数',
+            label: l10n.tr('project.metric.total_forks'),
             value: '47.8K',
             delta: '+5.1%',
             color: AppColors.warning,
@@ -92,7 +94,7 @@ class _MetricBlock extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm + 2),
+          const SizedBox(height: AppSpacing.sm2),
           Text(
             value,
             style: AppTypography.headlineMedium.copyWith(

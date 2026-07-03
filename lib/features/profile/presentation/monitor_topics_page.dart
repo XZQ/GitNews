@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/demo_data_mappers.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../core/domain/repo_entity.dart';
 
 class MonitorTopicsPage extends StatelessWidget {
   const MonitorTopicsPage({super.key});
@@ -37,7 +39,10 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final repos = [...DemoData.trending.take(4), ...DemoData.recent];
+    final List<RepoEntity> repos = [
+      ...DemoData.trending.take(4).map((e) => e.toEntity()),
+      ...DemoData.recent.map((e) => e.toEntity()),
+    ];
     if (repos.isEmpty) {
       return const EmptyView(
         icon: Icons.visibility_off_outlined,

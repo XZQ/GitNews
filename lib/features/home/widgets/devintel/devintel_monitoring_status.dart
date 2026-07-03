@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'devintel_demo.dart';
@@ -11,6 +13,7 @@ class DevIntelMonitoringStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -19,7 +22,7 @@ class DevIntelMonitoringStatus extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '仓库监控状态',
+            l10n.tr('home.monitoring.title'),
             style: AppTypography.titleMedium.copyWith(
               color: colors.onSurface,
             ),
@@ -61,7 +64,6 @@ class _StatusTile extends StatelessWidget {
           child: Text(
             item.name,
             style: AppTypography.titleSmall.copyWith(
-              fontSize: 13,
               color: colors.onSurface,
             ),
           ),
@@ -69,12 +71,12 @@ class _StatusTile extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.sm,
-            vertical: AppSpacing.xxs + 1,
+            vertical: AppSpacing.xs,
           ),
           decoration: BoxDecoration(
             color: item.statusColor.withValues(alpha: 0.14),
             borderRadius: const BorderRadius.all(
-              Radius.circular(AppSpacing.xs + 2),
+              Radius.circular(AppRadius.xs),
             ),
           ),
           child: Text(
@@ -86,7 +88,7 @@ class _StatusTile extends StatelessWidget {
           ),
         ),
         if (item.note != null) ...[
-          const SizedBox(width: AppSpacing.xs + 2),
+          const SizedBox(width: AppSpacing.xs2),
           Text(
             item.note!,
             style: AppTypography.labelSmall.copyWith(
@@ -104,6 +106,7 @@ class _ConfigureButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton(
@@ -113,13 +116,13 @@ class _ConfigureButton extends StatelessWidget {
           side: BorderSide(
             color: AppColors.success.withValues(alpha: 0.5),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 14),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md2),
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(AppSpacing.sm)),
+            borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm)),
           ),
         ),
         child: Text(
-          '配置监控列表',
+          l10n.tr('home.monitoring.configure'),
           style: AppTypography.labelMedium.copyWith(
             fontWeight: FontWeight.w800,
             letterSpacing: 1.2,

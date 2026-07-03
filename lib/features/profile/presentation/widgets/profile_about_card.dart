@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
@@ -10,18 +11,28 @@ class ProfileAboutCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AppCard(
+    final l10n = AppLocalizations.of(context);
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: '关于',
-            subtitle: 'GitHub 开发者情报',
+            title: l10n.tr('profile.about.title'),
+            subtitle: l10n.tr('profile.about.subtitle'),
           ),
-          SizedBox(height: AppSpacing.md),
-          ProfileAboutRow(label: '版本', value: '0.1.0'),
-          ProfileAboutRow(label: '构建', value: '2026-06-23'),
-          ProfileAboutRow(label: '官方网站', value: 'github-news.app'),
+          const SizedBox(height: AppSpacing.md),
+          ProfileAboutRow(
+            label: l10n.tr('profile.about.version'),
+            value: '0.1.0',
+          ),
+          ProfileAboutRow(
+            label: l10n.tr('profile.about.build'),
+            value: '2026-06-23',
+          ),
+          ProfileAboutRow(
+            label: l10n.tr('profile.about.site'),
+            value: 'github-news.app',
+          ),
         ],
       ),
     );

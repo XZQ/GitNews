@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
 /// 顶部四宫格核心指标。
@@ -9,36 +12,37 @@ class TrendingHeroMetrics extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    final l10n = AppLocalizations.of(context);
+    return Row(
       children: [
         Expanded(
           child: TrendingMetric(
             value: '42.8K',
-            label: 'Star 增长总量',
+            label: l10n.tr('trending.metric.total_stars'),
             delta: '+7.2%',
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: TrendingMetric(
             value: '1.20K',
-            label: '周活跃仓库',
+            label: l10n.tr('trending.metric.active_repos'),
             delta: '+12.4%',
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: TrendingMetric(
             value: '10.6K',
-            label: '新增 Fork',
+            label: l10n.tr('trending.metric.new_forks'),
             delta: '+5.1%',
           ),
         ),
-        SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.md),
         Expanded(
           child: TrendingMetric(
             value: '623',
-            label: '热门话题',
+            label: l10n.tr('trending.metric.hot_topics'),
             delta: '+3.4%',
           ),
         ),
@@ -66,14 +70,14 @@ class TrendingMetric extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(value, style: AppTypography.headlineMedium),
-        const SizedBox(height: 2),
+        const SizedBox(height: AppSpacing.xxs),
         Text(
           label,
           style: AppTypography.labelSmall.copyWith(
             color: colors.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 2),
+        const SizedBox(height: AppSpacing.xxs),
         Text(
           delta,
           style: AppTypography.labelSmall.copyWith(
@@ -99,11 +103,21 @@ class TrendingWindowSegmented extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SegmentedButton<String>(
-      segments: const [
-        ButtonSegment(value: 'today', label: Text('今日')),
-        ButtonSegment(value: 'week', label: Text('本周')),
-        ButtonSegment(value: 'month', label: Text('本月')),
+      segments: [
+        ButtonSegment(
+          value: 'today',
+          label: Text(l10n.tr('trending.window.today')),
+        ),
+        ButtonSegment(
+          value: 'week',
+          label: Text(l10n.tr('trending.window.week')),
+        ),
+        ButtonSegment(
+          value: 'month',
+          label: Text(l10n.tr('trending.window.month')),
+        ),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
@@ -136,18 +150,21 @@ class TrendingPopupMenu extends StatelessWidget {
           PopupMenuItem(value: o, child: Text(optionLabel(o))),
       ],
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.xs2,
+        ),
         decoration: BoxDecoration(
           border: Border.all(color: Theme.of(context).dividerColor),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.filter_list, size: 14),
-            const SizedBox(width: 4),
+            const Icon(Icons.filter_list, size: AppSpacing.md2),
+            const SizedBox(width: AppSpacing.xs),
             Text(optionLabel(value), style: AppTypography.labelMedium),
-            const Icon(Icons.arrow_drop_down, size: 16),
+            const Icon(Icons.arrow_drop_down, size: AppSpacing.lg),
           ],
         ),
       ),

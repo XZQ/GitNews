@@ -1,10 +1,11 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/app_card.dart';
 import '../../domain/tech_hotspot_models.dart';
 
 /// 技术热度周线图(线图 + 区域填充)。
@@ -15,18 +16,9 @@ class TechHotspotHeatChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
-          width: isLight ? 0.6 : 1,
-        ),
-      ),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -39,7 +31,7 @@ class TechHotspotHeatChart extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                '本周热度曲线',
+                l10n.tr('tech_hotspot.heat_chart.title'),
                 style: AppTypography.titleSmall.copyWith(
                   color: colors.onSurface,
                   fontWeight: FontWeight.w700,
@@ -47,7 +39,12 @@ class TechHotspotHeatChart extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                '峰值 ${values.last.value.toStringAsFixed(0)}',
+                l10n
+                    .tr('tech_hotspot.heat_chart.peak')
+                    .replaceAll(
+                      '{v}',
+                      values.last.value.toStringAsFixed(0),
+                    ),
                 style: AppTypography.labelSmall.copyWith(
                   color: colors.onSurfaceVariant,
                 ),

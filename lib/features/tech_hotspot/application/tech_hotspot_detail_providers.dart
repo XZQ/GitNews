@@ -7,7 +7,7 @@ import 'tech_hotspot_providers.dart';
 /// 单个技术主题详情。未找到时抛 [AppExceptionKind.notFound]。
 final techHotspotDetailProvider =
     FutureProvider.family<TechTopic, String>((ref, id) async {
-  final topic = ref.watch(techHotspotRepositoryProvider).getById(id);
+  final topic = await ref.watch(techHotspotRepositoryProvider).getById(id);
   if (topic == null) {
     throw const AppException(kind: AppExceptionKind.notFound);
   }
@@ -16,7 +16,7 @@ final techHotspotDetailProvider =
 
 /// 与当前主题相关的其它主题(取前 3 条,排除自身)。
 final techHotspotRelatedProvider =
-    Provider.family<List<TechTopic>, String>((ref, id) {
-  final all = ref.watch(techHotspotRepositoryProvider).allTopics();
+    FutureProvider.family<List<TechTopic>, String>((ref, id) async {
+  final all = await ref.watch(techHotspotRepositoryProvider).allTopics();
   return all.where((e) => e.id != id).take(3).toList();
 });

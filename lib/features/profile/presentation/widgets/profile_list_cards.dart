@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -11,13 +12,17 @@ class ProfileCollectListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bookmark_outline, color: AppColors.info),
-            title: const Text('收藏的主题', style: AppTypography.titleMedium),
+            title: Text(
+              l10n.tr('profile.section.collect'),
+              style: AppTypography.titleMedium,
+            ),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/collect'),
           ),
@@ -25,7 +30,10 @@ class ProfileCollectListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.people_outline, color: AppColors.success),
-            title: const Text('关注的开发者', style: AppTypography.titleMedium),
+            title: Text(
+              l10n.tr('profile.section.developers'),
+              style: AppTypography.titleMedium,
+            ),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/developers'),
           ),
@@ -41,6 +49,7 @@ class ProfileMonitorListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         children: [
@@ -50,7 +59,10 @@ class ProfileMonitorListCard extends StatelessWidget {
               Icons.visibility_outlined,
               color: Theme.of(context).colorScheme.primary,
             ),
-            title: const Text('监控的主题', style: AppTypography.titleMedium),
+            title: Text(
+              l10n.tr('profile.section.monitor_topics'),
+              style: AppTypography.titleMedium,
+            ),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/monitor'),
           ),
@@ -58,7 +70,10 @@ class ProfileMonitorListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bolt_rounded, color: AppColors.warning),
-            title: const Text('监控规则', style: AppTypography.titleMedium),
+            title: Text(
+              l10n.tr('profile.section.monitor_rules'),
+              style: AppTypography.titleMedium,
+            ),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/rules'),
           ),

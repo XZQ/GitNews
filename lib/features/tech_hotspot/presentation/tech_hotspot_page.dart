@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/breakpoint.dart';
+import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/skeleton.dart';
 import '../application/tech_hotspot_providers.dart';
 import '../domain/tech_hotspot_models.dart';
 import 'widgets/tech_hotspot_heat_chart.dart';
@@ -25,36 +30,53 @@ class TechHotspotPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final digest = ref.watch(techHotspotDigestProvider);
-    final isCompact = Breakpoints.of(context) == FormFactor.compact;
-
+    final state = ref.watch(techHotspotDigestProvider);
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const TechHotspotPageHeader(),
-          Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                isCompact ? AppSpacing.lg : AppSpacing.xl,
-                AppSpacing.lg,
-                isCompact ? AppSpacing.lg : AppSpacing.xl,
-                AppSpacing.xxxl,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _TagsCloud(tags: digest.hotTags),
-                  const SizedBox(height: AppSpacing.lg),
-                  _TopRow(digest: digest),
-                  const SizedBox(height: AppSpacing.lg),
-                  _TopicGrid(topics: digest.topics),
-                ],
-              ),
+      body: state.when(
+        data: (digest) => _Body(digest: digest),
+        loading: () => const _TechHotspotSkeleton(),
+        error: (error, stack) => ErrorView(
+          error: error.asAppException(stack),
+          onRetry: () => ref.invalidate(techHotspotDigestProvider),
+        ),
+      ),
+    );
+  }
+}
+
+class _Body extends StatelessWidget {
+  const _Body({required this.digest});
+
+  final TechHotspotDigest digest;
+
+  @override
+  Widget build(BuildContext context) {
+    final isCompact = Breakpoints.of(context) == FormFactor.compact;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const TechHotspotPageHeader(),
+        Expanded(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              isCompact ? AppSpacing.lg : AppSpacing.xl,
+              AppSpacing.lg,
+              isCompact ? AppSpacing.lg : AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _TagsCloud(tags: digest.hotTags),
+                const SizedBox(height: AppSpacing.lg),
+                _TopRow(digest: digest),
+                const SizedBox(height: AppSpacing.lg),
+                _TopicGrid(topics: digest.topics),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -148,14 +170,9 @@ class _TagsCloud extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: colors.outlineVariant),
-      ),
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -164,7 +181,7 @@ class _TagsCloud extends StatelessWidget {
               Icon(Icons.tag_rounded, size: 16, color: colors.primary),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                '热门标签',
+                l10n.tr('tech_hotspot.tag_cloud'),
                 style: AppTypography.titleSmall.copyWith(
                   color: colors.onSurface,
                   fontWeight: FontWeight.w700,
@@ -193,13 +210,20 @@ class _Tag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: () {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('标签 #$label 暂未接入筛选')),
+            SnackBar(
+              content: Text(
+                l10n
+                    .tr('tech_hotspot.tag.noti')
+                    .replaceAll('{label}', label),
+              ),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(AppRadius.pill),
@@ -221,6 +245,29 @@ class _Tag extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _TechHotspotSkeleton extends StatelessWidget {
+  const _TechHotspotSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.xxxl,
+      ),
+      children: const [
+        Skeleton(height: 92),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 280),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 320),
+      ],
     );
   }
 }

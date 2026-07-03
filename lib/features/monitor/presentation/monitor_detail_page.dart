@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/domain/repo_entity.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -16,6 +18,7 @@ import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../application/monitor_providers.dart';
+import '../domain/entities.dart';
 
 /// 监控详情(对应监控页二级稿:实时趋势 + 告警历史)。
 class MonitorDetailPage extends ConsumerWidget {
@@ -25,10 +28,11 @@ class MonitorDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(monitorDigestProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('监控详情'),
+        title: Text(l10n.tr('monitor.detail_title')),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () =>
@@ -38,12 +42,18 @@ class MonitorDetailPage extends ConsumerWidget {
       body: state.when(
         data: (digest) {
           if (digest.monitoredRepos.isEmpty) {
-            return const EmptyView(
+            return EmptyView(
               icon: Icons.visibility_off_outlined,
-              message: '还没有监控仓库',
+              message: l10n.tr('monitor.empty'),
             );
           }
           final repo = digest.repoByFullName(repoFullName);
+          if (repo == null) {
+            return EmptyView(
+              icon: Icons.visibility_off_outlined,
+              message: l10n.tr('monitor.empty.not_in_list'),
+            );
+          }
           return ResponsiveLayout(
             compact: (_) => _Body(repo: repo, alerts: digest.alerts),
             medium: (_) => CenteredContent(
@@ -56,19 +66,10 @@ class MonitorDetailPage extends ConsumerWidget {
         },
         loading: () => const _DetailSkeleton(),
         error: (error, stack) => ErrorView(
-          error: _toAppException(error, stack),
+          error: error.asAppException(stack),
           onRetry: () => ref.invalidate(monitorDigestProvider),
         ),
       ),
-    );
-  }
-
-  AppException _toAppException(Object error, StackTrace stack) {
-    if (error is AppException) return error;
-    return AppException(
-      kind: AppExceptionKind.unknown,
-      cause: error,
-      stack: stack,
     );
   }
 }
@@ -76,11 +77,12 @@ class MonitorDetailPage extends ConsumerWidget {
 class _Body extends StatelessWidget {
   const _Body({required this.repo, required this.alerts});
 
-  final DemoRepo repo;
-  final List<DemoAlert> alerts;
+  final RepoEntity repo;
+  final List<AlertEntity> alerts;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -90,7 +92,7 @@ class _Body extends StatelessWidget {
       ),
       children: [
         GradientHeroHeader(
-          accent: Color(repo.color),
+          accent: Color(repo.accentArgb),
           title: repo.fullName,
           badges: [
             HeroBadge(
@@ -118,9 +120,9 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(
-                title: '实时趋势',
-                subtitle: '最近 24 小时 Star / Fork 变化',
+              SectionHeader(
+                title: l10n.tr('monitor.section.realtime_trend'),
+                subtitle: l10n.tr('monitor.section.realtime_trend.subtitle'),
               ),
               const SizedBox(height: AppSpacing.md),
               StarTrendChart(
@@ -147,9 +149,9 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(
-                title: '告警历史',
-                subtitle: '本仓库触发的所有告警',
+              SectionHeader(
+                title: l10n.tr('monitor.section.alert_history'),
+                subtitle: l10n.tr('monitor.section.alert_history.subtitle'),
               ),
               const SizedBox(height: AppSpacing.md),
               for (final alert in alerts.take(5)) ...[
@@ -159,7 +161,8 @@ class _Body extends StatelessWidget {
                     Icons.history_rounded,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  title: Text(alert.repo, style: AppTypography.titleSmall),
+                  title:
+                      Text(alert.repoFullName, style: AppTypography.titleSmall),
                   subtitle: Text('${alert.metric} · ${alert.time}'),
                   trailing: Text(
                     alert.value,
@@ -169,7 +172,7 @@ class _Body extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.xs),
               ],
             ],
           ),

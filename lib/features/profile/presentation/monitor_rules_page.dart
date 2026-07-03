@@ -59,7 +59,7 @@ class _Body extends StatelessWidget {
           ).copyChildren([
             for (var i = 0; i < rules.length; i++)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
                 child: Row(
                   children: [
                     Expanded(

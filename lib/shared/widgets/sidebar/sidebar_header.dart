@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../app_logo.dart';
 
 class SidebarHeader extends StatelessWidget {
@@ -8,8 +10,9 @@ class SidebarHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.fromLTRB(
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.lg,
         AppSpacing.lg,
@@ -17,13 +20,12 @@ class SidebarHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          LogoMark(size: 32),
-          SizedBox(width: 10),
+          const LogoMark(size: AppSpacing.xxl),
+          const SizedBox(width: AppSpacing.sm2),
           Flexible(
             child: Text(
-              'GitHub 情报站',
-              style: TextStyle(
-                fontSize: 17,
+              l10n.tr('app.name'),
+              style: AppTypography.titleMedium.copyWith(
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.2,
                 height: 1.0,

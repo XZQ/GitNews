@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_spacing.dart';
 import '../../core/utils/breakpoint.dart';
 
 /// 通用响应式布局工具。
@@ -35,7 +36,10 @@ class CenteredContent extends StatelessWidget {
   const CenteredContent({
     required this.child,
     this.maxWidth = 1680,
-    this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+    this.padding = const EdgeInsets.symmetric(
+      horizontal: AppSpacing.md,
+      vertical: AppSpacing.lg,
+    ),
     super.key,
   });
 

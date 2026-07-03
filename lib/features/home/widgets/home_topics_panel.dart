@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -13,38 +14,39 @@ class HomeTopicsPanel extends StatelessWidget {
   const HomeTopicsPanel({super.key});
 
   static const _topics = [
-    'AI 智能体',
-    '大语言模型',
-    '开发工具',
-    '检索增强生成',
-    'Web3',
-    '安全',
-    '云原生',
-    '数据基建',
+    'home.topic.agents',
+    'home.topic.llm',
+    'home.topic.devtools',
+    'home.topic.rag',
+    'home.topic.web3',
+    'home.topic.security',
+    'home.topic.cloud_native',
+    'home.topic.data_infra',
   ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '热门话题',
-            subtitle: '基于本周 Star 增速与讨论热度',
+          SectionHeader(
+            title: l10n.tr('home.section.topics.title'),
+            subtitle: l10n.tr('home.section.topics.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              for (final topic in _topics) _TopicChip(label: topic),
+              for (final topic in _topics) _TopicChip(label: l10n.tr(topic)),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          const SectionHeader(
-            title: '可关注的开发者',
-            subtitle: '本周 Star 增长贡献 Top 5',
+          SectionHeader(
+            title: l10n.tr('home.section.devs.title'),
+            subtitle: l10n.tr('home.section.devs.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           for (final c in DemoData.contributors)
@@ -63,7 +65,7 @@ class HomeTopicsPanel extends StatelessWidget {
               ),
               title: Text(c.login, style: AppTypography.titleSmall),
               subtitle: Text(
-                '+${c.contributions} 本周贡献',
+                '+${c.contributions} ${l10n.tr('home.contrib.week')}',
               ),
               trailing: const Icon(Icons.chevron_right, size: 18),
             ),

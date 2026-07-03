@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/responsive_layout.dart';
@@ -15,9 +16,10 @@ class ProjectPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: const Text('报告')) : null,
+      appBar: isCompact ? AppBar(title: Text(l10n.tr('project.title'))) : null,
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Desktop(),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -11,8 +12,9 @@ class SidebarProfileMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return Tooltip(
-      message: '更多',
+      message: l10n.tr('common.more'),
       waitDuration: const Duration(milliseconds: 400),
       child: Material(
         color: Colors.transparent,
@@ -20,7 +22,7 @@ class SidebarProfileMenuButton extends StatelessWidget {
           onTap: () => _showMenu(context),
           borderRadius: BorderRadius.circular(AppRadius.pill),
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.sm + 2),
+            padding: const EdgeInsets.all(AppSpacing.sm2),
             child: Icon(
               Icons.more_horiz_rounded,
               size: 18,
@@ -34,6 +36,7 @@ class SidebarProfileMenuButton extends StatelessWidget {
 
   void _showMenu(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     showMenu<void>(
       context: context,
       position: const RelativeRect.fromLTRB(0, 0, 0, 0),
@@ -52,26 +55,26 @@ class SidebarProfileMenuButton extends StatelessWidget {
                 color: colors.onSurfaceVariant,
               ),
               const SizedBox(width: AppSpacing.md),
-              const Text('设置'),
+              Text(l10n.tr('common.settings')),
             ],
           ),
           onTap: () => context.go('/profile'),
         ),
         PopupMenuItem<void>(
-          child: const Row(
+          child: Row(
             children: [
-              Icon(
+              const Icon(
                 Icons.logout_rounded,
                 size: 18,
                 color: AppColors.danger,
               ),
-              SizedBox(width: AppSpacing.md),
-              Text('退出登录'),
+              const SizedBox(width: AppSpacing.md),
+              Text(l10n.tr('profile.logout')),
             ],
           ),
           onTap: () {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('当前为匿名模式,无需登出')),
+              SnackBar(content: Text(l10n.tr('profile.anonymous_hint'))),
             );
           },
         ),

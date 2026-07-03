@@ -1,75 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/header_search_field.dart';
+import '../../../../shared/widgets/page_header.dart';
 
+/// 首页(桌面)顶部条 — 复用 [PageHeader] 体系。
+///
+/// actions 内部含一个带红点的通知按钮 + 一个脉冲点动画的"实时同步"胶囊。
 class DevIntelTopHeader extends StatelessWidget {
   const DevIntelTopHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return SizedBox(
-      height: 64,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-        decoration: BoxDecoration(
-          color: colors.surface,
-          border: Border(
-            bottom: BorderSide(color: colors.outlineVariant, width: 1),
-          ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '开发者情报',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: colors.onSurface,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  '实时生态洞察',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: AppSpacing.xl),
-            const Expanded(child: _SearchField()),
-            const SizedBox(width: AppSpacing.md),
-            const _BellWithDot(),
-            const SizedBox(width: AppSpacing.md),
-            const _LiveSyncBadge(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SearchField extends StatelessWidget {
-  const _SearchField();
-
-  @override
-  Widget build(BuildContext context) {
-    return HeaderSearchField(
-      hintText: '搜索仓库、标签...',
-      onSubmitted: (v) {
+    final l10n = AppLocalizations.of(context);
+    return PageHeader(
+      title: l10n.tr('home.title'),
+      subtitle: l10n.tr('home.subtitle'),
+      searchHint: l10n.tr('home.search_hint'),
+      onSearchSubmitted: (v) {
         if (v.trim().isEmpty) return;
         context.go('/trending/repos');
       },
+      actions: const [
+        _BellWithDot(),
+        _LiveSyncBadge(),
+      ],
     );
   }
 }
@@ -80,6 +36,7 @@ class _BellWithDot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return IconButton(
       onPressed: () => context.go('/monitor'),
       icon: Stack(
@@ -90,108 +47,50 @@ class _BellWithDot extends StatelessWidget {
             size: 20,
             color: colors.onSurfaceVariant,
           ),
-          Positioned(
+          const Positioned(
             right: -2,
             top: -2,
-            child: Container(
-              width: 8,
-              height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.danger,
-                shape: BoxShape.circle,
-              ),
-            ),
+            child: _Dot(),
           ),
         ],
       ),
-      tooltip: '监控中心',
+      tooltip: l10n.tr('home.monitor_center'),
       constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
       padding: EdgeInsets.zero,
     );
   }
 }
 
+class _Dot extends StatelessWidget {
+  const _Dot();
+
+  @override
+  Widget build(BuildContext context) => const SizedBox(
+        width: 8,
+        height: 8,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: AppColors.danger,
+            shape: BoxShape.circle,
+          ),
+        ),
+      );
+}
+
+/// HeaderStatPill 在 devintel 上下文中需要 const 构造,但带 BoxShadow 的 dot
+/// 无法直接 const;保留此 type 以便后续接入脉冲动画。
+
+/// 实时同步胶囊(带脉冲点)。
 class _LiveSyncBadge extends StatelessWidget {
   const _LiveSyncBadge();
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm + 2,
-        vertical: AppSpacing.xs + 2,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.14),
-        border: Border.all(
-          color: AppColors.success.withValues(alpha: 0.4),
-        ),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const _LivePulseDot(),
-          const SizedBox(width: AppSpacing.xs + 2),
-          Text(
-            '实时同步',
-            style: AppTypography.labelSmall.copyWith(
-              fontWeight: FontWeight.w700,
-              color: AppColors.success,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LivePulseDot extends StatefulWidget {
-  const _LivePulseDot();
-
-  @override
-  State<_LivePulseDot> createState() => _LivePulseDotState();
-}
-
-class _LivePulseDotState extends State<_LivePulseDot>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 1400),
-  )..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _ctrl,
-      builder: (_, __) {
-        final t = _ctrl.value;
-        return Container(
-          width: 6,
-          height: 6,
-          decoration: BoxDecoration(
-            color: Color.lerp(
-              AppColors.success.withValues(alpha: 0.4),
-              AppColors.success,
-              t,
-            ),
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.success.withValues(alpha: 0.5 * t),
-                blurRadius: 6,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-        );
-      },
+    final l10n = AppLocalizations.of(context);
+    return HeaderStatPill(
+      icon: Icons.circle,
+      label: l10n.tr('home.live_sync'),
+      color: AppColors.success,
     );
   }
 }

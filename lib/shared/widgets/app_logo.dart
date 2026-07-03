@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 
 /// GitHub情报站 品牌标识。
@@ -27,6 +28,7 @@ class AppLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDark = brightness == Brightness.dark ||
         (brightness == null && Theme.of(context).brightness == Brightness.dark);
+    final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -34,7 +36,7 @@ class AppLogo extends StatelessWidget {
         if (showText) ...[
           SizedBox(width: size * 0.32),
           Text(
-            'GitHub 情报站',
+            l10n.tr('app.name'),
             style: TextStyle(
               fontSize: size * 0.5,
               fontWeight: FontWeight.w700,
@@ -73,7 +75,7 @@ class _LogoMarkPainter extends CustomPainter {
   static const _grad = LinearGradient(
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
-    colors: [Color(0xFF101828), Color(0xFF0F766E)],
+    colors: [AppColors.brandInk, AppColors.brandDark],
   );
 
   @override
@@ -126,14 +128,14 @@ class _LogoMarkPainter extends CustomPainter {
         size.height * 0.22,
       );
     final glowPaint = Paint()
-      ..color = const Color(0xFF22D3EE).withValues(alpha: 0.24)
+      ..color = AppColors.brandCyan.withValues(alpha: 0.24)
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.width * 0.17
       ..strokeCap = StrokeCap.round;
     canvas.drawPath(path, glowPaint);
 
     final linePaint = Paint()
-      ..color = const Color(0xFF67E8F9)
+      ..color = AppColors.brandCyanLight
       ..style = PaintingStyle.stroke
       ..strokeWidth = size.width * 0.075
       ..strokeCap = StrokeCap.round;
@@ -148,7 +150,7 @@ class _LogoMarkPainter extends CustomPainter {
       canvas.drawCircle(
         node,
         size.width * 0.075,
-        Paint()..color = const Color(0xFF22D3EE).withValues(alpha: 0.28),
+        Paint()..color = AppColors.brandCyan.withValues(alpha: 0.28),
       );
       canvas.drawCircle(node, size.width * 0.038, nodePaint);
     }

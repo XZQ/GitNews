@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/demo_data.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../domain/entities.dart';
 
 /// 语言分布面板:按分类(all/ai/web/system)筛选热门语言并展示占比。
 class TrendingLanguagePanel extends StatelessWidget {
@@ -18,7 +19,7 @@ class TrendingLanguagePanel extends StatelessWidget {
 
   final String value;
   final ValueChanged<String> onChanged;
-  final List<DemoLanguage> languages;
+  final List<LanguageEntity> languages;
 
   static const _categoryMap = <String, List<String>>{
     'ai': ['Python', 'TypeScript', 'Rust'],
@@ -67,18 +68,18 @@ class TrendingLanguagePanel extends StatelessWidget {
                 name: l.name,
                 percent: l.percent,
                 delta: l.delta,
-                color: Color(l.color),
+                color: Color(l.accentArgb),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: AppSpacing.md),
             ],
         ],
       ),
     );
   }
 
-  List<DemoLanguage> _filterLanguages(
+  List<LanguageEntity> _filterLanguages(
     String category,
-    List<DemoLanguage> languages,
+    List<LanguageEntity> languages,
   ) {
     if (category == 'all' || !_categoryMap.containsKey(category)) {
       return languages.take(7).toList();
@@ -120,14 +121,14 @@ class _LangRow extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: AppSpacing.sm,
+          height: AppSpacing.sm,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(AppRadius.dot),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(
             name,
@@ -138,7 +139,7 @@ class _LangRow extends StatelessWidget {
           '${percent.toStringAsFixed(1)}%',
           style: AppTypography.labelMedium,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: AppSpacing.sm),
         Text(
           '${delta > 0 ? '+' : ''}${delta.toStringAsFixed(1)}%',
           style: AppTypography.labelSmall.copyWith(

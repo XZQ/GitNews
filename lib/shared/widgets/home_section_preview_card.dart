@@ -41,16 +41,16 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
           Row(
             children: [
               Container(
-                width: 28,
-                height: 28,
+                width: AppSpacing.xl2,
+                height: AppSpacing.xl2,
                 decoration: BoxDecoration(
                   color: accentColor.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(AppRadius.xs),
                 ),
                 alignment: Alignment.center,
-                child: Icon(icon, size: 14, color: accentColor),
+                child: Icon(icon, size: AppSpacing.md2, color: accentColor),
               ),
-              const SizedBox(width: AppSpacing.sm + 2),
+              const SizedBox(width: AppSpacing.sm2),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,7 +62,7 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
                       subtitle,
                       style: AppTypography.labelSmall.copyWith(
@@ -103,8 +103,8 @@ class _MoreChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
         child: Container(
           padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.sm + 2,
-            vertical: AppSpacing.xs + 1,
+            horizontal: AppSpacing.sm2,
+            vertical: AppSpacing.xxs,
           ),
           decoration: BoxDecoration(
             color: accentColor.withValues(alpha: 0.1),
@@ -123,7 +123,7 @@ class _MoreChip extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right_rounded,
-                size: 12,
+                size: AppSpacing.md,
                 color: accentColor,
               ),
             ],
@@ -184,7 +184,7 @@ class PreviewRow extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm + 2),
+              const SizedBox(width: AppSpacing.sm2),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,7 +198,7 @@ class PreviewRow extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
                       subtitle,
                       style: AppTypography.labelSmall.copyWith(

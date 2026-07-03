@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/responsive_layout.dart';
@@ -10,7 +11,6 @@ import 'widgets/profile_list_cards.dart';
 import 'widgets/profile_master_detail.dart';
 import 'widgets/profile_page_header.dart';
 import 'widgets/profile_pro_card.dart';
-import 'widgets/profile_section.dart';
 import 'widgets/profile_settings_card.dart';
 import 'widgets/profile_user_card.dart';
 
@@ -22,9 +22,10 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: const Text('设置')) : null,
+      appBar: isCompact ? AppBar(title: Text(l10n.tr('profile.title'))) : null,
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
         medium: (_) => const _Mobile(),
@@ -65,20 +66,18 @@ class _Mobile extends StatelessWidget {
   }
 }
 
-class _Desktop extends ConsumerWidget {
+class _Desktop extends StatelessWidget {
   const _Desktop();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selected = ref.watch(selectedProfileSectionProvider);
-
-    return Column(
+  Widget build(BuildContext context) {
+    return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const ProfilePageHeader(),
+        ProfilePageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               AppSpacing.xl,
               AppSpacing.lg,
               AppSpacing.xl,
@@ -87,22 +86,9 @@ class _Desktop extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const ProfileUserCard(),
-                const SizedBox(height: AppSpacing.lg),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 4,
-                      child: ProfileSectionList(selected: selected),
-                    ),
-                    const SizedBox(width: AppSpacing.lg),
-                    Expanded(
-                      flex: 6,
-                      child: ProfileSectionDetail(section: selected),
-                    ),
-                  ],
-                ),
+                ProfileUserCard(),
+                SizedBox(height: AppSpacing.lg),
+                ProfileMasterDetail(),
               ],
             ),
           ),

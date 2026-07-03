@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/demo_data_mappers.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../monitor/domain/entities.dart';
 
 /// 监控告警面板(手机首页 + 桌面右栏共用)。
 class HomeAlertsPanel extends StatelessWidget {
@@ -21,7 +25,9 @@ class HomeAlertsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = DemoData.alerts.take(maxItems).toList();
+    final l10n = AppLocalizations.of(context);
+    final items =
+        DemoData.alerts.take(maxItems).map((e) => e.toEntity()).toList();
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -35,8 +41,10 @@ class HomeAlertsPanel extends StatelessWidget {
                 AppSpacing.xs,
               ),
               child: SectionHeader(
-                title: '监控告警',
-                subtitle: '未读 ${items.length} 条',
+                title: l10n.tr('home.section.alerts.title'),
+                subtitle: l10n
+                    .tr('home.section.alerts.unread')
+                    .replaceAll('{n}', '${items.length}'),
                 onTap: () => context.go('/monitor'),
               ),
             ),
@@ -52,7 +60,7 @@ class HomeAlertsPanel extends StatelessWidget {
 
 class _AlertTile extends StatelessWidget {
   const _AlertTile({required this.alert});
-  final DemoAlert alert;
+  final AlertEntity alert;
 
   Color _accent(BuildContext c) {
     return switch (alert.severity) {
@@ -87,11 +95,11 @@ class _AlertTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: AppSpacing.xxl,
+              height: AppSpacing.xxl,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Icon(_icon(), size: 18, color: color),
             ),
@@ -101,12 +109,12 @@ class _AlertTile extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    alert.repo,
+                    alert.repoFullName,
                     style: AppTypography.titleSmall.copyWith(
                       color: colors.onSurface,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: AppSpacing.xxs),
                   Text(
                     alert.metric,
                     style: AppTypography.bodySmall.copyWith(
@@ -127,7 +135,7 @@ class _AlertTile extends StatelessWidget {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSpacing.xxs),
                 Text(
                   alert.time,
                   style: AppTypography.labelSmall.copyWith(

@@ -8,6 +8,6 @@ final techHotspotRepositoryProvider = Provider<TechHotspotRepository>((ref) {
   return const LocalTechHotspotRepository();
 });
 
-final techHotspotDigestProvider = Provider<TechHotspotDigest>((ref) {
+final techHotspotDigestProvider = FutureProvider<TechHotspotDigest>((ref) {
   return ref.watch(techHotspotRepositoryProvider).getDigest();
 });

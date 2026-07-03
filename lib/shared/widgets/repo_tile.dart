@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/demo_data.dart';
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
+import '../../core/domain/repo_entity.dart';
 import 'star_trend_chart.dart';
 
 /// 仓库列表项。
@@ -14,13 +16,14 @@ class RepoTile extends StatelessWidget {
     super.key,
   });
 
-  final DemoRepo repo;
+  final RepoEntity repo;
   final bool showTrend;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final accent = Color(repo.accentArgb);
     final trend =
         repo.trend ?? DemoData.generateStarTrend(repo.starCount - 5000, 5000);
     return InkWell(
@@ -34,18 +37,16 @@ class RepoTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: AppSpacing.xxl,
+              height: AppSpacing.xxl,
               decoration: BoxDecoration(
-                color: Color(repo.color).withValues(alpha: 0.16),
-                borderRadius: BorderRadius.circular(8),
+                color: accent.withValues(alpha: 0.16),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               alignment: Alignment.center,
               child: Text(
                 repo.language.isNotEmpty ? repo.language[0] : '?',
-                style: AppTypography.titleSmall.copyWith(
-                  color: Color(repo.color),
-                ),
+                style: AppTypography.titleSmall.copyWith(color: accent),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
@@ -61,7 +62,7 @@ class RepoTile extends StatelessWidget {
                       color: colors.onSurface,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: AppSpacing.xxs),
                   Text(
                     repo.description,
                     maxLines: 2,
@@ -70,24 +71,24 @@ class RepoTile extends StatelessWidget {
                       color: colors.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: AppSpacing.xs2),
                   Row(
                     children: [
-                      _Pill(text: repo.language, color: Color(repo.color)),
-                      const SizedBox(width: 8),
+                      _Pill(text: repo.language, color: accent),
+                      const SizedBox(width: AppSpacing.sm),
                       Icon(
                         Icons.star_rounded,
                         size: 12,
                         color: colors.tertiary,
                       ),
-                      const SizedBox(width: 2),
+                      const SizedBox(width: AppSpacing.xxs),
                       Text(
                         _shortNumber(repo.starCount),
                         style: AppTypography.labelSmall.copyWith(
                           color: colors.onSurface,
                         ),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.sm),
                       Text(
                         '+${_shortNumber(repo.starDelta)}',
                         style: AppTypography.labelSmall.copyWith(
@@ -125,10 +126,13 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
       child: Text(
         text,

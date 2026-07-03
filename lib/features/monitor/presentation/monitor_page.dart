@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/demo_data.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/empty_view.dart';
@@ -10,6 +10,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../application/monitor_providers.dart';
+import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
 import '../widgets/monitor_monitored_repos.dart';
 import '../widgets/monitor_page_header.dart';
@@ -22,16 +23,19 @@ class MonitorPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
     final state = ref.watch(monitorDigestProvider);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: const Text('监控')) : null,
+      appBar: isCompact
+          ? AppBar(title: Text(l10n.tr('monitor.title')))
+          : null,
       body: state.when(
         data: (digest) {
           if (digest.isEmpty) {
-            return const EmptyView(
+            return EmptyView(
               icon: Icons.visibility_off_outlined,
-              message: '还没有监控仓库',
+              message: l10n.tr('monitor.empty'),
             );
           }
           return ResponsiveLayout(
@@ -42,19 +46,10 @@ class MonitorPage extends ConsumerWidget {
         },
         loading: () => const _MonitorSkeleton(),
         error: (error, stack) => ErrorView(
-          error: _toAppException(error, stack),
+          error: error.asAppException(stack),
           onRetry: () => ref.invalidate(monitorDigestProvider),
         ),
       ),
-    );
-  }
-
-  AppException _toAppException(Object error, StackTrace stack) {
-    if (error is AppException) return error;
-    return AppException(
-      kind: AppExceptionKind.unknown,
-      cause: error,
-      stack: stack,
     );
   }
 }
@@ -96,7 +91,7 @@ class _Desktop extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const MonitorPageHeader(),
+        MonitorPageHeader(stats: digest.stats),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(
@@ -144,7 +139,7 @@ class _Desktop extends StatelessWidget {
 class _RightColumn extends StatelessWidget {
   const _RightColumn({required this.alerts});
 
-  final List<DemoAlert> alerts;
+  final List<AlertEntity> alerts;
 
   @override
   Widget build(BuildContext context) {

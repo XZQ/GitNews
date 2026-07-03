@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -11,34 +11,75 @@ import 'profile_pro_card.dart';
 import 'profile_section.dart';
 import 'profile_settings_card.dart';
 
-class ProfileSectionList extends ConsumerWidget {
-  const ProfileSectionList({required this.selected, super.key});
-
-  final ProfileSection selected;
+/// 设置页桌面端 master-detail。
+///
+/// 选中项是页面级 UI 状态,只在本页生命周期内有效,
+/// 不放进全局 Provider(CLAUDE.md §五.2)。
+class ProfileMasterDetail extends StatefulWidget {
+  const ProfileMasterDetail({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  State<ProfileMasterDetail> createState() => _ProfileMasterDetailState();
+}
+
+class _ProfileMasterDetailState extends State<ProfileMasterDetail> {
+  ProfileSection _selected = ProfileSection.settings;
+
+  @override
+  Widget build(BuildContext context) {
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 45,
+            child: _SectionList(
+              selected: _selected,
+              onSelected: (s) => setState(() => _selected = s),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.lg),
+          Expanded(
+            flex: 55,
+            child: ProfileSectionDetail(section: _selected),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SectionList extends StatelessWidget {
+  const _SectionList({required this.selected, required this.onSelected});
+
+  final ProfileSection selected;
+  final ValueChanged<ProfileSection> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
               AppSpacing.sm,
             ),
-            child: Text('设置', style: AppTypography.titleMedium),
+            child: Text(
+              AppLocalizations.of(context).tr('profile.master.title'),
+              style: AppTypography.titleMedium,
+            ),
           ),
           const Divider(height: 1),
           for (final s in ProfileSection.values)
             ProfileSectionListItem(
               section: s,
               selected: s == selected,
-              onTap: () =>
-                  ref.read(selectedProfileSectionProvider.notifier).state = s,
+              onTap: () => onSelected(s),
             ),
           const SizedBox(height: AppSpacing.sm),
         ],
@@ -79,7 +120,7 @@ class ProfileSectionListItem extends StatelessWidget {
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Text(
-                section.label,
+                section.label(context),
                 style: AppTypography.bodyMedium.copyWith(
                   color: selected ? colors.onSurface : null,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w400,

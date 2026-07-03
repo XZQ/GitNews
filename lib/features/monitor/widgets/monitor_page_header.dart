@@ -2,104 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
-import '../../../shared/widgets/page_header_icon.dart';
+import '../../../shared/widgets/page_header.dart';
+import '../domain/entities.dart';
 
 /// 监控页顶部条。
 class MonitorPageHeader extends StatelessWidget {
-  const MonitorPageHeader({super.key});
+  const MonitorPageHeader({required this.stats, super.key});
+
+  final MonitorStats stats;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      height: 74,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          bottom: BorderSide(color: colors.outlineVariant, width: 1),
+    return PageHeader(
+      icon: Icons.radar_rounded,
+      iconAccent: AppColors.success,
+      title: '监控',
+      subtitle: '实时告警与仓库动态',
+      searchHint: '搜索仓库、告警、规则...',
+      onSearchSubmitted: (v) {
+        if (v.trim().isEmpty) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('监控搜索即将接入')),
+        );
+      },
+      pills: [
+        HeaderStatPill(
+          icon: Icons.circle,
+          label: '${stats.unreadAlertCount} 未读',
+          color: AppColors.success,
         ),
-      ),
-      child: Row(
-        children: [
-          const PageHeaderIcon(
-            icon: Icons.radar_rounded,
-            accent: AppColors.success,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '监控',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: colors.onSurface,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '实时告警与仓库动态',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const _LivePill(),
-          const SizedBox(width: AppSpacing.md),
-          IconButton(
-            tooltip: '新增监控',
-            onPressed: () => context.go('/profile/monitor'),
-            icon: Icon(
-              Icons.add_circle_outline_rounded,
-              size: 20,
-              color: colors.onSurfaceVariant,
-            ),
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _LivePill extends StatelessWidget {
-  const _LivePill();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs + 2,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.success.withValues(alpha: 0.14),
-        border: Border.all(color: AppColors.success.withValues(alpha: 0.4)),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.circle, size: 8, color: AppColors.success),
-          const SizedBox(width: AppSpacing.xs + 2),
-          Text(
-            '4 未读',
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.success,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
+      ],
+      actions: [
+        IconButton(
+          tooltip: '新增监控',
+          onPressed: () => context.go('/profile/monitor'),
+          icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+        ),
+      ],
     );
   }
 }

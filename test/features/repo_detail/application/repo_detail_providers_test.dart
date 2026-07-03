@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/demo_data.dart';
+import 'package:github_news/core/demo_data_mappers.dart';
 import 'package:github_news/features/repo_detail/application/repo_detail_providers.dart';
 import 'package:github_news/features/repo_detail/domain/repo_detail_repository.dart';
 import 'package:mocktail/mocktail.dart';
@@ -44,8 +45,8 @@ void main() {
 
     test('family should return distinct digests per argument', () async {
       final repo = _MockRepoDetailRepository();
-      final repoA = DemoData.trending.first;
-      final repoB = DemoData.trending.elementAt(1);
+      final repoA = DemoData.trending.first.toEntity();
+      final repoB = DemoData.trending.elementAt(1).toEntity();
 
       when(() => repo.getDetail(repoA.fullName)).thenAnswer(
         (_) async => RepoDetailDigest(

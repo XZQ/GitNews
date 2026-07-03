@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/router/app_router.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -27,6 +28,7 @@ class _SidebarItemState extends State<SidebarItem> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final accent = colors.primary;
     final isSelected = widget.selected;
 
@@ -54,7 +56,7 @@ class _SidebarItemState extends State<SidebarItem> {
               duration: const Duration(milliseconds: 140),
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
-                vertical: 10,
+                vertical: AppSpacing.sm2,
               ),
               decoration: BoxDecoration(
                 color: bg,
@@ -70,7 +72,7 @@ class _SidebarItemState extends State<SidebarItem> {
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Text(
-                      widget.tab.label,
+                      l10n.tr(widget.tab.labelKey),
                       style: AppTypography.titleSmall.copyWith(
                         color: fgStrong,
                         fontWeight:
@@ -84,7 +86,7 @@ class _SidebarItemState extends State<SidebarItem> {
                       height: 16,
                       decoration: BoxDecoration(
                         color: accent,
-                        borderRadius: BorderRadius.circular(2),
+                        borderRadius: BorderRadius.circular(AppRadius.dot),
                       ),
                     ),
                 ],

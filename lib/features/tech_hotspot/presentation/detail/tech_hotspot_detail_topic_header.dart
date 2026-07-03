@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -19,6 +20,7 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final heatColor = techHeatColor(topic.heat);
     return GradientHeroHeader(
       accent: heatColor,
@@ -27,7 +29,9 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
       badges: [
         HeroBadge(label: topic.category, color: heatColor),
         HeroBadge(
-          label: '热度 ${topic.heat}',
+          label: l10n
+              .tr('tech_hotspot.detail.heat_value')
+              .replaceAll('{heat}', topic.heat.toString()),
           color: heatColor,
           icon: Icons.local_fire_department_rounded,
         ),
@@ -38,17 +42,17 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
         children: [
           _MetricTile(
             icon: Icons.trending_up_rounded,
-            label: '周环比',
+            label: l10n.tr('tech_hotspot.detail.metric.weekly'),
             value: '+${topic.growth.toStringAsFixed(1)}%',
           ),
           _MetricTile(
             icon: Icons.forum_rounded,
-            label: '讨论',
+            label: l10n.tr('tech_hotspot.detail.metric.discussion'),
             value: '${topic.mentions}',
           ),
           _MetricTile(
             icon: Icons.book_outlined,
-            label: '相关仓库',
+            label: l10n.tr('tech_hotspot.detail.metric.repos'),
             value: '${topic.relatedRepos}',
           ),
         ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
@@ -23,7 +24,7 @@ class SectionHeader extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(AppRadius.sm),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         child: Row(
@@ -38,7 +39,7 @@ class SectionHeader extends StatelessWidget {
                         .copyWith(color: colors.onSurface),
                   ),
                   if (subtitle != null) ...[
-                    const SizedBox(height: 2),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
                       subtitle!,
                       style: AppTypography.bodySmall
@@ -50,10 +51,10 @@ class SectionHeader extends StatelessWidget {
             ),
             if (trailing != null) trailing!,
             if (onTap != null) ...[
-              const SizedBox(width: 4),
+              const SizedBox(width: AppSpacing.xs),
               Icon(
                 Icons.chevron_right,
-                size: 18,
+                size: AppTypography.titleMedium.fontSize!,
                 color: colors.onSurfaceVariant,
               ),
             ],

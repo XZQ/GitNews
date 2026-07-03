@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/page_header.dart';
 
 /// 设置页顶部条。
 class ProfilePageHeader extends StatelessWidget {
@@ -12,72 +14,21 @@ class ProfilePageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          bottom: BorderSide(color: colors.outlineVariant, width: 1),
+    final l10n = AppLocalizations.of(context);
+    return PageHeader(
+      icon: Icons.person_outline_rounded,
+      iconAccent: AppColors.starGold,
+      title: l10n.tr('profile.title'),
+      subtitle: l10n.tr('profile.subtitle.short'),
+      pills: const [_ProPill()],
+      actions: [
+        IconButton(
+          tooltip: l10n.tr('profile.title'),
+          onPressed: () => context.go('/profile'),
+          icon: const Icon(Icons.settings_outlined, size: 20),
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [colors.primaryContainer, colors.primary],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              Icons.person_outline_rounded,
-              color: colors.onPrimary,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '设置',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: colors.onSurface,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '账户 · 收藏 · 偏好',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const _ProPill(),
-          const SizedBox(width: AppSpacing.md),
-          IconButton(
-            tooltip: '设置',
-            onPressed: () => context.go('/profile'),
-            icon: Icon(
-              Icons.settings_outlined,
-              size: 20,
-              color: colors.onSurfaceVariant,
-            ),
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -90,7 +41,7 @@ class _ProPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs + 2,
+        vertical: AppSpacing.xs2,
       ),
       decoration: BoxDecoration(
         color: AppColors.starGold.withValues(alpha: 0.16),
@@ -102,7 +53,7 @@ class _ProPill extends StatelessWidget {
         children: [
           const Icon(
             Icons.workspace_premium_outlined,
-            size: 12,
+            size: AppSpacing.md,
             color: AppColors.warning,
           ),
           const SizedBox(width: AppSpacing.xs),

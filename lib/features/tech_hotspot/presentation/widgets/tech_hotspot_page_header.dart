@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/page_header_icon.dart';
+import '../../../../shared/widgets/page_header.dart';
 
 /// 技术趋势页顶部条。
 class TechHotspotPageHeader extends StatelessWidget {
@@ -12,117 +10,45 @@ class TechHotspotPageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      height: 74,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          bottom: BorderSide(
-            color: colors.outlineVariant.withValues(alpha: 0.5),
-          ),
+    final l10n = AppLocalizations.of(context);
+    return PageHeader(
+      icon: Icons.whatshot_rounded,
+      iconAccent: AppColors.warning,
+      title: l10n.tr('tech_hotspot.title'),
+      subtitle: l10n.tr('tech_hotspot.subtitle'),
+      searchHint: l10n.tr('tech_hotspot.search_hint'),
+      onSearchSubmitted: (v) {
+        if (v.trim().isEmpty) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.tr('tech_hotspot.search.noti'))),
+        );
+      },
+      pills: [
+        HeaderStatPill(
+          icon: Icons.local_fire_department_rounded,
+          label: l10n.tr('tech_hotspot.pill.growth'),
+          color: AppColors.danger,
         ),
-      ),
-      child: Row(
-        children: [
-          const PageHeaderIcon(
-            icon: Icons.whatshot_rounded,
-            accent: AppColors.warning,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '技术趋势',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: colors.onSurface,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '语言、主题与栈,看开发者生态脉搏',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const _StatPill(
-            icon: Icons.local_fire_department_rounded,
-            label: '本周 +18%',
-            color: AppColors.danger,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          const _StatPill(
-            icon: Icons.tag_rounded,
-            label: '8 主题',
-            color: AppColors.brand,
-          ),
-          const SizedBox(width: AppSpacing.md),
-          IconButton(
-            tooltip: '筛选',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('筛选面板即将上线')),
-              );
-            },
-            icon: Icon(
-              Icons.tune_rounded,
-              size: 20,
-              color: colors.onSurfaceVariant,
-            ),
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatPill extends StatelessWidget {
-  const _StatPill({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs + 2,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: AppSpacing.xs),
-          Text(
-            label,
-            style: AppTypography.labelSmall.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
+        HeaderStatPill(
+          icon: Icons.tag_rounded,
+          label: l10n
+              .tr('tech_hotspot.pill.themes')
+              .replaceAll('{n}', '8'),
+          color: AppColors.brand,
+        ),
+      ],
+      actions: [
+        IconButton(
+          tooltip: l10n.tr('tech_hotspot.filter'),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.tr('tech_hotspot.filter.noti'))),
+            );
+          },
+          icon: const Icon(Icons.tune_rounded, size: 20),
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+        ),
+      ],
     );
   }
 }

@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
-import '../domain/monitor_repository.dart';
+import '../domain/entities.dart';
 
 class MonitorStatusRow extends StatelessWidget {
   const MonitorStatusRow({required this.stats, super.key});
@@ -101,7 +101,7 @@ class _MonitorStatusCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm + 2),
+          const SizedBox(height: AppSpacing.sm2),
           Text(
             value,
             style: AppTypography.headlineMedium.copyWith(
