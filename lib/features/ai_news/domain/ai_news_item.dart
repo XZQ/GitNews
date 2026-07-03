@@ -1,22 +1,43 @@
 /// AI 动态领域模型(纯 Dart)。
 ///
-/// 用于 [AiNewsPage] 的展示数据。当前由 mock 提供,
-/// 接入真实数据源后替换为 Repository。
+/// 字段对齐 `https://aihot.virxact.com/api/public/items` 的真实响应。
 library;
 
-/// AI 动态分类。覆盖信息流的 4 个核心维度。
+/// AI 动态分类。对应 API 的 `category` 字段。
+///
+/// 5 个分类正好对应参考站底部 5 栏导航。
 enum AiNewsCategory {
-  /// 行业动态:大公司战略、政策、人事情报。
-  industry,
+  /// 新模型 / 模型版本更新。
+  aiModels('ai-models', '模型'),
 
-  /// 技术突破:新模型、新论文、新算法。
-  breakthrough,
+  /// AI 产品 / 应用 / 功能更新。
+  aiProducts('ai-products', '产品'),
 
-  /// 产业应用:垂直行业落地案例(B 端 / C 端)。
-  application,
+  /// 论文 / 研究 / 基准测试。
+  paper('paper', '论文'),
 
-  /// 投融资:融资、收购、IPO。
-  funding,
+  /// 技巧 / 教程 / 工程实践。
+  tip('tip', '技巧'),
+
+  /// 行业动态 / 公司战略 / 投融资。
+  industry('industry', '行业');
+
+  const AiNewsCategory(this.code, this.label);
+
+  /// API 接口的字符串编码。
+  final String code;
+
+  /// 中文展示标签。
+  final String label;
+
+  /// 从 API `category` 字符串反查枚举;未匹配返回 null。
+  static AiNewsCategory? fromCode(String? code) {
+    if (code == null) return null;
+    for (final c in values) {
+      if (c.code == code) return c;
+    }
+    return null;
+  }
 }
 
 /// AI 动态条目。
@@ -25,59 +46,40 @@ class AiNewsItem {
     required this.id,
     required this.category,
     required this.title,
+    required this.titleEn,
     required this.summary,
     required this.source,
-    required this.author,
+    required this.url,
+    required this.permalink,
     required this.publishedAt,
-    required this.readMinutes,
-    required this.reads,
-    required this.likes,
-    required this.tags,
-    required this.isHero,
-    this.coverColor = 0xFF0D9488,
-    this.sourceUrl,
-    this.isMock = true,
+    required this.score,
+    required this.selected,
   });
 
   final String id;
   final AiNewsCategory category;
   final String title;
+  final String titleEn;
   final String summary;
   final String source;
-  final String author;
+  final String url;
+  final String permalink;
   final DateTime publishedAt;
-  final int readMinutes;
-  final int reads;
-  final int likes;
-  final List<String> tags;
-  final bool isHero;
-  final int coverColor;
-  final String? sourceUrl;
-  final bool isMock;
+  final int score;
+  final bool selected;
 }
 
-/// 公司曝光度条目。
-class CompanyMention {
-  const CompanyMention({
-    required this.name,
-    required this.mentions,
-    required this.trend,
-  });
-
-  final String name;
-  final int mentions;
-  final int trend;
-}
-
-/// AI 动态页需要的一组本地情报数据。
+/// 一次拉取的页面结果。
 class AiNewsDigest {
   const AiNewsDigest({
     required this.items,
-    required this.hotTopics,
-    required this.topCompanies,
+    required this.count,
+    required this.hasNext,
+    this.nextCursor,
   });
 
   final List<AiNewsItem> items;
-  final List<String> hotTopics;
-  final List<CompanyMention> topCompanies;
+  final int count;
+  final bool hasNext;
+  final String? nextCursor;
 }
