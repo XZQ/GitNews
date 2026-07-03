@@ -231,16 +231,18 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? AppColors.brand : textMuted,
+          (s) => s.contains(WidgetState.selected)
+              ? colorScheme.primary
+              : textMuted,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (s) => s.contains(WidgetState.selected)
-              ? AppColors.brand.withValues(alpha: 0.42)
+              ? colorScheme.primary.withValues(alpha: 0.42)
               : border,
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(
           (s) => s.contains(WidgetState.selected)
-              ? AppColors.brand.withValues(alpha: 0.48)
+              ? colorScheme.primary.withValues(alpha: 0.48)
               : border,
         ),
       ),

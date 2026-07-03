@@ -1,0 +1,51 @@
+/// 仓库情报实体(纯 Dart 业务实体)。
+///
+/// 数据来源不限于 GitHub REST:本地模拟 / GitHub API / GraphQL 都会归一化到此形状。
+/// `accent` 用 32-bit ARGB int,展示层用 `Color(repo.accentArgb)` 还原,
+/// 保证 domain 层零 Flutter / 零 IO 依赖(CLAUDE.md §一)。
+///
+/// 之所以放在 `core/domain/` 而非 `features/trending/domain/`:
+/// 该实体被 monitor / repo_detail / project / profile / shared 共享,
+/// 已经事实上成为跨 feature 的"通用仓库语义",留在某个 feature 内会
+/// 形成反向依赖。
+class RepoEntity {
+  const RepoEntity({
+    required this.fullName,
+    required this.description,
+    required this.language,
+    required this.starCount,
+    required this.starDelta,
+    required this.forkCount,
+    required this.accentArgb,
+    this.trend,
+  });
+
+  /// `owner/name` 形式。
+  final String fullName;
+  final String description;
+  final String language;
+  final int starCount;
+
+  /// 今日/本周新增 Star。
+  final int starDelta;
+  final int forkCount;
+
+  /// 32-bit ARGB。展示层用 `Color(repo.accentArgb)` 还原。
+  final int accentArgb;
+  final List<double>? trend;
+}
+
+/// 编程语言占比实体。
+class LanguageEntity {
+  const LanguageEntity({
+    required this.name,
+    required this.percent,
+    required this.delta,
+    required this.accentArgb,
+  });
+
+  final String name;
+  final double percent;
+  final double delta;
+  final int accentArgb;
+}

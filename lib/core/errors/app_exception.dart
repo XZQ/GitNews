@@ -8,6 +8,7 @@ enum AppExceptionKind {
   notFound,
   unauthorized,
   server,
+  cache,
   unknown,
 }
 
@@ -100,5 +101,20 @@ extension DioExceptionToApp on DioException {
           cause: this,
         );
     }
+  }
+}
+
+/// `Object → AppException` 的兜底转换。
+///
+/// Notifier 内部 `AsyncValue.error` 可能携带任意 `Object`,
+/// UI 层通过 `error.asAppException()` 统一拿到业务异常。
+extension ObjectAsAppException on Object {
+  AppException asAppException([StackTrace? stack]) {
+    if (this is AppException) return this as AppException;
+    return AppException(
+      kind: AppExceptionKind.unknown,
+      cause: this,
+      stack: stack,
+    );
   }
 }

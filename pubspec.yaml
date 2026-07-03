@@ -24,12 +24,22 @@ dependencies:
 
   # 存储
   shared_preferences: ^2.3.0
+  sqflite_common_ffi: ^2.3.3+2
+  sqlite3_flutter_libs: ^0.5.24
+  path: ^1.9.0
+  path_provider: ^2.1.4
 
   # 图表
   fl_chart: ^0.68.0
 
   # 图片
   cached_network_image: ^3.4.0
+
+  # 外链
+  url_launcher: ^6.3.0
+
+  # 应用内 WebView(链接打开方式 = 应用内时使用)
+  flutter_inappwebview: ^6.1.5
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +48,13 @@ dev_dependencies:
 
   # 测试
   mocktail: ^1.0.4
+
+hooks:
+  user_defines:
+    sqlite3:
+      source: system
+      name: sqlite3
+      name_windows: winsqlite3
 
 flutter:
   uses-material-design: true

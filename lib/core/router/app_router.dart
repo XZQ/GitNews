@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 
 export 'route_specs.dart';
 
-import '../../features/ai_news/presentation/ai_news_detail_page.dart';
 import '../../features/ai_news/presentation/ai_news_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
@@ -24,6 +23,7 @@ import '../../features/project/presentation/project_page.dart';
 import '../../features/repo_detail/presentation/repo_detail_page.dart';
 import '../../features/tech_hotspot/presentation/tech_hotspot_detail_page.dart';
 import '../../features/tech_hotspot/presentation/tech_hotspot_page.dart';
+import '../../features/webview/presentation/webview_page.dart';
 import '../../features/trending/presentation/hot_repos_page.dart';
 import '../../features/trending/presentation/language_trend_page.dart';
 import '../../features/trending/presentation/trending_overview_page.dart';
@@ -31,7 +31,20 @@ import '../../features/trending/presentation/trending_page.dart';
 import '../../shared/widgets/responsive_scaffold.dart';
 import 'route_error_view.dart';
 
-final appRouterProvider = Provider<GoRouter>((ref) {
+/// 应用根路由。
+///
+/// 设计要点(对应 CLAUDE.md §九):
+/// - 使用普通 [Provider]:当前路由不依赖任何外部状态(登录态接入后可
+///   切回 NotifierProvider 并在 build 内 `ref.watch` 鉴权 Provider)。
+/// - 未匹配路由由 [RouteErrorView] 静态展示错误页,而非跳转首页,以便
+///   用户能识别深链失效的原因。
+final appRouterProvider = Provider<GoRouter>(buildAppRouter);
+
+/// 应用根路由装配。
+///
+/// 登录态接入后,若路由依赖外部状态,改回 NotifierProvider 并在 build 内
+/// `ref.watch` 鉴权 Provider。
+GoRouter buildAppRouter(Ref ref) {
   return GoRouter(
     initialLocation: '/home',
     debugLogDiagnostics: false,
@@ -55,13 +68,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     ),
                   ),
                   GoRoute(
-                    path: 'ai_news_detail/:id',
-                    name: 'home_ai_news_detail',
-                    builder: (_, state) => AiNewsDetailPage(
-                      id: state.pathParameters['id']!,
-                    ),
-                  ),
-                  GoRoute(
                     path: 'tech_hotspot_detail/:id',
                     name: 'home_tech_hotspot_detail',
                     builder: (_, state) => TechHotspotDetailPage(
@@ -69,6 +75,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/ai_news',
+                name: 'ai_news',
+                builder: (_, __) => const AiNewsPage(),
               ),
             ],
           ),
@@ -108,23 +123,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/ai_news',
-                name: 'ai_news',
-                builder: (_, __) => const AiNewsPage(),
-                routes: [
-                  GoRoute(
-                    path: 'detail/:id',
-                    name: 'ai_news_detail',
-                    builder: (_, state) =>
-                        AiNewsDetailPage(id: state.pathParameters['id']!),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: '/tech_hotspot',
                 name: 'tech_hotspot',
                 builder: (_, __) => const TechHotspotPage(),
@@ -132,8 +130,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'detail/:id',
                     name: 'tech_hotspot_detail',
-                    builder: (_, state) =>
-                        TechHotspotDetailPage(id: state.pathParameters['id']!),
+                    builder: (_, state) => TechHotspotDetailPage(
+                      id: state.pathParameters['id']!,
+                    ),
                   ),
                 ],
               ),
@@ -245,21 +244,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      // 全局仓库详情(任何 Tab 都能进入)
-      GoRoute(
-        path: '/repo_detail/:fullName',
-        name: 'repo_detail',
-        builder: (_, state) => RepoDetailPage(
-          fullName: state.pathParameters['fullName']!,
-        ),
-      ),
       // 全局登录
       GoRoute(
         path: '/login',
         name: 'login',
         builder: (_, __) => const LoginPage(),
       ),
+      // 全局应用内 WebView(任何 Tab 都能进入)
+      GoRoute(
+        path: '/webview',
+        name: 'webview',
+        builder: (_, state) {
+          final url = state.uri.queryParameters['url'] ?? '';
+          final title = state.uri.queryParameters['title'];
+          return WebViewPage(url: url, title: title);
+        },
+      ),
     ],
     errorBuilder: (context, state) => RouteErrorView(error: state.error),
   );
-});
+}
