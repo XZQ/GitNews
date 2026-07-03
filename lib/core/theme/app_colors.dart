@@ -8,6 +8,9 @@ class AppColors {
   static const Color brand = Color(0xFF0D9488);
   static const Color brandDark = Color(0xFF0F766E);
   static const Color brandLight = Color(0xFFCCFBF1);
+  static const Color brandInk = Color(0xFF101828);
+  static const Color brandCyan = Color(0xFF22D3EE);
+  static const Color brandCyanLight = Color(0xFF67E8F9);
 
   // 语义色
   static const Color success = Color(0xFF30A46C);

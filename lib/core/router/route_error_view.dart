@@ -1,6 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../i18n/app_localizations.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_typography.dart';
+
+/// 未匹配路由兜底页。
+///
+/// 设计要点(对应 CLAUDE.md §九):
+/// - 静态展示错误页,**不**自动跳首页 —— 让用户能识别深链失效,而不是被默默重定向。
+/// - 不渲染 `error.toString()`(可能含内部路径 / URL / 异常类型,信息泄露)。
+///   仅在 debug 模式下走 `debugPrint`(release 被 strip)。
 class RouteErrorView extends StatelessWidget {
   const RouteErrorView({required this.error, super.key});
 
@@ -8,36 +18,41 @@ class RouteErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    if (error != null) {
+      debugPrint('RouteErrorView: $error');
+    }
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.home_rounded),
           onPressed: () => context.go('/home'),
         ),
-        title: const Text('页面未找到'),
+        title: Text(l10n.tr('route_error.title')),
       ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(Icons.search_off_rounded, size: 56),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.md),
               Text(
-                '无法打开此链接',
-                style: Theme.of(context).textTheme.titleMedium,
+                l10n.tr('route_error.unable_to_open'),
+                style: theme.textTheme.titleMedium,
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.sm),
               Text(
-                error.toString(),
+                l10n.tr('route_error.hint'),
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall,
+                style: AppTypography.bodySmall,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: () => context.go('/home'),
-                child: const Text('返回首页'),
+                child: Text(l10n.tr('route_error.back_home')),
               ),
             ],
           ),

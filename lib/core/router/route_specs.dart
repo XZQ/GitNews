@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 class TabSpec {
   const TabSpec({
-    required this.label,
+    required this.labelKey,
     required this.pathSegment,
     required this.icon,
     required this.selectedIcon,
   });
 
-  final String label;
+  /// i18n key,渲染时由调用方通过 [AppLocalizations.tr] 解析为本地化文案。
+  final String labelKey;
 
   /// 路由路径段(无前导斜杠),用于把 location 解析回 tab index。
   final String pathSegment;
@@ -17,46 +18,46 @@ class TabSpec {
 }
 
 /// 桌面侧栏 7 栏 IA:
-/// 总览 → GitHub热榜 → AI 动态 → 技术趋势 → 仓库监控 → 深度报告 → 设置
+/// 总览 → AI 动态 → GitHub热榜 → 技术趋势 → 仓库监控 → 深度报告 → 设置
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
-    label: '总览',
+    labelKey: 'tab.home',
     pathSegment: 'home',
     icon: Icons.dashboard_outlined,
     selectedIcon: Icons.dashboard_rounded,
   ),
   TabSpec(
-    label: 'GitHub热榜',
-    pathSegment: 'trending',
-    icon: Icons.local_fire_department_outlined,
-    selectedIcon: Icons.local_fire_department_rounded,
-  ),
-  TabSpec(
-    label: 'AI 动态',
+    labelKey: 'tab.ai_news',
     pathSegment: 'ai_news',
     icon: Icons.auto_awesome_outlined,
     selectedIcon: Icons.auto_awesome_rounded,
   ),
   TabSpec(
-    label: '技术趋势',
+    labelKey: 'tab.trending',
+    pathSegment: 'trending',
+    icon: Icons.local_fire_department_outlined,
+    selectedIcon: Icons.local_fire_department_rounded,
+  ),
+  TabSpec(
+    labelKey: 'tab.tech_hotspot',
     pathSegment: 'tech_hotspot',
     icon: Icons.whatshot_outlined,
     selectedIcon: Icons.whatshot_rounded,
   ),
   TabSpec(
-    label: '仓库监控',
+    labelKey: 'tab.monitor',
     pathSegment: 'monitor',
     icon: Icons.notifications_outlined,
     selectedIcon: Icons.notifications_rounded,
   ),
   TabSpec(
-    label: '深度报告',
+    labelKey: 'tab.project',
     pathSegment: 'project',
     icon: Icons.insights_outlined,
     selectedIcon: Icons.insights_rounded,
   ),
   TabSpec(
-    label: '设置',
+    labelKey: 'tab.profile',
     pathSegment: 'profile',
     icon: Icons.person_outline,
     selectedIcon: Icons.person_rounded,

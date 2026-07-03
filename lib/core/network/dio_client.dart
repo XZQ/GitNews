@@ -8,17 +8,18 @@ import 'package:dio/dio.dart';
 class DioClient {
   const DioClient._();
 
-  static Dio create({String? baseUrl}) {
+  static Dio create({String? baseUrl, Map<String, Object?>? headers}) {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl ?? 'https://api.github.com',
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
         sendTimeout: const Duration(seconds: 10),
-        headers: const {
-          'Accept': 'application/vnd.github+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
+        headers: headers ??
+            const {
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+            },
       ),
     );
     dio.interceptors.add(_RetryInterceptor(dio: dio));

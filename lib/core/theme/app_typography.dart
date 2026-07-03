@@ -69,4 +69,10 @@ class AppTypography {
     fontWeight: FontWeight.w500,
     height: 1.3,
   );
+  static const TextStyle labelMicro = TextStyle(
+    fontSize: 10,
+    fontWeight: FontWeight.w600,
+    height: 1.25,
+    letterSpacing: 0.5,
+  );
 }
