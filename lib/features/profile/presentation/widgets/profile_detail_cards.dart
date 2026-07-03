@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -12,26 +13,29 @@ class ProfileCollectDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '收藏的主题',
-            subtitle: '你长期追踪的 GitHub 主题',
+          SectionHeader(
+            title: l10n.tr('profile.section.collect'),
+            subtitle: l10n.tr('profile.detail.collect.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.bookmark_outline,
             iconColor: AppColors.info,
-            label: '收藏主题 (12)',
-            value: '全部',
+            label: l10n
+                .tr('profile.detail.collect.count')
+                .replaceAll('{n}', '12'),
+            value: l10n.tr('profile.detail.collect.all'),
           ),
           const Divider(height: 1),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.history,
             iconColor: AppColors.textSecondaryLight,
-            label: '最近收藏',
+            label: l10n.tr('profile.detail.collect.recent'),
             value: 'agent · llm · devops',
           ),
           const SizedBox(height: AppSpacing.md),
@@ -40,7 +44,7 @@ class ProfileCollectDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/collect'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开收藏页'),
+              label: Text(l10n.tr('profile.detail.collect.open')),
             ),
           ),
         ],
@@ -54,26 +58,29 @@ class ProfileDevelopersDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '关注的开发者',
-            subtitle: '第一时间拿到他们的最新动态',
+          SectionHeader(
+            title: l10n.tr('profile.section.developers'),
+            subtitle: l10n.tr('profile.detail.developers.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.people_outline,
             iconColor: AppColors.success,
-            label: '关注开发者 (8)',
-            value: '全部',
+            label: l10n
+                .tr('profile.detail.developers.count')
+                .replaceAll('{n}', '8'),
+            value: l10n.tr('profile.detail.collect.all'),
           ),
           const Divider(height: 1),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.notifications_active_outlined,
             iconColor: AppColors.warning,
-            label: '通知策略',
+            label: l10n.tr('profile.detail.developers.notify'),
             value: 'Star / Fork / Release',
           ),
           const SizedBox(height: AppSpacing.md),
@@ -82,7 +89,7 @@ class ProfileDevelopersDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/developers'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开开发者页'),
+              label: Text(l10n.tr('profile.detail.developers.open')),
             ),
           ),
         ],
@@ -96,27 +103,32 @@ class ProfileMonitorTopicsDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '监控的主题',
-            subtitle: '持续追踪仓库的 Star / Issue / Release',
+          SectionHeader(
+            title: l10n.tr('profile.section.monitor_topics'),
+            subtitle: l10n.tr('profile.detail.monitor_topics.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           ProfileDetailRow(
             icon: Icons.visibility_outlined,
             iconColor: Theme.of(context).colorScheme.primary,
-            label: '正在监控 (5)',
-            value: '全部',
+            label: l10n
+                .tr('profile.detail.monitor_topics.count')
+                .replaceAll('{n}', '5'),
+            value: l10n.tr('profile.detail.collect.all'),
           ),
           const Divider(height: 1),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.timeline,
             iconColor: AppColors.info,
-            label: '最新告警',
-            value: '2 条未读',
+            label: l10n.tr('profile.detail.monitor_topics.recent'),
+            value: l10n
+                .tr('profile.detail.monitor_topics.unread')
+                .replaceAll('{n}', '2'),
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
@@ -124,7 +136,7 @@ class ProfileMonitorTopicsDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/monitor'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('打开监控主题'),
+              label: Text(l10n.tr('profile.detail.monitor_topics.open')),
             ),
           ),
         ],
@@ -138,34 +150,35 @@ class ProfileMonitorRulesDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '监控规则',
-            subtitle: '自定义告警触发条件',
+          SectionHeader(
+            title: l10n.tr('profile.section.monitor_rules'),
+            subtitle: l10n.tr('profile.detail.monitor_rules.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
             label: 'Star 增速 ≥ 30 / 天',
-            value: '已启用',
+            value: l10n.tr('profile.detail.monitor_rules.enabled'),
           ),
           const Divider(height: 1),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
             label: 'Issue 数小时 ≥ 5',
-            value: '已启用',
+            value: l10n.tr('profile.detail.monitor_rules.enabled'),
           ),
           const Divider(height: 1),
-          const ProfileDetailRow(
+          ProfileDetailRow(
             icon: Icons.bolt_rounded,
             iconColor: AppColors.warning,
             label: '新 Release',
-            value: '已启用',
+            value: l10n.tr('profile.detail.monitor_rules.enabled'),
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
@@ -173,7 +186,7 @@ class ProfileMonitorRulesDetailCard extends StatelessWidget {
             child: FilledButton.tonalIcon(
               onPressed: () => context.go('/profile/rules'),
               icon: const Icon(Icons.open_in_new, size: 16),
-              label: const Text('管理规则'),
+              label: Text(l10n.tr('profile.detail.monitor_rules.manage')),
             ),
           ),
         ],

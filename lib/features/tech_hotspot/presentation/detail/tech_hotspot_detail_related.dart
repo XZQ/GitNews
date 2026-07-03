@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -16,21 +17,22 @@ class TechHotspotDetailRelated extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: '相关主题',
-              subtitle: '同领域其它热门主题',
+              title: l10n.tr('tech_hotspot.detail.related'),
+              subtitle: l10n.tr('tech_hotspot.detail.related.subtitle'),
             ),
           ),
           for (final e in items) ...[
@@ -50,7 +52,7 @@ class TechHotspotDetailRelated extends StatelessWidget {
                 style: AppTypography.titleSmall,
               ),
               subtitle: Text(
-                '${e.category} · 热度 ${e.heat}',
+                '${e.category} · ${l10n.tr('tech_hotspot.detail.related_suffix').replaceAll('{heat}', e.heat.toString())}',
                 style: AppTypography.labelSmall,
               ),
               trailing: Text(

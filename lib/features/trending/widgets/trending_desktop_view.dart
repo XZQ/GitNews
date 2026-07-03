@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/demo_data.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -10,6 +9,7 @@ import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../application/trending_providers.dart';
+import '../domain/entities.dart';
 import '../domain/trending_repository.dart';
 import 'trending_language_panel.dart';
 import 'trending_page_header.dart';
@@ -90,7 +90,9 @@ class TrendingDesktopView extends ConsumerWidget {
                               TrendingLanguagePanel(
                                 value: lang,
                                 onChanged: (v) => ref
-                                    .read(trendingLanguageFilterProvider.notifier)
+                                    .read(
+                                      trendingLanguageFilterProvider.notifier,
+                                    )
                                     .state = v,
                                 languages: digest.languages,
                               ),
@@ -115,7 +117,7 @@ class TrendingDesktopView extends ConsumerWidget {
 class _TrendingList extends StatelessWidget {
   const _TrendingList({required this.repos});
 
-  final List<DemoRepo> repos;
+  final List<RepoEntity> repos;
 
   @override
   Widget build(BuildContext context) {

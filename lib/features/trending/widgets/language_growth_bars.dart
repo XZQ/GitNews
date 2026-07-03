@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/demo_data.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../domain/entities.dart';
 
 /// 语言增长率排行(水平条形)。
 class LanguageGrowthBars extends StatelessWidget {
   const LanguageGrowthBars({required this.languages, super.key});
 
-  final List<DemoLanguage> languages;
+  final List<LanguageEntity> languages;
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +28,9 @@ class LanguageGrowthBars extends StatelessWidget {
             name: l.name,
             value: l.delta,
             maxValue: maxV,
-            color: Color(l.color),
+            color: Color(l.accentArgb),
           ),
-          const SizedBox(height: AppSpacing.sm + 2),
+          const SizedBox(height: AppSpacing.sm2),
         ],
       ],
     );
@@ -61,7 +61,7 @@ class _Bar extends StatelessWidget {
         ),
         Expanded(
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.xs + 2),
+            borderRadius: BorderRadius.circular(AppRadius.sm),
             child: Stack(
               children: [
                 Container(
@@ -74,7 +74,7 @@ class _Bar extends StatelessWidget {
                     height: 16,
                     decoration: BoxDecoration(
                       color: color,
-                      borderRadius: BorderRadius.circular(AppRadius.xs + 2),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
                     ),
                   ),
                 ),
@@ -119,11 +119,11 @@ class LanguageDistributionRow extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: AppSpacing.sm,
+          height: AppSpacing.sm,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(AppRadius.dot),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -44,6 +45,7 @@ class _MobileHeroState extends State<_MobileHero> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final series = homeSeriesForWindow(
       _window,
       HomeLegacyTab.trending,
@@ -55,9 +57,9 @@ class _MobileHeroState extends State<_MobileHero> {
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: Text(
-                  'Star 增长趋势',
+                  l10n.tr('home.chart.title'),
                   style: AppTypography.titleLarge,
                 ),
               ),
@@ -69,7 +71,7 @@ class _MobileHeroState extends State<_MobileHero> {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '最近 $_window 天 · 与上周对比',
+            '$_window ${l10n.tr('common.day')}',
             style: AppTypography.bodySmall.copyWith(
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),

@@ -1,4 +1,5 @@
-import '../../../core/demo_data.dart';
+import '../../../core/domain/repo_entity.dart';
+import 'entities.dart';
 
 /// 仓库详情页需要的一组本地情报数据。
 class RepoDetailDigest {
@@ -10,9 +11,9 @@ class RepoDetailDigest {
     required this.compareTrend,
   });
 
-  final DemoRepo repo;
-  final List<DemoContributor> contributors;
-  final List<DemoRepo> relatedRepos;
+  final RepoEntity repo;
+  final List<ContributorEntity> contributors;
+  final List<RepoEntity> relatedRepos;
   final List<double> primaryTrend;
   final List<double> compareTrend;
 }

@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/router/app_router.dart';
-import '../../core/theme/app_radius.dart';
-import '../../core/theme/app_spacing.dart';
 import '../../core/utils/breakpoint.dart';
 import 'app_sidebar.dart';
 
@@ -117,6 +116,7 @@ class _BottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return NavigationBar(
       selectedIndex: currentIndex,
       onDestinationSelected: onTap,
@@ -125,7 +125,7 @@ class _BottomBar extends StatelessWidget {
           NavigationDestination(
             icon: Icon(spec.icon),
             selectedIcon: Icon(spec.selectedIcon),
-            label: spec.label,
+            label: l10n.tr(spec.labelKey),
           ),
       ],
     );
@@ -140,6 +140,7 @@ class _SideRail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return NavigationRail(
       selectedIndex: currentIndex,
       onDestinationSelected: onTap,
@@ -151,60 +152,9 @@ class _SideRail extends StatelessWidget {
           NavigationRailDestination(
             icon: Icon(spec.icon),
             selectedIcon: Icon(spec.selectedIcon),
-            label: Text(spec.label),
+            label: Text(l10n.tr(spec.labelKey)),
           ),
       ],
-    );
-  }
-}
-
-/// 占位卡片(供各 Tab 占位页使用)。
-class PlaceholderPanel extends StatelessWidget {
-  const PlaceholderPanel({
-    required this.title,
-    required this.description,
-    super.key,
-  });
-
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 480),
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.xl),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.headlineMedium),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Wrap(
-                  spacing: AppSpacing.sm,
-                  children: [
-                    Chip(
-                      label: const Text('响应式断点已生效'),
-                      side: BorderSide(color: Theme.of(context).dividerColor),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.pill),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../tech_hotspot/domain/tech_hotspot_models.dart';
-import 'home_section_preview_card.dart';
+import '../../../../shared/widgets/home_section_preview_card.dart';
 
 /// 首页技术趋势 Top N 预览。
 class HomeHotspotPreview extends ConsumerWidget {
@@ -13,10 +14,15 @@ class HomeHotspotPreview extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final items = ref.watch(techHotspotDigestProvider).topics.take(4).toList();
+    final l10n = AppLocalizations.of(context);
+    final state = ref.watch(techHotspotDigestProvider);
+    final items = state.maybeWhen(
+      data: (digest) => digest.topics.take(4).toList(),
+      orElse: () => const <TechTopic>[],
+    );
     return HomeSectionPreviewCard<TechTopic>(
-      title: '技术趋势',
-      subtitle: '主题、语言与栈脉搏',
+      title: l10n.tr('home.section.hotspot.title'),
+      subtitle: l10n.tr('home.section.hotspot.subtitle'),
       accentColor: AppColors.danger,
       icon: Icons.whatshot_rounded,
       path: '/tech_hotspot',
@@ -25,7 +31,8 @@ class HomeHotspotPreview extends ConsumerWidget {
         rank: '${index + 1}',
         rankColor: _heatColor(item.heat),
         title: item.name,
-        subtitle: '${item.category} · ${item.relatedRepos} 仓库',
+        subtitle:
+            '${item.category} · ${item.relatedRepos} ${l10n.tr('home.section.hotspot.meta_suffix')}',
         meta: '+${item.growth.toStringAsFixed(1)}%',
         onTap: () => context.go('/home/tech_hotspot_detail/${item.id}'),
       ),

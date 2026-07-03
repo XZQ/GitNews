@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/demo_data_mappers.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../../core/domain/repo_entity.dart';
 
 class CollectPage extends StatelessWidget {
   const CollectPage({super.key});
@@ -37,7 +39,8 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const repos = DemoData.trending;
+    final List<RepoEntity> repos =
+        DemoData.trending.map((e) => e.toEntity()).toList();
     if (repos.isEmpty) {
       return const EmptyView(
         icon: Icons.bookmark_border_rounded,

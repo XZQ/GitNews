@@ -64,7 +64,6 @@ class _SignalTile extends StatelessWidget {
               Text(
                 signal.title,
                 style: AppTypography.titleSmall.copyWith(
-                  fontSize: 13,
                   color: colors.onSurface,
                 ),
               ),

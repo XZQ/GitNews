@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/demo_data.dart';
+import '../../../../core/demo_data_mappers.dart';
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import 'home_section_preview_card.dart';
+import '../../../../core/domain/repo_entity.dart';
+import '../../../../shared/widgets/home_section_preview_card.dart';
 
 /// 首页 GitHub热榜 Top N 预览。
 class HomeTrendingPreview extends StatelessWidget {
@@ -11,17 +14,18 @@ class HomeTrendingPreview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = DemoData.trending.take(4).toList();
-    return HomeSectionPreviewCard<DemoRepo>(
-      title: 'GitHub热榜',
-      subtitle: '今日 Star 增速榜',
+    final l10n = AppLocalizations.of(context);
+    final items = DemoData.trending.take(4).map((e) => e.toEntity()).toList();
+    return HomeSectionPreviewCard<RepoEntity>(
+      title: l10n.tr('home.section.trending.title'),
+      subtitle: l10n.tr('home.section.trending.subtitle'),
       accentColor: AppColors.warning,
       icon: Icons.local_fire_department_rounded,
       path: '/trending',
       items: items,
       tileBuilder: (_, item, index) => PreviewRow(
         rank: '${index + 1}',
-        rankColor: Color(item.color),
+        rankColor: Color(item.accentArgb),
         title: item.fullName,
         subtitle: item.description,
         meta: '+${item.starDelta}',

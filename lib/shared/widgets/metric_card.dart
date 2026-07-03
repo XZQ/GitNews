@@ -79,7 +79,7 @@ class MetricCard extends StatelessWidget {
                 ),
               ),
               if (delta != null) ...[
-                const SizedBox(height: 2),
+                const SizedBox(height: AppSpacing.xxs),
                 Row(
                   children: [
                     Icon(
@@ -89,7 +89,7 @@ class MetricCard extends StatelessWidget {
                       size: 12,
                       color: deltaColor,
                     ),
-                    const SizedBox(width: 2),
+                    const SizedBox(width: AppSpacing.xxs),
                     Text(
                       delta!,
                       style: AppTypography.labelSmall.copyWith(
@@ -98,7 +98,7 @@ class MetricCard extends StatelessWidget {
                       ),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(width: 6),
+                      const SizedBox(width: AppSpacing.xs2),
                       Flexible(
                         child: Text(
                           subtitle!,

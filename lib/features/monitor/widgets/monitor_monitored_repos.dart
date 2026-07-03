@@ -9,11 +9,12 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
+import '../../../core/domain/repo_entity.dart';
 
 class MonitorMonitoredRepos extends StatelessWidget {
   const MonitorMonitoredRepos({required this.repos, super.key});
 
-  final List<DemoRepo> repos;
+  final List<RepoEntity> repos;
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +56,7 @@ class MonitorMonitoredRepos extends StatelessWidget {
 class MonitorMonitoredRow extends StatelessWidget {
   const MonitorMonitoredRow({required this.repo, super.key});
 
-  final DemoRepo repo;
+  final RepoEntity repo;
 
   @override
   Widget build(BuildContext context) {
@@ -71,17 +72,17 @@ class MonitorMonitoredRow extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: AppSpacing.xxl,
+              height: AppSpacing.xxl,
               decoration: BoxDecoration(
-                color: Color(repo.color).withValues(alpha: 0.16),
+                color: Color(repo.accentArgb).withValues(alpha: 0.16),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               alignment: Alignment.center,
               child: Text(
                 repo.language.isNotEmpty ? repo.language[0] : '?',
                 style: AppTypography.labelMedium.copyWith(
-                  color: Color(repo.color),
+                  color: Color(repo.accentArgb),
                 ),
               ),
             ),
@@ -111,12 +112,12 @@ class MonitorMonitoredRow extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
             Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.sm - 2,
+                horizontal: AppSpacing.xs2,
                 vertical: AppSpacing.xxs,
               ),
               decoration: BoxDecoration(
                 color: AppColors.success.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(AppRadius.xs + 2),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Text(
                 '正常',

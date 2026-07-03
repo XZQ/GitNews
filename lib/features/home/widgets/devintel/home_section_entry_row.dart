@@ -90,7 +90,7 @@ const _report = _EntrySpec(
   path: '/project',
 );
 
-const _specs = [_trending, _aiNews, _hotspot, _monitor, _report];
+const _specs = [_aiNews, _trending, _hotspot, _monitor, _report];
 
 class _EntryTile extends StatelessWidget {
   const _EntryTile({required this.spec});
@@ -156,7 +156,7 @@ class _EntryTile extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.xs),
                     Text(
                       spec.kpi,
                       style: AppTypography.titleLarge.copyWith(
@@ -167,7 +167,7 @@ class _EntryTile extends StatelessWidget {
                     const SizedBox(height: AppSpacing.sm),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm + 1,
+                        horizontal: AppSpacing.xs2,
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(

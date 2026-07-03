@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -12,6 +13,7 @@ class RepoDetailActivity extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final items = <_ActivityItem>[
       const _ActivityItem(
         title: 'feat: support streaming response',
@@ -42,9 +44,9 @@ class RepoDetailActivity extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '活动速览',
-            subtitle: '近期 Commit / Issue / Release',
+          SectionHeader(
+            title: l10n.tr('repo_detail.section.activity'),
+            subtitle: l10n.tr('repo_detail.section.activity.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           Column(

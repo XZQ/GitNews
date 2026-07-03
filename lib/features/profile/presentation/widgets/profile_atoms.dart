@@ -66,7 +66,7 @@ class ProfileSettingRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.md - 2),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm2),
         child: Row(
           children: [
             Icon(

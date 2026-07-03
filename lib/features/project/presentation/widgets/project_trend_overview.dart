@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/demo_data.dart';
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -12,13 +13,14 @@ class ProjectTrendOverview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '趋势对比',
-            subtitle: '最近 7 天 vs 上周',
+          SectionHeader(
+            title: l10n.tr('project.section.trend.title'),
+            subtitle: l10n.tr('project.section.trend.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           StarTrendChart(

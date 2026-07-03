@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -19,6 +20,7 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
     final values =
@@ -55,14 +57,14 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Star 增长趋势',
+                      l10n.tr('home.chart.title'),
                       style: AppTypography.titleMedium.copyWith(
                         color: colors.onSurface,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      '监控仓库聚合增长',
+                      l10n.tr('home.chart.subtitle'),
                       style: AppTypography.bodySmall.copyWith(
                         color: colors.onSurfaceVariant,
                       ),
@@ -99,11 +101,12 @@ class _WindowSegment extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return SegmentedButton<int>(
-      segments: const [
-        ButtonSegment(value: 7, label: Text('7 天')),
-        ButtonSegment(value: 30, label: Text('30 天')),
+      segments: [
+        ButtonSegment(value: 7, label: Text(l10n.tr('home.chart.window_7'))),
+        ButtonSegment(value: 30, label: Text(l10n.tr('home.chart.window_30'))),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
@@ -124,7 +127,10 @@ class _WindowSegment extends StatelessWidget {
           AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w600),
         ),
         padding: WidgetStateProperty.all(
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          const EdgeInsets.symmetric(
+            horizontal: AppSpacing.md2,
+            vertical: AppSpacing.xs2,
+          ),
         ),
       ),
     );

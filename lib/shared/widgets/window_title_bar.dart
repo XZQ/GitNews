@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/platform/window_service.dart';
 import '../../core/theme/app_spacing.dart';
 import 'app_logo.dart';
@@ -53,6 +54,7 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final barColor = isDark
         ? theme.colorScheme.surface
@@ -68,7 +70,7 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
             const LogoMark(size: 18),
             const SizedBox(width: AppSpacing.sm),
             Text(
-              'GitHub 情报站',
+              l10n.tr('app.name'),
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -77,19 +79,21 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
             _WindowButton(
               icon: Icons.remove_rounded,
               onPressed: _onMinimize,
-              tooltip: '最小化',
+              tooltip: l10n.tr('window.minimize'),
             ),
             _WindowButton(
               icon: _isMaximized
                   ? Icons.filter_drama_rounded
                   : Icons.crop_square_rounded,
               onPressed: _onToggleMaximize,
-              tooltip: _isMaximized ? '还原' : '最大化',
+              tooltip: _isMaximized
+                  ? l10n.tr('window.restore')
+                  : l10n.tr('window.maximize'),
             ),
             _WindowButton(
               icon: Icons.close_rounded,
               onPressed: _onClose,
-              tooltip: '关闭',
+              tooltip: l10n.tr('window.close'),
               isClose: true,
             ),
           ],

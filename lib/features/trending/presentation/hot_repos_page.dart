@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -132,18 +133,21 @@ class _Bullet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(top: 6, right: 8),
+            padding: const EdgeInsets.only(
+              top: AppSpacing.xs2,
+              right: AppSpacing.sm,
+            ),
             child: Container(
-              width: 6,
-              height: 6,
+              width: AppSpacing.xs2,
+              height: AppSpacing.xs2,
               decoration: BoxDecoration(
                 color: colors.primary,
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: BorderRadius.circular(AppRadius.bar),
               ),
             ),
           ),

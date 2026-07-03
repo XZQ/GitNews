@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/gradient_hero_header.dart';
-import '../../../../core/demo_data.dart';
+import '../../../../core/domain/repo_entity.dart';
 
 class RepoDetailHeader extends StatelessWidget {
   const RepoDetailHeader({required this.repo, super.key});
 
-  final DemoRepo repo;
+  final RepoEntity repo;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return GradientHeroHeader(
-      accent: Color(repo.color),
+      accent: Color(repo.accentArgb),
       title: repo.fullName,
       badges: [
         HeroBadge(label: repo.language, icon: Icons.bolt_rounded),
-        const HeroBadge(label: '公开仓库', color: AppColors.info),
-        const HeroBadge(label: '已加入监控', color: AppColors.success),
+        HeroBadge(
+          label: l10n.tr('repo_detail.badge.public'),
+          color: AppColors.info,
+        ),
+        HeroBadge(
+          label: l10n.tr('repo_detail.badge.monitored'),
+          color: AppColors.success,
+        ),
       ],
       trailing: Text(
         repo.description,

@@ -1,23 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 
 /// 设置页面桌面端 master-detail 区段。
 enum ProfileSection {
-  pro('升级 PRO', Icons.workspace_premium_outlined),
-  collect('收藏的主题', Icons.bookmark_outline),
-  developers('关注的开发者', Icons.people_outline),
-  monitorTopics('监控的主题', Icons.visibility_outlined),
-  monitorRules('监控规则', Icons.bolt_rounded),
-  data('数据与缓存', Icons.storage_outlined),
-  settings('偏好设置', Icons.tune),
-  about('关于', Icons.info_outline);
+  pro('profile.section.pro', Icons.workspace_premium_outlined),
+  collect('profile.section.collect', Icons.bookmark_outline),
+  developers('profile.section.developers', Icons.people_outline),
+  monitorTopics('profile.section.monitor_topics', Icons.visibility_outlined),
+  monitorRules('profile.section.monitor_rules', Icons.bolt_rounded),
+  data('profile.data.title', Icons.storage_outlined),
+  settings('profile.section.settings', Icons.tune),
+  about('profile.about.title', Icons.info_outline);
 
-  const ProfileSection(this.label, this.icon);
+  const ProfileSection(this.labelKey, this.icon);
 
-  final String label;
+  final String labelKey;
   final IconData icon;
+
+  String label(BuildContext context) =>
+      AppLocalizations.of(context).tr(labelKey);
 
   /// 区段强调色:跟随当前主题色(主区段)或保留语义色(子区段)。
   Color accentOf(BuildContext context) {
@@ -34,7 +37,3 @@ enum ProfileSection {
     };
   }
 }
-
-/// 当前选中的桌面区段。NotFound → 默认 settings。
-final selectedProfileSectionProvider =
-    StateProvider<ProfileSection>((ref) => ProfileSection.settings);

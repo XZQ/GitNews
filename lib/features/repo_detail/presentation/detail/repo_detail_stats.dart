@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
-import '../../../../core/demo_data.dart';
+import '../../../../core/domain/repo_entity.dart';
 import 'repo_detail_helpers.dart';
 
 class RepoDetailStats extends StatelessWidget {
@@ -14,16 +15,17 @@ class RepoDetailStats extends StatelessWidget {
     super.key,
   });
 
-  final DemoRepo repo;
+  final RepoEntity repo;
   final int contributorCount;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Expanded(
           child: _StatCard(
-            label: '总 Star',
+            label: l10n.tr('repo_detail.metric.total_stars'),
             value: shortNumber(repo.starCount),
             icon: Icons.star_rounded,
             color: AppColors.starGold,
@@ -32,7 +34,7 @@ class RepoDetailStats extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatCard(
-            label: '今日新增',
+            label: l10n.tr('repo_detail.metric.today_stars'),
             value: '+${shortNumber(repo.starDelta)}',
             icon: Icons.trending_up_rounded,
             color: AppColors.success,
@@ -50,7 +52,7 @@ class RepoDetailStats extends StatelessWidget {
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: _StatCard(
-            label: '贡献者',
+            label: l10n.tr('repo_detail.metric.contributors'),
             value: '$contributorCount',
             icon: Icons.people_outline,
             color: Theme.of(context).colorScheme.primary,
@@ -82,7 +84,7 @@ class _StatCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(icon, color: color, size: 18),
-          const SizedBox(height: AppSpacing.xs + 2),
+          const SizedBox(height: AppSpacing.xs2),
           Text(
             value,
             style: AppTypography.headlineMedium.copyWith(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/demo_data.dart';
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -13,13 +14,14 @@ class ProjectLanguageDistribution extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '语言分布',
-            subtitle: '热门仓库的编程语言占比',
+          SectionHeader(
+            title: l10n.tr('project.section.language.title'),
+            subtitle: l10n.tr('project.section.language.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           Column(
@@ -45,7 +47,7 @@ class ProjectLanguageDistribution extends StatelessWidget {
                         '${l.percent.toStringAsFixed(1)}%',
                         style: AppTypography.labelMedium,
                       ),
-                      const SizedBox(width: AppSpacing.sm - 2),
+                      const SizedBox(width: AppSpacing.xs2),
                       Text(
                         '${l.delta >= 0 ? '+' : ''}${l.delta.toStringAsFixed(1)}%',
                         style: AppTypography.labelSmall.copyWith(

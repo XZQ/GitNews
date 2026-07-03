@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
-import '../../../../core/demo_data.dart';
+import '../../domain/entities.dart';
 
 class RepoDetailContributors extends StatelessWidget {
   const RepoDetailContributors({required this.contributors, super.key});
 
-  final List<DemoContributor> contributors;
+  final List<ContributorEntity> contributors;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '贡献者活跃度',
-            subtitle: '本周贡献排行',
+          SectionHeader(
+            title: l10n.tr('repo_detail.contributors_active'),
+            subtitle: l10n.tr('repo_detail.contributors_active.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           Column(
@@ -30,16 +32,20 @@ class RepoDetailContributors extends StatelessWidget {
                   leading: CircleAvatar(
                     radius: 18,
                     backgroundColor:
-                        Color(c.avatarColor).withValues(alpha: 0.16),
+                        Color(c.avatarAccentArgb).withValues(alpha: 0.16),
                     child: Text(
                       c.login[0].toUpperCase(),
                       style: AppTypography.titleSmall.copyWith(
-                        color: Color(c.avatarColor),
+                        color: Color(c.avatarAccentArgb),
                       ),
                     ),
                   ),
                   title: Text(c.login, style: AppTypography.titleSmall),
-                  subtitle: Text('+${c.contributions} 本周贡献'),
+                  subtitle: Text(
+                    l10n
+                        .tr('repo_detail.contrib.this_week')
+                        .replaceAll('{n}', c.contributions.toString()),
+                  ),
                   trailing: const Icon(Icons.chevron_right, size: 18),
                 ),
                 const SizedBox(height: AppSpacing.xs),

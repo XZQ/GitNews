@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../core/errors/app_exception.dart';
+import '../../core/i18n/app_localizations.dart';
+import '../../core/theme/app_spacing.dart';
+import '../../core/theme/app_typography.dart';
 
 /// 统一错误视图:按 AppException.kind 渲染不同文案与操作。
 class ErrorView extends StatelessWidget {
@@ -17,21 +20,26 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (icon, text, action) = _resolve(context);
+    final l10n = AppLocalizations.of(context);
+    final (icon, text, action) = _resolve(context, l10n);
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48, color: Theme.of(context).colorScheme.outline),
-            const SizedBox(height: 12),
-            Text(text, style: Theme.of(context).textTheme.bodyMedium),
+            Icon(
+              icon,
+              size: AppSpacing.xxxl,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(text, style: AppTypography.bodyMedium),
             if (action != null) ...[
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.lg),
               FilledButton(
                 onPressed: action,
-                child: const Text('重试'),
+                child: Text(l10n.tr('common.retry')),
               ),
             ],
           ],
@@ -40,25 +48,39 @@ class ErrorView extends StatelessWidget {
     );
   }
 
-  (IconData, String, VoidCallback?) _resolve(BuildContext context) {
+  (IconData, String, VoidCallback?) _resolve(
+    BuildContext context,
+    AppLocalizations l10n,
+  ) {
     switch (error.kind) {
       case AppExceptionKind.network:
-        return (Icons.wifi_off, '网络连接异常,请检查后重试', onRetry);
+        return (Icons.wifi_off, l10n.tr('error_view.network'), onRetry);
       case AppExceptionKind.rateLimit:
         final secs = error.retryAfterSeconds ?? 60;
+        final unit = l10n
+            .tr('error_view.retry_after_seconds')
+            .replaceAll('{seconds}', secs.toString());
         return (
           Icons.hourglass_bottom,
-          '请求过于频繁,$secs 秒后再试',
+          '${l10n.tr('error_view.rate_limit')} ($unit)',
           onRetry,
         );
       case AppExceptionKind.unauthorized:
-        return (Icons.lock_outline, '需要登录', onLogin ?? onRetry);
+        return (
+          Icons.lock_outline,
+          l10n.tr('error_view.unauthorized'),
+          onLogin ?? onRetry,
+        );
       case AppExceptionKind.notFound:
-        return (Icons.search_off, '未找到资源', onRetry);
+        return (Icons.search_off, l10n.tr('error_view.not_found'), onRetry);
       case AppExceptionKind.parse:
+        return (Icons.error_outline, l10n.tr('error_view.parse'), onRetry);
       case AppExceptionKind.server:
+        return (Icons.error_outline, l10n.tr('error_view.server'), onRetry);
+      case AppExceptionKind.cache:
+        return (Icons.error_outline, l10n.tr('error_view.cache'), onRetry);
       case AppExceptionKind.unknown:
-        return (Icons.error_outline, '出错了,请稍后重试', onRetry);
+        return (Icons.error_outline, l10n.tr('error_view.unknown'), onRetry);
     }
   }
 }

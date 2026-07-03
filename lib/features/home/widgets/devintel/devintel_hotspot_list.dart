@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'devintel_demo.dart';
@@ -9,6 +11,7 @@ class DevIntelHotspotList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -17,14 +20,14 @@ class DevIntelHotspotList extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '技术趋势',
+            l10n.tr('tech_hotspot.title'),
             style: AppTypography.titleMedium.copyWith(
               color: colors.onSurface,
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '趋势增长分类',
+            l10n.tr('home.section.hotspot.subtitle'),
             style: AppTypography.bodySmall.copyWith(
               color: colors.onSurfaceVariant,
             ),
@@ -58,7 +61,7 @@ class _HotspotTile extends StatelessWidget {
           decoration: BoxDecoration(
             color: hotspot.color.withValues(alpha: 0.14),
             borderRadius: const BorderRadius.all(
-              Radius.circular(AppSpacing.sm + 2),
+              Radius.circular(AppRadius.md),
             ),
           ),
           alignment: Alignment.center,
@@ -117,17 +120,16 @@ class _HotspotBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.xs + 2,
+        horizontal: AppSpacing.xs2,
         vertical: AppSpacing.xxs,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.18),
-        borderRadius: const BorderRadius.all(Radius.circular(AppSpacing.xs)),
+        borderRadius: const BorderRadius.all(Radius.circular(AppRadius.xs)),
       ),
       child: Text(
         text,
-        style: AppTypography.labelSmall.copyWith(
-          fontSize: 9,
+        style: AppTypography.labelMicro.copyWith(
           fontWeight: FontWeight.w800,
           color: color,
           letterSpacing: 0.6,

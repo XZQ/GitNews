@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import 'devintel_demo.dart';
@@ -11,6 +13,7 @@ class DevIntelRepoTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -19,7 +22,7 @@ class DevIntelRepoTable extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '今日热门仓库',
+            l10n.tr('home.repo_table.title'),
             style: AppTypography.titleMedium.copyWith(color: colors.onSurface),
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -41,28 +44,31 @@ class _HeaderRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final style = AppTypography.labelSmall.copyWith(
-      fontSize: 10,
+    final style = AppTypography.labelMicro.copyWith(
       color: colors.onSurfaceVariant,
       letterSpacing: 0.6,
     );
     return Row(
       children: [
-        SizedBox(width: 32, child: Text('排名', style: style)),
+        SizedBox(
+          width: 32,
+          child: Text(l10n.tr('home.repo_table.col_rank'), style: style),
+        ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
           flex: 5,
-          child: Text('仓库', style: style),
+          child: Text(l10n.tr('home.repo_table.col_repo'), style: style),
         ),
         SizedBox(
           width: 100,
-          child: Text('分类', style: style),
+          child: Text(l10n.tr('home.repo_table.col_category'), style: style),
         ),
         SizedBox(
           width: 80,
           child: Text(
-            '语言',
+            l10n.tr('home.repo_table.col_lang'),
             textAlign: TextAlign.right,
             style: style,
           ),
@@ -70,7 +76,7 @@ class _HeaderRow extends StatelessWidget {
         SizedBox(
           width: 90,
           child: Text(
-            '新增 Star',
+            l10n.tr('home.repo_table.col_new_stars'),
             textAlign: TextAlign.right,
             style: style,
           ),
@@ -78,7 +84,7 @@ class _HeaderRow extends StatelessWidget {
         SizedBox(
           width: 70,
           child: Text(
-            '总 Star',
+            l10n.tr('home.repo_table.col_total'),
             textAlign: TextAlign.right,
             style: style,
           ),
@@ -111,13 +117,12 @@ class _RepoRowTile extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: row.color.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(AppSpacing.sm),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   row.rank,
                   style: AppTypography.labelSmall.copyWith(
-                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: row.color,
                   ),
@@ -130,7 +135,6 @@ class _RepoRowTile extends StatelessWidget {
               child: Text(
                 row.name,
                 style: AppTypography.labelLarge.copyWith(
-                  fontSize: 13,
                   color: colors.onSurface,
                 ),
                 overflow: TextOverflow.ellipsis,
@@ -156,7 +160,6 @@ class _RepoRowTile extends StatelessWidget {
                 row.newStars,
                 textAlign: TextAlign.right,
                 style: AppTypography.labelLarge.copyWith(
-                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: AppColors.success,
                 ),
@@ -192,19 +195,17 @@ class _CategoryBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs + 1,
+        vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.16),
-        borderRadius: BorderRadius.circular(AppSpacing.xs + 2),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
       child: Text(
         text,
-        style: AppTypography.labelSmall.copyWith(
-          fontSize: 10,
+        style: AppTypography.labelMicro.copyWith(
           fontWeight: FontWeight.w700,
           color: color,
-          letterSpacing: 0.5,
         ),
       ),
     );

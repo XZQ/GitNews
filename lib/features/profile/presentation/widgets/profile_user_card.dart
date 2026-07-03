@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -10,6 +11,7 @@ class ProfileUserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return AppCard(
       child: Row(
@@ -34,10 +36,10 @@ class ProfileUserCard extends StatelessWidget {
                 Row(
                   children: [
                     const Text('dev_explorer', style: AppTypography.titleLarge),
-                    const SizedBox(width: AppSpacing.sm - 2),
+                    const SizedBox(width: AppSpacing.xs2),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.sm - 2,
+                        horizontal: AppSpacing.xs2,
                         vertical: AppSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
@@ -56,14 +58,14 @@ class ProfileUserCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  '匿名浏览 · 登录后可同步数据',
+                  l10n.tr('profile.user.anonymous_status'),
                   style: AppTypography.bodySmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  '登录入口已移至左侧底部',
+                  l10n.tr('profile.user.login_moved'),
                   style: AppTypography.labelSmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),

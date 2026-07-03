@@ -1,27 +1,5 @@
-import '../../../core/demo_data.dart';
-
-/// 监控页的统计摘要。
-class MonitorStats {
-  const MonitorStats({
-    required this.monitoredCount,
-    required this.monitoredDelta,
-    required this.unreadAlertCount,
-    required this.unreadAlertDelta,
-    required this.triggeredTodayCount,
-    required this.triggeredTodayDelta,
-    required this.totalAlertCount,
-    required this.totalAlertDelta,
-  });
-
-  final int monitoredCount;
-  final int monitoredDelta;
-  final int unreadAlertCount;
-  final int unreadAlertDelta;
-  final int triggeredTodayCount;
-  final int triggeredTodayDelta;
-  final int totalAlertCount;
-  final int totalAlertDelta;
-}
+import '../../../core/domain/repo_entity.dart';
+import 'entities.dart';
 
 /// 监控模块需要的本地情报数据。
 class MonitorDigest {
@@ -31,18 +9,18 @@ class MonitorDigest {
     required this.stats,
   });
 
-  final List<DemoRepo> monitoredRepos;
-  final List<DemoAlert> alerts;
+  final List<RepoEntity> monitoredRepos;
+  final List<AlertEntity> alerts;
   final MonitorStats stats;
 
   bool get isEmpty => monitoredRepos.isEmpty && alerts.isEmpty;
 
-  DemoRepo repoByFullName(String repoFullName) {
+  RepoEntity? repoByFullName(String repoFullName) {
     final decoded = Uri.decodeComponent(repoFullName);
-    return monitoredRepos.firstWhere(
-      (repo) => repo.fullName == decoded,
-      orElse: () => monitoredRepos.first,
-    );
+    for (final repo in monitoredRepos) {
+      if (repo.fullName == decoded) return repo;
+    }
+    return null;
   }
 }
 

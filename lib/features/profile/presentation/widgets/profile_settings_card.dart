@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/preferences/link_open_mode_controller.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme_preset.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -16,40 +19,52 @@ class ProfileSettingsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '偏好设置',
-            subtitle: '主题 / 通知 / 启动',
+          SectionHeader(
+            title: l10n.tr('profile.settings.title'),
+            subtitle: l10n.tr('profile.settings.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           const _ThemeColorRow(),
           const SizedBox(height: AppSpacing.sm),
-          const ProfileSettingRow(
+          ProfileSettingRow(
             icon: Icons.dark_mode_outlined,
-            label: '深色模式',
-            trailing: _ThemeToggle(),
+            label: l10n.tr('profile.settings.dark_mode'),
+            trailing: const _ThemeToggle(),
           ),
-          const ProfileSettingRow(
+          ProfileSettingRow(
             icon: Icons.notifications_none,
-            label: '通知权限',
-            trailing: Text('已启用', style: AppTypography.labelMedium),
+            label: l10n.tr('profile.settings.notification'),
+            trailing: Text(
+              l10n.tr('profile.settings.notification.enabled'),
+              style: AppTypography.labelMedium,
+            ),
           ),
-          const ProfileSettingRow(
+          ProfileSettingRow(
             icon: Icons.rocket_launch_outlined,
-            label: '启动主题',
-            trailing: Text('首页', style: AppTypography.labelMedium),
+            label: l10n.tr('profile.settings.launch_theme'),
+            trailing: Text(
+              l10n.tr('profile.settings.launch_theme.home'),
+              style: AppTypography.labelMedium,
+            ),
           ),
-          const ProfileSettingRow(
+          ProfileSettingRow(
             icon: Icons.cloud_outlined,
-            label: '数据源',
-            trailing: Text('GitHub', style: AppTypography.labelMedium),
+            label: l10n.tr('profile.settings.data_source'),
+            trailing: const Text('GitHub', style: AppTypography.labelMedium),
+          ),
+          ProfileSettingRow(
+            icon: Icons.open_in_new_rounded,
+            label: l10n.tr('profile.link_open_mode'),
+            trailing: const _LinkOpenModeToggle(),
           ),
           ProfileSettingRow(
             icon: Icons.code,
-            label: '开发者选项',
+            label: l10n.tr('profile.developer_options'),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/developer'),
           ),
@@ -72,12 +87,45 @@ class _ThemeToggle extends ConsumerWidget {
   }
 }
 
+/// 链接打开方式切换:应用内 WebView ↔ 系统浏览器。
+class _LinkOpenModeToggle extends ConsumerWidget {
+  const _LinkOpenModeToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mode = ref.watch(linkOpenModeControllerProvider);
+    return SegmentedButton<LinkOpenMode>(
+      style: const ButtonStyle(
+        visualDensity: VisualDensity(horizontal: -3, vertical: -2),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      segments: [
+        ButtonSegment(
+          value: LinkOpenMode.inApp,
+          icon: const Icon(Icons.apps_outlined, size: 14),
+          label: Text(LinkOpenMode.inApp.label),
+        ),
+        ButtonSegment(
+          value: LinkOpenMode.external,
+          icon: const Icon(Icons.open_in_new_rounded, size: 14),
+          label: Text(LinkOpenMode.external.label),
+        ),
+      ],
+      selected: {mode},
+      onSelectionChanged: (s) =>
+          ref.read(linkOpenModeControllerProvider.notifier).setMode(s.first),
+      showSelectedIcon: false,
+    );
+  }
+}
+
 /// 主题色选择行:展示色圆,点击切换 seed。
 class _ThemeColorRow extends ConsumerWidget {
   const _ThemeColorRow();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final current = ref.watch(themePresetControllerProvider);
     final colors = Theme.of(context).colorScheme;
     return Padding(
@@ -93,8 +141,11 @@ class _ThemeColorRow extends ConsumerWidget {
                 color: colors.onSurfaceVariant,
               ),
               const SizedBox(width: AppSpacing.md),
-              const Expanded(
-                child: Text('主题色', style: AppTypography.bodyMedium),
+              Expanded(
+                child: Text(
+                  l10n.tr('profile.settings.theme_color'),
+                  style: AppTypography.bodyMedium,
+                ),
               ),
               Text(
                 current.name,
@@ -104,10 +155,10 @@ class _ThemeColorRow extends ConsumerWidget {
               ),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm + 2),
+          const SizedBox(height: AppSpacing.sm2),
           Wrap(
-            spacing: AppSpacing.sm + 2,
-            runSpacing: AppSpacing.sm + 2,
+            spacing: AppSpacing.sm2,
+            runSpacing: AppSpacing.sm2,
             children: [
               for (final p in AppThemePreset.values)
                 _ColorSwatch(
@@ -119,9 +170,9 @@ class _ThemeColorRow extends ConsumerWidget {
                 ),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm - 2),
+          const SizedBox(height: AppSpacing.xs),
           Text(
-            '切换整 App 强调色(默认灰白)',
+            l10n.tr('profile.settings.theme_color.hint'),
             style: AppTypography.labelSmall.copyWith(
               color: colors.onSurfaceVariant,
             ),
@@ -152,7 +203,7 @@ class _ColorSwatch extends StatelessWidget {
       button: true,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppSpacing.xxxl),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
         child: SizedBox(
           width: 44,
           height: 44,

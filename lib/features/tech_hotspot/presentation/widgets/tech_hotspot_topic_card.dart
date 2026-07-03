@@ -44,32 +44,7 @@ class TechHotspotTopicCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.sm + 2,
-                      vertical: AppSpacing.xs,
-                    ),
-                    decoration: BoxDecoration(
-                      color: heatColor.withValues(alpha: 0.14),
-                      border: Border.all(
-                        color: heatColor.withValues(alpha: 0.4),
-                      ),
-                      borderRadius: BorderRadius.circular(AppRadius.xs),
-                    ),
-                    child: Text(
-                      topic.category,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: heatColor,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  _HeatIndicator(value: topic.heat, color: heatColor),
-                ],
-              ),
+              _TopicHeader(topic: topic, heatColor: heatColor),
               const SizedBox(height: AppSpacing.md),
               Text(
                 topic.name,
@@ -89,49 +64,7 @@ class TechHotspotTopicCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  const Icon(
-                    Icons.trending_up_rounded,
-                    size: 12,
-                    color: AppColors.trendUp,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '+${topic.growth.toStringAsFixed(1)}%',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.trendUp,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Icon(
-                    Icons.forum_rounded,
-                    size: 12,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '${topic.mentions}',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Icon(
-                    Icons.book_outlined,
-                    size: 12,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  const SizedBox(width: 2),
-                  Text(
-                    '${topic.relatedRepos}',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+              _TopicStatsBar(topic: topic),
             ],
           ),
         ),
@@ -143,6 +76,95 @@ class TechHotspotTopicCard extends StatelessWidget {
     if (heat >= 90) return AppColors.danger;
     if (heat >= 75) return AppColors.warning;
     return AppColors.info;
+  }
+}
+
+class _TopicHeader extends StatelessWidget {
+  const _TopicHeader({required this.topic, required this.heatColor});
+
+  final TechTopic topic;
+  final Color heatColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm2,
+            vertical: AppSpacing.xs,
+          ),
+          decoration: BoxDecoration(
+            color: heatColor.withValues(alpha: 0.14),
+            border: Border.all(color: heatColor.withValues(alpha: 0.4)),
+            borderRadius: BorderRadius.circular(AppRadius.xs),
+          ),
+          child: Text(
+            topic.category,
+            style: AppTypography.labelSmall.copyWith(
+              color: heatColor,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const Spacer(),
+        _HeatIndicator(value: topic.heat, color: heatColor),
+      ],
+    );
+  }
+}
+
+class _TopicStatsBar extends StatelessWidget {
+  const _TopicStatsBar({required this.topic});
+
+  final TechTopic topic;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      children: [
+        const Icon(
+          Icons.trending_up_rounded,
+          size: 12,
+          color: AppColors.trendUp,
+        ),
+        const SizedBox(width: AppSpacing.xxs),
+        Text(
+          '+${topic.growth.toStringAsFixed(1)}%',
+          style: AppTypography.labelSmall.copyWith(
+            color: AppColors.trendUp,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Icon(
+          Icons.forum_rounded,
+          size: 12,
+          color: colors.onSurfaceVariant,
+        ),
+        const SizedBox(width: AppSpacing.xxs),
+        Text(
+          '${topic.mentions}',
+          style: AppTypography.labelSmall.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Icon(
+          Icons.book_outlined,
+          size: 12,
+          color: colors.onSurfaceVariant,
+        ),
+        const SizedBox(width: AppSpacing.xxs),
+        Text(
+          '${topic.relatedRepos}',
+          style: AppTypography.labelSmall.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -158,7 +180,7 @@ class _HeatIndicator extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.local_fire_department_rounded, size: 12, color: color),
-        const SizedBox(width: 2),
+        const SizedBox(width: AppSpacing.xxs),
         Text(
           '$value',
           style: AppTypography.labelSmall.copyWith(

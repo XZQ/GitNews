@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -37,6 +38,7 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -57,7 +59,7 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
             child: Padding(
               padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm + 2,
+                vertical: AppSpacing.sm2,
               ),
               child: Row(
                 children: [
@@ -83,7 +85,7 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm - 2,
+                                horizontal: AppSpacing.xs,
                                 vertical: 1,
                               ),
                               decoration: BoxDecoration(
@@ -105,10 +107,10 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: AppSpacing.sm - 2),
-                            const Flexible(
+                            const SizedBox(width: AppSpacing.xs),
+                            Flexible(
                               child: Text(
-                                '在线',
+                                l10n.tr('profile.online'),
                                 style: AppTypography.labelSmall,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -137,8 +139,8 @@ class SidebarProfileAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return SizedBox(
-      width: 32,
-      height: 32,
+      width: AppSpacing.xxl,
+      height: AppSpacing.xxl,
       child: Stack(
         clipBehavior: Clip.none,
         children: [

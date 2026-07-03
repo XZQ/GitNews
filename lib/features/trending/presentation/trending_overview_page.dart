@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -32,46 +33,39 @@ class TrendingOverviewPage extends ConsumerWidget {
         ),
       ),
       body: ResponsiveLayout(
-        compact: (_) => _buildBody(context, state, ref),
-        medium: (_) => CenteredContent(child: _buildBody(context, state, ref)),
-        expanded: (_) =>
-            CenteredContent(child: _buildBody(context, state, ref)),
+        compact: (_) => _Body(state: state),
+        medium: (_) => CenteredContent(child: _Body(state: state)),
+        expanded: (_) => CenteredContent(child: _Body(state: state)),
       ),
     );
   }
+}
 
-  Widget _buildBody(
-    BuildContext context,
-    AsyncValue<ProjectDigest> state,
-    WidgetRef ref,
-  ) {
+class _Body extends ConsumerWidget {
+  const _Body({required this.state});
+
+  final AsyncValue<ProjectDigest> state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     return state.when(
       data: (digest) => digest.isEmpty
           ? const EmptyView(
               icon: Icons.show_chart_rounded,
               message: '暂无趋势数据',
             )
-          : _Body(digest: digest),
+          : _DigestView(digest: digest),
       loading: () => const _OverviewSkeleton(),
       error: (error, stack) => ErrorView(
-        error: _toAppException(error, stack),
+        error: error.asAppException(stack),
         onRetry: () => ref.invalidate(projectDigestProvider),
       ),
     );
   }
-
-  AppException _toAppException(Object error, StackTrace stack) {
-    if (error is AppException) return error;
-    return AppException(
-      kind: AppExceptionKind.unknown,
-      cause: error,
-      stack: stack,
-    );
-  }
 }
 
-class _Body extends StatelessWidget {
-  const _Body({required this.digest});
+class _DigestView extends StatelessWidget {
+  const _DigestView({required this.digest});
 
   final ProjectDigest digest;
 
@@ -152,14 +146,14 @@ class _LegendDot extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          width: 8,
-          height: 8,
+          width: AppSpacing.sm,
+          height: AppSpacing.sm,
           decoration: BoxDecoration(
             color: color,
-            borderRadius: BorderRadius.circular(2),
+            borderRadius: BorderRadius.circular(AppRadius.dot),
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: AppSpacing.xs2),
         Text(label, style: AppTypography.labelSmall),
       ],
     );
@@ -238,7 +232,7 @@ class _Td extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm2),
       child: Text(
         text,
         style: AppTypography.bodyMedium.copyWith(

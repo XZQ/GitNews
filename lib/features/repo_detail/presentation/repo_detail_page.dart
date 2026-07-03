@@ -3,11 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
-import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../core/domain/repo_entity.dart';
 import '../application/repo_detail_providers.dart';
 import '../domain/repo_detail_repository.dart';
 import 'detail/repo_detail_activity.dart';
@@ -25,12 +26,13 @@ class RepoDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(repoDetailDigestProvider(fullName));
     return Scaffold(
       appBar: AppBar(
         title: state.maybeWhen(
           data: (digest) => Text(digest.repo.fullName),
-          orElse: () => const Text('仓库详情'),
+          orElse: () => Text(l10n.tr('repo_detail.title')),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -40,10 +42,16 @@ class RepoDetailPage extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_none),
-            tooltip: '订阅此仓库',
+            tooltip: l10n.tr('repo_detail.subscribe'),
             onPressed: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('已加入监控草单:$fullName')),
+                SnackBar(
+                  content: Text(
+                    l10n
+                        .tr('repo_detail.subscribed')
+                        .replaceAll('{name}', fullName),
+                  ),
+                ),
               );
               context.go('/profile/monitor');
             },
@@ -53,9 +61,9 @@ class RepoDetailPage extends ConsumerWidget {
       body: state.when(
         data: (digest) {
           if (digest.relatedRepos.isEmpty && digest.contributors.isEmpty) {
-            return const EmptyView(
+            return EmptyView(
               icon: Icons.source_outlined,
-              message: '未找到仓库详情',
+              message: l10n.tr('repo_detail.not_found'),
             );
           }
           return ResponsiveLayout(
@@ -66,19 +74,10 @@ class RepoDetailPage extends ConsumerWidget {
         },
         loading: () => const RepoDetailSkeleton(),
         error: (error, stack) => ErrorView(
-          error: _toAppException(error, stack),
+          error: error.asAppException(stack),
           onRetry: () => ref.invalidate(repoDetailDigestProvider(fullName)),
         ),
       ),
-    );
-  }
-
-  AppException _toAppException(Object error, StackTrace stack) {
-    if (error is AppException) return error;
-    return AppException(
-      kind: AppExceptionKind.unknown,
-      cause: error,
-      stack: stack,
     );
   }
 }
@@ -170,7 +169,7 @@ class _Left extends StatelessWidget {
 class _Right extends StatelessWidget {
   const _Right({required this.relatedRepos});
 
-  final List<DemoRepo> relatedRepos;
+  final List<RepoEntity> relatedRepos;
 
   @override
   Widget build(BuildContext context) {

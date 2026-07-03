@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/app_card.dart';
 import '../../domain/tech_hotspot_models.dart';
 
 /// 编程语言分布与排行面板。
@@ -14,18 +16,10 @@ class TechHotspotLanguagePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    return Container(
+    return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
-          width: isLight ? 0.6 : 1,
-        ),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -35,7 +29,7 @@ class TechHotspotLanguagePanel extends StatelessWidget {
               const Icon(Icons.code_rounded, size: 16, color: AppColors.info),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                '语言占比',
+                l10n.tr('tech_hotspot.language_share'),
                 style: AppTypography.titleSmall.copyWith(
                   color: colors.onSurface,
                   fontWeight: FontWeight.w700,
@@ -115,11 +109,11 @@ class _LangRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Container(
-            width: 10,
-            height: 10,
+            width: AppSpacing.xs2,
+            height: AppSpacing.xs2,
             decoration: BoxDecoration(
               color: Color(stat.color),
-              borderRadius: BorderRadius.circular(2),
+              borderRadius: BorderRadius.circular(AppRadius.dot),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -143,7 +137,7 @@ class _LangRow extends StatelessWidget {
             size: 12,
             color: isUp ? AppColors.trendUp : AppColors.trendDown,
           ),
-          const SizedBox(width: 2),
+          const SizedBox(width: AppSpacing.xxs),
           Text(
             '${isUp ? '+' : ''}${stat.delta.toStringAsFixed(1)}',
             style: AppTypography.labelSmall.copyWith(

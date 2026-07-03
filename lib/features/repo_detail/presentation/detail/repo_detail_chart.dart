@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -14,23 +15,33 @@ class RepoDetailChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Expanded(
+              Expanded(
                 child: SectionHeader(
-                  title: 'Star 增长趋势',
-                  subtitle: '最近 30 天 · 包含本仓库 + 同期均',
+                  title: l10n.tr('repo_detail.section.star_trend'),
+                  subtitle: l10n.tr('repo_detail.section.star_trend.subtitle'),
                 ),
               ),
               SegmentedButton<int>(
-                segments: const [
-                  ButtonSegment(value: 7, label: Text('7天')),
-                  ButtonSegment(value: 30, label: Text('30天')),
-                  ButtonSegment(value: 90, label: Text('90天')),
+                segments: [
+                  ButtonSegment(
+                    value: 7,
+                    label: Text(l10n.tr('repo_detail.window.7d')),
+                  ),
+                  ButtonSegment(
+                    value: 30,
+                    label: Text(l10n.tr('repo_detail.window.30d')),
+                  ),
+                  ButtonSegment(
+                    value: 90,
+                    label: Text(l10n.tr('repo_detail.window.90d')),
+                  ),
                 ],
                 selected: const {30},
                 onSelectionChanged: (_) {},

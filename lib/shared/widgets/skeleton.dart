@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/theme/app_radius.dart';
+
 class Skeleton extends StatelessWidget {
   const Skeleton({super.key, this.height = 16, this.width});
 
@@ -13,7 +15,7 @@ class Skeleton extends StatelessWidget {
       height: height,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
       ),
     );
   }

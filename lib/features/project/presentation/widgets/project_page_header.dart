@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/page_header.dart';
 
 /// 报告页顶部条。
 class ProjectPageHeader extends StatelessWidget {
@@ -11,82 +13,38 @@ class ProjectPageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          bottom: BorderSide(color: colors.outlineVariant, width: 1),
+    final l10n = AppLocalizations.of(context);
+    return PageHeader(
+      icon: Icons.insights_rounded,
+      iconAccent: AppColors.warning,
+      title: l10n.tr('project.title'),
+      subtitle: l10n.tr('project.subtitle'),
+      searchHint: l10n.tr('project.search_hint'),
+      onSearchSubmitted: (v) {
+        if (v.trim().isEmpty) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(l10n.tr('project.search.noti'))),
+        );
+      },
+      pills: [_NeutralPill(label: l10n.tr('project.pill.this_week'))],
+      actions: [
+        IconButton(
+          tooltip: l10n.tr('project.export'),
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.tr('project.export.noti'))),
+            );
+          },
+          icon: const Icon(Icons.download_outlined, size: 20),
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.starGold, AppColors.warning],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-            ),
-            alignment: Alignment.center,
-            child: const Icon(
-              Icons.insights_rounded,
-              color: Colors.white,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '报告',
-                  style: AppTypography.titleLarge.copyWith(
-                    color: colors.onSurface,
-                    height: 1.0,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '本周生态数据汇总',
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const _StatPill(label: '本周'),
-          const SizedBox(width: AppSpacing.md),
-          IconButton(
-            tooltip: '导出',
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('导出功能尚未接入,敬请期待')),
-              );
-            },
-            icon: Icon(
-              Icons.download_outlined,
-              size: 20,
-              color: colors.onSurfaceVariant,
-            ),
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }
 
-class _StatPill extends StatelessWidget {
-  const _StatPill({required this.label});
+class _NeutralPill extends StatelessWidget {
+  const _NeutralPill({required this.label});
 
   final String label;
 
@@ -96,7 +54,7 @@ class _StatPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs + 2,
+        vertical: AppSpacing.xs2,
       ),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest,
