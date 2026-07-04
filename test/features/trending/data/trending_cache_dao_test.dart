@@ -56,8 +56,8 @@ void main() {
       expect(
         await dao.isFresh(
           query: const TrendingQuery(language: 'Rust'),
-          ttl: const Duration(minutes: 30),
-          now: now.add(const Duration(minutes: 10)),
+          ttl: const Duration(minutes: 5),
+          now: now.add(const Duration(minutes: 3)),
         ),
         isTrue,
       );
@@ -74,8 +74,8 @@ void main() {
       expect(
         await dao.isFresh(
           query: const TrendingQuery(),
-          ttl: const Duration(minutes: 30),
-          now: now.add(const Duration(minutes: 31)),
+          ttl: const Duration(minutes: 5),
+          now: now.add(const Duration(minutes: 6)),
         ),
         isFalse,
       );
@@ -132,7 +132,7 @@ void main() {
       expect(
         await dao.isFresh(
           query: python,
-          ttl: const Duration(minutes: 30),
+          ttl: const Duration(minutes: 5),
           now: now.add(const Duration(minutes: 1)),
         ),
         isFalse,
@@ -207,8 +207,8 @@ void main() {
       final dataSource = CachedTrendingDataSource(
         remote: remote,
         cache: dao,
-        now: () => now.add(const Duration(minutes: 10)),
-        ttl: const Duration(minutes: 30),
+        now: () => now.add(const Duration(minutes: 3)),
+        ttl: const Duration(minutes: 5),
       );
 
       final snapshot = await dataSource.fetchTrending(query);
@@ -228,8 +228,8 @@ void main() {
       final dataSource = CachedTrendingDataSource(
         remote: remote,
         cache: dao,
-        now: () => now.add(const Duration(minutes: 40)),
-        ttl: const Duration(minutes: 30),
+        now: () => now.add(const Duration(minutes: 6)),
+        ttl: const Duration(minutes: 5),
       );
 
       final snapshot = await dataSource.fetchTrending(query);
@@ -252,8 +252,8 @@ void main() {
       final dataSource = CachedTrendingDataSource(
         remote: remote,
         cache: dao,
-        now: () => now.add(const Duration(minutes: 40)),
-        ttl: const Duration(minutes: 30),
+        now: () => now.add(const Duration(minutes: 6)),
+        ttl: const Duration(minutes: 5),
       );
 
       final snapshot = await dataSource.fetchTrending(query);

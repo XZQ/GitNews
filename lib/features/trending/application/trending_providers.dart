@@ -14,7 +14,7 @@ import '../data/trending_repository_impl.dart';
 import '../domain/entities.dart';
 import '../domain/trending_repository.dart';
 
-const Duration trendingGithubCacheTtl = Duration(minutes: 30);
+const Duration trendingGithubCacheTtl = Duration(minutes: 5);
 
 class TrendingDataSourceStatus {
   const TrendingDataSourceStatus({

@@ -9,7 +9,7 @@ class CachedTrendingDataSource implements TrendingDataSource {
     required this.cache,
     required this.now,
     this.cacheScope = 'anonymous',
-    this.ttl = const Duration(minutes: 30),
+    this.ttl = const Duration(minutes: 5),
   });
 
   final TrendingDataSource remote;

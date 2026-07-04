@@ -118,10 +118,10 @@ void main() {
     await c1.read(aiNewsItemsNotifierProvider.future);
     expect(repo1.callCount, 1);
 
-    // 第二次:30 分钟后,应命中缓存
+    // 第二次:3 分钟后,应命中缓存
     final repo2 = _MockAiNewsRepository([_item('a')]);
     final c2 =
-        makeContainer(repo2, clock: () => now.add(const Duration(minutes: 30)));
+        makeContainer(repo2, clock: () => now.add(const Duration(minutes: 3)));
     final items = await _pumpUntilSettled(c2);
 
     expect(items.length, 1);
@@ -136,10 +136,10 @@ void main() {
     await c1.read(aiNewsItemsNotifierProvider.future);
     expect(repo1.callCount, 1);
 
-    // 2 小时后,缓存过期
+    // 6 分钟后,缓存过期
     final repo2 = _MockAiNewsRepository([_item('a'), _item('b')]);
     final c2 =
-        makeContainer(repo2, clock: () => now.add(const Duration(hours: 2)));
+        makeContainer(repo2, clock: () => now.add(const Duration(minutes: 6)));
     final items = await _pumpUntilSettled(c2);
 
     expect(repo2.callCount, 1);
