@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/entities.dart';
@@ -97,7 +99,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         '/repos/$fullName',
-        options: Options(headers: _headers()),
+        options: Options(headers: GitHubApiSupport.headers(_token)),
       );
       final data = response.data;
       if (data == null) {
@@ -105,7 +107,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       }
       return _parseRepo(data, now);
     } on DioException catch (e) {
-      throw e.toAppException();
+      throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
@@ -118,7 +120,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       final response = await _dio.get<List<Object?>>(
         '/repos/$fullName/contributors',
         queryParameters: const {'per_page': 12},
-        options: Options(headers: _headers()),
+        options: Options(headers: GitHubApiSupport.headers(_token)),
       );
       final data = response.data;
       if (data == null) {
@@ -126,7 +128,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       }
       return data.map(_parseContributor).toList(growable: false);
     } on DioException catch (e) {
-      throw e.toAppException();
+      throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
@@ -138,7 +140,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     try {
       final language = repo.language == 'Unknown'
           ? ''
-          : ' language:${_quoteIfNeeded(repo.language)}';
+          : ' language:${GitHubApiSupport.quoteSearchValue(repo.language)}';
       final response = await _dio.get<Map<String, Object?>>(
         '/search/repositories',
         queryParameters: {
@@ -148,19 +150,19 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
           'order': 'desc',
           'per_page': 6,
         },
-        options: Options(headers: _headers()),
+        options: Options(headers: GitHubApiSupport.headers(_token)),
       );
       final data = response.data;
       if (data == null) {
         throw const AppException(kind: AppExceptionKind.parse);
       }
-      return _list(data['items'])
-          .map((raw) => _parseRepo(_map(raw), _now()))
+      return GitHubJson.list(data['items'])
+          .map((raw) => _parseRepo(GitHubJson.map(raw), _now()))
           .where((item) => item.fullName != repo.fullName)
           .take(4)
           .toList(growable: false);
     } on DioException catch (e) {
-      throw e.toAppException();
+      throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
@@ -169,15 +171,17 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   }
 
   RepoEntity _parseRepo(Map<String, Object?> json, DateTime now) {
-    final fullName = _string(json['full_name']);
-    final language = _nullableString(json['language']) ?? 'Unknown';
-    final stars = _int(json['stargazers_count']);
-    final forks = _int(json['forks_count']);
-    final issues = _int(json['open_issues_count']);
-    final pushedAt = DateTime.tryParse(_string(json['pushed_at']))?.toUtc();
+    final fullName = GitHubJson.string(json['full_name']);
+    final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
+    final stars = GitHubJson.intValue(json['stargazers_count']);
+    final forks = GitHubJson.intValue(json['forks_count']);
+    final issues = GitHubJson.intValue(json['open_issues_count']);
+    final pushedAt =
+        DateTime.tryParse(GitHubJson.string(json['pushed_at']))?.toUtc();
     return RepoEntity(
       fullName: fullName,
-      description: _nullableString(json['description']) ?? 'No description',
+      description:
+          GitHubJson.nullableString(json['description']) ?? 'No description',
       language: language,
       starCount: stars,
       starDelta: _activityScore(
@@ -188,18 +192,20 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
         now: now,
       ),
       forkCount: forks,
-      accentArgb: _languageColor(language),
+      accentArgb: GitHubApiSupport.languageColor(language),
+      valueProvenance: DataProvenance.observed,
+      trendProvenance: DataProvenance.estimated,
       trend: _repoTrend(stars, 1),
     );
   }
 
   ContributorEntity _parseContributor(Object? raw) {
-    final json = _map(raw);
-    final login = _string(json['login']);
+    final json = GitHubJson.map(raw);
+    final login = GitHubJson.string(json['login']);
     return ContributorEntity(
       login: login,
-      contributions: _int(json['contributions']),
-      avatarAccentArgb: _avatarColor(login),
+      contributions: GitHubJson.intValue(json['contributions']),
+      avatarAccentArgb: GitHubApiSupport.avatarColor(login),
     );
   }
 
@@ -230,22 +236,6 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     return 'repo_detail:github:${fullName.toLowerCase()}:v1';
   }
 
-  Map<String, Object?> _headers() {
-    final token = _token?.trim();
-    return {
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'GitHubNews/0.1 (Flutter)',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    };
-  }
-
-  String _quoteIfNeeded(String value) {
-    final trimmed = value.trim();
-    if (!trimmed.contains(' ')) return trimmed;
-    return '"$trimmed"';
-  }
-
   Map<String, Object?> _digestToJson(RepoDetailDigest digest) {
     return {
       'repo': _repoToJson(digest.repo),
@@ -259,11 +249,13 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   RepoDetailDigest _digestFromJson(Map<String, Object?> json) {
     return RepoDetailDigest(
       repo: _repoFromJson(json['repo']),
-      contributors:
-          _list(json['contributors']).map(_contributorFromJson).toList(),
-      relatedRepos: _list(json['relatedRepos']).map(_repoFromJson).toList(),
-      primaryTrend: _list(json['primaryTrend']).map(_double).toList(),
-      compareTrend: _list(json['compareTrend']).map(_double).toList(),
+      contributors: GitHubJson.list(json['contributors'])
+          .map(_contributorFromJson)
+          .toList(),
+      relatedRepos:
+          GitHubJson.list(json['relatedRepos']).map(_repoFromJson).toList(),
+      primaryTrend: GitHubJson.doubleList(json['primaryTrend']),
+      compareTrend: GitHubJson.doubleList(json['compareTrend']),
     );
   }
 
@@ -281,18 +273,19 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   }
 
   RepoEntity _repoFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return RepoEntity(
-      fullName: _string(json['fullName']),
-      description: _string(json['description']),
-      language: _string(json['language']),
-      starCount: _int(json['starCount']),
-      starDelta: _int(json['starDelta']),
-      forkCount: _int(json['forkCount']),
-      accentArgb: _int(json['accentArgb']),
-      trend: json['trend'] == null
-          ? null
-          : _list(json['trend']).map(_double).toList(growable: false),
+      fullName: GitHubJson.string(json['fullName']),
+      description: GitHubJson.string(json['description']),
+      language: GitHubJson.string(json['language']),
+      starCount: GitHubJson.intValue(json['starCount']),
+      starDelta: GitHubJson.intValue(json['starDelta']),
+      forkCount: GitHubJson.intValue(json['forkCount']),
+      accentArgb: GitHubJson.intValue(json['accentArgb']),
+      valueProvenance: DataProvenance.observed,
+      trendProvenance: DataProvenance.estimated,
+      trend:
+          json['trend'] == null ? null : GitHubJson.doubleList(json['trend']),
     );
   }
 
@@ -305,73 +298,11 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   }
 
   ContributorEntity _contributorFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return ContributorEntity(
-      login: _string(json['login']),
-      contributions: _int(json['contributions']),
-      avatarAccentArgb: _int(json['avatarAccentArgb']),
+      login: GitHubJson.string(json['login']),
+      contributions: GitHubJson.intValue(json['contributions']),
+      avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
     );
-  }
-
-  List<Object?> _list(Object? raw) {
-    if (raw is List<Object?>) return raw;
-    throw const FormatException('Expected list');
-  }
-
-  Map<String, Object?> _map(Object? raw) {
-    if (raw is Map<String, Object?>) return raw;
-    throw const FormatException('Expected object');
-  }
-
-  String _string(Object? raw) {
-    if (raw is String && raw.isNotEmpty) return raw;
-    throw const FormatException('Expected string');
-  }
-
-  String? _nullableString(Object? raw) {
-    if (raw == null) return null;
-    if (raw is String) return raw;
-    throw const FormatException('Expected nullable string');
-  }
-
-  int _int(Object? raw) {
-    if (raw is int) return raw;
-    if (raw is double) return raw.round();
-    throw const FormatException('Expected int');
-  }
-
-  double _double(Object? raw) {
-    if (raw is num) return raw.toDouble();
-    throw const FormatException('Expected double');
-  }
-
-  int _languageColor(String language) {
-    return switch (language.toLowerCase()) {
-      'typescript' => 0xFF3178C6,
-      'javascript' => 0xFFF1E05A,
-      'python' => 0xFF3572A5,
-      'rust' => 0xFFDEA584,
-      'go' => 0xFF00ADD8,
-      'dart' => 0xFF00B4AB,
-      'kotlin' => 0xFFA97BFF,
-      'swift' => 0xFFFA7343,
-      'java' => 0xFFB07219,
-      'c++' => 0xFFF34B7D,
-      'c#' => 0xFF178600,
-      _ => 0xFF64748B,
-    };
-  }
-
-  int _avatarColor(String login) {
-    const colors = [
-      0xFF0D9488,
-      0xFFE5A150,
-      0xFF30A46C,
-      0xFFE5464D,
-      0xFF4CB5FF,
-      0xFFA97BFF,
-    ];
-    final index = login.codeUnits.fold<int>(0, (sum, code) => sum + code);
-    return colors[index % colors.length];
   }
 }

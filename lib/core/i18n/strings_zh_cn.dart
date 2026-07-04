@@ -215,7 +215,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'tech_hotspot.tag_cloud': '雷达标签',
   'tech_hotspot.agent_board.title': 'Agent 榜观察',
   'tech_hotspot.agent_board.subtitle': '综合热度、增长、讨论与相关仓库',
-  'tech_hotspot.agent_board.source': '本地模拟口径',
+  'tech_hotspot.agent_board.source': 'GitHub 聚合 · 增长估算',
   'tech_hotspot.detail_title': '主题详情',
   'tech_hotspot.detail.summary': '主题概述',
   'tech_hotspot.detail.summary.subtitle': '编辑综述与近期变化',

@@ -1,6 +1,8 @@
 /// AI 雷达领域模型(纯 Dart)。
 library;
 
+import '../../../core/domain/data_provenance.dart';
+
 /// AI/技术栈分类:用于 [TechHotspotPage] 的趋势筛选。
 enum TechStack {
   all,
@@ -22,6 +24,7 @@ class LanguageStat {
     required this.delta,
     required this.color,
     required this.repoCount,
+    this.provenance = DataProvenance.localFallback,
   });
 
   final String name;
@@ -29,6 +32,7 @@ class LanguageStat {
   final double delta;
   final int color;
   final int repoCount;
+  final DataProvenance provenance;
 }
 
 /// AI 雷达主题(雷达型卡片)。
@@ -42,6 +46,8 @@ class TechTopic {
     required this.mentions,
     required this.relatedRepos,
     required this.summary,
+    this.provenance = DataProvenance.localFallback,
+    this.growthProvenance = DataProvenance.localFallback,
   });
 
   final String id;
@@ -60,6 +66,8 @@ class TechTopic {
   /// 相关仓库数。
   final int relatedRepos;
   final String summary;
+  final DataProvenance provenance;
+  final DataProvenance growthProvenance;
 }
 
 /// AI 雷达时间序列(用于趋势小图)。

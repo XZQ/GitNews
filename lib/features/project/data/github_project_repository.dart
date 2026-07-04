@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../../trending/domain/trending_repository.dart';
@@ -104,7 +105,7 @@ class GithubProjectRepository implements ProjectRepository {
       final response = await _dio.get<List<Object?>>(
         '/repos/$repo/contributors',
         queryParameters: const {'per_page': 8},
-        options: Options(headers: _headers()),
+        options: Options(headers: GitHubApiSupport.headers(_token)),
       );
       final data = response.data;
       if (data == null) {
@@ -112,7 +113,7 @@ class GithubProjectRepository implements ProjectRepository {
       }
       return data.map(_parseContributor).toList(growable: false);
     } on DioException catch (e) {
-      throw e.toAppException();
+      throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
@@ -121,12 +122,12 @@ class GithubProjectRepository implements ProjectRepository {
   }
 
   ContributorEntity _parseContributor(Object? raw) {
-    final json = _map(raw);
-    final login = _string(json['login']);
+    final json = GitHubJson.map(raw);
+    final login = GitHubJson.string(json['login']);
     return ContributorEntity(
       login: login,
-      contributions: _int(json['contributions']),
-      avatarAccentArgb: _avatarColor(login),
+      contributions: GitHubJson.intValue(json['contributions']),
+      avatarAccentArgb: GitHubApiSupport.avatarColor(login),
     );
   }
 
@@ -134,7 +135,7 @@ class GithubProjectRepository implements ProjectRepository {
     final json = await _cache.read(_contributorsCacheKey);
     if (json == null) return const [];
     try {
-      return _list(json['contributors'])
+      return GitHubJson.list(json['contributors'])
           .map(_contributorFromJson)
           .toList(growable: false);
     } catch (e) {
@@ -155,55 +156,11 @@ class GithubProjectRepository implements ProjectRepository {
   }
 
   ContributorEntity _contributorFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return ContributorEntity(
-      login: _string(json['login']),
-      contributions: _int(json['contributions']),
-      avatarAccentArgb: _int(json['avatarAccentArgb']),
+      login: GitHubJson.string(json['login']),
+      contributions: GitHubJson.intValue(json['contributions']),
+      avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
     );
-  }
-
-  Map<String, Object?> _headers() {
-    final token = _token?.trim();
-    return {
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'GitHubNews/0.1 (Flutter)',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    };
-  }
-
-  int _avatarColor(String login) {
-    const colors = [
-      0xFF0D9488,
-      0xFFE5A150,
-      0xFF30A46C,
-      0xFFE5464D,
-      0xFF4CB5FF,
-      0xFFA97BFF,
-    ];
-    final index = login.codeUnits.fold<int>(0, (sum, code) => sum + code);
-    return colors[index % colors.length];
-  }
-
-  List<Object?> _list(Object? raw) {
-    if (raw is List<Object?>) return raw;
-    throw const FormatException('Expected list');
-  }
-
-  Map<String, Object?> _map(Object? raw) {
-    if (raw is Map<String, Object?>) return raw;
-    throw const FormatException('Expected object');
-  }
-
-  String _string(Object? raw) {
-    if (raw is String && raw.isNotEmpty) return raw;
-    throw const FormatException('Expected string');
-  }
-
-  int _int(Object? raw) {
-    if (raw is int) return raw;
-    if (raw is double) return raw.round();
-    throw const FormatException('Expected int');
   }
 }

@@ -137,6 +137,9 @@
 - 首页桌面工作台已改为复用动态 Provider:AI 动态、GitHub 热榜、AI 雷达、仓库监控、深度报告摘要不再直接读取演示数据
 - 仓库详情页已接入 GitHub Repository / Contributors / Search API,详情缓存按仓库名隔离,TTL 为 5 分钟
 - 项目页指标、趋势图、语言分布已改为从当前 `ProjectDigest` 聚合,不再使用固定演示数值
+- 已新增 `core/github/GitHubApiSupport + GitHubJson`,统一 GitHub headers、Search 日期/引用、限流异常转换、JSON 类型断言、语言配色与头像配色
+- 已新增 `DataProvenance`,用于区分真实观测、估算口径和本地兜底;GitHub 远端字段标记为真实观测,Star 增量代理与展示曲线标记为估算
+- 已补 AI 雷达与深度报告语言分布布局回归测试,用动态长列表防止固定高度面板再次溢出
 
 ## 数据源规划
 

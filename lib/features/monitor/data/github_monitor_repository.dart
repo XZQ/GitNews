@@ -1,11 +1,14 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
+import 'github_monitor_config.dart';
 import 'local_monitor_repository.dart';
 
 const Duration monitorRemoteCacheTtl = Duration(minutes: 5);
@@ -30,23 +33,13 @@ class GithubMonitorRepository implements MonitorRepository {
   final DateTime Function() _now;
   final MonitorRepository _fallback;
 
-  static const String _cacheKey = 'monitor:github:default:v1';
-  static const List<String> _defaultRepos = [
-    'openai/codex',
-    'modelcontextprotocol/servers',
-    'langchain-ai/langgraph',
-    'anthropics/claude-code',
-    'ollama/ollama',
-    'vllm-project/vllm',
-  ];
-
   @override
   Future<MonitorDigest> getDigest() async {
     final now = _now();
     final cached = await _readCached();
     if (cached != null &&
         await _cache.isFresh(
-          key: _cacheKey,
+          key: githubMonitorCacheKey,
           ttl: monitorRemoteCacheTtl,
           now: now,
         )) {
@@ -56,7 +49,7 @@ class GithubMonitorRepository implements MonitorRepository {
     try {
       final digest = await _fetchDigest(now);
       await _cache.upsert(
-        key: _cacheKey,
+        key: githubMonitorCacheKey,
         payload: _digestToJson(digest),
         now: now,
       );
@@ -71,7 +64,7 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   Future<MonitorDigest?> _readCached() async {
-    final json = await _cache.read(_cacheKey);
+    final json = await _cache.read(githubMonitorCacheKey);
     if (json == null) return null;
     try {
       return _digestFromJson(json);
@@ -86,7 +79,7 @@ class GithubMonitorRepository implements MonitorRepository {
 
   Future<MonitorDigest> _fetchDigest(DateTime now) async {
     final responses = await Future.wait([
-      for (final repo in _defaultRepos) _fetchRepo(repo, now),
+      for (final repo in githubMonitorDefaultRepos) _fetchRepo(repo, now),
     ]);
     final repos = responses.map((item) => item.repo).toList(growable: false);
     final alerts = responses
@@ -115,7 +108,7 @@ class GithubMonitorRepository implements MonitorRepository {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         '/repos/$fullName',
-        options: Options(headers: _headers()),
+        options: Options(headers: GitHubApiSupport.headers(_token)),
       );
       final data = response.data;
       if (data == null) {
@@ -123,7 +116,7 @@ class GithubMonitorRepository implements MonitorRepository {
       }
       return _parseRepo(data, now);
     } on DioException catch (e) {
-      throw e.toAppException();
+      throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
@@ -131,27 +124,19 @@ class GithubMonitorRepository implements MonitorRepository {
     }
   }
 
-  Map<String, Object?> _headers() {
-    final token = _token?.trim();
-    return {
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'GitHubNews/0.1 (Flutter)',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    };
-  }
-
   _RemoteRepoItem _parseRepo(Map<String, Object?> json, DateTime now) {
-    final fullName = _string(json['full_name']);
-    final language = _nullableString(json['language']) ?? 'Unknown';
-    final pushedAt = DateTime.tryParse(_string(json['pushed_at']))?.toUtc();
-    final stars = _int(json['stargazers_count']);
-    final forks = _int(json['forks_count']);
-    final openIssues = _int(json['open_issues_count']);
+    final fullName = GitHubJson.string(json['full_name']);
+    final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
+    final pushedAt =
+        DateTime.tryParse(GitHubJson.string(json['pushed_at']))?.toUtc();
+    final stars = GitHubJson.intValue(json['stargazers_count']);
+    final forks = GitHubJson.intValue(json['forks_count']);
+    final openIssues = GitHubJson.intValue(json['open_issues_count']);
     return _RemoteRepoItem(
       repo: RepoEntity(
         fullName: fullName,
-        description: _nullableString(json['description']) ?? 'No description',
+        description:
+            GitHubJson.nullableString(json['description']) ?? 'No description',
         language: language,
         starCount: stars,
         starDelta: _activityScore(
@@ -162,7 +147,9 @@ class GithubMonitorRepository implements MonitorRepository {
           now: now,
         ),
         forkCount: forks,
-        accentArgb: _languageColor(language),
+        accentArgb: GitHubApiSupport.languageColor(language),
+        valueProvenance: DataProvenance.observed,
+        trendProvenance: DataProvenance.estimated,
         trend: _repoTrend(stars),
       ),
       openIssues: openIssues,
@@ -238,9 +225,10 @@ class GithubMonitorRepository implements MonitorRepository {
 
   MonitorDigest _digestFromJson(Map<String, Object?> json) {
     return MonitorDigest(
-      monitoredRepos: _list(json['repos']).map(_repoFromJson).toList(),
-      alerts: _list(json['alerts']).map(_alertFromJson).toList(),
-      stats: _statsFromJson(_map(json['stats'])),
+      monitoredRepos:
+          GitHubJson.list(json['repos']).map(_repoFromJson).toList(),
+      alerts: GitHubJson.list(json['alerts']).map(_alertFromJson).toList(),
+      stats: _statsFromJson(GitHubJson.map(json['stats'])),
     );
   }
 
@@ -258,16 +246,19 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   RepoEntity _repoFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return RepoEntity(
-      fullName: _string(json['fullName']),
-      description: _string(json['description']),
-      language: _string(json['language']),
-      starCount: _int(json['starCount']),
-      starDelta: _int(json['starDelta']),
-      forkCount: _int(json['forkCount']),
-      accentArgb: _int(json['accentArgb']),
-      trend: json['trend'] == null ? null : _doubleList(json['trend']),
+      fullName: GitHubJson.string(json['fullName']),
+      description: GitHubJson.string(json['description']),
+      language: GitHubJson.string(json['language']),
+      starCount: GitHubJson.intValue(json['starCount']),
+      starDelta: GitHubJson.intValue(json['starDelta']),
+      forkCount: GitHubJson.intValue(json['forkCount']),
+      accentArgb: GitHubJson.intValue(json['accentArgb']),
+      valueProvenance: DataProvenance.observed,
+      trendProvenance: DataProvenance.estimated,
+      trend:
+          json['trend'] == null ? null : GitHubJson.doubleList(json['trend']),
     );
   }
 
@@ -282,14 +273,14 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   AlertEntity _alertFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return AlertEntity(
-      repoFullName: _string(json['repoFullName']),
-      metric: _string(json['metric']),
-      value: _string(json['value']),
-      time: _string(json['time']),
+      repoFullName: GitHubJson.string(json['repoFullName']),
+      metric: GitHubJson.string(json['metric']),
+      value: GitHubJson.string(json['value']),
+      time: GitHubJson.string(json['time']),
       severity: AlertSeverity.values.firstWhere(
-        (severity) => severity.name == _string(json['severity']),
+        (severity) => severity.name == GitHubJson.string(json['severity']),
         orElse: () => AlertSeverity.info,
       ),
     );
@@ -310,67 +301,15 @@ class GithubMonitorRepository implements MonitorRepository {
 
   MonitorStats _statsFromJson(Map<String, Object?> json) {
     return MonitorStats(
-      monitoredCount: _int(json['monitoredCount']),
-      monitoredDelta: _int(json['monitoredDelta']),
-      unreadAlertCount: _int(json['unreadAlertCount']),
-      unreadAlertDelta: _int(json['unreadAlertDelta']),
-      triggeredTodayCount: _int(json['triggeredTodayCount']),
-      triggeredTodayDelta: _int(json['triggeredTodayDelta']),
-      totalAlertCount: _int(json['totalAlertCount']),
-      totalAlertDelta: _int(json['totalAlertDelta']),
+      monitoredCount: GitHubJson.intValue(json['monitoredCount']),
+      monitoredDelta: GitHubJson.intValue(json['monitoredDelta']),
+      unreadAlertCount: GitHubJson.intValue(json['unreadAlertCount']),
+      unreadAlertDelta: GitHubJson.intValue(json['unreadAlertDelta']),
+      triggeredTodayCount: GitHubJson.intValue(json['triggeredTodayCount']),
+      triggeredTodayDelta: GitHubJson.intValue(json['triggeredTodayDelta']),
+      totalAlertCount: GitHubJson.intValue(json['totalAlertCount']),
+      totalAlertDelta: GitHubJson.intValue(json['totalAlertDelta']),
     );
-  }
-
-  List<Object?> _list(Object? raw) {
-    if (raw is List<Object?>) return raw;
-    throw const FormatException('Expected list');
-  }
-
-  Map<String, Object?> _map(Object? raw) {
-    if (raw is Map<String, Object?>) return raw;
-    throw const FormatException('Expected object');
-  }
-
-  List<double> _doubleList(Object? raw) {
-    return _list(raw).map(_double).toList(growable: false);
-  }
-
-  String _string(Object? raw) {
-    if (raw is String && raw.isNotEmpty) return raw;
-    throw const FormatException('Expected string');
-  }
-
-  String? _nullableString(Object? raw) {
-    if (raw == null) return null;
-    if (raw is String) return raw;
-    throw const FormatException('Expected nullable string');
-  }
-
-  int _int(Object? raw) {
-    if (raw is int) return raw;
-    if (raw is double) return raw.round();
-    throw const FormatException('Expected int');
-  }
-
-  double _double(Object? raw) {
-    if (raw is num) return raw.toDouble();
-    throw const FormatException('Expected double');
-  }
-
-  int _languageColor(String language) {
-    return switch (language.toLowerCase()) {
-      'typescript' => 0xFF3178C6,
-      'javascript' => 0xFFF1E05A,
-      'python' => 0xFF3572A5,
-      'rust' => 0xFFDEA584,
-      'go' => 0xFF00ADD8,
-      'dart' => 0xFF00B4AB,
-      'kotlin' => 0xFFA97BFF,
-      'swift' => 0xFFFA7343,
-      'java' => 0xFFB07219,
-      'c++' => 0xFFF34B7D,
-      _ => 0xFF64748B,
-    };
   }
 }
 

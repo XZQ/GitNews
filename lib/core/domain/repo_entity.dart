@@ -1,3 +1,5 @@
+import 'data_provenance.dart';
+
 /// 仓库情报实体(纯 Dart 业务实体)。
 ///
 /// 数据来源不限于 GitHub REST:本地模拟 / GitHub API / GraphQL 都会归一化到此形状。
@@ -17,6 +19,8 @@ class RepoEntity {
     required this.starDelta,
     required this.forkCount,
     required this.accentArgb,
+    this.valueProvenance = DataProvenance.localFallback,
+    this.trendProvenance = DataProvenance.localFallback,
     this.trend,
   });
 
@@ -32,6 +36,13 @@ class RepoEntity {
 
   /// 32-bit ARGB。展示层用 `Color(repo.accentArgb)` 还原。
   final int accentArgb;
+
+  /// Star/Fork/语言等当前快照字段的数据口径。
+  final DataProvenance valueProvenance;
+
+  /// `starDelta` 与 `trend` 曲线的数据口径。
+  final DataProvenance trendProvenance;
+
   final List<double>? trend;
 }
 
@@ -42,10 +53,12 @@ class LanguageEntity {
     required this.percent,
     required this.delta,
     required this.accentArgb,
+    this.provenance = DataProvenance.localFallback,
   });
 
   final String name;
   final double percent;
   final double delta;
   final int accentArgb;
+  final DataProvenance provenance;
 }
