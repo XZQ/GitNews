@@ -19,53 +19,29 @@ class ProjectLanguageDistribution extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final languages = _languages(repos);
     return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader(
-            title: l10n.tr('project.section.language.title'),
-            subtitle: l10n.tr('project.section.language.subtitle'),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Column(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isBounded = constraints.maxHeight.isFinite;
+          final visible = languages.take(isBounded ? 8 : 6).toList();
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              for (final l in languages.take(6))
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: Color(l.accentArgb),
-                          borderRadius: BorderRadius.circular(AppRadius.xs),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(l.name, style: AppTypography.bodyMedium),
-                      ),
-                      Text(
-                        '${l.percent.toStringAsFixed(1)}%',
-                        style: AppTypography.labelMedium,
-                      ),
-                      const SizedBox(width: AppSpacing.xs2),
-                      Text(
-                        '${l.delta >= 0 ? '+' : ''}${l.delta.toStringAsFixed(1)}%',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: l.delta >= 0
-                              ? AppColors.success
-                              : AppColors.danger,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+              SectionHeader(
+                title: l10n.tr('project.section.language.title'),
+                subtitle: l10n.tr('project.section.language.subtitle'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              if (isBounded)
+                Expanded(child: _LanguageList(languages: visible))
+              else
+                _LanguageList(
+                  languages: visible,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
                 ),
             ],
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -86,10 +62,80 @@ class ProjectLanguageDistribution extends StatelessWidget {
       return _LanguageSlice(
         name: entry.key,
         percent: entry.value.count / repos.length * 100,
+        count: entry.value.count,
         delta: 0,
         accentArgb: entry.value.accentArgb,
       );
     }).toList(growable: false);
+  }
+}
+
+class _LanguageList extends StatelessWidget {
+  const _LanguageList({
+    required this.languages,
+    this.physics,
+    this.shrinkWrap = false,
+  });
+
+  final List<_LanguageSlice> languages;
+  final ScrollPhysics? physics;
+  final bool shrinkWrap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: EdgeInsets.zero,
+      physics: physics,
+      shrinkWrap: shrinkWrap,
+      itemCount: languages.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.xs2),
+      itemBuilder: (context, index) {
+        final l = languages[index];
+        return Row(
+          children: [
+            SizedBox(
+              width: 24,
+              child: Text(
+                '${index + 1}',
+                style: AppTypography.labelSmall.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: Color(l.accentArgb),
+                borderRadius: BorderRadius.circular(AppRadius.xs),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                l.name,
+                style: AppTypography.bodyMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Text(
+              '${l.percent.toStringAsFixed(1)}% · ${l.count}',
+              style: AppTypography.labelMedium,
+            ),
+            const SizedBox(width: AppSpacing.xs2),
+            Text(
+              '${l.delta >= 0 ? '+' : ''}${l.delta.toStringAsFixed(1)}',
+              style: AppTypography.labelSmall.copyWith(
+                color: l.delta >= 0 ? AppColors.success : AppColors.danger,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -104,12 +150,14 @@ class _LanguageSlice {
   const _LanguageSlice({
     required this.name,
     required this.percent,
+    required this.count,
     required this.delta,
     required this.accentArgb,
   });
 
   final String name;
   final double percent;
+  final int count;
   final double delta;
   final int accentArgb;
 }

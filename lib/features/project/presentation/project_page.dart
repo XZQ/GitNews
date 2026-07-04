@@ -108,7 +108,7 @@ class _Desktop extends StatelessWidget {
                 ProjectSummaryMetrics(digest: digest),
                 const SizedBox(height: AppSpacing.lg),
                 SizedBox(
-                  height: 340,
+                  height: 390,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
