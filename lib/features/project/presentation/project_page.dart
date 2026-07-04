@@ -69,11 +69,11 @@ class _Mobile extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: [
-        const ProjectSummaryMetrics(),
+        ProjectSummaryMetrics(digest: digest),
         const SizedBox(height: AppSpacing.lg),
-        const ProjectLanguageDistribution(),
+        ProjectLanguageDistribution(repos: digest.repos),
         const SizedBox(height: AppSpacing.lg),
-        const ProjectTrendOverview(),
+        ProjectTrendOverview(digest: digest),
         const SizedBox(height: AppSpacing.lg),
         ProjectPopularRepos(repos: digest.repos),
         const SizedBox(height: AppSpacing.lg),
@@ -105,16 +105,22 @@ class _Desktop extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const ProjectSummaryMetrics(),
+                ProjectSummaryMetrics(digest: digest),
                 const SizedBox(height: AppSpacing.lg),
-                const SizedBox(
+                SizedBox(
                   height: 340,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(flex: 6, child: ProjectTrendOverview()),
-                      SizedBox(width: AppSpacing.lg),
-                      Expanded(flex: 4, child: ProjectLanguageDistribution()),
+                      Expanded(
+                        flex: 6,
+                        child: ProjectTrendOverview(digest: digest),
+                      ),
+                      const SizedBox(width: AppSpacing.lg),
+                      Expanded(
+                        flex: 4,
+                        child: ProjectLanguageDistribution(repos: digest.repos),
+                      ),
                     ],
                   ),
                 ),

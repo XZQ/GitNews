@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/demo_data.dart';
-import '../../../../core/demo_data_mappers.dart';
+import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/domain/repo_entity.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
+import '../../../trending/application/trending_providers.dart';
 
 /// 首页 GitHub热榜 Top N 预览。
-class HomeTrendingPreview extends StatelessWidget {
+class HomeTrendingPreview extends ConsumerWidget {
   const HomeTrendingPreview({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final items = DemoData.trending.take(4).map((e) => e.toEntity()).toList();
+    final items = ref
+            .watch(trendingDigestProvider)
+            .valueOrNull
+            ?.trendingRepos
+            .take(4)
+            .toList() ??
+        const <RepoEntity>[];
     return HomeSectionPreviewCard<RepoEntity>(
       title: l10n.tr('home.section.trending.title'),
       subtitle: l10n.tr('home.section.trending.subtitle'),
@@ -28,11 +34,17 @@ class HomeTrendingPreview extends StatelessWidget {
         rankColor: Color(item.accentArgb),
         title: item.fullName,
         subtitle: item.description,
-        meta: '+${item.starDelta}',
+        meta: '+${_compactNumber(item.starDelta)}',
         onTap: () => context.go(
           '/home/detail/${Uri.encodeComponent(item.fullName)}',
         ),
       ),
     );
+  }
+
+  String _compactNumber(int value) {
+    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
+    return value.toString();
   }
 }

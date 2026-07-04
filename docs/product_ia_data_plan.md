@@ -134,6 +134,9 @@
 - AI 雷达已接入 GitHub Search API,按 Agent、MCP、AI Coding、RAG、本地推理等主题生成热度摘要,TTL 为 5 分钟
 - 深度报告贡献者已接入 GitHub Contributors API,基于当前热榜仓库聚合活跃贡献者,TTL 为 5 分钟
 - 远端失败统一优先回退过期缓存,没有缓存时才回退本地模拟数据或进入错误态
+- 首页桌面工作台已改为复用动态 Provider:AI 动态、GitHub 热榜、AI 雷达、仓库监控、深度报告摘要不再直接读取演示数据
+- 仓库详情页已接入 GitHub Repository / Contributors / Search API,详情缓存按仓库名隔离,TTL 为 5 分钟
+- 项目页指标、趋势图、语言分布已改为从当前 `ProjectDigest` 聚合,不再使用固定演示数值
 
 ## 数据源规划
 
@@ -227,6 +230,16 @@ Agent 榜不直接等同于 GitHub Trending,需要自定义口径:
 - 贡献者聚合结果写入 `json_snapshot_cache`,TTL 为 5 分钟
 - 导出 Markdown 使用当前筛选后的仓库与贡献者数据
 
+### 仓库详情
+
+无服务端阶段仓库详情已接 GitHub REST API:
+
+- Repository 基础信息:`GET /repos/{owner}/{repo}`
+- Contributors:`GET /repos/{owner}/{repo}/contributors`
+- 相关仓库:`GET /search/repositories`
+- 详情摘要写入 `json_snapshot_cache`,cache key 按仓库 `owner/name` 隔离
+- Star / Fork 趋势当前仍是基于当前指标生成的展示曲线;真实历史曲线需要本地多次快照或服务端定时采集
+
 ## 数据处理管线
 
 未来如果引入服务端,建议把当前客户端聚合逻辑上移到聚合层:
@@ -275,6 +288,7 @@ actions
 - GH Archive 更适合趋势计算,但数据量大,不适合直接在 Flutter 端处理
 - 手机端需要单独设计,不要直接复用桌面端侧边栏信息架构
 - 数据是核心壁垒:去重、评分、关联仓库、为什么重要,比单纯 UI 更关键
+- `我的 / 收藏 / 关注开发者 / 监控主题` 属于用户本地内容管理,在没有账号/服务端前应保持本地数据,不要伪装为远端动态数据
 
 ## 参考数据源
 
