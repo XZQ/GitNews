@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/preferences/profile_session_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -34,8 +36,32 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class _Body extends StatelessWidget {
+class _Body extends ConsumerStatefulWidget {
   const _Body();
+
+  @override
+  ConsumerState<_Body> createState() => _BodyState();
+}
+
+class _BodyState extends ConsumerState<_Body> {
+  late final TextEditingController _nameController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(
+      text: ref.read(profileSessionControllerProvider).effectiveName,
+    );
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +81,13 @@ class _Body extends StatelessWidget {
               _InputField(
                 label: l10n.tr('profile.login.username_hint'),
                 hint: 'your-name',
+                controller: _nameController,
               ),
               const SizedBox(height: AppSpacing.md),
               _InputField(
                 label: l10n.tr('profile.login.password'),
                 hint: '********',
+                controller: _passwordController,
                 obscure: true,
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -68,7 +96,7 @@ class _Body extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () => _showNotImplemented(context),
+                onPressed: _signIn,
                 child: Text(l10n.tr('profile.login.button')),
               ),
             ),
@@ -76,7 +104,7 @@ class _Body extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                onPressed: () => _showNotImplemented(context),
+                onPressed: () => context.go('/profile/developer'),
                 icon: const Icon(Icons.code, size: 16),
                 label: Text(l10n.tr('profile.login.with_github')),
               ),
@@ -111,17 +139,36 @@ class _Body extends StatelessWidget {
       ],
     );
   }
+
+  Future<void> _signIn() async {
+    final l10n = AppLocalizations.of(context);
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('请输入用户名或邮箱')),
+      );
+      return;
+    }
+    await ref.read(profileSessionControllerProvider.notifier).signInLocal(name);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('${l10n.tr('profile.login.button')}成功')),
+    );
+    context.go('/profile');
+  }
 }
 
 class _InputField extends StatelessWidget {
   const _InputField({
     required this.label,
     required this.hint,
+    required this.controller,
     this.obscure = false,
   });
 
   final String label;
   final String hint;
+  final TextEditingController controller;
   final bool obscure;
 
   @override
@@ -132,6 +179,7 @@ class _InputField extends StatelessWidget {
         Text(label, style: AppTypography.labelMedium),
         const SizedBox(height: AppSpacing.xs2),
         TextField(
+          controller: controller,
           obscureText: obscure,
           decoration: InputDecoration(hintText: hint),
         ),
@@ -167,13 +215,6 @@ class _Bullet extends StatelessWidget {
       ),
     );
   }
-}
-
-void _showNotImplemented(BuildContext context) {
-  final l10n = AppLocalizations.of(context);
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(l10n.tr('profile.login.not_implemented'))),
-  );
 }
 
 extension _ColumnCopy on Column {

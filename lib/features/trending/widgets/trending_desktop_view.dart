@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
@@ -121,6 +122,15 @@ class _TrendingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (repos.isEmpty) {
+      return const AppCard(
+        child: EmptyView(
+          icon: Icons.search_off_rounded,
+          message: '没有匹配的热门仓库',
+        ),
+      );
+    }
+
     return AppCard(
       padding: EdgeInsets.zero,
       child: CustomScrollView(

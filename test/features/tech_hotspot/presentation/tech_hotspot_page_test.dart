@@ -71,6 +71,18 @@ void main() {
     expect(find.text('# rust'), findsOneWidget);
   });
 
+  testWidgets('tag tap should apply local search filter', (tester) async {
+    final repo = _StubRepo(_stubDigest);
+    await tester.pumpWidget(_harness(repo));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('# rust'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Rust 1.80'), findsOneWidget);
+    expect(find.text('# rust'), findsOneWidget);
+  });
+
   testWidgets('renders ErrorView on repository failure', (tester) async {
     final repo = _StubRepo(null, shouldThrow: true);
     await tester.pumpWidget(_harness(repo));

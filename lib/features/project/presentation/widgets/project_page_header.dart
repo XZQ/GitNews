@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -6,39 +8,57 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/page_header.dart';
+import '../../application/project_exporter.dart';
+import '../../application/project_providers.dart';
 
 /// 报告页顶部条。
-class ProjectPageHeader extends StatelessWidget {
+class ProjectPageHeader extends ConsumerWidget {
   const ProjectPageHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final query = ref.watch(projectSearchQueryProvider);
     return PageHeader(
       icon: Icons.insights_rounded,
       iconAccent: AppColors.warning,
       title: l10n.tr('project.title'),
       subtitle: l10n.tr('project.subtitle'),
       searchHint: l10n.tr('project.search_hint'),
-      onSearchSubmitted: (v) {
-        if (v.trim().isEmpty) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.tr('project.search.noti'))),
-        );
-      },
+      searchValue: query,
+      onSearchChanged: (v) =>
+          ref.read(projectSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) =>
+          ref.read(projectSearchQueryProvider.notifier).state = v,
       pills: [_NeutralPill(label: l10n.tr('project.pill.this_week'))],
       actions: [
         IconButton(
           tooltip: l10n.tr('project.export'),
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.tr('project.export.noti'))),
-            );
-          },
+          onPressed: () => _exportReport(context, ref),
           icon: const Icon(Icons.download_outlined, size: 20),
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
       ],
+    );
+  }
+}
+
+Future<void> _exportReport(BuildContext context, WidgetRef ref) async {
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    final digest = await ref.read(filteredProjectDigestProvider.future);
+    final directory = await getApplicationDocumentsDirectory();
+    final file = await writeProjectDigestMarkdown(
+      digest: digest,
+      outputDirectory: directory,
+      generatedAt: DateTime.now(),
+    );
+    messenger.showSnackBar(
+      SnackBar(content: Text('报告已导出: ${file.path}')),
+    );
+  } catch (_) {
+    messenger.showSnackBar(
+      const SnackBar(content: Text('报告导出失败,请稍后重试')),
     );
   }
 }

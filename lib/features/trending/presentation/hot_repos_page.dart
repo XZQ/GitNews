@@ -22,7 +22,8 @@ class HotReposPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(trendingDigestProvider);
+    final state = ref.watch(filteredTrendingDigestProvider);
+    final searchQuery = ref.watch(trendingSearchQueryProvider).trim();
     return Scaffold(
       appBar: AppBar(
         title: const Text('热门仓库'),
@@ -35,9 +36,12 @@ class HotReposPage extends ConsumerWidget {
       body: state.when(
         data: (digest) {
           if (digest.allRepos.isEmpty) {
-            return const EmptyView(
-              icon: Icons.local_fire_department_outlined,
-              message: '暂无热门仓库',
+            return EmptyView(
+              icon: searchQuery.isEmpty
+                  ? Icons.local_fire_department_outlined
+                  : Icons.search_off_rounded,
+              message:
+                  searchQuery.isEmpty ? '暂无热门仓库' : '未找到与「$searchQuery」相关的仓库',
             );
           }
           return ResponsiveLayout(

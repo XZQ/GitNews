@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/preferences/profile_session_controller.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 
-class ProfileUserCard extends StatelessWidget {
+class ProfileUserCard extends ConsumerWidget {
   const ProfileUserCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
+    final session = ref.watch(profileSessionControllerProvider);
     return AppCard(
       child: Row(
         children: [
@@ -35,7 +39,10 @@ class ProfileUserCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const Text('dev_explorer', style: AppTypography.titleLarge),
+                    Text(
+                      session.effectiveName,
+                      style: AppTypography.titleLarge,
+                    ),
                     const SizedBox(width: AppSpacing.xs2),
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -58,16 +65,28 @@ class ProfileUserCard extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  l10n.tr('profile.user.anonymous_status'),
+                  session.isSignedIn
+                      ? session.statusText
+                      : l10n.tr('profile.user.anonymous_status'),
                   style: AppTypography.bodySmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  l10n.tr('profile.user.login_moved'),
-                  style: AppTypography.labelSmall.copyWith(
-                    color: colors.onSurfaceVariant,
+                TextButton(
+                  onPressed: session.isSignedIn
+                      ? () => ref
+                          .read(profileSessionControllerProvider.notifier)
+                          .signOut()
+                      : () => context.go('/login'),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 28),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    alignment: Alignment.centerLeft,
+                  ),
+                  child: Text(
+                    session.isSignedIn ? '退出登录' : l10n.tr('profile.login'),
                   ),
                 ),
               ],

@@ -19,12 +19,13 @@ class TrendingPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
-    final state = ref.watch(trendingDigestProvider);
+    final state = ref.watch(filteredTrendingDigestProvider);
+    final searchQuery = ref.watch(trendingSearchQueryProvider).trim();
     return Scaffold(
       appBar: isCompact ? AppBar(title: Text(l10n.tr('trending.title'))) : null,
       body: state.when(
         data: (digest) {
-          if (digest.isEmpty) {
+          if (digest.isEmpty && searchQuery.isEmpty) {
             return EmptyView(
               icon: Icons.local_fire_department_outlined,
               message: l10n.tr('trending.empty'),

@@ -29,13 +29,21 @@ class _MockAiNewsRepository implements AiNewsRepository {
   }
 }
 
-AiNewsItem _item(String id) => AiNewsItem(
+AiNewsItem _item(
+  String id, {
+  AiNewsCategory category = AiNewsCategory.aiModels,
+  String title = 't',
+  String titleEn = 'te',
+  String summary = '',
+  String source = 's',
+}) =>
+    AiNewsItem(
       id: id,
-      category: AiNewsCategory.aiModels,
-      title: 't',
-      titleEn: 'te',
-      summary: '',
-      source: 's',
+      category: category,
+      title: title,
+      titleEn: titleEn,
+      summary: summary,
+      source: source,
       url: 'https://example.com/$id',
       permalink: 'https://aihot.virxact.com/items/$id',
       publishedAt: DateTime.utc(2026, 6, 28),
@@ -148,5 +156,28 @@ void main() {
     await container.read(aiNewsItemsNotifierProvider.future);
 
     expect(repo.lastCategoryArg, AiNewsCategory.aiModels);
+  });
+
+  test('filterAiNewsItems should match loaded item fields locally', () {
+    final items = [
+      _item(
+        'a',
+        title: 'OpenAI 发布新模型',
+        titleEn: 'OpenAI launches model',
+        source: 'OpenAI Blog',
+      ),
+      _item(
+        'b',
+        category: AiNewsCategory.industry,
+        summary: '融资与行业动态升温',
+        source: '36氪',
+      ),
+    ];
+
+    expect(filterAiNewsItems(items, '').length, 2);
+    expect(filterAiNewsItems(items, 'openai'), [items.first]);
+    expect(filterAiNewsItems(items, '融资'), [items.last]);
+    expect(filterAiNewsItems(items, 'industry'), [items.last]);
+    expect(filterAiNewsItems(items, 'missing'), isEmpty);
   });
 }

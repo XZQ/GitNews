@@ -53,6 +53,37 @@ final aiNewsCategoryFilterProvider = StateProvider<AiNewsCategory?>(
   (ref) => null,
 );
 
+/// 顶部搜索框关键词。空字符串表示不过滤当前列表。
+final aiNewsSearchQueryProvider = StateProvider<String>((ref) => '');
+
+/// 基于当前已加载列表做本地搜索过滤。
+///
+/// AI 动态当前仍由远端精选流 + 本地缓存驱动,搜索只过滤客户端已有条目,
+/// 避免每次输入都打到第三方接口。
+List<AiNewsItem> filterAiNewsItems(
+  List<AiNewsItem> items,
+  String query,
+) {
+  final keyword = query.trim().toLowerCase();
+  if (keyword.isEmpty) return items;
+
+  return [
+    for (final item in items)
+      if (_aiNewsSearchText(item).contains(keyword)) item,
+  ];
+}
+
+String _aiNewsSearchText(AiNewsItem item) {
+  return [
+    item.title,
+    item.titleEn,
+    item.summary,
+    item.source,
+    item.category.label,
+    item.category.code,
+  ].join(' ').toLowerCase();
+}
+
 /// 单次向用户暴露的条目数(分页步长)。
 const int aiNewsPageSize = 10;
 

@@ -35,8 +35,7 @@ class GitHubNewsApp extends ConsumerWidget {
             _GoTabIntent(5),
         SingleActivator(LogicalKeyboardKey.digit7, control: true):
             _GoTabIntent(6),
-        SingleActivator(LogicalKeyboardKey.keyR, control: true):
-            _NoopIntent(),
+        SingleActivator(LogicalKeyboardKey.keyR, control: true): _NoopIntent(),
         SingleActivator(LogicalKeyboardKey.f5): _NoopIntent(),
       },
       child: Actions(

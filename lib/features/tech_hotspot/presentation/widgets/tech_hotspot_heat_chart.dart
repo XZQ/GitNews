@@ -39,9 +39,7 @@ class TechHotspotHeatChart extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                l10n
-                    .tr('tech_hotspot.heat_chart.peak')
-                    .replaceAll(
+                l10n.tr('tech_hotspot.heat_chart.peak').replaceAll(
                       '{v}',
                       values.last.value.toStringAsFixed(0),
                     ),

@@ -8,7 +8,7 @@ import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../tech_hotspot/domain/tech_hotspot_models.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
 
-/// 首页技术趋势 Top N 预览。
+/// 首页 AI 雷达 Top N 预览。
 class HomeHotspotPreview extends ConsumerWidget {
   const HomeHotspotPreview({super.key});
 

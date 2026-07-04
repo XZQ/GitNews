@@ -1,33 +1,103 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../ai_news/application/ai_news_providers.dart';
+import '../../../monitor/application/monitor_providers.dart';
+import '../../../project/application/project_providers.dart';
+import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
+import '../../../trending/application/trending_providers.dart';
 import '../../../../shared/widgets/page_header.dart';
 
 /// 首页(桌面)顶部条 — 复用 [PageHeader] 体系。
 ///
 /// actions 内部含一个带红点的通知按钮 + 一个脉冲点动画的"实时同步"胶囊。
-class DevIntelTopHeader extends StatelessWidget {
+class DevIntelTopHeader extends ConsumerWidget {
   const DevIntelTopHeader({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return PageHeader(
       title: l10n.tr('home.title'),
       subtitle: l10n.tr('home.subtitle'),
       searchHint: l10n.tr('home.search_hint'),
-      onSearchSubmitted: (v) {
-        if (v.trim().isEmpty) return;
-        context.go('/trending/repos');
-      },
+      onSearchSubmitted: (v) => _openGlobalSearch(context, ref, v),
       actions: const [
         _BellWithDot(),
         _LiveSyncBadge(),
       ],
     );
   }
+}
+
+void _openGlobalSearch(BuildContext context, WidgetRef ref, String rawQuery) {
+  final query = rawQuery.trim();
+  if (query.isEmpty) return;
+
+  final normalized = query.toLowerCase();
+  if (_containsAny(normalized, const [
+    'ai',
+    'openai',
+    'anthropic',
+    'gemini',
+    '模型',
+    '资讯',
+    '新闻',
+    '论文',
+  ])) {
+    ref.read(aiNewsSearchQueryProvider.notifier).state = query;
+    context.go('/ai_news');
+    return;
+  }
+
+  if (_containsAny(normalized, const [
+    'agent',
+    'mcp',
+    'coding',
+    'rag',
+    '智能体',
+    '雷达',
+    '本地推理',
+  ])) {
+    ref.read(techHotspotSearchQueryProvider.notifier).state = query;
+    context.go('/tech_hotspot');
+    return;
+  }
+
+  if (_containsAny(normalized, const [
+    'monitor',
+    'alert',
+    '告警',
+    '监控',
+    '规则',
+  ])) {
+    ref.read(monitorSearchQueryProvider.notifier).state = query;
+    context.go('/monitor');
+    return;
+  }
+
+  if (_containsAny(normalized, const [
+    'report',
+    '报告',
+    '周报',
+    '贡献者',
+    'developer',
+    'contributor',
+  ])) {
+    ref.read(projectSearchQueryProvider.notifier).state = query;
+    context.go('/project');
+    return;
+  }
+
+  ref.read(trendingSearchQueryProvider.notifier).state = query;
+  context.go('/trending');
+}
+
+bool _containsAny(String text, List<String> keywords) {
+  return keywords.any(text.contains);
 }
 
 class _BellWithDot extends StatelessWidget {

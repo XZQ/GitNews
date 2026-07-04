@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/preferences/link_open_mode_controller.dart';
+import '../../../../core/preferences/trending_data_source_mode_controller.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme_preset.dart';
@@ -55,7 +56,7 @@ class ProfileSettingsCard extends ConsumerWidget {
           ProfileSettingRow(
             icon: Icons.cloud_outlined,
             label: l10n.tr('profile.settings.data_source'),
-            trailing: const Text('GitHub', style: AppTypography.labelMedium),
+            trailing: const _TrendingDataSourceToggle(),
           ),
           ProfileSettingRow(
             icon: Icons.open_in_new_rounded,
@@ -70,6 +71,42 @@ class ProfileSettingsCard extends ConsumerWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// GitHub 热榜数据源切换:本地模拟 ↔ GitHub Search。
+class _TrendingDataSourceToggle extends ConsumerWidget {
+  const _TrendingDataSourceToggle();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final mode = ref.watch(trendingDataSourceModeControllerProvider);
+    return SegmentedButton<TrendingDataSourceMode>(
+      style: const ButtonStyle(
+        visualDensity: VisualDensity(horizontal: -3, vertical: -2),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      segments: [
+        ButtonSegment(
+          value: TrendingDataSourceMode.local,
+          icon: const Icon(Icons.storage_rounded, size: 14),
+          label: Text(l10n.tr('profile.settings.data_source.local')),
+        ),
+        ButtonSegment(
+          value: TrendingDataSourceMode.github,
+          icon: const Icon(Icons.cloud_outlined, size: 14),
+          label: Text(l10n.tr('profile.settings.data_source.github')),
+        ),
+      ],
+      selected: {mode},
+      onSelectionChanged: (selection) {
+        ref
+            .read(trendingDataSourceModeControllerProvider.notifier)
+            .setMode(selection.first);
+      },
+      showSelectedIcon: false,
     );
   }
 }

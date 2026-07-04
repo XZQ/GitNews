@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/page_header.dart';
+import '../application/monitor_providers.dart';
 import '../domain/entities.dart';
 
 /// 监控页顶部条。
-class MonitorPageHeader extends StatelessWidget {
+class MonitorPageHeader extends ConsumerWidget {
   const MonitorPageHeader({required this.stats, super.key});
 
   final MonitorStats stats;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final query = ref.watch(monitorSearchQueryProvider);
     return PageHeader(
       icon: Icons.radar_rounded,
       iconAccent: AppColors.success,
       title: '监控',
       subtitle: '实时告警与仓库动态',
       searchHint: '搜索仓库、告警、规则...',
-      onSearchSubmitted: (v) {
-        if (v.trim().isEmpty) return;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('监控搜索即将接入')),
-        );
-      },
+      searchValue: query,
+      onSearchChanged: (v) =>
+          ref.read(monitorSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) =>
+          ref.read(monitorSearchQueryProvider.notifier).state = v,
       pills: [
         HeaderStatPill(
           icon: Icons.circle,

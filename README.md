@@ -12,7 +12,7 @@
 
 ## ✨ 功能特性
 
-- **总览 / AI 动态 / GitHub热榜 / 技术趋势 / 仓库监控 / 深度报告 / 设置** 七个入口联动
+- **总览 / AI 动态 / GitHub热榜 / AI雷达 / 仓库监控 / 深度报告 / 设置** 七个入口联动
 - **Star 增长趋势图** 7 / 14 / 30 天可切换,本周与上周对比
 - **语言分布** 按全部 / AI / Web / 系统分类筛选,交互式柱状图
 - **响应式三档布局**:Compact(< 600dp)底部导航、Medium(600–1024dp)紧凑侧栏、Expanded(≥ 1024dp)宽侧栏
@@ -53,10 +53,13 @@
 | 总览 | `/home` | 概览仪表盘 |
 | AI 动态 | `/ai_news` | AI 情报流 |
 | GitHub热榜 | `/trending` | GitHub 仓库趋势列表 |
-| 技术趋势 | `/tech_hotspot` | 技术热点与语言趋势 |
+| AI雷达 | `/tech_hotspot` | Agent、MCP 与 AI Coding 趋势雷达 |
 | 仓库监控 | `/monitor` | 监控规则与告警 |
 | 深度报告 | `/project` | 深度报告 / 仓库集合 |
 | 设置 | `/profile` | 主题与偏好设置 |
+
+产品信息架构、桌面端/手机端分工和数据源规划见
+[docs/product_ia_data_plan.md](docs/product_ia_data_plan.md)。
 
 ## 📦 支持平台
 

@@ -26,9 +26,8 @@ class ProfileCollectDetailCard extends StatelessWidget {
           ProfileDetailRow(
             icon: Icons.bookmark_outline,
             iconColor: AppColors.info,
-            label: l10n
-                .tr('profile.detail.collect.count')
-                .replaceAll('{n}', '12'),
+            label:
+                l10n.tr('profile.detail.collect.count').replaceAll('{n}', '12'),
             value: l10n.tr('profile.detail.collect.all'),
           ),
           const Divider(height: 1),

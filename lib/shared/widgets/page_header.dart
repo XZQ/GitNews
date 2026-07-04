@@ -18,6 +18,8 @@ class PageHeader extends StatelessWidget {
     this.icon,
     this.iconAccent = AppColors.brand,
     this.searchHint,
+    this.searchValue = '',
+    this.onSearchChanged,
     this.onSearchSubmitted,
     this.pills = const [],
     this.actions = const [],
@@ -29,6 +31,8 @@ class PageHeader extends StatelessWidget {
   final String title;
   final String subtitle;
   final String? searchHint;
+  final String searchValue;
+  final ValueChanged<String>? onSearchChanged;
   final ValueChanged<String>? onSearchSubmitted;
   final List<Widget> pills;
   final List<Widget> actions;
@@ -89,6 +93,8 @@ class PageHeader extends StatelessWidget {
             Expanded(
               child: HeaderSearchField(
                 hintText: searchHint!,
+                value: searchValue,
+                onChanged: onSearchChanged,
                 onSubmitted: onSearchSubmitted,
               ),
             ),
