@@ -129,12 +129,17 @@
 - GitHub 热榜新增榜单类型维度:`全部 / Agent / MCP / AI Coding / 新晋项目`
 - 榜单类型已进入 `TrendingQuery`、GitHub Search 查询、本地模拟过滤和 SQLite 缓存 key,避免不同榜单串缓存
 - 无服务端阶段统一采用客户端直连公开 API + SQLite 缓存策略,AI 动态与 GitHub 热榜 TTL 均为 5 分钟;5 分钟内返回本地缓存,手动刷新可删除当前查询缓存后重新请求
+- 新增通用 JSON 快照缓存:`json_snapshot_cache + JsonSnapshotCacheDao`,用于结构仍在迭代的远端聚合摘要
+- 仓库监控已接入 GitHub Repository API,默认跟踪 Codex、MCP servers、LangGraph、Claude Code、Ollama、vLLM 等开发者情报仓库,TTL 为 5 分钟
+- AI 雷达已接入 GitHub Search API,按 Agent、MCP、AI Coding、RAG、本地推理等主题生成热度摘要,TTL 为 5 分钟
+- 深度报告贡献者已接入 GitHub Contributors API,基于当前热榜仓库聚合活跃贡献者,TTL 为 5 分钟
+- 远端失败统一优先回退过期缓存,没有缓存时才回退本地模拟数据或进入错误态
 
 ## 数据源规划
 
 ### 无服务端阶段统一策略
 
-当前没有服务端,先采用客户端直连公开 API 的轻量策略:
+当前没有服务端,采用客户端直连公开 API 的轻量策略:
 
 - 所有远端数据源必须有 SQLite 快照缓存与 `cache_meta` TTL
 - 默认 TTL 统一为 5 分钟;5 分钟内只返回本地缓存
@@ -143,13 +148,16 @@
 - GitHub 请求优先使用用户配置的 Personal Access Token,匿名模式仅用于验证链路
 - 搜索框只过滤当前已加载/已缓存数据,不因输入关键词额外请求远端
 - 分页和详情请求要做并发锁,避免滚动触底或重复点击打爆公开 API
+- 结构稳定的列表使用专用表缓存,例如 `trending_repos`、AI 新闻缓存表
+- 结构仍在变化的聚合摘要使用 `json_snapshot_cache`,降低迁移成本
 
 ### AI 资讯流
 
 第一阶段:
 
 - 保留现有卡兹克 / aihot 作为精选源
-- 客户端继续使用本地缓存,但后续应通过聚合层访问,避免直接绑定单一第三方源
+- 客户端继续使用本地缓存,TTL 已统一为 5 分钟
+- 搜索只过滤当前缓存结果,不触发额外请求
 
 第二阶段:
 
@@ -187,7 +195,7 @@ Agent 榜不直接等同于 GitHub Trending,需要自定义口径:
 
 ### 仓库监控
 
-无服务端阶段优先接 GitHub REST API:
+无服务端阶段已接 GitHub REST API:
 
 - Repository 基础信息:`GET /repos/{owner}/{repo}`
 - Releases:`GET /repos/{owner}/{repo}/releases`
@@ -196,10 +204,11 @@ Agent 榜不直接等同于 GitHub Trending,需要自定义口径:
 - Events:`GET /repos/{owner}/{repo}/events`
 - 本地保存监控仓库列表、告警规则、最近一次快照
 - 指标变化先用本地相邻快照计算,后续再升级为服务端定时采集
+- 当前实现先用 Repository 基础信息生成监控仓库与告警摘要,后续再拆 Releases / Issues / Events 增量缓存
 
 ### AI 雷达
 
-无服务端阶段先由多个 GitHub Search 查询组成主题雷达:
+无服务端阶段已由多个 GitHub Search 查询组成主题雷达:
 
 - Agent:`agent OR ai-agent OR llm-agent OR langgraph OR autogen`
 - MCP:`mcp OR model-context-protocol OR modelcontextprotocol`
@@ -207,11 +216,20 @@ Agent 榜不直接等同于 GitHub Trending,需要自定义口径:
 - RAG:`rag OR retrieval augmented generation OR vector database`
 - Local Inference:`llama.cpp OR ollama OR vllm OR local llm`
 
-每个主题单独缓存 5 分钟,再在客户端按 stars、forks、最近 push、open issues 与命中关键词计算热度。
+主题摘要整体缓存 5 分钟,在客户端按 stars、仓库数量、主语言、最近 push 与命中关键词计算热度。
+
+### 深度报告
+
+无服务端阶段深度报告复用 GitHub 热榜仓库:
+
+- 仓库列表、趋势图继续来自 `TrendingRepository`
+- 活跃贡献者来自 `GET /repos/{owner}/{repo}/contributors`
+- 贡献者聚合结果写入 `json_snapshot_cache`,TTL 为 5 分钟
+- 导出 Markdown 使用当前筛选后的仓库与贡献者数据
 
 ## 数据处理管线
 
-建议新增聚合层,不要让 Flutter 直接拼所有外部 API:
+未来如果引入服务端,建议把当前客户端聚合逻辑上移到聚合层:
 
 ```text
 Fetch -> Normalize -> Deduplicate -> Classify -> Score -> Summarize -> Store -> Serve

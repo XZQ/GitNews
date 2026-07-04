@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/features/monitor/application/monitor_providers.dart';
+import 'package:github_news/features/monitor/data/local_monitor_repository.dart';
 import 'package:github_news/features/monitor/domain/entities.dart';
 import 'package:github_news/features/monitor/domain/monitor_repository.dart';
 import 'package:mocktail/mocktail.dart';
@@ -38,7 +39,13 @@ const _stats = MonitorStats(
 void main() {
   group('monitorDigestProvider', () {
     test('should expose local digest when repository returns data', () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          monitorRepositoryProvider.overrideWithValue(
+            const LocalMonitorRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
 
       final digest = await container.read(monitorDigestProvider.future);
@@ -102,7 +109,13 @@ void main() {
     });
 
     test('repoByFullName should match decoded fullName', () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          monitorRepositoryProvider.overrideWithValue(
+            const LocalMonitorRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
 
       final digest = await container.read(monitorDigestProvider.future);

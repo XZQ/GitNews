@@ -31,7 +31,7 @@ class LocalDatabase {
   final String path;
 
   /// 当前 schema 版本。每次新增迁移在 [_kMigrations] 末尾追加并自增此值。
-  static const int _kCurrentVersion = 2;
+  static const int _kCurrentVersion = 3;
 
   /// 业务方拿到这个 executor 后,在自己的 DAO 内执行 SQL。
   ///
@@ -115,6 +115,8 @@ class LocalDatabase {
     'CREATE INDEX IF NOT EXISTS idx_ai_news_category  ON ai_news_item(category)',
     _kCreateTrendingSnapshotCache,
     'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
+    _kCreateJsonSnapshotCache,
+    'CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)',
   ];
 
   /// 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
@@ -125,6 +127,7 @@ class LocalDatabase {
   /// ```
   static const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
     _migrateV1ToV2,
+    _migrateV2ToV3,
   ];
 
   static const String _kCreateTrendingSnapshotCache = '''
@@ -138,10 +141,28 @@ class LocalDatabase {
     )
   ''';
 
+  static const String _kCreateJsonSnapshotCache = '''
+    CREATE TABLE IF NOT EXISTS json_snapshot_cache (
+      cache_key     TEXT PRIMARY KEY,
+      payload_json  TEXT NOT NULL,
+      cached_at     INTEGER NOT NULL,
+      ext1          TEXT,
+      ext2          INTEGER,
+      ext3          REAL
+    )
+  ''';
+
   static Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
     await db.execute(_kCreateTrendingSnapshotCache);
     await db.execute(
       'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
+    );
+  }
+
+  static Future<void> _migrateV2ToV3(DatabaseExecutor db) async {
+    await db.execute(_kCreateJsonSnapshotCache);
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)',
     );
   }
 
@@ -180,6 +201,7 @@ class LocalDatabase {
     try {
       await _db.delete('ai_news_item');
       await _db.delete('trending_snapshot_cache');
+      await _db.delete('json_snapshot_cache');
       await _db.delete('cache_meta');
       await _db.execute('VACUUM');
     } catch (e, st) {
@@ -205,10 +227,14 @@ class LocalDatabase {
       final trendingRows = await _db.rawQuery(
         'SELECT COUNT(*) AS c FROM trending_snapshot_cache',
       );
+      final jsonRows =
+          await _db.rawQuery('SELECT COUNT(*) AS c FROM json_snapshot_cache');
       final aiCount = aiRows.isEmpty ? 0 : (aiRows.first['c'] as int? ?? 0);
       final trendingCount =
           trendingRows.isEmpty ? 0 : (trendingRows.first['c'] as int? ?? 0);
-      final count = aiCount + trendingCount;
+      final jsonCount =
+          jsonRows.isEmpty ? 0 : (jsonRows.first['c'] as int? ?? 0);
+      final count = aiCount + trendingCount + jsonCount;
       if (count == 0) {
         await _db.execute('VACUUM');
         return;
@@ -238,6 +264,19 @@ class LocalDatabase {
           )
           ''',
           [evict.clamp(1, trendingCount)],
+        );
+      }
+      if (jsonCount > 0) {
+        await _db.rawDelete(
+          '''
+          DELETE FROM json_snapshot_cache
+          WHERE cache_key IN (
+            SELECT cache_key FROM json_snapshot_cache
+            ORDER BY cached_at ASC
+            LIMIT ?
+          )
+          ''',
+          [evict.clamp(1, jsonCount)],
         );
       }
       await _db.execute('VACUUM');

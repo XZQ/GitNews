@@ -1,11 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/di/providers.dart';
 import '../../../core/domain/repo_entity.dart';
+import '../../../core/preferences/github_token_controller.dart';
+import '../../../core/storage/storage_providers.dart';
+import '../data/github_monitor_repository.dart';
 import '../data/local_monitor_repository.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
 
 final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
+  final token = ref.watch(githubTokenControllerProvider).token;
+  return GithubMonitorRepository(
+    dio: ref.watch(dioProvider),
+    cache: ref.watch(jsonSnapshotCacheDaoProvider),
+    token: token,
+  );
+});
+
+/// 兼容测试 override 与本地兜底。
+final localMonitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   return const LocalMonitorRepository();
 });
 

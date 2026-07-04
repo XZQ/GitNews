@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/features/tech_hotspot/application/tech_hotspot_providers.dart';
+import 'package:github_news/features/tech_hotspot/data/local_tech_hotspot_repository.dart';
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_models.dart';
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_repository.dart';
 import 'package:mocktail/mocktail.dart';
@@ -39,7 +40,13 @@ const _sampleDigest = TechHotspotDigest(
 void main() {
   group('techHotspotDigestProvider', () {
     test('should expose local digest when repository returns data', () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          techHotspotRepositoryProvider.overrideWithValue(
+            const LocalTechHotspotRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
 
       final digest = await container.read(techHotspotDigestProvider.future);
@@ -95,7 +102,13 @@ void main() {
 
   group('repository contract', () {
     test('getById returns null for unknown id', () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          techHotspotRepositoryProvider.overrideWithValue(
+            const LocalTechHotspotRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
 
       final repo = container.read(techHotspotRepositoryProvider);
@@ -103,7 +116,13 @@ void main() {
     });
 
     test('getById returns matching topic for known id', () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          techHotspotRepositoryProvider.overrideWithValue(
+            const LocalTechHotspotRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
 
       final repo = container.read(techHotspotRepositoryProvider);
@@ -113,7 +132,13 @@ void main() {
     });
 
     test('allTopics matches digest.topics', () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          techHotspotRepositoryProvider.overrideWithValue(
+            const LocalTechHotspotRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
 
       final digest = await container.read(techHotspotDigestProvider.future);
