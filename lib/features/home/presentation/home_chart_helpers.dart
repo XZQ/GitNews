@@ -98,8 +98,25 @@ List<HomeLegendItem> homeChartLegends(HomeLegacyTab tab, Color primary) {
 List<ChartSeries> homeSeriesForWindow(
   int days,
   HomeLegacyTab tab,
-  Color primary,
-) {
+  Color primary, {
+  List<double>? primaryTrend,
+  List<double>? secondaryTrend,
+}) {
+  final dynamicPrimary = _windowedTrend(primaryTrend, days);
+  final dynamicSecondary = _windowedTrend(secondaryTrend, days);
+  if (tab == HomeLegacyTab.trending && dynamicPrimary.isNotEmpty) {
+    return [
+      ChartSeries(
+        values: dynamicPrimary,
+        color: primary,
+      ),
+      ChartSeries(
+        values: dynamicSecondary.isEmpty ? dynamicPrimary : dynamicSecondary,
+        color: AppColors.info,
+      ),
+    ];
+  }
+
   final baseA = 38000 + days * 110;
   final deltaA = 3500 + days * 110;
   final baseB = 36000 + days * 95;
@@ -150,6 +167,12 @@ List<ChartSeries> homeSeriesForWindow(
         ),
       ];
   }
+}
+
+List<double> _windowedTrend(List<double>? values, int days) {
+  if (values == null || values.isEmpty) return const [];
+  if (values.length <= days) return values;
+  return values.sublist(values.length - days);
 }
 
 /// 7 / 14 / 30 天窗口切换。

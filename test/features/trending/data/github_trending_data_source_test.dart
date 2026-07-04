@@ -1,6 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_provenance.dart';
 import 'package:github_news/core/errors/app_exception.dart';
+import 'package:github_news/core/storage/cache_meta_dao.dart';
+import 'package:github_news/core/storage/json_snapshot_cache_dao.dart';
+import 'package:github_news/core/storage/local_database.dart';
+import 'package:github_news/core/storage/repo_snapshot_history_dao.dart';
 import 'package:github_news/features/trending/data/github_trending_data_source.dart';
 import 'package:github_news/features/trending/domain/trending_repository.dart';
 import 'package:mocktail/mocktail.dart';
@@ -8,6 +13,8 @@ import 'package:mocktail/mocktail.dart';
 class _MockDio extends Mock implements Dio {}
 
 void main() {
+  late LocalDatabase db;
+  late RepoSnapshotHistoryDao snapshotHistory;
   late _MockDio dio;
   late GithubTrendingDataSource dataSource;
 
@@ -15,12 +22,21 @@ void main() {
     registerFallbackValue(Options());
   });
 
-  setUp(() {
+  setUp(() async {
+    db = await LocalDatabase.openInMemory();
+    snapshotHistory = RepoSnapshotHistoryDao(
+      JsonSnapshotCacheDao(db.executor, CacheMetaDao(db.executor)),
+    );
     dio = _MockDio();
     dataSource = GithubTrendingDataSource(
       dio: dio,
       now: () => DateTime.utc(2026, 7, 4, 12),
+      snapshotHistory: snapshotHistory,
     );
+  });
+
+  tearDown(() async {
+    await db.close();
   });
 
   group('GithubTrendingDataSource.fetchTrending', () {
@@ -110,6 +126,7 @@ void main() {
         dio: dio,
         token: 'github_pat_test',
         now: () => DateTime.utc(2026, 7, 4, 12),
+        snapshotHistory: snapshotHistory,
       );
       when(
         () => dio.get<Map<String, Object?>>(
@@ -150,6 +167,33 @@ void main() {
       expect(snapshot.trendingRepos.first.starDelta, greaterThan(0));
       expect(snapshot.languages.first.name, 'Python');
       expect(snapshot.primaryTrend, hasLength(7));
+    });
+
+    test('should prefer observed local snapshot history for repo trend',
+        () async {
+      await snapshotHistory.record(
+        fullName: 'openai/codex',
+        stars: 11900,
+        forks: 790,
+        capturedAt: DateTime.utc(2026, 6, 29, 8),
+      );
+      when(
+        () => dio.get<Map<String, Object?>>(
+          any(),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+        ),
+      ).thenAnswer((_) async => _okResponse(_searchBody()));
+
+      final snapshot = await dataSource.fetchTrending(
+        const TrendingQuery(window: TrendingWindow.week),
+      );
+
+      final repo = snapshot.trendingRepos.first;
+      expect(repo.starDelta, 100);
+      expect(repo.trend, [11900, 12000]);
+      expect(repo.trendProvenance, DataProvenance.observed);
+      expect(snapshot.primaryTrend, [11900, 12000]);
     });
 
     test('should throw parse AppException when items field is missing',

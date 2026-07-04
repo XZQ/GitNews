@@ -4,6 +4,7 @@ import '../../../core/domain/repo_entity.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
@@ -17,13 +18,16 @@ class GithubTrendingDataSource implements TrendingDataSource {
     required Dio dio,
     String? token,
     DateTime Function()? now,
+    RepoSnapshotHistoryDao? snapshotHistory,
   })  : _dio = dio,
         _token = token?.trim(),
-        _now = now ?? DateTime.now;
+        _now = now ?? DateTime.now,
+        _snapshotHistory = snapshotHistory;
 
   final Dio _dio;
   final String? _token;
   final DateTime Function() _now;
+  final RepoSnapshotHistoryDao? _snapshotHistory;
 
   static const int _perPage = 20;
 
@@ -44,7 +48,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
       if (data == null) {
         throw const AppException(kind: AppExceptionKind.parse);
       }
-      final repos = _parseRepos(data, query);
+      final repos = await _withObservedHistory(_parseRepos(data, query), query);
       return TrendingDataSnapshot(
         trendingRepos: repos.take(12).toList(growable: false),
         recentRepos: repos.skip(12).take(8).toList(growable: false),
@@ -148,6 +152,62 @@ class GithubTrendingDataSource implements TrendingDataSource {
     );
   }
 
+  Future<List<RepoEntity>> _withObservedHistory(
+    List<RepoEntity> repos,
+    TrendingQuery query,
+  ) async {
+    final history = _snapshotHistory;
+    if (history == null || repos.isEmpty) return repos;
+
+    final capturedAt = _now();
+    return Future.wait([
+      for (final repo in repos)
+        _withRepoHistory(repo, query.window, history, capturedAt),
+    ]);
+  }
+
+  Future<RepoEntity> _withRepoHistory(
+    RepoEntity repo,
+    TrendingWindow window,
+    RepoSnapshotHistoryDao history,
+    DateTime capturedAt,
+  ) async {
+    await history.record(
+      fullName: repo.fullName,
+      stars: repo.starCount,
+      forks: repo.forkCount,
+      capturedAt: capturedAt,
+    );
+    final trend = await history.starTrend(repo.fullName);
+    if (trend == null) return repo;
+
+    final values = _recentObservedValues(trend.values, window);
+    return repo.copyWith(
+      starDelta: _observedDelta(values, fallback: repo.starDelta),
+      trend: values,
+      trendProvenance: trend.provenance,
+    );
+  }
+
+  List<double> _recentObservedValues(
+    List<double> values,
+    TrendingWindow window,
+  ) {
+    final maxPoints = switch (window) {
+      TrendingWindow.today => 2,
+      TrendingWindow.week => 7,
+      TrendingWindow.month => 30,
+    };
+    if (values.length <= maxPoints) return values;
+    return values.sublist(values.length - maxPoints);
+  }
+
+  int _observedDelta(List<double> values, {required int fallback}) {
+    if (values.length < 2) return fallback;
+    final delta = values.last - values.first;
+    return delta.round().clamp(0, 999999);
+  }
+
   int _momentumScore({
     required int stars,
     required int forks,
@@ -198,6 +258,25 @@ class GithubTrendingDataSource implements TrendingDataSource {
 
   List<double> _buildTrend(List<RepoEntity> repos, double scale) {
     if (repos.isEmpty) return const [];
+    final observed = [
+      for (final repo in repos)
+        if (repo.trendProvenance == DataProvenance.observed &&
+            repo.trend != null &&
+            repo.trend!.length >= 2)
+          repo.trend!,
+    ];
+    if (observed.isNotEmpty) {
+      final pointCount = observed.fold<int>(
+        observed.first.length,
+        (count, trend) => trend.length < count ? trend.length : count,
+      );
+      return List<double>.generate(pointCount, (index) {
+        final sum = observed.fold<double>(0, (total, trend) {
+          return total + trend[trend.length - pointCount + index];
+        });
+        return (sum * scale).roundToDouble();
+      });
+    }
     final total = repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
     return List<double>.generate(7, (index) {
       final factor = 0.68 + index * 0.06;

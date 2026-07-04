@@ -71,6 +71,8 @@ class MonitorMonitoredRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final trend =
+        repo.trend ?? DemoData.generateStarTrend(repo.starCount - 5000, 5000);
     return InkWell(
       onTap: () =>
           context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
@@ -114,7 +116,7 @@ class MonitorMonitoredRow extends StatelessWidget {
               ),
             ),
             Sparkline(
-              values: DemoData.generateStarTrend(repo.starCount - 5000, 5000),
+              values: trend,
               color: AppColors.success,
               width: 90,
               height: 32,

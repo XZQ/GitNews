@@ -141,6 +141,7 @@
 - 已新增 `DataProvenance`,用于区分真实观测、估算口径和本地兜底;GitHub 远端字段标记为真实观测,Star 增量代理与展示曲线标记为估算
 - 已补 AI 雷达与深度报告语言分布布局回归测试,用动态长列表防止固定高度面板再次溢出
 - 已新增 `RepoSnapshotHistoryDao`,基于 `json_snapshot_cache` 记录仓库每日 stars/forks 快照,不新增 schema;仓库监控与仓库详情会优先使用本地观测历史生成 Star 曲线,不足 2 天时继续使用估算曲线兜底
+- GitHub 热榜 GitHub 模式已接入 `RepoSnapshotHistoryDao`:远端拉取成功后写入本地每日 Star/Fork 快照,当同一仓库已有至少 2 个不同日期快照时,`starDelta` 与热榜聚合趋势优先使用本地观测历史;compact / medium 首页趋势图也复用同一 `TrendingDigest`
 
 ## 数据源规划
 

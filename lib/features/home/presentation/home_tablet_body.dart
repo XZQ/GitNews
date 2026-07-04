@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -7,6 +8,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/metric_card.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
+import '../../trending/application/trending_providers.dart';
 import '../widgets/home_topics_panel.dart';
 import 'home_chart_helpers.dart';
 import 'home_today_stack.dart';
@@ -248,7 +250,7 @@ class _DesktopMainLayout extends StatelessWidget {
   }
 }
 
-class _ChartCard extends StatelessWidget {
+class _ChartCard extends ConsumerWidget {
   const _ChartCard({
     required this.window,
     required this.onChanged,
@@ -259,11 +261,14 @@ class _ChartCard extends StatelessWidget {
   final HomeLegacyTab tab;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final digest = ref.watch(trendingDigestProvider).valueOrNull;
     final series = homeSeriesForWindow(
       window,
       tab,
       Theme.of(context).colorScheme.primary,
+      primaryTrend: digest?.primaryTrend,
+      secondaryTrend: digest?.secondaryTrend,
     );
     final windowLabel = '近 $window 天';
     final title = homeChartTitle(tab);
