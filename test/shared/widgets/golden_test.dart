@@ -66,7 +66,8 @@ void main() {
       const RepoTile(
         repo: RepoEntity(
           fullName: 'rust-lang/rust',
-          description: 'Empowering everyone to build reliable and efficient software.',
+          description:
+              'Empowering everyone to build reliable and efficient software.',
           language: 'Rust',
           starCount: 98000,
           starDelta: 320,

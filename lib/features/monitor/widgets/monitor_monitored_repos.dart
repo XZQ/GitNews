@@ -7,6 +7,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../../../core/domain/repo_entity.dart';
@@ -36,17 +37,26 @@ class MonitorMonitoredRepos extends StatelessWidget {
               ),
             ),
           ),
-          SliverList.builder(
-            itemCount: repos.length,
-            itemBuilder: (context, i) {
-              return Column(
-                children: [
-                  if (i != 0) const Divider(height: 1),
-                  MonitorMonitoredRow(repo: repos[i]),
-                ],
-              );
-            },
-          ),
+          if (repos.isEmpty)
+            const SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyView(
+                icon: Icons.search_off_rounded,
+                message: '没有匹配的监控仓库',
+              ),
+            )
+          else
+            SliverList.builder(
+              itemCount: repos.length,
+              itemBuilder: (context, i) {
+                return Column(
+                  children: [
+                    if (i != 0) const Divider(height: 1),
+                    MonitorMonitoredRow(repo: repos[i]),
+                  ],
+                );
+              },
+            ),
         ],
       ),
     );

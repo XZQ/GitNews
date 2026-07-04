@@ -18,7 +18,7 @@ class TabSpec {
 }
 
 /// 桌面侧栏 7 栏 IA:
-/// 总览 → AI 动态 → GitHub热榜 → 技术趋势 → 仓库监控 → 深度报告 → 设置
+/// 总览 → AI 动态 → GitHub热榜 → AI雷达 → 仓库监控 → 深度报告 → 设置
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
     labelKey: 'tab.home',
@@ -41,8 +41,8 @@ const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
     labelKey: 'tab.tech_hotspot',
     pathSegment: 'tech_hotspot',
-    icon: Icons.whatshot_outlined,
-    selectedIcon: Icons.whatshot_rounded,
+    icon: Icons.device_hub_outlined,
+    selectedIcon: Icons.device_hub_rounded,
   ),
   TabSpec(
     labelKey: 'tab.monitor',

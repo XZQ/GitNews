@@ -53,8 +53,13 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(aiNewsItemsNotifierProvider);
+    final query = ref.watch(aiNewsSearchQueryProvider);
     return async.when(
-      data: (items) => _ItemList(items: items, category: category),
+      data: (items) => _ItemList(
+        items: filterAiNewsItems(items, query),
+        category: category,
+        query: query,
+      ),
       loading: () => const AiNewsListSkeleton(),
       error: (e, _) => ErrorView(
         error: e.asAppException(),
@@ -65,10 +70,15 @@ class _Body extends ConsumerWidget {
 }
 
 class _ItemList extends ConsumerStatefulWidget {
-  const _ItemList({required this.items, required this.category});
+  const _ItemList({
+    required this.items,
+    required this.category,
+    required this.query,
+  });
 
   final List<AiNewsItem> items;
   final AiNewsCategory? category;
+  final String query;
 
   @override
   ConsumerState<_ItemList> createState() => _ItemListState();
@@ -105,6 +115,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
   }
 
   void _onScroll() {
+    if (widget.query.trim().isNotEmpty) return;
     if (!_controller.hasClients) return;
     final metrics = _controller.position;
     final distanceToBottom = metrics.maxScrollExtent - metrics.pixels;
@@ -116,18 +127,21 @@ class _ItemListState extends ConsumerState<_ItemList> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final query = widget.query.trim();
     if (widget.items.isEmpty) {
       return EmptyView(
         icon: Icons.article_outlined,
-        message: widget.category == null
-            ? l10n.tr('ai_news.empty')
-            : l10n
-                .tr('ai_news.empty_category')
-                .replaceAll('{cat}', widget.category!.label),
+        message: query.isNotEmpty
+            ? l10n.tr('ai_news.empty_search').replaceAll('{query}', query)
+            : widget.category == null
+                ? l10n.tr('ai_news.empty')
+                : l10n
+                    .tr('ai_news.empty_category')
+                    .replaceAll('{cat}', widget.category!.label),
       );
     }
     final notifier = ref.read(aiNewsItemsNotifierProvider.notifier);
-    final hasMore = notifier.hasMore;
+    final hasMore = query.isEmpty && notifier.hasMore;
     final groups = groupAiNewsByDay(widget.items);
     // 扁平化分组为 (header / row) 序列,SliverList 按 index lazy build。
     final flat = <_FlatEntry>[

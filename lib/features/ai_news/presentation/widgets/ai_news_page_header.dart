@@ -13,13 +13,16 @@ class AiNewsPageHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final query = ref.watch(aiNewsSearchQueryProvider);
     return PageHeader(
       title: l10n.tr('ai_news.title'),
       subtitle: l10n.tr('ai_news.subtitle'),
       searchHint: l10n.tr('ai_news.search_hint'),
-      onSearchSubmitted: (v) {
-        // TODO(ai_news): 接入搜索筛选
-      },
+      searchValue: query,
+      onSearchChanged: (v) =>
+          ref.read(aiNewsSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) =>
+          ref.read(aiNewsSearchQueryProvider.notifier).state = v,
       pills: [
         HeaderStatPill(
           icon: Icons.bolt_rounded,

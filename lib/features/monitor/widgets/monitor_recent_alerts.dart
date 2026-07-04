@@ -5,6 +5,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../domain/entities.dart';
 
@@ -31,6 +32,19 @@ class MonitorRecentAlerts extends StatelessWidget {
               subtitle: '今日与昨日告警流',
             ),
           ),
+          if (alerts.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
+              child: EmptyView(
+                icon: Icons.notifications_off_outlined,
+                message: '没有匹配的告警',
+              ),
+            ),
           for (var i = 0; i < alerts.length; i++) ...[
             if (i != 0) const Divider(height: 1),
             MonitorAlertRow(alert: alerts[i]),

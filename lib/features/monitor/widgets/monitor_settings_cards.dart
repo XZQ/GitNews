@@ -5,20 +5,32 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/section_header.dart';
 
 class MonitorRulesCard extends StatelessWidget {
-  const MonitorRulesCard({super.key});
+  const MonitorRulesCard({this.query = '', super.key});
+
+  final String query;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final rules = <MonitorRuleItem>[
+    final allRules = <MonitorRuleItem>[
       const MonitorRuleItem('Star 增速 ≥ 200/天', AppColors.success, true),
       MonitorRuleItem('单日增长 ≥ 10%', colors.primary, true),
       const MonitorRuleItem('Fork 增速 ≥ 50/天', AppColors.info, false),
       const MonitorRuleItem('讨论热度 ≥ 5x', AppColors.warning, true),
     ];
+    final keyword = query.trim().toLowerCase();
+    final rules = keyword.isEmpty
+        ? allRules
+        : [
+            for (final rule in allRules)
+              if (rule.label.toLowerCase().contains(keyword) ||
+                  '监控规则'.contains(keyword))
+                rule,
+          ];
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,7 +40,13 @@ class MonitorRulesCard extends StatelessWidget {
             subtitle: '3 条',
           ),
           const SizedBox(height: AppSpacing.md),
-          for (final rule in rules) _RuleRow(rule: rule),
+          if (rules.isEmpty)
+            const EmptyView(
+              icon: Icons.rule_folder_outlined,
+              message: '没有匹配的监控规则',
+            )
+          else
+            for (final rule in rules) _RuleRow(rule: rule),
         ],
       ),
     );

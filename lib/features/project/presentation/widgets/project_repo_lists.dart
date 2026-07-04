@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/demo_data.dart';
-import '../../../../core/demo_data_mappers.dart';
+import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/empty_view.dart';
 import '../../../../shared/widgets/repo_tile.dart';
 import '../../../../shared/widgets/section_header.dart';
 
 class ProjectPopularRepos extends StatelessWidget {
-  const ProjectPopularRepos({super.key});
+  const ProjectPopularRepos({required this.repos, super.key});
+
+  final List<RepoEntity> repos;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final repos =
-        DemoData.trending.map((e) => e.toEntity()).toList(growable: false);
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -33,6 +33,19 @@ class ProjectPopularRepos extends StatelessWidget {
               subtitle: l10n.tr('project.section.popular.subtitle'),
             ),
           ),
+          if (repos.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
+              child: EmptyView(
+                icon: Icons.search_off_rounded,
+                message: '没有匹配的热门仓库',
+              ),
+            ),
           for (var i = 0; i < repos.length; i++) ...[
             if (i != 0) const Divider(height: 1),
             RepoTile(
@@ -49,13 +62,13 @@ class ProjectPopularRepos extends StatelessWidget {
 }
 
 class ProjectRecentlyUpdated extends StatelessWidget {
-  const ProjectRecentlyUpdated({super.key});
+  const ProjectRecentlyUpdated({required this.repos, super.key});
+
+  final List<RepoEntity> repos;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final repos =
-        DemoData.recent.map((e) => e.toEntity()).toList(growable: false);
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -72,6 +85,19 @@ class ProjectRecentlyUpdated extends StatelessWidget {
               subtitle: l10n.tr('project.section.recent.subtitle'),
             ),
           ),
+          if (repos.isEmpty)
+            const Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
+              child: EmptyView(
+                icon: Icons.search_off_rounded,
+                message: '没有匹配的最近活跃仓库',
+              ),
+            ),
           for (var i = 0; i < repos.length; i++) ...[
             if (i != 0) const Divider(height: 1),
             RepoTile(

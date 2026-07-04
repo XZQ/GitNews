@@ -1,7 +1,7 @@
-/// 技术趋势领域模型(纯 Dart)。
+/// AI 雷达领域模型(纯 Dart)。
 library;
 
-/// 技术栈分类:用于 [TechHotspotPage] 的左侧分类。
+/// AI/技术栈分类:用于 [TechHotspotPage] 的趋势筛选。
 enum TechStack {
   all,
   ai,
@@ -31,7 +31,7 @@ class LanguageStat {
   final int repoCount;
 }
 
-/// 技术主题(雷达型卡片)。
+/// AI 雷达主题(雷达型卡片)。
 class TechTopic {
   const TechTopic({
     required this.id,
@@ -62,7 +62,7 @@ class TechTopic {
   final String summary;
 }
 
-/// 技术趋势时间序列(用于趋势小图)。
+/// AI 雷达时间序列(用于趋势小图)。
 class TechHeatPoint {
   const TechHeatPoint({required this.label, required this.value});
 
@@ -70,7 +70,7 @@ class TechHeatPoint {
   final double value;
 }
 
-/// 技术趋势页需要的一组本地情报数据。
+/// AI 雷达页需要的一组本地情报数据。
 class TechHotspotDigest {
   const TechHotspotDigest({
     required this.languages,

@@ -25,11 +25,9 @@ class MonitorPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
-    final state = ref.watch(monitorDigestProvider);
+    final state = ref.watch(filteredMonitorDigestProvider);
     return Scaffold(
-      appBar: isCompact
-          ? AppBar(title: Text(l10n.tr('monitor.title')))
-          : null,
+      appBar: isCompact ? AppBar(title: Text(l10n.tr('monitor.title'))) : null,
       body: state.when(
         data: (digest) {
           if (digest.isEmpty) {
@@ -81,13 +79,14 @@ class _Mobile extends StatelessWidget {
 }
 
 /// 桌面:左 8 列监控仓库表 + 告警 / 右 4 列(规则 + 通知设置)。
-class _Desktop extends StatelessWidget {
+class _Desktop extends ConsumerWidget {
   const _Desktop({required this.digest});
 
   final MonitorDigest digest;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final searchQuery = ref.watch(monitorSearchQueryProvider).trim();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -121,7 +120,10 @@ class _Desktop extends StatelessWidget {
                       Expanded(
                         flex: 4,
                         child: SingleChildScrollView(
-                          child: _RightColumn(alerts: digest.alerts),
+                          child: _RightColumn(
+                            alerts: digest.alerts,
+                            searchQuery: searchQuery,
+                          ),
                         ),
                       ),
                     ],
@@ -137,15 +139,16 @@ class _Desktop extends StatelessWidget {
 }
 
 class _RightColumn extends StatelessWidget {
-  const _RightColumn({required this.alerts});
+  const _RightColumn({required this.alerts, required this.searchQuery});
 
   final List<AlertEntity> alerts;
+  final String searchQuery;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const MonitorRulesCard(),
+        MonitorRulesCard(query: searchQuery),
         const SizedBox(height: AppSpacing.lg),
         const MonitorNotificationCard(),
         const SizedBox(height: AppSpacing.lg),

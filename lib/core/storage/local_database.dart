@@ -31,7 +31,7 @@ class LocalDatabase {
   final String path;
 
   /// 当前 schema 版本。每次新增迁移在 [_kMigrations] 末尾追加并自增此值。
-  static const int _kCurrentVersion = 1;
+  static const int _kCurrentVersion = 2;
 
   /// 业务方拿到这个 executor 后,在自己的 DAO 内执行 SQL。
   ///
@@ -113,15 +113,37 @@ class LocalDatabase {
     ''',
     'CREATE INDEX IF NOT EXISTS idx_ai_news_cached_at ON ai_news_item(cached_at)',
     'CREATE INDEX IF NOT EXISTS idx_ai_news_category  ON ai_news_item(category)',
+    _kCreateTrendingSnapshotCache,
+    'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
   ];
 
   /// 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
   ///
-  /// 当前为空:初始 schema 通过 [_kBootstrap] 一次性创建。后续新增字段:
+  /// 初始 schema 通过 [_kBootstrap] 一次性创建。后续新增字段:
   /// ```dart
   /// (db) async => await db.execute('ALTER TABLE ai_news_item ADD COLUMN ext6 TEXT'),
   /// ```
-  static const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [];
+  static const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
+    _migrateV1ToV2,
+  ];
+
+  static const String _kCreateTrendingSnapshotCache = '''
+    CREATE TABLE IF NOT EXISTS trending_snapshot_cache (
+      cache_key     TEXT PRIMARY KEY,
+      payload_json  TEXT NOT NULL,
+      cached_at     INTEGER NOT NULL,
+      ext1          TEXT,
+      ext2          INTEGER,
+      ext3          REAL
+    )
+  ''';
+
+  static Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
+    await db.execute(_kCreateTrendingSnapshotCache);
+    await db.execute(
+      'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
+    );
+  }
 
   static Future<void> _bootstrap(DatabaseExecutor db, _) async {
     for (final stmt in _kBootstrap) {
@@ -157,6 +179,7 @@ class LocalDatabase {
   Future<void> clearAll() async {
     try {
       await _db.delete('ai_news_item');
+      await _db.delete('trending_snapshot_cache');
       await _db.delete('cache_meta');
       await _db.execute('VACUUM');
     } catch (e, st) {
@@ -177,24 +200,46 @@ class LocalDatabase {
     try {
       final size = sizeInBytes();
       if (size <= kMaxDatabaseBytes) return;
-      final rows = await _db.rawQuery('SELECT COUNT(*) AS c FROM ai_news_item');
-      final count = rows.isEmpty ? 0 : (rows.first['c'] as int? ?? 0);
+      final aiRows =
+          await _db.rawQuery('SELECT COUNT(*) AS c FROM ai_news_item');
+      final trendingRows = await _db.rawQuery(
+        'SELECT COUNT(*) AS c FROM trending_snapshot_cache',
+      );
+      final aiCount = aiRows.isEmpty ? 0 : (aiRows.first['c'] as int? ?? 0);
+      final trendingCount =
+          trendingRows.isEmpty ? 0 : (trendingRows.first['c'] as int? ?? 0);
+      final count = aiCount + trendingCount;
       if (count == 0) {
         await _db.execute('VACUUM');
         return;
       }
       final evict = (count * _kEvictRatio).floor().clamp(1, count);
-      await _db.rawDelete(
-        '''
-        DELETE FROM ai_news_item
-        WHERE id IN (
-          SELECT id FROM ai_news_item
-          ORDER BY cached_at ASC
-          LIMIT ?
-        )
-        ''',
-        [evict],
-      );
+      if (aiCount > 0) {
+        await _db.rawDelete(
+          '''
+          DELETE FROM ai_news_item
+          WHERE id IN (
+            SELECT id FROM ai_news_item
+            ORDER BY cached_at ASC
+            LIMIT ?
+          )
+          ''',
+          [evict.clamp(1, aiCount)],
+        );
+      }
+      if (trendingCount > 0) {
+        await _db.rawDelete(
+          '''
+          DELETE FROM trending_snapshot_cache
+          WHERE cache_key IN (
+            SELECT cache_key FROM trending_snapshot_cache
+            ORDER BY cached_at ASC
+            LIMIT ?
+          )
+          ''',
+          [evict.clamp(1, trendingCount)],
+        );
+      }
       await _db.execute('VACUUM');
     } catch (_) {
       // 容量超限清理失败不阻塞业务,下次再试

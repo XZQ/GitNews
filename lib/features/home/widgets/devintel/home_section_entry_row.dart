@@ -66,11 +66,11 @@ const _trending = _EntrySpec(
   path: '/trending',
 );
 const _hotspot = _EntrySpec(
-  label: '技术趋势',
-  kpi: '8 主题',
+  label: 'AI雷达',
+  kpi: '8 信号',
   delta: '+24%',
-  icon: Icons.whatshot_rounded,
-  color: AppColors.danger,
+  icon: Icons.device_hub_rounded,
+  color: AppColors.brand,
   path: '/tech_hotspot',
 );
 const _monitor = _EntrySpec(
