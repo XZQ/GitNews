@@ -315,7 +315,7 @@ class _TopRow extends StatelessWidget {
     final formFactor = Breakpoints.of(context);
     if (formFactor == FormFactor.expanded) {
       return SizedBox(
-        height: 280,
+        height: 360,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
