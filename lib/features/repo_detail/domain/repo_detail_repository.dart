@@ -20,7 +20,8 @@ class RepoDetailDigest {
 
 /// 仓库详情数据仓库。
 ///
-/// 当前实现读取本地模拟数据,后续可替换为 GitHub REST/GraphQL + 本地缓存。
+/// 当前实现默认读取 GitHub Repository / Contributors / Search API 并使用
+/// 本地快照缓存;远端失败时可回退过期缓存或本地详情种子数据。
 abstract interface class RepoDetailRepository {
   Future<RepoDetailDigest> getDetail(String fullName);
 }

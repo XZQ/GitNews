@@ -85,7 +85,8 @@ class TrendingDigest {
 
 /// 趋势数据仓库。
 ///
-/// 当前实现读取本地模拟数据,后续可替换为 GitHub API + 本地快照缓存。
+/// 当前支持本地数据源与 GitHub Search 数据源。GitHub Search 不直接返回
+/// Star 增量,远端实现里的增长值是动量代理值;真实历史趋势需要本地快照累积。
 abstract interface class TrendingRepository {
   Future<TrendingDigest> getDigest({
     TrendingQuery query = const TrendingQuery(),

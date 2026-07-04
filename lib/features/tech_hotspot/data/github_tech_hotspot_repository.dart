@@ -1,10 +1,13 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/domain/data_provenance.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/tech_hotspot_models.dart';
 import '../domain/tech_hotspot_repository.dart';
+import 'github_tech_hotspot_queries.dart';
 import 'local_tech_hotspot_repository.dart';
 
 const Duration techHotspotRemoteCacheTtl = Duration(minutes: 5);
@@ -30,44 +33,6 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   final TechHotspotRepository _fallback;
 
   static const String _cacheKey = 'tech_hotspot:github:default:v1';
-  static const List<_TopicQuery> _queries = [
-    _TopicQuery(
-      id: 'github-agent',
-      name: 'Agent 框架',
-      category: 'Agent',
-      query: 'agent OR ai-agent OR llm-agent OR langgraph OR autogen',
-      summary: 'GitHub 上 Agent 编排、长任务代理和多智能体项目的综合热度。',
-    ),
-    _TopicQuery(
-      id: 'github-mcp',
-      name: 'MCP 协议',
-      category: 'Agent',
-      query: 'mcp OR model-context-protocol OR modelcontextprotocol',
-      summary: '模型连接工具、数据源和本地应用的开放协议生态热度。',
-    ),
-    _TopicQuery(
-      id: 'github-ai-coding',
-      name: 'AI Coding 工具',
-      category: 'DevTools',
-      query:
-          'coding agent OR copilot OR code assistant OR claude-code OR codex',
-      summary: '从代码补全到任务代理的 AI Coding 项目增长趋势。',
-    ),
-    _TopicQuery(
-      id: 'github-rag',
-      name: 'RAG 工程化',
-      category: 'Data',
-      query: 'rag OR retrieval augmented generation OR vector database',
-      summary: '检索增强生成、向量数据库、重排和知识库链路的工程热度。',
-    ),
-    _TopicQuery(
-      id: 'github-local-llm',
-      name: '本地推理',
-      category: 'Infra',
-      query: 'llama.cpp OR ollama OR vllm OR local llm',
-      summary: '本地模型推理、端侧部署和低延迟推理工具链热度。',
-    ),
-  ];
 
   @override
   Future<TechHotspotDigest> getDigest() async {
@@ -124,7 +89,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
 
   Future<TechHotspotDigest> _fetchDigest(DateTime now) async {
     final results = await Future.wait([
-      for (final query in _queries) _fetchTopic(query, now),
+      for (final query in techHotspotTopicQueries) _fetchTopic(query, now),
     ]);
     final languages = _buildLanguages(results);
     final tags = _buildTags(results);
@@ -136,19 +101,22 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     );
   }
 
-  Future<_TopicResult> _fetchTopic(_TopicQuery query, DateTime now) async {
+  Future<_TopicResult> _fetchTopic(
+    TechHotspotTopicQuery query,
+    DateTime now,
+  ) async {
     try {
       final cutoff = now.toUtc().subtract(const Duration(days: 30));
       final response = await _dio.get<Map<String, Object?>>(
         '/search/repositories',
         queryParameters: {
           'q':
-              '(${query.query}) in:name,description,readme stars:>30 pushed:>=${_formatDate(cutoff)} archived:false',
+              '(${query.query}) in:name,description,readme stars:>30 pushed:>=${GitHubApiSupport.formatDate(cutoff)} archived:false',
           'sort': 'stars',
           'order': 'desc',
           'per_page': 10,
         },
-        options: Options(headers: _headers()),
+        options: Options(headers: GitHubApiSupport.headers(_token)),
       );
       final data = response.data;
       if (data == null) {
@@ -164,16 +132,21 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     }
   }
 
-  _TopicResult _parseTopic(_TopicQuery query, Map<String, Object?> data) {
-    final total = _int(data['total_count']);
-    final items = _list(data['items']).map(_map).toList(growable: false);
+  _TopicResult _parseTopic(
+    TechHotspotTopicQuery query,
+    Map<String, Object?> data,
+  ) {
+    final total = GitHubJson.intValue(data['total_count']);
+    final items = GitHubJson.list(data['items'])
+        .map(GitHubJson.map)
+        .toList(growable: false);
     final stars = items.fold<int>(
       0,
-      (sum, item) => sum + _int(item['stargazers_count']),
+      (sum, item) => sum + GitHubJson.intValue(item['stargazers_count']),
     );
     final languages = <String, int>{};
     for (final item in items) {
-      final language = _nullableString(item['language']) ?? 'Unknown';
+      final language = GitHubJson.nullableString(item['language']) ?? 'Unknown';
       languages.update(language, (value) => value + 1, ifAbsent: () => 1);
     }
     final heat = ((stars / 1200) + (total / 80)).round().clamp(35, 100);
@@ -189,6 +162,8 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         mentions: total,
         relatedRepos: relatedRepos,
         summary: query.summary,
+        provenance: DataProvenance.observed,
+        growthProvenance: DataProvenance.estimated,
       ),
       languages: languages,
     );
@@ -214,8 +189,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         name: entry.key,
         percent: entry.value / total * 100,
         delta: 0,
-        color: _languageColor(entry.key),
+        color: GitHubApiSupport.languageColor(entry.key),
         repoCount: entry.value,
+        provenance: DataProvenance.estimated,
       );
     }).toList(growable: false);
   }
@@ -245,22 +221,6 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     return tags.toSet().take(16).toList(growable: false);
   }
 
-  Map<String, Object?> _headers() {
-    final token = _token?.trim();
-    return {
-      'Accept': 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      'User-Agent': 'GitHubNews/0.1 (Flutter)',
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    };
-  }
-
-  String _formatDate(DateTime date) {
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-    return '${date.year}-$month-$day';
-  }
-
   Map<String, Object?> _digestToJson(TechHotspotDigest digest) {
     return {
       'languages': digest.languages.map(_languageToJson).toList(),
@@ -272,10 +232,13 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
 
   TechHotspotDigest _digestFromJson(Map<String, Object?> json) {
     return TechHotspotDigest(
-      languages: _list(json['languages']).map(_languageFromJson).toList(),
-      topics: _list(json['topics']).map(_topicFromJson).toList(),
-      heatTrend: _list(json['heatTrend']).map(_heatFromJson).toList(),
-      hotTags: _list(json['hotTags']).map(_string).toList(growable: false),
+      languages:
+          GitHubJson.list(json['languages']).map(_languageFromJson).toList(),
+      topics: GitHubJson.list(json['topics']).map(_topicFromJson).toList(),
+      heatTrend: GitHubJson.list(json['heatTrend']).map(_heatFromJson).toList(),
+      hotTags: GitHubJson.list(json['hotTags'])
+          .map(GitHubJson.string)
+          .toList(growable: false),
     );
   }
 
@@ -290,13 +253,14 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   LanguageStat _languageFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return LanguageStat(
-      name: _string(json['name']),
-      percent: _double(json['percent']),
-      delta: _double(json['delta']),
-      color: _int(json['color']),
-      repoCount: _int(json['repoCount']),
+      name: GitHubJson.string(json['name']),
+      percent: GitHubJson.doubleValue(json['percent']),
+      delta: GitHubJson.doubleValue(json['delta']),
+      color: GitHubJson.intValue(json['color']),
+      repoCount: GitHubJson.intValue(json['repoCount']),
+      provenance: DataProvenance.estimated,
     );
   }
 
@@ -314,16 +278,18 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   TechTopic _topicFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return TechTopic(
-      id: _string(json['id']),
-      name: _string(json['name']),
-      category: _string(json['category']),
-      heat: _int(json['heat']),
-      growth: _double(json['growth']),
-      mentions: _int(json['mentions']),
-      relatedRepos: _int(json['relatedRepos']),
-      summary: _string(json['summary']),
+      id: GitHubJson.string(json['id']),
+      name: GitHubJson.string(json['name']),
+      category: GitHubJson.string(json['category']),
+      heat: GitHubJson.intValue(json['heat']),
+      growth: GitHubJson.doubleValue(json['growth']),
+      mentions: GitHubJson.intValue(json['mentions']),
+      relatedRepos: GitHubJson.intValue(json['relatedRepos']),
+      summary: GitHubJson.string(json['summary']),
+      provenance: DataProvenance.observed,
+      growthProvenance: DataProvenance.estimated,
     );
   }
 
@@ -332,73 +298,12 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   TechHeatPoint _heatFromJson(Object? raw) {
-    final json = _map(raw);
+    final json = GitHubJson.map(raw);
     return TechHeatPoint(
-      label: _string(json['label']),
-      value: _double(json['value']),
+      label: GitHubJson.string(json['label']),
+      value: GitHubJson.doubleValue(json['value']),
     );
   }
-
-  List<Object?> _list(Object? raw) {
-    if (raw is List<Object?>) return raw;
-    throw const FormatException('Expected list');
-  }
-
-  Map<String, Object?> _map(Object? raw) {
-    if (raw is Map<String, Object?>) return raw;
-    throw const FormatException('Expected object');
-  }
-
-  String _string(Object? raw) {
-    if (raw is String && raw.isNotEmpty) return raw;
-    throw const FormatException('Expected string');
-  }
-
-  String? _nullableString(Object? raw) {
-    if (raw == null) return null;
-    if (raw is String) return raw;
-    throw const FormatException('Expected nullable string');
-  }
-
-  int _int(Object? raw) {
-    if (raw is int) return raw;
-    if (raw is double) return raw.round();
-    throw const FormatException('Expected int');
-  }
-
-  double _double(Object? raw) {
-    if (raw is num) return raw.toDouble();
-    throw const FormatException('Expected double');
-  }
-
-  int _languageColor(String language) {
-    return switch (language.toLowerCase()) {
-      'typescript' => 0xFF3178C6,
-      'javascript' => 0xFFF1E05A,
-      'python' => 0xFF3572A5,
-      'rust' => 0xFFDEA584,
-      'go' => 0xFF00ADD8,
-      'dart' => 0xFF00B4AB,
-      'c++' => 0xFFF34B7D,
-      _ => 0xFF64748B,
-    };
-  }
-}
-
-class _TopicQuery {
-  const _TopicQuery({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.query,
-    required this.summary,
-  });
-
-  final String id;
-  final String name;
-  final String category;
-  final String query;
-  final String summary;
 }
 
 class _TopicResult {

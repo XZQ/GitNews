@@ -217,7 +217,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'tech_hotspot.agent_board.title': 'Agent rank signals',
   'tech_hotspot.agent_board.subtitle':
       'Heat, growth, discussion and related repos',
-  'tech_hotspot.agent_board.source': 'Local scoring model',
+  'tech_hotspot.agent_board.source': 'GitHub aggregate · estimated growth',
   'tech_hotspot.detail_title': 'Topic detail',
   'tech_hotspot.detail.summary': 'Overview',
   'tech_hotspot.detail.summary.subtitle': 'Editorial digest & recent shifts',

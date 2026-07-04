@@ -1,7 +1,9 @@
 import 'package:dio/dio.dart';
 
 import '../../../core/domain/repo_entity.dart';
+import '../../../core/domain/data_provenance.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/github/github_api_support.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
@@ -24,11 +26,6 @@ class GithubTrendingDataSource implements TrendingDataSource {
   final DateTime Function() _now;
 
   static const int _perPage = 20;
-  static const Map<String, Object?> _headers = {
-    'Accept': 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'GitHubNews/0.1 (Flutter)',
-  };
 
   @override
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
@@ -41,7 +38,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
           'order': 'desc',
           'per_page': _perPage,
         },
-        options: Options(headers: _headersWithAuth()),
+        options: Options(headers: GitHubApiSupport.headers(_token)),
       );
       final data = response.data;
       if (data == null) {
@@ -57,7 +54,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
         tertiaryTrend: _buildTrend(repos, 0.56),
       );
     } on DioException catch (e) {
-      throw _toAppException(e);
+      throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
@@ -65,25 +62,18 @@ class GithubTrendingDataSource implements TrendingDataSource {
     }
   }
 
-  Map<String, Object?> _headersWithAuth() {
-    final token = _token;
-    return {
-      ..._headers,
-      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
-    };
-  }
-
   String _buildSearchQuery(TrendingQuery query) {
     final cutoff = _now().toUtc().subtract(_windowDuration(query.window));
     final parts = <String>[
       'stars:>50',
       if (query.board == TrendingBoard.newRepos)
-        'created:>=${_formatDate(cutoff)}'
+        'created:>=${GitHubApiSupport.formatDate(cutoff)}'
       else
-        'pushed:>=${_formatDate(cutoff)}',
+        'pushed:>=${GitHubApiSupport.formatDate(cutoff)}',
       'archived:false',
       ..._boardSearchParts(query.board),
-      if (query.hasLanguageFilter) 'language:${_quoteIfNeeded(query.language)}',
+      if (query.hasLanguageFilter)
+        'language:${GitHubApiSupport.quoteSearchValue(query.language)}',
     ];
     return parts.join(' ');
   }
@@ -116,18 +106,6 @@ class GithubTrendingDataSource implements TrendingDataSource {
     };
   }
 
-  String _formatDate(DateTime date) {
-    final month = date.month.toString().padLeft(2, '0');
-    final day = date.day.toString().padLeft(2, '0');
-    return '${date.year}-$month-$day';
-  }
-
-  String _quoteIfNeeded(String value) {
-    final trimmed = value.trim();
-    if (!trimmed.contains(' ')) return trimmed;
-    return '"$trimmed"';
-  }
-
   List<RepoEntity> _parseRepos(
     Map<String, Object?> data,
     TrendingQuery query,
@@ -145,14 +123,15 @@ class GithubTrendingDataSource implements TrendingDataSource {
     if (raw is! Map<String, Object?>) {
       throw const FormatException('GitHub repository item is not an object');
     }
-    final fullName = _string(raw['full_name']);
-    final language = _nullableString(raw['language']) ?? 'Unknown';
-    final stars = _int(raw['stargazers_count']);
-    final forks = _int(raw['forks_count']);
-    final score = _double(raw['score']);
+    final fullName = GitHubJson.string(raw['full_name']);
+    final language = GitHubJson.nullableString(raw['language']) ?? 'Unknown';
+    final stars = GitHubJson.intValue(raw['stargazers_count']);
+    final forks = GitHubJson.intValue(raw['forks_count']);
+    final score = GitHubJson.doubleValue(raw['score']);
     return RepoEntity(
       fullName: fullName,
-      description: _nullableString(raw['description']) ?? 'No description',
+      description:
+          GitHubJson.nullableString(raw['description']) ?? 'No description',
       language: language,
       starCount: stars,
       starDelta: _momentumScore(
@@ -162,31 +141,11 @@ class GithubTrendingDataSource implements TrendingDataSource {
         window: query.window,
       ),
       forkCount: forks,
-      accentArgb: _languageColor(language),
+      accentArgb: GitHubApiSupport.languageColor(language),
+      valueProvenance: DataProvenance.observed,
+      trendProvenance: DataProvenance.estimated,
       trend: _repoTrend(stars, query.window),
     );
-  }
-
-  String _string(Object? value) {
-    if (value is String && value.isNotEmpty) return value;
-    throw const FormatException('Expected non-empty string');
-  }
-
-  String? _nullableString(Object? value) {
-    if (value == null) return null;
-    if (value is String) return value;
-    throw const FormatException('Expected nullable string');
-  }
-
-  int _int(Object? value) {
-    if (value is int) return value;
-    if (value is double) return value.round();
-    throw const FormatException('Expected integer');
-  }
-
-  double _double(Object? value) {
-    if (value is num) return value.toDouble();
-    return 0;
   }
 
   int _momentumScore({
@@ -231,7 +190,8 @@ class GithubTrendingDataSource implements TrendingDataSource {
         name: entry.key,
         percent: percent,
         delta: 0,
-        accentArgb: _languageColor(entry.key),
+        accentArgb: GitHubApiSupport.languageColor(entry.key),
+        provenance: DataProvenance.estimated,
       );
     }).toList(growable: false);
   }
@@ -243,46 +203,5 @@ class GithubTrendingDataSource implements TrendingDataSource {
       final factor = 0.68 + index * 0.06;
       return (total * scale * factor).roundToDouble();
     });
-  }
-
-  int _languageColor(String language) {
-    return switch (language.toLowerCase()) {
-      'typescript' => 0xFF3178C6,
-      'javascript' => 0xFFF1E05A,
-      'python' => 0xFF3572A5,
-      'rust' => 0xFFDEA584,
-      'go' => 0xFF00ADD8,
-      'dart' => 0xFF00B4AB,
-      'kotlin' => 0xFFA97BFF,
-      'swift' => 0xFFFA7343,
-      'java' => 0xFFB07219,
-      'c++' => 0xFFF34B7D,
-      'c#' => 0xFF178600,
-      _ => 0xFF64748B,
-    };
-  }
-
-  AppException _toAppException(DioException e) {
-    final response = e.response;
-    final statusCode = response?.statusCode ?? 0;
-    final isGitHubRateLimit = statusCode == 403 &&
-        response?.headers.value('x-ratelimit-remaining') == '0';
-    if (isGitHubRateLimit) {
-      final reset = int.tryParse(
-        response?.headers.value('x-ratelimit-reset') ?? '',
-      );
-      final retryAfter = reset == null
-          ? null
-          : DateTime.fromMillisecondsSinceEpoch(reset * 1000)
-              .difference(_now())
-              .inSeconds
-              .clamp(0, 3600);
-      return AppException(
-        kind: AppExceptionKind.rateLimit,
-        cause: e,
-        meta: {'retryAfter': retryAfter},
-      );
-    }
-    return e.toAppException();
   }
 }
