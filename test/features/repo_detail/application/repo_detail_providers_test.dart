@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/demo_data.dart';
 import 'package:github_news/core/demo_data_mappers.dart';
 import 'package:github_news/features/repo_detail/application/repo_detail_providers.dart';
+import 'package:github_news/features/repo_detail/data/local_repo_detail_repository.dart';
 import 'package:github_news/features/repo_detail/domain/repo_detail_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -11,7 +12,13 @@ class _MockRepoDetailRepository extends Mock implements RepoDetailRepository {}
 void main() {
   group('repoDetailDigestProvider', () {
     test('should expose local digest for known repo', () async {
-      final container = ProviderContainer();
+      final container = ProviderContainer(
+        overrides: [
+          repoDetailRepositoryProvider.overrideWithValue(
+            const LocalRepoDetailRepository(),
+          ),
+        ],
+      );
       addTearDown(container.dispose);
 
       final digest = await container.read(

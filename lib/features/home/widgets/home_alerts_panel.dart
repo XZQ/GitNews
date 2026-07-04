@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/demo_data.dart';
-import '../../../core/demo_data_mappers.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
@@ -10,10 +9,11 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../../monitor/application/monitor_providers.dart';
 import '../../monitor/domain/entities.dart';
 
 /// 监控告警面板(手机首页 + 桌面右栏共用)。
-class HomeAlertsPanel extends StatelessWidget {
+class HomeAlertsPanel extends ConsumerWidget {
   const HomeAlertsPanel({
     this.showHeader = true,
     this.maxItems = 4,
@@ -24,10 +24,12 @@ class HomeAlertsPanel extends StatelessWidget {
   final int maxItems;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final items =
-        DemoData.alerts.take(maxItems).map((e) => e.toEntity()).toList();
+    final items = ref.watch(monitorDigestProvider).maybeWhen(
+          data: (digest) => digest.alerts.take(maxItems).toList(),
+          orElse: () => const <AlertEntity>[],
+        );
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(

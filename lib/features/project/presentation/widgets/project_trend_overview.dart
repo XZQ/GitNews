@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/demo_data.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../../shared/widgets/star_trend_chart.dart';
+import '../../domain/project_repository.dart';
 
 class ProjectTrendOverview extends StatelessWidget {
-  const ProjectTrendOverview({super.key});
+  const ProjectTrendOverview({required this.digest, super.key});
+
+  final ProjectDigest digest;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +28,11 @@ class ProjectTrendOverview extends StatelessWidget {
           StarTrendChart(
             series: [
               ChartSeries(
-                values: DemoData.generateStarTrend(42000, 4200),
+                values: _safeTrend(digest.primaryTrend),
                 color: Theme.of(context).colorScheme.primary,
               ),
               ChartSeries(
-                values: DemoData.generateStarTrend(38500, 2800),
+                values: _safeTrend(digest.secondaryTrend),
                 color: AppColors.info,
               ),
             ],
@@ -38,6 +40,16 @@ class ProjectTrendOverview extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  List<double> _safeTrend(List<double> values) {
+    if (values.isNotEmpty) return values;
+    final stars =
+        digest.repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
+    return List<double>.generate(
+      7,
+      (index) => (stars * (0.7 + index * 0.05)).roundToDouble(),
     );
   }
 }

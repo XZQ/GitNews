@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -6,16 +7,16 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/star_trend_chart.dart';
-import 'devintel_demo.dart';
+import '../../../trending/application/trending_providers.dart';
 
-class DevIntelChartCard extends StatefulWidget {
+class DevIntelChartCard extends ConsumerStatefulWidget {
   const DevIntelChartCard({super.key});
 
   @override
-  State<DevIntelChartCard> createState() => _DevIntelChartCardState();
+  ConsumerState<DevIntelChartCard> createState() => _DevIntelChartCardState();
 }
 
-class _DevIntelChartCardState extends State<DevIntelChartCard> {
+class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
   int _window = 30;
 
   @override
@@ -23,19 +24,20 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final values =
-        _window == 7 ? kDevIntelChartValues7 : kDevIntelChartValues30;
+    final digest = ref.watch(trendingDigestProvider).valueOrNull;
+    final primary = _sliceWindow(digest?.primaryTrend ?? const <double>[]);
+    final secondary = _sliceWindow(digest?.secondaryTrend ?? const <double>[]);
     final series = <ChartSeries>[
       ChartSeries(
-        values: values,
+        values: secondary.isEmpty ? primary : secondary,
         color: AppColors.success.withValues(alpha: 0.35),
       ),
       ChartSeries(
-        values: values.map((v) => v + 1500).toList(),
+        values: primary,
         color: AppColors.success,
       ),
     ];
-    const labels = kDevIntelXLabels;
+    final labels = _labels(primary.length);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -90,6 +92,25 @@ class _DevIntelChartCardState extends State<DevIntelChartCard> {
         ],
       ),
     );
+  }
+
+  List<double> _sliceWindow(List<double> values) {
+    if (values.isEmpty) return const [0, 0, 0, 0, 0, 0, 0];
+    final target = _window == 7 ? 7 : values.length;
+    if (values.length <= target) return values;
+    return values.sublist(values.length - target);
+  }
+
+  List<String> _labels(int count) {
+    if (count <= 0) return const [];
+    if (_window == 7) {
+      return const ['周一', '', '周三', '', '周五', '', '今日'];
+    }
+    return List<String>.generate(count, (index) {
+      if (index == 0) return '起点';
+      if (index == count - 1) return '今日';
+      return index % 4 == 0 ? '+$index' : '';
+    });
   }
 }
 

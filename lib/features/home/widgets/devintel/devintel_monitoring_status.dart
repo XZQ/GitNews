@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import 'devintel_demo.dart';
+import '../../../monitor/application/monitor_providers.dart';
 
-class DevIntelMonitoringStatus extends StatelessWidget {
+class DevIntelMonitoringStatus extends ConsumerWidget {
   const DevIntelMonitoringStatus({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
+    final repos = ref.watch(monitorDigestProvider).maybeWhen(
+          data: (digest) => digest.monitoredRepos.take(4).toList(),
+          orElse: () => const <RepoEntity>[],
+        );
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -28,10 +34,9 @@ class DevIntelMonitoringStatus extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          for (var i = 0; i < kDevIntelMonitoring.length; i++) ...[
-            _StatusTile(item: kDevIntelMonitoring[i]),
-            if (i != kDevIntelMonitoring.length - 1)
-              const SizedBox(height: AppSpacing.md),
+          for (var i = 0; i < repos.length; i++) ...[
+            _StatusTile(repo: repos[i]),
+            if (i != repos.length - 1) const SizedBox(height: AppSpacing.md),
           ],
           const SizedBox(height: AppSpacing.lg),
           const _ConfigureButton(),
@@ -42,30 +47,32 @@ class DevIntelMonitoringStatus extends StatelessWidget {
 }
 
 class _StatusTile extends StatelessWidget {
-  const _StatusTile({required this.item});
+  const _StatusTile({required this.repo});
 
-  final DevIntelMonitoring item;
+  final RepoEntity repo;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final statusColor = _statusColor(repo);
     return Row(
       children: [
         Container(
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: item.statusColor,
+            color: statusColor,
             shape: BoxShape.circle,
           ),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Text(
-            item.name,
+            repo.fullName,
             style: AppTypography.titleSmall.copyWith(
               color: colors.onSurface,
             ),
+            overflow: TextOverflow.ellipsis,
           ),
         ),
         Container(
@@ -74,30 +81,33 @@ class _StatusTile extends StatelessWidget {
             vertical: AppSpacing.xs,
           ),
           decoration: BoxDecoration(
-            color: item.statusColor.withValues(alpha: 0.14),
+            color: statusColor.withValues(alpha: 0.14),
             borderRadius: const BorderRadius.all(
               Radius.circular(AppRadius.xs),
             ),
           ),
           child: Text(
-            item.status,
+            _status(repo),
             style: AppTypography.labelSmall.copyWith(
               fontWeight: FontWeight.w700,
-              color: item.statusColor,
+              color: statusColor,
             ),
           ),
         ),
-        if (item.note != null) ...[
-          const SizedBox(width: AppSpacing.xs2),
-          Text(
-            item.note!,
-            style: AppTypography.labelSmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
       ],
     );
+  }
+
+  String _status(RepoEntity repo) {
+    if (repo.starDelta >= 500) return '活跃';
+    if (repo.starDelta >= 120) return '同步中';
+    return '稳定';
+  }
+
+  Color _statusColor(RepoEntity repo) {
+    if (repo.starDelta >= 500) return AppColors.warning;
+    if (repo.starDelta >= 120) return AppColors.info;
+    return AppColors.success;
   }
 }
 

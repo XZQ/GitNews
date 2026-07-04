@@ -5,20 +5,27 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../domain/project_repository.dart';
 
 class ProjectSummaryMetrics extends StatelessWidget {
-  const ProjectSummaryMetrics({super.key});
+  const ProjectSummaryMetrics({required this.digest, super.key});
+
+  final ProjectDigest digest;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final weeklyStars =
+        digest.repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
+    final forks =
+        digest.repos.fold<int>(0, (sum, repo) => sum + repo.forkCount);
     return Row(
       children: [
         Expanded(
           child: _MetricBlock(
             label: l10n.tr('project.metric.weekly_stars'),
-            value: '124',
-            delta: '+18.5%',
+            value: _compactNumber(weeklyStars),
+            delta: '+${digest.repos.length} repos',
             color: AppColors.success,
             icon: Icons.star_rounded,
           ),
@@ -27,8 +34,8 @@ class ProjectSummaryMetrics extends StatelessWidget {
         Expanded(
           child: _MetricBlock(
             label: l10n.tr('project.metric.new_repos'),
-            value: '2.36K',
-            delta: '+7.2%',
+            value: _compactNumber(digest.repos.length),
+            delta: '动态热榜',
             color: Theme.of(context).colorScheme.primary,
             icon: Icons.bookmark_outline,
           ),
@@ -37,8 +44,8 @@ class ProjectSummaryMetrics extends StatelessWidget {
         Expanded(
           child: _MetricBlock(
             label: l10n.tr('project.metric.active_contributors'),
-            value: '156',
-            delta: '+12.3%',
+            value: _compactNumber(digest.contributors.length),
+            delta: 'GitHub',
             color: AppColors.info,
             icon: Icons.people_outline,
           ),
@@ -47,14 +54,20 @@ class ProjectSummaryMetrics extends StatelessWidget {
         Expanded(
           child: _MetricBlock(
             label: l10n.tr('project.metric.total_forks'),
-            value: '47.8K',
-            delta: '+5.1%',
+            value: _compactNumber(forks),
+            delta: '+forks',
             color: AppColors.warning,
             icon: Icons.call_split_rounded,
           ),
         ),
       ],
     );
+  }
+
+  String _compactNumber(int value) {
+    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
+    return value.toString();
   }
 }
 

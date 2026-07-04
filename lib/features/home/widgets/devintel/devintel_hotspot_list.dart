@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import 'devintel_demo.dart';
+import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
+import '../../../tech_hotspot/domain/tech_hotspot_models.dart';
 
-class DevIntelHotspotList extends StatelessWidget {
+class DevIntelHotspotList extends ConsumerWidget {
   const DevIntelHotspotList({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
+    final topics = ref.watch(techHotspotDigestProvider).maybeWhen(
+          data: (digest) => digest.topics.take(4).toList(),
+          orElse: () => const <TechTopic>[],
+        );
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -33,10 +39,9 @@ class DevIntelHotspotList extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          for (var i = 0; i < kDevIntelHotspots.length; i++) ...[
-            _HotspotTile(hotspot: kDevIntelHotspots[i]),
-            if (i != kDevIntelHotspots.length - 1)
-              const SizedBox(height: AppSpacing.md),
+          for (var i = 0; i < topics.length; i++) ...[
+            _HotspotTile(topic: topics[i]),
+            if (i != topics.length - 1) const SizedBox(height: AppSpacing.md),
           ],
         ],
       ),
@@ -45,13 +50,14 @@ class DevIntelHotspotList extends StatelessWidget {
 }
 
 class _HotspotTile extends StatelessWidget {
-  const _HotspotTile({required this.hotspot});
+  const _HotspotTile({required this.topic});
 
-  final DevIntelHotspot hotspot;
+  final TechTopic topic;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final color = _heatColor(topic.heat);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -59,17 +65,17 @@ class _HotspotTile extends StatelessWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: hotspot.color.withValues(alpha: 0.14),
+            color: color.withValues(alpha: 0.14),
             borderRadius: const BorderRadius.all(
               Radius.circular(AppRadius.md),
             ),
           ),
           alignment: Alignment.center,
           child: Text(
-            hotspot.abbr,
+            _abbr(topic.name),
             style: AppTypography.labelMedium.copyWith(
               fontWeight: FontWeight.w800,
-              color: hotspot.color,
+              color: color,
               letterSpacing: 0.5,
             ),
           ),
@@ -84,7 +90,7 @@ class _HotspotTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      hotspot.name.toUpperCase(),
+                      topic.name.toUpperCase(),
                       style: AppTypography.labelMedium.copyWith(
                         fontWeight: FontWeight.w700,
                         color: colors.onSurface,
@@ -93,13 +99,13 @@ class _HotspotTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  _HotspotBadge(text: hotspot.tag, color: hotspot.color),
+                  _HotspotBadge(text: topic.category, color: color),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
               _ProgressBar(
-                value: hotspot.progress,
-                color: hotspot.color,
+                value: topic.heat / 100,
+                color: color,
                 track: colors.surfaceContainerHighest,
               ),
             ],
@@ -107,6 +113,22 @@ class _HotspotTile extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _abbr(String name) {
+    final letters = name
+        .split(RegExp(r'\s+'))
+        .where((part) => part.isNotEmpty)
+        .map((part) => part.characters.first)
+        .take(3)
+        .join();
+    return letters.isEmpty ? 'AI' : letters.toUpperCase();
+  }
+
+  Color _heatColor(int heat) {
+    if (heat >= 90) return const Color(0xFFE5484D);
+    if (heat >= 75) return const Color(0xFFE5A150);
+    return const Color(0xFF4CB5FF);
   }
 }
 

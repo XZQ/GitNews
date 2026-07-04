@@ -1,33 +1,103 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../ai_news/application/ai_news_providers.dart';
+import '../../../monitor/application/monitor_providers.dart';
+import '../../../project/application/project_providers.dart';
+import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
+import '../../../trending/application/trending_providers.dart';
 
 /// 首页情报总览入口行:5 个栏目跳转入口卡。
 ///
 /// 视觉:5 张独立的浮动卡片,16px 间距,每张卡顶部一条 4px 语义色装饰条。
 /// 替代旧版"5 个 tile 拼在一个共享外框里"的方案 —— 拼框视觉过重、且
 /// 5 个 entry 之间没有真正的分隔需求。
-class HomeSectionEntryRow extends StatelessWidget {
+class HomeSectionEntryRow extends ConsumerWidget {
   const HomeSectionEntryRow({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final specs = _buildSpecs(ref);
     return SizedBox(
       height: 168,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          for (var i = 0; i < _specs.length; i++) ...[
+          for (var i = 0; i < specs.length; i++) ...[
             if (i > 0) const SizedBox(width: AppSpacing.lg),
-            Expanded(child: _EntryTile(spec: _specs[i])),
+            Expanded(child: _EntryTile(spec: specs[i])),
           ],
         ],
       ),
     );
+  }
+
+  List<_EntrySpec> _buildSpecs(WidgetRef ref) {
+    final aiItems = ref.watch(aiNewsItemsNotifierProvider).valueOrNull;
+    final trending = ref.watch(trendingDigestProvider).valueOrNull;
+    final hotspot = ref.watch(techHotspotDigestProvider).valueOrNull;
+    final monitor = ref.watch(monitorDigestProvider).valueOrNull;
+    final project = ref.watch(projectDigestProvider).valueOrNull;
+    return [
+      _EntrySpec(
+        label: 'AI 动态',
+        kpi: '${aiItems?.length ?? 0} 条新更',
+        delta: _scoreDelta(aiItems?.fold<int>(0, (sum, e) => sum + e.score)),
+        icon: Icons.auto_awesome_rounded,
+        color: AppColors.brand,
+        path: '/ai_news',
+      ),
+      _EntrySpec(
+        label: 'GitHub热榜',
+        kpi: '${trending?.allRepos.length ?? 0} 个项目',
+        delta:
+            '+${_compactNumber(trending?.trendingRepos.fold<int>(0, (sum, e) => sum + e.starDelta) ?? 0)}★',
+        icon: Icons.local_fire_department_rounded,
+        color: AppColors.warning,
+        path: '/trending',
+      ),
+      _EntrySpec(
+        label: 'AI雷达',
+        kpi: '${hotspot?.topics.length ?? 0} 信号',
+        delta:
+            '+${(hotspot?.topics.fold<double>(0, (sum, e) => sum + e.growth) ?? 0).toStringAsFixed(1)}%',
+        icon: Icons.device_hub_rounded,
+        color: AppColors.brand,
+        path: '/tech_hotspot',
+      ),
+      _EntrySpec(
+        label: '仓库监控',
+        kpi: '${monitor?.stats.monitoredCount ?? 0} 订阅',
+        delta: '${monitor?.stats.unreadAlertCount ?? 0} 告警',
+        icon: Icons.notifications_rounded,
+        color: AppColors.info,
+        path: '/monitor',
+      ),
+      _EntrySpec(
+        label: '深度报告',
+        kpi: '${project?.repos.length ?? 0} 项目',
+        delta: '${project?.contributors.length ?? 0} 贡献者',
+        icon: Icons.insights_rounded,
+        color: AppColors.success,
+        path: '/project',
+      ),
+    ];
+  }
+
+  String _scoreDelta(int? score) {
+    if (score == null || score == 0) return '同步中';
+    return '+${_compactNumber(score)}';
+  }
+
+  String _compactNumber(int value) {
+    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
+    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
+    return value.toString();
   }
 }
 
@@ -48,49 +118,6 @@ class _EntrySpec {
   final Color color;
   final String path;
 }
-
-const _aiNews = _EntrySpec(
-  label: 'AI 动态',
-  kpi: '10 条新更',
-  delta: '+18%',
-  icon: Icons.auto_awesome_rounded,
-  color: AppColors.brand,
-  path: '/ai_news',
-);
-const _trending = _EntrySpec(
-  label: 'GitHub热榜',
-  kpi: '36 个项目',
-  delta: '+1.2K★',
-  icon: Icons.local_fire_department_rounded,
-  color: AppColors.warning,
-  path: '/trending',
-);
-const _hotspot = _EntrySpec(
-  label: 'AI雷达',
-  kpi: '8 信号',
-  delta: '+24%',
-  icon: Icons.device_hub_rounded,
-  color: AppColors.brand,
-  path: '/tech_hotspot',
-);
-const _monitor = _EntrySpec(
-  label: '仓库监控',
-  kpi: '12 订阅',
-  delta: '3 告警',
-  icon: Icons.notifications_rounded,
-  color: AppColors.info,
-  path: '/monitor',
-);
-const _report = _EntrySpec(
-  label: '深度报告',
-  kpi: '4 份周报',
-  delta: '更新',
-  icon: Icons.insights_rounded,
-  color: AppColors.success,
-  path: '/project',
-);
-
-const _specs = [_aiNews, _trending, _hotspot, _monitor, _report];
 
 class _EntryTile extends StatelessWidget {
   const _EntryTile({required this.spec});
