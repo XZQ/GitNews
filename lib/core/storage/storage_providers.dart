@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'cache_meta_dao.dart';
+import 'json_snapshot_cache_dao.dart';
 import 'local_database.dart';
 
 /// 全局 [LocalDatabase] 单例。
@@ -14,6 +15,13 @@ final appDatabaseProvider = Provider<LocalDatabase>(
 /// 通用 [CacheMetaDao]:任何按 cache_key 走 TTL 的模块都注入这一个实例。
 final cacheMetaDaoProvider = Provider<CacheMetaDao>(
   (ref) => CacheMetaDao(ref.watch(appDatabaseProvider).executor),
+);
+
+final jsonSnapshotCacheDaoProvider = Provider<JsonSnapshotCacheDao>(
+  (ref) => JsonSnapshotCacheDao(
+    ref.watch(appDatabaseProvider).executor,
+    ref.watch(cacheMetaDaoProvider),
+  ),
 );
 
 /// 容量管理辅助 Provider:供设置页等需要直接读取 DB 大小的地方使用。

@@ -1,12 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/di/providers.dart';
+import '../../../core/preferences/github_token_controller.dart';
+import '../../../core/storage/storage_providers.dart';
+import '../data/github_tech_hotspot_repository.dart';
 import '../data/local_tech_hotspot_repository.dart';
 import '../domain/tech_hotspot_models.dart';
 import '../domain/tech_hotspot_repository.dart';
 
 final techHotspotRepositoryProvider = Provider<TechHotspotRepository>((ref) {
-  return const LocalTechHotspotRepository();
+  final token = ref.watch(githubTokenControllerProvider).token;
+  return GithubTechHotspotRepository(
+    dio: ref.watch(dioProvider),
+    cache: ref.watch(jsonSnapshotCacheDaoProvider),
+    token: token,
+  );
 });
+
+final localTechHotspotRepositoryProvider = Provider<TechHotspotRepository>(
+  (ref) => const LocalTechHotspotRepository(),
+);
 
 final techHotspotDigestProvider = FutureProvider<TechHotspotDigest>((ref) {
   return ref.watch(techHotspotRepositoryProvider).getDigest();
