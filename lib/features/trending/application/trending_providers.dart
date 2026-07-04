@@ -73,6 +73,7 @@ final githubTrendingDataSourceProvider = Provider<TrendingDataSource>((ref) {
     remote: GithubTrendingDataSource(
       dio: ref.watch(dioProvider),
       token: tokenState.token,
+      snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
     ),
     cache: ref.watch(trendingCacheDaoProvider),
     cacheScope: tokenState.cacheScope,
