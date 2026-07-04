@@ -25,6 +25,7 @@ class TrendingDesktopView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final lang = ref.watch(trendingLanguageFilterProvider);
+    final board = ref.watch(trendingBoardFilterProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -44,6 +45,13 @@ class TrendingDesktopView extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      _TrendingBoardSelector(
+                        value: board,
+                        onChanged: (value) => ref
+                            .read(trendingBoardFilterProvider.notifier)
+                            .state = value,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
                       const SectionHeader(
                         title: 'Star 增长趋势',
                         subtitle: '追踪时间窗内的新增 Star 总量 · 包含所有语言',
@@ -113,6 +121,73 @@ class TrendingDesktopView extends ConsumerWidget {
       ],
     );
   }
+}
+
+class _TrendingBoardSelector extends StatelessWidget {
+  const _TrendingBoardSelector({
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String value;
+  final ValueChanged<String> onChanged;
+
+  static const _items = [
+    _TrendingBoardOption(
+      value: 'all',
+      label: '全部',
+      icon: Icons.grid_view_rounded,
+    ),
+    _TrendingBoardOption(
+      value: 'agent',
+      label: 'Agent',
+      icon: Icons.auto_awesome_rounded,
+    ),
+    _TrendingBoardOption(
+      value: 'mcp',
+      label: 'MCP',
+      icon: Icons.hub_rounded,
+    ),
+    _TrendingBoardOption(
+      value: 'ai_coding',
+      label: 'AI Coding',
+      icon: Icons.terminal_rounded,
+    ),
+    _TrendingBoardOption(
+      value: 'new_repos',
+      label: '新晋项目',
+      icon: Icons.new_releases_rounded,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: AppSpacing.sm,
+      runSpacing: AppSpacing.sm,
+      children: [
+        for (final item in _items)
+          ChoiceChip(
+            selected: value == item.value,
+            avatar: Icon(item.icon, size: 16),
+            label: Text(item.label),
+            onSelected: (_) => onChanged(item.value),
+          ),
+      ],
+    );
+  }
+}
+
+class _TrendingBoardOption {
+  const _TrendingBoardOption({
+    required this.value,
+    required this.label,
+    required this.icon,
+  });
+
+  final String value;
+  final String label;
+  final IconData icon;
 }
 
 class _TrendingList extends StatelessWidget {

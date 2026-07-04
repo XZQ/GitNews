@@ -159,6 +159,28 @@ void main() {
       expect(anonymous?.trendingRepos.first.fullName, 'anonymous/repo');
       expect(token?.trendingRepos.first.fullName, 'token/repo');
     });
+
+    test('cache key should isolate board filters', () async {
+      const agent = TrendingQuery(board: TrendingBoard.agent);
+      const mcp = TrendingQuery(board: TrendingBoard.mcp);
+      final now = DateTime.utc(2026, 7, 4, 10);
+      await dao.upsertSnapshot(
+        query: agent,
+        snapshot: _snapshot('agent/repo'),
+        now: now,
+      );
+      await dao.upsertSnapshot(
+        query: mcp,
+        snapshot: _snapshot('mcp/repo'),
+        now: now,
+      );
+
+      final agentSnapshot = await dao.readSnapshot(agent);
+      final mcpSnapshot = await dao.readSnapshot(mcp);
+
+      expect(agentSnapshot?.trendingRepos.first.fullName, 'agent/repo');
+      expect(mcpSnapshot?.trendingRepos.first.fullName, 'mcp/repo');
+    });
   });
 
   group('CachedTrendingDataSource', () {
