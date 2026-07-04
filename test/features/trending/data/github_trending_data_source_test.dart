@@ -57,6 +57,53 @@ void main() {
       expect(capturedOptions?.headers?['Authorization'], isNull);
     });
 
+    test('should add board keywords to GitHub search query', () async {
+      Map<String, Object?>? capturedQuery;
+      when(
+        () => dio.get<Map<String, Object?>>(
+          any(),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+        ),
+      ).thenAnswer((invocation) async {
+        capturedQuery =
+            invocation.namedArguments[#queryParameters] as Map<String, Object?>;
+        return _okResponse(_searchBody());
+      });
+
+      await dataSource.fetchTrending(
+        const TrendingQuery(board: TrendingBoard.mcp),
+      );
+
+      expect(capturedQuery?['q'], contains('mcp'));
+      expect(capturedQuery?['q'], contains('in:name,description,readme'));
+    });
+
+    test('should use created qualifier for new repos board', () async {
+      Map<String, Object?>? capturedQuery;
+      when(
+        () => dio.get<Map<String, Object?>>(
+          any(),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+        ),
+      ).thenAnswer((invocation) async {
+        capturedQuery =
+            invocation.namedArguments[#queryParameters] as Map<String, Object?>;
+        return _okResponse(_searchBody());
+      });
+
+      await dataSource.fetchTrending(
+        const TrendingQuery(
+          window: TrendingWindow.today,
+          board: TrendingBoard.newRepos,
+        ),
+      );
+
+      expect(capturedQuery?['q'], contains('created:>=2026-07-03'));
+      expect(capturedQuery?['q'], isNot(contains('pushed:>=')));
+    });
+
     test('should send bearer token when token is configured', () async {
       Options? capturedOptions;
       dataSource = GithubTrendingDataSource(

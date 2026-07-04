@@ -77,11 +77,35 @@ class GithubTrendingDataSource implements TrendingDataSource {
     final cutoff = _now().toUtc().subtract(_windowDuration(query.window));
     final parts = <String>[
       'stars:>50',
-      'pushed:>=${_formatDate(cutoff)}',
+      if (query.board == TrendingBoard.newRepos)
+        'created:>=${_formatDate(cutoff)}'
+      else
+        'pushed:>=${_formatDate(cutoff)}',
       'archived:false',
+      ..._boardSearchParts(query.board),
       if (query.hasLanguageFilter) 'language:${_quoteIfNeeded(query.language)}',
     ];
     return parts.join(' ');
+  }
+
+  List<String> _boardSearchParts(TrendingBoard board) {
+    return switch (board) {
+      TrendingBoard.all => const [],
+      TrendingBoard.agent => const [
+          'agent',
+          'in:name,description,readme',
+        ],
+      TrendingBoard.mcp => const [
+          'mcp',
+          'in:name,description,readme',
+        ],
+      TrendingBoard.aiCoding => const [
+          'coding',
+          'agent',
+          'in:name,description,readme',
+        ],
+      TrendingBoard.newRepos => const [],
+    };
   }
 
   Duration _windowDuration(TrendingWindow window) {

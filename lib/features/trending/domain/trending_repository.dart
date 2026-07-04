@@ -15,17 +15,49 @@ enum TrendingWindow {
   }
 }
 
+/// GitHub 热榜榜单类型。
+enum TrendingBoard {
+  all,
+  agent,
+  mcp,
+  aiCoding,
+  newRepos;
+
+  static TrendingBoard fromValue(String value) {
+    return switch (value) {
+      'agent' => TrendingBoard.agent,
+      'mcp' => TrendingBoard.mcp,
+      'ai_coding' => TrendingBoard.aiCoding,
+      'new_repos' => TrendingBoard.newRepos,
+      _ => TrendingBoard.all,
+    };
+  }
+
+  String get value {
+    return switch (this) {
+      TrendingBoard.all => 'all',
+      TrendingBoard.agent => 'agent',
+      TrendingBoard.mcp => 'mcp',
+      TrendingBoard.aiCoding => 'ai_coding',
+      TrendingBoard.newRepos => 'new_repos',
+    };
+  }
+}
+
 /// GitHub 热榜查询条件。
 class TrendingQuery {
   const TrendingQuery({
     this.window = TrendingWindow.today,
     this.language = 'all',
+    this.board = TrendingBoard.all,
   });
 
   final TrendingWindow window;
   final String language;
+  final TrendingBoard board;
 
   bool get hasLanguageFilter => language.trim().toLowerCase() != 'all';
+  bool get hasBoardFilter => board != TrendingBoard.all;
 }
 
 /// 趋势页需要的一组本地情报数据。

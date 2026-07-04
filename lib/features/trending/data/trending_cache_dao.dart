@@ -19,11 +19,11 @@ class TrendingCacheDao {
 
   static const String _table = 'trending_snapshot_cache';
 
-  /// cache_key 构造规则:模块名:数据源:时间窗:语言。
+  /// cache_key 构造规则:模块名:数据源:时间窗:榜单:语言。
   static String cacheKey(TrendingQuery query, {String scope = 'anonymous'}) {
     final language =
         query.hasLanguageFilter ? query.language.trim().toLowerCase() : 'all';
-    return 'trending:github:$scope:window=${query.window.name}:language=$language';
+    return 'trending:github:$scope:window=${query.window.name}:board=${query.board.value}:language=$language';
   }
 
   Future<TrendingDataSnapshot?> readSnapshot(

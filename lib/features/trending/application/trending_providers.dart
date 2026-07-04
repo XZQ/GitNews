@@ -147,9 +147,11 @@ String _repoSearchText(RepoEntity repo) {
 final trendingQueryProvider = Provider<TrendingQuery>((ref) {
   final window = ref.watch(trendingWindowFilterProvider);
   final language = ref.watch(trendingLanguageFilterProvider);
+  final board = ref.watch(trendingBoardFilterProvider);
   return TrendingQuery(
     window: TrendingWindow.fromValue(window),
     language: language,
+    board: TrendingBoard.fromValue(board),
   );
 });
 
@@ -166,6 +168,9 @@ Future<void> refreshTrendingDigest(WidgetRef ref) async {
 
 /// 时间窗筛选:`today` / `week` / `month`。
 final trendingWindowFilterProvider = StateProvider<String>((ref) => 'today');
+
+/// 榜单筛选:`all` / `agent` / `mcp` / `ai_coding` / `new_repos`。
+final trendingBoardFilterProvider = StateProvider<String>((ref) => 'all');
 
 /// 语言筛选:`all` / `typescript` / `python` / `rust` …
 final trendingLanguageFilterProvider = StateProvider<String>((ref) => 'all');

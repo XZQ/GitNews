@@ -136,19 +136,22 @@ void main() {
 
       container.read(trendingWindowFilterProvider.notifier).state = 'week';
       container.read(trendingLanguageFilterProvider.notifier).state = 'rust';
+      container.read(trendingBoardFilterProvider.notifier).state = 'mcp';
       await container.read(trendingDigestProvider.future);
 
       expect(capturedQuery?.window, TrendingWindow.week);
       expect(capturedQuery?.language, 'rust');
+      expect(capturedQuery?.board, TrendingBoard.mcp);
     });
   });
 
   group('trending filter providers', () {
-    test('should default window to today and language to all', () {
+    test('should default window board and language filters', () {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
       expect(container.read(trendingWindowFilterProvider), 'today');
+      expect(container.read(trendingBoardFilterProvider), 'all');
       expect(container.read(trendingLanguageFilterProvider), 'all');
     });
 
@@ -157,9 +160,11 @@ void main() {
       addTearDown(container.dispose);
 
       container.read(trendingWindowFilterProvider.notifier).state = 'week';
+      container.read(trendingBoardFilterProvider.notifier).state = 'agent';
       container.read(trendingLanguageFilterProvider.notifier).state = 'rust';
 
       expect(container.read(trendingWindowFilterProvider), 'week');
+      expect(container.read(trendingBoardFilterProvider), 'agent');
       expect(container.read(trendingLanguageFilterProvider), 'rust');
     });
 
@@ -337,6 +342,25 @@ void main() {
 
       expect(snapshot.trendingRepos.length, greaterThan(3));
       expect(snapshot.recentRepos, isNotEmpty);
+    });
+
+    test('should filter repos by board type', () async {
+      const dataSource = LocalTrendingDataSource();
+
+      final snapshot = await dataSource.fetchTrending(
+        const TrendingQuery(board: TrendingBoard.mcp),
+      );
+
+      expect(snapshot.trendingRepos, isNotEmpty);
+      expect(
+        snapshot.trendingRepos.every(
+          (repo) =>
+              '${repo.fullName} ${repo.description}'.toLowerCase().contains(
+                    'mcp',
+                  ),
+        ),
+        isTrue,
+      );
     });
   });
 }

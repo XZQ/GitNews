@@ -28,10 +28,52 @@ class LocalTrendingDataSource implements TrendingDataSource {
 
   List<RepoEntity> _filterRepos(List<RepoEntity> repos, TrendingQuery query) {
     final language = query.language.trim().toLowerCase();
-    if (!query.hasLanguageFilter) return repos;
     return repos
-        .where((repo) => repo.language.trim().toLowerCase() == language)
+        .where((repo) {
+          if (!query.hasLanguageFilter) return true;
+          return repo.language.trim().toLowerCase() == language;
+        })
+        .where((repo) => _matchesBoard(repo, query.board))
         .toList(growable: false);
+  }
+
+  bool _matchesBoard(RepoEntity repo, TrendingBoard board) {
+    if (board == TrendingBoard.all) return true;
+    final text = [
+      repo.fullName,
+      repo.description,
+      repo.language,
+    ].join(' ').toLowerCase();
+    return switch (board) {
+      TrendingBoard.all => true,
+      TrendingBoard.agent => _containsAny(text, const [
+          'agent',
+          'autogen',
+          'langgraph',
+          'crew',
+          'claude',
+          'codex',
+        ]),
+      TrendingBoard.mcp => _containsAny(text, const [
+          'mcp',
+          'modelcontextprotocol',
+          'context protocol',
+        ]),
+      TrendingBoard.aiCoding => _containsAny(text, const [
+          'coding',
+          'code',
+          'developer',
+          'editor',
+          'copilot',
+          'claude-code',
+          'codex',
+        ]),
+      TrendingBoard.newRepos => repo.starCount < 50000 || repo.starDelta > 400,
+    };
+  }
+
+  bool _containsAny(String text, List<String> keywords) {
+    return keywords.any(text.contains);
   }
 
   List<double> _trendFor(TrendingWindow window, int base, int variance) {
