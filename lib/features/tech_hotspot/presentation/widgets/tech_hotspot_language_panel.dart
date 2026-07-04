@@ -20,39 +20,54 @@ class TechHotspotLanguagePanel extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isBounded = constraints.maxHeight.isFinite;
+          final visible = languages.take(8).toList(growable: false);
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: isBounded ? MainAxisSize.max : MainAxisSize.min,
             children: [
-              const Icon(Icons.code_rounded, size: 16, color: AppColors.info),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                l10n.tr('tech_hotspot.language_share'),
-                style: AppTypography.titleSmall.copyWith(
-                  color: colors.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.code_rounded,
+                    size: 16,
+                    color: AppColors.info,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(
+                    l10n.tr('tech_hotspot.language_share'),
+                    style: AppTypography.titleSmall.copyWith(
+                      color: colors.onSurface,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    'Top ${visible.length}',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
               ),
-              const Spacer(),
-              Text(
-                'Top ${languages.length}',
-                style: AppTypography.labelSmall.copyWith(
-                  color: colors.onSurfaceVariant,
+              const SizedBox(height: AppSpacing.sm),
+              _LangBar(languages: visible),
+              const SizedBox(height: AppSpacing.md),
+              if (isBounded)
+                Expanded(
+                  child: _LangList(languages: visible),
+                )
+              else
+                _LangList(
+                  languages: visible,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
                 ),
-              ),
             ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          _LangBar(languages: languages),
-          const SizedBox(height: AppSpacing.md),
-          for (var i = 0; i < languages.length; i++)
-            _LangRow(
-              stat: languages[i],
-              rank: i + 1,
-            ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -79,6 +94,33 @@ class _LangBar extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _LangList extends StatelessWidget {
+  const _LangList({
+    required this.languages,
+    this.physics,
+    this.shrinkWrap = false,
+  });
+
+  final List<LanguageStat> languages;
+  final ScrollPhysics? physics;
+  final bool shrinkWrap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      padding: EdgeInsets.zero,
+      physics: physics,
+      shrinkWrap: shrinkWrap,
+      itemCount: languages.length,
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.xs2),
+      itemBuilder: (context, index) => _LangRow(
+        stat: languages[index],
+        rank: index + 1,
       ),
     );
   }
@@ -117,11 +159,15 @@ class _LangRow extends StatelessWidget {
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Text(
-            stat.name,
-            style: AppTypography.bodyMedium.copyWith(
-              color: colors.onSurface,
-              fontWeight: FontWeight.w600,
+          Expanded(
+            child: Text(
+              stat.name,
+              style: AppTypography.bodyMedium.copyWith(
+                color: colors.onSurface,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -131,7 +177,7 @@ class _LangRow extends StatelessWidget {
               color: colors.onSurfaceVariant,
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: AppSpacing.sm),
           Icon(
             isUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
             size: 12,
