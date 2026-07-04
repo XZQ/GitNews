@@ -12,6 +12,7 @@ final repoDetailRepositoryProvider = Provider<RepoDetailRepository>((ref) {
   return GithubRepoDetailRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
+    snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
     token: token,
   );
 });

@@ -44,6 +44,32 @@ class RepoEntity {
   final DataProvenance trendProvenance;
 
   final List<double>? trend;
+
+  RepoEntity copyWith({
+    String? fullName,
+    String? description,
+    String? language,
+    int? starCount,
+    int? starDelta,
+    int? forkCount,
+    int? accentArgb,
+    DataProvenance? valueProvenance,
+    DataProvenance? trendProvenance,
+    List<double>? trend,
+  }) {
+    return RepoEntity(
+      fullName: fullName ?? this.fullName,
+      description: description ?? this.description,
+      language: language ?? this.language,
+      starCount: starCount ?? this.starCount,
+      starDelta: starDelta ?? this.starDelta,
+      forkCount: forkCount ?? this.forkCount,
+      accentArgb: accentArgb ?? this.accentArgb,
+      valueProvenance: valueProvenance ?? this.valueProvenance,
+      trendProvenance: trendProvenance ?? this.trendProvenance,
+      trend: trend ?? this.trend,
+    );
+  }
 }
 
 /// 编程语言占比实体。

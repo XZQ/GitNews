@@ -12,6 +12,13 @@ enum DataProvenance {
   /// 远端不可用时使用的本地种子/演示数据。
   localFallback;
 
+  static DataProvenance fromName(String? name) {
+    return DataProvenance.values.firstWhere(
+      (value) => value.name == name,
+      orElse: () => DataProvenance.localFallback,
+    );
+  }
+
   String get zhLabel {
     return switch (this) {
       DataProvenance.observed => '真实观测',

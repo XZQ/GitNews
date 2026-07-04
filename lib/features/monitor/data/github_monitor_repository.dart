@@ -5,10 +5,12 @@ import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
+import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
 import 'github_monitor_config.dart';
+import 'github_monitor_remote_repo_item.dart';
 import 'local_monitor_repository.dart';
 
 const Duration monitorRemoteCacheTtl = Duration(minutes: 5);
@@ -18,17 +20,20 @@ class GithubMonitorRepository implements MonitorRepository {
   const GithubMonitorRepository({
     required Dio dio,
     required JsonSnapshotCacheDao cache,
+    RepoSnapshotHistoryDao? snapshotHistory,
     String? token,
     DateTime Function()? now,
     MonitorRepository fallback = const LocalMonitorRepository(),
   })  : _dio = dio,
         _cache = cache,
+        _snapshotHistory = snapshotHistory,
         _token = token,
         _now = now ?? DateTime.now,
         _fallback = fallback;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
+  final RepoSnapshotHistoryDao? _snapshotHistory;
   final String? _token;
   final DateTime Function() _now;
   final MonitorRepository _fallback;
@@ -104,7 +109,10 @@ class GithubMonitorRepository implements MonitorRepository {
     );
   }
 
-  Future<_RemoteRepoItem> _fetchRepo(String fullName, DateTime now) async {
+  Future<GithubMonitorRemoteRepoItem> _fetchRepo(
+    String fullName,
+    DateTime now,
+  ) async {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         '/repos/$fullName',
@@ -114,7 +122,23 @@ class GithubMonitorRepository implements MonitorRepository {
       if (data == null) {
         throw const AppException(kind: AppExceptionKind.parse);
       }
-      return _parseRepo(data, now);
+      final item = _parseRepo(data, now);
+      final history = _snapshotHistory;
+      if (history == null) return item;
+      await history.record(
+        fullName: item.repo.fullName,
+        stars: item.repo.starCount,
+        forks: item.repo.forkCount,
+        capturedAt: now,
+      );
+      final starTrend = await history.starTrend(item.repo.fullName);
+      if (starTrend == null) return item;
+      return item.copyWith(
+        repo: item.repo.copyWith(
+          trend: starTrend.values,
+          trendProvenance: starTrend.provenance,
+        ),
+      );
     } on DioException catch (e) {
       throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
@@ -124,7 +148,10 @@ class GithubMonitorRepository implements MonitorRepository {
     }
   }
 
-  _RemoteRepoItem _parseRepo(Map<String, Object?> json, DateTime now) {
+  GithubMonitorRemoteRepoItem _parseRepo(
+    Map<String, Object?> json,
+    DateTime now,
+  ) {
     final fullName = GitHubJson.string(json['full_name']);
     final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
     final pushedAt =
@@ -132,14 +159,14 @@ class GithubMonitorRepository implements MonitorRepository {
     final stars = GitHubJson.intValue(json['stargazers_count']);
     final forks = GitHubJson.intValue(json['forks_count']);
     final openIssues = GitHubJson.intValue(json['open_issues_count']);
-    return _RemoteRepoItem(
+    return GithubMonitorRemoteRepoItem(
       repo: RepoEntity(
         fullName: fullName,
         description:
             GitHubJson.nullableString(json['description']) ?? 'No description',
         language: language,
         starCount: stars,
-        starDelta: _activityScore(
+        starDelta: githubMonitorActivityScore(
           stars: stars,
           forks: forks,
           openIssues: openIssues,
@@ -150,69 +177,35 @@ class GithubMonitorRepository implements MonitorRepository {
         accentArgb: GitHubApiSupport.languageColor(language),
         valueProvenance: DataProvenance.observed,
         trendProvenance: DataProvenance.estimated,
-        trend: _repoTrend(stars),
+        trend: githubMonitorEstimatedRepoTrend(stars),
       ),
       openIssues: openIssues,
       pushedAt: pushedAt,
     );
   }
 
-  List<AlertEntity> _alertsFor(_RemoteRepoItem item, DateTime now) {
+  List<AlertEntity> _alertsFor(
+    GithubMonitorRemoteRepoItem item,
+    DateTime now,
+  ) {
     final alerts = <AlertEntity>[
       AlertEntity(
         repoFullName: item.repo.fullName,
         metric: 'Star 总量',
-        value: _compactNumber(item.repo.starCount),
-        time: _relativeTime(item.pushedAt, now),
+        value: githubMonitorCompactNumber(item.repo.starCount),
+        time: githubMonitorRelativeTime(item.pushedAt, now),
         severity: AlertSeverity.success,
       ),
       AlertEntity(
         repoFullName: item.repo.fullName,
         metric: 'Open Issues',
         value: item.openIssues.toString(),
-        time: _relativeTime(item.pushedAt, now),
+        time: githubMonitorRelativeTime(item.pushedAt, now),
         severity:
             item.openIssues > 500 ? AlertSeverity.warning : AlertSeverity.info,
       ),
     ];
     return alerts;
-  }
-
-  int _activityScore({
-    required int stars,
-    required int forks,
-    required int openIssues,
-    required DateTime? pushedAt,
-    required DateTime now,
-  }) {
-    final pushedBoost = pushedAt == null
-        ? 1
-        : (30 - now.toUtc().difference(pushedAt).inDays).clamp(1, 30);
-    return ((stars / 180) + (forks / 40) + (openIssues / 12) + pushedBoost)
-        .round()
-        .clamp(1, 9999);
-  }
-
-  List<double> _repoTrend(int stars) {
-    final base = stars / 160;
-    return List<double>.generate(
-      7,
-      (index) => (base * (0.72 + index * 0.06)).roundToDouble(),
-    );
-  }
-
-  String _relativeTime(DateTime? date, DateTime now) {
-    if (date == null) return '未知';
-    final diff = now.toUtc().difference(date.toUtc());
-    if (diff.inMinutes < 10) return '刚刚';
-    if (diff.inHours < 24) return '${diff.inHours} 小时前';
-    return '${diff.inDays} 天前';
-  }
-
-  String _compactNumber(int value) {
-    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
-    return value.toString();
   }
 
   Map<String, Object?> _digestToJson(MonitorDigest digest) {
@@ -241,6 +234,8 @@ class GithubMonitorRepository implements MonitorRepository {
       'starDelta': repo.starDelta,
       'forkCount': repo.forkCount,
       'accentArgb': repo.accentArgb,
+      'valueProvenance': repo.valueProvenance.name,
+      'trendProvenance': repo.trendProvenance.name,
       'trend': repo.trend,
     };
   }
@@ -255,8 +250,12 @@ class GithubMonitorRepository implements MonitorRepository {
       starDelta: GitHubJson.intValue(json['starDelta']),
       forkCount: GitHubJson.intValue(json['forkCount']),
       accentArgb: GitHubJson.intValue(json['accentArgb']),
-      valueProvenance: DataProvenance.observed,
-      trendProvenance: DataProvenance.estimated,
+      valueProvenance: DataProvenance.fromName(
+        GitHubJson.nullableString(json['valueProvenance']),
+      ),
+      trendProvenance: DataProvenance.fromName(
+        GitHubJson.nullableString(json['trendProvenance']),
+      ),
       trend:
           json['trend'] == null ? null : GitHubJson.doubleList(json['trend']),
     );
@@ -311,16 +310,4 @@ class GithubMonitorRepository implements MonitorRepository {
       totalAlertDelta: GitHubJson.intValue(json['totalAlertDelta']),
     );
   }
-}
-
-class _RemoteRepoItem {
-  const _RemoteRepoItem({
-    required this.repo,
-    required this.openIssues,
-    required this.pushedAt,
-  });
-
-  final RepoEntity repo;
-  final int openIssues;
-  final DateTime? pushedAt;
 }

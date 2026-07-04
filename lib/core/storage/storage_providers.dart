@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'cache_meta_dao.dart';
 import 'json_snapshot_cache_dao.dart';
 import 'local_database.dart';
+import 'repo_snapshot_history_dao.dart';
 
 /// 全局 [LocalDatabase] 单例。
 ///
@@ -22,6 +23,10 @@ final jsonSnapshotCacheDaoProvider = Provider<JsonSnapshotCacheDao>(
     ref.watch(appDatabaseProvider).executor,
     ref.watch(cacheMetaDaoProvider),
   ),
+);
+
+final repoSnapshotHistoryDaoProvider = Provider<RepoSnapshotHistoryDao>(
+  (ref) => RepoSnapshotHistoryDao(ref.watch(jsonSnapshotCacheDaoProvider)),
 );
 
 /// 容量管理辅助 Provider:供设置页等需要直接读取 DB 大小的地方使用。
