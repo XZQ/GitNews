@@ -108,7 +108,7 @@
 - 设置页已提供 `本地 / GitHub` 热榜数据源切换,并持久化到 SharedPreferences
 - 当前 GitHub 模式仍是匿名请求,适合验证链路;稳定使用前需要接入 GitHub token 与缓存降频
 - GitHub 热榜已接入 SQLite 快照缓存:`TrendingCacheDao + CachedTrendingDataSource`
-- 缓存 key 按 `window + language` 生成,TTL 为 30 分钟;远端失败时可回退到过期缓存
+- 缓存 key 按 `window + board + language` 生成,TTL 为 5 分钟;远端失败时可回退到过期缓存
 - 开发者选项已支持配置 GitHub Personal Access Token,GitHub Search 请求会自动带 Bearer token
 - 热榜缓存按匿名/Token scope 隔离,避免清除 token 后复用认证态缓存
 - 开发者选项已支持手动检查 GitHub `/rate_limit`,展示 REST Core 与 Search API 剩余额度和重置时间
@@ -128,8 +128,21 @@
 - 已移除搜索、筛选、导出、登录、PRO 等已完成能力的旧占位提示文案
 - GitHub 热榜新增榜单类型维度:`全部 / Agent / MCP / AI Coding / 新晋项目`
 - 榜单类型已进入 `TrendingQuery`、GitHub Search 查询、本地模拟过滤和 SQLite 缓存 key,避免不同榜单串缓存
+- 无服务端阶段统一采用客户端直连公开 API + SQLite 缓存策略,AI 动态与 GitHub 热榜 TTL 均为 5 分钟;5 分钟内返回本地缓存,手动刷新可删除当前查询缓存后重新请求
 
 ## 数据源规划
+
+### 无服务端阶段统一策略
+
+当前没有服务端,先采用客户端直连公开 API 的轻量策略:
+
+- 所有远端数据源必须有 SQLite 快照缓存与 `cache_meta` TTL
+- 默认 TTL 统一为 5 分钟;5 分钟内只返回本地缓存
+- 手动刷新删除当前查询缓存后再请求远端,不影响其它查询缓存
+- 远端失败时优先回退过期缓存,无缓存才展示错误态
+- GitHub 请求优先使用用户配置的 Personal Access Token,匿名模式仅用于验证链路
+- 搜索框只过滤当前已加载/已缓存数据,不因输入关键词额外请求远端
+- 分页和详情请求要做并发锁,避免滚动触底或重复点击打爆公开 API
 
 ### AI 资讯流
 
@@ -140,10 +153,10 @@
 
 第二阶段:
 
-- 官方博客/RSS: OpenAI、Anthropic、Google AI、DeepMind、Meta AI、Microsoft AI
-- 论文: arXiv API
-- 社区: Hacker News API
-- 开源动态: GitHub REST / GraphQL
+- 官方博客/RSS:OpenAI News RSS、Google AI Blog、DeepMind Blog、Microsoft AI Blog
+- 论文:arXiv API,关键词优先 `cat:cs.AI OR cat:cs.CL OR cat:cs.LG`
+- 社区:Hacker News Firebase API 的 `topstories/newstories/beststories`
+- 开源动态:GitHub REST Search/Repository API
 
 ### GitHub 热门项目
 
@@ -171,6 +184,30 @@ Agent 榜不直接等同于 GitHub Trending,需要自定义口径:
 - GitHub 指标: stars、forks、watchers、open issues、最近 push
 - 趋势指标: 1 日 / 7 日 star 增量
 - 社区指标: HN / Reddit / X 后续可接入
+
+### 仓库监控
+
+无服务端阶段优先接 GitHub REST API:
+
+- Repository 基础信息:`GET /repos/{owner}/{repo}`
+- Releases:`GET /repos/{owner}/{repo}/releases`
+- Issues:`GET /repos/{owner}/{repo}/issues`
+- Contributors:`GET /repos/{owner}/{repo}/contributors`
+- Events:`GET /repos/{owner}/{repo}/events`
+- 本地保存监控仓库列表、告警规则、最近一次快照
+- 指标变化先用本地相邻快照计算,后续再升级为服务端定时采集
+
+### AI 雷达
+
+无服务端阶段先由多个 GitHub Search 查询组成主题雷达:
+
+- Agent:`agent OR ai-agent OR llm-agent OR langgraph OR autogen`
+- MCP:`mcp OR model-context-protocol OR modelcontextprotocol`
+- AI Coding:`coding agent OR copilot OR code assistant OR claude-code OR codex`
+- RAG:`rag OR retrieval augmented generation OR vector database`
+- Local Inference:`llama.cpp OR ollama OR vllm OR local llm`
+
+每个主题单独缓存 5 分钟,再在客户端按 stars、forks、最近 push、open issues 与命中关键词计算热度。
 
 ## 数据处理管线
 
@@ -224,7 +261,9 @@ actions
 ## 参考数据源
 
 - GitHub REST Search API: https://docs.github.com/en/rest/search/search
+- GitHub REST Rate Limit: https://docs.github.com/en/rest/rate-limit/rate-limit
 - GitHub GraphQL API: https://docs.github.com/en/graphql
 - GH Archive: https://www.gharchive.org/
 - Hacker News API: https://github.com/HackerNews/API
 - arXiv API: https://info.arxiv.org/help/api/user-manual.html
+- OpenAI News RSS: https://openai.com/news/rss.xml

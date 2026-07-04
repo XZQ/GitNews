@@ -64,7 +64,7 @@ void main() {
         await dao.isFresh(
           category: null,
           cursor: null,
-          ttl: const Duration(hours: 1),
+          ttl: const Duration(minutes: 5),
           now: DateTime.utc(2026, 6, 30, 10),
         ),
         isFalse,
@@ -84,8 +84,8 @@ void main() {
         await dao.isFresh(
           category: null,
           cursor: null,
-          ttl: const Duration(hours: 1),
-          now: fetched.add(const Duration(minutes: 30)),
+          ttl: const Duration(minutes: 5),
+          now: fetched.add(const Duration(minutes: 3)),
         ),
         isTrue,
       );
@@ -93,7 +93,7 @@ void main() {
         await dao.isFresh(
           category: null,
           cursor: null,
-          ttl: const Duration(hours: 1),
+          ttl: const Duration(minutes: 5),
           now: fetched.add(const Duration(hours: 1, minutes: 1)),
         ),
         isFalse,

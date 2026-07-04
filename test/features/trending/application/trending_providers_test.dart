@@ -301,7 +301,7 @@ void main() {
 
       expect(status.isGithub, isTrue);
       expect(status.hasToken, isFalse);
-      expect(status.label, 'GitHub 匿名 · 缓存30分钟');
+      expect(status.label, 'GitHub 匿名 · 缓存5分钟');
     });
 
     test('status should describe token GitHub mode', () async {
@@ -316,7 +316,7 @@ void main() {
 
       expect(status.isGithub, isTrue);
       expect(status.hasToken, isTrue);
-      expect(status.label, 'GitHub Token · 缓存30分钟');
+      expect(status.label, 'GitHub Token · 缓存5分钟');
     });
   });
 
