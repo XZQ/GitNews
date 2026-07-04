@@ -5,9 +5,11 @@ import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
+import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/entities.dart';
 import '../domain/repo_detail_repository.dart';
+import 'github_repo_detail_helpers.dart';
 import 'local_repo_detail_repository.dart';
 
 const Duration repoDetailRemoteCacheTtl = Duration(minutes: 5);
@@ -17,17 +19,20 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   const GithubRepoDetailRepository({
     required Dio dio,
     required JsonSnapshotCacheDao cache,
+    RepoSnapshotHistoryDao? snapshotHistory,
     String? token,
     DateTime Function()? now,
     RepoDetailRepository fallback = const LocalRepoDetailRepository(),
   })  : _dio = dio,
         _cache = cache,
+        _snapshotHistory = snapshotHistory,
         _token = token,
         _now = now ?? DateTime.now,
         _fallback = fallback;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
+  final RepoSnapshotHistoryDao? _snapshotHistory;
   final String? _token;
   final DateTime Function() _now;
   final RepoDetailRepository _fallback;
@@ -35,7 +40,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   @override
   Future<RepoDetailDigest> getDetail(String fullName) async {
     final decoded = Uri.decodeComponent(fullName);
-    final cacheKey = _cacheKey(decoded);
+    final cacheKey = repoDetailCacheKey(decoded);
     final now = _now();
     final cached = await _readCached(cacheKey);
     if (cached != null &&
@@ -79,7 +84,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   }
 
   Future<RepoDetailDigest> _fetchDetail(String fullName, DateTime now) async {
-    final repo = await _fetchRepo(fullName, now);
+    final repo = await _withHistoryTrend(await _fetchRepo(fullName, now), now);
     final results = await Future.wait([
       _fetchContributors(fullName),
       _fetchRelatedRepos(repo),
@@ -90,8 +95,25 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       repo: repo,
       contributors: contributors,
       relatedRepos: relatedRepos,
-      primaryTrend: repo.trend ?? _repoTrend(repo.starCount, 1),
-      compareTrend: _repoTrend(repo.starCount, 0.72),
+      primaryTrend: repo.trend ?? estimatedRepoTrend(repo.starCount, 1),
+      compareTrend: estimatedRepoTrend(repo.starCount, 0.72),
+    );
+  }
+
+  Future<RepoEntity> _withHistoryTrend(RepoEntity repo, DateTime now) async {
+    final history = _snapshotHistory;
+    if (history == null) return repo;
+    await history.record(
+      fullName: repo.fullName,
+      stars: repo.starCount,
+      forks: repo.forkCount,
+      capturedAt: now,
+    );
+    final starTrend = await history.starTrend(repo.fullName);
+    if (starTrend == null) return repo;
+    return repo.copyWith(
+      trend: starTrend.values,
+      trendProvenance: starTrend.provenance,
     );
   }
 
@@ -184,7 +206,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
           GitHubJson.nullableString(json['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: _activityScore(
+      starDelta: repoDetailActivityScore(
         stars: stars,
         forks: forks,
         issues: issues,
@@ -195,7 +217,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       accentArgb: GitHubApiSupport.languageColor(language),
       valueProvenance: DataProvenance.observed,
       trendProvenance: DataProvenance.estimated,
-      trend: _repoTrend(stars, 1),
+      trend: estimatedRepoTrend(stars, 1),
     );
   }
 
@@ -207,33 +229,6 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       contributions: GitHubJson.intValue(json['contributions']),
       avatarAccentArgb: GitHubApiSupport.avatarColor(login),
     );
-  }
-
-  int _activityScore({
-    required int stars,
-    required int forks,
-    required int issues,
-    required DateTime? pushedAt,
-    required DateTime now,
-  }) {
-    final pushedBoost = pushedAt == null
-        ? 1
-        : (30 - now.toUtc().difference(pushedAt).inDays).clamp(1, 30);
-    return ((stars / 180) + (forks / 35) + (issues / 16) + pushedBoost)
-        .round()
-        .clamp(1, 9999);
-  }
-
-  List<double> _repoTrend(int stars, double scale) {
-    final base = stars / 150 * scale;
-    return List<double>.generate(
-      7,
-      (index) => (base * (0.72 + index * 0.06)).roundToDouble(),
-    );
-  }
-
-  String _cacheKey(String fullName) {
-    return 'repo_detail:github:${fullName.toLowerCase()}:v1';
   }
 
   Map<String, Object?> _digestToJson(RepoDetailDigest digest) {
@@ -268,6 +263,8 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       'starDelta': repo.starDelta,
       'forkCount': repo.forkCount,
       'accentArgb': repo.accentArgb,
+      'valueProvenance': repo.valueProvenance.name,
+      'trendProvenance': repo.trendProvenance.name,
       'trend': repo.trend,
     };
   }
@@ -282,8 +279,12 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       starDelta: GitHubJson.intValue(json['starDelta']),
       forkCount: GitHubJson.intValue(json['forkCount']),
       accentArgb: GitHubJson.intValue(json['accentArgb']),
-      valueProvenance: DataProvenance.observed,
-      trendProvenance: DataProvenance.estimated,
+      valueProvenance: DataProvenance.fromName(
+        GitHubJson.nullableString(json['valueProvenance']),
+      ),
+      trendProvenance: DataProvenance.fromName(
+        GitHubJson.nullableString(json['trendProvenance']),
+      ),
       trend:
           json['trend'] == null ? null : GitHubJson.doubleList(json['trend']),
     );

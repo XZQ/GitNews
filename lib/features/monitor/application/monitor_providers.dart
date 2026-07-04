@@ -14,6 +14,7 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   return GithubMonitorRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
+    snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
     token: token,
   );
 });

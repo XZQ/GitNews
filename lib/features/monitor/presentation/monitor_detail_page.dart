@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/domain/repo_entity.dart';
-import '../../../core/demo_data.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -122,20 +121,19 @@ class _Body extends StatelessWidget {
             children: [
               SectionHeader(
                 title: l10n.tr('monitor.section.realtime_trend'),
-                subtitle: l10n.tr('monitor.section.realtime_trend.subtitle'),
+                subtitle:
+                    '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${repo.trendProvenance.zhLabel}',
               ),
               const SizedBox(height: AppSpacing.md),
               StarTrendChart(
                 series: [
                   ChartSeries(
-                    values: DemoData.generateStarTrend(
-                      repo.starCount - 5000,
-                      5000,
-                    ),
+                    values: repo.trend ??
+                        _estimatedTrend(repo.starCount - 5000, 5000),
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   ChartSeries(
-                    values: DemoData.generateStarTrend(repo.forkCount, 800),
+                    values: _estimatedTrend(repo.forkCount, 800),
                     color: AppColors.info,
                   ),
                 ],
@@ -209,4 +207,13 @@ String _shortNumber(int n) {
   if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
   if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}k';
   return '$n';
+}
+
+List<double> _estimatedTrend(int base, int delta, {int count = 30}) {
+  final last = count - 1;
+  return List<double>.generate(count, (i) {
+    final progress = last == 0 ? 0.0 : i / last;
+    final noise = ((i * 13) % 7) - 3;
+    return (base + delta * progress + noise).toDouble();
+  });
 }
