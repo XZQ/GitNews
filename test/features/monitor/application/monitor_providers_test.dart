@@ -1,11 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/di/providers.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
+import 'package:github_news/features/monitor/application/monitor_alert_state_controller.dart';
 import 'package:github_news/features/monitor/application/monitor_providers.dart';
 import 'package:github_news/features/monitor/data/local_monitor_repository.dart';
 import 'package:github_news/features/monitor/domain/entities.dart';
 import 'package:github_news/features/monitor/domain/monitor_repository.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class _MockMonitorRepository extends Mock implements MonitorRepository {}
 
@@ -175,6 +178,8 @@ void main() {
 
     test('filteredMonitorDigestProvider should filter current digest',
         () async {
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
       final repo = _MockMonitorRepository();
       when(repo.getDigest).thenAnswer(
         (_) async => MonitorDigest(
@@ -197,6 +202,7 @@ void main() {
 
       final container = ProviderContainer(
         overrides: [
+          sharedPreferencesProvider.overrideWithValue(prefs),
           monitorRepositoryProvider.overrideWithValue(repo),
         ],
       );
@@ -209,6 +215,43 @@ void main() {
       expect(digest.alerts.single.repoFullName, 'openai/codex');
       expect(digest.stats.monitoredCount, 2);
       verify(repo.getDigest).called(1);
+    });
+
+    test('applyMonitorAlertState should hide archived alerts and update stats',
+        () {
+      const alerts = [
+        AlertEntity(
+          repoFullName: 'openai/codex',
+          metric: 'Star growth',
+          value: '+240',
+          time: '10 min ago',
+          severity: AlertSeverity.warning,
+        ),
+        AlertEntity(
+          repoFullName: 'vercel/next.js',
+          metric: 'Fork growth',
+          value: '+52',
+          time: '1 hour ago',
+          severity: AlertSeverity.info,
+        ),
+      ];
+      final state = MonitorAlertState(
+        readAlertIds: {alertStableId(alerts.first)},
+        archivedAlertIds: {alertStableId(alerts.last)},
+      );
+
+      final digest = applyMonitorAlertState(
+        MonitorDigest(
+          monitoredRepos: [_repo('openai/codex')],
+          alerts: alerts,
+          stats: _stats,
+        ),
+        state,
+      );
+
+      expect(digest.alerts, [alerts.first]);
+      expect(digest.stats.unreadAlertCount, 0);
+      expect(digest.stats.totalAlertCount, 1);
     });
   });
 }

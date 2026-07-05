@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
@@ -7,21 +9,24 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../application/monitor_alert_state_controller.dart';
 import '../domain/entities.dart';
 
-class MonitorRecentAlerts extends StatelessWidget {
+class MonitorRecentAlerts extends ConsumerWidget {
   const MonitorRecentAlerts({required this.alerts, super.key});
 
   final List<AlertEntity> alerts;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final alertState = ref.watch(monitorAlertStateControllerProvider);
+    final unreadCount = alertState.unreadCount(alerts);
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.fromLTRB(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
               AppSpacing.lg,
               AppSpacing.md,
               AppSpacing.lg,
@@ -29,7 +34,18 @@ class MonitorRecentAlerts extends StatelessWidget {
             ),
             child: SectionHeader(
               title: '最近告警',
-              subtitle: '今日与昨日告警流',
+              subtitle:
+                  unreadCount == 0 ? '当前可见告警均已处理' : '$unreadCount 条未读，需要关注',
+              trailing: TextButton.icon(
+                onPressed: alerts.isEmpty || unreadCount == 0
+                    ? null
+                    : () => ref
+                        .read(monitorAlertStateControllerProvider.notifier)
+                        .markAllRead(alerts),
+                icon: const Icon(Icons.done_all_rounded, size: 16),
+                label: const Text('全部已读'),
+              ),
+              onTap: () => context.go('/monitor/alerts'),
             ),
           ),
           if (alerts.isEmpty)
@@ -55,7 +71,7 @@ class MonitorRecentAlerts extends StatelessWidget {
   }
 }
 
-class MonitorAlertRow extends StatelessWidget {
+class MonitorAlertRow extends ConsumerWidget {
   const MonitorAlertRow({required this.alert, super.key});
 
   final AlertEntity alert;
@@ -79,55 +95,113 @@ class MonitorAlertRow extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final color = _accent();
     final colors = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: AppSpacing.xxl,
-            height: AppSpacing.xxl,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppRadius.sm),
+    final alertState = ref.watch(monitorAlertStateControllerProvider);
+    final isRead = alertState.isRead(alert);
+    return InkWell(
+      onTap: () {
+        ref.read(monitorAlertStateControllerProvider.notifier).markRead(alert);
+        context
+            .go('/project/detail/${Uri.encodeComponent(alert.repoFullName)}');
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.md,
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: AppSpacing.xxl,
+              height: AppSpacing.xxl,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: isRead ? 0.08 : 0.14),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+              ),
+              child: Icon(_icon(), color: color, size: 18),
             ),
-            child: Icon(_icon(), color: color, size: 18),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      if (!isRead) ...[
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            color: color,
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.xs2),
+                      ],
+                      Expanded(
+                        child: Text(
+                          alert.repoFullName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.titleSmall.copyWith(
+                            color: isRead
+                                ? colors.onSurfaceVariant
+                                : colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    alert.metric,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(alert.repoFullName, style: AppTypography.titleSmall),
                 Text(
-                  alert.metric,
-                  style: AppTypography.bodySmall.copyWith(
+                  alert.value,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  alert.time,
+                  style: AppTypography.labelSmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
-          ),
-          Text(
-            alert.value,
-            style: AppTypography.labelMedium.copyWith(
-              color: color,
-              fontWeight: FontWeight.w600,
+            const SizedBox(width: AppSpacing.xs),
+            Tooltip(
+              message: isRead ? '标记为未读' : '标记为已读',
+              child: IconButton(
+                visualDensity: VisualDensity.compact,
+                iconSize: 18,
+                onPressed: () => ref
+                    .read(monitorAlertStateControllerProvider.notifier)
+                    .toggleRead(alert),
+                icon: Icon(
+                  isRead
+                      ? Icons.mark_email_unread_outlined
+                      : Icons.mark_email_read_outlined,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            alert.time,
-            style: AppTypography.labelSmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
