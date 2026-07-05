@@ -8,6 +8,7 @@ import '../data/github_monitor_repository.dart';
 import '../data/local_monitor_repository.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
+import 'monitor_alert_state_controller.dart';
 
 final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   final token = ref.watch(githubTokenControllerProvider).token;
@@ -36,8 +37,30 @@ final filteredMonitorDigestProvider =
     FutureProvider<MonitorDigest>((ref) async {
   final query = ref.watch(monitorSearchQueryProvider);
   final digest = await ref.watch(monitorDigestProvider.future);
-  return filterMonitorDigest(digest, query);
+  final alertState = ref.watch(monitorAlertStateControllerProvider);
+  return filterMonitorDigest(applyMonitorAlertState(digest, alertState), query);
 });
+
+MonitorDigest applyMonitorAlertState(
+  MonitorDigest digest,
+  MonitorAlertState alertState,
+) {
+  final visibleAlerts = alertState.visibleAlerts(digest.alerts);
+  return MonitorDigest(
+    monitoredRepos: digest.monitoredRepos,
+    alerts: visibleAlerts,
+    stats: MonitorStats(
+      monitoredCount: digest.stats.monitoredCount,
+      monitoredDelta: digest.stats.monitoredDelta,
+      unreadAlertCount: alertState.unreadCount(digest.alerts),
+      unreadAlertDelta: digest.stats.unreadAlertDelta,
+      triggeredTodayCount: visibleAlerts.length,
+      triggeredTodayDelta: digest.stats.triggeredTodayDelta,
+      totalAlertCount: visibleAlerts.length,
+      totalAlertDelta: digest.stats.totalAlertDelta,
+    ),
+  );
+}
 
 MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
   final keyword = query.trim().toLowerCase();

@@ -1,84 +1,55 @@
-# GitHub情报站 (GitHub Developer Intelligence)
+# GitHub 情报站
 
-一款基于 Flutter 的 GitHub 仓库趋势分析与监控告警桌面应用,
-用响应式三档布局与 Material 3 主题,为你盯住每一个值得关注的仓库。
+面向开发者的 AI + GitHub 情报桌面应用。项目用 Flutter 构建，优先打磨桌面端工作台，同时保留手机端 4 Tab 信息架构规划。
 
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux%20%7C%20Android%20%7C%20iOS-0a84ff)](#支持平台)
-[![Flutter](https://img.shields.io/badge/Flutter-%E2%89%A5%203.22-02569B?logo=flutter)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-%E2%89%A5%203.4-0175C2)](https://dart.dev)
-[![License](https://img.shields.io/badge/License-MIT-green)](#许可证)
+## 当前能力
 
----
+- 总览、AI 动态、GitHub热榜、AI雷达、仓库监控、深度报告、设置 7 个主入口。
+- AI 动态接入远端资讯源，并使用本地缓存与分页。
+- GitHub热榜支持本地数据与 GitHub Search 数据源切换，支持榜单类型、窗口、语言和本地搜索。
+- AI雷达通过 GitHub Search 聚合 Agent、MCP、AI Coding、RAG、本地推理等主题信号。
+- 仓库监控、仓库详情、深度报告接入 GitHub Repository / Search / Contributors API。
+- 所有远端链路统一按本地缓存优先，默认 TTL 为 5 分钟；手动刷新只刷新当前查询缓存。
+- 无服务端阶段使用 SharedPreferences 保存收藏、监控仓库、关注开发者、告警已读/归档、通知设置和 GitHub Token。
+- 仓库 Star/Fork 与热点 heat 会写入本地快照；有跨天历史时优先使用本地观测趋势，不足时使用估算曲线兜底。
 
-## ✨ 功能特性
+## 数据边界
 
-- **总览 / AI 动态 / GitHub热榜 / AI雷达 / 仓库监控 / 深度报告 / 设置** 七个入口联动
-- **Star 增长趋势图** 7 / 14 / 30 天可切换,本周与上周对比
-- **语言分布** 按全部 / AI / Web / 系统分类筛选,交互式柱状图
-- **响应式三档布局**:Compact(< 600dp)底部导航、Medium(600–1024dp)紧凑侧栏、Expanded(≥ 1024dp)宽侧栏
-- **无服务端动态数据**:AI 动态、AI 雷达、仓库监控、深度报告与仓库详情已接远端 API + SQLite 5 分钟缓存;GitHub热榜支持本地/GitHub 双数据源切换
-- **浅色 / 深色主题** + 品牌 Logo 自绘,无外部资源依赖
+当前不是纯静态 Demo，但也不是完全服务端化产品：
 
-## 🖼️ 预览
+- 真实远端：AI 动态、GitHub Search、Repository、Contributors、Rate Limit。
+- 本地缓存：AI 动态、GitHub热榜、AI雷达、监控、详情、报告聚合。
+- 本地用户数据：收藏、关注、监控规则、通知、告警处理状态。
+- 本地兜底：远端失败且无过期缓存时，部分页面会回退到种子数据，保证桌面端可用。
+- 未接入服务端定时任务：跨用户同步、推送通知、GH Archive 全量事件趋势、账号云同步暂不支持。
 
-### 桌面端
-
-| AI 动态 | 概览仪表盘 | 开发者情报 |
-| :---: | :---: | :---: |
-| <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/ScreenShot_2026-06-27_223118_515.png" width="320"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/ScreenShot_2026-06-27_223128_041.png" width="320"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/ScreenShot_2026-06-27_223137_072.png" width="320"> |
-
-| 仓库监控 | 趋势榜 |
-| :---: | :---: |
-| <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/ScreenShot_2026-06-27_223145_699.png" width="320"> | <img src="https://raw.githubusercontent.com/XZQ/GitNews/main/docs/ScreenShot_2026-06-27_223209_496.png" width="320"> |
-
-> 截图位于 `docs/`。
-
-## 🛠️ 技术栈
+## 技术栈
 
 | 维度 | 选型 |
 |---|---|
-| 框架 | Flutter ≥ 3.22(Dart ≥ 3.4) |
-| 状态管理 | `flutter_riverpod` |
-| 路由 | `go_router`(`StatefulShellRoute.indexedStack`) |
-| HTTP | `dio` + 拦截器(超时 / 重试 / 限流) |
-| 存储 | `shared_preferences`(键值) + `sqflite_common_ffi` / `sqlite3_flutter_libs`(本地缓存 DAO) |
-| 图表 | `fl_chart` |
-| 图片 | `cached_network_image` |
-| 测试 | `flutter_test` + `mocktail` |
+| 框架 | Flutter / Dart |
+| 状态管理 | flutter_riverpod |
+| 路由 | go_router |
+| 网络 | dio |
+| 本地存储 | shared_preferences、sqflite_common_ffi、sqlite3_flutter_libs |
+| 图表 | fl_chart |
+| 图片 | cached_network_image |
+| 测试 | flutter_test、mocktail |
 
-## 🧭 7 个入口
-
-| 入口 | 路径 | 职责 |
-|---|---|---|
-| 总览 | `/home` | 概览仪表盘 |
-| AI 动态 | `/ai_news` | AI 情报流 |
-| GitHub热榜 | `/trending` | GitHub 仓库趋势列表 |
-| AI雷达 | `/tech_hotspot` | Agent、MCP 与 AI Coding 趋势雷达 |
-| 仓库监控 | `/monitor` | 监控规则与告警 |
-| 深度报告 | `/project` | 深度报告 / 仓库集合 |
-| 设置 | `/profile` | 主题与偏好设置 |
-
-产品信息架构、桌面端/手机端分工和数据源规划见
-[docs/product_ia_data_plan.md](docs/product_ia_data_plan.md)。
-
-## 📦 支持平台
-
-Windows / macOS / Linux / Android / iOS(桌面端为优先开发目标)。
-
-## 🚀 快速开始
+## 运行
 
 ```bash
 flutter pub get
-
-# 开发
 flutter run -d windows
-
-# 打包
-flutter build windows --release
-flutter build apk --release
 ```
 
-提交前请运行:
+打包：
+
+```bash
+flutter build windows --release
+```
+
+提交前必须运行：
 
 ```bash
 dart format .
@@ -86,11 +57,11 @@ flutter analyze
 flutter test
 ```
 
-## 🤝 贡献
+## 文档
 
-代码规范见 [CLAUDE.md](./CLAUDE.md),
-Commit 信息遵循 Conventional Commits:`<type>(<scope>): <subject>`。
+- 产品信息架构与数据方案：[docs/product_ia_data_plan.md](docs/product_ia_data_plan.md)
+- 项目规则：根目录 `AGENTS.md`
 
-## 📄 许可证
+## 状态
 
-[MIT](./LICENSE)
+桌面端主链路已进入可用收尾阶段。当前继续优先补齐桌面端交互闭环、真实数据口径说明、布局回归和文档同步；手机端仍按独立 4 Tab 方案规划，尚未作为本轮实现重点。

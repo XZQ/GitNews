@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../features/project/application/project_providers.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
-import '../../../../core/domain/repo_entity.dart';
 import 'repo_detail_helpers.dart';
 
 class RepoDetailAboutCard extends StatelessWidget {
@@ -35,12 +38,19 @@ class RepoDetailAboutCard extends StatelessWidget {
   }
 }
 
-class RepoDetailTopicsCard extends StatelessWidget {
+class RepoDetailTopicsCard extends ConsumerWidget {
   const RepoDetailTopicsCard({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final topics = [
+      l10n.tr('repo_detail.topic.runtime'),
+      'TypeScript',
+      'Rust',
+      l10n.tr('repo_detail.topic.cli'),
+      'Web',
+    ];
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -54,11 +64,16 @@ class RepoDetailTopicsCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              Chip(label: Text(l10n.tr('repo_detail.topic.runtime'))),
-              const Chip(label: Text('TypeScript')),
-              const Chip(label: Text('Rust')),
-              Chip(label: Text(l10n.tr('repo_detail.topic.cli'))),
-              const Chip(label: Text('Web')),
+              for (final topic in topics)
+                ActionChip(
+                  avatar: const Icon(Icons.search_rounded, size: 16),
+                  label: Text(topic),
+                  tooltip: '搜索 $topic 项目',
+                  onPressed: () {
+                    ref.read(projectSearchQueryProvider.notifier).state = topic;
+                    context.go('/project');
+                  },
+                ),
             ],
           ),
         ],
@@ -95,6 +110,8 @@ class RepoDetailRelatedReposCard extends StatelessWidget {
             const Divider(height: 1),
             ListTile(
               dense: true,
+              onTap: () => context
+                  .go('/project/detail/${Uri.encodeComponent(r.fullName)}'),
               leading: CircleAvatar(
                 radius: 14,
                 backgroundColor: Color(r.accentArgb).withValues(alpha: 0.16),
