@@ -9,6 +9,7 @@ import '../domain/tech_hotspot_models.dart';
 import '../domain/tech_hotspot_repository.dart';
 import 'github_tech_hotspot_queries.dart';
 import 'local_tech_hotspot_repository.dart';
+import 'tech_hotspot_history_dao.dart';
 
 const Duration techHotspotRemoteCacheTtl = Duration(minutes: 5);
 
@@ -19,17 +20,20 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     required JsonSnapshotCacheDao cache,
     String? token,
     DateTime Function()? now,
+    TechHotspotHistoryDao? history,
     TechHotspotRepository fallback = const LocalTechHotspotRepository(),
   })  : _dio = dio,
         _cache = cache,
         _token = token,
         _now = now ?? DateTime.now,
+        _history = history,
         _fallback = fallback;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
   final String? _token;
   final DateTime Function() _now;
+  final TechHotspotHistoryDao? _history;
   final TechHotspotRepository _fallback;
 
   static const String _cacheKey = 'tech_hotspot:github:default:v1';
@@ -88,9 +92,10 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   Future<TechHotspotDigest> _fetchDigest(DateTime now) async {
-    final results = await Future.wait([
+    final fetched = await Future.wait([
       for (final query in techHotspotTopicQueries) _fetchTopic(query, now),
     ]);
+    final results = await _withObservedHistory(fetched, now);
     final languages = _buildLanguages(results);
     final tags = _buildTags(results);
     return TechHotspotDigest(
@@ -169,6 +174,48 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     );
   }
 
+  Future<List<_TopicResult>> _withObservedHistory(
+    List<_TopicResult> results,
+    DateTime now,
+  ) async {
+    final history = _history;
+    if (history == null || results.isEmpty) return results;
+    return Future.wait([
+      for (final result in results) _withTopicHistory(result, history, now),
+    ]);
+  }
+
+  Future<_TopicResult> _withTopicHistory(
+    _TopicResult result,
+    TechHotspotHistoryDao history,
+    DateTime now,
+  ) async {
+    final topic = result.topic;
+    await history.record(
+      id: topic.id,
+      heat: topic.heat,
+      mentions: topic.mentions,
+      relatedRepos: topic.relatedRepos,
+      capturedAt: now,
+    );
+    final trend = await history.trend(topic.id);
+    if (trend == null) return result;
+    return _TopicResult(
+      topic: _copyTopic(
+        topic,
+        growth: trend.growth,
+        growthProvenance: trend.provenance,
+      ),
+      languages: result.languages,
+      heatTrend: _recentHeatValues(trend.heatValues),
+    );
+  }
+
+  List<double> _recentHeatValues(List<double> values) {
+    if (values.length <= 7) return values;
+    return values.sublist(values.length - 7);
+  }
+
   List<LanguageStat> _buildLanguages(List<_TopicResult> results) {
     final counts = <String, int>{};
     for (final result in results) {
@@ -197,6 +244,27 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   List<TechHeatPoint> _buildHeatTrend(List<_TopicResult> results) {
+    final observed = [
+      for (final result in results)
+        if (result.heatTrend != null && result.heatTrend!.length >= 2)
+          result.heatTrend!,
+    ];
+    if (observed.isNotEmpty) {
+      final pointCount = observed.fold<int>(
+        observed.first.length,
+        (count, trend) => trend.length < count ? trend.length : count,
+      );
+      final labels = _trendLabels(pointCount);
+      return List<TechHeatPoint>.generate(pointCount, (index) {
+        final sum = observed.fold<double>(0, (total, trend) {
+          return total + trend[trend.length - pointCount + index];
+        });
+        return TechHeatPoint(
+          label: labels[index],
+          value: (sum / observed.length).roundToDouble(),
+        );
+      });
+    }
     final total =
         results.fold<int>(0, (sum, result) => sum + result.topic.heat);
     const labels = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -205,6 +273,16 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         label: labels[index],
         value: (total / results.length * (0.76 + index * 0.05)).roundToDouble(),
       );
+    });
+  }
+
+  List<String> _trendLabels(int count) {
+    if (count <= 0) return const [];
+    if (count == 2) return const ['起点', '今日'];
+    return List<String>.generate(count, (index) {
+      if (index == 0) return '起点';
+      if (index == count - 1) return '今日';
+      return '+$index';
     });
   }
 
@@ -274,6 +352,8 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       'mentions': topic.mentions,
       'relatedRepos': topic.relatedRepos,
       'summary': topic.summary,
+      'provenance': topic.provenance.name,
+      'growthProvenance': topic.growthProvenance.name,
     };
   }
 
@@ -288,8 +368,14 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       mentions: GitHubJson.intValue(json['mentions']),
       relatedRepos: GitHubJson.intValue(json['relatedRepos']),
       summary: GitHubJson.string(json['summary']),
-      provenance: DataProvenance.observed,
-      growthProvenance: DataProvenance.estimated,
+      provenance: _provenanceFromJson(
+        json['provenance'],
+        fallback: DataProvenance.observed,
+      ),
+      growthProvenance: _provenanceFromJson(
+        json['growthProvenance'],
+        fallback: DataProvenance.estimated,
+      ),
     );
   }
 
@@ -306,12 +392,45 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 }
 
+DataProvenance _provenanceFromJson(
+  Object? raw, {
+  required DataProvenance fallback,
+}) {
+  final name = GitHubJson.nullableString(raw);
+  if (name == null) return fallback;
+  return DataProvenance.values.firstWhere(
+    (value) => value.name == name,
+    orElse: () => fallback,
+  );
+}
+
+TechTopic _copyTopic(
+  TechTopic topic, {
+  double? growth,
+  DataProvenance? growthProvenance,
+}) {
+  return TechTopic(
+    id: topic.id,
+    name: topic.name,
+    category: topic.category,
+    heat: topic.heat,
+    growth: growth ?? topic.growth,
+    mentions: topic.mentions,
+    relatedRepos: topic.relatedRepos,
+    summary: topic.summary,
+    provenance: topic.provenance,
+    growthProvenance: growthProvenance ?? topic.growthProvenance,
+  );
+}
+
 class _TopicResult {
   const _TopicResult({
     required this.topic,
     required this.languages,
+    this.heatTrend,
   });
 
   final TechTopic topic;
   final Map<String, int> languages;
+  final List<double>? heatTrend;
 }

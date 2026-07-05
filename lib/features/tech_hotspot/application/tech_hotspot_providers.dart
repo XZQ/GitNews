@@ -5,8 +5,13 @@ import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../data/github_tech_hotspot_repository.dart';
 import '../data/local_tech_hotspot_repository.dart';
+import '../data/tech_hotspot_history_dao.dart';
 import '../domain/tech_hotspot_models.dart';
 import '../domain/tech_hotspot_repository.dart';
+
+final techHotspotHistoryDaoProvider = Provider<TechHotspotHistoryDao>((ref) {
+  return TechHotspotHistoryDao(ref.watch(jsonSnapshotCacheDaoProvider));
+});
 
 final techHotspotRepositoryProvider = Provider<TechHotspotRepository>((ref) {
   final token = ref.watch(githubTokenControllerProvider).token;
@@ -14,6 +19,7 @@ final techHotspotRepositoryProvider = Provider<TechHotspotRepository>((ref) {
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     token: token,
+    history: ref.watch(techHotspotHistoryDaoProvider),
   );
 });
 
