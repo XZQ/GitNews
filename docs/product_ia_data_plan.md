@@ -144,6 +144,7 @@
 - GitHub 热榜 GitHub 模式已接入 `RepoSnapshotHistoryDao`:远端拉取成功后写入本地每日 Star/Fork 快照,当同一仓库已有至少 2 个不同日期快照时,`starDelta` 与热榜聚合趋势优先使用本地观测历史;compact / medium 首页趋势图也复用同一 `TrendingDigest`
 - AI 雷达已新增 `TechHotspotHistoryDao`,基于 `json_snapshot_cache` 记录每个主题每日 heat/mentions/relatedRepos;当同一主题已有至少 2 个不同日期快照时,主题增长率与雷达热度趋势优先使用本地观测历史
 - 仓库详情与仓库监控在命中 `RepoSnapshotHistoryDao` 跨天历史后,`starDelta` 与趋势曲线都统一切换为本地观测口径
+- 桌面端本地内容管理已接入 SharedPreferences:收藏仓库、关注开发者、监控仓库、监控规则、通知设置均可在无服务端阶段本地修改并持久化;详情页、探索/发现页、我的页与监控设置页的主要点击行为已闭环
 
 ## 数据源规划
 

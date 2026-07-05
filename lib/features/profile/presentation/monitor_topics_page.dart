@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
@@ -10,6 +11,7 @@ import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../core/domain/repo_entity.dart';
+import '../application/local_content_controller.dart';
 
 class MonitorTopicsPage extends StatelessWidget {
   const MonitorTopicsPage({super.key});
@@ -34,14 +36,19 @@ class MonitorTopicsPage extends StatelessWidget {
   }
 }
 
-class _Body extends StatelessWidget {
+class _Body extends ConsumerWidget {
   const _Body();
 
   @override
-  Widget build(BuildContext context) {
-    final List<RepoEntity> repos = [
+  Widget build(BuildContext context, WidgetRef ref) {
+    final content = ref.watch(localContentControllerProvider);
+    final allRepos = [
       ...DemoData.trending.take(4).map((e) => e.toEntity()),
       ...DemoData.recent.map((e) => e.toEntity()),
+    ];
+    final List<RepoEntity> repos = [
+      for (final repo in allRepos)
+        if (content.isMonitored(repo.fullName)) repo,
     ];
     if (repos.isEmpty) {
       return const EmptyView(
@@ -70,11 +77,25 @@ class _Body extends StatelessWidget {
               ),
               for (var i = 0; i < repos.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
-                RepoTile(
-                  repo: repos[i],
-                  onTap: () => context.go(
-                    '/profile/detail/${Uri.encodeComponent(repos[i].fullName)}',
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: RepoTile(
+                        repo: repos[i],
+                        onTap: () => context.go(
+                          '/profile/detail/${Uri.encodeComponent(repos[i].fullName)}',
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: '取消监控',
+                      icon: const Icon(Icons.notifications_off_outlined),
+                      onPressed: () => ref
+                          .read(localContentControllerProvider.notifier)
+                          .removeMonitor(repos[i].fullName),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                  ],
                 ),
               ],
             ],

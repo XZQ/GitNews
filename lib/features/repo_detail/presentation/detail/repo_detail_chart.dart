@@ -8,14 +8,23 @@ import '../../../../shared/widgets/section_header.dart';
 import '../../../../shared/widgets/star_trend_chart.dart';
 import '../../domain/repo_detail_repository.dart';
 
-class RepoDetailChart extends StatelessWidget {
+class RepoDetailChart extends StatefulWidget {
   const RepoDetailChart({required this.digest, super.key});
 
   final RepoDetailDigest digest;
 
   @override
+  State<RepoDetailChart> createState() => _RepoDetailChartState();
+}
+
+class _RepoDetailChartState extends State<RepoDetailChart> {
+  int _window = 30;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final primary = _windowed(widget.digest.primaryTrend);
+    final compare = _windowed(widget.digest.compareTrend);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -43,8 +52,10 @@ class RepoDetailChart extends StatelessWidget {
                     label: Text(l10n.tr('repo_detail.window.90d')),
                   ),
                 ],
-                selected: const {30},
-                onSelectionChanged: (_) {},
+                selected: {_window},
+                onSelectionChanged: (values) {
+                  setState(() => _window = values.first);
+                },
                 showSelectedIcon: false,
               ),
             ],
@@ -53,11 +64,11 @@ class RepoDetailChart extends StatelessWidget {
           StarTrendChart(
             series: [
               ChartSeries(
-                values: digest.primaryTrend,
+                values: primary,
                 color: Theme.of(context).colorScheme.primary,
               ),
               ChartSeries(
-                values: digest.compareTrend,
+                values: compare,
                 color: AppColors.info,
               ),
             ],
@@ -66,5 +77,10 @@ class RepoDetailChart extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  List<double> _windowed(List<double> values) {
+    if (values.length <= _window) return values;
+    return values.sublist(values.length - _window);
   }
 }

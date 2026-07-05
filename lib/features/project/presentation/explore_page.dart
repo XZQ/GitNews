@@ -16,6 +16,7 @@ import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../repo_detail/domain/entities.dart';
+import '../../profile/application/local_content_controller.dart';
 import '../application/project_providers.dart';
 import 'widgets/project_page_skeleton.dart';
 
@@ -100,11 +101,11 @@ class _DigestView extends StatelessWidget {
   }
 }
 
-class _HotChipsCard extends StatelessWidget {
+class _HotChipsCard extends ConsumerWidget {
   const _HotChipsCard();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final chips = <_TopicChipSpec>[
@@ -151,7 +152,16 @@ class _HotChipsCard extends StatelessWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              for (final c in chips) _TopicChip(label: c.label, color: c.color),
+              for (final c in chips)
+                _TopicChip(
+                  label: c.label,
+                  color: c.color,
+                  onTap: () {
+                    ref.read(projectSearchQueryProvider.notifier).state =
+                        c.label;
+                    context.go('/project');
+                  },
+                ),
             ],
           ),
         ],
@@ -201,14 +211,15 @@ class _ExploreReposCard extends StatelessWidget {
   }
 }
 
-class _ExploreContributorsCard extends StatelessWidget {
+class _ExploreContributorsCard extends ConsumerWidget {
   const _ExploreContributorsCard({required this.contributors});
 
   final List<ContributorEntity> contributors;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final content = ref.watch(localContentControllerProvider);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,18 +250,14 @@ class _ExploreContributorsCard extends StatelessWidget {
                     .replaceAll('{n}', c.contributions.toString()),
               ),
               trailing: OutlinedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        l10n
-                            .tr('project.discover.followed')
-                            .replaceAll('{name}', c.login),
-                      ),
-                    ),
-                  );
-                },
-                child: Text(l10n.tr('project.discover.follow')),
+                onPressed: () => ref
+                    .read(localContentControllerProvider.notifier)
+                    .toggleDeveloper(c.login),
+                child: Text(
+                  content.isFollowingDeveloper(c.login)
+                      ? '已关注'
+                      : l10n.tr('project.discover.follow'),
+                ),
               ),
             ),
         ],
@@ -260,26 +267,35 @@ class _ExploreContributorsCard extends StatelessWidget {
 }
 
 class _TopicChip extends StatelessWidget {
-  const _TopicChip({required this.label, required this.color});
+  const _TopicChip({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
   final String label;
   final Color color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs2,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(
-        label,
-        style: AppTypography.labelMedium.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.pill),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.xs2,
+        ),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+        ),
+        child: Text(
+          label,
+          style: AppTypography.labelMedium.copyWith(
+            color: color,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ),
     );

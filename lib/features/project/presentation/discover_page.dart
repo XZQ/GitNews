@@ -16,6 +16,7 @@ import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../repo_detail/domain/entities.dart';
+import '../../profile/application/local_content_controller.dart';
 import '../application/project_providers.dart';
 import 'widgets/project_page_skeleton.dart';
 
@@ -106,11 +107,11 @@ class _DigestView extends StatelessWidget {
   }
 }
 
-class _HotTopicsCard extends StatelessWidget {
+class _HotTopicsCard extends ConsumerWidget {
   const _HotTopicsCard();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final topics = <_TopicSpec>[
@@ -155,6 +156,11 @@ class _HotTopicsCard extends StatelessWidget {
                       .tr('project.discover.topic_repos')
                       .replaceAll('{n}', t.count.toString()),
                   color: t.color,
+                  onTap: () {
+                    ref.read(projectSearchQueryProvider.notifier).state =
+                        t.label;
+                    context.go('/project');
+                  },
                 ),
             ],
           ),
@@ -203,14 +209,15 @@ class _RecommendReposCard extends StatelessWidget {
   }
 }
 
-class _FollowContributorsCard extends StatelessWidget {
+class _FollowContributorsCard extends ConsumerWidget {
   const _FollowContributorsCard({required this.contributors});
 
   final List<ContributorEntity> contributors;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final content = ref.watch(localContentControllerProvider);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -241,18 +248,14 @@ class _FollowContributorsCard extends StatelessWidget {
                     .replaceAll('{n}', c.contributions.toString()),
               ),
               trailing: OutlinedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        l10n
-                            .tr('project.discover.followed')
-                            .replaceAll('{name}', c.login),
-                      ),
-                    ),
-                  );
-                },
-                child: Text(l10n.tr('project.discover.follow')),
+                onPressed: () => ref
+                    .read(localContentControllerProvider.notifier)
+                    .toggleDeveloper(c.login),
+                child: Text(
+                  content.isFollowingDeveloper(c.login)
+                      ? '已关注'
+                      : l10n.tr('project.discover.follow'),
+                ),
               ),
             ),
         ],
@@ -266,37 +269,43 @@ class _TopicCard extends StatelessWidget {
     required this.label,
     required this.desc,
     required this.color,
+    required this.onTap,
   });
   final String label;
   final String desc;
   final Color color;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Container(
-      width: 160,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: color.withValues(alpha: 0.2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: AppTypography.titleMedium.copyWith(color: color),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(
-            desc,
-            style: AppTypography.labelSmall.copyWith(
-              color: colors.onSurfaceVariant,
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.md),
+      onTap: onTap,
+      child: Container(
+        width: 160,
+        padding: const EdgeInsets.all(AppSpacing.md),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: AppTypography.titleMedium.copyWith(color: color),
             ),
-          ),
-        ],
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              desc,
+              style: AppTypography.labelSmall.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

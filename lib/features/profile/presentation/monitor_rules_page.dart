@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_spacing.dart';
@@ -6,6 +7,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../application/local_content_controller.dart';
 
 class MonitorRulesPage extends StatelessWidget {
   const MonitorRulesPage({super.key});
@@ -30,19 +32,13 @@ class MonitorRulesPage extends StatelessWidget {
   }
 }
 
-class _Body extends StatelessWidget {
+class _Body extends ConsumerWidget {
   const _Body();
 
   @override
-  Widget build(BuildContext context) {
-    const rules = [
-      'Star 增速 ≥ 200/天',
-      '单日增长 ≥ 10%',
-      'Fork 增速 ≥ 50/天',
-      '讨论热度 ≥ 5x',
-    ];
-    const enabledFlags = [true, true, false, true];
-    final enabledCount = enabledFlags.where((e) => e).length;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final content = ref.watch(localContentControllerProvider);
+    final enabledFlags = content.monitorRules;
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -52,48 +48,41 @@ class _Body extends StatelessWidget {
             children: [
               SectionHeader(
                 title: '监控规则',
-                subtitle: '已启用 $enabledCount 条',
+                subtitle: '已启用 ${content.enabledRuleCount} 条',
               ),
               const SizedBox(height: AppSpacing.md),
-            ],
-          ).copyChildren([
-            for (var i = 0; i < rules.length; i++)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        rules[i],
-                        style: AppTypography.bodyMedium,
+              for (var i = 0; i < monitorRuleLabels.length; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          monitorRuleLabels[i],
+                          style: AppTypography.bodyMedium,
+                        ),
                       ),
-                    ),
-                    Text(
-                      enabledFlags[i] ? '已启用' : '已禁用',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: enabledFlags[i]
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      Text(
+                        enabledFlags[i] ? '已启用' : '已停用',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: enabledFlags[i]
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                    ),
-                    Switch(value: enabledFlags[i], onChanged: (_) {}),
-                  ],
+                      Switch(
+                        value: enabledFlags[i],
+                        onChanged: (value) => ref
+                            .read(localContentControllerProvider.notifier)
+                            .setMonitorRule(i, value),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-          ]),
+            ],
+          ),
         ),
       ],
-    );
-  }
-}
-
-extension _ColumnCopy on Column {
-  Column copyChildren(List<Widget> extra) {
-    return Column(
-      crossAxisAlignment: crossAxisAlignment,
-      mainAxisSize: mainAxisSize,
-      mainAxisAlignment: mainAxisAlignment,
-      children: [...children, ...extra],
     );
   }
 }
