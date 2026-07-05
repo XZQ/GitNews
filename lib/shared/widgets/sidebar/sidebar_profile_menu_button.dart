@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/preferences/profile_session_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 
-class SidebarProfileMenuButton extends StatelessWidget {
+class SidebarProfileMenuButton extends ConsumerWidget {
   const SidebarProfileMenuButton({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     return Tooltip(
@@ -19,7 +21,7 @@ class SidebarProfileMenuButton extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => _showMenu(context),
+          onTap: () => _showMenu(context, ref),
           borderRadius: BorderRadius.circular(AppRadius.pill),
           child: Padding(
             padding: const EdgeInsets.all(AppSpacing.sm2),
@@ -34,7 +36,7 @@ class SidebarProfileMenuButton extends StatelessWidget {
     );
   }
 
-  void _showMenu(BuildContext context) {
+  void _showMenu(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     showMenu<void>(
@@ -72,9 +74,18 @@ class SidebarProfileMenuButton extends StatelessWidget {
               Text(l10n.tr('profile.logout')),
             ],
           ),
-          onTap: () {
+          onTap: () async {
+            final session = ref.read(profileSessionControllerProvider);
+            if (!session.isSignedIn) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.tr('profile.anonymous_hint'))),
+              );
+              return;
+            }
+            await ref.read(profileSessionControllerProvider.notifier).signOut();
+            if (!context.mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.tr('profile.anonymous_hint'))),
+              SnackBar(content: Text(l10n.tr('profile.logout'))),
             );
           },
         ),

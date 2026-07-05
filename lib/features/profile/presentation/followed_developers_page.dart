@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
@@ -8,6 +9,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../application/local_content_controller.dart';
 
 class FollowedDevelopersPage extends StatelessWidget {
   const FollowedDevelopersPage({super.key});
@@ -32,12 +34,16 @@ class FollowedDevelopersPage extends StatelessWidget {
   }
 }
 
-class _Body extends StatelessWidget {
+class _Body extends ConsumerWidget {
   const _Body();
 
   @override
-  Widget build(BuildContext context) {
-    const devs = DemoData.contributors;
+  Widget build(BuildContext context, WidgetRef ref) {
+    final content = ref.watch(localContentControllerProvider);
+    final devs = [
+      for (final dev in DemoData.contributors)
+        if (content.isFollowingDeveloper(dev.login)) dev,
+    ];
     if (devs.isEmpty) {
       return const EmptyView(
         icon: Icons.person_add_outlined,
@@ -60,16 +66,15 @@ class _Body extends StatelessWidget {
                 ),
                 child: SectionHeader(
                   title: '关注的开发者',
-                  subtitle: '共 ${devs.length}',
+                  subtitle: '共 ${devs.length} 位',
                 ),
               ),
               for (var i = 0; i < devs.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
-                    backgroundColor: Color(
-                      devs[i].avatarColor,
-                    ).withValues(alpha: 0.16),
+                    backgroundColor:
+                        Color(devs[i].avatarColor).withValues(alpha: 0.16),
                     child: Text(
                       devs[i].login[0].toUpperCase(),
                       style: AppTypography.titleSmall.copyWith(
@@ -80,11 +85,9 @@ class _Body extends StatelessWidget {
                   title: Text(devs[i].login, style: AppTypography.titleSmall),
                   subtitle: Text('+${devs[i].contributions} 本周贡献'),
                   trailing: OutlinedButton(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('已取消关注 @${devs[i].login}')),
-                      );
-                    },
+                    onPressed: () => ref
+                        .read(localContentControllerProvider.notifier)
+                        .toggleDeveloper(devs[i].login),
                     child: const Text('取消关注'),
                   ),
                 ),

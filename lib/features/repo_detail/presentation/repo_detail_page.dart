@@ -9,6 +9,7 @@ import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../core/domain/repo_entity.dart';
+import '../../profile/application/local_content_controller.dart';
 import '../application/repo_detail_providers.dart';
 import '../domain/repo_detail_repository.dart';
 import 'detail/repo_detail_activity.dart';
@@ -28,6 +29,8 @@ class RepoDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(repoDetailDigestProvider(fullName));
+    final content = ref.watch(localContentControllerProvider);
+    final decodedFullName = Uri.decodeComponent(fullName);
     return Scaffold(
       appBar: AppBar(
         title: state.maybeWhen(
@@ -41,19 +44,30 @@ class RepoDetailPage extends ConsumerWidget {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_none),
+            icon: Icon(
+              content.isBookmarked(decodedFullName)
+                  ? Icons.bookmark
+                  : Icons.bookmark_border,
+            ),
+            tooltip: content.isBookmarked(decodedFullName) ? '取消收藏' : '收藏仓库',
+            onPressed: () => ref
+                .read(localContentControllerProvider.notifier)
+                .toggleBookmark(decodedFullName),
+          ),
+          IconButton(
+            icon: Icon(
+              content.isMonitored(decodedFullName)
+                  ? Icons.notifications_active
+                  : Icons.notifications_none,
+            ),
             tooltip: l10n.tr('repo_detail.subscribe'),
             onPressed: () {
+              ref
+                  .read(localContentControllerProvider.notifier)
+                  .addMonitor(decodedFullName);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    l10n
-                        .tr('repo_detail.subscribed')
-                        .replaceAll('{name}', fullName),
-                  ),
-                ),
+                SnackBar(content: Text('已加入监控: $decodedFullName')),
               );
-              context.go('/profile/monitor');
             },
           ),
         ],

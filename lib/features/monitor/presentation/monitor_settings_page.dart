@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
+import '../application/monitor_settings_controller.dart';
 import '../widgets/monitor_settings_cards.dart';
 
 /// 通知设置。
@@ -31,11 +33,12 @@ class MonitorSettingsPage extends StatelessWidget {
   }
 }
 
-class _Body extends StatelessWidget {
+class _Body extends ConsumerWidget {
   const _Body();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final values = ref.watch(monitorSettingsControllerProvider);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -43,39 +46,45 @@ class _Body extends StatelessWidget {
         AppSpacing.lg,
         AppSpacing.xl,
       ),
-      children: const [
+      children: [
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: '通知渠道',
-                subtitle: '应用内 / 邮件 / 推送',
+                subtitle: '应用内 / 邮件 / 报告',
               ),
-              SizedBox(height: AppSpacing.md),
-              MonitorNotificationRow(label: '应用内通知', value: true),
-              MonitorNotificationRow(label: '邮件摘要', value: false),
-              MonitorNotificationRow(label: '每日报告', value: true),
-              MonitorNotificationRow(label: '周报推送', value: false),
-              MonitorNotificationRow(label: '仅关键告警', value: true),
+              const SizedBox(height: AppSpacing.md),
+              for (var i = 0; i < 5; i++)
+                MonitorNotificationRow(
+                  label: monitorNotificationLabels[i],
+                  value: values[i],
+                  onChanged: (value) => ref
+                      .read(monitorSettingsControllerProvider.notifier)
+                      .setEnabled(i, value),
+                ),
             ],
           ),
         ),
-        SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
+              const SectionHeader(
                 title: '免打扰',
                 subtitle: '夜间与工作时段',
               ),
-              SizedBox(height: AppSpacing.md),
-              MonitorNotificationRow(
-                label: '夜间 22:00 - 08:00 静默',
-                value: true,
-              ),
-              MonitorNotificationRow(label: '工作时段仅推送关键', value: false),
+              const SizedBox(height: AppSpacing.md),
+              for (var i = 5; i < monitorNotificationLabels.length; i++)
+                MonitorNotificationRow(
+                  label: monitorNotificationLabels[i],
+                  value: values[i],
+                  onChanged: (value) => ref
+                      .read(monitorSettingsControllerProvider.notifier)
+                      .setEnabled(i, value),
+                ),
             ],
           ),
         ),
