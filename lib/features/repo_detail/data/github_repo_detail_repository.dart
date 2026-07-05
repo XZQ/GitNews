@@ -112,9 +112,16 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final starTrend = await history.starTrend(repo.fullName);
     if (starTrend == null) return repo;
     return repo.copyWith(
+      starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta),
       trend: starTrend.values,
       trendProvenance: starTrend.provenance,
     );
+  }
+
+  int _observedDelta(List<double> values, {required int fallback}) {
+    if (values.length < 2) return fallback;
+    final delta = values.last - values.first;
+    return delta.round().clamp(0, 999999);
   }
 
   Future<RepoEntity> _fetchRepo(String fullName, DateTime now) async {

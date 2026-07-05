@@ -135,6 +135,8 @@ class GithubMonitorRepository implements MonitorRepository {
       if (starTrend == null) return item;
       return item.copyWith(
         repo: item.repo.copyWith(
+          starDelta:
+              _observedDelta(starTrend.values, fallback: item.repo.starDelta),
           trend: starTrend.values,
           trendProvenance: starTrend.provenance,
         ),
@@ -146,6 +148,12 @@ class GithubMonitorRepository implements MonitorRepository {
     } on TypeError catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     }
+  }
+
+  int _observedDelta(List<double> values, {required int fallback}) {
+    if (values.length < 2) return fallback;
+    final delta = values.last - values.first;
+    return delta.round().clamp(0, 999999);
   }
 
   GithubMonitorRemoteRepoItem _parseRepo(
