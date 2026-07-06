@@ -8,7 +8,7 @@
 
 ## 目标
 
-- 抓取层：把 GitHub REST 多次调用 + 0 ETag 的现状改到 ETag 命中 + GraphQL 批量，rate limit 消耗降 50–80%。
+- 抓取层：先把 GitHub REST 的 ETag/If-None-Match 用起来减少 304 命中后的 rate cost；再用 GraphQL 做详情批量补全（Search 仍走 REST，定位为发现）。
 - 性能层：消除长列表全量构造与 0 RepaintBoundary，首屏时间与内存同时改善。
 - 架构层：把分散的缓存 DAO 收敛到通用实现，TTL/熔断配置化。
 - UI 层：补齐 a11y 基线，关闭 A/B/C 旁路与状态完整性缺口。
@@ -19,6 +19,8 @@
 - 不替换状态管理（继续 Riverpod）或路由（继续 go_router）。
 - 不重构 theme token 系统本身（仅清理残余裸常量）。
 - 不补齐 go_router_builder 迁移（按既有 memory 决策继续推迟）。
+- 不引入 AI 资讯 RSS 多源（产品增强，留待后续阶段；当前先把 aihot 缓存、失败降级、详情页稳定住）。
+- 不把 Search API 切到 GraphQL；Search 继续走 REST，定位为"发现"，GraphQL 只做"详情批量补全"。
 
 ## 分批与范围
 
@@ -26,25 +28,26 @@
 
 ### 第 1 批：高 ROI 低风险（预计 1-2 天）
 
-#### 1.1 列表虚拟化 + RepaintBoundary
+#### 1.1 增长型列表虚拟化 + RepaintBoundary
 
-**问题**：30+ 处用 `ListView(children: [...])` 一次性构造全部子项，热榜/监控/详情可达数十项。全仓 0 处 `RepaintBoundary`。
+**问题**：增长型列表（热榜、监控、详情、报告等可能动态变长的列表）用 `ListView(children: [...])` 一次性构造全部子项。全仓 0 处 `RepaintBoundary`。
 
-**改造点**（部分高优先文件）：
+**适用范围**（仅限增长型列表）：
 - `lib/features/trending/presentation/hot_repos_page.dart:75-110`
 - `lib/features/trending/presentation/trending_overview_page.dart`（74, 252）
 - `lib/features/tech_hotspot/presentation/tech_hotspot_detail_page.dart`（127, 185）
 - `lib/features/monitor/presentation/monitor_detail_page.dart`（85, 188）
 - `lib/features/repo_detail/presentation/repo_detail_page.dart`（106, 138）
 - `lib/features/project/presentation/activity_page.dart`
-- `lib/features/home/presentation/home_tablet_body.dart:28`
+
+**明确豁免**：profile、settings、login、collect、followed_developers、monitor_topics 等小型 / 静态 / 设置类页面继续用 `ListView(children:)` 没问题，不要硬改。
 
 **做法**：
-1. 全量 `ListView(children: [...])` / `Column` 拼列表 → `ListView.builder` 或 `SliverList`。
+1. 增长型列表 `ListView(children: [...])` / `Column` 拼接 → `ListView.builder` 或 `SliverList`。
 2. 复杂卡片（含图表、含图片）外包一层 `RepaintBoundary`。
 3. 图表窗口选择从页面级 `setState` 下沉到独立 `StatefulWidget` 或 `ValueNotifier`（`home_tablet_body.dart:35`、`home_mobile_body.dart:73`、`devintel_chart_card.dart:79`、`repo_detail_chart.dart:63`）。
 
-**验收**：长列表滚动 60fps；窗口切换不再触发整页 rebuild（DevTools widget rebuild 计数验证）。
+**验收**：增长型列表滚动顺畅（实测无掉帧）；窗口切换不再触发整页 rebuild（DevTools widget rebuild 计数验证）。
 
 #### 1.2 GitHub ETag / If-None-Match
 
@@ -57,13 +60,13 @@
 
 **验收**：同一资源二次刷新命中 304 不计消耗（GitHub rate_limit 接口验证）；UI 行为不变。
 
-#### 1.3 启动并行化
+#### 1.3 启动并行化（仅并行，不延后 migrate）
 
 **问题**：`lib/main.dart:10-22` 串行 await `SharedPreferences.getInstance()` + `LocalDatabase.open()` + FFI 初始化。
 
-**做法**：用 `Future.wait` 并行；非首屏必需的 schema migrate 延后到首帧之后。
+**做法**：用 `Future.wait` 把相互独立的初始化（SP、LocalDatabase.open、FFI）并行。**不延后 schema migrate**——数据库必须在被任何页面读取之前完成迁移，否则会制造偶发的"读到一半"bug。
 
-**验收**：首帧时间下降（实测对比）。
+**验收**：首帧时间下降（实测对比）；数据库版本号与启动顺序无回归。
 
 ---
 
@@ -102,32 +105,22 @@
 
 ---
 
-### 第 3 批：抓取升级 + 功能扩展（预计 3-5 天）
+### 第 3 批：抓取升级 + a11y（预计 2-3 天）
 
-#### 3.1 GraphQL 批量
+#### 3.1 GraphQL 用于详情批量补全
 
 **问题**：`GithubProjectRepository._fetchContributors`（`lib/features/project/data/github_project_repository.dart:83-101`）对 trending Top4 各发一次 `/contributors`；`GithubRepoDetailRepository._fetchDetail`（`lib/features/repo_detail/data/github_repo_detail_repository.dart:87-102`）对单仓库发 3 次 REST。
 
+**定位**：GraphQL 用于"详情批量补全"——把同一节点（repository）的多个子资源（contributors / stargazers timeline / 基本字段）一次拉回。Search API 仍走 REST（GraphQL Search 限制多，且要单独算 point cost）。
+
 **做法**：
 1. 引入 `graphql` 包（或继续 dio + POST `/graphql`，避免新依赖，二选一在实现时再拍）。
-2. 一次查询合并 `repository(...) { stargazers contributors(first: 20) }`。
-3. tech_hotspot 的 N topic 搜索合并为别名批量查询。
+2. 一次查询合并 `repository(...) { stargazers contributors(first: 20) ... }`，替换 `_fetchDetail` 的多次 REST。
+3. `_fetchContributors` 的 N+1 用 GraphQL `nodes(id) { ...contributors }` 批量补全。
 
-**收益**：rate cost 从 7 降到 1。
+**预期收益**：减少请求往返；具体 rate cost 节省需在实现后用 GitHub rate_limit 接口实测，不预设数字。
 
-#### 3.2 AI 资讯 RSS 多源
-
-**问题**：单点依赖 `aihot.virxact.com`（`lib/features/ai_news/data/ai_news_api_client.dart:18`）。
-
-**做法**：
-1. 仿 `TrendingDataSource` 抽象，新增 `AiNewsDataSource` 接口与 `RssAiNewsDataSource` 实现。
-2. 接入 HN / OpenAI Blog / Anthropic Blog / arXiv cs.AI+cs.CL RSS。
-3. 客户端去重：URL 规范化 + 标题 SimHash 近似合并；`ai_news_item.url` 主键化幂等入库。
-4. 现有 aihot 源保留为 `AggregatedAiNewsDataSource` 之一。
-
-**收益**：脱离单点、覆盖面扩大、可扩展。
-
-#### 3.3 a11y 基线
+#### 3.2 a11y 基线
 
 **问题**：全仓 1 处 `Semantics`、1 处 `FocusNode`。
 
@@ -157,7 +150,7 @@
 
 - 每批独立 commit，回滚粒度 = 单批。
 - 第 2 批缓存层抽象涉及旧数据迁移：迁移脚本失败时保留旧表，第二次启动重试。
-- 第 3 批 GraphQL 与 RSS 是新依赖、新数据源，先在 feature flag 后面跑（沿用现有 `TrendingDataSourceModeController` 模式），稳定后默认开启。
+- 第 3 批 GraphQL 是新调用方式，先在 feature flag 后面跑（沿用现有 `TrendingDataSourceModeController` 模式），稳定后默认开启。
 - 全程不跳过 `dart format` / `flutter analyze` / `flutter test`，桌面影响到的批次额外跑 `flutter build windows --release`。
 
 ## 验收标准
@@ -173,7 +166,7 @@
 
 1. 第 1 批：1.2 ETag → 1.1 虚拟化 → 1.3 启动。
 2. 第 2 批：2.1 缓存抽象 → 2.2 TTL+熔断 → 2.3 SectionCard。
-3. 第 3 批：3.1 GraphQL → 3.2 RSS → 3.3 a11y。
+3. 第 3 批：3.1 GraphQL → 3.2 a11y。
 4. 第 4 批。
 
 每完成一批再决定是否进入下一批，允许中途调整优先级。
