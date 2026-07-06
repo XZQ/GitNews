@@ -117,7 +117,7 @@ class GithubMonitorRepository implements MonitorRepository {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         '/repos/$fullName',
-        options: Options(headers: GitHubApiSupport.headers(_token)),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {

@@ -105,7 +105,7 @@ class GithubProjectRepository implements ProjectRepository {
       final response = await _dio.get<List<Object?>>(
         '/repos/$repo/contributors',
         queryParameters: const {'per_page': 8},
-        options: Options(headers: GitHubApiSupport.headers(_token)),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {

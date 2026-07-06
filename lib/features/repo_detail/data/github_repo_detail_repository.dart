@@ -129,7 +129,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         '/repos/$fullName',
-        options: Options(headers: GitHubApiSupport.headers(_token)),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {
@@ -150,7 +150,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       final response = await _dio.get<List<Object?>>(
         '/repos/$fullName/contributors',
         queryParameters: const {'per_page': 12},
-        options: Options(headers: GitHubApiSupport.headers(_token)),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {
@@ -180,7 +180,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
           'order': 'desc',
           'per_page': 6,
         },
-        options: Options(headers: GitHubApiSupport.headers(_token)),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {
