@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/core/di/providers.dart';
+import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/core/preferences/trending_data_source_mode_controller.dart';
 import 'package:github_news/features/trending/application/trending_providers.dart';
 import 'package:github_news/features/trending/data/local_trending_data_source.dart';

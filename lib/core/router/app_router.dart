@@ -1,10 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-export 'route_specs.dart';
-
-import '../../features/ai_news/presentation/ai_news_page.dart';
 import '../../features/ai_news/presentation/ai_news_detail_page.dart';
+import '../../features/ai_news/presentation/ai_news_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
 import '../../features/monitor/presentation/monitor_detail_page.dart';
@@ -24,13 +22,15 @@ import '../../features/project/presentation/project_page.dart';
 import '../../features/repo_detail/presentation/repo_detail_page.dart';
 import '../../features/tech_hotspot/presentation/tech_hotspot_detail_page.dart';
 import '../../features/tech_hotspot/presentation/tech_hotspot_page.dart';
-import '../../features/webview/presentation/webview_page.dart';
 import '../../features/trending/presentation/hot_repos_page.dart';
 import '../../features/trending/presentation/language_trend_page.dart';
 import '../../features/trending/presentation/trending_overview_page.dart';
 import '../../features/trending/presentation/trending_page.dart';
+import '../../features/webview/presentation/webview_page.dart';
 import '../../shared/widgets/responsive_scaffold.dart';
 import 'route_error_view.dart';
+
+export 'route_specs.dart';
 
 /// 应用根路由。
 ///

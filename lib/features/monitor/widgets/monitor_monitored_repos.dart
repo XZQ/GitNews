@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/domain/repo_entity.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -11,7 +12,6 @@ import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
-import '../../../core/domain/repo_entity.dart';
 
 class MonitorMonitoredRepos extends StatelessWidget {
   const MonitorMonitoredRepos({required this.repos, super.key});

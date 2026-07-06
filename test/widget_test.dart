@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/app.dart';
 
 void main() {
-  testWidgets('App boots to "设置" Scaffold', (WidgetTester tester) async {
+  testWidgets('App boots to "设置" Scaffold', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(child: GitHubNewsApp()),
     );

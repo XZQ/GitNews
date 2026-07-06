@@ -4,13 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
+import '../../../core/domain/repo_entity.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
-import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/repo_tile.dart';
+import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../../core/domain/repo_entity.dart';
 import '../application/local_content_controller.dart';
 
 class MonitorTopicsPage extends StatelessWidget {

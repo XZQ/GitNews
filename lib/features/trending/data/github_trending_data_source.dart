@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
-import '../../../core/domain/repo_entity.dart';
 import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/repo_snapshot_history_dao.dart';
