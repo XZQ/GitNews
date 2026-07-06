@@ -26,12 +26,16 @@ class GithubMonitorRepository implements MonitorRepository {
     String? token,
     DateTime Function()? now,
     MonitorRepository fallback = const LocalMonitorRepository(),
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
   })  : _dio = dio,
         _cache = cache,
         _snapshotHistory = snapshotHistory,
         _token = token,
         _now = now ?? DateTime.now,
-        _fallback = fallback;
+        _fallback = fallback,
+        _isRateLimited = isRateLimited,
+        _onRateLimited = onRateLimited;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
@@ -39,9 +43,15 @@ class GithubMonitorRepository implements MonitorRepository {
   final String? _token;
   final DateTime Function() _now;
   final MonitorRepository _fallback;
+  final bool Function()? _isRateLimited;
+  final void Function(int retryAfterSeconds)? _onRateLimited;
 
   @override
   Future<MonitorDigest> getDigest() async {
+    if (_isRateLimited?.call() ?? false) {
+      final cached = await _readCached();
+      return cached ?? _fallback.getDigest();
+    }
     final now = _now();
     final cached = await _readCached();
     if (cached != null &&
@@ -62,11 +72,20 @@ class GithubMonitorRepository implements MonitorRepository {
       );
       return digest;
     } catch (e) {
+      _maybeReportRateLimit(e);
       AppLogger.warn(
         'githubMonitorFallback',
         meta: {'error': e.runtimeType.toString()},
       );
       return cached ?? _fallback.getDigest();
+    }
+  }
+
+  void _maybeReportRateLimit(Object error) {
+    if (error is AppException &&
+        error.kind == AppExceptionKind.rateLimit &&
+        _onRateLimited != null) {
+      _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
 

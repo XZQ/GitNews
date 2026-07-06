@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/repo_entity.dart';
+import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../data/github_monitor_repository.dart';
@@ -12,11 +13,15 @@ import 'monitor_alert_state_controller.dart';
 
 final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   final token = ref.watch(githubTokenControllerProvider).token;
+  final gate = ref.watch(rateLimitGateProvider);
+  final gateController = ref.watch(rateLimitGateProvider.notifier);
   return GithubMonitorRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
     token: token,
+    isRateLimited: () => gate.isBlocked,
+    onRateLimited: gateController.trigger,
   );
 });
 

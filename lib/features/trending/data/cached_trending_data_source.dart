@@ -1,4 +1,5 @@
 import '../../../core/config/cache_ttl_config.dart';
+import '../../../core/errors/app_exception.dart';
 import '../domain/trending_repository.dart';
 import 'trending_cache_dao.dart';
 import 'trending_data_source.dart';
@@ -11,6 +12,8 @@ class CachedTrendingDataSource implements TrendingDataSource {
     required this.now,
     this.cacheScope = 'anonymous',
     this.ttl = CacheTtlConfig.trending,
+    this.isRateLimited,
+    this.onRateLimited,
   });
 
   final TrendingDataSource remote;
@@ -18,6 +21,8 @@ class CachedTrendingDataSource implements TrendingDataSource {
   final String cacheScope;
   final DateTime Function() now;
   final Duration ttl;
+  final bool Function()? isRateLimited;
+  final void Function(int retryAfterSeconds)? onRateLimited;
 
   @override
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
@@ -30,6 +35,10 @@ class CachedTrendingDataSource implements TrendingDataSource {
       now: current,
     );
     if (cached != null && fresh) return cached;
+    if (isRateLimited != null && isRateLimited!()) {
+      if (cached != null) return cached;
+      return remote.fetchTrending(query);
+    }
 
     try {
       final snapshot = await remote.fetchTrending(query);
@@ -40,7 +49,12 @@ class CachedTrendingDataSource implements TrendingDataSource {
         now: now(),
       );
       return snapshot;
-    } catch (_) {
+    } catch (e) {
+      if (e is AppException &&
+          e.kind == AppExceptionKind.rateLimit &&
+          onRateLimited != null) {
+        onRateLimited!(e.retryAfterSeconds ?? 60);
+      }
       if (cached != null) return cached;
       rethrow;
     }

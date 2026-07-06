@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../data/github_tech_hotspot_repository.dart';
@@ -15,11 +16,15 @@ final techHotspotHistoryDaoProvider = Provider<TechHotspotHistoryDao>((ref) {
 
 final techHotspotRepositoryProvider = Provider<TechHotspotRepository>((ref) {
   final token = ref.watch(githubTokenControllerProvider).token;
+  final gate = ref.watch(rateLimitGateProvider);
+  final gateController = ref.watch(rateLimitGateProvider.notifier);
   return GithubTechHotspotRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     token: token,
     history: ref.watch(techHotspotHistoryDaoProvider),
+    isRateLimited: () => gate.isBlocked,
+    onRateLimited: gateController.trigger,
   );
 });
 

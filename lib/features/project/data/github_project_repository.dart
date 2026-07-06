@@ -20,17 +20,23 @@ class GithubProjectRepository implements ProjectRepository {
     required JsonSnapshotCacheDao cache,
     String? token,
     DateTime Function()? now,
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
   })  : _trending = trending,
         _dio = dio,
         _cache = cache,
         _token = token,
-        _now = now ?? DateTime.now;
+        _now = now ?? DateTime.now,
+        _isRateLimited = isRateLimited,
+        _onRateLimited = onRateLimited;
 
   final TrendingRepository _trending;
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
   final String? _token;
   final DateTime Function() _now;
+  final bool Function()? _isRateLimited;
+  final void Function(int retryAfterSeconds)? _onRateLimited;
 
   static const String _contributorsCacheKey = 'project:github:contributors:v1';
 
@@ -59,6 +65,10 @@ class GithubProjectRepository implements ProjectRepository {
         )) {
       return cached;
     }
+    if (_isRateLimited?.call() ?? false) {
+      if (cached.isNotEmpty) return cached;
+      return DemoData.contributors.map((e) => e.toEntity()).toList();
+    }
 
     try {
       final repos = digest.allRepos.take(4).map((repo) => repo.fullName);
@@ -72,12 +82,21 @@ class GithubProjectRepository implements ProjectRepository {
       );
       return contributors;
     } catch (e) {
+      _maybeReportRateLimit(e);
       AppLogger.warn(
         'githubProjectContributorsFallback',
         meta: {'error': e.runtimeType.toString()},
       );
       if (cached.isNotEmpty) return cached;
       return DemoData.contributors.map((e) => e.toEntity()).toList();
+    }
+  }
+
+  void _maybeReportRateLimit(Object error) {
+    if (error is AppException &&
+        error.kind == AppExceptionKind.rateLimit &&
+        _onRateLimited != null) {
+      _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
 
