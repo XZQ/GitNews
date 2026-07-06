@@ -64,6 +64,7 @@ class _RetryInterceptor extends Interceptor {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
+      case DioExceptionType.transformTimeout:
         return true;
       case DioExceptionType.badResponse:
         final code = e.response?.statusCode ?? 0;

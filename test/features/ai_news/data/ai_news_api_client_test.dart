@@ -46,6 +46,27 @@ void main() {
       );
     });
 
+    test('should throw network AppException on transformTimeout', () async {
+      when(
+        () => dio.get<Map<String, Object?>>(
+          any(),
+          queryParameters: any(named: 'queryParameters'),
+          options: any(named: 'options'),
+        ),
+      ).thenThrow(
+        DioException(
+          type: DioExceptionType.transformTimeout,
+          requestOptions: RequestOptions(path: '/x'),
+        ),
+      );
+      await expectLater(
+        client.fetchItems(),
+        throwsA(
+          predicate<AppException>((e) => e.kind == AppExceptionKind.network),
+        ),
+      );
+    });
+
     test('should throw rateLimit AppException on 429 with Retry-After',
         () async {
       when(
