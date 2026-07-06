@@ -5,20 +5,15 @@ import 'package:go_router/go_router.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
-import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../../core/domain/repo_entity.dart';
-import '../../repo_detail/domain/entities.dart';
-import '../../profile/application/local_content_controller.dart';
 import '../application/project_providers.dart';
 import 'widgets/project_page_skeleton.dart';
+import 'widgets/project_secondary_cards.dart';
 
 /// 二级:发现推荐(收藏夹 + 热门仓库推荐)。
 class DiscoverPage extends ConsumerWidget {
@@ -99,9 +94,21 @@ class _DigestView extends StatelessWidget {
       children: [
         const _HotTopicsCard(),
         const SizedBox(height: AppSpacing.lg),
-        _RecommendReposCard(repos: digest.repos),
+        ProjectRepoListCard(
+          title: AppLocalizations.of(context)
+              .tr('project.discover.recommended_repos'),
+          subtitle: AppLocalizations.of(context)
+              .tr('project.discover.recommended_repos.subtitle'),
+          repos: digest.repos,
+        ),
         const SizedBox(height: AppSpacing.lg),
-        _FollowContributorsCard(contributors: digest.contributors),
+        ProjectContributorsCard(
+          title: AppLocalizations.of(context)
+              .tr('project.discover.recommended_devs'),
+          subtitle: AppLocalizations.of(context)
+              .tr('project.discover.recommended_devs.subtitle'),
+          contributors: digest.contributors,
+        ),
       ],
     );
   }
@@ -150,162 +157,16 @@ class _HotTopicsCard extends ConsumerWidget {
             runSpacing: AppSpacing.sm,
             children: [
               for (final t in topics)
-                _TopicCard(
+                ProjectTopicCard(
                   label: t.label,
-                  desc: l10n
+                  description: l10n
                       .tr('project.discover.topic_repos')
                       .replaceAll('{n}', t.count.toString()),
                   color: t.color,
-                  onTap: () {
-                    ref.read(projectSearchQueryProvider.notifier).state =
-                        t.label;
-                    context.go('/project');
-                  },
                 ),
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _RecommendReposCard extends StatelessWidget {
-  const _RecommendReposCard({required this.repos});
-
-  final List<RepoEntity> repos;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
-            child: SectionHeader(
-              title: l10n.tr('project.discover.recommended_repos'),
-              subtitle: l10n.tr('project.discover.recommended_repos.subtitle'),
-            ),
-          ),
-          for (var i = 0; i < repos.length; i++) ...[
-            if (i != 0) const Divider(height: 1),
-            RepoTile(
-              repo: repos[i],
-              onTap: () => context.go(
-                '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _FollowContributorsCard extends ConsumerWidget {
-  const _FollowContributorsCard({required this.contributors});
-
-  final List<ContributorEntity> contributors;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final content = ref.watch(localContentControllerProvider);
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader(
-            title: l10n.tr('project.discover.recommended_devs'),
-            subtitle: l10n.tr('project.discover.recommended_devs.subtitle'),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          for (final c in contributors)
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: CircleAvatar(
-                radius: 16,
-                backgroundColor:
-                    Color(c.avatarAccentArgb).withValues(alpha: 0.16),
-                child: Text(
-                  c.login[0].toUpperCase(),
-                  style: AppTypography.titleSmall.copyWith(
-                    color: Color(c.avatarAccentArgb),
-                  ),
-                ),
-              ),
-              title: Text(c.login, style: AppTypography.titleSmall),
-              subtitle: Text(
-                l10n
-                    .tr('project.activity.contrib')
-                    .replaceAll('{n}', c.contributions.toString()),
-              ),
-              trailing: OutlinedButton(
-                onPressed: () => ref
-                    .read(localContentControllerProvider.notifier)
-                    .toggleDeveloper(c.login),
-                child: Text(
-                  content.isFollowingDeveloper(c.login)
-                      ? '已关注'
-                      : l10n.tr('project.discover.follow'),
-                ),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TopicCard extends StatelessWidget {
-  const _TopicCard({
-    required this.label,
-    required this.desc,
-    required this.color,
-    required this.onTap,
-  });
-  final String label;
-  final String desc;
-  final Color color;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(AppRadius.md),
-      onTap: onTap,
-      child: Container(
-        width: 160,
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          border: Border.all(color: color.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: AppTypography.titleMedium.copyWith(color: color),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(
-              desc,
-              style: AppTypography.labelSmall.copyWith(
-                color: colors.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

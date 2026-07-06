@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -15,6 +13,7 @@ import '../application/tech_hotspot_providers.dart';
 import '../domain/tech_hotspot_models.dart';
 import 'detail/tech_hotspot_detail_body.dart';
 import 'detail/tech_hotspot_detail_related.dart';
+import 'detail/tech_hotspot_detail_section_error.dart';
 import 'detail/tech_hotspot_detail_skeleton.dart';
 import 'detail/tech_hotspot_detail_topic_header.dart';
 
@@ -138,7 +137,7 @@ class _Mobile extends StatelessWidget {
         TechHotspotDetailSummary(topic: topic),
         const SizedBox(height: AppSpacing.lg),
         if (languagesError != null)
-          _SectionError(
+          TechHotspotDetailSectionError(
             title: l10n.tr('tech_hotspot.error.languages'),
             error: languagesError!,
             onRetry: onRetryLanguages,
@@ -147,7 +146,7 @@ class _Mobile extends StatelessWidget {
           TechHotspotDetailLanguages(languages: languages),
         if (relatedError != null) ...[
           const SizedBox(height: AppSpacing.lg),
-          _SectionError(
+          TechHotspotDetailSectionError(
             title: l10n.tr('tech_hotspot.error.related'),
             error: relatedError!,
             onRetry: onRetryRelated,
@@ -199,7 +198,7 @@ class _Desktop extends StatelessWidget {
                   TechHotspotDetailSummary(topic: topic),
                   const SizedBox(height: AppSpacing.lg),
                   if (languagesError != null)
-                    _SectionError(
+                    TechHotspotDetailSectionError(
                       title: l10n.tr('tech_hotspot.error.languages'),
                       error: languagesError!,
                       onRetry: onRetryLanguages,
@@ -213,7 +212,7 @@ class _Desktop extends StatelessWidget {
             Expanded(
               flex: 4,
               child: relatedError != null
-                  ? _SectionError(
+                  ? TechHotspotDetailSectionError(
                       title: l10n.tr('tech_hotspot.error.related'),
                       error: relatedError!,
                       onRetry: onRetryRelated,
@@ -226,82 +225,5 @@ class _Desktop extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-/// 紧凑的子区块错误占位:在详情主体已加载的情况下,提供内联重试而不是全屏 ErrorView。
-class _SectionError extends StatelessWidget {
-  const _SectionError({
-    required this.title,
-    required this.error,
-    required this.onRetry,
-  });
-
-  final String title;
-  final AppException error;
-  final VoidCallback onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: colors.errorContainer.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: colors.error.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline_rounded, color: colors.error, size: 18),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                Text(
-                  _messageFor(l10n, error),
-                  style: Theme.of(context).textTheme.bodySmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: onRetry,
-            style: TextButton.styleFrom(foregroundColor: AppColors.brand),
-            child: Text(l10n.tr('common.retry')),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// 与 [ErrorView] 保持同源语义,但只输出文案以便嵌入紧凑布局。
-String _messageFor(AppLocalizations l10n, AppException error) {
-  switch (error.kind) {
-    case AppExceptionKind.network:
-      return l10n.tr('tech_hotspot.error.network');
-    case AppExceptionKind.rateLimit:
-      final secs = error.retryAfterSeconds ?? 60;
-      return l10n
-          .tr('tech_hotspot.error.rate_limit')
-          .replaceAll('{secs}', secs.toString());
-    case AppExceptionKind.unauthorized:
-      return l10n.tr('tech_hotspot.error.unauthorized');
-    case AppExceptionKind.notFound:
-      return l10n.tr('tech_hotspot.error.not_found');
-    case AppExceptionKind.parse:
-    case AppExceptionKind.server:
-    case AppExceptionKind.cache:
-    case AppExceptionKind.unknown:
-      return l10n.tr('tech_hotspot.error.unknown');
   }
 }
