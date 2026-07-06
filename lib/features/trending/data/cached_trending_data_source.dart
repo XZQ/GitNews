@@ -1,3 +1,4 @@
+import '../../../core/config/cache_ttl_config.dart';
 import '../domain/trending_repository.dart';
 import 'trending_cache_dao.dart';
 import 'trending_data_source.dart';
@@ -9,7 +10,7 @@ class CachedTrendingDataSource implements TrendingDataSource {
     required this.cache,
     required this.now,
     this.cacheScope = 'anonymous',
-    this.ttl = const Duration(minutes: 5),
+    this.ttl = CacheTtlConfig.trending,
   });
 
   final TrendingDataSource remote;

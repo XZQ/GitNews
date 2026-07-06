@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/errors/app_exception.dart';
@@ -9,7 +10,7 @@ import '../../../core/utils/app_logger.dart';
 import '../../trending/domain/trending_repository.dart';
 import '../domain/project_repository.dart';
 
-const Duration projectRemoteCacheTtl = Duration(minutes: 5);
+const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
 
 /// 基于趋势仓库 + GitHub contributors 的深度报告仓库。
 class GithubProjectRepository implements ProjectRepository {
