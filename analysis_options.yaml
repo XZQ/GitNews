@@ -10,6 +10,7 @@ analyzer:
 
 linter:
   rules:
+    # 保留项目已有的实用规则
     prefer_const_constructors: true
     prefer_const_literals_to_create_immutables: true
     avoid_print: true
@@ -19,7 +20,18 @@ linter:
     sort_constructors_first: true
     sort_unnamed_constructors_first: true
     avoid_dynamic_calls: true
-    use_super_parameters: true
-    unawaited_futures: true
-    always_declare_return_types: true
     avoid_relative_lib_imports: true
+    # 来自 Gallery 的补充规则
+    always_declare_return_types: true
+    avoid_types_on_closure_parameters: true
+    avoid_void_async: true
+    cancel_subscriptions: true
+    close_sinks: true
+    directives_ordering: true
+    flutter_style_todos: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    unawaited_futures: true
+    unnecessary_statements: true
+    unsafe_html: true
+    use_super_parameters: true

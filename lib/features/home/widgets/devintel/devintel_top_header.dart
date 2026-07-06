@@ -4,12 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/page_header.dart';
 import '../../../ai_news/application/ai_news_providers.dart';
 import '../../../monitor/application/monitor_providers.dart';
 import '../../../project/application/project_providers.dart';
 import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../trending/application/trending_providers.dart';
-import '../../../../shared/widgets/page_header.dart';
 
 /// 首页(桌面)顶部条 — 复用 [PageHeader] 体系。
 ///

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/demo_data.dart';
+import '../../core/domain/repo_entity.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
-import '../../core/domain/repo_entity.dart';
 import 'data_provenance_badge.dart';
 import 'star_trend_chart.dart';
 

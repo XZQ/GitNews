@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
-import '../../../../core/domain/repo_entity.dart';
 import 'repo_detail_helpers.dart';
 
 class RepoDetailStats extends StatelessWidget {

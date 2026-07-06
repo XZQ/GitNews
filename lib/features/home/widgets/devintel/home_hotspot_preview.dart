@@ -4,9 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/home_section_preview_card.dart';
 import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../tech_hotspot/domain/tech_hotspot_models.dart';
-import '../../../../shared/widgets/home_section_preview_card.dart';
 
 /// 首页 AI 雷达 Top N 预览。
 class HomeHotspotPreview extends ConsumerWidget {

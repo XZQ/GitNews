@@ -10,8 +10,8 @@ import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/entities.dart';
 import '../domain/repo_detail_repository.dart';
-import 'github_repo_detail_helpers.dart';
 import 'github_repo_detail_cache_codec.dart';
+import 'github_repo_detail_helpers.dart';
 import 'local_repo_detail_repository.dart';
 
 const Duration repoDetailRemoteCacheTtl = CacheTtlConfig.repoDetail;
