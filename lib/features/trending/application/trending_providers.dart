@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/preferences/trending_data_source_mode_controller.dart';
@@ -14,7 +15,7 @@ import '../data/trending_repository_impl.dart';
 import '../domain/entities.dart';
 import '../domain/trending_repository.dart';
 
-const Duration trendingGithubCacheTtl = Duration(minutes: 5);
+const Duration trendingGithubCacheTtl = CacheTtlConfig.trending;
 
 class TrendingDataSourceStatus {
   const TrendingDataSourceStatus({

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../../../core/utils/app_logger.dart';
@@ -93,7 +94,7 @@ const int aiNewsPageSize = 10;
 const double aiNewsLoadMoreScrollPixels = 520;
 
 /// 缓存 TTL:同一份查询(category + cursor=head)在此时长内不再发远端请求。
-const Duration aiNewsCacheTtl = Duration(minutes: 5);
+const Duration aiNewsCacheTtl = CacheTtlConfig.aiNews;
 
 /// 条目列表(分页 + 触底加载 + 本地缓存优先)。
 ///

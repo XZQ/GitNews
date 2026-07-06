@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
@@ -13,7 +14,7 @@ import 'github_repo_detail_helpers.dart';
 import 'github_repo_detail_cache_codec.dart';
 import 'local_repo_detail_repository.dart';
 
-const Duration repoDetailRemoteCacheTtl = Duration(minutes: 5);
+const Duration repoDetailRemoteCacheTtl = CacheTtlConfig.repoDetail;
 
 /// 基于 GitHub REST API 的仓库详情仓库。
 class GithubRepoDetailRepository implements RepoDetailRepository {

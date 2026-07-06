@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
@@ -14,7 +15,7 @@ import 'github_monitor_config.dart';
 import 'github_monitor_remote_repo_item.dart';
 import 'local_monitor_repository.dart';
 
-const Duration monitorRemoteCacheTtl = Duration(minutes: 5);
+const Duration monitorRemoteCacheTtl = CacheTtlConfig.monitor;
 
 /// 基于 GitHub REST API 的仓库监控数据仓库。
 class GithubMonitorRepository implements MonitorRepository {

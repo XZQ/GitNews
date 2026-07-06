@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -13,7 +14,7 @@ import 'github_tech_hotspot_queries.dart';
 import 'local_tech_hotspot_repository.dart';
 import 'tech_hotspot_history_dao.dart';
 
-const Duration techHotspotRemoteCacheTtl = Duration(minutes: 5);
+const Duration techHotspotRemoteCacheTtl = CacheTtlConfig.techHotspot;
 
 /// 基于 GitHub Search 的 AI 雷达远端仓库。
 class GithubTechHotspotRepository implements TechHotspotRepository {
