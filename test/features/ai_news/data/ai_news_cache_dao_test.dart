@@ -59,6 +59,29 @@ void main() {
       expect(items.map((e) => e.id).toSet(), {'a', 'b'});
     });
 
+    test('readById should return a cached item by id', () async {
+      await dao.upsertPage(
+        category: null,
+        cursor: null,
+        digest: AiNewsDigest(
+          items: [makeItem('a'), makeItem('b')],
+          count: 2,
+          hasNext: false,
+        ),
+        now: DateTime.utc(2026, 6, 30, 10),
+      );
+
+      final item = await dao.readById('b');
+
+      expect(item, isNotNull);
+      expect(item?.id, 'b');
+      expect(item?.title, 'title b');
+    });
+
+    test('readById should return null when item is missing', () async {
+      expect(await dao.readById('missing'), isNull);
+    });
+
     test('isFresh should be false when meta missing', () async {
       expect(
         await dao.isFresh(

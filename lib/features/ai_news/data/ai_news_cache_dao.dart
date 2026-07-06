@@ -52,6 +52,27 @@ class AiNewsCacheDao {
     }
   }
 
+  /// 按条目 id 读取缓存详情。
+  Future<AiNewsItem?> readById(String id) async {
+    try {
+      final rows = await _db.query(
+        _table,
+        where: 'id = ?',
+        whereArgs: [id],
+        limit: 1,
+      );
+      if (rows.isEmpty) return null;
+      return _rowToItem(rows.first);
+    } catch (e, st) {
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'readById'},
+      );
+    }
+  }
+
   /// 写入一批远端返回的条目,并把对应 [cacheKey] 的 last_fetched_at 更新。
   ///
   /// - 若 [digest.items] 为空,仍会更新 meta(避免「空响应也算新鲜」)

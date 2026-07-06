@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/preferences/link_open_mode_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -169,12 +167,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
                       ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
                       : AiNewsTimelineRow(
                           item: e.item!,
-                          onTap: () => _launch(
-                            context,
-                            e.item!.url,
-                            e.item!.permalink,
-                            title: e.item!.title,
-                          ),
+                          onTap: () => _openDetail(context, e.item!),
                         );
                 }
                 return const AiNewsLoadMoreIndicator();
@@ -187,35 +180,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
     );
   }
 
-  Future<void> _launch(
-    BuildContext context,
-    String primary,
-    String fallback, {
-    String title = '',
-  }) async {
-    final target = primary.isNotEmpty ? primary : fallback;
-    if (target.isEmpty) return;
-    final uri = Uri.tryParse(target);
-    if (uri == null) return;
-    final mode = ref.read(linkOpenModeControllerProvider);
-    if (mode == LinkOpenMode.inApp) {
-      context.go(
-        Uri(
-          path: '/webview',
-          queryParameters: {
-            'url': target,
-            if (title.isNotEmpty) 'title': title,
-          },
-        ).toString(),
-      );
-      return;
-    }
-    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!ok && context.mounted) {
-      final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.tr('ai_news.open_failed'))),
-      );
-    }
+  void _openDetail(BuildContext context, AiNewsItem item) {
+    context.go('/ai_news/detail/${Uri.encodeComponent(item.id)}');
   }
 }
