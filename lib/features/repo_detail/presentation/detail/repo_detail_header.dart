@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/gradient_hero_header.dart';
 import '../../../../core/domain/repo_entity.dart';
 
@@ -26,6 +27,11 @@ class RepoDetailHeader extends StatelessWidget {
         HeroBadge(
           label: l10n.tr('repo_detail.badge.monitored'),
           color: AppColors.success,
+        ),
+        DataProvenanceBadge(
+          provenance: repo.valueProvenance,
+          compact: false,
+          inverse: true,
         ),
       ],
       trailing: Text(

@@ -5,6 +5,7 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import '../../core/domain/repo_entity.dart';
+import 'data_provenance_badge.dart';
 import 'star_trend_chart.dart';
 
 /// 仓库列表项。
@@ -96,6 +97,8 @@ class RepoTile extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      const SizedBox(width: AppSpacing.sm),
+                      DataProvenanceBadge(provenance: repo.trendProvenance),
                     ],
                   ),
                 ],
