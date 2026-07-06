@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../../trending/application/trending_providers.dart';
@@ -35,11 +36,15 @@ class LocalProjectRepository implements ProjectRepository {
 /// 依赖注入入口。
 final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
   final trending = ref.watch(trendingRepositoryProvider);
+  final gate = ref.watch(rateLimitGateProvider);
+  final gateController = ref.watch(rateLimitGateProvider.notifier);
   return GithubProjectRepository(
     trending: trending,
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     token: ref.watch(githubTokenControllerProvider).token,
+    isRateLimited: () => gate.isBlocked,
+    onRateLimited: gateController.trigger,
   );
 });
 

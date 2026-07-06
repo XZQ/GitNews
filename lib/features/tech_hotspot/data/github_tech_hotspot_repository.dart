@@ -25,12 +25,16 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     DateTime Function()? now,
     TechHotspotHistoryDao? history,
     TechHotspotRepository fallback = const LocalTechHotspotRepository(),
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
   })  : _dio = dio,
         _cache = cache,
         _token = token,
         _now = now ?? DateTime.now,
         _history = history,
-        _fallback = fallback;
+        _fallback = fallback,
+        _isRateLimited = isRateLimited,
+        _onRateLimited = onRateLimited;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
@@ -38,6 +42,8 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   final DateTime Function() _now;
   final TechHotspotHistoryDao? _history;
   final TechHotspotRepository _fallback;
+  final bool Function()? _isRateLimited;
+  final void Function(int retryAfterSeconds)? _onRateLimited;
 
   static const String _cacheKey = 'tech_hotspot:github:default:v1';
 
@@ -53,6 +59,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         )) {
       return cached;
     }
+    if (_isRateLimited?.call() ?? false) {
+      return cached ?? _fallback.getDigest();
+    }
 
     try {
       final digest = await _fetchDigest(now);
@@ -63,11 +72,20 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       );
       return digest;
     } catch (e) {
+      _maybeReportRateLimit(e);
       AppLogger.warn(
         'githubTechHotspotFallback',
         meta: {'error': e.runtimeType.toString()},
       );
       return cached ?? _fallback.getDigest();
+    }
+  }
+
+  void _maybeReportRateLimit(Object error) {
+    if (error is AppException &&
+        error.kind == AppExceptionKind.rateLimit &&
+        _onRateLimited != null) {
+      _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
 

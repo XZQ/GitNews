@@ -25,12 +25,16 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     String? token,
     DateTime Function()? now,
     RepoDetailRepository fallback = const LocalRepoDetailRepository(),
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
   })  : _dio = dio,
         _cache = cache,
         _snapshotHistory = snapshotHistory,
         _token = token,
         _now = now ?? DateTime.now,
-        _fallback = fallback;
+        _fallback = fallback,
+        _isRateLimited = isRateLimited,
+        _onRateLimited = onRateLimited;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
@@ -38,6 +42,8 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   final String? _token;
   final DateTime Function() _now;
   final RepoDetailRepository _fallback;
+  final bool Function()? _isRateLimited;
+  final void Function(int retryAfterSeconds)? _onRateLimited;
 
   @override
   Future<RepoDetailDigest> getDetail(String fullName) async {
@@ -53,6 +59,9 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
         )) {
       return cached;
     }
+    if (_isRateLimited?.call() ?? false) {
+      return cached ?? _fallback.getDetail(decoded);
+    }
 
     try {
       final digest = await _fetchDetail(decoded, now);
@@ -63,11 +72,20 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       );
       return digest;
     } catch (e) {
+      _maybeReportRateLimit(e);
       AppLogger.warn(
         'githubRepoDetailFallback',
         meta: {'repo': decoded, 'error': e.runtimeType.toString()},
       );
       return cached ?? _fallback.getDetail(decoded);
+    }
+  }
+
+  void _maybeReportRateLimit(Object error) {
+    if (error is AppException &&
+        error.kind == AppExceptionKind.rateLimit &&
+        _onRateLimited != null) {
+      _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/preferences/trending_data_source_mode_controller.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -70,6 +71,8 @@ final trendingCacheDaoProvider = Provider<TrendingCacheDao>((ref) {
 
 final githubTrendingDataSourceProvider = Provider<TrendingDataSource>((ref) {
   final tokenState = ref.watch(githubTokenControllerProvider);
+  final gate = ref.watch(rateLimitGateProvider);
+  final gateController = ref.watch(rateLimitGateProvider.notifier);
   return CachedTrendingDataSource(
     remote: GithubTrendingDataSource(
       dio: ref.watch(dioProvider),
@@ -80,6 +83,8 @@ final githubTrendingDataSourceProvider = Provider<TrendingDataSource>((ref) {
     cacheScope: tokenState.cacheScope,
     now: ref.watch(trendingClockProvider),
     ttl: trendingGithubCacheTtl,
+    isRateLimited: () => gate.isBlocked,
+    onRateLimited: gateController.trigger,
   );
 });
 
