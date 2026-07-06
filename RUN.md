@@ -21,14 +21,39 @@ flutter run -d windows
 flutter create --platforms=windows .
 ```
 
-## 3. 其它平台(可选)
+## 3. 桌面端启动(macOS)
+
+macOS 桌面端必须在 Mac + Xcode 环境运行,Windows 不能模拟或构建 macOS
+桌面目标。
+
+```bash
+flutter pub get
+flutter run -d macos
+```
+
+打包验证:
+
+```bash
+flutter build macos --release --no-codesign
+```
+
+如果 AI 动态首屏显示网络失败,先验证接口与沙盒权限:
+
+```bash
+curl -I -A "GitHubNews/0.1 (Flutter)" "https://aihot.virxact.com/api/public/items?mode=selected"
+```
+
+`macos/Runner/*.entitlements` 必须包含
+`com.apple.security.network.client`,否则 macOS App Sandbox 会阻止出站网络请求。
+
+## 4. 其它平台(可选)
 
 ```bash
 flutter run -d android   # 需连真机 / 模拟器
 flutter run -d chrome     # 浏览器调试
 ```
 
-## 4. 静态检查 + 测试
+## 5. 静态检查 + 测试
 
 ```bash
 dart format .
@@ -36,7 +61,7 @@ flutter analyze
 flutter test
 ```
 
-## 5. 已知产品化待办
+## 6. 已知产品化待办
 
 | 位置 | 风险 | 修法 |
 |---|---|---|
@@ -44,7 +69,7 @@ flutter test
 | `lib/core/storage/local_database.dart` | 当前负责 AI 动态缓存与通用 `cache_meta`; 其它 feature 尚未接入持久缓存 | 接入真实 API 时按 feature 补 DAO 与迁移 |
 | `StarTrendChart` 中 `LineChartData.maxY` 用 `+50` 留白 | 极小数据集可能反序 | 真实接入时按数据动态算 |
 
-## 6. 目录速览
+## 7. 目录速览
 
 ```
 lib/
@@ -62,7 +87,7 @@ lib/
 └── shared/widgets/        # 通用 AppCard / MetricCard / SectionHeader / RepoTile / StarTrendChart / ResponsiveLayout / ResponsiveScaffold / ErrorView / EmptyView / Skeleton
 ```
 
-## 7. 设计稿对应
+## 8. 设计稿对应
 
 - 手机一级页: `总览` / `AI 动态` / `GitHub热榜` / `技术趋势` / `仓库监控` / `深度报告` / `设置`
 - 5 个手机二级页: `首页2级 (1) ~ (5).png`
