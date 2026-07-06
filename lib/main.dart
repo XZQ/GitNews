@@ -9,8 +9,12 @@ import 'core/storage/storage_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final prefs = await SharedPreferences.getInstance();
-  final database = await LocalDatabase.open();
+  final results = await Future.wait<dynamic>([
+    SharedPreferences.getInstance(),
+    LocalDatabase.open(),
+  ]);
+  final prefs = results[0] as SharedPreferences;
+  final database = results[1] as LocalDatabase;
   runApp(
     ProviderScope(
       overrides: [

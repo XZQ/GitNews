@@ -12,45 +12,26 @@ import 'home_tablet_metrics_row.dart';
 import 'home_today_stack.dart';
 
 /// Home medium (600–1024) 分支:指标行 + 主图表 + 主题。
-class HomeTabletBody extends StatefulWidget {
+class HomeTabletBody extends StatelessWidget {
   const HomeTabletBody({super.key});
-
-  @override
-  State<HomeTabletBody> createState() => _HomeTabletBodyState();
-}
-
-class _HomeTabletBodyState extends State<HomeTabletBody> {
-  int _chartWindow = 7;
-  final HomeLegacyTab _tab = HomeLegacyTab.trending;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      children: [
-        HomeTabletMetricsRow(tab: _tab),
-        const SizedBox(height: AppSpacing.lg),
-        _DesktopMainLayout(
-          chartWindow: _chartWindow,
-          onChartWindowChanged: (v) => setState(() => _chartWindow = v),
-          tab: _tab,
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        const HomeTopicsPanel(),
+      children: const [
+        HomeTabletMetricsRow(tab: HomeLegacyTab.trending),
+        SizedBox(height: AppSpacing.lg),
+        _DesktopMainLayout(tab: HomeLegacyTab.trending),
+        SizedBox(height: AppSpacing.lg),
+        HomeTopicsPanel(),
       ],
     );
   }
 }
 
 class _DesktopMainLayout extends StatelessWidget {
-  const _DesktopMainLayout({
-    required this.chartWindow,
-    required this.onChartWindowChanged,
-    required this.tab,
-  });
-
-  final int chartWindow;
-  final ValueChanged<int> onChartWindowChanged;
+  const _DesktopMainLayout({required this.tab});
   final HomeLegacyTab tab;
 
   @override
@@ -59,14 +40,7 @@ class _DesktopMainLayout extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            flex: 8,
-            child: _ChartCard(
-              window: chartWindow,
-              onChanged: onChartWindowChanged,
-              tab: tab,
-            ),
-          ),
+          Expanded(flex: 8, child: _ChartCard(tab: tab)),
           const SizedBox(width: AppSpacing.lg),
           Expanded(flex: 4, child: HomeTodayStack(tab: tab)),
         ],
@@ -75,31 +49,32 @@ class _DesktopMainLayout extends StatelessWidget {
   }
 }
 
-class _ChartCard extends ConsumerWidget {
-  const _ChartCard({
-    required this.window,
-    required this.onChanged,
-    required this.tab,
-  });
-  final int window;
-  final ValueChanged<int> onChanged;
+class _ChartCard extends ConsumerStatefulWidget {
+  const _ChartCard({required this.tab});
   final HomeLegacyTab tab;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ChartCard> createState() => _ChartCardState();
+}
+
+class _ChartCardState extends ConsumerState<_ChartCard> {
+  int _chartWindow = 7;
+
+  @override
+  Widget build(BuildContext context) {
     final digest = ref.watch(trendingDigestProvider).valueOrNull;
     final series = homeSeriesForWindow(
-      window,
-      tab,
+      _chartWindow,
+      widget.tab,
       Theme.of(context).colorScheme.primary,
       primaryTrend: digest?.primaryTrend,
       secondaryTrend: digest?.secondaryTrend,
     );
-    final windowLabel = '近 $window 天';
-    final title = homeChartTitle(tab);
-    final subtitle = homeChartSubtitle(tab, windowLabel);
+    final windowLabel = '近 $_chartWindow 天';
+    final title = homeChartTitle(widget.tab);
+    final subtitle = homeChartSubtitle(widget.tab, windowLabel);
     final legends =
-        homeChartLegends(tab, Theme.of(context).colorScheme.primary);
+        homeChartLegends(widget.tab, Theme.of(context).colorScheme.primary);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,7 +84,10 @@ class _ChartCard extends ConsumerWidget {
               Expanded(
                 child: SectionHeader(title: title, subtitle: subtitle),
               ),
-              ChartWindowSegmented(value: window, onChanged: onChanged),
+              ChartWindowSegmented(
+                value: _chartWindow,
+                onChanged: (v) => setState(() => _chartWindow = v),
+              ),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
