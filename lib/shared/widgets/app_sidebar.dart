@@ -31,37 +31,39 @@ class AppSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final width = ref.watch(sidebarWidthProvider);
-    return Material(
-      color: colors.surface.withValues(alpha: 0.98),
-      child: SizedBox(
-        width: width,
-        child: Column(
-          children: [
-            const SidebarHeader(),
-            const SizedBox(height: AppSpacing.md),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
+    return FocusTraversalGroup(
+      child: Material(
+        color: colors.surface.withValues(alpha: 0.98),
+        child: SizedBox(
+          width: width,
+          child: Column(
+            children: [
+              const SidebarHeader(),
+              const SizedBox(height: AppSpacing.md),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.sm,
+                    vertical: AppSpacing.xs,
+                  ),
+                  children: [
+                    for (var i = 0; i < appTabs.length; i++)
+                      SidebarItem(
+                        tab: appTabs[i],
+                        selected: i == currentIndex,
+                        onTap: () => onTap(i),
+                      ),
+                  ],
                 ),
-                children: [
-                  for (var i = 0; i < appTabs.length; i++)
-                    SidebarItem(
-                      tab: appTabs[i],
-                      selected: i == currentIndex,
-                      onTap: () => onTap(i),
-                    ),
-                ],
               ),
-            ),
-            Divider(
-              height: 1,
-              thickness: 0.5,
-              color: colors.outlineVariant.withValues(alpha: 0.35),
-            ),
-            const SidebarFooter(),
-          ],
+              Divider(
+                height: 1,
+                thickness: 0.5,
+                color: colors.outlineVariant.withValues(alpha: 0.35),
+              ),
+              const SidebarFooter(),
+            ],
+          ),
         ),
       ),
     );
