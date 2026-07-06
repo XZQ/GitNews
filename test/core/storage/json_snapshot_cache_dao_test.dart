@@ -83,4 +83,73 @@ void main() {
       );
     });
   });
+
+  group('JsonSnapshotCacheDao ETag', () {
+    late LocalDatabase db;
+    late JsonSnapshotCacheDao dao;
+
+    setUp(() async {
+      db = await LocalDatabase.openInMemory();
+      dao = JsonSnapshotCacheDao(
+        db.executor,
+        CacheMetaDao(db.executor),
+      );
+    });
+
+    tearDown(() async => db.close());
+
+    test('readWithEtag returns null payload and etag when key absent',
+        () async {
+      final entry = await dao.readWithEtag('missing');
+      expect(entry.payload, isNull);
+      expect(entry.etag, isNull);
+    });
+
+    test('upsertWithEtag stores payload and etag together', () async {
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 1},
+        etag: 'W/"abc"',
+        now: DateTime.utc(2026, 7, 6),
+      );
+      final entry = await dao.readWithEtag('k1');
+      expect(entry.payload, {'a': 1});
+      expect(entry.etag, 'W/"abc"');
+    });
+
+    test('upsert (without etag) preserves existing etag', () async {
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 1},
+        etag: 'W/"abc"',
+        now: DateTime.utc(2026, 7, 6),
+      );
+      await dao.upsert(
+        key: 'k1',
+        payload: const {'a': 2},
+        now: DateTime.utc(2026, 7, 6, 1),
+      );
+      final entry = await dao.readWithEtag('k1');
+      expect(entry.payload, {'a': 2});
+      expect(entry.etag, 'W/"abc"');
+    });
+
+    test('upsertWithEtag with null etag preserves existing etag', () async {
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 1},
+        etag: 'W/"abc"',
+        now: DateTime.utc(2026, 7, 6),
+      );
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 2},
+        etag: null,
+        now: DateTime.utc(2026, 7, 6, 1),
+      );
+      final entry = await dao.readWithEtag('k1');
+      expect(entry.payload, {'a': 2});
+      expect(entry.etag, 'W/"abc"');
+    });
+  });
 }
