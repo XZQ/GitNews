@@ -34,7 +34,7 @@ flutter run -d macos
 打包验证:
 
 ```bash
-flutter build macos --release --no-codesign
+flutter build macos --release
 ```
 
 如果 AI 动态首屏显示网络失败,先验证接口与沙盒权限:
