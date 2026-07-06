@@ -40,6 +40,7 @@ class _SidebarItemState extends State<SidebarItem> {
 
     final fg = isSelected ? accent : colors.onSurfaceVariant;
     final fgStrong = isSelected ? accent : colors.onSurface;
+    final label = l10n.tr(widget.tab.labelKey);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -47,49 +48,54 @@ class _SidebarItemState extends State<SidebarItem> {
         cursor: SystemMouseCursors.click,
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: widget.onTap,
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 140),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.md,
-                vertical: AppSpacing.sm2,
-              ),
-              decoration: BoxDecoration(
-                color: bg,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    isSelected ? widget.tab.selectedIcon : widget.tab.icon,
-                    size: 20,
-                    color: fg,
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(
-                      l10n.tr(widget.tab.labelKey),
-                      style: AppTypography.titleSmall.copyWith(
-                        color: fgStrong,
-                        fontWeight:
-                            isSelected ? FontWeight.w700 : FontWeight.w500,
+        child: Semantics(
+          label: label,
+          button: true,
+          selected: isSelected,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: widget.onTap,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 140),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm2,
+                ),
+                decoration: BoxDecoration(
+                  color: bg,
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      isSelected ? widget.tab.selectedIcon : widget.tab.icon,
+                      size: 20,
+                      color: fg,
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: AppTypography.titleSmall.copyWith(
+                          color: fgStrong,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
                       ),
                     ),
-                  ),
-                  if (isSelected)
-                    Container(
-                      width: 4,
-                      height: 16,
-                      decoration: BoxDecoration(
-                        color: accent,
-                        borderRadius: BorderRadius.circular(AppRadius.dot),
+                    if (isSelected)
+                      Container(
+                        width: 4,
+                        height: 16,
+                        decoration: BoxDecoration(
+                          color: accent,
+                          borderRadius: BorderRadius.circular(AppRadius.dot),
+                        ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
