@@ -32,10 +32,12 @@ Claude reads it through `CLAUDE.md`; do not duplicate these rules there.
 - Keep Repository classes focused on orchestration; move JSON codecs, builders, and mapping helpers into small files.
 - Keep `.dart` files under 300 lines where practical; i18n string maps are an acceptable exception.
 - Split any complex `build` method into private widget classes instead of widget-returning helper methods.
+- Small, display-only features (e.g. `home`) may omit the `data/domain/application` sublayers; they live directly under `presentation/` and `widgets/`. Cross-feature data sharing must go through `lib/core/domain/`, not direct feature-to-feature imports.
+- Cache TTLs are centralized in `lib/core/config/cache_ttl_config.dart`. Do not introduce new top-level `Duration(minutes: ...)` constants for cache expiry.
 
 ## Data
 
-- Default remote cache TTL is 5 minutes.
+- Cache TTL is configured per module in `lib/core/config/cache_ttl_config.dart` (lists 5min, monitor 10min, repo_detail/project 30min).
 - Read fresh local cache first; only call remote when the cache is missing, expired, or explicitly refreshed.
 - On remote failure, prefer stale cache, then seed data as the last fallback.
 - Current remote sources include AI news feeds and GitHub Search / Repository / Contributors / Rate Limit APIs.
