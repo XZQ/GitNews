@@ -72,59 +72,66 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repos = digest.allRepos;
-    return ListView(
+    return ListView.builder(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
         AppSpacing.sm,
         AppSpacing.lg,
         AppSpacing.xl,
       ),
-      children: [
-        AppCard(
-          padding: EdgeInsets.zero,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.md,
-                  AppSpacing.lg,
-                  AppSpacing.xs,
-                ),
-                child: SectionHeader(
-                  title: '热门仓库 · 完整列表',
-                  subtitle: '按 Star 增速排序 · 共 ${repos.length} 个',
-                ),
-              ),
-              for (var i = 0; i < repos.length; i++) ...[
-                if (i != 0) const Divider(height: 1),
-                RepoTile(
-                  repo: repos[i],
-                  onTap: () => context.go(
-                    '/trending/detail/${Uri.encodeComponent(repos[i].fullName)}',
+      itemCount: repos.length + 2,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.xs,
+            ),
+            child: SectionHeader(
+              title: '热门仓库 · 完整列表',
+              subtitle: '按 Star 增速排序 · 共 ${repos.length} 个',
+            ),
+          );
+        }
+        if (index == repos.length + 1) {
+          return const Padding(
+            padding: EdgeInsets.only(top: AppSpacing.lg),
+            child: AppCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SectionHeader(
+                    title: '说明',
+                    subtitle: '数据来源与刷新策略',
                   ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        const AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SectionHeader(
-                title: '说明',
-                subtitle: '数据来源与刷新策略',
+                  SizedBox(height: AppSpacing.sm),
+                  _Bullet('GitHub Trending 与社区聚合 · 每 5 分钟刷新'),
+                  _Bullet('Star 增速以最近 24h 为基准 · 含历史对比'),
+                  _Bullet('点击仓库进入详情页,查看 30 天 Star 历史'),
+                ],
               ),
-              SizedBox(height: AppSpacing.sm),
-              _Bullet('GitHub Trending 与社区聚合 · 每 5 分钟刷新'),
-              _Bullet('Star 增速以最近 24h 为基准 · 含历史对比'),
-              _Bullet('点击仓库进入详情页,查看 30 天 Star 历史'),
-            ],
+            ),
+          );
+        }
+        final i = index - 1;
+        final repo = repos[i];
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+          child: RepaintBoundary(
+            child: AppCard(
+              padding: EdgeInsets.zero,
+              child: RepoTile(
+                repo: repo,
+                onTap: () => context.go(
+                  '/trending/detail/${Uri.encodeComponent(repo.fullName)}',
+                ),
+              ),
+            ),
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 }
