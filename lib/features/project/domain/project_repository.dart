@@ -1,8 +1,8 @@
+import '../../../core/domain/contributor_entity.dart';
 import '../../../core/domain/repo_entity.dart';
-import '../../repo_detail/domain/entities.dart';
 
+export '../../../core/domain/contributor_entity.dart' show ContributorEntity;
 export '../../../core/domain/repo_entity.dart' show RepoEntity;
-export '../../repo_detail/domain/entities.dart' show ContributorEntity;
 
 /// 项目深度报告页(探索 / 发现 / 活动)共用的摘要。
 class ProjectDigest {
