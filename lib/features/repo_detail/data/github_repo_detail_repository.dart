@@ -10,6 +10,7 @@ import '../../../core/utils/app_logger.dart';
 import '../domain/entities.dart';
 import '../domain/repo_detail_repository.dart';
 import 'github_repo_detail_helpers.dart';
+import 'github_repo_detail_cache_codec.dart';
 import 'local_repo_detail_repository.dart';
 
 const Duration repoDetailRemoteCacheTtl = Duration(minutes: 5);
@@ -56,7 +57,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       final digest = await _fetchDetail(decoded, now);
       await _cache.upsert(
         key: cacheKey,
-        payload: _digestToJson(digest),
+        payload: repoDetailDigestToJson(digest),
         now: now,
       );
       return digest;
@@ -73,7 +74,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final json = await _cache.read(cacheKey);
     if (json == null) return null;
     try {
-      return _digestFromJson(json);
+      return repoDetailDigestFromJson(json);
     } catch (e) {
       AppLogger.warn(
         'githubRepoDetailCacheParse',
@@ -235,82 +236,6 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       login: login,
       contributions: GitHubJson.intValue(json['contributions']),
       avatarAccentArgb: GitHubApiSupport.avatarColor(login),
-    );
-  }
-
-  Map<String, Object?> _digestToJson(RepoDetailDigest digest) {
-    return {
-      'repo': _repoToJson(digest.repo),
-      'contributors': digest.contributors.map(_contributorToJson).toList(),
-      'relatedRepos': digest.relatedRepos.map(_repoToJson).toList(),
-      'primaryTrend': digest.primaryTrend,
-      'compareTrend': digest.compareTrend,
-    };
-  }
-
-  RepoDetailDigest _digestFromJson(Map<String, Object?> json) {
-    return RepoDetailDigest(
-      repo: _repoFromJson(json['repo']),
-      contributors: GitHubJson.list(json['contributors'])
-          .map(_contributorFromJson)
-          .toList(),
-      relatedRepos:
-          GitHubJson.list(json['relatedRepos']).map(_repoFromJson).toList(),
-      primaryTrend: GitHubJson.doubleList(json['primaryTrend']),
-      compareTrend: GitHubJson.doubleList(json['compareTrend']),
-    );
-  }
-
-  Map<String, Object?> _repoToJson(RepoEntity repo) {
-    return {
-      'fullName': repo.fullName,
-      'description': repo.description,
-      'language': repo.language,
-      'starCount': repo.starCount,
-      'starDelta': repo.starDelta,
-      'forkCount': repo.forkCount,
-      'accentArgb': repo.accentArgb,
-      'valueProvenance': repo.valueProvenance.name,
-      'trendProvenance': repo.trendProvenance.name,
-      'trend': repo.trend,
-    };
-  }
-
-  RepoEntity _repoFromJson(Object? raw) {
-    final json = GitHubJson.map(raw);
-    return RepoEntity(
-      fullName: GitHubJson.string(json['fullName']),
-      description: GitHubJson.string(json['description']),
-      language: GitHubJson.string(json['language']),
-      starCount: GitHubJson.intValue(json['starCount']),
-      starDelta: GitHubJson.intValue(json['starDelta']),
-      forkCount: GitHubJson.intValue(json['forkCount']),
-      accentArgb: GitHubJson.intValue(json['accentArgb']),
-      valueProvenance: DataProvenance.fromName(
-        GitHubJson.nullableString(json['valueProvenance']),
-      ),
-      trendProvenance: DataProvenance.fromName(
-        GitHubJson.nullableString(json['trendProvenance']),
-      ),
-      trend:
-          json['trend'] == null ? null : GitHubJson.doubleList(json['trend']),
-    );
-  }
-
-  Map<String, Object?> _contributorToJson(ContributorEntity contributor) {
-    return {
-      'login': contributor.login,
-      'contributions': contributor.contributions,
-      'avatarAccentArgb': contributor.avatarAccentArgb,
-    };
-  }
-
-  ContributorEntity _contributorFromJson(Object? raw) {
-    final json = GitHubJson.map(raw);
-    return ContributorEntity(
-      login: GitHubJson.string(json['login']),
-      contributions: GitHubJson.intValue(json['contributions']),
-      avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
     );
   }
 }

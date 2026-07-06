@@ -9,6 +9,7 @@ import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
+import 'github_monitor_cache_codec.dart';
 import 'github_monitor_config.dart';
 import 'github_monitor_remote_repo_item.dart';
 import 'local_monitor_repository.dart';
@@ -55,7 +56,7 @@ class GithubMonitorRepository implements MonitorRepository {
       final digest = await _fetchDigest(now);
       await _cache.upsert(
         key: githubMonitorCacheKey,
-        payload: _digestToJson(digest),
+        payload: monitorDigestToJson(digest),
         now: now,
       );
       return digest;
@@ -72,7 +73,7 @@ class GithubMonitorRepository implements MonitorRepository {
     final json = await _cache.read(githubMonitorCacheKey);
     if (json == null) return null;
     try {
-      return _digestFromJson(json);
+      return monitorDigestFromJson(json);
     } catch (e) {
       AppLogger.warn(
         'githubMonitorCacheParse',
@@ -214,108 +215,5 @@ class GithubMonitorRepository implements MonitorRepository {
       ),
     ];
     return alerts;
-  }
-
-  Map<String, Object?> _digestToJson(MonitorDigest digest) {
-    return {
-      'repos': digest.monitoredRepos.map(_repoToJson).toList(),
-      'alerts': digest.alerts.map(_alertToJson).toList(),
-      'stats': _statsToJson(digest.stats),
-    };
-  }
-
-  MonitorDigest _digestFromJson(Map<String, Object?> json) {
-    return MonitorDigest(
-      monitoredRepos:
-          GitHubJson.list(json['repos']).map(_repoFromJson).toList(),
-      alerts: GitHubJson.list(json['alerts']).map(_alertFromJson).toList(),
-      stats: _statsFromJson(GitHubJson.map(json['stats'])),
-    );
-  }
-
-  Map<String, Object?> _repoToJson(RepoEntity repo) {
-    return {
-      'fullName': repo.fullName,
-      'description': repo.description,
-      'language': repo.language,
-      'starCount': repo.starCount,
-      'starDelta': repo.starDelta,
-      'forkCount': repo.forkCount,
-      'accentArgb': repo.accentArgb,
-      'valueProvenance': repo.valueProvenance.name,
-      'trendProvenance': repo.trendProvenance.name,
-      'trend': repo.trend,
-    };
-  }
-
-  RepoEntity _repoFromJson(Object? raw) {
-    final json = GitHubJson.map(raw);
-    return RepoEntity(
-      fullName: GitHubJson.string(json['fullName']),
-      description: GitHubJson.string(json['description']),
-      language: GitHubJson.string(json['language']),
-      starCount: GitHubJson.intValue(json['starCount']),
-      starDelta: GitHubJson.intValue(json['starDelta']),
-      forkCount: GitHubJson.intValue(json['forkCount']),
-      accentArgb: GitHubJson.intValue(json['accentArgb']),
-      valueProvenance: DataProvenance.fromName(
-        GitHubJson.nullableString(json['valueProvenance']),
-      ),
-      trendProvenance: DataProvenance.fromName(
-        GitHubJson.nullableString(json['trendProvenance']),
-      ),
-      trend:
-          json['trend'] == null ? null : GitHubJson.doubleList(json['trend']),
-    );
-  }
-
-  Map<String, Object?> _alertToJson(AlertEntity alert) {
-    return {
-      'repoFullName': alert.repoFullName,
-      'metric': alert.metric,
-      'value': alert.value,
-      'time': alert.time,
-      'severity': alert.severity.name,
-    };
-  }
-
-  AlertEntity _alertFromJson(Object? raw) {
-    final json = GitHubJson.map(raw);
-    return AlertEntity(
-      repoFullName: GitHubJson.string(json['repoFullName']),
-      metric: GitHubJson.string(json['metric']),
-      value: GitHubJson.string(json['value']),
-      time: GitHubJson.string(json['time']),
-      severity: AlertSeverity.values.firstWhere(
-        (severity) => severity.name == GitHubJson.string(json['severity']),
-        orElse: () => AlertSeverity.info,
-      ),
-    );
-  }
-
-  Map<String, Object?> _statsToJson(MonitorStats stats) {
-    return {
-      'monitoredCount': stats.monitoredCount,
-      'monitoredDelta': stats.monitoredDelta,
-      'unreadAlertCount': stats.unreadAlertCount,
-      'unreadAlertDelta': stats.unreadAlertDelta,
-      'triggeredTodayCount': stats.triggeredTodayCount,
-      'triggeredTodayDelta': stats.triggeredTodayDelta,
-      'totalAlertCount': stats.totalAlertCount,
-      'totalAlertDelta': stats.totalAlertDelta,
-    };
-  }
-
-  MonitorStats _statsFromJson(Map<String, Object?> json) {
-    return MonitorStats(
-      monitoredCount: GitHubJson.intValue(json['monitoredCount']),
-      monitoredDelta: GitHubJson.intValue(json['monitoredDelta']),
-      unreadAlertCount: GitHubJson.intValue(json['unreadAlertCount']),
-      unreadAlertDelta: GitHubJson.intValue(json['unreadAlertDelta']),
-      triggeredTodayCount: GitHubJson.intValue(json['triggeredTodayCount']),
-      triggeredTodayDelta: GitHubJson.intValue(json['triggeredTodayDelta']),
-      totalAlertCount: GitHubJson.intValue(json['totalAlertCount']),
-      totalAlertDelta: GitHubJson.intValue(json['totalAlertDelta']),
-    );
   }
 }
