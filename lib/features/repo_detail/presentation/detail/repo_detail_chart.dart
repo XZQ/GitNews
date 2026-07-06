@@ -4,6 +4,7 @@ import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../../../shared/widgets/star_trend_chart.dart';
 import '../../domain/repo_detail_repository.dart';
@@ -37,6 +38,11 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
                   subtitle: l10n.tr('repo_detail.section.star_trend.subtitle'),
                 ),
               ),
+              DataProvenanceBadge(
+                provenance: widget.digest.repo.trendProvenance,
+                compact: false,
+              ),
+              const SizedBox(width: AppSpacing.md),
               SegmentedButton<int>(
                 segments: [
                   ButtonSegment(
