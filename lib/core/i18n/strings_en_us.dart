@@ -141,6 +141,12 @@ const Map<String, String> stringsEnUS = <String, String>{
   'ai_news.featured': 'Featured',
   'ai_news.empty_category': 'No updates in "{cat}"',
   'ai_news.open_failed': 'Cannot open article link',
+  'ai_news.detail_title': 'Article detail',
+  'ai_news.detail_missing':
+      'This article is not in the local cache. Go back and refresh the list.',
+  'ai_news.detail_score': 'Score',
+  'ai_news.detail_selected': 'Selected',
+  'ai_news.detail_source': 'Source',
   'ai_news.day_count_suffix': '',
   'ai_news.yesterday': 'Yesterday',
   'ai_news.date_md': '{m}/{d}',

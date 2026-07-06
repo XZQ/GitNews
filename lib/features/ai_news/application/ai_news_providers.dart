@@ -109,6 +109,12 @@ final aiNewsItemsNotifierProvider =
   AiNewsItemsNotifier.new,
 );
 
+/// 资讯详情读取:详情页只依赖本地缓存,避免再次请求远端或打开不稳定外站。
+final aiNewsItemDetailProvider =
+    FutureProvider.autoDispose.family<AiNewsItem?, String>(
+  (ref, id) => ref.watch(aiNewsCacheDaoProvider).readById(id),
+);
+
 class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
   List<AiNewsItem> _buffer = const [];
   String? _nextCursor;

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 export 'route_specs.dart';
 
 import '../../features/ai_news/presentation/ai_news_page.dart';
+import '../../features/ai_news/presentation/ai_news_detail_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
 import '../../features/monitor/presentation/monitor_detail_page.dart';
@@ -84,6 +85,24 @@ GoRouter buildAppRouter(Ref ref) {
                 path: '/ai_news',
                 name: 'ai_news',
                 builder: (_, __) => const AiNewsPage(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:id',
+                    name: 'ai_news_detail',
+                    builder: (_, state) => AiNewsDetailPage(
+                      id: state.pathParameters['id']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'webview',
+                    name: 'ai_news_webview',
+                    builder: (_, state) {
+                      final url = state.uri.queryParameters['url'] ?? '';
+                      final title = state.uri.queryParameters['title'];
+                      return WebViewPage(url: url, title: title);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -250,7 +269,8 @@ GoRouter buildAppRouter(Ref ref) {
         name: 'login',
         builder: (_, __) => const LoginPage(),
       ),
-      // 全局应用内 WebView(任何 Tab 都能进入)
+      // 全局应用内 WebView:仅保留给非 Tab 场景。Tab 内链接应优先放在
+      // 对应分支的子路由里,避免桌面端绕开侧栏和 B 区域。
       GoRoute(
         path: '/webview',
         name: 'webview',
