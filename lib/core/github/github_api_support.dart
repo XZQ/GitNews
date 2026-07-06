@@ -12,7 +12,7 @@ class GitHubApiSupport {
   static const String apiVersion = '2022-11-28';
   static const String userAgent = 'GitHubNews/0.1 (Flutter)';
 
-  static Map<String, Object?> headers([String? token]) {
+  static Map<String, Object?> headers({String? token, String? etag}) {
     final trimmed = token?.trim();
     return {
       'Accept': 'application/vnd.github+json',
@@ -20,6 +20,7 @@ class GitHubApiSupport {
       'User-Agent': userAgent,
       if (trimmed != null && trimmed.isNotEmpty)
         'Authorization': 'Bearer $trimmed',
+      if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
     };
   }
 

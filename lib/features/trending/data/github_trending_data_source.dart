@@ -42,7 +42,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
           'order': 'desc',
           'per_page': _perPage,
         },
-        options: Options(headers: GitHubApiSupport.headers(_token)),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {

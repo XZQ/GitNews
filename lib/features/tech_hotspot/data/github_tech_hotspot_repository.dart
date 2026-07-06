@@ -123,7 +123,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
           'order': 'desc',
           'per_page': 10,
         },
-        options: Options(headers: GitHubApiSupport.headers(_token)),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {
