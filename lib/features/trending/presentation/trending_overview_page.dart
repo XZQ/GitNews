@@ -16,7 +16,9 @@ import '../../../shared/widgets/skeleton.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../../project/application/project_providers.dart';
 
-/* 二级页 1:Star 增长趋势(全量)。 */
+/* 
+*二级页 1:Star 增长趋势(全量)。
+*/
 class TrendingOverviewPage extends ConsumerWidget {
   const TrendingOverviewPage({super.key});
 

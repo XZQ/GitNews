@@ -17,7 +17,9 @@ import 'detail/tech_hotspot_detail_section_error.dart';
 import 'detail/tech_hotspot_detail_skeleton.dart';
 import 'detail/tech_hotspot_detail_topic_header.dart';
 
-/* 技术主题详情页。 */
+/* 
+*技术主题详情页。
+*/
 class TechHotspotDetailPage extends ConsumerWidget {
   const TechHotspotDetailPage({required this.id, super.key});
 
@@ -51,10 +53,11 @@ class TechHotspotDetailPage extends ConsumerWidget {
   }
 }
 
-/* 详情页加载完成后,内部再独立 watch 关联列表与语言面板。 */
-/*  */
-/* - 关联列表 / 语言面板允许短暂 loading,期间用各自的 skeleton 占位。 */
-/* - 任一子区块失败都通过 [_SectionError] 暴露给用户并提供重试,不再静默降级。 */
+/* 
+*详情页加载完成后,内部再独立 watch 关联列表与语言面板。
+*- 关联列表 / 语言面板允许短暂 loading,期间用各自的 skeleton 占位。
+*- 任一子区块失败都通过 [_SectionError] 暴露给用户并提供重试,不再静默降级。
+*/
 class _Loaded extends ConsumerWidget {
   const _Loaded({required this.id, required this.topic});
 

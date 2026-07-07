@@ -9,9 +9,10 @@ import '../../../ai_news/application/ai_news_providers.dart';
 import '../../../ai_news/domain/ai_news_item.dart';
 import '../../../ai_news/presentation/widgets/ai_news_category_style.dart';
 
-/* 首页 AI 动态 Top N 预览。 */
-/*  */
-/* 数据来自 [aiNewsItemsNotifierProvider](远端 aihot.virxact.com);加载中显示空列表占位。 */
+/* 
+*首页 AI 动态 Top N 预览。
+*数据来自 [aiNewsItemsNotifierProvider](远端 aihot.virxact.com);加载中显示空列表占位。
+*/
 class HomeAiNewsPreview extends ConsumerWidget {
   const HomeAiNewsPreview({super.key});
 

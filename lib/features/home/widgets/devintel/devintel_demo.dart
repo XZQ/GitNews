@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_colors.dart';
 
-/* DevIntel 桌面端 home 演示数据(全部 const,便于后续替换为真实 API)。 */
+/* 
+*DevIntel 桌面端 home 演示数据(全部 const,便于后续替换为真实 API)。
+*/
 class DevIntelMetricSpec {
   const DevIntelMetricSpec({
     required this.title,
@@ -224,7 +226,7 @@ const List<DevIntelMonitoring> kDevIntelMonitoring = <DevIntelMonitoring>[
   ),
 ];
 
-/* X 轴标签(按数据点 index 取值),空字符串表示该点不显示。 */
+// X 轴标签(按数据点 index 取值),空字符串表示该点不显示。
 const List<String> kDevIntelXLabels = <String>[
   '10/1',
   '',

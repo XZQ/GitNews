@@ -8,7 +8,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../domain/tech_hotspot_models.dart';
 
-/* 编程语言分布与排行面板。 */
+/* 
+*编程语言分布与排行面板。
+*/
 class TechHotspotLanguagePanel extends StatelessWidget {
   const TechHotspotLanguagePanel({required this.languages, super.key});
 

@@ -5,7 +5,9 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
 
-/* 话题趋势面板:展示本周高频技术话题的词云。 */
+/* 
+*话题趋势面板:展示本周高频技术话题的词云。
+*/
 class TrendingTopicsPanel extends StatelessWidget {
   const TrendingTopicsPanel({super.key});
 
@@ -43,16 +45,28 @@ class _TopicWordCloud extends StatelessWidget {
       children: [
         _TopicWord(text: l10n.tr('home.topic.agents'), size: 22, weight: 0.9),
         _TopicWord(
-            text: l10n.tr('home.topic.devtools'), size: 20, weight: 0.85),
+          text: l10n.tr('home.topic.devtools'),
+          size: 20,
+          weight: 0.85,
+        ),
         _TopicWord(text: l10n.tr('home.topic.rag'), size: 16, weight: 0.6),
         _TopicWord(text: l10n.tr('home.topic.llm'), size: 18, weight: 0.7),
-        _TopicWord(text: 'Web3', size: 17, weight: 0.65),
+        const _TopicWord(text: 'Web3', size: 17, weight: 0.65),
         _TopicWord(
-            text: l10n.tr('home.topic.cloud_native'), size: 14, weight: 0.5),
+          text: l10n.tr('home.topic.cloud_native'),
+          size: 14,
+          weight: 0.5,
+        ),
         _TopicWord(
-            text: l10n.tr('home.topic.data_infra'), size: 13, weight: 0.45),
+          text: l10n.tr('home.topic.data_infra'),
+          size: 13,
+          weight: 0.45,
+        ),
         _TopicWord(
-            text: l10n.tr('home.topic.security'), size: 15, weight: 0.55),
+          text: l10n.tr('home.topic.security'),
+          size: 15,
+          weight: 0.55,
+        ),
       ],
     );
   }

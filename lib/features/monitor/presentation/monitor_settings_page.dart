@@ -9,7 +9,9 @@ import '../../../shared/widgets/section_header.dart';
 import '../application/monitor_settings_controller.dart';
 import '../widgets/monitor_settings_cards.dart';
 
-/* 通知设置。 */
+/* 
+*通知设置。
+*/
 class MonitorSettingsPage extends StatelessWidget {
   const MonitorSettingsPage({super.key});
 

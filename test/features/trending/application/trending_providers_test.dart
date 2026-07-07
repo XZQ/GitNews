@@ -1,7 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/di/providers.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
+import 'package:github_news/core/i18n/app_localizations.dart';
+import 'package:github_news/core/preferences/github_token_controller.dart';
 import 'package:github_news/core/preferences/trending_data_source_mode_controller.dart';
 import 'package:github_news/features/trending/application/trending_providers.dart';
 import 'package:github_news/features/trending/data/local_trending_data_source.dart';
@@ -47,6 +51,10 @@ RepoEntity _repo(
 void main() {
   setUpAll(() {
     registerFallbackValue(const TrendingQuery());
+  });
+
+  setUp(() {
+    FlutterSecureStorage.setMockInitialValues({});
   });
 
   group('trendingDigestProvider', () {
@@ -285,38 +293,47 @@ void main() {
 
     test('status should describe local mode', () async {
       final container = await _createContainer();
+      final l10n = AppLocalizations(const Locale('zh', 'CN'));
 
       final status = container.read(trendingDataSourceStatusProvider);
 
       expect(status.isGithub, isFalse);
-      expect(status.label, '本地数据');
+      expect(status.label(l10n), '本地数据');
     });
 
     test('status should describe anonymous GitHub mode', () async {
       final container = await _createContainer(
         prefs: {'trending_data_source_mode': 'github'},
       );
+      final l10n = AppLocalizations(const Locale('zh', 'CN'));
+      container.read(githubTokenControllerProvider);
+      await _drainAsyncInit();
 
       final status = container.read(trendingDataSourceStatusProvider);
 
       expect(status.isGithub, isTrue);
       expect(status.hasToken, isFalse);
-      expect(status.label, 'GitHub 匿名 · 缓存5分钟');
+      expect(status.label(l10n), 'GitHub 匿名 · 缓存5分钟');
     });
 
     test('status should describe token GitHub mode', () async {
       final container = await _createContainer(
         prefs: {
           'trending_data_source_mode': 'github',
+        },
+        secureValues: {
           'github_personal_access_token': 'github_pat_test',
         },
       );
+      final l10n = AppLocalizations(const Locale('zh', 'CN'));
+      container.read(githubTokenControllerProvider);
+      await _drainAsyncInit();
 
       final status = container.read(trendingDataSourceStatusProvider);
 
       expect(status.isGithub, isTrue);
       expect(status.hasToken, isTrue);
-      expect(status.label, 'GitHub Token · 缓存5分钟');
+      expect(status.label(l10n), 'GitHub Token · 缓存5分钟');
     });
   });
 
@@ -367,9 +384,11 @@ void main() {
 
 Future<ProviderContainer> _createContainer({
   Map<String, Object> prefs = const {},
+  Map<String, String> secureValues = const {},
   List<Override> overrides = const [],
 }) async {
   SharedPreferences.setMockInitialValues(prefs);
+  FlutterSecureStorage.setMockInitialValues(secureValues);
   final sharedPreferences = await SharedPreferences.getInstance();
   final container = ProviderContainer(
     overrides: [
@@ -379,4 +398,10 @@ Future<ProviderContainer> _createContainer({
   );
   addTearDown(container.dispose);
   return container;
+}
+
+Future<void> _drainAsyncInit() async {
+  await Future<void>.delayed(Duration.zero);
+  await Future<void>.delayed(Duration.zero);
+  await Future<void>.delayed(Duration.zero);
 }

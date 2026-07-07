@@ -4,7 +4,9 @@ import '../domain/trending_repository.dart';
 import 'trending_cache_dao.dart';
 import 'trending_data_source.dart';
 
-/* 带 SQLite TTL 缓存的趋势数据源包装器。 */
+/* 
+*带 SQLite TTL 缓存的趋势数据源包装器。
+*/
 class CachedTrendingDataSource implements TrendingDataSource {
   const CachedTrendingDataSource({
     required this.remote,

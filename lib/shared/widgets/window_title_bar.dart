@@ -10,11 +10,12 @@ final windowServiceProvider = Provider<WindowService>((ref) {
   return const WindowService();
 });
 
-/* 自定义窗口标题栏(替代 Windows 系统蓝色标题栏,实现沉浸式)。 */
-/*  */
-/* - 右侧最小化/最大化/关闭按钮通过 MethodChannel 调用 native */
-/* - 如需正式启用沉浸式标题栏,还需要在 Windows runner 中切换为无边框 */
-/*   窗口并补充拖动热区 hit-test */
+/* 
+*自定义窗口标题栏(替代 Windows 系统蓝色标题栏,实现沉浸式)。
+*- 右侧最小化/最大化/关闭按钮通过 MethodChannel 调用 native
+*- 如需正式启用沉浸式标题栏,还需要在 Windows runner 中切换为无边框
+*窗口并补充拖动热区 hit-test
+*/
 class WindowTitleBar extends ConsumerStatefulWidget {
   const WindowTitleBar({super.key});
 
@@ -160,7 +161,9 @@ class _WindowButtonState extends State<_WindowButton> {
   }
 }
 
-/* 顶部 32px 之外的拖动热区占位,保持 hit-test 行为稳定。 */
+/* 
+*顶部 32px 之外的拖动热区占位,保持 hit-test 行为稳定。
+*/
 class DragRegionSpacer extends StatelessWidget {
   const DragRegionSpacer({this.height = 32, super.key});
 

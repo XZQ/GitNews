@@ -1,4 +1,6 @@
-/* 仓库贡献者实体。 */
+/* 
+*仓库贡献者实体。
+*/
 class ContributorEntity {
   const ContributorEntity({
     required this.login,
@@ -9,6 +11,6 @@ class ContributorEntity {
   final String login;
   final int contributions;
 
-  /* 头像底色 32-bit ARGB。 */
+  // 头像底色 32-bit ARGB。
   final int avatarAccentArgb;
 }

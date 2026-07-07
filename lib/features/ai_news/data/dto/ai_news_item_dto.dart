@@ -1,6 +1,8 @@
 import '../../domain/ai_news_item.dart';
 
-/* `/api/public/items` 单条响应 DTO。 */
+/* 
+*`/api/public/items` 单条响应 DTO。
+*/
 class AiNewsItemDto {
   const AiNewsItemDto({
     required this.id,
@@ -69,7 +71,9 @@ class AiNewsItemDto {
   }
 }
 
-/* `/api/public/items` 顶层响应 DTO。 */
+/* 
+*`/api/public/items` 顶层响应 DTO。
+*/
 class AiNewsListResponseDto {
   const AiNewsListResponseDto({
     required this.count,

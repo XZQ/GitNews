@@ -16,11 +16,18 @@ import 'trending_language_panel.dart';
 import 'trending_page_header.dart';
 import 'trending_topics_panel.dart';
 
-/* 桌面:左 8 列(趋势图 + 表格)/ 右 4 列(语言分布 + 主题)。 */
+/* 
+*桌面:左 8 列(趋势图 + 表格)/ 右 4 列(语言分布 + 主题)。
+*/
 class TrendingDesktopView extends ConsumerWidget {
-  const TrendingDesktopView({required this.digest, super.key});
+  const TrendingDesktopView({
+    required this.digest,
+    this.isReloading = false,
+    super.key,
+  });
 
   final TrendingDigest digest;
+  final bool isReloading;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -88,6 +95,7 @@ class TrendingDesktopView extends ConsumerWidget {
                         flex: 8,
                         child: _TrendingList(
                           repos: digest.trendingRepos,
+                          isLoading: isReloading,
                         ),
                       ),
                       const SizedBox(width: AppSpacing.lg),
@@ -169,9 +177,12 @@ class _TrendingBoardSelector extends StatelessWidget {
         for (final item in _items)
           ChoiceChip(
             selected: value == item.value,
+            showCheckmark: false,
             avatar: Icon(item.icon, size: 16),
             label: Text(item.label),
-            onSelected: (_) => onChanged(item.value),
+            onSelected: (_) {
+              if (value != item.value) onChanged(item.value);
+            },
           ),
       ],
     );
@@ -191,56 +202,124 @@ class _TrendingBoardOption {
 }
 
 class _TrendingList extends StatelessWidget {
-  const _TrendingList({required this.repos});
+  const _TrendingList({
+    required this.repos,
+    required this.isLoading,
+  });
 
   final List<RepoEntity> repos;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     if (repos.isEmpty) {
-      return const AppCard(
-        child: EmptyView(
-          icon: Icons.search_off_rounded,
-          message: '没有匹配的热门仓库',
-        ),
+      return Stack(
+        children: [
+          const AppCard(
+            child: EmptyView(
+              icon: Icons.search_off_rounded,
+              message: '没有匹配的热门仓库',
+            ),
+          ),
+          if (isLoading) const _TrendingListLoadingOverlay(),
+        ],
       );
     }
 
-    return AppCard(
-      padding: EdgeInsets.zero,
-      child: CustomScrollView(
-        slivers: [
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.xs,
+    return Stack(
+      children: [
+        AppCard(
+          padding: EdgeInsets.zero,
+          child: CustomScrollView(
+            slivers: [
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                    AppSpacing.lg,
+                    AppSpacing.xs,
+                  ),
+                  child: SectionHeader(
+                    title: '热门仓库',
+                    subtitle: '按 Star 增速排序',
+                  ),
+                ),
               ),
-              child: SectionHeader(
-                title: '热门仓库',
-                subtitle: '按 Star 增速排序',
+              SliverList.builder(
+                itemCount: repos.length,
+                itemBuilder: (context, i) {
+                  return Column(
+                    children: [
+                      if (i != 0) const Divider(height: 1),
+                      RepoTile(
+                        repo: repos[i],
+                        onTap: () => context.go(
+                          '/trending/detail/${Uri.encodeComponent(repos[i].fullName)}',
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+        if (isLoading) const _TrendingListLoadingOverlay(),
+      ],
+    );
+  }
+}
+
+class _TrendingListLoadingOverlay extends StatelessWidget {
+  const _TrendingListLoadingOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Positioned.fill(
+      child: IgnorePointer(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: colors.surface.withValues(alpha: 0.72),
+          ),
+          child: Center(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colors.surface,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(
+                  color: colors.outlineVariant.withValues(alpha: 0.8),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: colors.shadow.withValues(alpha: 0.06),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: AppSpacing.lg,
+                  vertical: AppSpacing.md,
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    SizedBox(width: AppSpacing.sm),
+                    Text('正在更新热榜'),
+                  ],
+                ),
               ),
             ),
           ),
-          SliverList.builder(
-            itemCount: repos.length,
-            itemBuilder: (context, i) {
-              return Column(
-                children: [
-                  if (i != 0) const Divider(height: 1),
-                  RepoTile(
-                    repo: repos[i],
-                    onTap: () => context.go(
-                      '/trending/detail/${Uri.encodeComponent(repos[i].fullName)}',
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
+        ),
       ),
     );
   }

@@ -14,11 +14,11 @@ void main() {
       ),
     );
 
-    expect(find.text('估算'), findsOneWidget);
+    expect(find.text('Estimated'), findsOneWidget);
 
     await tester.longPress(find.byType(DataProvenanceBadge));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('不是完整历史'), findsOneWidget);
+    expect(find.textContaining('not complete history'), findsOneWidget);
   });
 }

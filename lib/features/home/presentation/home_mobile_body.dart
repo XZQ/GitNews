@@ -11,7 +11,9 @@ import '../widgets/home_alerts_panel.dart';
 import '../widgets/home_topics_panel.dart';
 import 'home_chart_helpers.dart';
 
-/* Home compact (<600) 分支:Hero 趋势 + 告警 + 主题。 */
+/* 
+*Home compact (<600) 分支:Hero 趋势 + 告警 + 主题。
+*/
 class HomeMobileBody extends StatelessWidget {
   const HomeMobileBody({super.key});
 

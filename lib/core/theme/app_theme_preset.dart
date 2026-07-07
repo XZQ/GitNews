@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-/* 主题色预设:10 种 seed,色相与明暗(ThemeMode)正交。 */
-/*  */
-/* UI 通过 `themePresetControllerProvider` 选当前预设; */
-/* `AppTheme.fromSeed` 用 preset.seed 派生整套 Material 3 ColorScheme。 */
+/* 
+*主题色预设:10 种 seed,色相与明暗(ThemeMode)正交。
+*UI 通过 `themePresetControllerProvider` 选当前预设;
+*`AppTheme.fromSeed` 用 preset.seed 派生整套 Material 3 ColorScheme。
+*/
 enum AppThemePreset {
   slate('slate', '灰白', Color(0xFF64748B)),
   teal('teal', '青绿', Color(0xFF0D9488)),

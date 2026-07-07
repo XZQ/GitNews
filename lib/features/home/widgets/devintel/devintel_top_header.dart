@@ -12,10 +12,11 @@ import '../../../project/application/project_providers.dart';
 import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../trending/application/trending_providers.dart';
 
-/* 首页(桌面)顶部条 — 复用 [PageHeader] 体系。 */
-/*  */
-/* actions 内部含一个带红点的通知按钮 + 一个脉冲点动画的"实时同步"胶囊。 */
-/* 通知红点根据 `monitor.stats.unreadAlertCount > 0` 动态显示/隐藏。 */
+/* 
+*首页(桌面)顶部条 — 复用 [PageHeader] 体系。
+*actions 内部含一个带红点的通知按钮 + 一个脉冲点动画的"实时同步"胶囊。
+*通知红点根据 `monitor.stats.unreadAlertCount > 0` 动态显示/隐藏。
+*/
 class DevIntelTopHeader extends ConsumerWidget {
   const DevIntelTopHeader({super.key});
 
@@ -56,7 +57,9 @@ void _openGlobalSearch(BuildContext context, WidgetRef ref, String rawQuery) {
   );
 }
 
-/* 通知铃铛 — 红点根据未读告警数动态显示。 */
+/* 
+*通知铃铛 — 红点根据未读告警数动态显示。
+*/
 class _BellWithDot extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -109,7 +112,9 @@ class _Dot extends StatelessWidget {
       );
 }
 
-/* 实时同步胶囊(带脉冲点)。 */
+/* 
+*实时同步胶囊(带脉冲点)。
+*/
 class _LiveSyncBadge extends StatelessWidget {
   const _LiveSyncBadge();
 

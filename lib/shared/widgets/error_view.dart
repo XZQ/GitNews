@@ -5,7 +5,9 @@ import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/* 统一错误视图:按 AppException.kind 渲染不同文案与操作。 */
+/* 
+*统一错误视图:按 AppException.kind 渲染不同文案与操作。
+*/
 class ErrorView extends StatelessWidget {
   const ErrorView({
     required this.error,

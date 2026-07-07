@@ -16,7 +16,9 @@ import '../domain/trending_repository.dart';
 import '../widgets/language_donut_chart.dart';
 import '../widgets/language_growth_bars.dart';
 
-/* 二级页 2:语言趋势(饼图 + 列表)。 */
+/* 
+*二级页 2:语言趋势(饼图 + 列表)。
+*/
 class LanguageTrendPage extends ConsumerWidget {
   const LanguageTrendPage({super.key});
 

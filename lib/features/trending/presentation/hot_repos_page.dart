@@ -16,7 +16,9 @@ import '../../../shared/widgets/skeleton.dart';
 import '../application/trending_providers.dart';
 import '../domain/trending_repository.dart';
 
-/* 二级页 3:热门仓库(完整列表 + 表格视图)。 */
+/* 
+*二级页 3:热门仓库(完整列表 + 表格视图)。
+*/
 class HotReposPage extends ConsumerWidget {
   const HotReposPage({super.key});
 

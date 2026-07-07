@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/errors/app_exception.dart';
@@ -16,7 +17,9 @@ import 'tech_hotspot_history_dao.dart';
 
 const Duration techHotspotRemoteCacheTtl = CacheTtlConfig.techHotspot;
 
-/* 基于 GitHub Search 的 AI 雷达远端仓库。 */
+/* 
+*基于 GitHub Search 的 AI 雷达远端仓库。
+*/
 class GithubTechHotspotRepository implements TechHotspotRepository {
   const GithubTechHotspotRepository({
     required Dio dio,
@@ -134,7 +137,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     try {
       final cutoff = now.toUtc().subtract(const Duration(days: 30));
       final response = await _dio.get<Map<String, Object?>>(
-        '/search/repositories',
+        ApiEndpointsConfig.githubSearchRepositoriesPath,
         queryParameters: {
           'q':
               '(${query.query}) in:name,description,readme stars:>30 pushed:>=${GitHubApiSupport.formatDate(cutoff)} archived:false',

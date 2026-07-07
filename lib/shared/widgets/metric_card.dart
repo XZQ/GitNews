@@ -4,7 +4,9 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/* 通用指标卡(可显示 Star 增速 / 监控数 / 告警数 / 语言分布等)。 */
+/* 
+*通用指标卡(可显示 Star 增速 / 监控数 / 告警数 / 语言分布等)。
+*/
 class MetricCard extends StatelessWidget {
   const MetricCard({
     required this.title,

@@ -3,9 +3,10 @@ import '../features/repo_detail/domain/entities.dart';
 import 'demo_data.dart';
 import 'domain/repo_entity.dart';
 
-/* Demo fixture → domain 实体的映射集合。 */
-/*  */
-/* 仅在 data 层(LocalXxxRepository)使用,domain 不允许依赖本文件。 */
+/* 
+*Demo fixture → domain 实体的映射集合。
+*仅在 data 层(LocalXxxRepository)使用,domain 不允许依赖本文件。
+*/
 extension DemoRepoFixtureX on DemoRepoFixture {
   RepoEntity toEntity() => RepoEntity(
         fullName: fullName,

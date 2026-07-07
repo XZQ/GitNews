@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
-/* 颜色 token:集中维护,UI 不写裸值。 */
+/* 
+*颜色 token:集中维护,UI 不写裸值。
+*/
 class AppColors {
   const AppColors._();
 

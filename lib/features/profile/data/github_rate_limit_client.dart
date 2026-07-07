@@ -1,8 +1,12 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/github/github_api_support.dart';
 
-/* GitHub rate limit 分桶。 */
+/* 
+*GitHub rate limit 分桶。
+*/
 class GitHubRateLimitBucket {
   const GitHubRateLimitBucket({
     required this.limit,
@@ -15,7 +19,9 @@ class GitHubRateLimitBucket {
   final DateTime resetAt;
 }
 
-/* GitHub rate limit 状态。 */
+/* 
+*GitHub rate limit 状态。
+*/
 class GitHubRateLimitSnapshot {
   const GitHubRateLimitSnapshot({
     required this.core,
@@ -28,23 +34,19 @@ class GitHubRateLimitSnapshot {
   final DateTime checkedAt;
 }
 
-/* GitHub `/rate_limit` 客户端。 */
+/* 
+*GitHub `/rate_limit` 客户端。
+*/
 class GitHubRateLimitClient {
   const GitHubRateLimitClient(this._dio);
 
   final Dio _dio;
 
-  static const Map<String, Object?> _headers = {
-    'Accept': 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-    'User-Agent': 'GitHubNews/0.1 (Flutter)',
-  };
-
   Future<GitHubRateLimitSnapshot> fetch({String? token}) async {
     try {
       final response = await _dio.get<Map<String, Object?>>(
-        '/rate_limit',
-        options: Options(headers: _headersWithAuth(token)),
+        ApiEndpointsConfig.githubRateLimitPath,
+        options: Options(headers: GitHubApiSupport.headers(token: token)),
       );
       final data = response.data;
       if (data == null) {
@@ -63,15 +65,6 @@ class GitHubRateLimitClient {
     } on TypeError catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     }
-  }
-
-  Map<String, Object?> _headersWithAuth(String? token) {
-    final trimmed = token?.trim();
-    return {
-      ..._headers,
-      if (trimmed != null && trimmed.isNotEmpty)
-        'Authorization': 'Bearer $trimmed',
-    };
   }
 
   GitHubRateLimitBucket _bucket(Object? raw) {

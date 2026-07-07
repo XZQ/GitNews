@@ -6,7 +6,9 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/entities.dart';
 
-/* 语言增长率排行(水平条形)。 */
+/* 
+*语言增长率排行(水平条形)。
+*/
 class LanguageGrowthBars extends StatelessWidget {
   const LanguageGrowthBars({required this.languages, super.key});
 
@@ -99,7 +101,9 @@ class _Bar extends StatelessWidget {
   }
 }
 
-/* 语言占比单行(色块 + 名称 + 百分比 + delta)。 */
+/* 
+*语言占比单行(色块 + 名称 + 百分比 + delta)。
+*/
 class LanguageDistributionRow extends StatelessWidget {
   const LanguageDistributionRow({
     required this.name,

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/config/api_endpoints_config.dart';
 import 'package:github_news/core/domain/data_provenance.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/json_snapshot_cache_dao.dart';
@@ -79,7 +80,8 @@ void main() {
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
   return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: '/search/repositories'),
+    requestOptions:
+        RequestOptions(path: ApiEndpointsConfig.githubSearchRepositoriesPath),
     statusCode: 200,
     data: body,
   );

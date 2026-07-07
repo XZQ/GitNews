@@ -1,9 +1,10 @@
 import '../domain/tech_hotspot_models.dart';
 
-/* 内置种子数据。 */
-/*  */
-/* 在接入真实远端之前,作为 [TechHotspotRepository] 的 in-memory 数据源。 */
-/* 命名为 seed 而非 mock:这些数据随产品发布,不是测试替身。 */
+/* 
+*内置种子数据。
+*在接入真实远端之前,作为 [TechHotspotRepository] 的 in-memory 数据源。
+*命名为 seed 而非 mock:这些数据随产品发布,不是测试替身。
+*/
 class TechHotspotSeedData {
   const TechHotspotSeedData._();
 

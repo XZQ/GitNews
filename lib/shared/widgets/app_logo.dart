@@ -5,11 +5,12 @@ import 'package:flutter/material.dart';
 import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 
-/* GitHub情报站 品牌标识。 */
-/*  */
-/* - [mark]: 仅图标(用于左上角、登录、PRO 卡片) */
-/* - [wordmark]: 纯文字标(图标右侧) */
-/* - [compact] / [full]: 横排组合,带可选文字 */
+/* 
+*GitHub情报站 品牌标识。
+*- [mark]: 仅图标(用于左上角、登录、PRO 卡片)
+*- [wordmark]: 纯文字标(图标右侧)
+*- [compact] / [full]: 横排组合,带可选文字
+*/
 class AppLogo extends StatelessWidget {
   const AppLogo({
     this.size = 32,
@@ -21,7 +22,7 @@ class AppLogo extends StatelessWidget {
   final double size;
   final bool showText;
 
-  /* null 表示跟随系统(从 [Theme.of] 推断)。 */
+  // null 表示跟随系统(从 [Theme.of] 推断)。
   final Brightness? brightness;
 
   @override
@@ -53,7 +54,9 @@ class AppLogo extends StatelessWidget {
   }
 }
 
-/* 自绘品牌图标:深色情报雷达 + 趋势轨迹 + 星标节点。 */
+/* 
+*自绘品牌图标:深色情报雷达 + 趋势轨迹 + 星标节点。
+*/
 class LogoMark extends StatelessWidget {
   const LogoMark({this.size = 32, super.key});
 

@@ -5,7 +5,9 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/* 一天分组头:`今天 / 昨天 / M月d日` + 条目数。 */
+/* 
+*一天分组头:`今天 / 昨天 / M月d日` + 条目数。
+*/
 class AiNewsDayHeader extends StatelessWidget {
   const AiNewsDayHeader({
     required this.date,

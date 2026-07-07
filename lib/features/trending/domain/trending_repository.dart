@@ -1,6 +1,8 @@
 import 'entities.dart';
 
-/* GitHub 热榜查询时间窗。 */
+/* 
+*GitHub 热榜查询时间窗。
+*/
 enum TrendingWindow {
   today,
   week,
@@ -15,7 +17,9 @@ enum TrendingWindow {
   }
 }
 
-/* GitHub 热榜榜单类型。 */
+/* 
+*GitHub 热榜榜单类型。
+*/
 enum TrendingBoard {
   all,
   agent,
@@ -44,7 +48,9 @@ enum TrendingBoard {
   }
 }
 
-/* GitHub 热榜查询条件。 */
+/* 
+*GitHub 热榜查询条件。
+*/
 class TrendingQuery {
   const TrendingQuery({
     this.window = TrendingWindow.today,
@@ -60,7 +66,9 @@ class TrendingQuery {
   bool get hasBoardFilter => board != TrendingBoard.all;
 }
 
-/* 趋势页需要的一组本地情报数据。 */
+/* 
+*趋势页需要的一组本地情报数据。
+*/
 class TrendingDigest {
   const TrendingDigest({
     required this.trendingRepos,
@@ -83,10 +91,11 @@ class TrendingDigest {
   bool get isEmpty => trendingRepos.isEmpty && recentRepos.isEmpty;
 }
 
-/* 趋势数据仓库。 */
-/*  */
-/* 当前支持本地数据源与 GitHub Search 数据源。GitHub Search 不直接返回 */
-/* Star 增量,远端实现里的增长值是动量代理值;真实历史趋势需要本地快照累积。 */
+/* 
+*趋势数据仓库。
+*当前支持本地数据源与 GitHub Search 数据源。GitHub Search 不直接返回
+*Star 增量,远端实现里的增长值是动量代理值;真实历史趋势需要本地快照累积。
+*/
 abstract interface class TrendingRepository {
   Future<TrendingDigest> getDigest({
     TrendingQuery query = const TrendingQuery(),

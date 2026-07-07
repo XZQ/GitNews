@@ -7,11 +7,12 @@ import '../../core/router/app_router.dart';
 import '../../core/utils/breakpoint.dart';
 import 'app_sidebar.dart';
 
-/* 三档响应式根 Scaffold。 */
-/*  */
-/* - compact(< 600):底部 NavigationBar */
-/* - medium(600–1024):紧凑 NavigationRail(图标 + 选中标签) */
-/* - expanded(≥ 1024):宽侧栏(品牌 + 大字号 + hover + 底部主题/登录) */
+/* 
+*三档响应式根 Scaffold。
+*- compact(< 600):底部 NavigationBar
+*- medium(600–1024):紧凑 NavigationRail(图标 + 选中标签)
+*- expanded(≥ 1024):宽侧栏(品牌 + 大字号 + hover + 底部主题/登录)
+*/
 class ResponsiveScaffold extends ConsumerWidget {
   const ResponsiveScaffold({required this.navigationShell, super.key});
 
@@ -55,7 +56,9 @@ class ResponsiveScaffold extends ConsumerWidget {
   }
 }
 
-/* 侧栏拖拽手柄:用户拖动以改变侧栏宽度(200–800px)。 */
+/* 
+*侧栏拖拽手柄:用户拖动以改变侧栏宽度(200–800px)。
+*/
 class _SidebarDragHandle extends ConsumerStatefulWidget {
   const _SidebarDragHandle();
 

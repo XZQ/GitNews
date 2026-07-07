@@ -9,9 +9,10 @@ import '../../../core/storage/cache_meta_dao.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
-/* GitHub 热榜快照缓存 DAO。 */
-/*  */
-/* 表结构由 `LocalDatabase` 创建;TTL 元信息复用全局 [CacheMetaDao]。 */
+/* 
+*GitHub 热榜快照缓存 DAO。
+*表结构由 `LocalDatabase` 创建;TTL 元信息复用全局 [CacheMetaDao]。
+*/
 class TrendingCacheDao {
   TrendingCacheDao(this._db, this._meta);
 
@@ -20,7 +21,9 @@ class TrendingCacheDao {
 
   static const String _table = 'trending_snapshot_cache';
 
-  /* cache_key 构造规则:模块名:数据源:时间窗:榜单:语言。 */
+  /* 
+  *cache_key 构造规则:模块名:数据源:时间窗:榜单:语言。
+  */
   static String cacheKey(TrendingQuery query, {String scope = 'anonymous'}) {
     final language =
         query.hasLanguageFilter ? query.language.trim().toLowerCase() : 'all';

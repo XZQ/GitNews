@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/config/api_endpoints_config.dart';
 import 'package:github_news/core/errors/app_exception.dart';
 import 'package:github_news/features/profile/data/github_rate_limit_client.dart';
 import 'package:mocktail/mocktail.dart';
@@ -82,7 +83,8 @@ void main() {
       ).thenThrow(
         DioException(
           type: DioExceptionType.connectionError,
-          requestOptions: RequestOptions(path: '/rate_limit'),
+          requestOptions:
+              RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
         ),
       );
 
@@ -98,7 +100,8 @@ void main() {
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
   return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: '/rate_limit'),
+    requestOptions:
+        RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
     statusCode: 200,
     data: body,
   );

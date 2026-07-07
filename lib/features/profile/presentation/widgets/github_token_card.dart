@@ -175,11 +175,14 @@ class _RateLimitStatus extends StatelessWidget {
       data: (snapshot) => Column(
         children: [
           _QuotaRow(
-              label: l10n.tr('profile.token.rest_core'), bucket: snapshot.core),
+            label: l10n.tr('profile.token.rest_core'),
+            bucket: snapshot.core,
+          ),
           const SizedBox(height: AppSpacing.xs),
           _QuotaRow(
-              label: l10n.tr('profile.token.search_api'),
-              bucket: snapshot.search),
+            label: l10n.tr('profile.token.search_api'),
+            bucket: snapshot.search,
+          ),
           const SizedBox(height: AppSpacing.xs),
           Align(
             alignment: Alignment.centerLeft,

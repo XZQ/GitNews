@@ -12,7 +12,9 @@ import 'home_chart_helpers.dart';
 import 'home_tablet_metrics_row.dart';
 import 'home_today_stack.dart';
 
-/* Home medium (600–1024) 分支:指标行 + 主图表 + 主题。 */
+/* 
+*Home medium (600–1024) 分支:指标行 + 主图表 + 主题。
+*/
 class HomeTabletBody extends StatelessWidget {
   const HomeTabletBody({super.key});
 
@@ -76,7 +78,10 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
     final title = homeChartTitle(l10n, widget.tab);
     final subtitle = homeChartSubtitle(l10n, widget.tab, windowLabel);
     final legends = homeChartLegends(
-        l10n, widget.tab, Theme.of(context).colorScheme.primary);
+      l10n,
+      widget.tab,
+      Theme.of(context).colorScheme.primary,
+    );
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

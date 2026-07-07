@@ -1,24 +1,28 @@
 import 'package:dio/dio.dart';
 
-/* dio 客户端工厂:统一超时与拦截器链。 */
-/*  */
-/* 拦截器链:`RetryInterceptor` → 业务拦截器 */
-/* - 5xx / 网络错误重试 2 次,指数退避(500ms / 1500ms) */
-/* - 429 不重试,把 `Retry-After` 留给异常层处理 */
+import '../config/api_endpoints_config.dart';
+import '../github/github_api_support.dart';
+
+/* 
+*dio 客户端工厂:统一超时与拦截器链。
+* 拦截器链:`RetryInterceptor` → 业务拦截器
+*- 5xx / 网络错误重试 2 次,指数退避(500ms / 1500ms)
+*- 429 不重试,把 `Retry-After` 留给异常层处理
+*/
 class DioClient {
   const DioClient._();
 
   static Dio create({String? baseUrl, Map<String, Object?>? headers}) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl ?? 'https://api.github.com',
+        baseUrl: baseUrl ?? ApiEndpointsConfig.githubBaseUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
         sendTimeout: const Duration(seconds: 10),
         headers: headers ??
             const {
-              'Accept': 'application/vnd.github+json',
-              'X-GitHub-Api-Version': '2022-11-28',
+              'Accept': GitHubApiSupport.githubAccept,
+              'X-GitHub-Api-Version': GitHubApiSupport.apiVersion,
             },
       ),
     );

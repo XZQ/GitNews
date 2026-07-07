@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
@@ -8,11 +9,12 @@ import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
-/* GitHub REST Search API 数据源。 */
-/*  */
-/* GitHub Search 不直接返回 Star 增量,这里的 [RepoEntity.starDelta] 暂用 */
-/* search score + stars/forks 生成动量代理值。真实本周趋势需要接入本地快照 */
-/* 或 GH Archive 后再替换为真实增量。 */
+/* 
+*GitHub REST Search API 数据源。
+*GitHub Search 不直接返回 Star 增量,这里的 [RepoEntity.starDelta] 暂用
+*search score + stars/forks 生成动量代理值。真实本周趋势需要接入本地快照
+*或 GH Archive 后再替换为真实增量。
+*/
 class GithubTrendingDataSource implements TrendingDataSource {
   GithubTrendingDataSource({
     required Dio dio,
@@ -35,7 +37,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
     try {
       final response = await _dio.get<Map<String, Object?>>(
-        '/search/repositories',
+        ApiEndpointsConfig.githubSearchRepositoriesPath,
         queryParameters: <String, Object?>{
           'q': _buildSearchQuery(query),
           'sort': 'stars',

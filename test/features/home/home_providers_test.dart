@@ -319,10 +319,16 @@ void main() {
             secondaryTrend: secondaryTrend,
           );
 
-          expect(series[0].values, isNot(primaryTrend),
-              reason: 'tab=$tab should not use provided primaryTrend');
-          expect(series[1].values, isNot(secondaryTrend),
-              reason: 'tab=$tab should not use provided secondaryTrend');
+          expect(
+            series[0].values,
+            isNot(primaryTrend),
+            reason: 'tab=$tab should not use provided primaryTrend',
+          );
+          expect(
+            series[1].values,
+            isNot(secondaryTrend),
+            reason: 'tab=$tab should not use provided secondaryTrend',
+          );
           expect(series[0].values.length, 7);
         }
       });

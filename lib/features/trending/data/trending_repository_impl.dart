@@ -1,10 +1,11 @@
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
-/* 趋势仓库默认实现。 */
-/*  */
-/* 这里是数据源和 UI digest 的边界,后续接 GitHub Search / GraphQL 时只需要 */
-/* 替换 [TrendingDataSource],页面与其它 feature 不需要感知。 */
+/* 
+*趋势仓库默认实现。
+*这里是数据源和 UI digest 的边界,后续接 GitHub Search / GraphQL 时只需要
+*替换 [TrendingDataSource],页面与其它 feature 不需要感知。
+*/
 class TrendingRepositoryImpl implements TrendingRepository {
   const TrendingRepositoryImpl({required this.dataSource});
 

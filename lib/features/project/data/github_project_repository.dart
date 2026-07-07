@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
@@ -12,7 +13,9 @@ import '../domain/project_repository.dart';
 
 const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
 
-/* 基于趋势仓库 + GitHub contributors 的深度报告仓库。 */
+/* 
+*基于趋势仓库 + GitHub contributors 的深度报告仓库。
+*/
 class GithubProjectRepository implements ProjectRepository {
   const GithubProjectRepository({
     required TrendingRepository trending,
@@ -123,7 +126,7 @@ class GithubProjectRepository implements ProjectRepository {
   Future<List<ContributorEntity>> _fetchRepoContributors(String repo) async {
     try {
       final response = await _dio.get<List<Object?>>(
-        '/repos/$repo/contributors',
+        ApiEndpointsConfig.githubRepoContributorsPath(repo),
         queryParameters: const {'per_page': 8},
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );

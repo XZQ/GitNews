@@ -20,9 +20,9 @@ void main() {
     );
 
     expect(find.text('codex'), findsOneWidget);
-    expect(find.byTooltip('清除搜索'), findsOneWidget);
+    expect(find.byTooltip('Clear search'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('清除搜索'));
+    await tester.tap(find.byTooltip('Clear search'));
     await tester.pump();
 
     expect(changed, '');

@@ -136,7 +136,9 @@ class RepoDetailRelatedReposCard extends StatelessWidget {
   }
 }
 
-/* 信息标签胶囊:用于相关仓库 / 话题等小标签。 */
+/* 
+*信息标签胶囊:用于相关仓库 / 话题等小标签。
+*/
 class RepoPill extends StatelessWidget {
   const RepoPill({required this.text, required this.color, super.key});
 

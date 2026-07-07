@@ -22,9 +22,13 @@ void main() {
   group('DioClient retry interceptor', () {
     test('200 success → no retry', () async {
       when(() => adapter.fetch(any(), any(), any())).thenAnswer((_) async {
-        return ResponseBody.fromString('{"ok":true}', 200, headers: {
-          Headers.contentTypeHeader: ['application/json'],
-        });
+        return ResponseBody.fromString(
+          '{"ok":true}',
+          200,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        );
       });
 
       final response = await dio.get<dynamic>('/test');
@@ -35,9 +39,13 @@ void main() {
 
     test('500 error → retries 2 times then fails', () async {
       when(() => adapter.fetch(any(), any(), any())).thenAnswer((_) async {
-        return ResponseBody.fromString('{"error":"internal"}', 500, headers: {
-          Headers.contentTypeHeader: ['application/json'],
-        });
+        return ResponseBody.fromString(
+          '{"error":"internal"}',
+          500,
+          headers: {
+            Headers.contentTypeHeader: ['application/json'],
+          },
+        );
       });
 
       await expectLater(

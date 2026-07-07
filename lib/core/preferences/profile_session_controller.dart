@@ -15,7 +15,9 @@ class ProfileSessionState {
     return name;
   }
 
-  /* Returns the i18n key for the current session status. */
+  /* 
+  *Returns the i18n key for the current session status.
+  */
   String get statusKey {
     return isSignedIn
         ? 'profile.session.signed_in'

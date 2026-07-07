@@ -11,10 +11,11 @@ import 'profile_pro_card.dart';
 import 'profile_section.dart';
 import 'profile_settings_card.dart';
 
-/* 设置页桌面端 master-detail。 */
-/*  */
-/* 选中项是页面级 UI 状态,只在本页生命周期内有效, */
-/* 不放进全局 Provider(CLAUDE.md §五.2)。 */
+/* 
+*设置页桌面端 master-detail。
+*选中项是页面级 UI 状态,只在本页生命周期内有效,
+*不放进全局 Provider(CLAUDE.md §五.2)。
+*/
 class ProfileMasterDetail extends StatefulWidget {
   const ProfileMasterDetail({super.key});
 

@@ -11,7 +11,9 @@ import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import 'profile_atoms.dart';
 
-/* 「数据与缓存」卡:展示真实 DB 文件大小并提供一键清理。 */
+/* 
+*「数据与缓存」卡:展示真实 DB 文件大小并提供一键清理。
+*/
 class ProfileDataCard extends ConsumerStatefulWidget {
   const ProfileDataCard({super.key});
 

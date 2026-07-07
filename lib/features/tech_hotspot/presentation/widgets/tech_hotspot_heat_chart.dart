@@ -8,7 +8,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../domain/tech_hotspot_models.dart';
 
-/* 技术热度周线图(线图 + 区域填充)。 */
+/* 
+*技术热度周线图(线图 + 区域填充)。
+*/
 class TechHotspotHeatChart extends StatelessWidget {
   const TechHotspotHeatChart({required this.values, super.key});
 

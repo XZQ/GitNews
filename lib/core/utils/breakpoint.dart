@@ -1,9 +1,13 @@
 import 'package:flutter/widgets.dart';
 
-/* Material 3 三档断点。 */
+/* 
+*Material 3 三档断点。
+*/
 enum FormFactor { compact, medium, expanded }
 
-/* `compact`(< 600)手机、`medium`(600–1024)平板、`expanded`(≥ 1024)桌面。 */
+/* 
+*`compact`(< 600)手机、`medium`(600–1024)平板、`expanded`(≥ 1024)桌面。
+*/
 class Breakpoints {
   const Breakpoints._();
 

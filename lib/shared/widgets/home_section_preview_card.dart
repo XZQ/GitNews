@@ -8,9 +8,10 @@ import '../../../../core/theme/app_typography.dart';
 
 // 注:卡片自身不带外边框/表面色/圆角 —— 这些由外层 [BorderedRow] 统一提供。
 
-/* 首页"栏目预览卡":统一渲染 标题 / 列表 / 跳转。 */
-/*  */
-/* 用于 AI 动态 / GitHub热榜 / 技术趋势 三栏 Top N 预览。 */
+/* 
+*首页"栏目预览卡":统一渲染 标题 / 列表 / 跳转。
+*用于 AI 动态 / GitHub热榜 / 技术趋势 三栏 Top N 预览。
+*/
 class HomeSectionPreviewCard<T> extends StatelessWidget {
   const HomeSectionPreviewCard({
     required this.title,
@@ -136,7 +137,9 @@ class _MoreChip extends StatelessWidget {
   }
 }
 
-/* 预览行通用样式:rank + 标题 + 副信息。 */
+/* 
+*预览行通用样式:rank + 标题 + 副信息。
+*/
 class PreviewRow extends StatelessWidget {
   const PreviewRow({
     required this.rank,

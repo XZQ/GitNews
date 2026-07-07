@@ -36,13 +36,13 @@ final techHotspotDigestProvider = FutureProvider<TechHotspotDigest>((ref) {
   return ref.watch(techHotspotRepositoryProvider).getDigest();
 });
 
-/* AI 雷达顶部搜索关键词。空字符串表示不过滤当前本地雷达数据。 */
+// AI 雷达顶部搜索关键词。空字符串表示不过滤当前本地雷达数据。
 final techHotspotSearchQueryProvider = StateProvider<String>((ref) => '');
 
-/* AI 雷达分类筛选。`all` 表示不过滤分类。 */
+// AI 雷达分类筛选。`all` 表示不过滤分类。
 final techHotspotCategoryFilterProvider = StateProvider<String>((ref) => 'all');
 
-/* 应用本地搜索后的 AI 雷达摘要。 */
+// 应用本地搜索后的 AI 雷达摘要。
 final filteredTechHotspotDigestProvider =
     FutureProvider<TechHotspotDigest>((ref) async {
   final query = ref.watch(techHotspotSearchQueryProvider);

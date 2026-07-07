@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
@@ -16,7 +17,9 @@ import 'local_repo_detail_repository.dart';
 
 const Duration repoDetailRemoteCacheTtl = CacheTtlConfig.repoDetail;
 
-/* 基于 GitHub REST API 的仓库详情仓库。 */
+/* 
+*基于 GitHub REST API 的仓库详情仓库。
+*/
 class GithubRepoDetailRepository implements RepoDetailRepository {
   const GithubRepoDetailRepository({
     required Dio dio,
@@ -147,7 +150,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   Future<RepoEntity> _fetchRepo(String fullName, DateTime now) async {
     try {
       final response = await _dio.get<Map<String, Object?>>(
-        '/repos/$fullName',
+        ApiEndpointsConfig.githubRepoPath(fullName),
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
@@ -167,7 +170,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   Future<List<ContributorEntity>> _fetchContributors(String fullName) async {
     try {
       final response = await _dio.get<List<Object?>>(
-        '/repos/$fullName/contributors',
+        ApiEndpointsConfig.githubRepoContributorsPath(fullName),
         queryParameters: const {'per_page': 12},
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
@@ -191,7 +194,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
           ? ''
           : ' language:${GitHubApiSupport.quoteSearchValue(repo.language)}';
       final response = await _dio.get<Map<String, Object?>>(
-        '/search/repositories',
+        ApiEndpointsConfig.githubSearchRepositoriesPath,
         queryParameters: {
           'q':
               '${repo.fullName.split('/').last} in:name,description stars:>30 archived:false$language',

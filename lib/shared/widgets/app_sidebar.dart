@@ -7,16 +7,18 @@ import 'sidebar/sidebar_footer.dart';
 import 'sidebar/sidebar_header.dart';
 import 'sidebar/sidebar_item.dart';
 
-/* 桌面侧栏宽度(用户可拖动,默认 240,范围 200–800)。 */
+// 桌面侧栏宽度(用户可拖动,默认 240,范围 200–800)。
 final sidebarWidthProvider = StateProvider<double>((ref) => 240);
 
 const double kSidebarMinWidth = 200;
 const double kSidebarMaxWidth = 800;
 
-/* 桌面侧边栏: */
-/* - 顶部:品牌标识 */
-/* - 中部:Tab 列表(整条 hover 高亮、selected 强调色) */
-/* - 底部:头像 + 设置 图标按钮 */
+/* 
+*桌面侧边栏:
+*- 顶部:品牌标识
+*- 中部:Tab 列表(整条 hover 高亮、selected 强调色)
+*- 底部:头像 + 设置 图标按钮
+*/
 class AppSidebar extends ConsumerWidget {
   const AppSidebar({
     required this.currentIndex,

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
@@ -17,7 +18,9 @@ import 'local_monitor_repository.dart';
 
 const Duration monitorRemoteCacheTtl = CacheTtlConfig.monitor;
 
-/* 基于 GitHub REST API 的仓库监控数据仓库。 */
+/* 
+*基于 GitHub REST API 的仓库监控数据仓库。
+*/
 class GithubMonitorRepository implements MonitorRepository {
   const GithubMonitorRepository({
     required Dio dio,
@@ -136,7 +139,7 @@ class GithubMonitorRepository implements MonitorRepository {
   ) async {
     try {
       final response = await _dio.get<Map<String, Object?>>(
-        '/repos/$fullName',
+        ApiEndpointsConfig.githubRepoPath(fullName),
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;

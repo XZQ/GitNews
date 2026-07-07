@@ -5,9 +5,10 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../errors/app_exception.dart';
 import 'cache_meta_dao.dart';
 
-/* 通用 JSON 快照缓存 DAO。 */
-/*  */
-/* 用于结构尚未稳定、但需要本地 TTL 缓存的远端聚合数据。 */
+/* 
+*通用 JSON 快照缓存 DAO。
+*用于结构尚未稳定、但需要本地 TTL 缓存的远端聚合数据。
+*/
 class JsonSnapshotCacheDao {
   JsonSnapshotCacheDao(this._db, this._meta);
 
@@ -88,14 +89,18 @@ class JsonSnapshotCacheDao {
     }
   }
 
-  /* 读取 payload 和 ETag(若曾写入)。 */
+  /* 
+  *读取 payload 和 ETag(若曾写入)。
+  */
   Future<EtaggedEntry> readWithEtag(String key) async {
     final payload = await read(key);
     final etag = await _meta.readEtag(key);
     return EtaggedEntry(payload: payload, etag: etag);
   }
 
-  /* 同时写 payload 与 ETag。etag 为 null 时保留既有 etag 不变。 */
+  /* 
+  *同时写 payload 与 ETag。etag 为 null 时保留既有 etag 不变。
+  */
   Future<void> upsertWithEtag({
     required String key,
     required Map<String, Object?> payload,
@@ -109,7 +114,9 @@ class JsonSnapshotCacheDao {
   }
 }
 
-/* 缓存项与对应的 ETag。 */
+/* 
+*缓存项与对应的 ETag。
+*/
 class EtaggedEntry {
   const EtaggedEntry({this.payload, this.etag});
   final Map<String, Object?>? payload;

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 
-/* 设置页面桌面端 master-detail 区段。 */
+/* 
+*设置页面桌面端 master-detail 区段。
+*/
 enum ProfileSection {
   pro('profile.section.pro', Icons.workspace_premium_outlined),
   collect('profile.section.collect', Icons.bookmark_outline),
@@ -22,7 +24,9 @@ enum ProfileSection {
   String label(BuildContext context) =>
       AppLocalizations.of(context).tr(labelKey);
 
-  /* 区段强调色:跟随当前主题色(主区段)或保留语义色(子区段)。 */
+  /* 
+  *区段强调色:跟随当前主题色(主区段)或保留语义色(子区段)。
+  */
   Color accentOf(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return switch (this) {

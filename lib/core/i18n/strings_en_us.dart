@@ -1,7 +1,6 @@
-/* 英文(en-US)字符串表。 */
-/*  */
-/* 与 [stringsZhCN] 一一对应。任何 zh 表新增的 key 都必须在此处补译文, */
-/* 否则 `AppLocalizations.tr` 会回落到 key 本身。 */
+// 英文(en-US)字符串表。
+// 与 [stringsZhCN] 一一对应。任何 zh 表新增的 key 都必须在此处补译文,
+// 否则 `AppLocalizations.tr` 会回落到 key 本身。
 const Map<String, String> stringsEnUS = <String, String>{
   // app
   'app.name': 'GitHub News',

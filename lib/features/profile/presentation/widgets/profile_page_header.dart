@@ -8,7 +8,9 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/page_header.dart';
 
-/* 设置页顶部条。 */
+/* 
+*设置页顶部条。
+*/
 class ProfilePageHeader extends StatelessWidget {
   const ProfilePageHeader({super.key});
 

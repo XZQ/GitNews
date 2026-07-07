@@ -1,6 +1,5 @@
-/* 中文(zh-CN)字符串表。 */
-/*  */
-/* 按 feature/页面分组组织。新加 key 时遵循 `<分组>.<语义>` 命名。 */
+// 中文(zh-CN)字符串表。
+// 按 feature/页面分组组织。新加 key 时遵循 `<分组>.<语义>` 命名。
 const Map<String, String> stringsZhCN = <String, String>{
   // app
   'app.name': 'GitHub 情报站',

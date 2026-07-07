@@ -3,7 +3,9 @@ import '../../../core/demo_data_mappers.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
 
-/* 基于本地模拟数据的监控仓库。 */
+/* 
+*基于本地模拟数据的监控仓库。
+*/
 class LocalMonitorRepository implements MonitorRepository {
   const LocalMonitorRepository();
 

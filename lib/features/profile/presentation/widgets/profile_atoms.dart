@@ -4,7 +4,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/* 通用列表行原子组件:设置页各卡片共用。 */
+/* 
+*通用列表行原子组件:设置页各卡片共用。
+*/
 class ProfileBullet extends StatelessWidget {
   const ProfileBullet(this.text, {super.key});
   final String text;

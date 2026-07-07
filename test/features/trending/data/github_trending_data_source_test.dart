@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/config/api_endpoints_config.dart';
 import 'package:github_news/core/domain/data_provenance.dart';
 import 'package:github_news/core/errors/app_exception.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
@@ -227,9 +228,13 @@ void main() {
       ).thenThrow(
         DioException(
           type: DioExceptionType.badResponse,
-          requestOptions: RequestOptions(path: '/search/repositories'),
+          requestOptions: RequestOptions(
+            path: ApiEndpointsConfig.githubSearchRepositoriesPath,
+          ),
           response: Response<dynamic>(
-            requestOptions: RequestOptions(path: '/search/repositories'),
+            requestOptions: RequestOptions(
+              path: ApiEndpointsConfig.githubSearchRepositoriesPath,
+            ),
             statusCode: 403,
             headers: Headers.fromMap({
               'x-ratelimit-remaining': ['0'],
@@ -255,7 +260,9 @@ void main() {
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
   return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: '/search/repositories'),
+    requestOptions: RequestOptions(
+      path: ApiEndpointsConfig.githubSearchRepositoriesPath,
+    ),
     statusCode: 200,
     data: body,
   );

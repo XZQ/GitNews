@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/config/api_endpoints_config.dart';
 import 'package:github_news/core/errors/app_exception.dart';
 import 'package:github_news/features/ai_news/data/ai_news_api_client.dart';
 import 'package:mocktail/mocktail.dart';
@@ -8,7 +9,7 @@ class _MockDio extends Mock implements Dio {}
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
   return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: '/api/public/items'),
+    requestOptions: RequestOptions(path: ApiEndpointsConfig.aiNewsItemsPath),
     statusCode: 200,
     data: body,
   );

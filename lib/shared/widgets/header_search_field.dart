@@ -4,7 +4,9 @@ import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_typography.dart';
 
-/* 顶部栏通用搜索框。 */
+/* 
+*顶部栏通用搜索框。
+*/
 class HeaderSearchField extends StatefulWidget {
   const HeaderSearchField({
     required this.hintText,

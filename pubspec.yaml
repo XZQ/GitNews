@@ -53,7 +53,9 @@ dev_dependencies:
 hooks:
   user_defines:
     sqlite3:
-      source: process
+      source: system
+      name: sqlite3
+      name_windows: winsqlite3
 
 flutter:
   uses-material-design: true

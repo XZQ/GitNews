@@ -13,11 +13,12 @@ import '../../../project/application/project_providers.dart';
 import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../trending/application/trending_providers.dart';
 
-/* 首页情报总览入口行:5 个栏目跳转入口卡。 */
-/*  */
-/* 视觉:5 张独立的浮动卡片,16px 间距,每张卡顶部一条 4px 语义色装饰条。 */
-/* 替代旧版"5 个 tile 拼在一个共享外框里"的方案 —— 拼框视觉过重、且 */
-/* 5 个 entry 之间没有真正的分隔需求。 */
+/* 
+*首页情报总览入口行:5 个栏目跳转入口卡。
+*视觉:5 张独立的浮动卡片,16px 间距,每张卡顶部一条 4px 语义色装饰条。
+*替代旧版"5 个 tile 拼在一个共享外框里"的方案 —— 拼框视觉过重、且
+*5 个 entry 之间没有真正的分隔需求。
+*/
 class HomeSectionEntryRow extends ConsumerWidget {
   const HomeSectionEntryRow({super.key});
 
@@ -239,7 +240,9 @@ class _EntryTile extends StatelessWidget {
   }
 }
 
-/* 顶部 4px 装饰条:水平方向用 [LinearGradient] 让两端淡出,避免硬切边。 */
+/* 
+*顶部 4px 装饰条:水平方向用 [LinearGradient] 让两端淡出,避免硬切边。
+*/
 class _AccentStrip extends StatelessWidget {
   const _AccentStrip({required this.color});
 

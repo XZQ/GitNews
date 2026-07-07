@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 
-/* 通用容器卡片:外边框 + 圆角 + padding。 */
+/* 
+*通用容器卡片:外边框 + 圆角 + padding。
+*/
 class AppCard extends StatelessWidget {
   const AppCard({
     required this.child,

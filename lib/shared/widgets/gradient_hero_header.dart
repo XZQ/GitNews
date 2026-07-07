@@ -5,10 +5,11 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/* 渐变英雄头:用于详情页顶部。 */
-/*  */
-/* 通过 [accent] 控制主色调,组件自动生成 brand↔accent↔black 的对角渐变, */
-/* 保证所有二级/三级详情页视觉统一。 */
+/* 
+*渐变英雄头:用于详情页顶部。
+*通过 [accent] 控制主色调,组件自动生成 brand↔accent↔black 的对角渐变,
+*保证所有二级/三级详情页视觉统一。
+*/
 class GradientHeroHeader extends StatelessWidget {
   const GradientHeroHeader({
     required this.accent,
@@ -68,7 +69,9 @@ class GradientHeroHeader extends StatelessWidget {
   }
 }
 
-/* 渐变头部使用的半透明胶囊标签。 */
+/* 
+*渐变头部使用的半透明胶囊标签。
+*/
 class HeroBadge extends StatelessWidget {
   const HeroBadge({
     required this.label,

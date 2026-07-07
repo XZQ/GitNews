@@ -8,14 +8,14 @@ import '../widgets/devintel/devintel_desktop_page.dart';
 import 'home_mobile_body.dart';
 import 'home_tablet_body.dart';
 
-/* Home 三档分发: */
-/*  */
-/* - **Expanded** (>= 1024):直接返回新的 [DevIntelDesktopPage], */
-/*   自带侧栏,跳过全局 [ResponsiveScaffold] 的 [AppSidebar](避免双重)。 */
-/* - **Medium** (600–1024):[HomeTabletBody]。 */
-/* - **Compact** (< 600):[HomeMobileBody]。 */
-/*  */
-/* 首次启动时自动显示 Onboarding 引导对话框。 */
+/* 
+*Home 三档分发:
+*- **Expanded** (>= 1024):直接返回新的 [DevIntelDesktopPage],
+*自带侧栏,跳过全局 [ResponsiveScaffold] 的 [AppSidebar](避免双重)。
+*- **Medium** (600–1024):[HomeTabletBody]。
+*- **Compact** (< 600):[HomeMobileBody]。
+*首次启动时自动显示 Onboarding 引导对话框。
+*/
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 

@@ -40,8 +40,14 @@ class TrendingPage extends ConsumerWidget {
                 }
                 return ResponsiveLayout(
                   compact: (_) => TrendingMobileView(digest: digest),
-                  medium: (_) => TrendingDesktopView(digest: digest),
-                  expanded: (_) => TrendingDesktopView(digest: digest),
+                  medium: (_) => TrendingDesktopView(
+                    digest: digest,
+                    isReloading: isReloading,
+                  ),
+                  expanded: (_) => TrendingDesktopView(
+                    digest: digest,
+                    isReloading: isReloading,
+                  ),
                 );
               },
               loading: () => const TrendingSkeleton(),

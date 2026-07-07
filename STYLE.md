@@ -25,16 +25,42 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
 
 ## 2. Comments
 
-- Use `/* ... */` block comments for every explanatory comment, including on
-  public APIs, classes, methods, and fields. Do not use `///` doc comments;
-  this project intentionally opts out of dartdoc-style comments.
-- Every class and method must have a block comment explaining its purpose.
+- Do not use `///` doc comments; this project intentionally opts out of
+  dartdoc-style comments.
+- Every class and method must have a `/* ... */` block comment explaining its
+  purpose. Always use the multi-line form, even for one-liners — the `/*` is
+  followed by a space and a newline, each continuation line begins with `*`
+  glued to the content (no separating space), and the block ends with `*/` on
+  its own line:
+  ```
+  /* 
+  *第一行:用途。
+  *
+  *第二段:细节、约束、注意事项。
+  *  跨行续行用 2 空格缩进,保持视觉对齐。
+  */
+  ```
+  Do not write single-line `/* xxx */` block comments; expand them to the
+  multi-line form. Do not split a logical comment into multiple adjacent
+  `/* ... */` blocks.
+- Member variables (fields) use `//` line comments, not `/* ... */`:
+  ```
+  // 目标路由路径。
+  final String route;
+  ```
+- Local variables and parameters may use `//` line comments inline or above.
 - Private code still needs a comment when intent, constraints, tradeoffs, or
   non-obvious fallbacks are not clear from the code itself.
 - Magic numbers for timing, retry, cache, sizing, and limits need either a named
   constant or a short reason.
-- TODO format: `/* TODO(owner, YYYY-MM-DD): actionable note */`.
+- TODO format: `// TODO(owner, YYYY-MM-DD): actionable note`.
 - Do not leave author, generated-by, or chat transcript comments in source.
+
+## 2a. Control Flow
+
+- Single-statement bodies of `if` / `else` / `for` / `while` / `do-while` must
+  be wrapped in curly braces. Do not write `if (x) return;`; write
+  `if (x) { return; }` (or the multi-line equivalent).
 
 ## 3. Types And Immutability
 

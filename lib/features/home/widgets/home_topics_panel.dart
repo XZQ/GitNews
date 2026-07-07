@@ -12,7 +12,9 @@ import '../../project/application/project_providers.dart';
 import '../../repo_detail/domain/entities.dart';
 import '../../tech_hotspot/application/tech_hotspot_providers.dart';
 
-/* 话题 / 推荐主题(手机首页底栏 + 桌面尾栏共用)。 */
+/* 
+*话题 / 推荐主题(手机首页底栏 + 桌面尾栏共用)。
+*/
 class HomeTopicsPanel extends ConsumerWidget {
   const HomeTopicsPanel({super.key});
 

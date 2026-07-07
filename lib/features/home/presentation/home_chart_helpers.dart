@@ -8,7 +8,9 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 
-/* Home 旧版 mobile / tablet 共用的页内分类(归档实现)。 */
+/* 
+*Home 旧版 mobile / tablet 共用的页内分类(归档实现)。
+*/
 enum HomeLegacyTab {
   trending,
   growth,
@@ -92,7 +94,10 @@ String homeChartTitle(AppLocalizations l10n, HomeLegacyTab tab) {
 }
 
 String homeChartSubtitle(
-    AppLocalizations l10n, HomeLegacyTab tab, String window) {
+  AppLocalizations l10n,
+  HomeLegacyTab tab,
+  String window,
+) {
   switch (tab) {
     case HomeLegacyTab.trending:
       return l10n
@@ -114,40 +119,54 @@ String homeChartSubtitle(
 }
 
 List<HomeLegendItem> homeChartLegends(
-    AppLocalizations l10n, HomeLegacyTab tab, Color primary) {
+  AppLocalizations l10n,
+  HomeLegacyTab tab,
+  Color primary,
+) {
   switch (tab) {
     case HomeLegacyTab.trending:
       return [
         HomeLegendItem(
-            color: primary, label: l10n.tr('home.chart.legend.this_week')),
+          color: primary,
+          label: l10n.tr('home.chart.legend.this_week'),
+        ),
         HomeLegendItem(
-            color: AppColors.info,
-            label: l10n.tr('home.chart.legend.last_week')),
+          color: AppColors.info,
+          label: l10n.tr('home.chart.legend.last_week'),
+        ),
       ];
     case HomeLegacyTab.growth:
       return [
         HomeLegendItem(
-            color: AppColors.success,
-            label: l10n.tr('home.chart.legend.growth_rate')),
+          color: AppColors.success,
+          label: l10n.tr('home.chart.legend.growth_rate'),
+        ),
         HomeLegendItem(
-            color: AppColors.warning,
-            label: l10n.tr('home.chart.legend.baseline')),
+          color: AppColors.warning,
+          label: l10n.tr('home.chart.legend.baseline'),
+        ),
       ];
     case HomeLegacyTab.health:
       return [
         HomeLegendItem(
-            color: primary, label: l10n.tr('home.chart.legend.commits')),
+          color: primary,
+          label: l10n.tr('home.chart.legend.commits'),
+        ),
         HomeLegendItem(
-            color: AppColors.success,
-            label: l10n.tr('home.chart.legend.contributors')),
+          color: AppColors.success,
+          label: l10n.tr('home.chart.legend.contributors'),
+        ),
       ];
     case HomeLegacyTab.starred:
       return [
         HomeLegendItem(
-            color: AppColors.starGold,
-            label: l10n.tr('home.chart.legend.starred')),
+          color: AppColors.starGold,
+          label: l10n.tr('home.chart.legend.starred'),
+        ),
         HomeLegendItem(
-            color: AppColors.info, label: l10n.tr('home.chart.legend.avg')),
+          color: AppColors.info,
+          label: l10n.tr('home.chart.legend.avg'),
+        ),
       ];
   }
 }
@@ -232,7 +251,9 @@ List<double> _windowedTrend(List<double>? values, int days) {
   return values.sublist(values.length - days);
 }
 
-/* 7 / 14 / 30 天窗口切换。 */
+/* 
+*7 / 14 / 30 天窗口切换。
+*/
 class ChartWindowSegmented extends StatelessWidget {
   const ChartWindowSegmented({
     required this.value,

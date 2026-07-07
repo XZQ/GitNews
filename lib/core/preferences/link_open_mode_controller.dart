@@ -2,24 +2,26 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../di/providers.dart';
 
-/* 外链打开方式。 */
-/*  */
-/* - [inApp]:应用内 WebView([WebViewPage])打开,保留在 App 内浏览。 */
-/* - [external]:系统浏览器打开(`url_launcher.externalApplication`)。 */
+/* 
+*外链打开方式。
+*- [inApp]:应用内 WebView([WebViewPage])打开,保留在 App 内浏览。
+*- [external]:系统浏览器打开(`url_launcher.externalApplication`)。
+*/
 enum LinkOpenMode {
   inApp('profile.link_open.in_app'),
   external('profile.link_open.external');
 
   const LinkOpenMode(this.label);
 
-  /* i18n key for display label. */
+  // i18n key for display label.
   final String label;
 }
 
-/* 链接打开方式 controller:持久化到 SharedPreferences。 */
-/*  */
-/* 默认 [LinkOpenMode.external]:Windows 端 `flutter_inappwebview` 加载外链 */
-/* 经常白屏 / 析构时崩进程,先用系统浏览器打开,插件稳定后再切回 inApp。 */
+/* 
+*链接打开方式 controller:持久化到 SharedPreferences。
+*默认 [LinkOpenMode.external]:Windows 端 `flutter_inappwebview` 加载外链
+*经常白屏 / 析构时崩进程,先用系统浏览器打开,插件稳定后再切回 inApp。
+*/
 class LinkOpenModeController extends Notifier<LinkOpenMode> {
   static const _kKey = 'link_open_mode';
   static const _kMigratedKey = 'link_open_mode_migrated_v2';
