@@ -21,27 +21,37 @@ class TrendingPage extends ConsumerWidget {
     final isCompact = Breakpoints.isCompact(context);
     final state = ref.watch(filteredTrendingDigestProvider);
     final searchQuery = ref.watch(trendingSearchQueryProvider).trim();
+    // 切换 board/window/language 等触发 rebuild 时,保留旧数据;顶部细条进度提示。
+    final isReloading = state.isLoading && state.hasValue;
     return Scaffold(
       appBar: isCompact ? AppBar(title: Text(l10n.tr('trending.title'))) : null,
-      body: state.when(
-        data: (digest) {
-          if (digest.isEmpty && searchQuery.isEmpty) {
-            return EmptyView(
-              icon: Icons.local_fire_department_outlined,
-              message: l10n.tr('trending.empty'),
-            );
-          }
-          return ResponsiveLayout(
-            compact: (_) => TrendingMobileView(digest: digest),
-            medium: (_) => TrendingDesktopView(digest: digest),
-            expanded: (_) => TrendingDesktopView(digest: digest),
-          );
-        },
-        loading: () => const TrendingSkeleton(),
-        error: (error, stackTrace) => ErrorView(
-          error: error.asAppException(stackTrace),
-          onRetry: () => ref.invalidate(trendingDigestProvider),
-        ),
+      body: Column(
+        children: [
+          if (isReloading) const LinearProgressIndicator(minHeight: 2),
+          Expanded(
+            child: state.when(
+              skipLoadingOnReload: true,
+              data: (digest) {
+                if (digest.isEmpty && searchQuery.isEmpty) {
+                  return EmptyView(
+                    icon: Icons.local_fire_department_outlined,
+                    message: l10n.tr('trending.empty'),
+                  );
+                }
+                return ResponsiveLayout(
+                  compact: (_) => TrendingMobileView(digest: digest),
+                  medium: (_) => TrendingDesktopView(digest: digest),
+                  expanded: (_) => TrendingDesktopView(digest: digest),
+                );
+              },
+              loading: () => const TrendingSkeleton(),
+              error: (error, stackTrace) => ErrorView(
+                error: error.asAppException(stackTrace),
+                onRetry: () => ref.invalidate(trendingDigestProvider),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
