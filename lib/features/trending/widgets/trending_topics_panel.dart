@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
@@ -10,16 +11,17 @@ class TrendingTopicsPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const AppCard(
+    final l10n = AppLocalizations.of(context);
+    return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: '话题趋势',
-            subtitle: '本周高频出现的技术话题',
+            title: l10n.tr('trending.topics.title'),
+            subtitle: l10n.tr('trending.topics.subtitle'),
           ),
-          SizedBox(height: AppSpacing.md),
-          _TopicWordCloud(),
+          const SizedBox(height: AppSpacing.md),
+          _TopicWordCloud(l10n: l10n),
         ],
       ),
     );
@@ -27,24 +29,30 @@ class TrendingTopicsPanel extends StatelessWidget {
 }
 
 class _TopicWordCloud extends StatelessWidget {
-  const _TopicWordCloud();
+  const _TopicWordCloud({required this.l10n});
+
+  final AppLocalizations l10n;
 
   @override
   Widget build(BuildContext context) {
-    return const Wrap(
+    return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 12,
       runSpacing: 8,
       children: [
-        _TopicWord(text: 'AI 智能体', size: 22, weight: 0.9),
-        _TopicWord(text: '开发工具', size: 20, weight: 0.85),
-        _TopicWord(text: '检索增强生成', size: 16, weight: 0.6),
-        _TopicWord(text: '大语言模型', size: 18, weight: 0.7),
+        _TopicWord(text: l10n.tr('home.topic.agents'), size: 22, weight: 0.9),
+        _TopicWord(
+            text: l10n.tr('home.topic.devtools'), size: 20, weight: 0.85),
+        _TopicWord(text: l10n.tr('home.topic.rag'), size: 16, weight: 0.6),
+        _TopicWord(text: l10n.tr('home.topic.llm'), size: 18, weight: 0.7),
         _TopicWord(text: 'Web3', size: 17, weight: 0.65),
-        _TopicWord(text: '云原生', size: 14, weight: 0.5),
-        _TopicWord(text: '数据基建', size: 13, weight: 0.45),
-        _TopicWord(text: '安全', size: 15, weight: 0.55),
+        _TopicWord(
+            text: l10n.tr('home.topic.cloud_native'), size: 14, weight: 0.5),
+        _TopicWord(
+            text: l10n.tr('home.topic.data_infra'), size: 13, weight: 0.45),
+        _TopicWord(
+            text: l10n.tr('home.topic.security'), size: 15, weight: 0.55),
       ],
     );
   }

@@ -36,6 +36,25 @@ class AppColors {
   static const Color langSwift = Color(0xFFFA7343);
   static const Color langKotlin = Color(0xFFA97BFF);
 
+  // 语言 ARGB int 值(供 fixture / JSON 序列化使用,与上方 Color 一一对应)
+  static const int langRustValue = 0xFFDEA584;
+  static const int langGoValue = 0xFF00ADD8;
+  static const int langPythonValue = 0xFF3572A5;
+  static const int langTypeScriptValue = 0xFF3178C6;
+  static const int langJavaValue = 0xFFB07219;
+  static const int langSwiftValue = 0xFFFA7343;
+  static const int langKotlinValue = 0xFFA97BFF;
+  static const int langJavaScriptValue = 0xFFF1E05A;
+  static const int langCppValue = 0xFFDEA584; // C++ 复用 Rust 色
+  static const int langOtherValue = 0xFF9CA0AC;
+
+  // 语义色 ARGB int 值(供 fixture / 序列化使用,与上方 Color 一一对应)
+  static const int brandValue = 0xFF0D9488;
+  static const int warningValue = 0xFFE5A150;
+  static const int successValue = 0xFF30A46C;
+  static const int dangerValue = 0xFFE5464D;
+  static const int infoValue = 0xFF4CB5FF;
+
   // 浅色(默认)
   static const Color bgLight = Color(0xFFF8FAFC);
   static const Color surfaceLight = Color(0xFFFFFFFF);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/demo_data.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -9,16 +10,49 @@ import '../../../shared/widgets/star_trend_chart.dart';
 
 /// Home 旧版 mobile / tablet 共用的页内分类(归档实现)。
 enum HomeLegacyTab {
-  trending('趋势榜', Icons.trending_up_rounded, Icons.trending_up_outlined),
-  growth('增长榜', Icons.star_rounded, Icons.star_outline_rounded),
-  health('健康榜', Icons.favorite_rounded, Icons.favorite_outline_rounded),
-  starred('收藏趋势榜', Icons.bookmark_rounded, Icons.bookmark_outline_rounded);
+  trending,
+  growth,
+  health,
+  starred;
 
-  const HomeLegacyTab(this.label, this.activeIcon, this.idleIcon);
+  String label(AppLocalizations l10n) {
+    switch (this) {
+      case HomeLegacyTab.trending:
+        return l10n.tr('home.tab.trending');
+      case HomeLegacyTab.growth:
+        return l10n.tr('home.tab.growth');
+      case HomeLegacyTab.health:
+        return l10n.tr('home.tab.health');
+      case HomeLegacyTab.starred:
+        return l10n.tr('home.tab.starred');
+    }
+  }
 
-  final String label;
-  final IconData activeIcon;
-  final IconData idleIcon;
+  IconData get activeIcon {
+    switch (this) {
+      case HomeLegacyTab.trending:
+        return Icons.trending_up_rounded;
+      case HomeLegacyTab.growth:
+        return Icons.star_rounded;
+      case HomeLegacyTab.health:
+        return Icons.favorite_rounded;
+      case HomeLegacyTab.starred:
+        return Icons.bookmark_rounded;
+    }
+  }
+
+  IconData get idleIcon {
+    switch (this) {
+      case HomeLegacyTab.trending:
+        return Icons.trending_up_outlined;
+      case HomeLegacyTab.growth:
+        return Icons.star_outline_rounded;
+      case HomeLegacyTab.health:
+        return Icons.favorite_outline_rounded;
+      case HomeLegacyTab.starred:
+        return Icons.bookmark_outline_rounded;
+    }
+  }
 }
 
 class HomeMetricSpec {
@@ -44,53 +78,76 @@ class HomeLegendItem {
   final String label;
 }
 
-String homeChartTitle(HomeLegacyTab tab) {
+String homeChartTitle(AppLocalizations l10n, HomeLegacyTab tab) {
   switch (tab) {
     case HomeLegacyTab.trending:
-      return 'Star 增长趋势';
+      return l10n.tr('home.chart.trending');
     case HomeLegacyTab.growth:
-      return '增长率曲线';
+      return l10n.tr('home.chart.growth');
     case HomeLegacyTab.health:
-      return '活跃度曲线';
+      return l10n.tr('home.chart.health');
     case HomeLegacyTab.starred:
-      return '收藏仓库 Star 趋势';
+      return l10n.tr('home.chart.starred');
   }
 }
 
-String homeChartSubtitle(HomeLegacyTab tab, String window) {
+String homeChartSubtitle(
+    AppLocalizations l10n, HomeLegacyTab tab, String window) {
   switch (tab) {
     case HomeLegacyTab.trending:
-      return '$window · 与上周对比';
+      return l10n
+          .tr('home.chart.subtitle.trending')
+          .replaceAll('{window}', window);
     case HomeLegacyTab.growth:
-      return '$window · 增长率排名变动';
+      return l10n
+          .tr('home.chart.subtitle.growth')
+          .replaceAll('{window}', window);
     case HomeLegacyTab.health:
-      return '$window · 提交与活跃贡献者';
+      return l10n
+          .tr('home.chart.subtitle.health')
+          .replaceAll('{window}', window);
     case HomeLegacyTab.starred:
-      return '$window · 收藏仓库总体增长';
+      return l10n
+          .tr('home.chart.subtitle.starred')
+          .replaceAll('{window}', window);
   }
 }
 
-List<HomeLegendItem> homeChartLegends(HomeLegacyTab tab, Color primary) {
+List<HomeLegendItem> homeChartLegends(
+    AppLocalizations l10n, HomeLegacyTab tab, Color primary) {
   switch (tab) {
     case HomeLegacyTab.trending:
       return [
-        HomeLegendItem(color: primary, label: '本周'),
-        const HomeLegendItem(color: AppColors.info, label: '上周'),
+        HomeLegendItem(
+            color: primary, label: l10n.tr('home.chart.legend.this_week')),
+        HomeLegendItem(
+            color: AppColors.info,
+            label: l10n.tr('home.chart.legend.last_week')),
       ];
     case HomeLegacyTab.growth:
       return [
-        const HomeLegendItem(color: AppColors.success, label: '增长率'),
-        const HomeLegendItem(color: AppColors.warning, label: '基线'),
+        HomeLegendItem(
+            color: AppColors.success,
+            label: l10n.tr('home.chart.legend.growth_rate')),
+        HomeLegendItem(
+            color: AppColors.warning,
+            label: l10n.tr('home.chart.legend.baseline')),
       ];
     case HomeLegacyTab.health:
       return [
-        HomeLegendItem(color: primary, label: '提交数'),
-        const HomeLegendItem(color: AppColors.success, label: '贡献者'),
+        HomeLegendItem(
+            color: primary, label: l10n.tr('home.chart.legend.commits')),
+        HomeLegendItem(
+            color: AppColors.success,
+            label: l10n.tr('home.chart.legend.contributors')),
       ];
     case HomeLegacyTab.starred:
       return [
-        const HomeLegendItem(color: AppColors.starGold, label: '收藏 Star'),
-        const HomeLegendItem(color: AppColors.info, label: '全网平均'),
+        HomeLegendItem(
+            color: AppColors.starGold,
+            label: l10n.tr('home.chart.legend.starred')),
+        HomeLegendItem(
+            color: AppColors.info, label: l10n.tr('home.chart.legend.avg')),
       ];
   }
 }
@@ -188,11 +245,12 @@ class ChartWindowSegmented extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SegmentedButton<int>(
-      segments: const [
-        ButtonSegment(value: 7, label: Text('7天')),
-        ButtonSegment(value: 14, label: Text('14天')),
-        ButtonSegment(value: 30, label: Text('30天')),
+      segments: [
+        ButtonSegment(value: 7, label: Text(l10n.tr('home.chart.window.7d'))),
+        ButtonSegment(value: 14, label: Text(l10n.tr('home.chart.window.14d'))),
+        ButtonSegment(value: 30, label: Text(l10n.tr('home.chart.window.30d'))),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),

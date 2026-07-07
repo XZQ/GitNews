@@ -14,6 +14,7 @@ class ProfileCollectDetailCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +34,9 @@ class ProfileCollectDetailCard extends StatelessWidget {
           const Divider(height: 1),
           ProfileDetailRow(
             icon: Icons.history,
-            iconColor: AppColors.textSecondaryLight,
+            iconColor: isLight
+                ? AppColors.textSecondaryLight
+                : AppColors.textSecondaryDark,
             label: l10n.tr('profile.detail.collect.recent'),
             value: 'agent · llm · devops',
           ),

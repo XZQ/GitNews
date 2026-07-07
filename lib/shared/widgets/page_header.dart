@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
@@ -10,7 +11,8 @@ import 'page_header_icon.dart';
 /// 一级页通用顶部条。
 ///
 /// 提供统一的高度 / padding / 可选图标块 / 标题副标题 / 可选搜索框 /
-/// 可选 [HeaderStatPill] 集合 / 可选 trailing 动作,避免每个 feature 各自重画。
+/// 可选 [HeaderStatPill] 集合 / 可选 trailing 动作 / 可选刷新按钮,
+/// 避免每个 feature 各自重画。
 class PageHeader extends StatelessWidget {
   const PageHeader({
     required this.title,
@@ -23,6 +25,8 @@ class PageHeader extends StatelessWidget {
     this.onSearchSubmitted,
     this.pills = const [],
     this.actions = const [],
+    this.onRefresh,
+    this.isRefreshing = false,
     super.key,
   });
 
@@ -37,8 +41,15 @@ class PageHeader extends StatelessWidget {
   final List<Widget> pills;
   final List<Widget> actions;
 
+  /// 提供时在 actions 末尾追加刷新按钮。
+  final VoidCallback? onRefresh;
+
+  /// 刷新按钮是否处于加载中(禁用 + spinner)。
+  final bool isRefreshing;
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final hasSearch = searchHint != null;
     final titleContent = Column(
@@ -106,6 +117,29 @@ class PageHeader extends StatelessWidget {
           for (final action in actions) ...[
             const SizedBox(width: AppSpacing.md),
             action,
+          ],
+          if (onRefresh != null) ...[
+            const SizedBox(width: AppSpacing.sm),
+            IconButton(
+              tooltip: l10n.tr('a11y.refresh'),
+              icon: isRefreshing
+                  ? SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colors.onSurfaceVariant,
+                      ),
+                    )
+                  : Icon(
+                      Icons.refresh_rounded,
+                      size: 20,
+                      color: colors.onSurfaceVariant,
+                    ),
+              onPressed: isRefreshing ? null : onRefresh,
+              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              padding: EdgeInsets.zero,
+            ),
           ],
         ],
       ),

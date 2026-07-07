@@ -173,6 +173,8 @@ const Map<String, String> stringsZhCN = <String, String>{
   'trending.empty_search': '未找到与「{query}」相关的仓库',
   'trending.languages': '语言分布',
   'trending.top_repos': 'Top 仓库',
+  'trending.page_header.subtitle': 'Star 增速榜 · 仓库发现',
+  'trending.search_hint': '搜索仓库、语言、主题...',
 
   // monitor
   'monitor.title': '仓库监控',
@@ -429,4 +431,148 @@ const Map<String, String> stringsZhCN = <String, String>{
   'webview.more': '更多',
   'webview.copy_link': '复制链接',
   'webview.copied': '链接已复制',
+
+  // profile.token
+  'profile.token.title': 'GitHub Token',
+  'profile.token.subtitle': '用于 GitHub Search 认证请求,提升配额稳定性',
+  'profile.token.not_configured': '未配置',
+  'profile.token.configured': '已配置',
+  'profile.token.hint': 'Personal Access Token',
+  'profile.token.hint_placeholder': 'github_pat_... 或 ghp_...',
+  'profile.token.security_notice':
+      'Token 通过系统安全存储(Windows DPAPI / macOS Keychain)加密保存,不会明文写入磁盘。',
+  'profile.token.save': '保存',
+  'profile.token.clear': '清除',
+  'profile.token.check_quota': '检查配额',
+  'profile.token.saved': 'GitHub Token 已保存',
+  'profile.token.cleared': 'GitHub Token 已清除',
+  'profile.token.checking': '正在检查 GitHub 配额...',
+  'profile.token.check_failed': '检查失败,请确认网络或 Token 是否有效',
+  'profile.token.rest_core': 'REST Core',
+  'profile.token.search_api': 'Search API',
+  'profile.token.check_time': '检查时间 {time}',
+
+  // home.entry (动态 KPI 标签)
+  'home.entry.ai_news.label': 'AI 动态',
+  'home.entry.trending.label': 'GitHub热榜',
+  'home.entry.hotspot.label': 'AI雷达',
+  'home.entry.monitor.label': '仓库监控',
+  'home.entry.report.label': '深度报告',
+  'home.entry.ai_news.kpi_suffix': '条新更',
+  'home.entry.trending.kpi_suffix': '个项目',
+  'home.entry.hotspot.kpi_suffix': '信号',
+  'home.entry.monitor.kpi_suffix': '订阅',
+  'home.entry.monitor.delta_suffix': '告警',
+  'home.entry.report.kpi_suffix': '项目',
+  'home.entry.report.delta_suffix': '贡献者',
+  'home.entry.syncing': '同步中',
+
+  // home.chart (图表标签)
+  'home.chart.trending': 'Star 增长趋势',
+  'home.chart.growth': '增长率曲线',
+  'home.chart.health': '活跃度曲线',
+  'home.chart.starred': '收藏仓库 Star 趋势',
+  'home.chart.subtitle.trending': '{window} · 与上周对比',
+  'home.chart.subtitle.growth': '{window} · 增长率排名变动',
+  'home.chart.subtitle.health': '{window} · 提交与活跃贡献者',
+  'home.chart.subtitle.starred': '{window} · 收藏仓库总体增长',
+  'home.chart.legend.this_week': '本周',
+  'home.chart.legend.last_week': '上周',
+  'home.chart.legend.growth_rate': '增长率',
+  'home.chart.legend.baseline': '基线',
+  'home.chart.legend.commits': '提交数',
+  'home.chart.legend.contributors': '贡献者',
+  'home.chart.legend.starred': '收藏 Star',
+  'home.chart.legend.avg': '全网平均',
+  'home.chart.window.7d': '7天',
+  'home.chart.window.14d': '14天',
+  'home.chart.window.30d': '30天',
+  'home.tab.trending': '趋势榜',
+  'home.tab.growth': '增长榜',
+  'home.tab.health': '健康榜',
+  'home.tab.starred': '收藏趋势榜',
+
+  // common.accessibility
+  'a11y.entry_tile': '{label} 入口卡,KPI: {kpi}',
+  'a11y.refresh': '刷新数据',
+  'a11y.notification': '通知',
+  'a11y.search': '搜索',
+
+  // common.config
+  'config.export_title': '导出配置',
+  'config.import_title': '导入配置',
+  'config.exported': '配置已导出到剪贴板',
+  'config.imported': '配置已导入',
+  'config.import_failed': '导入失败:格式不正确',
+  'config.export_button': '导出配置',
+  'config.import_button': '导入配置',
+
+  // common.onboarding
+  'onboarding.welcome_title': '欢迎使用 GitHub 情报站',
+  'onboarding.welcome_desc': 'AI + GitHub 情报工作台,一站式追踪开源生态',
+  'onboarding.step1_title': 'AI 动态',
+  'onboarding.step1_desc': '每日精选 AI 行业资讯,分类浏览',
+  'onboarding.step2_title': 'GitHub 热榜',
+  'onboarding.step2_desc': '多维度排序:趋势、增长、语言分布',
+  'onboarding.step3_title': '仓库监控',
+  'onboarding.step3_desc': '自定义监控规则,实时告警推送',
+  'onboarding.step4_title': '开始使用',
+  'onboarding.step4_desc': '随时可在设置中调整偏好',
+  'onboarding.skip': '跳过',
+  'onboarding.next': '下一步',
+  'onboarding.done': '开始使用',
+
+  // data provenance
+  'provenance.observed': '观测',
+  'provenance.estimated': '估算',
+  'provenance.local_fallback': '兜底',
+  'provenance.observed.full': '真实观测',
+  'provenance.estimated.full': '估算口径',
+  'provenance.local_fallback.full': '本地兜底',
+  'provenance.observed.tooltip': '来自 GitHub API 或本地跨天快照',
+  'provenance.estimated.tooltip': '根据当前观测值推导,不是完整历史',
+  'provenance.local_fallback.tooltip': '远端不可用或首次启动时的本地兜底数据',
+
+  // a11y extras
+  'a11y.clear_search': '清除搜索',
+
+  // trending data source
+  'trending.source.local': '本地数据',
+  'trending.source.github_token': 'GitHub Token',
+  'trending.source.github_anonymous': 'GitHub 匿名',
+  'trending.source.cache_suffix': ' · 缓存{minutes}分钟',
+
+  // trending topics panel
+  'trending.topics.title': '话题趋势',
+  'trending.topics.subtitle': '本周高频出现的技术话题',
+
+  // trending language panel
+  'trending.language.empty': '该分类暂无数据',
+  'trending.language.subtitle.ai': 'AI / ML 方向 · {count} 种语言',
+  'trending.language.subtitle.web': 'Web 与前端 · {count} 种语言',
+  'trending.language.subtitle.system': '系统与基础设施 · {count} 种语言',
+  'trending.language.subtitle.all': '热门仓库的编程语言占比 · 共 {count} 种',
+  'trending.language.segment.system': '系统',
+
+  // devintel signals
+  'devintel.signals.title': '今日开发者信号',
+  'devintel.signals.score_suffix': '信号分',
+
+  // devintel chart labels
+  'devintel.chart.label.mon': '周一',
+  'devintel.chart.label.wed': '周三',
+  'devintel.chart.label.fri': '周五',
+  'devintel.chart.label.start': '起点',
+
+  // devintel monitoring status
+  'devintel.status.active': '活跃',
+  'devintel.status.syncing': '同步中',
+  'devintel.status.stable': '稳定',
+
+  // link open mode
+  'profile.link_open.in_app': '应用内',
+  'profile.link_open.external': '浏览器',
+
+  // profile session
+  'profile.session.signed_in': '本地账号 · 已登录',
 };

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/preferences/github_token_controller.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -35,6 +37,7 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final tokenState = ref.watch(githubTokenControllerProvider);
     final colors = Theme.of(context).colorScheme;
     return AppCard(
@@ -42,10 +45,12 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: 'GitHub Token',
-            subtitle: '用于 GitHub Search 认证请求,提升配额稳定性',
+            title: l10n.tr('profile.token.title'),
+            subtitle: l10n.tr('profile.token.subtitle'),
             trailing: _StatusPill(
-              label: tokenState.hasToken ? tokenState.maskedToken : '未配置',
+              label: tokenState.hasToken
+                  ? tokenState.maskedToken
+                  : l10n.tr('profile.token.not_configured'),
               active: tokenState.hasToken,
             ),
           ),
@@ -53,15 +58,15 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
           TextField(
             controller: _controller,
             obscureText: true,
-            decoration: const InputDecoration(
-              labelText: 'Personal Access Token',
-              hintText: 'github_pat_... 或 ghp_...',
+            decoration: InputDecoration(
+              labelText: l10n.tr('profile.token.hint'),
+              hintText: l10n.tr('profile.token.hint_placeholder'),
             ),
             onSubmitted: (_) => _save(),
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Token 只用于本机请求 GitHub API。当前版本保存到本地偏好配置,后续可替换为安全存储或 OAuth。',
+            l10n.tr('profile.token.security_notice'),
             style: AppTypography.labelSmall.copyWith(
               color: colors.onSurfaceVariant,
               height: 1.4,
@@ -73,19 +78,19 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
               FilledButton.icon(
                 onPressed: _save,
                 icon: const Icon(Icons.save_outlined, size: 16),
-                label: const Text('保存'),
+                label: Text(l10n.tr('profile.token.save')),
               ),
               const SizedBox(width: AppSpacing.sm),
               OutlinedButton.icon(
                 onPressed: tokenState.hasToken ? _clear : null,
                 icon: const Icon(Icons.delete_outline, size: 16),
-                label: const Text('清除'),
+                label: Text(l10n.tr('profile.token.clear')),
               ),
               const SizedBox(width: AppSpacing.sm),
               OutlinedButton.icon(
                 onPressed: _rateLimit?.isLoading == true ? null : _checkQuota,
                 icon: const Icon(Icons.speed_rounded, size: 16),
-                label: const Text('检查配额'),
+                label: Text(l10n.tr('profile.token.check_quota')),
               ),
             ],
           ),
@@ -104,8 +109,9 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
         .setToken(_controller.text);
     _controller.clear();
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('GitHub Token 已保存')),
+      SnackBar(content: Text(l10n.tr('profile.token.saved'))),
     );
   }
 
@@ -113,8 +119,9 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     await ref.read(githubTokenControllerProvider.notifier).clear();
     _controller.clear();
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('GitHub Token 已清除')),
+      SnackBar(content: Text(l10n.tr('profile.token.cleared'))),
     );
   }
 
@@ -140,6 +147,7 @@ class _RateLimitStatus extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return value.when(
       loading: () => Row(
@@ -153,7 +161,7 @@ class _RateLimitStatus extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Text(
-            '正在检查 GitHub 配额...',
+            l10n.tr('profile.token.checking'),
             style: AppTypography.labelMedium.copyWith(
               color: colors.onSurfaceVariant,
             ),
@@ -161,19 +169,24 @@ class _RateLimitStatus extends StatelessWidget {
         ],
       ),
       error: (_, __) => Text(
-        '检查失败,请确认网络或 Token 是否有效',
+        l10n.tr('profile.token.check_failed'),
         style: AppTypography.labelMedium.copyWith(color: AppColors.danger),
       ),
       data: (snapshot) => Column(
         children: [
-          _QuotaRow(label: 'REST Core', bucket: snapshot.core),
+          _QuotaRow(
+              label: l10n.tr('profile.token.rest_core'), bucket: snapshot.core),
           const SizedBox(height: AppSpacing.xs),
-          _QuotaRow(label: 'Search API', bucket: snapshot.search),
+          _QuotaRow(
+              label: l10n.tr('profile.token.search_api'),
+              bucket: snapshot.search),
           const SizedBox(height: AppSpacing.xs),
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              '检查时间 ${_formatTime(snapshot.checkedAt)}',
+              l10n
+                  .tr('profile.token.check_time')
+                  .replaceAll('{time}', _formatTime(snapshot.checkedAt)),
               style: AppTypography.labelSmall.copyWith(
                 color: colors.onSurfaceVariant,
               ),
@@ -209,7 +222,7 @@ class _QuotaRow extends StatelessWidget {
         ),
         Expanded(
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
             child: LinearProgressIndicator(
               value: ratio.clamp(0, 1),
               minHeight: 7,
@@ -252,7 +265,10 @@ class _StatusPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = active ? AppColors.success : AppColors.textMutedLight;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final color = active
+        ? AppColors.success
+        : (isLight ? AppColors.textMutedLight : AppColors.textMutedDark);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,
@@ -260,7 +276,7 @@ class _StatusPill extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
         border: Border.all(color: color.withValues(alpha: 0.32)),
       ),
       child: Text(

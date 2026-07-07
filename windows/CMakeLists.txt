@@ -2,6 +2,13 @@
 cmake_minimum_required(VERSION 3.14)
 project(github_news LANGUAGES CXX)
 
+# Provide a minimal atlstr.h shim (CA2W/CW2A) for flutter_secure_storage_windows,
+# whose native plugin includes <atlstr.h>. The ATL headers are not shipped with
+# the VS Build Tools workload on this machine, so we supply a tiny local shim.
+# Adding it here (before plugin subdirectories are included) makes it visible to
+# every plugin target and survives `flutter pub get`.
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/third_party/atl_shim")
+
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
 set(BINARY_NAME "github_news")
@@ -31,6 +38,17 @@ set(CMAKE_CXX_FLAGS_PROFILE "${CMAKE_CXX_FLAGS_RELEASE}")
 
 # Use Unicode for all projects.
 add_definitions(-DUNICODE -D_UNICODE)
+
+# flutter_inappwebview_windows still includes the deprecated <experimental/coroutine>;
+# MSVC 14.5x STL turns that into a hard error. Silence it app-wide until the plugin
+# ships a fix.
+add_compile_definitions(_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS)
+
+# Plugins compile many TUs in parallel into the same vc PDB and race on it (C1041).
+# Apply /FS globally so every plugin target inherits the fix, not just the ones
+# that call APPLY_STANDARD_SETTINGS.
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /FS")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} /FS")
 
 # Compilation settings that should be applied to most targets.
 #

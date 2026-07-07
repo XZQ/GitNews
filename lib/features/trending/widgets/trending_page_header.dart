@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/preferences/trending_data_source_mode_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/page_header.dart';
@@ -13,14 +14,15 @@ class TrendingPageHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final sourceStatus = ref.watch(trendingDataSourceStatusProvider);
     final query = ref.watch(trendingSearchQueryProvider);
     return PageHeader(
       icon: Icons.trending_up_rounded,
       iconAccent: AppColors.info,
-      title: 'GitHub热榜',
-      subtitle: 'Star 增速榜 · 仓库发现',
-      searchHint: '搜索仓库、语言、主题...',
+      title: l10n.tr('trending.title'),
+      subtitle: l10n.tr('trending.page_header.subtitle'),
+      searchHint: l10n.tr('trending.search_hint'),
       searchValue: query,
       onSearchChanged: (v) =>
           ref.read(trendingSearchQueryProvider.notifier).state = v,
@@ -39,7 +41,7 @@ class TrendingPageHeader extends ConsumerWidget {
           icon: sourceStatus.isGithub
               ? Icons.cloud_outlined
               : Icons.storage_rounded,
-          label: sourceStatus.label,
+          label: sourceStatus.label(l10n),
           color: sourceStatus.mode == TrendingDataSourceMode.github
               ? AppColors.info
               : AppColors.brand,
@@ -47,7 +49,7 @@ class TrendingPageHeader extends ConsumerWidget {
       ],
       actions: [
         IconButton(
-          tooltip: '刷新',
+          tooltip: l10n.tr('common.refresh'),
           onPressed: () => refreshTrendingDigest(ref),
           icon: const Icon(Icons.refresh_rounded, size: 20),
           constraints: const BoxConstraints(minWidth: 44, minHeight: 44),

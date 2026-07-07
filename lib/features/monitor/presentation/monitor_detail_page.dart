@@ -122,7 +122,7 @@ class _Body extends StatelessWidget {
               SectionHeader(
                 title: l10n.tr('monitor.section.realtime_trend'),
                 subtitle:
-                    '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${repo.trendProvenance.zhLabel}',
+                    '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendProvenance.labelKey)}',
               ),
               const SizedBox(height: AppSpacing.md),
               StarTrendChart(

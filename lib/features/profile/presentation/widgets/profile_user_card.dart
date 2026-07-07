@@ -65,9 +65,7 @@ class ProfileUserCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  session.isSignedIn
-                      ? session.statusText
-                      : l10n.tr('profile.user.anonymous_status'),
+                  l10n.tr(session.statusKey),
                   style: AppTypography.bodySmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),

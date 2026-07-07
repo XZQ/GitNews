@@ -175,6 +175,8 @@ const Map<String, String> stringsEnUS = <String, String>{
   'trending.empty_search': 'No repos matching "{query}"',
   'trending.languages': 'Language mix',
   'trending.top_repos': 'Top repos',
+  'trending.page_header.subtitle': 'Star velocity · Repo discovery',
+  'trending.search_hint': 'Search repos, languages, topics...',
 
   // monitor
   'monitor.title': 'Monitors',
@@ -438,4 +440,154 @@ const Map<String, String> stringsEnUS = <String, String>{
   'webview.more': 'More',
   'webview.copy_link': 'Copy link',
   'webview.copied': 'Link copied',
+
+  // profile.token
+  'profile.token.title': 'GitHub Token',
+  'profile.token.subtitle': 'For GitHub Search auth, improves rate limit quota',
+  'profile.token.not_configured': 'Not configured',
+  'profile.token.configured': 'Configured',
+  'profile.token.hint': 'Personal Access Token',
+  'profile.token.hint_placeholder': 'github_pat_... or ghp_...',
+  'profile.token.security_notice':
+      'Token is encrypted via system secure storage (Windows DPAPI / macOS Keychain), never stored in plaintext.',
+  'profile.token.save': 'Save',
+  'profile.token.clear': 'Clear',
+  'profile.token.check_quota': 'Check quota',
+  'profile.token.saved': 'GitHub Token saved',
+  'profile.token.cleared': 'GitHub Token cleared',
+  'profile.token.checking': 'Checking GitHub quota...',
+  'profile.token.check_failed':
+      'Check failed, verify network or token validity',
+  'profile.token.rest_core': 'REST Core',
+  'profile.token.search_api': 'Search API',
+  'profile.token.check_time': 'Checked at {time}',
+
+  // home.entry (dynamic KPI labels)
+  'home.entry.ai_news.label': 'AI News',
+  'home.entry.trending.label': 'Trending',
+  'home.entry.hotspot.label': 'AI Radar',
+  'home.entry.monitor.label': 'Monitor',
+  'home.entry.report.label': 'Reports',
+  'home.entry.ai_news.kpi_suffix': 'updates',
+  'home.entry.trending.kpi_suffix': 'repos',
+  'home.entry.hotspot.kpi_suffix': 'signals',
+  'home.entry.monitor.kpi_suffix': 'tracked',
+  'home.entry.monitor.delta_suffix': 'alerts',
+  'home.entry.report.kpi_suffix': 'projects',
+  'home.entry.report.delta_suffix': 'contributors',
+  'home.entry.syncing': 'Syncing',
+
+  // home.chart (chart labels)
+  'home.chart.trending': 'Star Growth Trend',
+  'home.chart.growth': 'Growth Rate Curve',
+  'home.chart.health': 'Activity Curve',
+  'home.chart.starred': 'Starred Repos Star Trend',
+  'home.chart.subtitle.trending': '{window} · vs last week',
+  'home.chart.subtitle.growth': '{window} · growth rate ranking changes',
+  'home.chart.subtitle.health': '{window} · commits & active contributors',
+  'home.chart.subtitle.starred': '{window} · starred repos overall growth',
+  'home.chart.legend.this_week': 'This week',
+  'home.chart.legend.last_week': 'Last week',
+  'home.chart.legend.growth_rate': 'Growth rate',
+  'home.chart.legend.baseline': 'Baseline',
+  'home.chart.legend.commits': 'Commits',
+  'home.chart.legend.contributors': 'Contributors',
+  'home.chart.legend.starred': 'Starred',
+  'home.chart.legend.avg': 'Global avg',
+  'home.chart.window.7d': '7d',
+  'home.chart.window.14d': '14d',
+  'home.chart.window.30d': '30d',
+  'home.tab.trending': 'Trending',
+  'home.tab.growth': 'Growth',
+  'home.tab.health': 'Health',
+  'home.tab.starred': 'Starred',
+
+  // common.accessibility
+  'a11y.entry_tile': '{label} entry, KPI: {kpi}',
+  'a11y.refresh': 'Refresh data',
+  'a11y.notification': 'Notifications',
+  'a11y.search': 'Search',
+
+  // common.config
+  'config.export_title': 'Export Config',
+  'config.import_title': 'Import Config',
+  'config.exported': 'Config exported to clipboard',
+  'config.imported': 'Config imported',
+  'config.import_failed': 'Import failed: invalid format',
+  'config.export_button': 'Export',
+  'config.import_button': 'Import',
+
+  // common.onboarding
+  'onboarding.welcome_title': 'Welcome to GitHub Intelligence',
+  'onboarding.welcome_desc':
+      'AI + GitHub intelligence workbench, track open-source ecosystem',
+  'onboarding.step1_title': 'AI News',
+  'onboarding.step1_desc':
+      'Daily curated AI industry updates, browse by category',
+  'onboarding.step2_title': 'GitHub Trending',
+  'onboarding.step2_desc': 'Multi-dimensional sorting: trend, growth, language',
+  'onboarding.step3_title': 'Repo Monitor',
+  'onboarding.step3_desc': 'Custom monitor rules, real-time alert push',
+  'onboarding.step4_title': 'Get Started',
+  'onboarding.step4_desc': 'Adjust preferences anytime in Settings',
+  'onboarding.skip': 'Skip',
+  'onboarding.next': 'Next',
+  'onboarding.done': 'Get Started',
+
+  // data provenance
+  'provenance.observed': 'Observed',
+  'provenance.estimated': 'Estimated',
+  'provenance.local_fallback': 'Fallback',
+  'provenance.observed.full': 'Live Observed',
+  'provenance.estimated.full': 'Estimated',
+  'provenance.local_fallback.full': 'Local Fallback',
+  'provenance.observed.tooltip': 'From GitHub API or local daily snapshot',
+  'provenance.estimated.tooltip':
+      'Derived from current observations, not complete history',
+  'provenance.local_fallback.tooltip':
+      'Local fallback data when remote is unavailable or on first launch',
+
+  // a11y extras
+  'a11y.clear_search': 'Clear search',
+
+  // trending data source
+  'trending.source.local': 'Local data',
+  'trending.source.github_token': 'GitHub Token',
+  'trending.source.github_anonymous': 'GitHub anonymous',
+  'trending.source.cache_suffix': ' · cache {minutes}min',
+
+  // trending topics panel
+  'trending.topics.title': 'Topic Trends',
+  'trending.topics.subtitle': 'High-frequency tech topics this week',
+
+  // trending language panel
+  'trending.language.empty': 'No data for this category',
+  'trending.language.subtitle.ai': 'AI / ML · {count} languages',
+  'trending.language.subtitle.web': 'Web & Frontend · {count} languages',
+  'trending.language.subtitle.system': 'System & Infra · {count} languages',
+  'trending.language.subtitle.all':
+      'Language share of trending repos · {count} total',
+  'trending.language.segment.system': 'System',
+
+  // devintel signals
+  'devintel.signals.title': "Today's Developer Signals",
+  'devintel.signals.score_suffix': 'signal score',
+
+  // devintel chart labels
+  'devintel.chart.label.mon': 'Mon',
+  'devintel.chart.label.wed': 'Wed',
+  'devintel.chart.label.fri': 'Fri',
+  'devintel.chart.label.start': 'Start',
+
+  // devintel monitoring status
+  'devintel.status.active': 'Active',
+  'devintel.status.syncing': 'Syncing',
+  'devintel.status.stable': 'Stable',
+
+  // link open mode
+  'profile.link_open.in_app': 'In-app',
+  'profile.link_open.external': 'Browser',
+
+  // profile session
+  'profile.session.signed_in': 'Local account · Signed in',
 };

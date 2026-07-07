@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_typography.dart';
 
@@ -61,9 +62,10 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Semantics(
-      label: '搜索',
+      label: l10n.tr('a11y.search'),
       hint: widget.hintText,
       textField: true,
       child: SizedBox(
@@ -87,7 +89,7 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
             suffixIcon: _controller.text.isEmpty
                 ? null
                 : IconButton(
-                    tooltip: '清除搜索',
+                    tooltip: l10n.tr('a11y.clear_search'),
                     onPressed: _clear,
                     icon: Icon(
                       Icons.close_rounded,

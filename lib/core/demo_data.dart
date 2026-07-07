@@ -4,6 +4,7 @@
 /// 业务模块应 import 对应 domain 实体,由 data 层调用 [DemoDataMappers] 完成映射。
 library;
 
+import 'theme/app_colors.dart';
 import 'demo_fixtures.dart';
 
 export 'demo_fixtures.dart';
@@ -19,7 +20,7 @@ class DemoData {
       starCount: 72341,
       starDelta: 1280,
       forkCount: 8120,
-      color: 0xFF3572A5,
+      color: AppColors.langPythonValue,
     ),
     DemoRepoFixture(
       fullName: 'ggerganov/llama.cpp',
@@ -28,7 +29,7 @@ class DemoData {
       starCount: 64120,
       starDelta: 964,
       forkCount: 8930,
-      color: 0xFFDEA584,
+      color: AppColors.langCppValue,
     ),
     DemoRepoFixture(
       fullName: 'openai/openai-python',
@@ -37,16 +38,16 @@ class DemoData {
       starCount: 21430,
       starDelta: 421,
       forkCount: 3120,
-      color: 0xFF3572A5,
+      color: AppColors.langPythonValue,
     ),
     DemoRepoFixture(
       fullName: 'anthropics/claude-code',
-      description: 'Anthropic’s official CLI for Claude',
+      description: "Anthropic's official CLI for Claude",
       language: 'TypeScript',
       starCount: 18020,
       starDelta: 612,
       forkCount: 1240,
-      color: 0xFF3178C6,
+      color: AppColors.langTypeScriptValue,
     ),
     DemoRepoFixture(
       fullName: 'openai/codex',
@@ -55,7 +56,7 @@ class DemoData {
       starCount: 26840,
       starDelta: 738,
       forkCount: 1840,
-      color: 0xFFDEA584,
+      color: AppColors.langRustValue,
     ),
     DemoRepoFixture(
       fullName: 'modelcontextprotocol/servers',
@@ -64,7 +65,7 @@ class DemoData {
       starCount: 21640,
       starDelta: 684,
       forkCount: 1960,
-      color: 0xFF3572A5,
+      color: AppColors.langPythonValue,
     ),
     DemoRepoFixture(
       fullName: 'langchain-ai/langgraph',
@@ -73,7 +74,7 @@ class DemoData {
       starCount: 39280,
       starDelta: 548,
       forkCount: 6420,
-      color: 0xFF3572A5,
+      color: AppColors.langPythonValue,
     ),
     DemoRepoFixture(
       fullName: 'denoland/deno',
@@ -82,7 +83,7 @@ class DemoData {
       starCount: 94210,
       starDelta: 312,
       forkCount: 5230,
-      color: 0xFFDEA584,
+      color: AppColors.langRustValue,
     ),
     DemoRepoFixture(
       fullName: 'withastro/astro',
@@ -91,16 +92,16 @@ class DemoData {
       starCount: 45330,
       starDelta: 188,
       forkCount: 2340,
-      color: 0xFF3178C6,
+      color: AppColors.langTypeScriptValue,
     ),
     DemoRepoFixture(
       fullName: 'ggerganov/whisper.cpp',
-      description: 'Port of OpenAI’s Whisper model in C/C++',
+      description: "Port of OpenAI's Whisper model in C/C++",
       language: 'C++',
       starCount: 32480,
       starDelta: 244,
       forkCount: 3210,
-      color: 0xFFDEA584,
+      color: AppColors.langCppValue,
     ),
     DemoRepoFixture(
       fullName: 'lapce/lapce',
@@ -109,7 +110,7 @@ class DemoData {
       starCount: 35120,
       starDelta: 156,
       forkCount: 1120,
-      color: 0xFFDEA584,
+      color: AppColors.langRustValue,
     ),
   ];
 
@@ -121,7 +122,7 @@ class DemoData {
       starCount: 102100,
       starDelta: 102,
       forkCount: 35620,
-      color: 0xFFF1E05A,
+      color: AppColors.langJavaScriptValue,
     ),
     DemoRepoFixture(
       fullName: 'vitejs/vite',
@@ -130,7 +131,7 @@ class DemoData {
       starCount: 68120,
       starDelta: 86,
       forkCount: 6210,
-      color: 0xFF3178C6,
+      color: AppColors.langTypeScriptValue,
     ),
     DemoRepoFixture(
       fullName: 'tauri-apps/tauri',
@@ -139,7 +140,7 @@ class DemoData {
       starCount: 82340,
       starDelta: 64,
       forkCount: 2410,
-      color: 0xFFDEA584,
+      color: AppColors.langRustValue,
     ),
   ];
 
@@ -186,55 +187,55 @@ class DemoData {
       name: 'TypeScript',
       percent: 28.5,
       delta: 18.7,
-      color: 0xFF3178C6,
+      color: AppColors.langTypeScriptValue,
     ),
     DemoLanguageFixture(
       name: 'Python',
       percent: 22.1,
       delta: 12.3,
-      color: 0xFF3572A5,
+      color: AppColors.langPythonValue,
     ),
     DemoLanguageFixture(
       name: 'Rust',
       percent: 14.8,
       delta: 9.8,
-      color: 0xFFDEA584,
+      color: AppColors.langRustValue,
     ),
     DemoLanguageFixture(
       name: 'Go',
       percent: 9.2,
       delta: 4.2,
-      color: 0xFF00ADD8,
+      color: AppColors.langGoValue,
     ),
     DemoLanguageFixture(
       name: 'Java',
       percent: 7.1,
       delta: 1.5,
-      color: 0xFFB07219,
+      color: AppColors.langJavaValue,
     ),
     DemoLanguageFixture(
       name: 'C++',
       percent: 5.6,
       delta: 2.8,
-      color: 0xFFDEA584,
+      color: AppColors.langCppValue,
     ),
     DemoLanguageFixture(
       name: 'Swift',
       percent: 3.8,
       delta: 6.4,
-      color: 0xFFFA7343,
+      color: AppColors.langSwiftValue,
     ),
     DemoLanguageFixture(
       name: 'Kotlin',
       percent: 2.9,
       delta: 1.1,
-      color: 0xFFA97BFF,
+      color: AppColors.langKotlinValue,
     ),
     DemoLanguageFixture(
       name: 'Other',
       percent: 6.0,
       delta: 0.4,
-      color: 0xFF9CA0AC,
+      color: AppColors.langOtherValue,
     ),
   ];
 
@@ -242,27 +243,27 @@ class DemoData {
     DemoContributorFixture(
       login: 'ggerganov',
       contributions: 1284,
-      avatarColor: 0xFF0D9488,
+      avatarColor: AppColors.brandValue,
     ),
     DemoContributorFixture(
       login: 'sama',
       contributions: 982,
-      avatarColor: 0xFFE5A150,
+      avatarColor: AppColors.warningValue,
     ),
     DemoContributorFixture(
       login: 'yyx990803',
       contributions: 712,
-      avatarColor: 0xFF30A46C,
+      avatarColor: AppColors.successValue,
     ),
     DemoContributorFixture(
       login: 'tj',
       contributions: 645,
-      avatarColor: 0xFFE5464D,
+      avatarColor: AppColors.dangerValue,
     ),
     DemoContributorFixture(
       login: 'yyx990803',
       contributions: 521,
-      avatarColor: 0xFF4CB5FF,
+      avatarColor: AppColors.infoValue,
     ),
   ];
 

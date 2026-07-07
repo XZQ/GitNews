@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/preferences/config_service.dart';
 import '../../../../core/storage/storage_providers.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/app_logger.dart';
@@ -21,6 +22,8 @@ class ProfileDataCard extends ConsumerStatefulWidget {
 class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
   int? _bytes;
   bool _clearing = false;
+  bool _exporting = false;
+  bool _importing = false;
 
   @override
   void initState() {
@@ -64,6 +67,46 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
     }
   }
 
+  Future<void> _onExport() async {
+    setState(() => _exporting = true);
+    final l10n = AppLocalizations.of(context);
+    try {
+      await ref.read(configServiceProvider).exportConfig();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.tr('config.exported'))),
+      );
+    } catch (e) {
+      AppLogger.warn('exportConfig', meta: {'error': e.runtimeType.toString()});
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.tr('config.import_failed'))),
+      );
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
+  Future<void> _onImport() async {
+    setState(() => _importing = true);
+    final l10n = AppLocalizations.of(context);
+    try {
+      final count = await ref.read(configServiceProvider).importConfig();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${l10n.tr('config.imported')} ($count)')),
+      );
+    } catch (e) {
+      AppLogger.warn('importConfig', meta: {'error': e.runtimeType.toString()});
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.tr('config.import_failed'))),
+      );
+    } finally {
+      if (mounted) setState(() => _importing = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -97,6 +140,26 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
                     : l10n.tr('profile.data.clear'),
               ),
             ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _exporting || _importing ? null : _onExport,
+                  icon: const Icon(Icons.upload_outlined, size: 16),
+                  label: Text(l10n.tr('config.export_button')),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _exporting || _importing ? null : _onImport,
+                  icon: const Icon(Icons.download_outlined, size: 16),
+                  label: Text(l10n.tr('config.import_button')),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -31,29 +31,48 @@ class GitHubTokenState {
 
 /// GitHub Personal Access Token controller。
 ///
-/// 目前作为桌面端开发者配置项保存到 SharedPreferences。后续若引入
-/// secure storage 或 OAuth,只需要替换本 controller 的存储实现。
+/// Token 通过 [FlutterSecureStorage] 安全存储(Windows DPAPI / macOS Keychain),
+/// 不再明文写入 SharedPreferences。首次启动时自动迁移旧版明文 Token。
 class GitHubTokenController extends Notifier<GitHubTokenState> {
   static const _kKey = 'github_personal_access_token';
+  static const _kLegacyKey = 'github_personal_access_token';
 
   @override
   GitHubTokenState build() {
+    _migrateFromPrefsIfNeeded();
+    return const GitHubTokenState();
+  }
+
+  /// 异步加载:从 secure storage 读取 Token,同时检查旧版 SharedPreferences 迁移。
+  Future<void> _migrateFromPrefsIfNeeded() async {
+    final secure = ref.read(secureStorageProvider);
+    final stored = await secure.read(key: _kKey);
+    if (stored != null && stored.isNotEmpty) {
+      state = GitHubTokenState(token: stored);
+      return;
+    }
+    // 迁移:如果 secure storage 为空,检查旧版 SharedPreferences
     final prefs = ref.read(sharedPreferencesProvider);
-    return GitHubTokenState(token: prefs.getString(_kKey));
+    final legacy = prefs.getString(_kLegacyKey);
+    if (legacy != null && legacy.isNotEmpty) {
+      await secure.write(key: _kKey, value: legacy);
+      await prefs.remove(_kLegacyKey);
+      state = GitHubTokenState(token: legacy);
+    }
   }
 
   Future<void> setToken(String value) async {
     final token = value.trim();
     if (token.isEmpty) return clear();
     state = GitHubTokenState(token: token);
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(_kKey, token);
+    final secure = ref.read(secureStorageProvider);
+    await secure.write(key: _kKey, value: token);
   }
 
   Future<void> clear() async {
     state = const GitHubTokenState();
-    final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.remove(_kKey);
+    final secure = ref.read(secureStorageProvider);
+    await secure.delete(key: _kKey);
   }
 }
 

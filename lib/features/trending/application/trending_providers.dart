@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/github/rate_limit_gate.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/preferences/trending_data_source_mode_controller.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -31,10 +32,15 @@ class TrendingDataSourceStatus {
 
   bool get isGithub => mode == TrendingDataSourceMode.github;
 
-  String get label {
-    if (!isGithub) return '本地数据';
-    final source = hasToken ? 'GitHub Token' : 'GitHub 匿名';
-    return '$source · 缓存${cacheTtl.inMinutes}分钟';
+  String label(AppLocalizations l10n) {
+    if (!isGithub) return l10n.tr('trending.source.local');
+    final source = hasToken
+        ? l10n.tr('trending.source.github_token')
+        : l10n.tr('trending.source.github_anonymous');
+    return source +
+        l10n
+            .tr('trending.source.cache_suffix')
+            .replaceAll('{minutes}', cacheTtl.inMinutes.toString());
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -22,7 +23,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final specs = _buildSpecs(ref);
+    final specs = _buildSpecs(ref, context);
     return SizedBox(
       height: 168,
       child: Row(
@@ -37,7 +38,8 @@ class HomeSectionEntryRow extends ConsumerWidget {
     );
   }
 
-  List<_EntrySpec> _buildSpecs(WidgetRef ref) {
+  List<_EntrySpec> _buildSpecs(WidgetRef ref, BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final aiItems = ref.watch(aiNewsItemsNotifierProvider).valueOrNull;
     final trending = ref.watch(trendingDigestProvider).valueOrNull;
     final hotspot = ref.watch(techHotspotDigestProvider).valueOrNull;
@@ -45,16 +47,19 @@ class HomeSectionEntryRow extends ConsumerWidget {
     final project = ref.watch(projectDigestProvider).valueOrNull;
     return [
       _EntrySpec(
-        label: 'AI 动态',
-        kpi: '${aiItems?.length ?? 0} 条新更',
-        delta: _scoreDelta(aiItems?.fold<int>(0, (sum, e) => sum + e.score)),
+        label: l10n.tr('home.entry.ai_news.label'),
+        kpi:
+            '${aiItems?.length ?? 0} ${l10n.tr('home.entry.ai_news.kpi_suffix')}',
+        delta:
+            _scoreDelta(l10n, aiItems?.fold<int>(0, (sum, e) => sum + e.score)),
         icon: Icons.auto_awesome_rounded,
         color: AppColors.brand,
         path: '/ai_news',
       ),
       _EntrySpec(
-        label: 'GitHub热榜',
-        kpi: '${trending?.allRepos.length ?? 0} 个项目',
+        label: l10n.tr('home.entry.trending.label'),
+        kpi:
+            '${trending?.allRepos.length ?? 0} ${l10n.tr('home.entry.trending.kpi_suffix')}',
         delta:
             '+${_compactNumber(trending?.trendingRepos.fold<int>(0, (sum, e) => sum + e.starDelta) ?? 0)}★',
         icon: Icons.local_fire_department_rounded,
@@ -62,8 +67,9 @@ class HomeSectionEntryRow extends ConsumerWidget {
         path: '/trending',
       ),
       _EntrySpec(
-        label: 'AI雷达',
-        kpi: '${hotspot?.topics.length ?? 0} 信号',
+        label: l10n.tr('home.entry.hotspot.label'),
+        kpi:
+            '${hotspot?.topics.length ?? 0} ${l10n.tr('home.entry.hotspot.kpi_suffix')}',
         delta:
             '+${(hotspot?.topics.fold<double>(0, (sum, e) => sum + e.growth) ?? 0).toStringAsFixed(1)}%',
         icon: Icons.device_hub_rounded,
@@ -71,17 +77,21 @@ class HomeSectionEntryRow extends ConsumerWidget {
         path: '/tech_hotspot',
       ),
       _EntrySpec(
-        label: '仓库监控',
-        kpi: '${monitor?.stats.monitoredCount ?? 0} 订阅',
-        delta: '${monitor?.stats.unreadAlertCount ?? 0} 告警',
+        label: l10n.tr('home.entry.monitor.label'),
+        kpi:
+            '${monitor?.stats.monitoredCount ?? 0} ${l10n.tr('home.entry.monitor.kpi_suffix')}',
+        delta:
+            '${monitor?.stats.unreadAlertCount ?? 0} ${l10n.tr('home.entry.monitor.delta_suffix')}',
         icon: Icons.notifications_rounded,
         color: AppColors.info,
         path: '/monitor',
       ),
       _EntrySpec(
-        label: '深度报告',
-        kpi: '${project?.repos.length ?? 0} 项目',
-        delta: '${project?.contributors.length ?? 0} 贡献者',
+        label: l10n.tr('home.entry.report.label'),
+        kpi:
+            '${project?.repos.length ?? 0} ${l10n.tr('home.entry.report.kpi_suffix')}',
+        delta:
+            '${project?.contributors.length ?? 0} ${l10n.tr('home.entry.report.delta_suffix')}',
         icon: Icons.insights_rounded,
         color: AppColors.success,
         path: '/project',
@@ -89,8 +99,8 @@ class HomeSectionEntryRow extends ConsumerWidget {
     ];
   }
 
-  String _scoreDelta(int? score) {
-    if (score == null || score == 0) return '同步中';
+  String _scoreDelta(AppLocalizations l10n, int? score) {
+    if (score == null || score == 0) return l10n.tr('home.entry.syncing');
     return '+${_compactNumber(score)}';
   }
 
@@ -126,93 +136,102 @@ class _EntryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    return Container(
-      decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
-          width: isLight ? 0.6 : 1,
+    return Semantics(
+      label: l10n
+          .tr('a11y.entry_tile')
+          .replaceAll('{label}', spec.label)
+          .replaceAll('{kpi}', spec.kpi),
+      button: true,
+      child: Container(
+        decoration: BoxDecoration(
+          color: colors.surface,
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(
+            color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
+            width: 1,
+          ),
         ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => context.go(spec.path),
-          child: Stack(
-            children: [
-              Positioned.fill(child: _AccentStrip(color: spec.color)),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.xl,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 36,
-                          height: 36,
-                          decoration: BoxDecoration(
-                            color: spec.color.withValues(alpha: 0.14),
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
+        clipBehavior: Clip.antiAlias,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => context.go(spec.path),
+            focusColor: colors.primary.withValues(alpha: 0.12),
+            child: Stack(
+              children: [
+                Positioned.fill(child: _AccentStrip(color: spec.color)),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: spec.color.withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                            ),
+                            alignment: Alignment.center,
+                            child: Icon(spec.icon, size: 18, color: spec.color),
                           ),
-                          alignment: Alignment.center,
-                          child: Icon(spec.icon, size: 18, color: spec.color),
-                        ),
-                        const Spacer(),
-                        Icon(
-                          Icons.chevron_right_rounded,
-                          size: 18,
+                          const Spacer(),
+                          Icon(
+                            Icons.chevron_right_rounded,
+                            size: 18,
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        spec.label,
+                        style: AppTypography.labelMedium.copyWith(
                           color: colors.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      spec.label,
-                      style: AppTypography.labelMedium.copyWith(
-                        color: colors.onSurfaceVariant,
-                        fontWeight: FontWeight.w600,
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      spec.kpi,
-                      style: AppTypography.titleLarge.copyWith(
-                        color: colors.onSurface,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.xs2,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: spec.color.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(AppRadius.xs),
-                      ),
-                      child: Text(
-                        spec.delta,
-                        style: AppTypography.labelSmall.copyWith(
-                          color: spec.color,
+                      const SizedBox(height: AppSpacing.xs),
+                      Text(
+                        spec.kpi,
+                        style: AppTypography.titleLarge.copyWith(
+                          color: colors.onSurface,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.sm),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.xs2,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: spec.color.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(AppRadius.xs),
+                        ),
+                        child: Text(
+                          spec.delta,
+                          style: AppTypography.labelSmall.copyWith(
+                            color: spec.color,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

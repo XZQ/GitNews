@@ -31,6 +31,7 @@ class TechHotspotPageHeader extends ConsumerWidget {
           ref.read(techHotspotSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) =>
           ref.read(techHotspotSearchQueryProvider.notifier).state = v,
+      onRefresh: () => ref.invalidate(techHotspotDigestProvider),
       pills: [
         HeaderStatPill(
           icon: Icons.local_fire_department_rounded,

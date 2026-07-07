@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -29,23 +30,26 @@ class TrendingLanguagePanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final filtered = _filterLanguages(value, languages);
-    final subtitle = _subtitleFor(value, filtered.length);
+    final subtitle = _subtitleFor(l10n, value, filtered.length);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: '语言分布',
+            title: l10n.tr('trending.languages'),
             subtitle: subtitle,
           ),
           const SizedBox(height: AppSpacing.md),
           SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'all', label: Text('全部')),
-              ButtonSegment(value: 'ai', label: Text('AI')),
-              ButtonSegment(value: 'web', label: Text('Web')),
-              ButtonSegment(value: 'system', label: Text('系统')),
+            segments: [
+              ButtonSegment(value: 'all', label: Text(l10n.tr('common.all'))),
+              const ButtonSegment(value: 'ai', label: Text('AI')),
+              const ButtonSegment(value: 'web', label: Text('Web')),
+              ButtonSegment(
+                  value: 'system',
+                  label: Text(l10n.tr('trending.language.segment.system'))),
             ],
             selected: {value},
             onSelectionChanged: (s) => onChanged(s.first),
@@ -56,7 +60,7 @@ class TrendingLanguagePanel extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
               child: Text(
-                '该分类暂无数据',
+                l10n.tr('trending.language.empty'),
                 style: AppTypography.bodySmall.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -88,17 +92,25 @@ class TrendingLanguagePanel extends StatelessWidget {
     return languages.where((l) => names.contains(l.name)).toList();
   }
 
-  String _subtitleFor(String category, int count) {
+  String _subtitleFor(AppLocalizations l10n, String category, int count) {
     switch (category) {
       case 'ai':
-        return 'AI / ML 方向 · $count 种语言';
+        return l10n
+            .tr('trending.language.subtitle.ai')
+            .replaceAll('{count}', count.toString());
       case 'web':
-        return 'Web 与前端 · $count 种语言';
+        return l10n
+            .tr('trending.language.subtitle.web')
+            .replaceAll('{count}', count.toString());
       case 'system':
-        return '系统与基础设施 · $count 种语言';
+        return l10n
+            .tr('trending.language.subtitle.system')
+            .replaceAll('{count}', count.toString());
       case 'all':
       default:
-        return '热门仓库的编程语言占比 · 共 $count 种';
+        return l10n
+            .tr('trending.language.subtitle.all')
+            .replaceAll('{count}', count.toString());
     }
   }
 }

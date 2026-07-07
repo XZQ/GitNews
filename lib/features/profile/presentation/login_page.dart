@@ -114,7 +114,9 @@ class _BodyState extends ConsumerState<_Body> {
               child: Text(
                 l10n.tr('profile.login.disclaimer'),
                 style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.textMutedLight,
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? AppColors.textMutedLight
+                      : AppColors.textMutedDark,
                 ),
               ),
             ),

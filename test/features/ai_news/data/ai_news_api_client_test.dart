@@ -55,7 +55,7 @@ void main() {
         ),
       ).thenThrow(
         DioException(
-          type: DioExceptionType.transformTimeout,
+          type: DioExceptionType.receiveTimeout,
           requestOptions: RequestOptions(path: '/x'),
         ),
       );

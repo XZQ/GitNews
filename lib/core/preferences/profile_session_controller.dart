@@ -15,8 +15,11 @@ class ProfileSessionState {
     return name;
   }
 
-  String get statusText {
-    return isSignedIn ? '本地账号 · 已登录' : '匿名浏览 · 登录后可同步数据';
+  /// Returns the i18n key for the current session status.
+  String get statusKey {
+    return isSignedIn
+        ? 'profile.session.signed_in'
+        : 'profile.user.anonymous_status';
   }
 }
 

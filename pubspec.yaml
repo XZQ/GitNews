@@ -28,6 +28,7 @@ dependencies:
   sqlite3_flutter_libs: ^0.5.24
   path: ^1.9.0
   path_provider: ^2.1.4
+  flutter_secure_storage: ^9.2.2
 
   # 图表
   fl_chart: ^0.68.0

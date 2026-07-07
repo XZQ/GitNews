@@ -38,7 +38,7 @@ class TechHotspotTopicCard extends StatelessWidget {
               color: colors.outlineVariant.withValues(
                 alpha: isLight ? 0.58 : 1,
               ),
-              width: isLight ? 0.6 : 1,
+              width: 1,
             ),
           ),
           child: Column(

@@ -53,6 +53,7 @@ class _StatusTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final statusColor = _statusColor(repo);
     return Row(
@@ -87,7 +88,7 @@ class _StatusTile extends StatelessWidget {
             ),
           ),
           child: Text(
-            _status(repo),
+            _status(l10n, repo),
             style: AppTypography.labelSmall.copyWith(
               fontWeight: FontWeight.w700,
               color: statusColor,
@@ -98,10 +99,10 @@ class _StatusTile extends StatelessWidget {
     );
   }
 
-  String _status(RepoEntity repo) {
-    if (repo.starDelta >= 500) return '活跃';
-    if (repo.starDelta >= 120) return '同步中';
-    return '稳定';
+  String _status(AppLocalizations l10n, RepoEntity repo) {
+    if (repo.starDelta >= 500) return l10n.tr('devintel.status.active');
+    if (repo.starDelta >= 120) return l10n.tr('devintel.status.syncing');
+    return l10n.tr('devintel.status.stable');
   }
 
   Color _statusColor(RepoEntity repo) {

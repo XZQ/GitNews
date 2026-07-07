@@ -193,16 +193,24 @@ class LocalDatabase {
     }
   }
 
-  /// 清空所有业务表 + meta 表 + VACUUM。
+  /// 所有业务表名清单。新增表只需在此列表追加一行,`clearAll` 自动覆盖。
+  static const List<String> _kBusinessTables = [
+    'ai_news_item',
+    'trending_snapshot_cache',
+    'json_snapshot_cache',
+    'cache_meta',
+  ];
+
+  /// 清空所有业务表 + VACUUM。
   ///
-  /// 通用清理入口:任何接入本基建的 feature 表都要在此处补一行 DELETE。
-  /// 不直接 DROP 是为了保留 schema,清理后立刻可以重新写入。
+  /// 通用清理入口:遍历 [_kBusinessTables] 逐表 DELETE,新增表只需在
+  /// 列表中追加即可,无需修改此方法。不直接 DROP 是为了保留 schema,
+  /// 清理后立刻可以重新写入。
   Future<void> clearAll() async {
     try {
-      await _db.delete('ai_news_item');
-      await _db.delete('trending_snapshot_cache');
-      await _db.delete('json_snapshot_cache');
-      await _db.delete('cache_meta');
+      for (final table in _kBusinessTables) {
+        await _db.delete(table);
+      }
       await _db.execute('VACUUM');
     } catch (e, st) {
       throw AppException(

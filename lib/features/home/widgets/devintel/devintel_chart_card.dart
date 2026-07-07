@@ -37,7 +37,7 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
         color: AppColors.success,
       ),
     ];
-    final labels = _labels(primary.length);
+    final labels = _labels(l10n, primary.length);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -45,7 +45,7 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
           color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
-          width: isLight ? 0.6 : 1,
+          width: 1,
         ),
       ),
       child: Column(
@@ -101,14 +101,22 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
     return values.sublist(values.length - target);
   }
 
-  List<String> _labels(int count) {
+  List<String> _labels(AppLocalizations l10n, int count) {
     if (count <= 0) return const [];
     if (_window == 7) {
-      return const ['周一', '', '周三', '', '周五', '', '今日'];
+      return [
+        l10n.tr('devintel.chart.label.mon'),
+        '',
+        l10n.tr('devintel.chart.label.wed'),
+        '',
+        l10n.tr('devintel.chart.label.fri'),
+        '',
+        l10n.tr('common.today'),
+      ];
     }
     return List<String>.generate(count, (index) {
-      if (index == 0) return '起点';
-      if (index == count - 1) return '今日';
+      if (index == 0) return l10n.tr('devintel.chart.label.start');
+      if (index == count - 1) return l10n.tr('common.today');
       return index % 4 == 0 ? '+$index' : '';
     });
   }

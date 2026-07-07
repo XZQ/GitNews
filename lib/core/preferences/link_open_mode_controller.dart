@@ -7,11 +7,12 @@ import '../di/providers.dart';
 /// - [inApp]:应用内 WebView([WebViewPage])打开,保留在 App 内浏览。
 /// - [external]:系统浏览器打开(`url_launcher.externalApplication`)。
 enum LinkOpenMode {
-  inApp('应用内'),
-  external('浏览器');
+  inApp('profile.link_open.in_app'),
+  external('profile.link_open.external');
 
   const LinkOpenMode(this.label);
 
+  /// i18n key for display label.
   final String label;
 }
 

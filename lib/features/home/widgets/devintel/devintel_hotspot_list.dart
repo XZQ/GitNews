@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -126,9 +127,9 @@ class _HotspotTile extends StatelessWidget {
   }
 
   Color _heatColor(int heat) {
-    if (heat >= 90) return const Color(0xFFE5484D);
-    if (heat >= 75) return const Color(0xFFE5A150);
-    return const Color(0xFF4CB5FF);
+    if (heat >= 90) return AppColors.danger;
+    if (heat >= 75) return AppColors.warning;
+    return AppColors.info;
   }
 }
 

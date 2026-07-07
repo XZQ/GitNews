@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../ai_news/application/ai_news_providers.dart';
@@ -12,6 +13,7 @@ class DevIntelSignalsList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final items =
         ref.watch(aiNewsItemsNotifierProvider).valueOrNull?.take(4).toList() ??
@@ -23,7 +25,7 @@ class DevIntelSignalsList extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            '今日开发者信号',
+            l10n.tr('devintel.signals.title'),
             style: AppTypography.titleMedium.copyWith(
               color: colors.onSurface,
             ),
@@ -47,6 +49,7 @@ class _SignalTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,7 +80,7 @@ class _SignalTile extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                '${item.source} · ${item.category.label} · ${item.score} 信号分',
+                '${item.source} · ${item.category.label} · ${item.score} ${l10n.tr('devintel.signals.score_suffix')}',
                 style: AppTypography.bodySmall.copyWith(
                   color: colors.onSurfaceVariant,
                 ),

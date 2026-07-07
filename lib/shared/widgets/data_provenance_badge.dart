@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/domain/data_provenance.dart';
+import '../../core/i18n/app_localizations.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
@@ -20,10 +21,11 @@ class DataProvenanceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final color = _color(context);
-    final label = compact ? _shortLabel : provenance.zhLabel;
+    final label = compact ? _shortLabel(l10n) : _fullLabel(l10n);
     return Tooltip(
-      message: _tooltip,
+      message: _tooltip(l10n),
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: compact ? AppSpacing.xs2 : AppSpacing.sm,
@@ -53,19 +55,28 @@ class DataProvenanceBadge extends StatelessWidget {
     );
   }
 
-  String get _shortLabel {
+  String _shortLabel(AppLocalizations l10n) {
     return switch (provenance) {
-      DataProvenance.observed => '观测',
-      DataProvenance.estimated => '估算',
-      DataProvenance.localFallback => '兜底',
+      DataProvenance.observed => l10n.tr('provenance.observed'),
+      DataProvenance.estimated => l10n.tr('provenance.estimated'),
+      DataProvenance.localFallback => l10n.tr('provenance.local_fallback'),
     };
   }
 
-  String get _tooltip {
+  String _fullLabel(AppLocalizations l10n) {
     return switch (provenance) {
-      DataProvenance.observed => '来自 GitHub API 或本地跨天快照',
-      DataProvenance.estimated => '根据当前观测值推导,不是完整历史',
-      DataProvenance.localFallback => '远端不可用或首次启动时的本地兜底数据',
+      DataProvenance.observed => l10n.tr('provenance.observed.full'),
+      DataProvenance.estimated => l10n.tr('provenance.estimated.full'),
+      DataProvenance.localFallback => l10n.tr('provenance.local_fallback.full'),
+    };
+  }
+
+  String _tooltip(AppLocalizations l10n) {
+    return switch (provenance) {
+      DataProvenance.observed => l10n.tr('provenance.observed.tooltip'),
+      DataProvenance.estimated => l10n.tr('provenance.estimated.tooltip'),
+      DataProvenance.localFallback =>
+        l10n.tr('provenance.local_fallback.tooltip'),
     };
   }
 

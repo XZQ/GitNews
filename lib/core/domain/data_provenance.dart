@@ -19,6 +19,15 @@ enum DataProvenance {
     );
   }
 
+  /// i18n key for the full label.
+  String get labelKey {
+    return switch (this) {
+      DataProvenance.observed => 'provenance.observed.full',
+      DataProvenance.estimated => 'provenance.estimated.full',
+      DataProvenance.localFallback => 'provenance.local_fallback.full',
+    };
+  }
+
   String get zhLabel {
     return switch (this) {
       DataProvenance.observed => '真实观测',

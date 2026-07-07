@@ -27,6 +27,7 @@ class MonitorPageHeader extends ConsumerWidget {
           ref.read(monitorSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) =>
           ref.read(monitorSearchQueryProvider.notifier).state = v,
+      onRefresh: () => ref.invalidate(monitorDigestProvider),
       pills: [
         HeaderStatPill(
           icon: Icons.circle,

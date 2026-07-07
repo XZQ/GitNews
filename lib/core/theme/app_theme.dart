@@ -106,7 +106,7 @@ class AppTheme {
           borderRadius: BorderRadius.circular(AppRadius.lg),
           side: BorderSide(
             color: border.withValues(alpha: isLight ? 0.54 : 0.9),
-            width: isLight ? 0.6 : 1,
+            width: 1,
           ),
         ),
         margin: EdgeInsets.zero,

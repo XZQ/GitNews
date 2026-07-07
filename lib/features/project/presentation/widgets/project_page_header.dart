@@ -30,6 +30,7 @@ class ProjectPageHeader extends ConsumerWidget {
           ref.read(projectSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) =>
           ref.read(projectSearchQueryProvider.notifier).state = v,
+      onRefresh: () => ref.invalidate(projectDigestProvider),
       pills: [_NeutralPill(label: l10n.tr('project.pill.this_week'))],
       actions: [
         IconButton(

@@ -130,6 +130,7 @@ class _LinkOpenModeToggle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final mode = ref.watch(linkOpenModeControllerProvider);
     return SegmentedButton<LinkOpenMode>(
       style: const ButtonStyle(
@@ -140,12 +141,12 @@ class _LinkOpenModeToggle extends ConsumerWidget {
         ButtonSegment(
           value: LinkOpenMode.inApp,
           icon: const Icon(Icons.apps_outlined, size: 14),
-          label: Text(LinkOpenMode.inApp.label),
+          label: Text(l10n.tr(LinkOpenMode.inApp.label)),
         ),
         ButtonSegment(
           value: LinkOpenMode.external,
           icon: const Icon(Icons.open_in_new_rounded, size: 14),
-          label: Text(LinkOpenMode.external.label),
+          label: Text(l10n.tr(LinkOpenMode.external.label)),
         ),
       ],
       selected: {mode},

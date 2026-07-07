@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
@@ -62,6 +63,7 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final digest = ref.watch(trendingDigestProvider).valueOrNull;
     final series = homeSeriesForWindow(
       _chartWindow,
@@ -71,10 +73,10 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
       secondaryTrend: digest?.secondaryTrend,
     );
     final windowLabel = '近 $_chartWindow 天';
-    final title = homeChartTitle(widget.tab);
-    final subtitle = homeChartSubtitle(widget.tab, windowLabel);
-    final legends =
-        homeChartLegends(widget.tab, Theme.of(context).colorScheme.primary);
+    final title = homeChartTitle(l10n, widget.tab);
+    final subtitle = homeChartSubtitle(l10n, widget.tab, windowLabel);
+    final legends = homeChartLegends(
+        l10n, widget.tab, Theme.of(context).colorScheme.primary);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
