@@ -25,13 +25,15 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
 
 ## 2. Comments
 
-- Public APIs should have `///` docs that explain purpose and contract, not the
-  obvious implementation.
-- Private code usually needs no comments. Add comments for intent, constraints,
-  tradeoffs, and non-obvious fallbacks.
+- Use `/* ... */` block comments for every explanatory comment, including on
+  public APIs, classes, methods, and fields. Do not use `///` doc comments;
+  this project intentionally opts out of dartdoc-style comments.
+- Every class and method must have a block comment explaining its purpose.
+- Private code still needs a comment when intent, constraints, tradeoffs, or
+  non-obvious fallbacks are not clear from the code itself.
 - Magic numbers for timing, retry, cache, sizing, and limits need either a named
   constant or a short reason.
-- TODO format: `// TODO(owner, YYYY-MM-DD): actionable note`.
+- TODO format: `/* TODO(owner, YYYY-MM-DD): actionable note */`.
 - Do not leave author, generated-by, or chat transcript comments in source.
 
 ## 3. Types And Immutability

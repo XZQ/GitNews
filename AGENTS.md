@@ -120,8 +120,10 @@ The structure is reusable across projects:
 ## Git
 
 - Do not revert user changes unless explicitly asked.
-- Use Conventional Commits with concise Chinese subjects, for example
-  `fix(ui): 修复语言占比溢出`.
+- Use Conventional Commits with concise Chinese subjects. The type's first
+  letter MUST be uppercase, for example `Fix(ui): 修复语言占比溢出`,
+  `Docs(spec): ...`, `Feat(core): ...`. Subject text after the colon starts
+  with a Chinese character, no space before it.
 - When asked to submit, commit to the active branch and push to GitHub after
   checks pass.
 
