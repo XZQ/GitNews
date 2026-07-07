@@ -12,7 +12,7 @@ import 'home_chart_helpers.dart';
 import 'home_tablet_metrics_row.dart';
 import 'home_today_stack.dart';
 
-/// Home medium (600–1024) 分支:指标行 + 主图表 + 主题。
+/* Home medium (600–1024) 分支:指标行 + 主图表 + 主题。 */
 class HomeTabletBody extends StatelessWidget {
   const HomeTabletBody({super.key});
 

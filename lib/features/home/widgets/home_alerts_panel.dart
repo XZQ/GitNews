@@ -12,7 +12,7 @@ import '../../../shared/widgets/section_header.dart';
 import '../../monitor/application/monitor_providers.dart';
 import '../../monitor/domain/entities.dart';
 
-/// 监控告警面板(手机首页 + 桌面右栏共用)。
+/* 监控告警面板(手机首页 + 桌面右栏共用)。 */
 class HomeAlertsPanel extends ConsumerWidget {
   const HomeAlertsPanel({
     this.showHeader = true,

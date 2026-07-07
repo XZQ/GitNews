@@ -8,11 +8,11 @@ import '../../core/theme/app_typography.dart';
 import 'header_search_field.dart';
 import 'page_header_icon.dart';
 
-/// 一级页通用顶部条。
-///
-/// 提供统一的高度 / padding / 可选图标块 / 标题副标题 / 可选搜索框 /
-/// 可选 [HeaderStatPill] 集合 / 可选 trailing 动作 / 可选刷新按钮,
-/// 避免每个 feature 各自重画。
+/* 一级页通用顶部条。 */
+/*  */
+/* 提供统一的高度 / padding / 可选图标块 / 标题副标题 / 可选搜索框 / */
+/* 可选 [HeaderStatPill] 集合 / 可选 trailing 动作 / 可选刷新按钮, */
+/* 避免每个 feature 各自重画。 */
 class PageHeader extends StatelessWidget {
   const PageHeader({
     required this.title,
@@ -41,10 +41,10 @@ class PageHeader extends StatelessWidget {
   final List<Widget> pills;
   final List<Widget> actions;
 
-  /// 提供时在 actions 末尾追加刷新按钮。
+  /* 提供时在 actions 末尾追加刷新按钮。 */
   final VoidCallback? onRefresh;
 
-  /// 刷新按钮是否处于加载中(禁用 + spinner)。
+  /* 刷新按钮是否处于加载中(禁用 + spinner)。 */
   final bool isRefreshing;
 
   @override
@@ -147,7 +147,7 @@ class PageHeader extends StatelessWidget {
   }
 }
 
-/// Header 用的状态/统计胶囊:图标 + 文案 + 强调色。
+/* Header 用的状态/统计胶囊:图标 + 文案 + 强调色。 */
 class HeaderStatPill extends StatelessWidget {
   const HeaderStatPill({
     required this.icon,

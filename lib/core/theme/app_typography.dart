@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// 字号 token(Material 3 + 业务扩展)。
+/* 字号 token(Material 3 + 业务扩展)。 */
 class AppTypography {
   const AppTypography._();
 

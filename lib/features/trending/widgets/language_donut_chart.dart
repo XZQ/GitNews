@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_typography.dart';
 import '../domain/entities.dart';
 
-/// 语言占比环形图(中心洞口显示总量)。
+/* 语言占比环形图(中心洞口显示总量)。 */
 class LanguageDonutChart extends StatelessWidget {
   const LanguageDonutChart({
     required this.data,

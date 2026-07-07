@@ -100,7 +100,7 @@ final trendingRepositoryProvider = Provider<TrendingRepository>((ref) {
   );
 });
 
-/// 兼容旧测试/外部 override 的本地仓库实例。
+/* 兼容旧测试/外部 override 的本地仓库实例。 */
 final localTrendingRepositoryProvider = Provider<TrendingRepository>((ref) {
   return const LocalTrendingRepository();
 });
@@ -112,12 +112,12 @@ final trendingDigestProvider = FutureProvider<TrendingDigest>((ref) {
       );
 });
 
-/// 顶部搜索框关键词。空字符串表示不过滤当前热榜结果。
+/* 顶部搜索框关键词。空字符串表示不过滤当前热榜结果。 */
 final trendingSearchQueryProvider = StateProvider<String>((ref) => '');
 
-/// 应用本地搜索后的热榜摘要。
-///
-/// 搜索只作用于当前已拉取/缓存结果,避免输入关键词触发 GitHub Search 请求。
+/* 应用本地搜索后的热榜摘要。 */
+/*  */
+/* 搜索只作用于当前已拉取/缓存结果,避免输入关键词触发 GitHub Search 请求。 */
 final filteredTrendingDigestProvider =
     FutureProvider<TrendingDigest>((ref) async {
   final query = ref.watch(trendingSearchQueryProvider);
@@ -179,11 +179,11 @@ Future<void> refreshTrendingDigest(WidgetRef ref) async {
   ref.invalidate(trendingDigestProvider);
 }
 
-/// 时间窗筛选:`today` / `week` / `month`。
+/* 时间窗筛选:`today` / `week` / `month`。 */
 final trendingWindowFilterProvider = StateProvider<String>((ref) => 'today');
 
-/// 榜单筛选:`all` / `agent` / `mcp` / `ai_coding` / `new_repos`。
+/* 榜单筛选:`all` / `agent` / `mcp` / `ai_coding` / `new_repos`。 */
 final trendingBoardFilterProvider = StateProvider<String>((ref) => 'all');
 
-/// 语言筛选:`all` / `typescript` / `python` / `rust` …
+/* 语言筛选:`all` / `typescript` / `python` / `rust` … */
 final trendingLanguageFilterProvider = StateProvider<String>((ref) => 'all');

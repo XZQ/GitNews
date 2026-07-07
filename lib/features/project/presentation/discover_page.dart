@@ -15,7 +15,7 @@ import '../application/project_providers.dart';
 import 'widgets/project_page_skeleton.dart';
 import 'widgets/project_secondary_cards.dart';
 
-/// 二级:发现推荐(收藏夹 + 热门仓库推荐)。
+/* 二级:发现推荐(收藏夹 + 热门仓库推荐)。 */
 class DiscoverPage extends ConsumerWidget {
   const DiscoverPage({super.key});
 

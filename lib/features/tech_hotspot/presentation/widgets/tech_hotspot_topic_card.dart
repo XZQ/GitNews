@@ -6,7 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/tech_hotspot_models.dart';
 
-/// 技术主题卡片(网格单元)。
+/* 技术主题卡片(网格单元)。 */
 class TechHotspotTopicCard extends StatelessWidget {
   const TechHotspotTopicCard({
     required this.topic,

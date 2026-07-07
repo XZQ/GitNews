@@ -5,15 +5,15 @@ import 'app_radius.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
-/// 主题工厂:浅色/深色由 [Brightness] 决定,色相由 [seed] 决定。
+/* 主题工厂:浅色/深色由 [Brightness] 决定,色相由 [seed] 决定。 */
 class AppTheme {
   const AppTheme._();
 
-  /// 当前主题色 seed(默认 Slate)。由 app.dart 从
-  /// `themePresetControllerProvider` 注入,UI 不应直接读此值。
+  /* 当前主题色 seed(默认 Slate)。由 app.dart 从 */
+  /* `themePresetControllerProvider` 注入,UI 不应直接读此值。 */
   static const Color defaultSeed = Color(0xFF0D9488);
 
-  /// 以指定 seed 构造浅色主题。
+  /* 以指定 seed 构造浅色主题。 */
   static ThemeData light(Color seed) => _build(
         brightness: Brightness.light,
         seed: seed,
@@ -26,7 +26,7 @@ class AppTheme {
         textMuted: AppColors.textMutedLight,
       );
 
-  /// 以指定 seed 构造深色主题。
+  /* 以指定 seed 构造深色主题。 */
   static ThemeData dark(Color seed) => _build(
         brightness: Brightness.dark,
         seed: seed,
@@ -39,7 +39,7 @@ class AppTheme {
         textMuted: AppColors.textMutedDark,
       );
 
-  /// 通用工厂。
+  /* 通用工厂。 */
   static ThemeData fromSeed(Brightness brightness, Color seed) =>
       switch (brightness) {
         Brightness.light => light(seed),

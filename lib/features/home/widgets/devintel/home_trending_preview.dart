@@ -8,7 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
 import '../../../trending/application/trending_providers.dart';
 
-/// 首页 GitHub热榜 Top N 预览。
+/* 首页 GitHub热榜 Top N 预览。 */
 class HomeTrendingPreview extends ConsumerWidget {
   const HomeTrendingPreview({super.key});
 

@@ -6,7 +6,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
-/// 顶部四宫格核心指标。
+/* 顶部四宫格核心指标。 */
 class TrendingHeroMetrics extends StatelessWidget {
   const TrendingHeroMetrics({super.key});
 
@@ -90,7 +90,7 @@ class TrendingMetric extends StatelessWidget {
   }
 }
 
-/// 时间窗切换:today/week/month。
+/* 时间窗切换:today/week/month。 */
 class TrendingWindowSegmented extends StatelessWidget {
   const TrendingWindowSegmented({
     super.key,
@@ -126,7 +126,7 @@ class TrendingWindowSegmented extends StatelessWidget {
   }
 }
 
-/// 通用语言筛选 PopupMenu。
+/* 通用语言筛选 PopupMenu。 */
 class TrendingPopupMenu extends StatelessWidget {
   const TrendingPopupMenu({
     super.key,

@@ -16,10 +16,10 @@ import 'widgets/ai_news_list_skeleton.dart';
 import 'widgets/ai_news_page_header.dart';
 import 'widgets/ai_news_timeline_row.dart';
 
-/// AI 动态页。
-///
-/// 数据源:`https://aihot.virxact.com/api/public/items`(精选流)。
-/// 布局:顶部页头 + 分类导航条 + 分页列表(单页 10 条,触底自动加载)。
+/* AI 动态页。 */
+/*  */
+/* 数据源:`https://aihot.virxact.com/api/public/items`(精选流)。 */
+/* 布局:顶部页头 + 分类导航条 + 分页列表(单页 10 条,触底自动加载)。 */
 class AiNewsPage extends ConsumerWidget {
   const AiNewsPage({super.key});
 
@@ -82,7 +82,7 @@ class _ItemList extends ConsumerStatefulWidget {
   ConsumerState<_ItemList> createState() => _ItemListState();
 }
 
-/// 扁平化分组后的列表项(header / row)。
+/* 扁平化分组后的列表项(header / row)。 */
 class _FlatEntry {
   const _FlatEntry._({this.date, this.count, this.item});
 

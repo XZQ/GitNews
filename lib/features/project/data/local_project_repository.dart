@@ -11,7 +11,7 @@ import '../../trending/domain/trending_repository.dart';
 import '../domain/project_repository.dart';
 import 'github_project_repository.dart';
 
-/// 基于 [DemoData] + [TrendingRepository] 的本地项目仓库。
+/* 基于 [DemoData] + [TrendingRepository] 的本地项目仓库。 */
 class LocalProjectRepository implements ProjectRepository {
   const LocalProjectRepository({
     required this.trending,
@@ -33,7 +33,7 @@ class LocalProjectRepository implements ProjectRepository {
   }
 }
 
-/// 依赖注入入口。
+/* 依赖注入入口。 */
 final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
   final trending = ref.watch(trendingRepositoryProvider);
   final gate = ref.watch(rateLimitGateProvider);

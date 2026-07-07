@@ -8,9 +8,9 @@ import 'package:github_news/shared/widgets/empty_view.dart';
 import 'package:github_news/shared/widgets/error_view.dart';
 import 'package:github_news/shared/widgets/repo_tile.dart';
 
-/// Golden 渲染对照。
-///
-/// 修改 shared widget 视觉时,跑 `flutter test --update-goldens` 重新生成基线。
+/* Golden 渲染对照。 */
+/*  */
+/* 修改 shared widget 视觉时,跑 `flutter test --update-goldens` 重新生成基线。 */
 void main() {
   Future<void> pumpScene(
     WidgetTester tester,

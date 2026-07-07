@@ -9,24 +9,24 @@ import 'package:github_news/core/theme/app_radius.dart';
 import 'package:github_news/core/theme/app_spacing.dart';
 import 'package:github_news/core/theme/app_typography.dart';
 
-/// Onboarding 完成标志的 SharedPreferences key。
+/* Onboarding 完成标志的 SharedPreferences key。 */
 const String kOnboardingCompletedKey = 'onboarding_completed';
 
-/// 是否需要显示 Onboarding。
+/* 是否需要显示 Onboarding。 */
 final shouldShowOnboardingProvider = FutureProvider<bool>((ref) async {
   final prefs = ref.read(sharedPreferencesProvider);
   return !(prefs.getBool(kOnboardingCompletedKey) ?? false);
 });
 
-/// 标记 Onboarding 已完成。
+/* 标记 Onboarding 已完成。 */
 Future<void> markOnboardingCompleted(WidgetRef ref) async {
   final prefs = ref.read(sharedPreferencesProvider);
   await prefs.setBool(kOnboardingCompletedKey, true);
 }
 
-/// 首次启动引导对话框。
-///
-/// 4 步：欢迎 → AI 动态 → GitHub 热榜 → 仓库监控 → 完成。
+/* 首次启动引导对话框。 */
+/*  */
+/* 4 步：欢迎 → AI 动态 → GitHub 热榜 → 仓库监控 → 完成。 */
 class OnboardingDialog extends ConsumerStatefulWidget {
   const OnboardingDialog({super.key});
 

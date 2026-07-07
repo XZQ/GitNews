@@ -2,7 +2,7 @@ import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../domain/repo_detail_repository.dart';
 
-/// 基于本地模拟数据的仓库详情仓库。
+/* 基于本地模拟数据的仓库详情仓库。 */
 class LocalRepoDetailRepository implements RepoDetailRepository {
   const LocalRepoDetailRepository();
 

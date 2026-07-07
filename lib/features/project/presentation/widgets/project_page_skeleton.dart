@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/skeleton.dart';
 
-/// 项目深度报告页统一骨架屏。
+/* 项目深度报告页统一骨架屏。 */
 class ProjectPageSkeleton extends StatelessWidget {
   const ProjectPageSkeleton({this.blocks = const [180, 240, 180], super.key});
 

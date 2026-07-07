@@ -9,7 +9,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../domain/entities.dart';
 
-/// 语言分布面板:按分类(all/ai/web/system)筛选热门语言并展示占比。
+/* 语言分布面板:按分类(all/ai/web/system)筛选热门语言并展示占比。 */
 class TrendingLanguagePanel extends StatelessWidget {
   const TrendingLanguagePanel({
     super.key,

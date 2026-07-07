@@ -1,6 +1,6 @@
 import 'dart:io' show Platform;
 
-/// 平台差异扩展:UI 通过此类访问,不直接 `Platform.isXxx`。
+/* 平台差异扩展:UI 通过此类访问,不直接 `Platform.isXxx`。 */
 class PlatformInfo {
   const PlatformInfo._();
 

@@ -62,8 +62,8 @@ class DemoContributorFixture {
   final int avatarColor;
 }
 
-/// severity 索引:`0=info 1=success 2=warning 3=danger`,
-/// 与 `features/monitor/domain/entities.dart#AlertSeverity` 同序。
+/* severity 索引:`0=info 1=success 2=warning 3=danger`, */
+/* 与 `features/monitor/domain/entities.dart#AlertSeverity` 同序。 */
 const int alertSeverityInfo = 0;
 const int alertSeveritySuccess = 1;
 const int alertSeverityWarning = 2;

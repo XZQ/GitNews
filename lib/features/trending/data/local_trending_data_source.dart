@@ -4,10 +4,10 @@ import '../domain/entities.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
-/// 基于内置种子数据的趋势数据源。
-///
-/// 保持与真实远端数据源相同的边界:先按查询条件取数,再交给 Repository
-/// 组装页面 digest。
+/* 基于内置种子数据的趋势数据源。 */
+/*  */
+/* 保持与真实远端数据源相同的边界:先按查询条件取数,再交给 Repository */
+/* 组装页面 digest。 */
 class LocalTrendingDataSource implements TrendingDataSource {
   const LocalTrendingDataSource();
 

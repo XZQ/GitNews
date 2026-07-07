@@ -8,17 +8,17 @@ class TabSpec {
     required this.selectedIcon,
   });
 
-  /// i18n key,渲染时由调用方通过 [AppLocalizations.tr] 解析为本地化文案。
+  /* i18n key,渲染时由调用方通过 [AppLocalizations.tr] 解析为本地化文案。 */
   final String labelKey;
 
-  /// 路由路径段(无前导斜杠),用于把 location 解析回 tab index。
+  /* 路由路径段(无前导斜杠),用于把 location 解析回 tab index。 */
   final String pathSegment;
   final IconData icon;
   final IconData selectedIcon;
 }
 
-/// 桌面侧栏 7 栏 IA:
-/// 总览 → AI 动态 → GitHub热榜 → AI雷达 → 仓库监控 → 深度报告 → 设置
+/* 桌面侧栏 7 栏 IA: */
+/* 总览 → AI 动态 → GitHub热榜 → AI雷达 → 仓库监控 → 深度报告 → 设置 */
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
     labelKey: 'tab.home',

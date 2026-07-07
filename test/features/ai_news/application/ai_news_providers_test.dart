@@ -51,15 +51,15 @@ AiNewsItem _item(
       selected: true,
     );
 
-/// 等待 provider 进入稳态(Phase A + Phase B 均完成)。
-///
-/// Notifier 在 Phase A 通过 `state = AsyncData(cached)` 立即出缓存,
-/// 这会让 `.future` 提前 resolve;此时 Phase B 可能仍在后台跑,
-/// 而且 autoDispose 可能在没有 listener 时把 Notifier 实例销毁,
-/// 导致 Phase B 的 state 更新被丢弃。
-///
-/// 本 helper 通过 [ProviderContainer.listen] 保持一个常驻订阅,
-/// 让 Notifier 一直存活,然后给 Phase B 足够的 event-loop tick。
+/* 等待 provider 进入稳态(Phase A + Phase B 均完成)。 */
+/*  */
+/* Notifier 在 Phase A 通过 `state = AsyncData(cached)` 立即出缓存, */
+/* 这会让 `.future` 提前 resolve;此时 Phase B 可能仍在后台跑, */
+/* 而且 autoDispose 可能在没有 listener 时把 Notifier 实例销毁, */
+/* 导致 Phase B 的 state 更新被丢弃。 */
+/*  */
+/* 本 helper 通过 [ProviderContainer.listen] 保持一个常驻订阅, */
+/* 让 Notifier 一直存活,然后给 Phase B 足够的 event-loop tick。 */
 Future<List<AiNewsItem>> _pumpUntilSettled(ProviderContainer container) async {
   final sub = container.listen(aiNewsItemsNotifierProvider, (prev, next) {});
   try {

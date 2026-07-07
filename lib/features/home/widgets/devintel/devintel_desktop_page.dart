@@ -10,12 +10,12 @@ import 'home_hotspot_preview.dart';
 import 'home_section_entry_row.dart';
 import 'home_trending_preview.dart';
 
-/// 首页(桌面 / Expanded)情报总览。
-///
-/// 三行布局:
-/// - Row 1:[HomeSectionEntryRow] — 5 栏目入口 + KPI
-/// - Row 2:3 列 [HomeAiNewsPreview] / [HomeTrendingPreview] / [HomeHotspotPreview]
-/// - Row 3:[DevIntelChartCard] + [DevIntelBottomGrid] — Star 趋势与监控状态
+/* 首页(桌面 / Expanded)情报总览。 */
+/*  */
+/* 三行布局: */
+/* - Row 1:[HomeSectionEntryRow] — 5 栏目入口 + KPI */
+/* - Row 2:3 列 [HomeAiNewsPreview] / [HomeTrendingPreview] / [HomeHotspotPreview] */
+/* - Row 3:[DevIntelChartCard] + [DevIntelBottomGrid] — Star 趋势与监控状态 */
 class DevIntelDesktopPage extends StatelessWidget {
   const DevIntelDesktopPage({super.key});
 

@@ -7,7 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_category_style.dart';
 
-/// 分类导航条(顶部 chips)。
+/* 分类导航条(顶部 chips)。 */
 class AiNewsCategoryNav extends StatelessWidget {
   const AiNewsCategoryNav({
     required this.selected,

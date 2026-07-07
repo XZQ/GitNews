@@ -8,7 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/trending_providers.dart';
 
-/// 趋势页顶部条:与其它一级页共享同一规格。
+/* 趋势页顶部条:与其它一级页共享同一规格。 */
 class TrendingPageHeader extends ConsumerWidget {
   const TrendingPageHeader({super.key});
 

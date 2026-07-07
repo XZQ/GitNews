@@ -17,7 +17,7 @@ import 'local_monitor_repository.dart';
 
 const Duration monitorRemoteCacheTtl = CacheTtlConfig.monitor;
 
-/// 基于 GitHub REST API 的仓库监控数据仓库。
+/* 基于 GitHub REST API 的仓库监控数据仓库。 */
 class GithubMonitorRepository implements MonitorRepository {
   const GithubMonitorRepository({
     required Dio dio,

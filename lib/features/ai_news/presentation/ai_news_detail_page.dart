@@ -9,10 +9,10 @@ import '../../../shared/widgets/error_view.dart';
 import '../application/ai_news_providers.dart';
 import 'widgets/ai_news_detail_content.dart';
 
-/// AI 资讯详情页。
-///
-/// 详情页展示已缓存的结构化资讯内容,避免桌面 WebView 直接加载微信 / X 等
-/// 外站时出现白屏。原文仍通过外部浏览器打开。
+/* AI 资讯详情页。 */
+/*  */
+/* 详情页展示已缓存的结构化资讯内容,避免桌面 WebView 直接加载微信 / X 等 */
+/* 外站时出现白屏。原文仍通过外部浏览器打开。 */
 class AiNewsDetailPage extends ConsumerWidget {
   const AiNewsDetailPage({required this.id, super.key});
 

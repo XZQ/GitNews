@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/// 折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。
+/* 折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。 */
 class StarTrendChart extends StatelessWidget {
   const StarTrendChart({
     required this.series,
@@ -14,12 +14,12 @@ class StarTrendChart extends StatelessWidget {
     super.key,
   });
 
-  /// 每条系列的颜色 + 数据点。
+  /* 每条系列的颜色 + 数据点。 */
   final List<ChartSeries> series;
   final double height;
   final bool showArea;
 
-  /// 自定义 X 轴标签(按数据点 index 取值)。null 时默认显示 `'${i}d'`。
+  /* 自定义 X 轴标签(按数据点 index 取值)。null 时默认显示 `'${i}d'`。 */
   final List<String>? xLabels;
 
   @override
@@ -140,7 +140,7 @@ class ChartSeries {
   final Color color;
 }
 
-/// 极简热力柱状图(语言分布、活跃度等)。
+/* 极简热力柱状图(语言分布、活跃度等)。 */
 class MiniBars extends StatelessWidget {
   const MiniBars({required this.values, this.height = 60, super.key});
 
@@ -180,7 +180,7 @@ class MiniBars extends StatelessWidget {
   }
 }
 
-/// 极简面积趋势(行内用,无坐标轴)。
+/* 极简面积趋势(行内用,无坐标轴)。 */
 class Sparkline extends StatelessWidget {
   const Sparkline({
     required this.values,

@@ -4,7 +4,7 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
-/// 区块标题:左侧标题 + 副标题,右侧操作(可空)。
+/* 区块标题:左侧标题 + 副标题,右侧操作(可空)。 */
 class SectionHeader extends StatelessWidget {
   const SectionHeader({
     required this.title,

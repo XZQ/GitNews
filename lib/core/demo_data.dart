@@ -1,7 +1,7 @@
-/// 演示用静态数据(脚手架阶段,后续替换为 Repository 实现)。
-///
-/// 本文件只放 fixture,不允许业务模块直接 import 里面的类型;
-/// 业务模块应 import 对应 domain 实体,由 data 层调用 [DemoDataMappers] 完成映射。
+/* 演示用静态数据(脚手架阶段,后续替换为 Repository 实现)。 */
+/*  */
+/* 本文件只放 fixture,不允许业务模块直接 import 里面的类型; */
+/* 业务模块应 import 对应 domain 实体,由 data 层调用 [DemoDataMappers] 完成映射。 */
 library;
 
 import 'theme/app_colors.dart';
@@ -267,7 +267,7 @@ class DemoData {
     ),
   ];
 
-  /// Star 趋势生成(演示)。[count] 控制点数。
+  /* Star 趋势生成(演示)。[count] 控制点数。 */
   static List<double> generateStarTrend(int base, int delta, {int count = 30}) {
     final last = count - 1;
     return List<double>.generate(count, (i) {

@@ -52,7 +52,7 @@ class MonitorPage extends ConsumerWidget {
   }
 }
 
-/// 手机:状态 4 卡 + 我的监控仓库 + 最近告警。
+/* 手机:状态 4 卡 + 我的监控仓库 + 最近告警。 */
 class _Mobile extends StatelessWidget {
   const _Mobile({required this.digest});
 
@@ -78,7 +78,7 @@ class _Mobile extends StatelessWidget {
   }
 }
 
-/// 桌面:左 8 列监控仓库表 + 告警 / 右 4 列(规则 + 通知设置)。
+/* 桌面:左 8 列监控仓库表 + 告警 / 右 4 列(规则 + 通知设置)。 */
 class _Desktop extends ConsumerWidget {
   const _Desktop({required this.digest});
 

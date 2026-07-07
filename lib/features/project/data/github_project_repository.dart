@@ -12,7 +12,7 @@ import '../domain/project_repository.dart';
 
 const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
 
-/// 基于趋势仓库 + GitHub contributors 的深度报告仓库。
+/* 基于趋势仓库 + GitHub contributors 的深度报告仓库。 */
 class GithubProjectRepository implements ProjectRepository {
   const GithubProjectRepository({
     required TrendingRepository trending,

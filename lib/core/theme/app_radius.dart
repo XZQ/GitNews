@@ -1,4 +1,4 @@
-/// 圆角 token。
+/* 圆角 token。 */
 class AppRadius {
   const AppRadius._();
 

@@ -9,12 +9,12 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 
-/// 应用内 WebView 页面。
-///
-/// 顶层路由 `/webview`(脱离 [StatefulShellRoute] / 侧栏),全屏浏览外链;
-/// 顶栏提供「刷新 / 在浏览器中打开 / 复制链接 / 返回」,顶栏下方进度条提示加载进度。
-///
-/// Windows 平台依赖 WebView2 运行时(现代 Win10/11 已预装)。
+/* 应用内 WebView 页面。 */
+/*  */
+/* 顶层路由 `/webview`(脱离 [StatefulShellRoute] / 侧栏),全屏浏览外链; */
+/* 顶栏提供「刷新 / 在浏览器中打开 / 复制链接 / 返回」,顶栏下方进度条提示加载进度。 */
+/*  */
+/* Windows 平台依赖 WebView2 运行时(现代 Win10/11 已预装)。 */
 class WebViewPage extends StatefulWidget {
   const WebViewPage({required this.url, this.title, super.key});
 
@@ -33,11 +33,11 @@ class _WebViewPageState extends State<WebViewPage> {
   bool _failed = false;
   bool _hasLoadedAnyContent = false;
 
-  /// 移动端 Chrome UA。
-  ///
-  /// Windows WebView2 默认是桌面 Edge UA,会被微信公众号 / 部分媒体站点拦截
-  /// 返回 403 / 空内容,导致主帧加载失败。改成 Android Chrome 移动 UA 后,
-  /// 多数站点返回适合内嵌阅读的移动版页面。
+  /* 移动端 Chrome UA。 */
+  /*  */
+  /* Windows WebView2 默认是桌面 Edge UA,会被微信公众号 / 部分媒体站点拦截 */
+  /* 返回 403 / 空内容,导致主帧加载失败。改成 Android Chrome 移动 UA 后, */
+  /* 多数站点返回适合内嵌阅读的移动版页面。 */
   static const String _mobileUa =
       'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, '
       'like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
@@ -144,7 +144,7 @@ class _WebViewPageState extends State<WebViewPage> {
     return uri?.host.isNotEmpty == true ? uri!.host : (uri?.authority ?? url);
   }
 
-  /// 仅允许 http/https scheme(防御开放重定向 / file:// 读沙箱 / javascript: 注入)。
+  /* 仅允许 http/https scheme(防御开放重定向 / file:// 读沙箱 / javascript: 注入)。 */
   static bool _isHttpScheme(Uri uri) =>
       uri.scheme == 'http' || uri.scheme == 'https';
 }
@@ -227,10 +227,10 @@ class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// WebView 主体 + 进度条 / 错误覆盖层。
-///
-/// 持有 [_WebViewPageState] 引用以便回调 [State.setState] 与控制器赋值。
-/// 两个类均私有于本文件,耦合可控。
+/* WebView 主体 + 进度条 / 错误覆盖层。 */
+/*  */
+/* 持有 [_WebViewPageState] 引用以便回调 [State.setState] 与控制器赋值。 */
+/* 两个类均私有于本文件,耦合可控。 */
 class _WebViewBody extends StatelessWidget {
   const _WebViewBody({required this.state});
 

@@ -9,7 +9,7 @@ import '../../../../shared/widgets/page_header.dart';
 import '../../application/tech_hotspot_providers.dart';
 import '../../domain/tech_hotspot_models.dart';
 
-/// AI 雷达页顶部条。
+/* AI 雷达页顶部条。 */
 class TechHotspotPageHeader extends ConsumerWidget {
   const TechHotspotPageHeader({super.key});
 

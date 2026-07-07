@@ -6,7 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 
-/// 手机端聚合卡:收藏 + 关注开发者。
+/* 手机端聚合卡:收藏 + 关注开发者。 */
 class ProfileCollectListCard extends StatelessWidget {
   const ProfileCollectListCard({super.key});
 
@@ -43,7 +43,7 @@ class ProfileCollectListCard extends StatelessWidget {
   }
 }
 
-/// 手机端聚合卡:监控主题 + 监控规则。
+/* 手机端聚合卡:监控主题 + 监控规则。 */
 class ProfileMonitorListCard extends StatelessWidget {
   const ProfileMonitorListCard({super.key});
 

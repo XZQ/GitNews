@@ -6,7 +6,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/page_header.dart';
 import '../../application/ai_news_providers.dart';
 
-/// AI 动态页顶部条 — 复用 [PageHeader] 体系。
+/* AI 动态页顶部条 — 复用 [PageHeader] 体系。 */
 class AiNewsPageHeader extends ConsumerWidget {
   const AiNewsPageHeader({super.key});
 

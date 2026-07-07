@@ -25,7 +25,7 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   );
 });
 
-/// 兼容测试 override 与本地兜底。
+/* 兼容测试 override 与本地兜底。 */
 final localMonitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   return const LocalMonitorRepository();
 });
@@ -34,10 +34,10 @@ final monitorDigestProvider = FutureProvider<MonitorDigest>((ref) {
   return ref.watch(monitorRepositoryProvider).getDigest();
 });
 
-/// 仓库监控顶部搜索关键词。空字符串表示不过滤当前监控数据。
+/* 仓库监控顶部搜索关键词。空字符串表示不过滤当前监控数据。 */
 final monitorSearchQueryProvider = StateProvider<String>((ref) => '');
 
-/// 应用本地搜索后的监控摘要。
+/* 应用本地搜索后的监控摘要。 */
 final filteredMonitorDigestProvider =
     FutureProvider<MonitorDigest>((ref) async {
   final query = ref.watch(monitorSearchQueryProvider);

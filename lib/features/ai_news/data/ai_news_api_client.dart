@@ -3,14 +3,14 @@ import 'package:dio/dio.dart';
 import '../../../core/errors/app_exception.dart';
 import 'dto/ai_news_item_dto.dart';
 
-/// aihot.virxact.com 公开 REST API 客户端。
-///
-/// 匿名免费、无需 token,但必须带 User-Agent(否则 nginx 直接 403)。
-/// 实例通过 [AiNewsApiClient.create] 构造时复用上层注入的 [Dio](含统一重试/超时拦截器)。
+/* aihot.virxact.com 公开 REST API 客户端。 */
+/*  */
+/* 匿名免费、无需 token,但必须带 User-Agent(否则 nginx 直接 403)。 */
+/* 实例通过 [AiNewsApiClient.create] 构造时复用上层注入的 [Dio](含统一重试/超时拦截器)。 */
 class AiNewsApiClient {
   const AiNewsApiClient._(this._dio);
 
-  /// 用全局拦截器链构造的 [Dio] 注入;只负责 baseUrl 与 UA 头部。
+  /* 用全局拦截器链构造的 [Dio] 注入;只负责 baseUrl 与 UA 头部。 */
   factory AiNewsApiClient.create(Dio dio) {
     return AiNewsApiClient._(dio);
   }
@@ -24,9 +24,9 @@ class AiNewsApiClient {
 
   final Dio _dio;
 
-  /// `GET /api/public/items`。
-  ///
-  /// 参数语义见 [AiNewsRepository.fetchItems]。
+  /* `GET /api/public/items`。 */
+  /*  */
+  /* 参数语义见 [AiNewsRepository.fetchItems]。 */
   Future<AiNewsListResponseDto> fetchItems({
     String? category,
     DateTime? since,

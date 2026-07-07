@@ -5,12 +5,12 @@ import '../i18n/app_localizations.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-/// 未匹配路由兜底页。
-///
-/// 设计要点(对应 CLAUDE.md §九):
-/// - 静态展示错误页,**不**自动跳首页 —— 让用户能识别深链失效,而不是被默默重定向。
-/// - 不渲染 `error.toString()`(可能含内部路径 / URL / 异常类型,信息泄露)。
-///   仅在 debug 模式下走 `debugPrint`(release 被 strip)。
+/* 未匹配路由兜底页。 */
+/*  */
+/* 设计要点(对应 CLAUDE.md §九): */
+/* - 静态展示错误页,**不**自动跳首页 —— 让用户能识别深链失效,而不是被默默重定向。 */
+/* - 不渲染 `error.toString()`(可能含内部路径 / URL / 异常类型,信息泄露)。 */
+/*   仅在 debug 模式下走 `debugPrint`(release 被 strip)。 */
 class RouteErrorView extends StatelessWidget {
   const RouteErrorView({required this.error, super.key});
 

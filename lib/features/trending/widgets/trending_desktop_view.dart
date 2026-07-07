@@ -16,7 +16,7 @@ import 'trending_language_panel.dart';
 import 'trending_page_header.dart';
 import 'trending_topics_panel.dart';
 
-/// 桌面:左 8 列(趋势图 + 表格)/ 右 4 列(语言分布 + 主题)。
+/* 桌面:左 8 列(趋势图 + 表格)/ 右 4 列(语言分布 + 主题)。 */
 class TrendingDesktopView extends ConsumerWidget {
   const TrendingDesktopView({required this.digest, super.key});
 

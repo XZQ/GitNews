@@ -75,7 +75,7 @@ class ProfileSettingsCard extends ConsumerWidget {
   }
 }
 
-/// GitHub 热榜数据源切换:本地模拟 ↔ GitHub Search。
+/* GitHub 热榜数据源切换:本地模拟 ↔ GitHub Search。 */
 class _TrendingDataSourceToggle extends ConsumerWidget {
   const _TrendingDataSourceToggle();
 
@@ -124,7 +124,7 @@ class _ThemeToggle extends ConsumerWidget {
   }
 }
 
-/// 链接打开方式切换:应用内 WebView ↔ 系统浏览器。
+/* 链接打开方式切换:应用内 WebView ↔ 系统浏览器。 */
 class _LinkOpenModeToggle extends ConsumerWidget {
   const _LinkOpenModeToggle();
 
@@ -157,7 +157,7 @@ class _LinkOpenModeToggle extends ConsumerWidget {
   }
 }
 
-/// 主题色选择行:展示色圆,点击切换 seed。
+/* 主题色选择行:展示色圆,点击切换 seed。 */
 class _ThemeColorRow extends ConsumerWidget {
   const _ThemeColorRow();
 

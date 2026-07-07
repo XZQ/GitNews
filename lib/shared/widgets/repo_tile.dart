@@ -8,7 +8,7 @@ import '../../core/theme/app_typography.dart';
 import 'data_provenance_badge.dart';
 import 'star_trend_chart.dart';
 
-/// 仓库列表项。
+/* 仓库列表项。 */
 class RepoTile extends StatelessWidget {
   const RepoTile({
     required this.repo,

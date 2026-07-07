@@ -5,7 +5,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
 
-/// 话题趋势面板:展示本周高频技术话题的词云。
+/* 话题趋势面板:展示本周高频技术话题的词云。 */
 class TrendingTopicsPanel extends StatelessWidget {
   const TrendingTopicsPanel({super.key});
 

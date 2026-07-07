@@ -1,7 +1,7 @@
-/// 监控告警严重级别。
+/* 监控告警严重级别。 */
 enum AlertSeverity { info, success, warning, danger }
 
-/// 监控告警实体。
+/* 监控告警实体。 */
 class AlertEntity {
   const AlertEntity({
     required this.repoFullName,
@@ -15,12 +15,12 @@ class AlertEntity {
   final String metric;
   final String value;
 
-  /// 友好相对时间(展示层按需二次格式化)。
+  /* 友好相对时间(展示层按需二次格式化)。 */
   final String time;
   final AlertSeverity severity;
 }
 
-/// 监控统计摘要。
+/* 监控统计摘要。 */
 class MonitorStats {
   const MonitorStats({
     required this.monitoredCount,

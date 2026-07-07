@@ -8,7 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 
-/// Home 旧版 mobile / tablet 共用的页内分类(归档实现)。
+/* Home 旧版 mobile / tablet 共用的页内分类(归档实现)。 */
 enum HomeLegacyTab {
   trending,
   growth,
@@ -232,7 +232,7 @@ List<double> _windowedTrend(List<double>? values, int days) {
   return values.sublist(values.length - days);
 }
 
-/// 7 / 14 / 30 天窗口切换。
+/* 7 / 14 / 30 天窗口切换。 */
 class ChartWindowSegmented extends StatelessWidget {
   const ChartWindowSegmented({
     required this.value,

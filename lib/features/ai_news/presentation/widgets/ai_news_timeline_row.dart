@@ -7,7 +7,7 @@ import '../../domain/ai_news_item.dart';
 import 'ai_news_article_card.dart';
 import 'ai_news_category_style.dart';
 
-/// 单条时间线行:左列时间 + 圆点 + 竖线,右列卡片。
+/* 单条时间线行:左列时间 + 圆点 + 竖线,右列卡片。 */
 class AiNewsTimelineRow extends StatelessWidget {
   const AiNewsTimelineRow({required this.item, required this.onTap, super.key});
 

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 
-/// 主页面 Header 的统一图标块。
+/* 主页面 Header 的统一图标块。 */
 class PageHeaderIcon extends StatelessWidget {
   const PageHeaderIcon({
     required this.icon,

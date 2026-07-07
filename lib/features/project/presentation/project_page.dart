@@ -17,7 +17,7 @@ import 'widgets/project_repo_lists.dart';
 import 'widgets/project_summary_metrics.dart';
 import 'widgets/project_trend_overview.dart';
 
-/// "项目 / 报告 / 探索" 三栏内容,集中在一个 Tab。
+/* "项目 / 报告 / 探索" 三栏内容,集中在一个 Tab。 */
 class ProjectPage extends ConsumerWidget {
   const ProjectPage({super.key});
 

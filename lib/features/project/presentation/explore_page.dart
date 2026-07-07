@@ -15,7 +15,7 @@ import '../application/project_providers.dart';
 import 'widgets/project_page_skeleton.dart';
 import 'widgets/project_secondary_cards.dart';
 
-/// 二级:探索发现(话题 → 仓库 → 推荐)。
+/* 二级:探索发现(话题 → 仓库 → 推荐)。 */
 class ExplorePage extends ConsumerWidget {
   const ExplorePage({super.key});
 

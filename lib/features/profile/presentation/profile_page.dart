@@ -14,9 +14,9 @@ import 'widgets/profile_pro_card.dart';
 import 'widgets/profile_settings_card.dart';
 import 'widgets/profile_user_card.dart';
 
-/// 设置页面:
-/// - 手机/平板:卡片纵向堆叠(单列)。
-/// - 桌面:左侧设置项列表,右侧选中项的详情卡片。
+/* 设置页面: */
+/* - 手机/平板:卡片纵向堆叠(单列)。 */
+/* - 桌面:左侧设置项列表,右侧选中项的详情卡片。 */
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 

@@ -1,7 +1,7 @@
-/// 全局搜索关键词路由配置。
-///
-/// 首页搜索框根据用户输入的关键词智能路由到对应功能模块。
-/// 关键词匹配规则：小写化后检查是否包含任一关键词。
+/* 全局搜索关键词路由配置。 */
+/*  */
+/* 首页搜索框根据用户输入的关键词智能路由到对应功能模块。 */
+/* 关键词匹配规则：小写化后检查是否包含任一关键词。 */
 class SearchRouteEntry {
   const SearchRouteEntry({
     required this.route,
@@ -9,24 +9,24 @@ class SearchRouteEntry {
     required this.searchQueryProviderSetter,
   });
 
-  /// 目标路由路径。
+  /* 目标路由路径。 */
   final String route;
 
-  /// 触发关键词列表（小写）。
+  /* 触发关键词列表（小写）。 */
   final List<String> keywords;
 
-  /// 匹配后执行的 searchQueryProvider setter（由调用方注入）。
+  /* 匹配后执行的 searchQueryProvider setter（由调用方注入）。 */
   final void Function(String query) searchQueryProviderSetter;
 }
 
-/// 全局搜索关键词路由表。
-///
-/// 匹配顺序：从上到下，首个命中即返回。
-/// 默认 fallback：`/trending`。
+/* 全局搜索关键词路由表。 */
+/*  */
+/* 匹配顺序：从上到下，首个命中即返回。 */
+/* 默认 fallback：`/trending`。 */
 class GlobalSearchRouter {
   const GlobalSearchRouter._();
 
-  /// 构建路由表。setter 回调由调用方注入（避免 config 层依赖 feature providers）。
+  /* 构建路由表。setter 回调由调用方注入（避免 config 层依赖 feature providers）。 */
   static List<SearchRouteEntry> build({
     required void Function(String) aiNewsSetter,
     required void Function(String) techHotspotSetter,
@@ -88,10 +88,10 @@ class GlobalSearchRouter {
     ];
   }
 
-  /// 默认 fallback 路由。
+  /* 默认 fallback 路由。 */
   static const String fallbackRoute = '/trending';
 
-  /// 执行搜索路由。
+  /* 执行搜索路由。 */
   static void route({
     required String rawQuery,
     required List<SearchRouteEntry> entries,

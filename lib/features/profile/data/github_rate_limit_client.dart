@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/errors/app_exception.dart';
 
-/// GitHub rate limit 分桶。
+/* GitHub rate limit 分桶。 */
 class GitHubRateLimitBucket {
   const GitHubRateLimitBucket({
     required this.limit,
@@ -15,7 +15,7 @@ class GitHubRateLimitBucket {
   final DateTime resetAt;
 }
 
-/// GitHub rate limit 状态。
+/* GitHub rate limit 状态。 */
 class GitHubRateLimitSnapshot {
   const GitHubRateLimitSnapshot({
     required this.core,
@@ -28,7 +28,7 @@ class GitHubRateLimitSnapshot {
   final DateTime checkedAt;
 }
 
-/// GitHub `/rate_limit` 客户端。
+/* GitHub `/rate_limit` 客户端。 */
 class GitHubRateLimitClient {
   const GitHubRateLimitClient(this._dio);
 

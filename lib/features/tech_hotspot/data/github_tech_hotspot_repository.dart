@@ -16,7 +16,7 @@ import 'tech_hotspot_history_dao.dart';
 
 const Duration techHotspotRemoteCacheTtl = CacheTtlConfig.techHotspot;
 
-/// 基于 GitHub Search 的 AI 雷达远端仓库。
+/* 基于 GitHub Search 的 AI 雷达远端仓库。 */
 class GithubTechHotspotRepository implements TechHotspotRepository {
   const GithubTechHotspotRepository({
     required Dio dio,

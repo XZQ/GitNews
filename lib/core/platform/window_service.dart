@@ -1,9 +1,8 @@
 import 'package:flutter/services.dart';
 
-/// Windows 平台窗口控制桥接。
-///
-/// 通过 `github_news/window` MethodChannel 调用 native 端实现的
-/// minimize/maximize/close。在非 Windows 平台调用为 no-op。
+/* Windows 平台窗口控制桥接。 */
+/*  */ /* 通过 `github_news/window` MethodChannel 调用 native 端实现的 */
+/* minimize/maximize/close。在非 Windows 平台调用为 no-op。 */
 class WindowService {
   const WindowService();
 

@@ -14,7 +14,7 @@ import '../domain/trending_repository.dart';
 import 'trending_metrics.dart';
 import 'trending_topics_panel.dart';
 
-/// 手机:时间窗 / 筛选 + Hero 趋势图 + 列表 + 趋势主题。
+/* 手机:时间窗 / 筛选 + Hero 趋势图 + 列表 + 趋势主题。 */
 class TrendingMobileView extends ConsumerWidget {
   const TrendingMobileView({required this.digest, super.key});
 

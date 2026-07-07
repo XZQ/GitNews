@@ -17,14 +17,14 @@ import 'widgets/tech_hotspot_page_header.dart';
 import 'widgets/tech_hotspot_tags_cloud.dart';
 import 'widgets/tech_hotspot_topic_card.dart';
 
-/// AI 雷达页(桌面 / Expanded)。
-///
-/// 结构:
-/// - 顶部条 [TechHotspotPageHeader]
-/// - 行 1:雷达标签云
-/// - 行 2:Agent 榜观察
-/// - 行 2:热度曲线(8) + 语言占比(4)
-/// - 行 3:主题网格(2 列)
+/* AI 雷达页(桌面 / Expanded)。 */
+/*  */
+/* 结构: */
+/* - 顶部条 [TechHotspotPageHeader] */
+/* - 行 1:雷达标签云 */
+/* - 行 2:Agent 榜观察 */
+/* - 行 2:热度曲线(8) + 语言占比(4) */
+/* - 行 3:主题网格(2 列) */
 class TechHotspotPage extends ConsumerWidget {
   const TechHotspotPage({super.key});
 

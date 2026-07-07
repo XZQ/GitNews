@@ -19,7 +19,7 @@ import '../../../shared/widgets/star_trend_chart.dart';
 import '../application/monitor_providers.dart';
 import '../domain/entities.dart';
 
-/// 监控详情(对应监控页二级稿:实时趋势 + 告警历史)。
+/* 监控详情(对应监控页二级稿:实时趋势 + 告警历史)。 */
 class MonitorDetailPage extends ConsumerWidget {
   const MonitorDetailPage({required this.repoFullName, super.key});
 

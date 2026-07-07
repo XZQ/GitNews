@@ -7,7 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_category_style.dart';
 
-/// AI 动态列表卡片。
+/* AI 动态列表卡片。 */
 class AiNewsArticleCard extends StatelessWidget {
   const AiNewsArticleCard({
     required this.item,

@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../di/providers.dart';
 
-/// GitHub 热榜数据源模式。
+/* GitHub 热榜数据源模式。 */
 enum TrendingDataSourceMode {
   local,
   github;
@@ -15,9 +15,9 @@ enum TrendingDataSourceMode {
   }
 }
 
-/// GitHub 热榜数据源模式 controller。
-///
-/// 默认使用 [TrendingDataSourceMode.local],避免匿名 GitHub Search 触发限流。
+/* GitHub 热榜数据源模式 controller。 */
+/*  */
+/* 默认使用 [TrendingDataSourceMode.local],避免匿名 GitHub Search 触发限流。 */
 class TrendingDataSourceModeController
     extends Notifier<TrendingDataSourceMode> {
   static const _kKey = 'trending_data_source_mode';

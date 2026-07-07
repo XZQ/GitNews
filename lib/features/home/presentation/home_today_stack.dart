@@ -7,7 +7,7 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import 'home_chart_helpers.dart';
 
-/// 右侧"今日"卡片栈,根据分类切换显示不同指标。
+/* 右侧"今日"卡片栈,根据分类切换显示不同指标。 */
 class HomeTodayStack extends StatelessWidget {
   const HomeTodayStack({required this.tab, super.key});
 
@@ -33,7 +33,7 @@ class HomeTodayStack extends StatelessWidget {
   }
 }
 
-/// 单张"今日"卡片所需的可视化数据。
+/* 单张"今日"卡片所需的可视化数据。 */
 class _TodayCardData {
   const _TodayCardData({
     required this.icon,

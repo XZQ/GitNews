@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/breakpoint.dart';
 
-/// 通用响应式布局工具。
+/* 通用响应式布局工具。 */
 class ResponsiveLayout extends StatelessWidget {
   const ResponsiveLayout({
     required this.compact,
@@ -31,7 +31,7 @@ class ResponsiveLayout extends StatelessWidget {
   }
 }
 
-/// 居中并限制最大宽度的容器(在 Expanded/Medium 形态下让内容不要拉满全宽)。
+/* 居中并限制最大宽度的容器(在 Expanded/Medium 形态下让内容不要拉满全宽)。 */
 class CenteredContent extends StatelessWidget {
   const CenteredContent({
     required this.child,

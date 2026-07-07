@@ -16,7 +16,7 @@ import 'local_repo_detail_repository.dart';
 
 const Duration repoDetailRemoteCacheTtl = CacheTtlConfig.repoDetail;
 
-/// 基于 GitHub REST API 的仓库详情仓库。
+/* 基于 GitHub REST API 的仓库详情仓库。 */
 class GithubRepoDetailRepository implements RepoDetailRepository {
   const GithubRepoDetailRepository({
     required Dio dio,

@@ -2,10 +2,10 @@ import 'package:dio/dio.dart';
 
 import '../errors/app_exception.dart';
 
-/// GitHub REST API 通用请求与解析工具。
-///
-/// Feature 仓库仍负责业务聚合,本文件只收敛跨 feature 重复的协议细节:
-/// headers、Search 查询格式、JSON 类型断言、语言配色和限流异常转换。
+/* GitHub REST API 通用请求与解析工具。 */
+/*  */
+/* Feature 仓库仍负责业务聚合,本文件只收敛跨 feature 重复的协议细节: */
+/* headers、Search 查询格式、JSON 类型断言、语言配色和限流异常转换。 */
 class GitHubApiSupport {
   const GitHubApiSupport._();
 

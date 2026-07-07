@@ -32,19 +32,19 @@ import 'route_error_view.dart';
 
 export 'route_specs.dart';
 
-/// 应用根路由。
-///
-/// 设计要点(对应 CLAUDE.md §九):
-/// - 使用普通 [Provider]:当前路由不依赖任何外部状态(登录态接入后可
-///   切回 NotifierProvider 并在 build 内 `ref.watch` 鉴权 Provider)。
-/// - 未匹配路由由 [RouteErrorView] 静态展示错误页,而非跳转首页,以便
-///   用户能识别深链失效的原因。
+/* 应用根路由。 */
+/*  */
+/* 设计要点(对应 CLAUDE.md §九): */
+/* - 使用普通 [Provider]:当前路由不依赖任何外部状态(登录态接入后可 */
+/*   切回 NotifierProvider 并在 build 内 `ref.watch` 鉴权 Provider)。 */
+/* - 未匹配路由由 [RouteErrorView] 静态展示错误页,而非跳转首页,以便 */
+/*   用户能识别深链失效的原因。 */
 final appRouterProvider = Provider<GoRouter>(buildAppRouter);
 
-/// 应用根路由装配。
-///
-/// 登录态接入后,若路由依赖外部状态,改回 NotifierProvider 并在 build 内
-/// `ref.watch` 鉴权 Provider。
+/* 应用根路由装配。 */
+/*  */
+/* 登录态接入后,若路由依赖外部状态,改回 NotifierProvider 并在 build 内 */
+/* `ref.watch` 鉴权 Provider。 */
 GoRouter buildAppRouter(Ref ref) {
   return GoRouter(
     initialLocation: '/home',

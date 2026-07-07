@@ -2,7 +2,7 @@ import '../domain/ai_news_item.dart';
 import '../domain/ai_news_repository.dart';
 import 'ai_news_api_client.dart';
 
-/// 远端实现:走 [AiNewsApiClient] 拉 aihot.virxact.com 的公开条目。
+/* 远端实现:走 [AiNewsApiClient] 拉 aihot.virxact.com 的公开条目。 */
 class RemoteAiNewsRepository implements AiNewsRepository {
   const RemoteAiNewsRepository(this._client);
 

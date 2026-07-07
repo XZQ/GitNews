@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 
-/// dio 客户端工厂:统一超时与拦截器链。
-///
-/// 拦截器链:`RetryInterceptor` → 业务拦截器
-/// - 5xx / 网络错误重试 2 次,指数退避(500ms / 1500ms)
-/// - 429 不重试,把 `Retry-After` 留给异常层处理
+/* dio 客户端工厂:统一超时与拦截器链。 */
+/*  */
+/* 拦截器链:`RetryInterceptor` → 业务拦截器 */
+/* - 5xx / 网络错误重试 2 次,指数退避(500ms / 1500ms) */
+/* - 429 不重试,把 `Retry-After` 留给异常层处理 */
 class DioClient {
   const DioClient._();
 
@@ -64,6 +64,7 @@ class _RetryInterceptor extends Interceptor {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.sendTimeout:
+      case DioExceptionType.transformTimeout:
         return true;
       case DioExceptionType.badResponse:
         final code = e.response?.statusCode ?? 0;

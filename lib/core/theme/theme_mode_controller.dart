@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// 主题模式 controller:
-/// - 由 UI 上的"深色模式"开关控制(且仅在桌面端可切换)。
-/// - 持久化到 SharedPreferences。
+/* 主题模式 controller: */
+/* - 由 UI 上的"深色模式"开关控制(且仅在桌面端可切换)。 */
+/* - 持久化到 SharedPreferences。 */
 class ThemeModeController extends Notifier<ThemeMode> {
   static const _kKey = 'theme_mode';
 

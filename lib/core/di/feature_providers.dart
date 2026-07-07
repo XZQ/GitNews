@@ -1,9 +1,9 @@
-/// DI barrel export — 聚合各 feature 核心 Provider,方便测试时 override。
-///
-/// 此文件只做 re-export,不定义新 Provider。各 feature 的 Provider
-/// 仍在各自的 `application/` 目录下定义,此处统一导出以便:
-/// 1. 新人快速了解全项目的依赖注入点
-/// 2. 测试时从此处 import 并 override
+/* DI barrel export — 聚合各 feature 核心 Provider,方便测试时 override。 */
+/*  */
+/* 此文件只做 re-export,不定义新 Provider。各 feature 的 Provider */
+/* 仍在各自的 `application/` 目录下定义,此处统一导出以便: */
+/* 1. 新人快速了解全项目的依赖注入点 */
+/* 2. 测试时从此处 import 并 override */
 library;
 
 // core

@@ -11,7 +11,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
 
-/// 登录页(预留入口,匿名优先)。
+/* 登录页(预留入口,匿名优先)。 */
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 

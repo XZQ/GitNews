@@ -7,7 +7,7 @@ import '../../../shared/widgets/page_header.dart';
 import '../application/monitor_providers.dart';
 import '../domain/entities.dart';
 
-/// 监控页顶部条。
+/* 监控页顶部条。 */
 class MonitorPageHeader extends ConsumerWidget {
   const MonitorPageHeader({required this.stats, super.key});
 
