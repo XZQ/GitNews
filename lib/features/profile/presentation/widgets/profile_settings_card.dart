@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/preferences/link_open_mode_controller.dart';
+import '../../../../core/preferences/startup_tab_controller.dart';
 import '../../../../core/preferences/trending_data_source_mode_controller.dart';
+import '../../../../core/router/route_specs.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_theme_preset.dart';
@@ -49,10 +51,7 @@ class ProfileSettingsCard extends ConsumerWidget {
           ProfileSettingRow(
             icon: Icons.rocket_launch_outlined,
             label: l10n.tr('profile.settings.launch_theme'),
-            trailing: Text(
-              l10n.tr('profile.settings.launch_theme.home'),
-              style: AppTypography.labelMedium,
-            ),
+            trailing: const _StartupTabDropdown(),
           ),
           ProfileSettingRow(
             icon: Icons.cloud_outlined,
@@ -273,6 +272,35 @@ class _ColorSwatch extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// 启动 Tab 选择:下拉切换冷启动时落到哪个一级 Tab(下次启动生效)。
+class _StartupTabDropdown extends ConsumerWidget {
+  const _StartupTabDropdown();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final current = ref.watch(startupTabControllerProvider);
+    return DropdownButton<String>(
+      value: current,
+      underline: const SizedBox.shrink(),
+      isDense: true,
+      style: AppTypography.labelMedium,
+      items: [
+        for (final tab in appTabs)
+          DropdownMenuItem(
+            value: tab.pathSegment,
+            child: Text(l10n.tr(tab.labelKey)),
+          ),
+      ],
+      onChanged: (value) {
+        if (value != null) {
+          ref.read(startupTabControllerProvider.notifier).setSegment(value);
+        }
+      },
     );
   }
 }

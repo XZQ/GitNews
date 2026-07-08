@@ -29,6 +29,7 @@ import '../../features/trending/presentation/trending_overview_page.dart';
 import '../../features/trending/presentation/trending_page.dart';
 import '../../features/webview/presentation/webview_page.dart';
 import '../../shared/widgets/responsive_scaffold.dart';
+import '../preferences/startup_tab_controller.dart';
 import 'route_error_view.dart';
 
 export 'route_specs.dart';
@@ -47,8 +48,10 @@ final appRouterProvider = Provider<GoRouter>(buildAppRouter);
 *`ref.watch` 鉴权 Provider。
 */
 GoRouter buildAppRouter(Ref ref) {
+  // 启动 Tab 偏好:ref.read 一次,下次冷启动生效(不 watch,避免热重建路由栈)。
+  final startupSegment = ref.read(startupTabControllerProvider);
   return GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/$startupSegment',
     debugLogDiagnostics: false,
     routes: [
       StatefulShellRoute.indexedStack(
