@@ -57,6 +57,7 @@ app.*.map.json
 # Local development tools
 .rtk/
 .codegraph/
+.claude/worktrees/
 .github/workflows/
 .workbuddy/memory/
 
