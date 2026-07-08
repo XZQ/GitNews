@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/preferences/link_open_mode_controller.dart';
+import '../../../../core/preferences/locale_controller.dart';
 import '../../../../core/preferences/startup_tab_controller.dart';
 import '../../../../core/preferences/trending_data_source_mode_controller.dart';
 import '../../../../core/router/route_specs.dart';
@@ -38,6 +39,11 @@ class ProfileSettingsCard extends ConsumerWidget {
             icon: Icons.dark_mode_outlined,
             label: l10n.tr('profile.settings.dark_mode'),
             trailing: const _ThemeToggle(),
+          ),
+          ProfileSettingRow(
+            icon: Icons.translate_outlined,
+            label: l10n.tr('app.language'),
+            trailing: const _LanguagePicker(),
           ),
           ProfileSettingRow(
             icon: Icons.notifications_none,
@@ -126,7 +132,58 @@ class _ThemeToggle extends ConsumerWidget {
   }
 }
 
-/* 
+/*
+*应用语言切换:简体中文 ↔ English。
+*变更后整 App 重建,UI 立即反映新语言。
+*/
+class _LanguagePicker extends ConsumerWidget {
+  const _LanguagePicker();
+
+  // UI 列出的语言集合。每个选项对应一个 [LocaleController] 内部持久化值。
+  static const _options = <Locale>[Locale('zh', 'CN'), Locale('en', 'US')];
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final current = ref.watch(localeControllerProvider);
+    return SegmentedButton<Locale>(
+      style: const ButtonStyle(
+        visualDensity: VisualDensity(horizontal: -3, vertical: -2),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      segments: [
+        for (final option in _options)
+          ButtonSegment(
+            value: option,
+            icon: const Icon(Icons.translate_rounded, size: 14),
+            label: Text(l10n.tr(_labelKeyFor(option))),
+          ),
+      ],
+      selected: {current},
+      onSelectionChanged: (selection) {
+        ref.read(localeControllerProvider.notifier).setLocale(selection.first);
+      },
+      showSelectedIcon: false,
+    );
+  }
+
+  /*
+  *将 [Locale] 映射到对应的 i18n key,文本从 `app.language.<code>` 取。
+  *未知 locale 回落到 zh-CN 标签。
+  */
+  String _labelKeyFor(Locale option) {
+    final code = option.countryCode ?? '';
+    if (code == 'CN') {
+      return 'app.language.zh_cn';
+    }
+    if (code == 'US') {
+      return 'app.language.en_us';
+    }
+    return 'app.language.zh_cn';
+  }
+}
+
+/*
 *链接打开方式切换:应用内 WebView ↔ 系统浏览器。
 */
 class _LinkOpenModeToggle extends ConsumerWidget {

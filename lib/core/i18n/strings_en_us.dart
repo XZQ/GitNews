@@ -4,6 +4,9 @@
 const Map<String, String> stringsEnUS = <String, String>{
   // app
   'app.name': 'GitHub News',
+  'app.language': 'Language',
+  'app.language.zh_cn': '简体中文',
+  'app.language.en_us': 'English',
 
   // common
   'common.retry': 'Retry',

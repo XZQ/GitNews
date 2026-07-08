@@ -3,6 +3,9 @@
 const Map<String, String> stringsZhCN = <String, String>{
   // app
   'app.name': 'GitHub 情报站',
+  'app.language': '语言',
+  'app.language.zh_cn': '简体中文',
+  'app.language.en_us': 'English',
 
   // common
   'common.retry': '重试',
