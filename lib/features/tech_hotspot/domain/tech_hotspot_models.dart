@@ -28,7 +28,7 @@ class LanguageStat {
     required this.delta,
     required this.color,
     required this.repoCount,
-    this.provenance = DataProvenance.localFallback,
+    this.provenance = DataProvenance.seed,
   });
 
   final String name;
@@ -52,8 +52,8 @@ class TechTopic {
     required this.mentions,
     required this.relatedRepos,
     required this.summary,
-    this.provenance = DataProvenance.localFallback,
-    this.growthProvenance = DataProvenance.localFallback,
+    this.provenance = DataProvenance.seed,
+    this.growthProvenance = DataProvenance.seed,
   });
 
   final String id;

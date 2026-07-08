@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -169,8 +170,9 @@ class _ReadButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Tooltip(
-      message: isRead ? '标记为未读' : '标记为已读',
+      message: l10n.tr(isRead ? 'a11y.mark_unread' : 'a11y.mark_read'),
       child: IconButton(
         visualDensity: VisualDensity.compact,
         iconSize: 18,
@@ -194,8 +196,9 @@ class _ArchiveButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return Tooltip(
-      message: '归档',
+      message: l10n.tr('a11y.archive'),
       child: IconButton(
         visualDensity: VisualDensity.compact,
         iconSize: 18,

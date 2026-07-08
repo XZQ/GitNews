@@ -35,11 +35,10 @@ class ProjectPageHeader extends ConsumerWidget {
       onRefresh: () => ref.invalidate(projectDigestProvider),
       pills: [_NeutralPill(label: l10n.tr('project.pill.this_week'))],
       actions: [
-        IconButton(
+        HeaderAction(
+          icon: Icons.download_outlined,
           tooltip: l10n.tr('project.export'),
           onPressed: () => _exportReport(context, ref),
-          icon: const Icon(Icons.download_outlined, size: 20),
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
       ],
     );

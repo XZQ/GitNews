@@ -27,8 +27,7 @@ class RepoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final accent = Color(repo.accentArgb);
-    final trend =
-        repo.trend ?? DemoData.generateStarTrend(repo.starCount - 5000, 5000);
+    final trend = _resolveTrend(repo);
     return InkWell(
       onTap: onTap,
       child: Padding(
@@ -108,11 +107,13 @@ class RepoTile extends StatelessWidget {
             ),
             if (showTrend) ...[
               const SizedBox(width: AppSpacing.md),
-              Sparkline(
-                values: trend,
-                color: colors.tertiary,
-                width: 64,
-                height: 28,
+              RepaintBoundary(
+                child: Sparkline(
+                  values: trend,
+                  color: colors.tertiary,
+                  width: 64,
+                  height: 28,
+                ),
               ),
             ],
           ],
@@ -148,6 +149,20 @@ class _Pill extends StatelessWidget {
       ),
     );
   }
+}
+
+// 模块级趋势记忆化缓存:避免滚动/筛选重建时为同一仓库重复生成曲线。
+// 必须是可变 Map(putIfAbsent 会写入),故用 final 而非 const。
+final Map<String, List<double>> _trendCache = <String, List<double>>{};
+
+List<double> _resolveTrend(RepoEntity repo) {
+  final provided = repo.trend;
+  if (provided != null) return provided;
+  final key = '${repo.fullName}:${repo.starCount}';
+  return _trendCache.putIfAbsent(
+    key,
+    () => DemoData.generateStarTrend(repo.starCount - 5000, 5000),
+  );
 }
 
 String _shortNumber(int v) {

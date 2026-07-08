@@ -8,7 +8,8 @@ import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../../trending/application/trending_providers.dart';
 import '../widgets/home_topics_panel.dart';
-import 'home_chart_helpers.dart';
+import 'home_chart_models.dart';
+import 'home_chart_widgets.dart';
 import 'home_tablet_metrics_row.dart';
 import 'home_today_stack.dart';
 

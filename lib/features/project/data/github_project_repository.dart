@@ -6,6 +6,7 @@ import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../../trending/domain/trending_repository.dart';
@@ -106,9 +107,10 @@ class GithubProjectRepository implements ProjectRepository {
   Future<List<ContributorEntity>> _fetchContributors(
     Iterable<String> repos,
   ) async {
-    final results = await Future.wait([
-      for (final repo in repos) _fetchRepoContributors(repo),
-    ]);
+    final results = await gatherAll<List<ContributorEntity>>(
+      [for (final repo in repos) _fetchRepoContributors(repo)],
+      tag: 'githubProjectContributors',
+    );
     final byLogin = <String, ContributorEntity>{};
     for (final contributor in results.expand((e) => e)) {
       final old = byLogin[contributor.login];

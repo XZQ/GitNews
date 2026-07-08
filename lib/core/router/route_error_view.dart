@@ -27,6 +27,7 @@ class RouteErrorView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: l10n.tr('a11y.home'),
           icon: const Icon(Icons.home_rounded),
           onPressed: () => context.go('/home'),
         ),

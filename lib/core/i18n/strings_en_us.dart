@@ -194,6 +194,48 @@ const Map<String, String> stringsEnUS = <String, String>{
   'monitor.metric.healthy': 'Healthy',
   'monitor.metric.abnormal': 'Abnormal',
 
+  // monitor — alerts / settings / monitored repos / notification items
+  'monitor.alerts.title': 'Alerts',
+  'monitor.alerts.empty': 'No alerts in the last 24 hours',
+  'monitor.alerts.all': 'All alerts',
+  'monitor.alerts.subtitle': '{visible} visible · {unread} unread · {archived} archived',
+  'monitor.alerts.filter.all': 'All',
+  'monitor.alerts.filter.unread': 'Unread',
+  'monitor.alerts.filter.important': 'Important',
+  'monitor.alerts.mark_all_read': 'Mark all read',
+  'monitor.alerts.clear_read': 'Clear read',
+  'monitor.alerts.restore_archived': 'Restore archived',
+  'monitor.alerts.filtered_empty': 'No alerts under current filter',
+  'monitor.settings.title': 'Notification settings',
+  'monitor.settings.channel': 'Channels',
+  'monitor.settings.channel_subtitle': 'In-app / Email / Report',
+  'monitor.settings.dnd': 'Do not disturb',
+  'monitor.settings.dnd_subtitle': 'Night & work hours',
+  'monitor.monitored_repos.title': 'My monitored repos',
+  'monitor.monitored_repos.subtitle': 'Star growth & alerts in last 30 days',
+  'monitor.monitored_repos.empty': 'No matching monitored repos',
+  'monitor.monitored_repos.status_ok': 'Normal',
+  'monitor.notify.app': 'In-app notifications',
+  'monitor.notify.email': 'Email digest',
+  'monitor.notify.daily': 'Daily report',
+  'monitor.notify.weekly': 'Weekly push',
+  'monitor.notify.critical_only': 'Critical only',
+  'monitor.notify.night_silent': 'Silent 22:00 - 08:00',
+  'monitor.notify.work_hours': 'Critical only during work hours',
+
+  // monitor — rules / settings card
+  'monitor.rules.title': 'Monitor rules',
+  'monitor.rules.enabled_count': '{count} enabled',
+  'monitor.rules.empty': 'No matching monitor rules',
+  'monitor.rules.enabled': 'Enabled',
+  'monitor.rules.disabled': 'Disabled',
+  'monitor.settings_card.title': 'Notifications',
+  'monitor.settings_card.subtitle': 'Channels & frequency',
+  'monitor.rule.star_growth': 'Star growth >= 200/day',
+  'monitor.rule.daily_growth': 'Daily growth >= 10%',
+  'monitor.rule.fork_growth': 'Fork growth >= 50/day',
+  'monitor.rule.discuss_heat': 'Discussion heat >= 5x',
+
   // project
   'project.title': 'Reports',
   'project.subtitle': 'Weekly ecosystem digest',
@@ -307,6 +349,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'project.activity.developers': 'Developers you might like',
   'project.activity.developers.subtitle': 'Active in the last 7 days',
   'project.activity.contrib': '+{n} this week',
+  'project.activity.demo': 'Sample',
   'project.discover.title': 'Discover',
   'project.discover.empty': 'No recommendations yet',
   'project.discover.topic_popular': 'Popular topics',
@@ -533,21 +576,38 @@ const Map<String, String> stringsEnUS = <String, String>{
   'onboarding.next': 'Next',
   'onboarding.done': 'Get Started',
 
-  // data provenance
-  'provenance.observed': 'Observed',
+  // data provenance (5 states)
+  'provenance.live': 'Live',
+  'provenance.fresh_cache': 'Fresh cache',
+  'provenance.stale_cache': 'Stale cache',
   'provenance.estimated': 'Estimated',
-  'provenance.local_fallback': 'Fallback',
-  'provenance.observed.full': 'Live Observed',
+  'provenance.seed': 'Seed',
+  'provenance.live.full': 'Live data',
+  'provenance.fresh_cache.full': 'Fresh cache',
+  'provenance.stale_cache.full': 'Stale cache',
   'provenance.estimated.full': 'Estimated',
-  'provenance.local_fallback.full': 'Local Fallback',
-  'provenance.observed.tooltip': 'From GitHub API or local daily snapshot',
+  'provenance.seed.full': 'Local seed',
+  'provenance.live.tooltip': 'Live from GitHub API or local daily snapshot',
+  'provenance.fresh_cache.tooltip': 'From local cache and still within TTL',
+  'provenance.stale_cache.tooltip':
+      'From local cache but expired, shown only as fallback',
   'provenance.estimated.tooltip':
       'Derived from current observations, not complete history',
-  'provenance.local_fallback.tooltip':
-      'Local fallback data when remote is unavailable or on first launch',
+  'provenance.seed.tooltip':
+      'Local seed data when remote is unavailable or on first launch',
 
   // a11y extras
   'a11y.clear_search': 'Clear search',
+  'a11y.back': 'Back',
+  'a11y.bookmark_add': 'Bookmark',
+  'a11y.bookmark_remove': 'Remove bookmark',
+  'a11y.monitor_add': 'Monitor repo',
+  'a11y.mark_read': 'Mark as read',
+  'a11y.mark_unread': 'Mark as unread',
+  'a11y.archive': 'Archive',
+  'a11y.add_monitor': 'Add monitor',
+  'a11y.monitor_remove': 'Stop monitoring',
+  'a11y.home': 'Home',
 
   // trending data source
   'trending.source.local': 'Local data',

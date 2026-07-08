@@ -35,7 +35,7 @@ class AppSidebar extends ConsumerWidget {
     final width = ref.watch(sidebarWidthProvider);
     return FocusTraversalGroup(
       child: Material(
-        color: colors.surface.withValues(alpha: 0.98),
+        color: colors.surface,
         child: SizedBox(
           width: width,
           child: Column(

@@ -49,7 +49,7 @@ class RepoSnapshotHistoryDao {
     if (points.length < 2) return null;
     return RepoTrendSnapshot(
       values: [for (final point in points) point.stars.toDouble()],
-      provenance: DataProvenance.observed,
+      provenance: DataProvenance.live,
     );
   }
 
@@ -58,7 +58,7 @@ class RepoSnapshotHistoryDao {
     if (points.length < 2) return null;
     return RepoTrendSnapshot(
       values: [for (final point in points) point.forks.toDouble()],
-      provenance: DataProvenance.observed,
+      provenance: DataProvenance.live,
     );
   }
 

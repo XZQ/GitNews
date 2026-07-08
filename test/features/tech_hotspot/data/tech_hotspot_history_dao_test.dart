@@ -52,7 +52,7 @@ void main() {
 
     expect(trend?.heatValues, [60, 72]);
     expect(trend?.growth, 25);
-    expect(trend?.provenance, DataProvenance.observed);
+    expect(trend?.provenance, DataProvenance.live);
   });
 
   test('record should overwrite same-day snapshot and cap history', () async {

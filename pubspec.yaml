@@ -33,9 +33,6 @@ dependencies:
   # 图表
   fl_chart: ^1.2.0
 
-  # 图片
-  cached_network_image: ^3.4.0
-
   # 外链
   url_launcher: ^6.3.0
 

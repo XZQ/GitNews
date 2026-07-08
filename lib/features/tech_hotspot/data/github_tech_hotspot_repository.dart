@@ -5,6 +5,7 @@ import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_provenance.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/tech_hotspot_models.dart';
@@ -116,9 +117,10 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   Future<TechHotspotDigest> _fetchDigest(DateTime now) async {
-    final fetched = await Future.wait([
-      for (final query in techHotspotTopicQueries) _fetchTopic(query, now),
-    ]);
+    final fetched = await gatherAll<GithubTechHotspotTopicResult>(
+      [for (final query in techHotspotTopicQueries) _fetchTopic(query, now)],
+      tag: 'githubTechHotspotFetch',
+    );
     final results = await _withObservedHistory(fetched, now);
     final languages = buildTechHotspotLanguages(results);
     final tags = buildTechHotspotTags(results);
@@ -191,7 +193,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         mentions: total,
         relatedRepos: relatedRepos,
         summary: query.summary,
-        provenance: DataProvenance.observed,
+        provenance: DataProvenance.live,
         growthProvenance: DataProvenance.estimated,
       ),
       languages: languages,

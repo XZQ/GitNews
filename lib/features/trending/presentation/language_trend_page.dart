@@ -28,8 +28,7 @@ class LanguageTrendPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('语言趋势'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/trending'),
         ),

@@ -9,7 +9,8 @@ import '../../../shared/widgets/star_trend_chart.dart';
 import '../../trending/application/trending_providers.dart';
 import '../widgets/home_alerts_panel.dart';
 import '../widgets/home_topics_panel.dart';
-import 'home_chart_helpers.dart';
+import 'home_chart_models.dart';
+import 'home_chart_widgets.dart';
 
 /* 
 *Home compact (<600) 分支:Hero 趋势 + 告警 + 主题。

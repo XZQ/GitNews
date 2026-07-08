@@ -28,8 +28,7 @@ class TrendingOverviewPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Star 增长趋势'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/home'),
         ),

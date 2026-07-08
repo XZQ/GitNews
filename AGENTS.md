@@ -79,6 +79,15 @@ The structure is reusable across projects:
 
 - Cache TTLs are centralized in `lib/core/config/cache_ttl_config.dart`; do not
   introduce new top-level cache `Duration(...)` constants in features.
+- API endpoints (base URLs + request paths) are centralized in
+  `lib/core/config/api_endpoints_config.dart`; do not hardcode URLs or paths in
+  feature data clients. Static paths are `static const String`; templated paths
+  (e.g. `/repos/$fullName`) are static methods that take the parameter and
+  return the full path.
+- Per-service HTTP headers and protocol constants (Accept,
+  X-GitHub-Api-Version, User-Agent, ETag) live in their respective core support
+  file (e.g. `lib/core/github/github_api_support.dart`); reuse the shared
+  `headers(...)` builder instead of rebuilding header maps per call.
 - Read fresh local cache first; call remote only when cache is missing, expired,
   or explicitly refreshed.
 - On remote failure, prefer stale cache, then seed data as the last fallback.

@@ -24,11 +24,10 @@ class ProfilePageHeader extends StatelessWidget {
       subtitle: l10n.tr('profile.subtitle.short'),
       pills: const [_ProPill()],
       actions: [
-        IconButton(
+        HeaderAction(
+          icon: Icons.settings_outlined,
           tooltip: l10n.tr('profile.title'),
           onPressed: () => context.go('/profile'),
-          icon: const Icon(Icons.settings_outlined, size: 20),
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
       ],
     );

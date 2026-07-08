@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/theme/app_colors.dart';
-import 'package:github_news/features/home/presentation/home_chart_helpers.dart';
+import 'package:github_news/features/home/presentation/home_chart_models.dart';
 import 'package:github_news/shared/widgets/star_trend_chart.dart';
 import 'package:mocktail/mocktail.dart';
 

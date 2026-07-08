@@ -241,39 +241,35 @@ class _WebViewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final widget = state.widget;
+    // InAppWebView 常驻:错误态用 ErrorView 覆盖层叠加,而非替换控件,
+    // 避免错误↔内容切换时销毁并重建 WebView2(丢失滚动/加载进度,且重建有进程开销)。
     return Stack(
       children: [
-        if (state._failed)
-          ErrorView(
-            error: const AppException(kind: AppExceptionKind.network),
-            onRetry: state._retry,
-          )
-        else
-          InAppWebView(
-            initialUrlRequest: URLRequest(url: WebUri(widget.url)),
-            initialSettings: InAppWebViewSettings(
-              useShouldOverrideUrlLoading: true,
-              mediaPlaybackRequiresUserGesture: true,
-              allowsInlineMediaPlayback: true,
-              iframeAllow: 'fullscreen',
-              userAgent: _WebViewPageState._mobileUa,
-            ),
-            onWebViewCreated: (controller) => state._controller = controller,
-            onTitleChanged: (controller, t) => state.onTitleChanged(t),
-            onProgressChanged: (_, progress) =>
-                state.onProgressChanged(progress),
-            onLoadStop: (controller, _) async {
-              final canBack = await controller.canGoBack();
-              state.onLoadStopFinished(canBack);
-            },
-            onReceivedError: (controller, request, error) {
-              // 子资源(图片 / CSS)错误也会回调,只对主帧致命错误置失败。
-              final isMainFrame = request.url.toString() == widget.url ||
-                  request.isForMainFrame == true;
-              if (!isMainFrame) return;
-              state.onMainFrameError();
-            },
+        InAppWebView(
+          initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+          initialSettings: InAppWebViewSettings(
+            useShouldOverrideUrlLoading: true,
+            mediaPlaybackRequiresUserGesture: true,
+            allowsInlineMediaPlayback: true,
+            iframeAllow: 'fullscreen',
+            userAgent: _WebViewPageState._mobileUa,
           ),
+          onWebViewCreated: (controller) => state._controller = controller,
+          onTitleChanged: (controller, t) => state.onTitleChanged(t),
+          onProgressChanged: (_, progress) =>
+              state.onProgressChanged(progress),
+          onLoadStop: (controller, _) async {
+            final canBack = await controller.canGoBack();
+            state.onLoadStopFinished(canBack);
+          },
+          onReceivedError: (controller, request, error) {
+            // 子资源(图片 / CSS)错误也会回调,只对主帧致命错误置失败。
+            final isMainFrame = request.url.toString() == widget.url ||
+                request.isForMainFrame == true;
+            if (!isMainFrame) return;
+            state.onMainFrameError();
+          },
+        ),
         if (state._progress > 0 && state._progress < 100 && !state._failed)
           Positioned(
             top: 0,
@@ -284,6 +280,11 @@ class _WebViewBody extends StatelessWidget {
               minHeight: 2,
               backgroundColor: Colors.transparent,
             ),
+          ),
+        if (state._failed)
+          ErrorView(
+            error: const AppException(kind: AppExceptionKind.network),
+            onRetry: state._retry,
           ),
       ],
     );

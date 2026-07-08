@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/domain/repo_entity.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
@@ -21,8 +22,7 @@ class MonitorTopicsPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('监控的主题'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/profile'),
         ),
@@ -41,6 +41,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final content = ref.watch(localContentControllerProvider);
     final allRepos = [
       ...DemoData.trending.take(4).map((e) => e.toEntity()),
@@ -88,7 +89,7 @@ class _Body extends ConsumerWidget {
                       ),
                     ),
                     IconButton(
-                      tooltip: '取消监控',
+                      tooltip: l10n.tr('a11y.monitor_remove'),
                       icon: const Icon(Icons.notifications_off_outlined),
                       onPressed: () => ref
                           .read(localContentControllerProvider.notifier)

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -98,6 +99,7 @@ class MonitorAlertRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final color = _accent();
     final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
     final alertState = ref.watch(monitorAlertStateControllerProvider);
     final isRead = alertState.isRead(alert);
     return InkWell(
@@ -186,7 +188,7 @@ class MonitorAlertRow extends ConsumerWidget {
             ),
             const SizedBox(width: AppSpacing.xs),
             Tooltip(
-              message: isRead ? '标记为未读' : '标记为已读',
+              message: l10n.tr(isRead ? 'a11y.mark_unread' : 'a11y.mark_read'),
               child: IconButton(
                 visualDensity: VisualDensity.compact,
                 iconSize: 18,

@@ -1,15 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/app_localizations.dart';
 
-const List<String> monitorNotificationLabels = [
-  '应用内通知',
-  '邮件摘要',
-  '每日报告',
-  '周报推送',
-  '仅关键告警',
-  '夜间 22:00 - 08:00 静默',
-  '工作时段仅推送关键',
+const int monitorNotificationCount = 7;
+
+List<String> monitorNotificationLabels(AppLocalizations l10n) => [
+  l10n.tr('monitor.notify.app'),
+  l10n.tr('monitor.notify.email'),
+  l10n.tr('monitor.notify.daily'),
+  l10n.tr('monitor.notify.weekly'),
+  l10n.tr('monitor.notify.critical_only'),
+  l10n.tr('monitor.notify.night_silent'),
+  l10n.tr('monitor.notify.work_hours'),
 ];
 
 class MonitorSettingsController extends Notifier<List<bool>> {
@@ -18,7 +21,7 @@ class MonitorSettingsController extends Notifier<List<bool>> {
   @override
   List<bool> build() {
     final raw = ref.read(sharedPreferencesProvider).getStringList(_key);
-    if (raw == null || raw.length != monitorNotificationLabels.length) {
+    if (raw == null || raw.length != monitorNotificationCount) {
       return const [true, false, true, false, true, true, false];
     }
     return [for (final value in raw) value == '1' || value == 'true'];

@@ -47,7 +47,7 @@ void main() {
     final trend = await dao.starTrend('openai/codex');
 
     expect(trend?.values, [100, 120]);
-    expect(trend?.provenance, DataProvenance.observed);
+    expect(trend?.provenance, DataProvenance.live);
   });
 
   test('record should overwrite same-day snapshot and cap history', () async {

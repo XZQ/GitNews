@@ -49,14 +49,12 @@ class TechHotspotPageHeader extends ConsumerWidget {
         ),
       ],
       actions: [
-        IconButton(
+        HeaderAction(
+          icon: category == 'all'
+              ? Icons.tune_rounded
+              : Icons.filter_alt_rounded,
           tooltip: l10n.tr('tech_hotspot.filter'),
           onPressed: () => _showCategoryFilterSheet(context, ref),
-          icon: Icon(
-            category == 'all' ? Icons.tune_rounded : Icons.filter_alt_rounded,
-            size: 20,
-          ),
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
       ],
     );

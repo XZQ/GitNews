@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -18,21 +19,24 @@ class MonitorRulesCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final content = ref.watch(localContentControllerProvider);
+    final ruleLabels = monitorRuleLabels(l10n);
     final allRules = <MonitorRuleItem>[
-      MonitorRuleItem(monitorRuleLabels[0], AppColors.success, 0),
-      MonitorRuleItem(monitorRuleLabels[1], colors.primary, 1),
-      MonitorRuleItem(monitorRuleLabels[2], AppColors.info, 2),
-      MonitorRuleItem(monitorRuleLabels[3], AppColors.warning, 3),
+      MonitorRuleItem(ruleLabels[0], AppColors.success, 0),
+      MonitorRuleItem(ruleLabels[1], colors.primary, 1),
+      MonitorRuleItem(ruleLabels[2], AppColors.info, 2),
+      MonitorRuleItem(ruleLabels[3], AppColors.warning, 3),
     ];
     final keyword = query.trim().toLowerCase();
+    final rulesTitle = l10n.tr('monitor.rules.title');
     final rules = keyword.isEmpty
         ? allRules
         : [
             for (final rule in allRules)
               if (rule.label.toLowerCase().contains(keyword) ||
-                  '监控规则'.contains(keyword))
+                  rulesTitle.contains(keyword))
                 rule,
           ];
     return AppCard(
@@ -40,14 +44,16 @@ class MonitorRulesCard extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(
-            title: '监控规则',
-            subtitle: '${content.enabledRuleCount} 条已启用',
+            title: l10n.tr('monitor.rules.title'),
+            subtitle: l10n
+                .tr('monitor.rules.enabled_count')
+                .replaceAll('{count}', '${content.enabledRuleCount}'),
           ),
           const SizedBox(height: AppSpacing.md),
           if (rules.isEmpty)
-            const EmptyView(
+            EmptyView(
               icon: Icons.rule_folder_outlined,
-              message: '没有匹配的监控规则',
+              message: l10n.tr('monitor.rules.empty'),
             )
           else
             for (final rule in rules) _RuleRow(rule: rule),
@@ -62,19 +68,20 @@ class MonitorNotificationCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final values = ref.watch(monitorSettingsControllerProvider);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader(
-            title: '通知设置',
-            subtitle: '推送渠道与频次',
+          SectionHeader(
+            title: l10n.tr('monitor.settings_card.title'),
+            subtitle: l10n.tr('monitor.settings_card.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
           for (var i = 0; i < 4; i++)
             MonitorNotificationRow(
-              label: monitorNotificationLabels[i],
+              label: monitorNotificationLabels(l10n)[i],
               value: values[i],
               onChanged: (value) => ref
                   .read(monitorSettingsControllerProvider.notifier)

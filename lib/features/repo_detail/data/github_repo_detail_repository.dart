@@ -245,7 +245,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       ),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
-      valueProvenance: DataProvenance.observed,
+      valueProvenance: DataProvenance.live,
       trendProvenance: DataProvenance.estimated,
       trend: estimatedRepoTrend(stars, 1),
     );

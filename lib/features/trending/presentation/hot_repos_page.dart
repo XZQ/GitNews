@@ -29,8 +29,7 @@ class HotReposPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('热门仓库'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/trending'),
         ),

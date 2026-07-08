@@ -96,51 +96,61 @@ class _Desktop extends ConsumerWidget {
       children: [
         MonitorPageHeader(stats: digest.stats),
         Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
-              AppSpacing.lg,
-              AppSpacing.xl,
-              AppSpacing.xxxl,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                MonitorStatusRow(stats: digest.stats),
-                const SizedBox(height: AppSpacing.lg),
-                SizedBox(
-                  height: (MediaQuery.sizeOf(context).height - 280)
-                      .clamp(220.0, 900.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 8,
-                        child: MonitorMonitoredRepos(
-                          repos: digest.monitoredRepos,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.lg),
-                      Expanded(
-                        flex: 4,
-                        child: SingleChildScrollView(
-                          child: _RightColumn(
-                            alerts: digest.alerts,
-                            searchQuery: searchQuery,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final available = constraints.maxHeight;
+              return SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.xl,
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                  AppSpacing.xxxl,
                 ),
-              ],
-            ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MonitorStatusRow(stats: digest.stats),
+                    const SizedBox(height: AppSpacing.lg),
+                    // 用可用高度而非全屏高度,窗口变矮时不再溢出;
+                    // 外层 SingleChildScrollView 作为极矮窗口的安全兜底。
+                    SizedBox(
+                      height: (available - _kStatusRowHeight - AppSpacing.lg)
+                          .clamp(220.0, 900.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            flex: 8,
+                            child: MonitorMonitoredRepos(
+                              repos: digest.monitoredRepos,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.lg),
+                          Expanded(
+                            flex: 4,
+                            child: SingleChildScrollView(
+                              child: _RightColumn(
+                                alerts: digest.alerts,
+                                searchQuery: searchQuery,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ],
     );
   }
 }
+
+// MonitorStatusRow(4 张状态卡)的近似高度,用于从可用高度中扣除以计算双栏区高度。
+const double _kStatusRowHeight = 100.0;
 
 class _RightColumn extends StatelessWidget {
   const _RightColumn({required this.alerts, required this.searchQuery});
@@ -151,6 +161,7 @@ class _RightColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         MonitorRulesCard(query: searchQuery),
         const SizedBox(height: AppSpacing.lg),

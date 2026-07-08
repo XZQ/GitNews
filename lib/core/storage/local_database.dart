@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
@@ -5,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../errors/app_exception.dart';
+import 'database_schema.dart';
 
 // 数据库文件名。
 const String kDatabaseFileName = 'github_news.db';
@@ -19,7 +21,7 @@ const double _kEvictRatio = 0.1;
 *本地 SQLite 数据库封装。
 *设计目标:
 *- 抽象掉 driver(sqflite_common_ffi),业务层只看到 [executor]
-*- 集中维护 schema 升级链([_kMigrations])
+*- schema 升级链集中在 database_schema.dart 维护
 *- 提供 [sizeInBytes] / [clearAll] / [enforceCap] 三个全局能力
 *通用 schema 包含一张 [cache_meta] 表,任何按 cache_key 走 TTL 的模块
 *都通过 [CacheMetaDao] 共享它,避免每个 feature 各自维护 meta。
@@ -30,7 +32,7 @@ class LocalDatabase {
   final Database _db;
   final String path;
 
-  // 当前 schema 版本。每次新增迁移在 [_kMigrations] 末尾追加并自增此值。
+  // 当前 schema 版本。每次新增迁移在 database_schema.dart 的迁移链末尾追加并自增此值。
   static const int _kCurrentVersion = 3;
 
   /* 
@@ -54,11 +56,15 @@ class LocalDatabase {
       dbPath,
       options: OpenDatabaseOptions(
         version: _kCurrentVersion,
-        onCreate: _bootstrap,
-        onUpgrade: _onUpgrade,
+        onCreate: bootstrapSchema,
+        onUpgrade: onUpgradeSchema,
       ),
     );
-    return LocalDatabase._(db, dbPath);
+    final instance = LocalDatabase._(db, dbPath);
+    // 启动容量清扫:兜底覆盖「只浏览 trending/monitor 不进 ai_news」时
+    // 快照表从不触发 1GB 上限清理的场景(ai_news 落盘后另有触发)。
+    unawaited(instance.enforceCap());
+    return instance;
   }
 
   /* 
@@ -72,119 +78,14 @@ class LocalDatabase {
       name,
       options: OpenDatabaseOptions(
         version: _kCurrentVersion,
-        onCreate: _bootstrap,
-        onUpgrade: _onUpgrade,
+        onCreate: bootstrapSchema,
+        onUpgrade: onUpgradeSchema,
       ),
     );
     return LocalDatabase._(db, name);
   }
 
-  static const String _kCreateCacheMeta = '''
-    CREATE TABLE IF NOT EXISTS cache_meta (
-      cache_key        TEXT PRIMARY KEY,
-      last_fetched_at  INTEGER NOT NULL,
-      payload_hash     TEXT,
-      ext1             TEXT,
-      ext2             INTEGER,
-      ext3             REAL
-    )
-  ''';
-
-  // 当前 schema 全部 DDL。新增表在这里追加,旧表结构变更走 [_kMigrations]。
-  static const List<String> _kBootstrap = [
-    _kCreateCacheMeta,
-    '''
-      CREATE TABLE IF NOT EXISTS ai_news_item (
-        id            TEXT PRIMARY KEY,
-        category      TEXT NOT NULL,
-        title         TEXT NOT NULL,
-        title_en      TEXT NOT NULL,
-        summary       TEXT NOT NULL,
-        source        TEXT NOT NULL,
-        url           TEXT NOT NULL,
-        permalink     TEXT NOT NULL,
-        published_at  INTEGER NOT NULL,
-        score         INTEGER NOT NULL,
-        selected      INTEGER NOT NULL,
-        cached_at     INTEGER NOT NULL,
-        ext1          TEXT,
-        ext2          TEXT,
-        ext3          INTEGER,
-        ext4          INTEGER,
-        ext5          REAL
-      )
-    ''',
-    'CREATE INDEX IF NOT EXISTS idx_ai_news_cached_at ON ai_news_item(cached_at)',
-    'CREATE INDEX IF NOT EXISTS idx_ai_news_category  ON ai_news_item(category)',
-    _kCreateTrendingSnapshotCache,
-    'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
-    _kCreateJsonSnapshotCache,
-    'CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)',
-  ];
-
-  // 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
-  // 初始 schema 通过 [_kBootstrap] 一次性创建。后续新增字段:
-  // ```dart
-  // (db) async => await db.execute('ALTER TABLE ai_news_item ADD COLUMN ext6 TEXT'),
-  // ```
-  static const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
-    _migrateV1ToV2,
-    _migrateV2ToV3,
-  ];
-
-  static const String _kCreateTrendingSnapshotCache = '''
-    CREATE TABLE IF NOT EXISTS trending_snapshot_cache (
-      cache_key     TEXT PRIMARY KEY,
-      payload_json  TEXT NOT NULL,
-      cached_at     INTEGER NOT NULL,
-      ext1          TEXT,
-      ext2          INTEGER,
-      ext3          REAL
-    )
-  ''';
-
-  static const String _kCreateJsonSnapshotCache = '''
-    CREATE TABLE IF NOT EXISTS json_snapshot_cache (
-      cache_key     TEXT PRIMARY KEY,
-      payload_json  TEXT NOT NULL,
-      cached_at     INTEGER NOT NULL,
-      ext1          TEXT,
-      ext2          INTEGER,
-      ext3          REAL
-    )
-  ''';
-
-  static Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
-    await db.execute(_kCreateTrendingSnapshotCache);
-    await db.execute(
-      'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
-    );
-  }
-
-  static Future<void> _migrateV2ToV3(DatabaseExecutor db) async {
-    await db.execute(_kCreateJsonSnapshotCache);
-    await db.execute(
-      'CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)',
-    );
-  }
-
-  static Future<void> _bootstrap(DatabaseExecutor db, _) async {
-    for (final stmt in _kBootstrap) {
-      await db.execute(stmt);
-    }
-  }
-
-  static Future<void> _onUpgrade(
-    DatabaseExecutor db,
-    int oldVersion,
-    int newVersion,
-  ) async {
-    for (var v = oldVersion; v < newVersion && v <= _kMigrations.length; v++) {
-      await _kMigrations[v - 1](db);
-    }
-  }
-
-  /* 
+  /*
   *当前 DB 文件大小(字节)。失败时返回 0。
   */
   int sizeInBytes() {

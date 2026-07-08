@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../shared/providers/app_search_query_provider.dart';
 import '../data/local_project_repository.dart';
 import '../domain/project_repository.dart';
 
+export '../../../shared/providers/app_search_query_provider.dart';
 export '../domain/project_repository.dart' show ProjectDigest;
 
 final projectDigestProvider = FutureProvider<ProjectDigest>((ref) async {
@@ -15,9 +17,6 @@ final projectDigestProvider = FutureProvider<ProjectDigest>((ref) async {
     throw error.asAppException(stack);
   }
 });
-
-// 深度报告顶部搜索关键词。空字符串表示不过滤当前报告数据。
-final projectSearchQueryProvider = StateProvider<String>((ref) => '');
 
 // 应用本地搜索后的深度报告摘要。
 final filteredProjectDigestProvider =

@@ -193,7 +193,7 @@ void main() {
       final repo = snapshot.trendingRepos.first;
       expect(repo.starDelta, 100);
       expect(repo.trend, [11900, 12000]);
-      expect(repo.trendProvenance, DataProvenance.observed);
+      expect(repo.trendProvenance, DataProvenance.live);
       expect(snapshot.primaryTrend, [11900, 12000]);
     });
 

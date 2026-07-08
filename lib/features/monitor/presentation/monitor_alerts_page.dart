@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
@@ -21,11 +22,11 @@ class MonitorAlertsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(monitorDigestProvider);
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('告警列表'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        title: Text(l10n.tr('monitor.alerts.title')),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/monitor'),
         ),
@@ -35,9 +36,9 @@ class MonitorAlertsPage extends ConsumerWidget {
           final alertState = ref.watch(monitorAlertStateControllerProvider);
           final visibleAlerts = alertState.visibleAlerts(digest.alerts);
           if (digest.alerts.isEmpty) {
-            return const EmptyView(
+            return EmptyView(
               icon: Icons.notifications_none_rounded,
-              message: '最近 24 小时暂无告警',
+              message: l10n.tr('monitor.alerts.empty'),
             );
           }
           return ResponsiveLayout(
@@ -74,6 +75,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final alertState = ref.watch(monitorAlertStateControllerProvider);
     final filter = ref.watch(monitorAlertFilterProvider);
     final filteredAlerts = filterAlertsByState(alerts, alertState, filter);
@@ -99,9 +101,15 @@ class _Body extends ConsumerWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '所有告警',
-                  subtitle:
-                      '可见 ${alerts.length} 条 · 未读 $unreadCount 条 · 已归档 ${rawAlerts.length - alerts.length} 条',
+                  title: l10n.tr('monitor.alerts.all'),
+                  subtitle: l10n
+                      .tr('monitor.alerts.subtitle')
+                      .replaceAll('{visible}', '${alerts.length}')
+                      .replaceAll('{unread}', '$unreadCount')
+                      .replaceAll(
+                        '{archived}',
+                        '${rawAlerts.length - alerts.length}',
+                      ),
                 ),
               ),
               Padding(
@@ -117,21 +125,22 @@ class _Body extends ConsumerWidget {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     SegmentedButton<MonitorAlertFilter>(
-                      segments: const [
+                      segments: [
                         ButtonSegment(
                           value: MonitorAlertFilter.all,
-                          label: Text('全部'),
-                          icon: Icon(Icons.inbox_outlined),
+                          label: Text(l10n.tr('monitor.alerts.filter.all')),
+                          icon: const Icon(Icons.inbox_outlined),
                         ),
                         ButtonSegment(
                           value: MonitorAlertFilter.unread,
-                          label: Text('未读'),
-                          icon: Icon(Icons.mark_email_unread_outlined),
+                          label: Text(l10n.tr('monitor.alerts.filter.unread')),
+                          icon: const Icon(Icons.mark_email_unread_outlined),
                         ),
                         ButtonSegment(
                           value: MonitorAlertFilter.important,
-                          label: Text('重点'),
-                          icon: Icon(Icons.priority_high_rounded),
+                          label:
+                              Text(l10n.tr('monitor.alerts.filter.important')),
+                          icon: const Icon(Icons.priority_high_rounded),
                         ),
                       ],
                       selected: {filter},
@@ -148,7 +157,7 @@ class _Body extends ConsumerWidget {
                               )
                               .markAllRead(alerts),
                       icon: const Icon(Icons.done_all_rounded),
-                      label: const Text('全部已读'),
+                      label: Text(l10n.tr('monitor.alerts.mark_all_read')),
                     ),
                     TextButton.icon(
                       onPressed: alerts.any(alertState.isRead)
@@ -159,7 +168,7 @@ class _Body extends ConsumerWidget {
                               .archiveRead(alerts)
                           : null,
                       icon: const Icon(Icons.cleaning_services_outlined),
-                      label: const Text('清空已读'),
+                      label: Text(l10n.tr('monitor.alerts.clear_read')),
                     ),
                     TextButton.icon(
                       onPressed: rawAlerts.length == alerts.length
@@ -170,14 +179,14 @@ class _Body extends ConsumerWidget {
                               )
                               .restoreAll(),
                       icon: const Icon(Icons.restore_rounded),
-                      label: const Text('恢复归档'),
+                      label: Text(l10n.tr('monitor.alerts.restore_archived')),
                     ),
                   ],
                 ),
               ),
               if (filteredAlerts.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.fromLTRB(
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
                     AppSpacing.lg,
                     AppSpacing.lg,
                     AppSpacing.lg,
@@ -185,7 +194,7 @@ class _Body extends ConsumerWidget {
                   ),
                   child: EmptyView(
                     icon: Icons.notifications_off_outlined,
-                    message: '当前筛选下没有告警',
+                    message: l10n.tr('monitor.alerts.filtered_empty'),
                   ),
                 ),
               for (var i = 0; i < filteredAlerts.length; i++) ...[

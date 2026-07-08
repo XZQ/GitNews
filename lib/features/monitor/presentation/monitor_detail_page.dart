@@ -34,8 +34,7 @@ class MonitorDetailPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tr('monitor.detail_title')),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/monitor'),
         ),

@@ -50,11 +50,10 @@ class TrendingPageHeader extends ConsumerWidget {
         ),
       ],
       actions: [
-        IconButton(
+        HeaderAction(
+          icon: Icons.refresh_rounded,
           tooltip: l10n.tr('common.refresh'),
           onPressed: () => refreshTrendingDigest(ref),
-          icon: const Icon(Icons.refresh_rounded, size: 20),
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
       ],
     );

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/demo_data.dart';
 import '../../../core/domain/repo_entity.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -20,30 +21,31 @@ class MonitorMonitoredRepos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AppCard(
       padding: EdgeInsets.zero,
       child: CustomScrollView(
         slivers: [
-          const SliverToBoxAdapter(
+          SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.fromLTRB(
+              padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.md,
                 AppSpacing.lg,
                 AppSpacing.xs,
               ),
               child: SectionHeader(
-                title: '我的监控仓库',
-                subtitle: '近 30 天 Star 增速与告警',
+                title: l10n.tr('monitor.monitored_repos.title'),
+                subtitle: l10n.tr('monitor.monitored_repos.subtitle'),
               ),
             ),
           ),
           if (repos.isEmpty)
-            const SliverFillRemaining(
+            SliverFillRemaining(
               hasScrollBody: false,
               child: EmptyView(
                 icon: Icons.search_off_rounded,
-                message: '没有匹配的监控仓库',
+                message: l10n.tr('monitor.monitored_repos.empty'),
               ),
             )
           else
@@ -71,6 +73,7 @@ class MonitorMonitoredRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final trend =
         repo.trend ?? DemoData.generateStarTrend(repo.starCount - 5000, 5000);
@@ -135,7 +138,7 @@ class MonitorMonitoredRow extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               child: Text(
-                '正常',
+                l10n.tr('monitor.monitored_repos.status_ok'),
                 style: AppTypography.labelSmall.copyWith(
                   color: AppColors.success,
                   fontWeight: FontWeight.w600,

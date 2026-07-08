@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -14,11 +15,11 @@ class MonitorRulesPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('监控规则'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        title: Text(l10n.tr('monitor.rules.title')),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/profile'),
         ),
@@ -37,6 +38,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final content = ref.watch(localContentControllerProvider);
     final enabledFlags = content.monitorRules;
     return ListView(
@@ -47,23 +49,27 @@ class _Body extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               SectionHeader(
-                title: '监控规则',
-                subtitle: '已启用 ${content.enabledRuleCount} 条',
+                title: l10n.tr('monitor.rules.title'),
+                subtitle: l10n
+                    .tr('monitor.rules.enabled_count')
+                    .replaceAll('{count}', '${content.enabledRuleCount}'),
               ),
               const SizedBox(height: AppSpacing.md),
-              for (var i = 0; i < monitorRuleLabels.length; i++)
+              for (var i = 0; i < monitorRuleCount; i++)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
                   child: Row(
                     children: [
                       Expanded(
                         child: Text(
-                          monitorRuleLabels[i],
+                          monitorRuleLabels(l10n)[i],
                           style: AppTypography.bodyMedium,
                         ),
                       ),
                       Text(
-                        enabledFlags[i] ? '已启用' : '已停用',
+                        enabledFlags[i]
+                            ? l10n.tr('monitor.rules.enabled')
+                            : l10n.tr('monitor.rules.disabled'),
                         style: AppTypography.labelSmall.copyWith(
                           color: enabledFlags[i]
                               ? Theme.of(context).colorScheme.primary

@@ -57,34 +57,41 @@ class DataProvenanceBadge extends StatelessWidget {
 
   String _shortLabel(AppLocalizations l10n) {
     return switch (provenance) {
-      DataProvenance.observed => l10n.tr('provenance.observed'),
+      DataProvenance.live => l10n.tr('provenance.live'),
+      DataProvenance.freshCache => l10n.tr('provenance.fresh_cache'),
+      DataProvenance.staleCache => l10n.tr('provenance.stale_cache'),
       DataProvenance.estimated => l10n.tr('provenance.estimated'),
-      DataProvenance.localFallback => l10n.tr('provenance.local_fallback'),
+      DataProvenance.seed => l10n.tr('provenance.seed'),
     };
   }
 
   String _fullLabel(AppLocalizations l10n) {
     return switch (provenance) {
-      DataProvenance.observed => l10n.tr('provenance.observed.full'),
+      DataProvenance.live => l10n.tr('provenance.live.full'),
+      DataProvenance.freshCache => l10n.tr('provenance.fresh_cache.full'),
+      DataProvenance.staleCache => l10n.tr('provenance.stale_cache.full'),
       DataProvenance.estimated => l10n.tr('provenance.estimated.full'),
-      DataProvenance.localFallback => l10n.tr('provenance.local_fallback.full'),
+      DataProvenance.seed => l10n.tr('provenance.seed.full'),
     };
   }
 
   String _tooltip(AppLocalizations l10n) {
     return switch (provenance) {
-      DataProvenance.observed => l10n.tr('provenance.observed.tooltip'),
+      DataProvenance.live => l10n.tr('provenance.live.tooltip'),
+      DataProvenance.freshCache => l10n.tr('provenance.fresh_cache.tooltip'),
+      DataProvenance.staleCache => l10n.tr('provenance.stale_cache.tooltip'),
       DataProvenance.estimated => l10n.tr('provenance.estimated.tooltip'),
-      DataProvenance.localFallback =>
-        l10n.tr('provenance.local_fallback.tooltip'),
+      DataProvenance.seed => l10n.tr('provenance.seed.tooltip'),
     };
   }
 
   Color _color(BuildContext context) {
     return switch (provenance) {
-      DataProvenance.observed => AppColors.success,
-      DataProvenance.estimated => AppColors.warning,
-      DataProvenance.localFallback => Theme.of(context).colorScheme.outline,
+      DataProvenance.live => AppColors.success,
+      DataProvenance.freshCache => AppColors.info,
+      DataProvenance.staleCache => AppColors.warning,
+      DataProvenance.estimated => AppColors.accentPurple,
+      DataProvenance.seed => Theme.of(context).colorScheme.outline,
     };
   }
 }

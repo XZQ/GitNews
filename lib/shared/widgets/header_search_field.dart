@@ -54,7 +54,11 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
   }
 
   void _handleTextChanged() {
-    setState(() {});
+    // 父级通过 onChanged 重建即可刷新后缀图标;仅在无外部回调时本地重建,
+    // 避免每次输入触发双重 rebuild。
+    if (widget.onChanged == null) {
+      setState(() {});
+    }
   }
 
   void _clear() {

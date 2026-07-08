@@ -6,6 +6,7 @@ import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
@@ -107,9 +108,10 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   Future<MonitorDigest> _fetchDigest(DateTime now) async {
-    final responses = await Future.wait([
-      for (final repo in githubMonitorDefaultRepos) _fetchRepo(repo, now),
-    ]);
+    final responses = await gatherAll<GithubMonitorRemoteRepoItem>(
+      [for (final repo in githubMonitorDefaultRepos) _fetchRepo(repo, now)],
+      tag: 'githubMonitorFetch',
+    );
     final repos = responses.map((item) => item.repo).toList(growable: false);
     final alerts = responses
         .expand((item) => _alertsFor(item, now))
@@ -123,8 +125,8 @@ class GithubMonitorRepository implements MonitorRepository {
         monitoredDelta: 0,
         unreadAlertCount: alerts.length,
         unreadAlertDelta: 0,
-        triggeredTodayCount: alerts
-            .where((alert) => alert.time == '刚刚' || alert.time.contains('小时'))
+        triggeredTodayCount: responses
+            .where((item) => _isToday(item.pushedAt, now))
             .length,
         triggeredTodayDelta: 0,
         totalAlertCount: alerts.length,
@@ -180,6 +182,12 @@ class GithubMonitorRepository implements MonitorRepository {
     return delta.round().clamp(0, 999999);
   }
 
+  bool _isToday(DateTime? value, DateTime now) {
+    final v = value?.toLocal();
+    if (v == null) return false;
+    return v.year == now.year && v.month == now.month && v.day == now.day;
+  }
+
   GithubMonitorRemoteRepoItem _parseRepo(
     Map<String, Object?> json,
     DateTime now,
@@ -207,7 +215,7 @@ class GithubMonitorRepository implements MonitorRepository {
         ),
         forkCount: forks,
         accentArgb: GitHubApiSupport.languageColor(language),
-        valueProvenance: DataProvenance.observed,
+        valueProvenance: DataProvenance.live,
         trendProvenance: DataProvenance.estimated,
         trend: githubMonitorEstimatedRepoTrend(stars),
       ),

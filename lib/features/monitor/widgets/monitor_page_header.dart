@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/monitor_providers.dart';
@@ -17,6 +18,7 @@ class MonitorPageHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final query = ref.watch(monitorSearchQueryProvider);
     return PageHeader(
       icon: Icons.radar_rounded,
@@ -38,11 +40,10 @@ class MonitorPageHeader extends ConsumerWidget {
         ),
       ],
       actions: [
-        IconButton(
-          tooltip: '新增监控',
+        HeaderAction(
+          icon: Icons.add_circle_outline_rounded,
+          tooltip: l10n.tr('a11y.add_monitor'),
           onPressed: () => context.go('/profile/monitor'),
-          icon: const Icon(Icons.add_circle_outline_rounded, size: 20),
-          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
         ),
       ],
     );

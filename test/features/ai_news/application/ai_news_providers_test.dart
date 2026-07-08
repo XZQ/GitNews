@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_provenance.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
 import 'package:github_news/core/storage/storage_providers.dart';
 import 'package:github_news/features/ai_news/application/ai_news_providers.dart';
 import 'package:github_news/features/ai_news/data/ai_news_cache_dao.dart';
+import 'package:github_news/features/ai_news/data/ai_news_seed_data.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_repository.dart';
 
@@ -126,6 +128,7 @@ void main() {
 
     expect(items.length, 1);
     expect(repo2.callCount, 0); // 未触发远端
+    expect(readProvenance(c2), DataProvenance.freshCache);
   });
 
   test('缓存过期:应在后台静默刷新', () async {
@@ -180,4 +183,52 @@ void main() {
     expect(filterAiNewsItems(items, 'industry'), [items.last]);
     expect(filterAiNewsItems(items, 'missing'), isEmpty);
   });
+
+  test('无缓存且远端失败:应回退到种子数据并标记 seed', () async {
+    final repo = _ThrowingAiNewsRepository();
+    final container = makeContainer(repo);
+
+    final items = await container.read(aiNewsItemsNotifierProvider.future);
+
+    expect(items, isNotEmpty);
+    expect(
+      items.map((e) => e.id).toList(),
+      AiNewsSeedData.items.map((e) => e.id).toList(),
+    );
+    expect(container.read(aiNewsProvenanceProvider), DataProvenance.seed);
+  });
+
+  test('缓存命中但远端失败:应保留缓存并标记陈旧缓存', () async {
+    final now = DateTime.utc(2026, 6, 30, 10);
+    // 预热
+    final repo1 = _MockAiNewsRepository([_item('a')]);
+    final c1 = makeContainer(repo1, clock: () => now);
+    await c1.read(aiNewsItemsNotifierProvider.future);
+    expect(repo1.callCount, 1);
+
+    // 远端开始持续失败,但缓存仍存在(且已过期,会触发后台刷新)
+    final repo2 = _ThrowingAiNewsRepository();
+    final c2 =
+        makeContainer(repo2, clock: () => now.add(const Duration(minutes: 10)));
+    final items = await _pumpUntilSettled(c2);
+
+    expect(items.map((e) => e.id).toList(), ['a']);
+    expect(readProvenance(c2), DataProvenance.staleCache);
+  });
+}
+
+DataProvenance readProvenance(ProviderContainer container) =>
+    container.read(aiNewsProvenanceProvider);
+
+class _ThrowingAiNewsRepository implements AiNewsRepository {
+  @override
+  Future<AiNewsDigest> fetchItems({
+    AiNewsCategory? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  }) async {
+    throw Exception('network unavailable');
+  }
 }

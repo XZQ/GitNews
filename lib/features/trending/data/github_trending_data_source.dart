@@ -148,7 +148,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
       ),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
-      valueProvenance: DataProvenance.observed,
+      valueProvenance: DataProvenance.live,
       trendProvenance: DataProvenance.estimated,
       trend: _repoTrend(stars, query.window),
     );
@@ -262,7 +262,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     if (repos.isEmpty) return const [];
     final observed = [
       for (final repo in repos)
-        if (repo.trendProvenance == DataProvenance.observed &&
+        if (repo.trendProvenance == DataProvenance.live &&
             repo.trend != null &&
             repo.trend!.length >= 2)
           repo.trend!,

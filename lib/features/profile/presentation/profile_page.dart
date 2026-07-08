@@ -30,7 +30,7 @@ class ProfilePage extends ConsumerWidget {
       appBar: isCompact ? AppBar(title: Text(l10n.tr('profile.title'))) : null,
       body: ResponsiveLayout(
         compact: (_) => const _Mobile(),
-        medium: (_) => const _Mobile(),
+        medium: (_) => const _Desktop(),
         expanded: (_) => const _Desktop(),
       ),
     );

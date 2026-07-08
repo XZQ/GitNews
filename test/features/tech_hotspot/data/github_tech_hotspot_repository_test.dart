@@ -70,7 +70,7 @@ void main() {
     final firstTopic = digest.topics.first;
 
     expect(firstTopic.growth, 30);
-    expect(firstTopic.growthProvenance, DataProvenance.observed);
+    expect(firstTopic.growthProvenance, DataProvenance.live);
     expect(
       digest.heatTrend.map((point) => point.value).toList(),
       [40, firstTopic.heat],

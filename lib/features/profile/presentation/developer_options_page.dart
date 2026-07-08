@@ -17,8 +17,7 @@ class DeveloperOptionsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('开发者选项'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/profile'),
         ),

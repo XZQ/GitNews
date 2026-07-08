@@ -192,3 +192,33 @@ class HeaderStatPill extends StatelessWidget {
     );
   }
 }
+
+/* 
+*页头动作按钮:统一尺寸 / tooltip / 无障碍语义,消除各 feature header 重复的
+*IconButton 样板(constraints: minWidth:44 / padding:零 等)。
+*/
+class HeaderAction extends StatelessWidget {
+  const HeaderAction({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.iconSize = 20,
+    super.key,
+  });
+
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback? onPressed;
+  final double iconSize;
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      tooltip: tooltip,
+      onPressed: onPressed,
+      icon: Icon(icon, size: iconSize),
+      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+      padding: EdgeInsets.zero,
+    );
+  }
+}

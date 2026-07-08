@@ -35,8 +35,7 @@ class TechHotspotDetailPage extends ConsumerWidget {
           data: (topic) => Text(topic.name),
           orElse: () => Text(l10n.tr('tech_hotspot.detail_title')),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/tech_hotspot'),
         ),

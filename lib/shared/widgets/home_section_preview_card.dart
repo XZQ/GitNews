@@ -21,6 +21,7 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
     required this.path,
     required this.items,
     required this.tileBuilder,
+    this.trailing,
     super.key,
   });
 
@@ -31,6 +32,7 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
   final String path;
   final List<T> items;
   final Widget Function(BuildContext, T, int) tileBuilder;
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +78,10 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
                   ],
                 ),
               ),
+              if (trailing != null) ...[
+                trailing!,
+                const SizedBox(width: AppSpacing.sm),
+              ],
               _MoreChip(path: path, accentColor: accentColor),
             ],
           ),

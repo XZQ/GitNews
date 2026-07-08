@@ -28,8 +28,7 @@ class ExplorePage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tr('project.explore.title')),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/project'),
         ),

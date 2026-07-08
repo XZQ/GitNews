@@ -73,7 +73,7 @@ TechTopic _topicFromJson(Object? raw) {
     summary: GitHubJson.string(json['summary']),
     provenance: _provenanceFromJson(
       json['provenance'],
-      fallback: DataProvenance.observed,
+      fallback: DataProvenance.live,
     ),
     growthProvenance: _provenanceFromJson(
       json['growthProvenance'],

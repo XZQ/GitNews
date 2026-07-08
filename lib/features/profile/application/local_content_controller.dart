@@ -2,12 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/demo_data.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/i18n/app_localizations.dart';
 
-const List<String> monitorRuleLabels = [
-  'Star 增速 >= 200/天',
-  '单日增长 >= 10%',
-  'Fork 增速 >= 50/天',
-  '讨论热度 >= 5x',
+const int monitorRuleCount = 4;
+
+List<String> monitorRuleLabels(AppLocalizations l10n) => [
+  l10n.tr('monitor.rule.star_growth'),
+  l10n.tr('monitor.rule.daily_growth'),
+  l10n.tr('monitor.rule.fork_growth'),
+  l10n.tr('monitor.rule.discuss_heat'),
 ];
 
 class LocalContentState {
@@ -120,7 +123,7 @@ class LocalContentController extends Notifier<LocalContentState> {
   }
 
   List<bool> _readRules(List<String>? raw) {
-    if (raw == null || raw.length != monitorRuleLabels.length) {
+    if (raw == null || raw.length != monitorRuleCount) {
       return const [true, true, false, true];
     }
     return [for (final value in raw) value == '1' || value == 'true'];

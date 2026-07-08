@@ -166,12 +166,14 @@ class _ItemListState extends ConsumerState<_ItemList> {
               (context, index) {
                 if (index < flat.length) {
                   final e = flat[index];
-                  return e.isHeader
-                      ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
-                      : AiNewsTimelineRow(
-                          item: e.item!,
-                          onTap: () => _openDetail(context, e.item!),
-                        );
+                  return RepaintBoundary(
+                    child: e.isHeader
+                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
+                        : AiNewsTimelineRow(
+                            item: e.item!,
+                            onTap: () => _openDetail(context, e.item!),
+                          ),
+                  );
                 }
                 return const AiNewsLoadMoreIndicator();
               },

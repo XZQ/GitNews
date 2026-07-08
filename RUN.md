@@ -21,6 +21,30 @@ flutter run -d windows
 flutter create --platforms=windows .
 ```
 
+### 2.1 Release 打包(Windows)
+
+发布构建使用 `--release`,并开启符号混淆与调试信息分离,降低逆向可读性:
+
+```bash
+flutter build windows --release \
+  --obfuscate \
+  --split-debug-info=build/symbols
+```
+
+要点:
+
+- `--obfuscate` 会混淆 Dart 符号;`--split-debug-info=build/symbols` 把调试信息
+  (用于解析崩溃栈)输出到指定目录。**该目录必须妥善保管**,丢失后无法解析线上崩溃栈。
+- 产物在 `build/windows/x64/runner/Release/`,分发时需连同 `flutter_windows.dll`
+  及数据目录整体打包。
+- 版本号由 `pubspec.yaml` 的 `version: 0.1.0+1` 自动注入到 `Runner.rc` 的
+  `VERSION_AS_NUMBER` / `VERSION_AS_STRING`(经 CMake 的 `FLUTTER_VERSION_*` 宏)，
+  右键「属性 → 详细信息」可见。改版本只改 `pubspec.yaml`,无需手改 `Runner.rc`。
+- 运行环境最低要求 **Windows 10**(已在 `runner.exe.manifest` 的 `supportedOS` 中
+  仅声明 Win10/11 GUID;WebView2 控件依赖 Win10+ 预装的 Edge 运行时)。
+- 混淆构建出现崩溃时,用 `flutter symbolize -i <stack-trace.txt> -d build/symbols`
+  还原符号后再定位。
+
 ## 3. 桌面端启动(macOS)
 
 macOS 桌面端必须在 Mac + Xcode 环境运行,Windows 不能模拟或构建 macOS

@@ -1,6 +1,7 @@
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../errors/app_exception.dart';
+import '../utils/app_logger.dart';
 
 /* 
 *通用 cache_key → last_fetched_at 映射。
@@ -152,6 +153,28 @@ class CacheMetaDao {
         stack: st,
         meta: {'op': 'writeEtag', 'cacheKey': cacheKey},
       );
+    }
+  }
+
+  /*
+  *批量清理超过 [retainFor] 未刷新的 cache_meta 行(最佳努力,失败不抛)。
+  *用于启动时收敛无限增长的 cache_key 元数据;被清理的 key 下次拉取时会重建。
+  */
+  Future<int> pruneStale({
+    required DateTime now,
+    required Duration retainFor,
+  }) async {
+    try {
+      final threshold =
+          now.toUtc().millisecondsSinceEpoch - retainFor.inMilliseconds;
+      return _db.delete(
+        _table,
+        where: 'last_fetched_at < ?',
+        whereArgs: [threshold],
+      );
+    } catch (e) {
+      AppLogger.warn('cacheMetaPrune', meta: {'error': e.runtimeType.toString()});
+      return 0;
     }
   }
 }

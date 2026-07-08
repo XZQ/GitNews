@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
@@ -17,11 +18,11 @@ class MonitorSettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('通知设置'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        title: Text(l10n.tr('monitor.settings.title')),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/monitor'),
         ),
@@ -40,6 +41,7 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final values = ref.watch(monitorSettingsControllerProvider);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -53,14 +55,14 @@ class _Body extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(
-                title: '通知渠道',
-                subtitle: '应用内 / 邮件 / 报告',
+              SectionHeader(
+                title: l10n.tr('monitor.settings.channel'),
+                subtitle: l10n.tr('monitor.settings.channel_subtitle'),
               ),
               const SizedBox(height: AppSpacing.md),
               for (var i = 0; i < 5; i++)
                 MonitorNotificationRow(
-                  label: monitorNotificationLabels[i],
+                  label: monitorNotificationLabels(l10n)[i],
                   value: values[i],
                   onChanged: (value) => ref
                       .read(monitorSettingsControllerProvider.notifier)
@@ -74,14 +76,14 @@ class _Body extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(
-                title: '免打扰',
-                subtitle: '夜间与工作时段',
+              SectionHeader(
+                title: l10n.tr('monitor.settings.dnd'),
+                subtitle: l10n.tr('monitor.settings.dnd_subtitle'),
               ),
               const SizedBox(height: AppSpacing.md),
-              for (var i = 5; i < monitorNotificationLabels.length; i++)
+              for (var i = 5; i < monitorNotificationCount; i++)
                 MonitorNotificationRow(
-                  label: monitorNotificationLabels[i],
+                  label: monitorNotificationLabels(l10n)[i],
                   value: values[i],
                   onChanged: (value) => ref
                       .read(monitorSettingsControllerProvider.notifier)

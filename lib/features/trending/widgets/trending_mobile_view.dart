@@ -116,15 +116,25 @@ class TrendingMobileView extends ConsumerWidget {
                   ),
                 ),
               ),
-              for (var i = 0; i < digest.trendingRepos.length; i++) ...[
-                if (i != 0) const Divider(height: 1),
-                RepoTile(
-                  repo: digest.trendingRepos[i],
-                  onTap: () => context.go(
-                    '/trending/detail/${Uri.encodeComponent(digest.trendingRepos[i].fullName)}',
-                  ),
-                ),
-              ],
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: digest.trendingRepos.length,
+                itemBuilder: (context, i) {
+                  final repo = digest.trendingRepos[i];
+                  return Column(
+                    children: [
+                      if (i != 0) const Divider(height: 1),
+                      RepoTile(
+                        repo: repo,
+                        onTap: () => context.go(
+                          '/trending/detail/${Uri.encodeComponent(repo.fullName)}',
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
             ],
           ),
         ),

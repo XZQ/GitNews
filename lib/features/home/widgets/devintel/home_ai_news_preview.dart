@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
 import '../../../ai_news/application/ai_news_providers.dart';
 import '../../../ai_news/domain/ai_news_item.dart';
@@ -20,6 +21,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemsNotifierProvider);
+    final provenance = ref.watch(aiNewsProvenanceProvider);
     final items = async.valueOrNull?.take(4).toList() ?? const <AiNewsItem>[];
     return HomeSectionPreviewCard<AiNewsItem>(
       title: l10n.tr('home.section.ai_news.title'),
@@ -27,6 +29,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
       accentColor: AppColors.brand,
       icon: Icons.auto_awesome_rounded,
       path: '/ai_news',
+      trailing: DataProvenanceBadge(provenance: provenance),
       items: items,
       tileBuilder: (context, item, index) => PreviewRow(
         rank: '${index + 1}',

@@ -19,8 +19,8 @@ class RepoEntity {
     required this.starDelta,
     required this.forkCount,
     required this.accentArgb,
-    this.valueProvenance = DataProvenance.localFallback,
-    this.trendProvenance = DataProvenance.localFallback,
+    this.valueProvenance = DataProvenance.seed,
+    this.trendProvenance = DataProvenance.seed,
     this.trend,
   });
 
@@ -81,7 +81,7 @@ class LanguageEntity {
     required this.percent,
     required this.delta,
     required this.accentArgb,
-    this.provenance = DataProvenance.localFallback,
+    this.provenance = DataProvenance.seed,
   });
 
   final String name;

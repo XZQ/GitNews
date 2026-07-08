@@ -48,11 +48,24 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
   // 目标路由路径。
   final String route;
   ```
+- Enum case members use `//` line comments above each case, not `/* ... */`:
+  ```
+  enum Category {
+    // 新模型 / 模型版本更新。
+    aiModels('ai-models', '模型'),
+
+    // 行业动态 / 公司战略 / 投融资。
+    industry('industry', '行业');
+    ...
+  }
+  ```
 - Local variables and parameters may use `//` line comments inline or above.
 - Private code still needs a comment when intent, constraints, tradeoffs, or
   non-obvious fallbacks are not clear from the code itself.
 - Magic numbers for timing, retry, cache, sizing, and limits need either a named
-  constant or a short reason.
+  constant or a short reason. Magic strings — API base URLs, request paths,
+  HTTP header names and values, MIME types — must reference a shared constant,
+  not be inlined as string literals.
 - TODO format: `// TODO(owner, YYYY-MM-DD): actionable note`.
 - Do not leave author, generated-by, or chat transcript comments in source.
 

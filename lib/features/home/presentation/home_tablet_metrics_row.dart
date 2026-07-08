@@ -4,7 +4,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/metric_card.dart';
-import 'home_chart_helpers.dart';
+import 'home_chart_models.dart';
 
 class HomeTabletMetricsRow extends StatelessWidget {
   const HomeTabletMetricsRow({required this.tab, super.key});

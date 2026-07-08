@@ -19,8 +19,7 @@ class FollowedDevelopersPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('关注的开发者'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/profile'),
         ),

@@ -51,7 +51,7 @@ class ProfileUserCard extends ConsumerWidget {
                       ),
                       decoration: BoxDecoration(
                         color: colors.primaryContainer,
-                        borderRadius: BorderRadius.circular(AppRadius.xs + 2),
+                        borderRadius: BorderRadius.circular(AppRadius.xs),
                       ),
                       child: Text(
                         'PRO',

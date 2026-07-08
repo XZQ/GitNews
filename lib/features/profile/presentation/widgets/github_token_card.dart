@@ -10,7 +10,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 import '../../application/github_rate_limit_providers.dart';
-import '../../data/github_rate_limit_client.dart';
+import '../../domain/github_rate_limit.dart';
 
 class GitHubTokenCard extends ConsumerStatefulWidget {
   const GitHubTokenCard({super.key});

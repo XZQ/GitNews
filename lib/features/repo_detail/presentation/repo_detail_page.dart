@@ -6,7 +6,6 @@ import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../profile/application/local_content_controller.dart';
@@ -37,8 +36,7 @@ class RepoDetailPage extends ConsumerWidget {
           data: (digest) => Text(digest.repo.fullName),
           orElse: () => Text(l10n.tr('repo_detail.title')),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+        leading: BackButton(
           onPressed: () =>
               context.canPop() ? context.pop() : context.go('/home'),
         ),
@@ -49,7 +47,11 @@ class RepoDetailPage extends ConsumerWidget {
                   ? Icons.bookmark
                   : Icons.bookmark_border,
             ),
-            tooltip: content.isBookmarked(decodedFullName) ? '取消收藏' : '收藏仓库',
+            tooltip: l10n.tr(
+              content.isBookmarked(decodedFullName)
+                  ? 'a11y.bookmark_remove'
+                  : 'a11y.bookmark_add',
+            ),
             onPressed: () => ref
                 .read(localContentControllerProvider.notifier)
                 .toggleBookmark(decodedFullName),
@@ -74,12 +76,6 @@ class RepoDetailPage extends ConsumerWidget {
       ),
       body: state.when(
         data: (digest) {
-          if (digest.relatedRepos.isEmpty && digest.contributors.isEmpty) {
-            return EmptyView(
-              icon: Icons.source_outlined,
-              message: l10n.tr('repo_detail.not_found'),
-            );
-          }
           return ResponsiveLayout(
             compact: (_) => _Mobile(digest: digest),
             medium: (_) => CenteredContent(child: _Desktop(digest: digest)),
