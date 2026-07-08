@@ -25,7 +25,6 @@ dependencies:
   # 存储
   shared_preferences: ^2.3.0
   sqflite_common_ffi: ^2.3.3+2
-  sqlite3_flutter_libs: ^0.6.0
   path: ^1.9.0
   path_provider: ^2.1.4
   flutter_secure_storage: ^10.0.0
@@ -46,13 +45,6 @@ dev_dependencies:
 
   # 测试
   mocktail: ^1.0.4
-
-hooks:
-  user_defines:
-    sqlite3:
-      source: system
-      name: sqlite3
-      name_windows: winsqlite3
 
 flutter:
   uses-material-design: true
