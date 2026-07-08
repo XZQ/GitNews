@@ -31,7 +31,7 @@ dependencies:
   flutter_secure_storage: ^9.2.2
 
   # 图表
-  fl_chart: ^0.68.0
+  fl_chart: ^1.2.0
 
   # 图片
   cached_network_image: ^3.4.0
