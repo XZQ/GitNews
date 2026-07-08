@@ -139,6 +139,6 @@ The structure is reusable across projects:
 ## Reference Docs
 
 - Style guide: `STYLE.md`
-- Product and data plan: `docs/product_ia_data_plan.md`
+- Product and data plan: `docs/plans/product_ia_data_plan.md`
 - Current capabilities and data boundary: `README.md`
 - Local run guide: `RUN.md`

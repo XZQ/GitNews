@@ -6,23 +6,23 @@
 
 ### AI 动态
 
-![AI 动态](docs/ScreenShot_2026-06-27_223118_515.png)
+![AI 动态](docs/screenshots/ScreenShot_2026-06-27_223118_515.png)
 
 ### GitHub 热榜
 
-![GitHub 热榜](docs/ScreenShot_2026-06-27_223128_041.png)
+![GitHub 热榜](docs/screenshots/ScreenShot_2026-06-27_223128_041.png)
 
 ### 技术热点
 
-![技术热点](docs/ScreenShot_2026-06-27_223137_072.png)
+![技术热点](docs/screenshots/ScreenShot_2026-06-27_223137_072.png)
 
 ### 仓库监控
 
-![仓库监控](docs/ScreenShot_2026-06-27_223145_699.png)
+![仓库监控](docs/screenshots/ScreenShot_2026-06-27_223145_699.png)
 
 ### 设置
 
-![设置](docs/ScreenShot_2026-06-27_223209_496.png)
+![设置](docs/screenshots/ScreenShot_2026-06-27_223209_496.png)
 
 ## 当前能力
 
@@ -81,7 +81,8 @@ flutter test
 
 ## 文档
 
-- 产品信息架构与数据方案：[docs/product_ia_data_plan.md](docs/product_ia_data_plan.md)
+- 文档索引：[docs/README.md](docs/README.md)
+- 产品信息架构与数据方案：[docs/plans/product_ia_data_plan.md](docs/plans/product_ia_data_plan.md)
 - 项目规则：根目录 `AGENTS.md`
 
 ## 状态
