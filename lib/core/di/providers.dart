@@ -17,9 +17,10 @@ final sharedPreferencesProvider = Provider<SharedPreferences>(
 // FlutterSecureStorage 单例(桌面端走 Windows DPAPI / macOS Keychain)。
 // 用于存储敏感凭据(如 GitHub Token),替代 SharedPreferences 明文存储。
 // 初始化为同步操作(内部走 platform channel),无需在 main 中 override。
+// v10 起 Android 端默认使用自定义 cipher(原 encryptedSharedPreferences
+// 参数已 deprecated,数据首次访问时自动迁移,无需手动配置)。
 final secureStorageProvider = Provider<FlutterSecureStorage>(
   (ref) => const FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
     wOptions: WindowsOptions(),
   ),
