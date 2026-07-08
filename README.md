@@ -53,7 +53,7 @@
 | 状态管理 | flutter_riverpod |
 | 路由 | go_router |
 | 网络 | dio |
-| 本地存储 | shared_preferences、sqflite_common_ffi、sqlite3_flutter_libs |
+| 本地存储 | shared_preferences、sqflite_common_ffi |
 | 图表 | fl_chart |
 | 图片 | cached_network_image |
 | 测试 | flutter_test、mocktail |
