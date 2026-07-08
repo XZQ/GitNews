@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
-import '../../../../shared/widgets/page_header.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_category_style.dart';
 
@@ -18,26 +15,9 @@ class AiNewsDetailContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        PageHeader(
-          title: l10n.tr('ai_news.detail_title'),
-          subtitle: item.source,
-          actions: [
-            IconButton(
-              tooltip: l10n.tr('webview.copy_link'),
-              onPressed: () => _copyLink(context),
-              icon: const Icon(Icons.content_copy_rounded),
-            ),
-            IconButton(
-              tooltip: l10n.tr('webview.open_in_browser'),
-              onPressed: () => _openOriginal(context),
-              icon: const Icon(Icons.open_in_new_rounded),
-            ),
-          ],
-        ),
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(
@@ -69,29 +49,6 @@ class AiNewsDetailContent extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Future<void> _copyLink(BuildContext context) async {
-    final link = item.url.isNotEmpty ? item.url : item.permalink;
-    await Clipboard.setData(ClipboardData(text: link));
-    if (!context.mounted) return;
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.tr('webview.copied'))),
-    );
-  }
-
-  Future<void> _openOriginal(BuildContext context) async {
-    final target = item.url.isNotEmpty ? item.url : item.permalink;
-    final uri = Uri.tryParse(target);
-    if (uri == null) return;
-    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!ok && context.mounted) {
-      final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.tr('ai_news.open_failed'))),
-      );
-    }
   }
 }
 

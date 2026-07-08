@@ -22,6 +22,7 @@
 
 ## Windows 桌面端运行/构建坑
 - `flutter run -d windows` 偶报 MSB3027：WebView2Loader.dll 被旧 github_news.exe 锁定。必须用 PowerShell `Stop-Process -Name github_news -Force` 杀旧实例（禁止 Git Bash `taskkill //F`，// 被 MSYS 吞掉静默失败）。
+- 首次构建卡死根因（2026-07-08 排查）：`flutter_inappwebview_windows` 的 PreBuildEvent 调 chocolatey 的 `nuget.exe` 下载 3 个依赖包（Microsoft.Web.WebView2 / Windows.ImplementationLibrary / nlohmann.json）到 `build/windows/x64/packages`。nuget 读 `HTTP_PROXY`；代理 `127.0.0.1:9098` 偶发 502 或清空后直连 Azure blob 不通 → 卡死在 'Building Windows application...' 无限重试。诊断：`flutter build windows --verbose` 看 PreBuildEvent 是否停在 nuget install；查 `packages` 目录是否有这 3 个文件夹（有则已下好）。解决：用可用代理重跑（`flutter run -d windows`），包已存在则 nuget 秒跳过，MSBuild 编译 C++ ~28s 后 `√ Built github_news.exe` 启动。停卡死构建用 TaskStop 工具（pkill / Stop-Process -Name 含 msbuild/nuget/cmake 会被安全策略 LOLBin 拦截）。
 - release 打包：`flutter build windows --release --obfuscate --split-debug-info=build/symbols`；symbols 目录须保管，崩溃栈用 `flutter symbolize -i <trace> -d build/symbols` 还原。
 - 版本号改 `pubspec.yaml` 的 `version:` 即可，CMake 经 FLUTTER_VERSION_* 自动注入 Runner.rc。
 - 最低 Win10（runner.exe.manifest supportedOS 仅声明 Win10/11 GUID）。
@@ -32,5 +33,8 @@
 ## 仍延期项
 - i18n 全量扫荡（~732 处裸中文，主要在 monitor/profile/trending 二级页）。
 - Device Flow 实际可用：需注册 GitHub OAuth App 并替换 `ApiEndpointsConfig.githubOAuthClientId` 占位值。
-- 设置页 launch_theme 行仍为静态标签（未接启动 Tab 偏好）。
 - Agent Skills 第三方排行榜数据源（jaychempan 路径已 404），待确认可靠源后接入 discover enrichment。
+
+## 启动 Tab 偏好（已补完）
+- `StartupTabController`（core/preferences）持久化启动 Tab pathSegment；`app_router.buildAppRouter` 同步 `ref.read` 作为 initialLocation（不 watch，避免热重建路由栈，下次冷启动生效）；设置页 launch_theme 行接 Dropdown 选 8 个一级 Tab。
+- 坑：appRouter 现急切读 sharedPreferencesProvider，冒烟测试 widget_test 需 override 该 provider（与 main 一致），否则 StateError。
