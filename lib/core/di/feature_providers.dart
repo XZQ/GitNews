@@ -7,6 +7,7 @@ library;
 
 // features
 export '../../features/ai_news/application/ai_news_providers.dart';
+export '../../features/discover/application/discover_providers.dart';
 export '../../features/monitor/application/monitor_providers.dart';
 export '../../features/project/application/project_providers.dart';
 export '../../features/repo_detail/application/repo_detail_providers.dart';

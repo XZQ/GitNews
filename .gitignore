@@ -102,3 +102,7 @@ app.*.map.json
 # Service account files
 **/google-services.json
 **/GoogleService-Info.plist
+/.workbuddy/
+/.codex/
+/.agents/
+/docs/

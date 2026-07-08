@@ -5,13 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/shared/local_content_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../application/local_content_controller.dart';
 
 class CollectPage extends StatelessWidget {
   const CollectPage({super.key});

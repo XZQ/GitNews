@@ -4,7 +4,9 @@ import '../../../core/di/providers.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
+import '../../../core/shared/local_content_controller.dart';
 import '../../../core/storage/storage_providers.dart';
+import '../data/github_monitor_config.dart';
 import '../data/github_monitor_repository.dart';
 import '../data/local_monitor_repository.dart';
 import '../domain/entities.dart';
@@ -15,15 +17,35 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   final token = ref.watch(githubTokenControllerProvider).token;
   final gate = ref.watch(rateLimitGateProvider);
   final gateController = ref.watch(rateLimitGateProvider.notifier);
+  final monitored = ref.watch(localContentControllerProvider).monitoredRepos;
+  final repos =
+      monitored.isEmpty ? githubMonitorDefaultRepos : monitored.toList();
   return GithubMonitorRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
     token: token,
+    repos: repos,
+    cacheKey: _monitorCacheKey(repos),
     isRateLimited: () => gate.isBlocked,
     onRateLimited: gateController.trigger,
   );
 });
+
+/// 监控缓存 key:默认仓库集合沿用历史 key,用户自定义集合按内容哈希隔离,
+/// 避免不同监控列表互相覆盖缓存。
+String _monitorCacheKey(List<String> repos) {
+  if (repos.length == githubMonitorDefaultRepos.length) {
+    final set = repos.toSet();
+    if (set.containsAll(githubMonitorDefaultRepos)) return githubMonitorCacheKey;
+  }
+  final buffer = repos.join(',');
+  var hash = 0;
+  for (final unit in buffer.codeUnits) {
+    hash = (hash * 31 + unit) & 0x7fffffff;
+  }
+  return 'monitor:github:user_$hash';
+}
 
 // 兼容测试 override 与本地兜底。
 final localMonitorRepositoryProvider = Provider<MonitorRepository>((ref) {

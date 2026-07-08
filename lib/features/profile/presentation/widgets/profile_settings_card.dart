@@ -44,6 +44,7 @@ class ProfileSettingsCard extends ConsumerWidget {
               l10n.tr('profile.settings.notification.enabled'),
               style: AppTypography.labelMedium,
             ),
+            onTap: () => context.go('/monitor/settings'),
           ),
           ProfileSettingRow(
             icon: Icons.rocket_launch_outlined,

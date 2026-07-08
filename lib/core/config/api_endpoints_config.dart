@@ -29,4 +29,38 @@ class ApiEndpointsConfig {
   // GitHub 仓库贡献者接口:`GET /repos/{fullName}/contributors`。
   static String githubRepoContributorsPath(String fullName) =>
       '/repos/$fullName/contributors';
+
+  // GitHub 仓库搜索(发现页:按 stars 排序的流行仓库 / AI Agent Skills 仓库)。
+  // 返回完整 query path,与 [githubBaseUrl] 拼接后直接 GET。
+  static String githubSearchRepositoriesUrl({
+    String q = 'stars:>1000',
+    String sort = 'stars',
+    String order = 'desc',
+    int perPage = 20,
+  }) =>
+      '/search/repositories?q=${Uri.encodeQueryComponent(q)}'
+      '&sort=$sort&order=$order&per_page=$perPage';
+
+  // GitHub 用户详情(Device Flow 登录后回填真实用户名/头像):`GET /user`。
+  static String githubUserPath = '/user';
+
+  // GitHub OAuth Device Flow:获取 device_code / user_code。
+  static String githubDeviceCodePath = '/login/device/code';
+
+  // GitHub OAuth Device Flow:轮询换取 access_token。
+  static String githubDeviceTokenPath = '/login/oauth/access_token';
+
+  // GitHub OAuth Device Flow 的 client_id。
+  // 注意:需替换为在 GitHub 注册的 OAuth App 的 client_id(桌面应用启用 Device Flow)。
+  static const String githubOAuthClientId = 'YOUR_OAUTH_APP_CLIENT_ID';
+
+  // 第三方 Agent Skills 排行榜数据源 baseUrl(raw.githubusercontent.com)。
+  // 注意:该端点未验证可用(jaychempan/Agent-Skills-Leaderboard 路径 2026-07 核查 404),
+  // 当前 discover 模块以 GitHub Search API(topic:agent-skills 等)为主数据源,
+  // 此处仅保留占位,待确认可靠数据源后再启用,避免误用死链。
+  static const String agentSkillsLeaderboardBaseUrl =
+      'https://raw.githubusercontent.com';
+
+  static String agentSkillsLeaderboardPath(String kind) =>
+      '/jaychempan/Agent-Skills-Leaderboard/main/data/$kind.json';
 }

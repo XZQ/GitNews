@@ -6,7 +6,7 @@
 - 状态/路由：Riverpod + go_router（StatefulShellRoute.indexedStack）。
 
 ## 架构规则（AGENTS.md，必须遵守）
-- feature-first：`lib/core/{network,storage,theme,router,github,i18n,di,domain}`、`lib/features/<feature>/{data,domain,application,presentation}`、`lib/shared/widgets/`。
+- feature-first：`lib/core/{network,storage,theme,router,github,i18n,di,domain,shared,config,preferences}`、`lib/features/<feature>/{data,domain,application,presentation}`、`lib/shared/widgets/`。
 - presentation 不得 import feature data 类；跨 feature 只能经 core/domain|config|shared。
 - 单 .dart 文件 < 300 行（豁免：i18n maps、generated、机械 codec）。超 300 行须 feature 内拆分到 widgets/ 子目录，保持无 data 类 import。
 - 每个 AsyncValue 页面须有 loading/data/error/empty 四态。
@@ -16,6 +16,9 @@
 - 无障碍：AppBar 返回按钮一律用 `BackButton(onPressed:)`（自带本地化 tooltip），不要裸 `IconButton(icon: Icon(Icons.arrow_back))`；动作 IconButton 须带 `tooltip:` 且走 i18n。
 - 并发：`core/network/parallel.dart` 的 `gatherAll` 适用于"逐项独立拉取、丢一两个不影响整体"的列表聚合（monitor/tech_hotspot/project）；不适用于 enrichment（丢项即丢数据，如 trending/tech_hotspot 的历史合并）。
 - schema 迁移：DDL + 迁移链集中在 `core/storage/database_schema.dart`；新增迁移在 `_kMigrations` 末尾追加并自增 `local_database.dart` 的 `_kCurrentVersion`。
+- 监控闭环：`localContentControllerProvider`（core/shared）的 `monitoredRepos` 是发现页↔监控页的唯一真实监控集合；monitorRepositoryProvider 读它（空则回退 githubMonitorDefaultRepos），cacheKey 按内容哈希隔离。discover 行尾开关直接 add/removeMonitor。
+- 发现页（discover，第 8 个 Tab，profile 前）：流行仓库 Top20 = GitHub Search `stars:>1000 sort:stars`；Agent Skills 榜 = `topic:agent-skills OR topic:claude-skills OR topic:mcp stars:>50`。三级回退 live→freshCache→staleCache→seed。注意 discover 页类名用 `DiscoverHubPage`（避 project/discover_page.dart 的 `DiscoverPage` 冲突）。
+- GitHub Device Flow 登录（core/github/github_device_flow_controller.dart）：桌面端无回调 URL 的方案。端点在 github.com（非 api.github.com），form-urlencoded。需在 `ApiEndpointsConfig.githubOAuthClientId` 填真实 OAuth App client_id 才可用；占位时 UI 短路 error:not_configured。成功后 token 写 secure storage(githubTokenController)、用户信息回填 localContentController.cachedUser。
 
 ## Windows 桌面端运行/构建坑
 - `flutter run -d windows` 偶报 MSB3027：WebView2Loader.dll 被旧 github_news.exe 锁定。必须用 PowerShell `Stop-Process -Name github_news -Force` 杀旧实例（禁止 Git Bash `taskkill //F`，// 被 MSYS 吞掉静默失败）。
@@ -24,8 +27,10 @@
 - 最低 Win10（runner.exe.manifest supportedOS 仅声明 Win10/11 GUID）。
 
 ## 验证基线
-- `flutter analyze` = No issues found；`flutter test` = 191 全过（截至 2026-07-08）。
+- `flutter analyze` = No issues found；`flutter test` = 196 全过（截至 2026-07-08 第二阶段）。
 
 ## 仍延期项
 - i18n 全量扫荡（~732 处裸中文，主要在 monitor/profile/trending 二级页）。
-- 5 主屏 golden 测试；头部去重（PageHeader 配置驱动）。
+- Device Flow 实际可用：需注册 GitHub OAuth App 并替换 `ApiEndpointsConfig.githubOAuthClientId` 占位值。
+- 设置页 launch_theme 行仍为静态标签（未接启动 Tab 偏好）。
+- Agent Skills 第三方排行榜数据源（jaychempan 路径已 404），待确认可靠源后接入 discover enrichment。

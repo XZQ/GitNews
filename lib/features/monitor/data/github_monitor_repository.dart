@@ -32,6 +32,8 @@ class GithubMonitorRepository implements MonitorRepository {
     MonitorRepository fallback = const LocalMonitorRepository(),
     bool Function()? isRateLimited,
     void Function(int retryAfterSeconds)? onRateLimited,
+    this.repos = githubMonitorDefaultRepos,
+    this.cacheKey = githubMonitorCacheKey,
   })  : _dio = dio,
         _cache = cache,
         _snapshotHistory = snapshotHistory,
@@ -49,6 +51,8 @@ class GithubMonitorRepository implements MonitorRepository {
   final MonitorRepository _fallback;
   final bool Function()? _isRateLimited;
   final void Function(int retryAfterSeconds)? _onRateLimited;
+  final List<String> repos;
+  final String cacheKey;
 
   @override
   Future<MonitorDigest> getDigest() async {
@@ -60,7 +64,7 @@ class GithubMonitorRepository implements MonitorRepository {
     final cached = await _readCached();
     if (cached != null &&
         await _cache.isFresh(
-          key: githubMonitorCacheKey,
+          key: cacheKey,
           ttl: monitorRemoteCacheTtl,
           now: now,
         )) {
@@ -70,7 +74,7 @@ class GithubMonitorRepository implements MonitorRepository {
     try {
       final digest = await _fetchDigest(now);
       await _cache.upsert(
-        key: githubMonitorCacheKey,
+        key: cacheKey,
         payload: monitorDigestToJson(digest),
         now: now,
       );
@@ -94,7 +98,7 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   Future<MonitorDigest?> _readCached() async {
-    final json = await _cache.read(githubMonitorCacheKey);
+    final json = await _cache.read(cacheKey);
     if (json == null) return null;
     try {
       return monitorDigestFromJson(json);
@@ -109,19 +113,20 @@ class GithubMonitorRepository implements MonitorRepository {
 
   Future<MonitorDigest> _fetchDigest(DateTime now) async {
     final responses = await gatherAll<GithubMonitorRemoteRepoItem>(
-      [for (final repo in githubMonitorDefaultRepos) _fetchRepo(repo, now)],
+      [for (final repo in repos) _fetchRepo(repo, now)],
       tag: 'githubMonitorFetch',
     );
-    final repos = responses.map((item) => item.repo).toList(growable: false);
+    final repoEntities =
+        responses.map((item) => item.repo).toList(growable: false);
     final alerts = responses
         .expand((item) => _alertsFor(item, now))
         .take(12)
         .toList(growable: false);
     return MonitorDigest(
-      monitoredRepos: repos,
+      monitoredRepos: repoEntities,
       alerts: alerts,
       stats: MonitorStats(
-        monitoredCount: repos.length,
+        monitoredCount: repoEntities.length,
         monitoredDelta: 0,
         unreadAlertCount: alerts.length,
         unreadAlertDelta: 0,

@@ -4,13 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/shared/local_content_controller.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/repo_tile.dart';
 import '../../../../shared/widgets/section_header.dart';
-import '../../../profile/application/local_content_controller.dart';
 import '../../../repo_detail/domain/entities.dart';
 import '../../application/project_providers.dart';
 

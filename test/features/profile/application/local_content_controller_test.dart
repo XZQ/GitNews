@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/di/providers.dart';
-import 'package:github_news/features/profile/application/local_content_controller.dart';
+import 'package:github_news/core/shared/local_content_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

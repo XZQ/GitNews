@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/ai_news/presentation/ai_news_detail_page.dart';
 import '../../features/ai_news/presentation/ai_news_page.dart';
+import '../../features/discover/presentation/discover_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
 import '../../features/monitor/presentation/monitor_detail_page.dart';
@@ -210,6 +211,24 @@ GoRouter buildAppRouter(Ref ref) {
                   GoRoute(
                     path: 'detail/:fullName',
                     name: 'project_detail',
+                    builder: (_, state) => RepoDetailPage(
+                      fullName: state.pathParameters['fullName']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/discover',
+                name: 'discover',
+                builder: (_, __) => const DiscoverHubPage(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:fullName',
+                    name: 'discover_detail',
                     builder: (_, state) => RepoDetailPage(
                       fullName: state.pathParameters['fullName']!,
                     ),

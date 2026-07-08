@@ -57,6 +57,12 @@ const List<TabSpec> appTabs = <TabSpec>[
     selectedIcon: Icons.insights_rounded,
   ),
   TabSpec(
+    labelKey: 'discover.title',
+    pathSegment: 'discover',
+    icon: Icons.explore_outlined,
+    selectedIcon: Icons.explore_rounded,
+  ),
+  TabSpec(
     labelKey: 'tab.profile',
     pathSegment: 'profile',
     icon: Icons.person_outline,

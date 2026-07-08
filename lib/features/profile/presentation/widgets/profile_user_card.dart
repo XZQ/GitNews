@@ -3,12 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/preferences/github_token_controller.dart';
 import '../../../../core/preferences/profile_session_controller.dart';
+import '../../../../core/shared/local_content_controller.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 
+/// 个人中心顶部用户卡:展示真实 GitHub 身份(Device Flow 登录后回填),
+/// 未登录时回退到本地匿名会话。
 class ProfileUserCard extends ConsumerWidget {
   const ProfileUserCard({super.key});
 
@@ -17,20 +21,38 @@ class ProfileUserCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final session = ref.watch(profileSessionControllerProvider);
+    final local = ref.watch(localContentControllerProvider);
+    final githubUser = local.cachedUserName;
+    final avatarUrl = local.cachedAvatarUrl;
+    final connected = githubUser != null && githubUser.isNotEmpty;
+    final displayName = (githubUser != null && githubUser.isNotEmpty)
+        ? githubUser
+        : session.effectiveName;
+    final statusKey =
+        connected ? 'profile.github.connected' : session.statusKey;
+
+    Future<void> signOut() async {
+      if (connected) {
+        await ref.read(githubTokenControllerProvider.notifier).clear();
+        await ref
+            .read(localContentControllerProvider.notifier)
+            .clearCachedUser();
+      }
+      await ref.read(profileSessionControllerProvider.notifier).signOut();
+    }
+
     return AppCard(
       child: Row(
         children: [
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [colors.primaryContainer, colors.primary],
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.xl),
-            ),
-            alignment: Alignment.center,
-            child: Icon(Icons.person, color: colors.onPrimary, size: 32),
+          CircleAvatar(
+            radius: 32,
+            backgroundColor: colors.primaryContainer,
+            backgroundImage:
+                connected && avatarUrl != null ? NetworkImage(avatarUrl) : null,
+            child: connected && avatarUrl != null
+                ? null
+                : Icon(Icons.person,
+                    color: colors.onPrimaryContainer, size: 32,),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -39,9 +61,13 @@ class ProfileUserCard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      session.effectiveName,
-                      style: AppTypography.titleLarge,
+                    Flexible(
+                      child: Text(
+                        displayName,
+                        style: AppTypography.titleLarge,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.xs2),
                     Container(
@@ -50,13 +76,17 @@ class ProfileUserCard extends ConsumerWidget {
                         vertical: AppSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
-                        color: colors.primaryContainer,
+                        color: connected
+                            ? colors.primary
+                            : colors.primaryContainer,
                         borderRadius: BorderRadius.circular(AppRadius.xs),
                       ),
                       child: Text(
-                        'PRO',
+                        connected ? 'GitHub' : 'PRO',
                         style: AppTypography.labelSmall.copyWith(
-                          color: colors.onPrimaryContainer,
+                          color: connected
+                              ? colors.onPrimary
+                              : colors.onPrimaryContainer,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -65,18 +95,14 @@ class ProfileUserCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  l10n.tr(session.statusKey),
+                  l10n.tr(statusKey),
                   style: AppTypography.bodySmall.copyWith(
                     color: colors.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 TextButton(
-                  onPressed: session.isSignedIn
-                      ? () => ref
-                          .read(profileSessionControllerProvider.notifier)
-                          .signOut()
-                      : () => context.go('/login'),
+                  onPressed: connected ? signOut : () => context.go('/login'),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 28),
@@ -84,7 +110,9 @@ class ProfileUserCard extends ConsumerWidget {
                     alignment: Alignment.centerLeft,
                   ),
                   child: Text(
-                    session.isSignedIn ? '退出登录' : l10n.tr('profile.login'),
+                    connected
+                        ? l10n.tr('profile.logout')
+                        : l10n.tr('profile.login'),
                   ),
                 ),
               ],

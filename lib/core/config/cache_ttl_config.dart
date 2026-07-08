@@ -27,4 +27,10 @@ class CacheTtlConfig {
 
   // 深度报告(基于 trending + contributors 的二次聚合)。
   static const Duration project = Duration(minutes: 30);
+
+  // 发现页(流行仓库 / AI Agent Skills 搜索,用户感知较实时)。
+  static const Duration discover = Duration(hours: 6);
+
+  // Agent Skills 排行榜(第三方源每日更新)。
+  static const Duration skills = Duration(hours: 24);
 }

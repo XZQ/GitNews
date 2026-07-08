@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/demo_data.dart';
-import '../../../core/di/providers.dart';
-import '../../../core/i18n/app_localizations.dart';
+import '../demo_data.dart';
+import '../di/providers.dart';
+import '../i18n/app_localizations.dart';
 
 const int monitorRuleCount = 4;
 
@@ -17,14 +17,20 @@ class LocalContentState {
   const LocalContentState({
     required this.bookmarkedRepos,
     required this.monitoredRepos,
+    required this.monitoredSkills,
     required this.followedDevelopers,
     required this.monitorRules,
+    this.cachedUserName,
+    this.cachedAvatarUrl,
   });
 
   final Set<String> bookmarkedRepos;
   final Set<String> monitoredRepos;
+  final Set<String> monitoredSkills;
   final Set<String> followedDevelopers;
   final List<bool> monitorRules;
+  final String? cachedUserName;
+  final String? cachedAvatarUrl;
 
   int get enabledRuleCount => monitorRules.where((enabled) => enabled).length;
 
@@ -32,19 +38,33 @@ class LocalContentState {
 
   bool isMonitored(String fullName) => monitoredRepos.contains(fullName);
 
-  bool isFollowingDeveloper(String login) => followedDevelopers.contains(login);
+  bool isMonitoredSkill(String fullName) => monitoredSkills.contains(fullName);
+
+  bool isFollowingDeveloper(String login) =>
+      followedDevelopers.contains(login);
 
   LocalContentState copyWith({
     Set<String>? bookmarkedRepos,
     Set<String>? monitoredRepos,
+    Set<String>? monitoredSkills,
     Set<String>? followedDevelopers,
     List<bool>? monitorRules,
+    String? cachedUserName,
+    String? cachedAvatarUrl,
+    bool clearCachedUser = false,
   }) {
     return LocalContentState(
       bookmarkedRepos: bookmarkedRepos ?? this.bookmarkedRepos,
       monitoredRepos: monitoredRepos ?? this.monitoredRepos,
+      monitoredSkills: monitoredSkills ?? this.monitoredSkills,
       followedDevelopers: followedDevelopers ?? this.followedDevelopers,
       monitorRules: monitorRules ?? this.monitorRules,
+      cachedUserName: clearCachedUser
+          ? null
+          : (cachedUserName ?? this.cachedUserName),
+      cachedAvatarUrl: clearCachedUser
+          ? null
+          : (cachedAvatarUrl ?? this.cachedAvatarUrl),
     );
   }
 }
@@ -52,8 +72,11 @@ class LocalContentState {
 class LocalContentController extends Notifier<LocalContentState> {
   static const _bookmarksKey = 'local_content_bookmarked_repos';
   static const _monitorsKey = 'local_content_monitored_repos';
+  static const _skillsKey = 'local_content_monitored_skills';
   static const _developersKey = 'local_content_followed_developers';
   static const _rulesKey = 'local_content_monitor_rules';
+  static const _userNameKey = 'local_content_cached_user_name';
+  static const _userAvatarKey = 'local_content_cached_user_avatar';
 
   @override
   LocalContentState build() {
@@ -67,11 +90,17 @@ class LocalContentController extends Notifier<LocalContentState> {
         prefs.getStringList(_monitorsKey),
         _defaultMonitoredRepos,
       ),
+      monitoredSkills: _readSet(
+        prefs.getStringList(_skillsKey),
+        const [],
+      ),
       followedDevelopers: _readSet(
         prefs.getStringList(_developersKey),
         _defaultFollowedDevelopers,
       ),
       monitorRules: _readRules(prefs.getStringList(_rulesKey)),
+      cachedUserName: prefs.getString(_userNameKey),
+      cachedAvatarUrl: prefs.getString(_userAvatarKey),
     );
   }
 
@@ -100,6 +129,25 @@ class LocalContentController extends Notifier<LocalContentState> {
     await _persistSet(_monitorsKey, next);
   }
 
+  Future<void> addMonitorSkill(String fullName) async {
+    final next = {...state.monitoredSkills, fullName};
+    state = state.copyWith(monitoredSkills: next);
+    await _persistSet(_skillsKey, next);
+  }
+
+  Future<void> removeMonitorSkill(String fullName) async {
+    final next = {...state.monitoredSkills}..remove(fullName);
+    state = state.copyWith(monitoredSkills: next);
+    await _persistSet(_skillsKey, next);
+  }
+
+  Future<void> toggleMonitorSkill(String fullName) async {
+    final next = {...state.monitoredSkills};
+    if (!next.add(fullName)) next.remove(fullName);
+    state = state.copyWith(monitoredSkills: next);
+    await _persistSet(_skillsKey, next);
+  }
+
   Future<void> toggleDeveloper(String login) async {
     final next = {...state.followedDevelopers};
     if (!next.add(login)) next.remove(login);
@@ -115,6 +163,20 @@ class LocalContentController extends Notifier<LocalContentState> {
       _rulesKey,
       [for (final value in next) value ? '1' : '0'],
     );
+  }
+
+  Future<void> setCachedUser({String? name, String? avatarUrl}) async {
+    state = state.copyWith(cachedUserName: name, cachedAvatarUrl: avatarUrl);
+    final prefs = ref.read(sharedPreferencesProvider);
+    if (name != null) await prefs.setString(_userNameKey, name);
+    if (avatarUrl != null) await prefs.setString(_userAvatarKey, avatarUrl);
+  }
+
+  Future<void> clearCachedUser() async {
+    state = state.copyWith(clearCachedUser: true);
+    final prefs = ref.read(sharedPreferencesProvider);
+    await prefs.remove(_userNameKey);
+    await prefs.remove(_userAvatarKey);
   }
 
   Set<String> _readSet(List<String>? raw, List<String> fallback) {
