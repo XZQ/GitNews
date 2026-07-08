@@ -131,7 +131,7 @@ class DiscoverSeed {
       'claude',
       38000,
       210,
-      4200
+      4200,
     ),
     (
       'modelcontextprotocol/servers',
@@ -139,7 +139,7 @@ class DiscoverSeed {
       'mcp',
       21640,
       684,
-      1960
+      1960,
     ),
     (
       'openai/codex',
@@ -147,7 +147,7 @@ class DiscoverSeed {
       'agent',
       26840,
       738,
-      1840
+      1840,
     ),
     (
       'anthropics/claude-code',
@@ -155,7 +155,7 @@ class DiscoverSeed {
       'claude',
       18020,
       612,
-      1240
+      1240,
     ),
     (
       'langchain-ai/langgraph',
@@ -163,7 +163,7 @@ class DiscoverSeed {
       'agent',
       39280,
       548,
-      6420
+      6420,
     ),
     (
       'punkpeye/awesome-mcp-servers',
@@ -171,7 +171,7 @@ class DiscoverSeed {
       'mcp',
       12400,
       130,
-      980
+      980,
     ),
     ('wong2/mcp-cli', 'CLI for MCP servers', 'mcp', 3200, 80, 210),
     (
@@ -180,7 +180,7 @@ class DiscoverSeed {
       'claude',
       2100,
       60,
-      320
+      320,
     ),
     ('dotcoin/mcp-skills', 'A collection of MCP skills', 'mcp', 980, 40, 120),
     (
@@ -189,7 +189,7 @@ class DiscoverSeed {
       'claude',
       1500,
       50,
-      180
+      180,
     ),
     (
       'VoltAgent/awesome-agent-skills',
@@ -197,7 +197,7 @@ class DiscoverSeed {
       'agent',
       4200,
       180,
-      360
+      360,
     ),
     (
       'JackyST0/awesome-agent-skills',
@@ -205,7 +205,7 @@ class DiscoverSeed {
       'agent',
       2600,
       120,
-      240
+      240,
     ),
   ];
 

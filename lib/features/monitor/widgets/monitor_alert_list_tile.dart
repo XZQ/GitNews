@@ -41,8 +41,9 @@ class MonitorAlertListTile extends ConsumerWidget {
     return InkWell(
       onTap: () {
         ref.read(monitorAlertStateControllerProvider.notifier).markRead(alert);
-        context
-            .go('/project/detail/${Uri.encodeComponent(alert.repoFullName)}');
+        context.go(
+          '/project/detail/${Uri.encodeComponent(alert.repoFullName)}',
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(

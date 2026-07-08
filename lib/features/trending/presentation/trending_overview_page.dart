@@ -51,10 +51,7 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return state.when(
       data: (digest) => digest.isEmpty
-          ? const EmptyView(
-              icon: Icons.show_chart_rounded,
-              message: '暂无趋势数据',
-            )
+          ? const EmptyView(icon: Icons.show_chart_rounded, message: '暂无趋势数据')
           : _DigestView(digest: digest),
       loading: () => const _OverviewSkeleton(),
       error: (error, stack) => ErrorView(
@@ -122,10 +119,7 @@ class _DigestView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: '按时间窗统计',
-                subtitle: '不同时段的 Star 增长总量',
-              ),
+              SectionHeader(title: '按时间窗统计', subtitle: '不同时段的 Star 增长总量'),
               SizedBox(height: AppSpacing.md),
               _WindowStatsTable(),
             ],
@@ -186,12 +180,7 @@ class _WindowStatsTable extends StatelessWidget {
               bottom: BorderSide(color: Theme.of(context).dividerColor),
             ),
           ),
-          children: const [
-            _Th('时间窗'),
-            _Th('增长率'),
-            _Th('新增 Star'),
-            _Th('活跃仓库'),
-          ],
+          children: const [_Th('时间窗'), _Th('增长率'), _Th('新增 Star'), _Th('活跃仓库')],
         ),
         for (final r in rows)
           TableRow(

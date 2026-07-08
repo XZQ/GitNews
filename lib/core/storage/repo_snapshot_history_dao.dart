@@ -71,9 +71,9 @@ class RepoSnapshotHistoryDao {
   List<RepoSnapshotPoint> _pointsFromPayload(Map<String, Object?> payload) {
     final raw = payload['points'];
     if (raw == null) return const [];
-    return GitHubJson.list(raw)
-        .map(RepoSnapshotPoint.fromJson)
-        .toList(growable: false)
+    return GitHubJson.list(
+      raw,
+    ).map(RepoSnapshotPoint.fromJson).toList(growable: false)
       ..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
   }
 
@@ -83,10 +83,7 @@ class RepoSnapshotHistoryDao {
 }
 
 class RepoTrendSnapshot {
-  const RepoTrendSnapshot({
-    required this.values,
-    required this.provenance,
-  });
+  const RepoTrendSnapshot({required this.values, required this.provenance});
 
   final List<double> values;
   final DataProvenance provenance;

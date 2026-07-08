@@ -29,10 +29,7 @@ Future<List<T>> gatherAll<T>(
       if (timeout == null) return await future;
       return await future.timeout(timeout);
     } on TimeoutException {
-      AppLogger.warn(
-        tag,
-        meta: {'index': index, 'error': 'TimeoutException'},
-      );
+      AppLogger.warn(tag, meta: {'index': index, 'error': 'TimeoutException'});
       return null;
     } catch (e) {
       AppLogger.warn(

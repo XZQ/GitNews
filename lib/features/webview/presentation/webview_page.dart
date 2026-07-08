@@ -94,9 +94,9 @@ class _WebViewPageState extends State<WebViewPage> {
     await Clipboard.setData(ClipboardData(text: widget.url));
     if (!mounted) return;
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.tr('webview.copied'))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.tr('webview.copied'))));
   }
 
   void _retry() {

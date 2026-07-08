@@ -65,11 +65,7 @@ class _DonutPainter extends CustomPainter {
       final sweep = (l.percent / 100) * 6.28318;
       paint.color = Color(l.accentArgb);
       final path = Path()
-        ..addArc(
-          Rect.fromCircle(center: center, radius: radius),
-          start,
-          sweep,
-        )
+        ..addArc(Rect.fromCircle(center: center, radius: radius), start, sweep)
         ..lineTo(center.dx, center.dy)
         ..close();
       canvas.drawPath(path, paint);

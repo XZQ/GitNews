@@ -110,9 +110,9 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     _controller.clear();
     if (!mounted) return;
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.tr('profile.token.saved'))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.tr('profile.token.saved'))));
   }
 
   Future<void> _clear() async {
@@ -120,9 +120,9 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     _controller.clear();
     if (!mounted) return;
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.tr('profile.token.cleared'))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.tr('profile.token.cleared'))));
   }
 
   Future<void> _checkQuota() async {

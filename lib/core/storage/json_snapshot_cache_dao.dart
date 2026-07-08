@@ -46,14 +46,13 @@ class JsonSnapshotCacheDao {
   }) async {
     try {
       await _db.insert(
-        _table,
-        {
-          'cache_key': key,
-          'payload_json': jsonEncode(payload),
-          'cached_at': now.millisecondsSinceEpoch,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+          _table,
+          {
+            'cache_key': key,
+            'payload_json': jsonEncode(payload),
+            'cached_at': now.millisecondsSinceEpoch,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
       await _meta.upsert(key, now);
     } catch (e, st) {
       throw AppException(

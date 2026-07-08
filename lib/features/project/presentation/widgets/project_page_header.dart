@@ -55,13 +55,9 @@ Future<void> _exportReport(BuildContext context, WidgetRef ref) async {
       outputDirectory: directory,
       generatedAt: DateTime.now(),
     );
-    messenger.showSnackBar(
-      SnackBar(content: Text('报告已导出: ${file.path}')),
-    );
+    messenger.showSnackBar(SnackBar(content: Text('报告已导出: ${file.path}')));
   } catch (_) {
-    messenger.showSnackBar(
-      const SnackBar(content: Text('报告导出失败,请稍后重试')),
-    );
+    messenger.showSnackBar(const SnackBar(content: Text('报告导出失败,请稍后重试')));
   }
 }
 

@@ -45,8 +45,10 @@ class ProjectTrendOverview extends StatelessWidget {
 
   List<double> _safeTrend(List<double> values) {
     if (values.isNotEmpty) return values;
-    final stars =
-        digest.repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
+    final stars = digest.repos.fold<int>(
+      0,
+      (sum, repo) => sum + repo.starDelta,
+    );
     return List<double>.generate(
       7,
       (index) => (stars * (0.7 + index * 0.05)).roundToDouble(),

@@ -162,23 +162,20 @@ class _ItemListState extends ConsumerState<_ItemList> {
             AppSpacing.xxxl,
           ),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                if (index < flat.length) {
-                  final e = flat[index];
-                  return RepaintBoundary(
-                    child: e.isHeader
-                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
-                        : AiNewsTimelineRow(
-                            item: e.item!,
-                            onTap: () => _openDetail(context, e.item!),
-                          ),
-                  );
-                }
-                return const AiNewsLoadMoreIndicator();
-              },
-              childCount: flat.length + (hasMore ? 1 : 0),
-            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              if (index < flat.length) {
+                final e = flat[index];
+                return RepaintBoundary(
+                  child: e.isHeader
+                      ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
+                      : AiNewsTimelineRow(
+                          item: e.item!,
+                          onTap: () => _openDetail(context, e.item!),
+                        ),
+                );
+              }
+              return const AiNewsLoadMoreIndicator();
+            }, childCount: flat.length + (hasMore ? 1 : 0)),
           ),
         ),
       ],

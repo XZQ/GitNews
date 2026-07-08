@@ -39,10 +39,7 @@ class AiNewsDayHeader extends StatelessWidget {
     }
 
     return Padding(
-      padding: const EdgeInsets.only(
-        top: AppSpacing.lg,
-        bottom: AppSpacing.sm,
-      ),
+      padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.sm),
       child: Row(
         children: [
           Container(

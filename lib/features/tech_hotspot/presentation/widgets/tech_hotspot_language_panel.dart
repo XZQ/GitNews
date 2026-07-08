@@ -58,9 +58,7 @@ class TechHotspotLanguagePanel extends StatelessWidget {
               _LangBar(languages: visible),
               const SizedBox(height: AppSpacing.md),
               if (isBounded)
-                Expanded(
-                  child: _LangList(languages: visible),
-                )
+                Expanded(child: _LangList(languages: visible))
               else
                 _LangList(
                   languages: visible,
@@ -120,10 +118,8 @@ class _LangList extends StatelessWidget {
       shrinkWrap: shrinkWrap,
       itemCount: languages.length,
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.xs2),
-      itemBuilder: (context, index) => _LangRow(
-        stat: languages[index],
-        rank: index + 1,
-      ),
+      itemBuilder: (context, index) =>
+          _LangRow(stat: languages[index], rank: index + 1),
     );
   }
 }

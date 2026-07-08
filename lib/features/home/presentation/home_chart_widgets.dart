@@ -22,14 +22,8 @@ class ChartWindowSegmented extends StatelessWidget {
     return SegmentedButton<int>(
       segments: [
         ButtonSegment(value: 7, label: Text(l10n.tr('home.chart.window.7d'))),
-        ButtonSegment(
-          value: 14,
-          label: Text(l10n.tr('home.chart.window.14d')),
-        ),
-        ButtonSegment(
-          value: 30,
-          label: Text(l10n.tr('home.chart.window.30d')),
-        ),
+        ButtonSegment(value: 14, label: Text(l10n.tr('home.chart.window.14d'))),
+        ButtonSegment(value: 30, label: Text(l10n.tr('home.chart.window.30d'))),
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),

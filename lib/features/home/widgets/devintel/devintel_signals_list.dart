@@ -26,9 +26,7 @@ class DevIntelSignalsList extends ConsumerWidget {
         children: [
           Text(
             l10n.tr('devintel.signals.title'),
-            style: AppTypography.titleMedium.copyWith(
-              color: colors.onSurface,
-            ),
+            style: AppTypography.titleMedium.copyWith(color: colors.onSurface),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < items.length; i++) ...[

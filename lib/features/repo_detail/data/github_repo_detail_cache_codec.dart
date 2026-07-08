@@ -16,12 +16,12 @@ Map<String, Object?> repoDetailDigestToJson(RepoDetailDigest digest) {
 RepoDetailDigest repoDetailDigestFromJson(Map<String, Object?> json) {
   return RepoDetailDigest(
     repo: githubRepoEntityFromJson(json['repo']),
-    contributors: GitHubJson.list(json['contributors'])
-        .map(_contributorFromJson)
-        .toList(),
-    relatedRepos: GitHubJson.list(json['relatedRepos'])
-        .map(githubRepoEntityFromJson)
-        .toList(),
+    contributors: GitHubJson.list(
+      json['contributors'],
+    ).map(_contributorFromJson).toList(),
+    relatedRepos: GitHubJson.list(
+      json['relatedRepos'],
+    ).map(githubRepoEntityFromJson).toList(),
     primaryTrend: GitHubJson.doubleList(json['primaryTrend']),
     compareTrend: GitHubJson.doubleList(json['compareTrend']),
   );

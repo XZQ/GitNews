@@ -75,15 +75,15 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
     try {
       await ref.read(configServiceProvider).exportConfig();
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.tr('config.exported'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.tr('config.exported'))));
     } catch (e) {
       AppLogger.warn('exportConfig', meta: {'error': e.runtimeType.toString()});
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.tr('config.import_failed'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
     } finally {
       if (mounted) setState(() => _exporting = false);
     }
@@ -101,9 +101,9 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
     } catch (e) {
       AppLogger.warn('importConfig', meta: {'error': e.runtimeType.toString()});
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.tr('config.import_failed'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
     } finally {
       if (mounted) setState(() => _importing = false);
     }

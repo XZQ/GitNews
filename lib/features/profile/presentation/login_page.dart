@@ -295,9 +295,7 @@ class _ResultView extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 28),
             const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(message, style: AppTypography.titleMedium),
-            ),
+            Expanded(child: Text(message, style: AppTypography.titleMedium)),
           ],
         ),
         if (hint != null) ...[
@@ -311,10 +309,7 @@ class _ResultView extends StatelessWidget {
         ],
         if (retry != null && onRetry != null) ...[
           const SizedBox(height: AppSpacing.lg),
-          FilledButton(
-            onPressed: onRetry,
-            child: Text(retry!),
-          ),
+          FilledButton(onPressed: onRetry, child: Text(retry!)),
         ],
       ],
     );
@@ -339,9 +334,7 @@ class _Hint extends StatelessWidget {
             color: AppColors.success,
           ),
           const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Text(text, style: AppTypography.bodyMedium),
-          ),
+          Expanded(child: Text(text, style: AppTypography.bodyMedium)),
         ],
       ),
     );

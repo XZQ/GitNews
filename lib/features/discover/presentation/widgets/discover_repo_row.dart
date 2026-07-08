@@ -31,8 +31,9 @@ class DiscoverMonitorRow extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final monitored = ref.watch(
-      localContentControllerProvider
-          .select((s) => s.isMonitored(repo.fullName)),
+      localContentControllerProvider.select(
+        (s) => s.isMonitored(repo.fullName),
+      ),
     );
     final controller = ref.read(localContentControllerProvider.notifier);
 
@@ -60,10 +61,7 @@ class DiscoverMonitorRow extends ConsumerWidget {
           const SizedBox(width: AppSpacing.sm),
         ],
         Expanded(
-          child: RepoTile(
-            repo: repo,
-            onTap: onTap,
-          ),
+          child: RepoTile(repo: repo, onTap: onTap),
         ),
         IconButton(
           tooltip: monitored

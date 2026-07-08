@@ -15,9 +15,7 @@ import 'github_project_repository.dart';
 *基于 [DemoData] + [TrendingRepository] 的本地项目仓库。
 */
 class LocalProjectRepository implements ProjectRepository {
-  const LocalProjectRepository({
-    required this.trending,
-  });
+  const LocalProjectRepository({required this.trending});
 
   final TrendingRepository trending;
 

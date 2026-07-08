@@ -76,10 +76,7 @@ class TechHotspotAgentSignalBoard extends StatelessWidget {
                 for (var i = 0; i < signals.length; i++) ...[
                   if (i > 0) const SizedBox(width: AppSpacing.lg),
                   Expanded(
-                    child: _AgentSignalItem(
-                      rank: i + 1,
-                      topic: signals[i],
-                    ),
+                    child: _AgentSignalItem(rank: i + 1, topic: signals[i]),
                   ),
                 ],
               ],

@@ -63,17 +63,9 @@ class AiNewsApiClient {
       throw e.toAppException();
     } on FormatException catch (e, st) {
       // fromJson 解析失败必须经 Repository 边界转换为 AppException,禁止透传 UI。
-      throw AppException(
-        kind: AppExceptionKind.parse,
-        cause: e,
-        stack: st,
-      );
+      throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.parse,
-        cause: e,
-        stack: st,
-      );
+      throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     }
   }
 }

@@ -72,12 +72,14 @@ class _Loaded extends ConsumerWidget {
         languagesState.valueOrNull?.languages ?? const <LanguageStat>[];
     final formFactor = Breakpoints.of(context);
     final relatedError = relatedState.hasError
-        ? relatedState.error!
-            .asAppException(relatedState.stackTrace ?? StackTrace.current)
+        ? relatedState.error!.asAppException(
+            relatedState.stackTrace ?? StackTrace.current,
+          )
         : null;
     final languagesError = languagesState.hasError
-        ? languagesState.error!
-            .asAppException(languagesState.stackTrace ?? StackTrace.current)
+        ? languagesState.error!.asAppException(
+            languagesState.stackTrace ?? StackTrace.current,
+          )
         : null;
     if (formFactor == FormFactor.compact) {
       return _Mobile(

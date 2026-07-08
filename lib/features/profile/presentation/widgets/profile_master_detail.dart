@@ -40,10 +40,7 @@ class _ProfileMasterDetailState extends State<ProfileMasterDetail> {
             ),
           ),
           const SizedBox(width: AppSpacing.lg),
-          Expanded(
-            flex: 55,
-            child: ProfileSectionDetail(section: _selected),
-          ),
+          Expanded(flex: 55, child: ProfileSectionDetail(section: _selected)),
         ],
       ),
     );
@@ -155,10 +152,7 @@ class ProfileSectionDetail extends StatelessWidget {
     };
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 180),
-      child: KeyedSubtree(
-        key: ValueKey<ProfileSection>(section),
-        child: body,
-      ),
+      child: KeyedSubtree(key: ValueKey<ProfileSection>(section), child: body),
     );
   }
 }

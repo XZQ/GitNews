@@ -67,9 +67,7 @@ class LogoMark extends StatelessWidget {
     return SizedBox(
       width: size,
       height: size,
-      child: CustomPaint(
-        painter: _LogoMarkPainter(),
-      ),
+      child: CustomPaint(painter: _LogoMarkPainter()),
     );
   }
 }

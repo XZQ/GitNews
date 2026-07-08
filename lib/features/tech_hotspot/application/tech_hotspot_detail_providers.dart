@@ -5,8 +5,10 @@ import '../domain/tech_hotspot_models.dart';
 import 'tech_hotspot_providers.dart';
 
 // 单个技术主题详情。未找到时抛 [AppExceptionKind.notFound]。
-final techHotspotDetailProvider =
-    FutureProvider.family<TechTopic, String>((ref, id) async {
+final techHotspotDetailProvider = FutureProvider.family<TechTopic, String>((
+  ref,
+  id,
+) async {
   final topic = await ref.watch(techHotspotRepositoryProvider).getById(id);
   if (topic == null) {
     throw const AppException(kind: AppExceptionKind.notFound);

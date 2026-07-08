@@ -10,11 +10,7 @@ import '../../core/theme/app_radius.dart';
 *不画任何竖向分割线。子卡不应再自带边框/圆角/表面色。
 */
 class BorderedRow extends StatelessWidget {
-  const BorderedRow({
-    required this.children,
-    this.flexValues,
-    super.key,
-  });
+  const BorderedRow({required this.children, this.flexValues, super.key});
 
   final List<Widget> children;
   final List<int>? flexValues;
@@ -29,9 +25,7 @@ class BorderedRow extends StatelessWidget {
         color: colors.surface,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(
-          color: colors.outlineVariant.withValues(
-            alpha: isLight ? 0.54 : 0.72,
-          ),
+          color: colors.outlineVariant.withValues(alpha: isLight ? 0.54 : 0.72),
           width: 1,
         ),
         boxShadow: [

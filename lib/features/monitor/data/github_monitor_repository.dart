@@ -112,10 +112,9 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   Future<MonitorDigest> _fetchDigest(DateTime now) async {
-    final responses = await gatherAll<GithubMonitorRemoteRepoItem>(
-      [for (final repo in repos) _fetchRepo(repo, now)],
-      tag: 'githubMonitorFetch',
-    );
+    final responses = await gatherAll<GithubMonitorRemoteRepoItem>([
+      for (final repo in repos) _fetchRepo(repo, now),
+    ], tag: 'githubMonitorFetch');
     final repoEntities =
         responses.map((item) => item.repo).toList(growable: false);
     final alerts = responses
@@ -165,8 +164,10 @@ class GithubMonitorRepository implements MonitorRepository {
       if (starTrend == null) return item;
       return item.copyWith(
         repo: item.repo.copyWith(
-          starDelta:
-              _observedDelta(starTrend.values, fallback: item.repo.starDelta),
+          starDelta: _observedDelta(
+            starTrend.values,
+            fallback: item.repo.starDelta,
+          ),
           trend: starTrend.values,
           trendProvenance: starTrend.provenance,
         ),
@@ -198,8 +199,9 @@ class GithubMonitorRepository implements MonitorRepository {
   ) {
     final fullName = GitHubJson.string(json['full_name']);
     final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
-    final pushedAt =
-        DateTime.tryParse(GitHubJson.string(json['pushed_at']))?.toUtc();
+    final pushedAt = DateTime.tryParse(
+      GitHubJson.string(json['pushed_at']),
+    )?.toUtc();
     final stars = GitHubJson.intValue(json['stargazers_count']);
     final forks = GitHubJson.intValue(json['forks_count']);
     final openIssues = GitHubJson.intValue(json['open_issues_count']);
@@ -228,10 +230,7 @@ class GithubMonitorRepository implements MonitorRepository {
     );
   }
 
-  List<AlertEntity> _alertsFor(
-    GithubMonitorRemoteRepoItem item,
-    DateTime now,
-  ) {
+  List<AlertEntity> _alertsFor(GithubMonitorRemoteRepoItem item, DateTime now) {
     final alerts = <AlertEntity>[
       AlertEntity(
         repoFullName: item.repo.fullName,

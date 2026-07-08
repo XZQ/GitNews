@@ -103,10 +103,7 @@ class _Body extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SectionHeader(
-                    title: '说明',
-                    subtitle: '数据来源与刷新策略',
-                  ),
+                  SectionHeader(title: '说明', subtitle: '数据来源与刷新策略'),
                   SizedBox(height: AppSpacing.sm),
                   _Bullet('GitHub Trending 与社区聚合 · 每 5 分钟刷新'),
                   _Bullet('Star 增速以最近 24h 为基准 · 含历史对比'),
@@ -163,9 +160,7 @@ class _Bullet extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(
-            child: Text(text, style: AppTypography.bodyMedium),
-          ),
+          Expanded(child: Text(text, style: AppTypography.bodyMedium)),
         ],
       ),
     );

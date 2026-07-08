@@ -31,9 +31,7 @@ class ProfileSessionController extends Notifier<ProfileSessionState> {
   @override
   ProfileSessionState build() {
     final prefs = ref.read(sharedPreferencesProvider);
-    return ProfileSessionState(
-      displayName: prefs.getString(_kDisplayNameKey),
-    );
+    return ProfileSessionState(displayName: prefs.getString(_kDisplayNameKey));
   }
 
   Future<void> signInLocal(String displayName) async {

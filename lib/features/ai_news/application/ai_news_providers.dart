@@ -61,10 +61,7 @@ final aiNewsSearchQueryProvider = StateProvider<String>((ref) => '');
 *AI 动态当前仍由远端精选流 + 本地缓存驱动,搜索只过滤客户端已有条目,
 *避免每次输入都打到第三方接口。
 */
-List<AiNewsItem> filterAiNewsItems(
-  List<AiNewsItem> items,
-  String query,
-) {
+List<AiNewsItem> filterAiNewsItems(List<AiNewsItem> items, String query) {
   final keyword = query.trim().toLowerCase();
   if (keyword.isEmpty) return items;
 
@@ -219,10 +216,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     // 用新结果覆盖 buffer;cursor 非空表示「翻下一页」,追加到 buffer。
     final isHead = _nextCursor == null;
     try {
-      final digest = await ref.read(aiNewsRepositoryProvider).fetchItems(
-            category: _category,
-            cursor: _nextCursor,
-          );
+      final digest = await ref
+          .read(aiNewsRepositoryProvider)
+          .fetchItems(category: _category, cursor: _nextCursor);
       if (gen != _generation) return;
       _buffer = isHead ? digest.items : [..._buffer, ...digest.items];
       _nextCursor = digest.nextCursor;

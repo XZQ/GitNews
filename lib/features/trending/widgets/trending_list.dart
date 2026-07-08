@@ -14,11 +14,7 @@ import '../domain/entities.dart';
 *从 trending_desktop_view 拆出,保持主视图文件 < 300 行(AGENTS.md)。
 */
 class TrendingList extends StatelessWidget {
-  const TrendingList({
-    required this.repos,
-    required this.isLoading,
-    super.key,
-  });
+  const TrendingList({required this.repos, required this.isLoading, super.key});
 
   final List<RepoEntity> repos;
   final bool isLoading;
@@ -53,10 +49,7 @@ class TrendingList extends StatelessWidget {
                     AppSpacing.lg,
                     AppSpacing.xs,
                   ),
-                  child: SectionHeader(
-                    title: '热门仓库',
-                    subtitle: '按 Star 增速排序',
-                  ),
+                  child: SectionHeader(title: '热门仓库', subtitle: '按 Star 增速排序'),
                 ),
               ),
               SliverList.builder(

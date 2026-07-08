@@ -97,5 +97,6 @@ class ConfigService {
   }
 }
 
-final configServiceProvider =
-    Provider<ConfigService>((ref) => ConfigService(ref));
+final configServiceProvider = Provider<ConfigService>(
+  (ref) => ConfigService(ref),
+);

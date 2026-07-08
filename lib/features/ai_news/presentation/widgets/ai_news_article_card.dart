@@ -11,11 +11,7 @@ import 'ai_news_category_style.dart';
 *AI 动态列表卡片。
 */
 class AiNewsArticleCard extends StatelessWidget {
-  const AiNewsArticleCard({
-    required this.item,
-    required this.onTap,
-    super.key,
-  });
+  const AiNewsArticleCard({required this.item, required this.onTap, super.key});
 
   final AiNewsItem item;
   final VoidCallback onTap;
@@ -38,8 +34,9 @@ class AiNewsArticleCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: radius,
             border: Border.all(
-              color:
-                  colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1),
+              color: colors.outlineVariant.withValues(
+                alpha: isLight ? 0.58 : 1,
+              ),
               width: 1,
             ),
           ),
@@ -130,11 +127,7 @@ class _CategoryStrip extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Icon(
-          Icons.circle,
-          size: 4,
-          color: colors.onSurfaceVariant,
-        ),
+        Icon(Icons.circle, size: 4, color: colors.onSurfaceVariant),
         const SizedBox(width: AppSpacing.sm),
         Flexible(
           child: Text(
@@ -169,11 +162,7 @@ class _SelectedPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(
-            Icons.star_rounded,
-            size: 12,
-            color: AppColors.starGold,
-          ),
+          const Icon(Icons.star_rounded, size: 12, color: AppColors.starGold),
           const SizedBox(width: AppSpacing.xxs),
           Text(
             '精选',
@@ -225,16 +214,13 @@ class _Meta extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Icon(
-          Icons.schedule_rounded,
-          size: 12,
-          color: colors.onSurfaceVariant,
-        ),
+        Icon(Icons.schedule_rounded, size: 12, color: colors.onSurfaceVariant),
         const SizedBox(width: AppSpacing.xs),
         Text(
           _relativeTime(publishedAt),
-          style:
-              AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
+          style: AppTypography.labelSmall.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
         ),
       ],
     );

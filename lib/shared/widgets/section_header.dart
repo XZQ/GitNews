@@ -37,15 +37,17 @@ class SectionHeader extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTypography.titleMedium
-                        .copyWith(color: colors.onSurface),
+                    style: AppTypography.titleMedium.copyWith(
+                      color: colors.onSurface,
+                    ),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
                       subtitle!,
-                      style: AppTypography.bodySmall
-                          .copyWith(color: colors.onSurfaceVariant),
+                      style: AppTypography.bodySmall.copyWith(
+                        color: colors.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ],

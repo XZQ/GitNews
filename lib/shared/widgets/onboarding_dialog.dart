@@ -39,22 +39,13 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
   int _step = 0;
 
   static const _steps = [
-    _OnboardingStep(
-      icon: Icons.insights_rounded,
-      color: AppColors.brand,
-    ),
-    _OnboardingStep(
-      icon: Icons.auto_awesome_rounded,
-      color: AppColors.brand,
-    ),
+    _OnboardingStep(icon: Icons.insights_rounded, color: AppColors.brand),
+    _OnboardingStep(icon: Icons.auto_awesome_rounded, color: AppColors.brand),
     _OnboardingStep(
       icon: Icons.local_fire_department_rounded,
       color: AppColors.warning,
     ),
-    _OnboardingStep(
-      icon: Icons.notifications_rounded,
-      color: AppColors.info,
-    ),
+    _OnboardingStep(icon: Icons.notifications_rounded, color: AppColors.info),
   ];
 
   @override
@@ -173,10 +164,7 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
 }
 
 class _OnboardingStep {
-  const _OnboardingStep({
-    required this.icon,
-    required this.color,
-  });
+  const _OnboardingStep({required this.icon, required this.color});
 
   final IconData icon;
   final Color color;

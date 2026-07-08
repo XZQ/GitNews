@@ -95,10 +95,7 @@ class _Body extends StatelessWidget {
           accent: Color(repo.accentArgb),
           title: repo.fullName,
           badges: [
-            HeroBadge(
-              label: repo.language,
-              icon: Icons.bolt_rounded,
-            ),
+            HeroBadge(label: repo.language, icon: Icons.bolt_rounded),
             HeroBadge(
               label: '★ ${_shortNumber(repo.starCount)}',
               icon: Icons.star_rounded,
@@ -160,8 +157,10 @@ class _Body extends StatelessWidget {
                     Icons.history_rounded,
                     color: Theme.of(context).colorScheme.primary,
                   ),
-                  title:
-                      Text(alert.repoFullName, style: AppTypography.titleSmall),
+                  title: Text(
+                    alert.repoFullName,
+                    style: AppTypography.titleSmall,
+                  ),
                   subtitle: Text('${alert.metric} · ${alert.time}'),
                   trailing: Text(
                     alert.value,

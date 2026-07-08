@@ -31,10 +31,9 @@ class MonitorSettingsController extends Notifier<List<bool>> {
     if (index < 0 || index >= state.length) return;
     final next = [...state]..[index] = enabled;
     state = next;
-    await ref.read(sharedPreferencesProvider).setStringList(
-      _key,
-      [for (final value in next) value ? '1' : '0'],
-    );
+    await ref.read(sharedPreferencesProvider).setStringList(_key, [
+      for (final value in next) value ? '1' : '0',
+    ]);
   }
 }
 

@@ -65,9 +65,9 @@ class TechHotspotHistoryDao {
   ) {
     final raw = payload['points'];
     if (raw == null) return const [];
-    return GitHubJson.list(raw)
-        .map(TechHotspotHistoryPoint.fromJson)
-        .toList(growable: false)
+    return GitHubJson.list(
+      raw,
+    ).map(TechHotspotHistoryPoint.fromJson).toList(growable: false)
       ..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
   }
 

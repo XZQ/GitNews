@@ -141,10 +141,7 @@ class _Desktop extends StatelessWidget {
           children: [
             Expanded(flex: 8, child: _Left(digest: digest)),
             const SizedBox(width: AppSpacing.lg),
-            Expanded(
-              flex: 4,
-              child: _Right(relatedRepos: digest.relatedRepos),
-            ),
+            Expanded(flex: 4, child: _Right(relatedRepos: digest.relatedRepos)),
           ],
         ),
       ],

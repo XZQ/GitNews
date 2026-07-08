@@ -15,10 +15,14 @@ class ProjectSummaryMetrics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final weeklyStars =
-        digest.repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
-    final forks =
-        digest.repos.fold<int>(0, (sum, repo) => sum + repo.forkCount);
+    final weeklyStars = digest.repos.fold<int>(
+      0,
+      (sum, repo) => sum + repo.starDelta,
+    );
+    final forks = digest.repos.fold<int>(
+      0,
+      (sum, repo) => sum + repo.forkCount,
+    );
     return Row(
       children: [
         Expanded(

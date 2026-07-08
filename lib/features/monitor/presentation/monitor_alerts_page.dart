@@ -42,10 +42,8 @@ class MonitorAlertsPage extends ConsumerWidget {
             );
           }
           return ResponsiveLayout(
-            compact: (_) => _Body(
-              alerts: visibleAlerts,
-              rawAlerts: digest.alerts,
-            ),
+            compact: (_) =>
+                _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
             medium: (_) => CenteredContent(
               child: _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
             ),
@@ -65,10 +63,7 @@ class MonitorAlertsPage extends ConsumerWidget {
 }
 
 class _Body extends ConsumerWidget {
-  const _Body({
-    required this.alerts,
-    required this.rawAlerts,
-  });
+  const _Body({required this.alerts, required this.rawAlerts});
 
   final List<AlertEntity> alerts;
   final List<AlertEntity> rawAlerts;
@@ -138,8 +133,9 @@ class _Body extends ConsumerWidget {
                         ),
                         ButtonSegment(
                           value: MonitorAlertFilter.important,
-                          label:
-                              Text(l10n.tr('monitor.alerts.filter.important')),
+                          label: Text(
+                            l10n.tr('monitor.alerts.filter.important'),
+                          ),
                           icon: const Icon(Icons.priority_high_rounded),
                         ),
                       ],

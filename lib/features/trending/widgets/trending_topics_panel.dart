@@ -92,9 +92,9 @@ class _TopicWord extends StatelessWidget {
       style: TextStyle(
         fontSize: size,
         fontWeight: FontWeight.w600,
-        color: HSLColor.fromColor(colors.primary)
-            .withLightness(lightness.clamp(0.3, 0.7))
-            .toColor(),
+        color: HSLColor.fromColor(
+          colors.primary,
+        ).withLightness(lightness.clamp(0.3, 0.7)).toColor(),
       ),
     );
   }

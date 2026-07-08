@@ -71,11 +71,7 @@ class AppTheme {
       surface: surface,
       onSurface: textPrimary,
       surfaceContainerHighest: surfaceAlt,
-    ).copyWith(
-      outline: border,
-      outlineVariant: border,
-      primary: seed,
-    );
+    ).copyWith(outline: border, outlineVariant: border, primary: seed);
 
     final textTheme = TextTheme(
       displayLarge: AppTypography.displayLarge.copyWith(color: textPrimary),
@@ -155,10 +151,13 @@ class AppTheme {
         indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
         selectedIconTheme: IconThemeData(color: colorScheme.primary, size: 22),
         unselectedIconTheme: IconThemeData(color: textSecondary, size: 22),
-        selectedLabelTextStyle: AppTypography.labelMedium
-            .copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600),
-        unselectedLabelTextStyle:
-            AppTypography.labelMedium.copyWith(color: textSecondary),
+        selectedLabelTextStyle: AppTypography.labelMedium.copyWith(
+          color: colorScheme.primary,
+          fontWeight: FontWeight.w600,
+        ),
+        unselectedLabelTextStyle: AppTypography.labelMedium.copyWith(
+          color: textSecondary,
+        ),
         labelType: NavigationRailLabelType.none,
         useIndicator: true,
         indicatorShape: const RoundedRectangleBorder(

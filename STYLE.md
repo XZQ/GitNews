@@ -43,11 +43,15 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
   Do not write single-line `/* xxx */` block comments; expand them to the
   multi-line form. Do not split a logical comment into multiple adjacent
   `/* ... */` blocks.
-- Member variables (fields) use `//` line comments, not `/* ... */`:
+- Member variables (fields) must carry a `//` line comment that explains
+  intent, units, ownership, or constraints. Use `//`, not `/* ... */`:
   ```
   // 目标路由路径。
   final String route;
   ```
+  Trivial locally-scoped fields whose name and initializer are self-evident
+  (e.g. `final isLoading = false` inside a private widget) may skip the
+  comment; when in doubt, write one.
 - Enum case members use `//` line comments above each case, not `/* ... */`:
   ```
   enum Category {
@@ -74,6 +78,14 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
 - Single-statement bodies of `if` / `else` / `for` / `while` / `do-while` must
   be wrapped in curly braces. Do not write `if (x) return;`; write
   `if (x) { return; }` (or the multi-line equivalent).
+- When a control-flow body fits, place the body on its own line. Prefer:
+  ```
+  if (x) {
+    return y;
+  }
+  ```
+  over the one-line `if (x) { return y; }`. This matches `dart format`'s
+  default line-break style and keeps diffs reviewer-friendly.
 
 ## 3. Types And Immutability
 

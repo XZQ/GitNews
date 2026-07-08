@@ -108,10 +108,7 @@ class _NavChip extends StatelessWidget {
             children: [
               Icon(icon, size: 14, color: fg),
               const SizedBox(width: AppSpacing.xs2),
-              Text(
-                label,
-                style: AppTypography.labelMedium.copyWith(color: fg),
-              ),
+              Text(label, style: AppTypography.labelMedium.copyWith(color: fg)),
             ],
           ),
         ),

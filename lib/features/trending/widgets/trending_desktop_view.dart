@@ -86,8 +86,10 @@ class TrendingDesktopView extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 SizedBox(
-                  height: (MediaQuery.sizeOf(context).height - 320)
-                      .clamp(220.0, 900.0),
+                  height: (MediaQuery.sizeOf(context).height - 320).clamp(
+                    220.0,
+                    900.0,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [

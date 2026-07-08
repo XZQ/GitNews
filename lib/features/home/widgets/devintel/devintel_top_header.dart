@@ -28,10 +28,7 @@ class DevIntelTopHeader extends ConsumerWidget {
       subtitle: l10n.tr('home.subtitle'),
       searchHint: l10n.tr('home.search_hint'),
       onSearchSubmitted: (v) => _openGlobalSearch(context, ref, v),
-      actions: [
-        _BellWithDot(),
-        const _LiveSyncBadge(),
-      ],
+      actions: [_BellWithDot(), const _LiveSyncBadge()],
     );
   }
 }
@@ -80,12 +77,7 @@ class _BellWithDot extends ConsumerWidget {
               size: 20,
               color: colors.onSurfaceVariant,
             ),
-            if (hasUnread)
-              const Positioned(
-                right: -2,
-                top: -2,
-                child: _Dot(),
-              ),
+            if (hasUnread) const Positioned(right: -2, top: -2, child: _Dot()),
           ],
         ),
         tooltip: l10n.tr('home.monitor_center'),

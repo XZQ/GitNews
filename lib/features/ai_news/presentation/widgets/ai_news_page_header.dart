@@ -26,9 +26,7 @@ class AiNewsPageHeader extends ConsumerWidget {
           ref.read(aiNewsSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) =>
           ref.read(aiNewsSearchQueryProvider.notifier).state = v,
-      pills: [
-        DataProvenanceBadge(provenance: provenance),
-      ],
+      pills: [DataProvenanceBadge(provenance: provenance)],
       actions: [
         HeaderAction(
           icon: Icons.refresh_rounded,

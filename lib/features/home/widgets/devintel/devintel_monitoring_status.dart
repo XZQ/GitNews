@@ -29,9 +29,7 @@ class DevIntelMonitoringStatus extends ConsumerWidget {
         children: [
           Text(
             l10n.tr('home.monitoring.title'),
-            style: AppTypography.titleMedium.copyWith(
-              color: colors.onSurface,
-            ),
+            style: AppTypography.titleMedium.copyWith(color: colors.onSurface),
           ),
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < repos.length; i++) ...[
@@ -61,18 +59,13 @@ class _StatusTile extends StatelessWidget {
         Container(
           width: 10,
           height: 10,
-          decoration: BoxDecoration(
-            color: statusColor,
-            shape: BoxShape.circle,
-          ),
+          decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Text(
             repo.fullName,
-            style: AppTypography.titleSmall.copyWith(
-              color: colors.onSurface,
-            ),
+            style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
             overflow: TextOverflow.ellipsis,
           ),
         ),
@@ -83,9 +76,7 @@ class _StatusTile extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: statusColor.withValues(alpha: 0.14),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(AppRadius.xs),
-            ),
+            borderRadius: const BorderRadius.all(Radius.circular(AppRadius.xs)),
           ),
           child: Text(
             _status(l10n, repo),
@@ -124,9 +115,7 @@ class _ConfigureButton extends StatelessWidget {
         onPressed: () => context.go('/monitor/settings'),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.success,
-          side: BorderSide(
-            color: AppColors.success.withValues(alpha: 0.5),
-          ),
+          side: BorderSide(color: AppColors.success.withValues(alpha: 0.5)),
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.md2),
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm)),

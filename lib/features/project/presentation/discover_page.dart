@@ -96,18 +96,22 @@ class _DigestView extends StatelessWidget {
         const _HotTopicsCard(),
         const SizedBox(height: AppSpacing.lg),
         ProjectRepoListCard(
-          title: AppLocalizations.of(context)
-              .tr('project.discover.recommended_repos'),
-          subtitle: AppLocalizations.of(context)
-              .tr('project.discover.recommended_repos.subtitle'),
+          title: AppLocalizations.of(
+            context,
+          ).tr('project.discover.recommended_repos'),
+          subtitle: AppLocalizations.of(
+            context,
+          ).tr('project.discover.recommended_repos.subtitle'),
           repos: digest.repos,
         ),
         const SizedBox(height: AppSpacing.lg),
         ProjectContributorsCard(
-          title: AppLocalizations.of(context)
-              .tr('project.discover.recommended_devs'),
-          subtitle: AppLocalizations.of(context)
-              .tr('project.discover.recommended_devs.subtitle'),
+          title: AppLocalizations.of(
+            context,
+          ).tr('project.discover.recommended_devs'),
+          subtitle: AppLocalizations.of(
+            context,
+          ).tr('project.discover.recommended_devs.subtitle'),
           contributors: digest.contributors,
         ),
       ],

@@ -62,23 +62,14 @@ extension DioExceptionToApp on DioException {
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.transformTimeout:
       case DioExceptionType.connectionError:
-        return AppException(
-          kind: AppExceptionKind.network,
-          cause: this,
-        );
+        return AppException(kind: AppExceptionKind.network, cause: this);
       case DioExceptionType.badResponse:
         final code = response?.statusCode ?? 0;
         if (code == 401 || code == 403) {
-          return AppException(
-            kind: AppExceptionKind.unauthorized,
-            cause: this,
-          );
+          return AppException(kind: AppExceptionKind.unauthorized, cause: this);
         }
         if (code == 404) {
-          return AppException(
-            kind: AppExceptionKind.notFound,
-            cause: this,
-          );
+          return AppException(kind: AppExceptionKind.notFound, cause: this);
         }
         if (code == 429) {
           final ra = response?.headers.value('retry-after');
@@ -104,10 +95,7 @@ extension DioExceptionToApp on DioException {
       case DioExceptionType.cancel:
       case DioExceptionType.badCertificate:
       case DioExceptionType.unknown:
-        return AppException(
-          kind: AppExceptionKind.unknown,
-          cause: this,
-        );
+        return AppException(kind: AppExceptionKind.unknown, cause: this);
     }
   }
 }

@@ -73,12 +73,7 @@ class GradientHeroHeader extends StatelessWidget {
 *渐变头部使用的半透明胶囊标签。
 */
 class HeroBadge extends StatelessWidget {
-  const HeroBadge({
-    required this.label,
-    this.color,
-    this.icon,
-    super.key,
-  });
+  const HeroBadge({required this.label, this.color, this.icon, super.key});
 
   final String label;
   final Color? color;

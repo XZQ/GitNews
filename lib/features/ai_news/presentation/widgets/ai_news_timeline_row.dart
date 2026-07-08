@@ -37,8 +37,9 @@ class AiNewsTimelineRow extends StatelessWidget {
                   bottom: 0,
                   child: Container(
                     width: 1,
-                    color: colors.outlineVariant
-                        .withValues(alpha: isLight ? 0.6 : 1),
+                    color: colors.outlineVariant.withValues(
+                      alpha: isLight ? 0.6 : 1,
+                    ),
                   ),
                 ),
                 Positioned(

@@ -83,8 +83,9 @@ class ProjectContributorsCard extends ConsumerWidget {
               contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
                 radius: 16,
-                backgroundColor:
-                    Color(contributor.avatarAccentArgb).withValues(alpha: 0.16),
+                backgroundColor: Color(
+                  contributor.avatarAccentArgb,
+                ).withValues(alpha: 0.16),
                 child: Text(
                   contributor.login[0].toUpperCase(),
                   style: AppTypography.titleSmall.copyWith(
@@ -116,11 +117,7 @@ class ProjectContributorsCard extends ConsumerWidget {
 }
 
 class ProjectTopicChip extends StatelessWidget {
-  const ProjectTopicChip({
-    required this.label,
-    required this.color,
-    super.key,
-  });
+  const ProjectTopicChip({required this.label, required this.color, super.key});
 
   final String label;
   final Color color;

@@ -43,8 +43,9 @@ final techHotspotSearchQueryProvider = StateProvider<String>((ref) => '');
 final techHotspotCategoryFilterProvider = StateProvider<String>((ref) => 'all');
 
 // 应用本地搜索后的 AI 雷达摘要。
-final filteredTechHotspotDigestProvider =
-    FutureProvider<TechHotspotDigest>((ref) async {
+final filteredTechHotspotDigestProvider = FutureProvider<TechHotspotDigest>((
+  ref,
+) async {
   final query = ref.watch(techHotspotSearchQueryProvider);
   final category = ref.watch(techHotspotCategoryFilterProvider);
   final digest = await ref.watch(techHotspotDigestProvider.future);

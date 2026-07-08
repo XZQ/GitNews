@@ -27,11 +27,7 @@ class TrendingBoardSelector extends StatelessWidget {
       label: 'Agent',
       icon: Icons.auto_awesome_rounded,
     ),
-    _TrendingBoardOption(
-      value: 'mcp',
-      label: 'MCP',
-      icon: Icons.hub_rounded,
-    ),
+    _TrendingBoardOption(value: 'mcp', label: 'MCP', icon: Icons.hub_rounded),
     _TrendingBoardOption(
       value: 'ai_coding',
       label: 'AI Coding',

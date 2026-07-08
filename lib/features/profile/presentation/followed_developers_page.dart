@@ -72,8 +72,9 @@ class _Body extends ConsumerWidget {
                 if (i != 0) const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
-                    backgroundColor:
-                        Color(devs[i].avatarColor).withValues(alpha: 0.16),
+                    backgroundColor: Color(
+                      devs[i].avatarColor,
+                    ).withValues(alpha: 0.16),
                     child: Text(
                       devs[i].login[0].toUpperCase(),
                       style: AppTypography.titleSmall.copyWith(

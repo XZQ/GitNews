@@ -73,10 +73,7 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
                 values: primary,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              ChartSeries(
-                values: compare,
-                color: AppColors.info,
-              ),
+              ChartSeries(values: compare, color: AppColors.info),
             ],
             height: 220,
           ),

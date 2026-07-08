@@ -75,8 +75,9 @@ Future<void> _showCategoryFilterSheet(
           padding: const EdgeInsets.all(AppSpacing.lg),
           child: Consumer(
             builder: (context, sheetRef, _) {
-              final selected =
-                  sheetRef.watch(techHotspotCategoryFilterProvider);
+              final selected = sheetRef.watch(
+                techHotspotCategoryFilterProvider,
+              );
               return Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,

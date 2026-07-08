@@ -140,11 +140,7 @@ class _TopicStatsBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.md),
-        Icon(
-          Icons.forum_rounded,
-          size: 12,
-          color: colors.onSurfaceVariant,
-        ),
+        Icon(Icons.forum_rounded, size: 12, color: colors.onSurfaceVariant),
         const SizedBox(width: AppSpacing.xxs),
         Text(
           '${topic.mentions}',
@@ -153,11 +149,7 @@ class _TopicStatsBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.md),
-        Icon(
-          Icons.book_outlined,
-          size: 12,
-          color: colors.onSurfaceVariant,
-        ),
+        Icon(Icons.book_outlined, size: 12, color: colors.onSurfaceVariant),
         const SizedBox(width: AppSpacing.xxs),
         Text(
           '${topic.relatedRepos}',

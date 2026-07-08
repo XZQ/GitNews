@@ -110,15 +110,17 @@ class RepoDetailRelatedReposCard extends StatelessWidget {
             const Divider(height: 1),
             ListTile(
               dense: true,
-              onTap: () => context
-                  .go('/project/detail/${Uri.encodeComponent(r.fullName)}'),
+              onTap: () => context.go(
+                '/project/detail/${Uri.encodeComponent(r.fullName)}',
+              ),
               leading: CircleAvatar(
                 radius: 14,
                 backgroundColor: Color(r.accentArgb).withValues(alpha: 0.16),
                 child: Text(
                   r.language.isNotEmpty ? r.language[0] : '?',
-                  style: AppTypography.labelSmall
-                      .copyWith(color: Color(r.accentArgb)),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: Color(r.accentArgb),
+                  ),
                 ),
               ),
               title: Text(r.fullName, style: AppTypography.titleSmall),

@@ -13,13 +13,14 @@ Map<String, Object?> techHotspotDigestToJson(TechHotspotDigest digest) {
 
 TechHotspotDigest techHotspotDigestFromJson(Map<String, Object?> json) {
   return TechHotspotDigest(
-    languages:
-        GitHubJson.list(json['languages']).map(_languageFromJson).toList(),
+    languages: GitHubJson.list(
+      json['languages'],
+    ).map(_languageFromJson).toList(),
     topics: GitHubJson.list(json['topics']).map(_topicFromJson).toList(),
     heatTrend: GitHubJson.list(json['heatTrend']).map(_heatFromJson).toList(),
-    hotTags: GitHubJson.list(json['hotTags'])
-        .map(GitHubJson.string)
-        .toList(growable: false),
+    hotTags: GitHubJson.list(
+      json['hotTags'],
+    ).map(GitHubJson.string).toList(growable: false),
   );
 }
 

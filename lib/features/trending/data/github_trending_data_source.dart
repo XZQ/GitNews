@@ -87,14 +87,8 @@ class GithubTrendingDataSource implements TrendingDataSource {
   List<String> _boardSearchParts(TrendingBoard board) {
     return switch (board) {
       TrendingBoard.all => const [],
-      TrendingBoard.agent => const [
-          'agent',
-          'in:name,description,readme',
-        ],
-      TrendingBoard.mcp => const [
-          'mcp',
-          'in:name,description,readme',
-        ],
+      TrendingBoard.agent => const ['agent', 'in:name,description,readme'],
+      TrendingBoard.mcp => const ['mcp', 'in:name,description,readme'],
       TrendingBoard.aiCoding => const [
           'coding',
           'agent',
@@ -112,10 +106,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     };
   }
 
-  List<RepoEntity> _parseRepos(
-    Map<String, Object?> data,
-    TrendingQuery query,
-  ) {
+  List<RepoEntity> _parseRepos(Map<String, Object?> data, TrendingQuery query) {
     final rawItems = data['items'];
     if (rawItems is! List<Object?>) {
       throw const FormatException('GitHub search response missing items');

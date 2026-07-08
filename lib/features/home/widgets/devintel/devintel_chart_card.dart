@@ -32,10 +32,7 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
         values: secondary.isEmpty ? primary : secondary,
         color: AppColors.success.withValues(alpha: 0.35),
       ),
-      ChartSeries(
-        values: primary,
-        color: AppColors.success,
-      ),
+      ChartSeries(values: primary, color: AppColors.success),
     ];
     final labels = _labels(l10n, primary.length);
     return Container(
@@ -83,11 +80,7 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 240,
-            child: StarTrendChart(
-              series: series,
-              xLabels: labels,
-              height: 240,
-            ),
+            child: StarTrendChart(series: series, xLabels: labels, height: 240),
           ),
         ],
       ),

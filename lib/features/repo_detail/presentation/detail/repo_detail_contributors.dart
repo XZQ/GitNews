@@ -31,8 +31,9 @@ class RepoDetailContributors extends StatelessWidget {
                   contentPadding: EdgeInsets.zero,
                   leading: CircleAvatar(
                     radius: 18,
-                    backgroundColor:
-                        Color(c.avatarAccentArgb).withValues(alpha: 0.16),
+                    backgroundColor: Color(
+                      c.avatarAccentArgb,
+                    ).withValues(alpha: 0.16),
                     child: Text(
                       c.login[0].toUpperCase(),
                       style: AppTypography.titleSmall.copyWith(

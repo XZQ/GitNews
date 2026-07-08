@@ -6,10 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 *GitHub rate limit 全局熔断状态。
 */
 class RateLimitGateStatus {
-  const RateLimitGateStatus({
-    this.blockedUntil,
-    this.lastRetryAfterSeconds,
-  });
+  const RateLimitGateStatus({this.blockedUntil, this.lastRetryAfterSeconds});
 
   // 触达配额后,此时间之前所有 GitHub 请求短路到 fallback。
   final DateTime? blockedUntil;

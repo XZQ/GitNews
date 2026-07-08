@@ -53,10 +53,9 @@ class GitHubApiSupport {
     );
     final retryAfter = reset == null
         ? null
-        : DateTime.fromMillisecondsSinceEpoch(reset * 1000)
-            .difference((now ?? DateTime.now)())
-            .inSeconds
-            .clamp(0, 3600);
+        : DateTime.fromMillisecondsSinceEpoch(
+            reset * 1000,
+          ).difference((now ?? DateTime.now)()).inSeconds.clamp(0, 3600);
     return AppException(
       kind: AppExceptionKind.rateLimit,
       cause: e,

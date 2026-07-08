@@ -37,9 +37,8 @@ class HomeTrendingPreview extends ConsumerWidget {
         title: item.fullName,
         subtitle: item.description,
         meta: '+${_compactNumber(item.starDelta)}',
-        onTap: () => context.go(
-          '/home/detail/${Uri.encodeComponent(item.fullName)}',
-        ),
+        onTap: () =>
+            context.go('/home/detail/${Uri.encodeComponent(item.fullName)}'),
       ),
     );
   }

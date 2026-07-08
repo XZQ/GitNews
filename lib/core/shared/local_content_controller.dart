@@ -87,10 +87,7 @@ class LocalContentController extends Notifier<LocalContentState> {
         prefs.getStringList(_monitorsKey),
         _defaultMonitoredRepos,
       ),
-      monitoredSkills: _readSet(
-        prefs.getStringList(_skillsKey),
-        const [],
-      ),
+      monitoredSkills: _readSet(prefs.getStringList(_skillsKey), const []),
       followedDevelopers: _readSet(
         prefs.getStringList(_developersKey),
         _defaultFollowedDevelopers,
@@ -156,10 +153,9 @@ class LocalContentController extends Notifier<LocalContentState> {
     if (index < 0 || index >= state.monitorRules.length) return;
     final next = [...state.monitorRules]..[index] = enabled;
     state = state.copyWith(monitorRules: next);
-    await ref.read(sharedPreferencesProvider).setStringList(
-      _rulesKey,
-      [for (final value in next) value ? '1' : '0'],
-    );
+    await ref.read(sharedPreferencesProvider).setStringList(_rulesKey, [
+      for (final value in next) value ? '1' : '0',
+    ]);
   }
 
   Future<void> setCachedUser({String? name, String? avatarUrl}) async {

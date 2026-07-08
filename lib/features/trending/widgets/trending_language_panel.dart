@@ -144,12 +144,7 @@ class _LangRow extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: Text(
-            name,
-            style: AppTypography.titleSmall,
-          ),
-        ),
+        Expanded(child: Text(name, style: AppTypography.titleSmall)),
         Text(
           '${percent.toStringAsFixed(1)}%',
           style: AppTypography.labelMedium,

@@ -66,14 +66,13 @@ class TrendingCacheDao {
     final cachedAt = now.millisecondsSinceEpoch;
     try {
       await _db.insert(
-        _table,
-        {
-          'cache_key': key,
-          'payload_json': jsonEncode(_snapshotToJson(snapshot)),
-          'cached_at': cachedAt,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+          _table,
+          {
+            'cache_key': key,
+            'payload_json': jsonEncode(_snapshotToJson(snapshot)),
+            'cached_at': cachedAt,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
       await _meta.upsert(key, now);
     } catch (e, st) {
       throw AppException(

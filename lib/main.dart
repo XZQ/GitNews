@@ -43,10 +43,9 @@ Future<void> main() async {
   final prefs = results[0] as SharedPreferences;
   final database = results[1] as LocalDatabase;
   // 启动时收敛无限增长的 cache_key 元数据(最佳努力,失败不影响启动)。
-  await CacheMetaDao(database.executor).pruneStale(
-    now: DateTime.now(),
-    retainFor: const Duration(days: 2),
-  );
+  await CacheMetaDao(
+    database.executor,
+  ).pruneStale(now: DateTime.now(), retainFor: const Duration(days: 2));
   runApp(
     ProviderScope(
       overrides: [

@@ -177,10 +177,7 @@ List<ChartSeries> homeSeriesForWindow(
   final dynamicSecondary = _windowedTrend(secondaryTrend, days);
   if (tab == HomeLegacyTab.trending && dynamicPrimary.isNotEmpty) {
     return [
-      ChartSeries(
-        values: dynamicPrimary,
-        color: primary,
-      ),
+      ChartSeries(values: dynamicPrimary, color: primary),
       ChartSeries(
         values: dynamicSecondary.isEmpty ? dynamicPrimary : dynamicSecondary,
         color: AppColors.info,

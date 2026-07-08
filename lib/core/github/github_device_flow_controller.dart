@@ -116,8 +116,9 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
         status: DeviceFlowStatus.awaiting,
         userCode: GitHubJson.string(data['user_code']),
         verificationUri: GitHubJson.string(data['verification_uri']),
-        verificationUriComplete:
-            GitHubJson.nullableString(data['verification_uri_complete']),
+        verificationUriComplete: GitHubJson.nullableString(
+          data['verification_uri_complete'],
+        ),
         interval: GitHubJson.intValue(data['interval']),
         expiresIn: GitHubJson.intValue(data['expires_in']),
       );
@@ -137,8 +138,10 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
         error: e.kind.name,
       );
     } catch (e) {
-      state =
-          DeviceFlowState(status: DeviceFlowStatus.error, error: e.toString());
+      state = DeviceFlowState(
+        status: DeviceFlowStatus.error,
+        error: e.toString(),
+      );
     }
   }
 

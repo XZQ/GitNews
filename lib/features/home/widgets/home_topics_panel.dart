@@ -41,9 +41,7 @@ class HomeTopicsPanel extends ConsumerWidget {
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
-            children: [
-              for (final topic in topics) _TopicChip(label: topic),
-            ],
+            children: [for (final topic in topics) _TopicChip(label: topic)],
           ),
           const SizedBox(height: AppSpacing.lg),
           SectionHeader(

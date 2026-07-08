@@ -13,8 +13,9 @@ Map<String, Object?> monitorDigestToJson(MonitorDigest digest) {
 
 MonitorDigest monitorDigestFromJson(Map<String, Object?> json) {
   return MonitorDigest(
-    monitoredRepos:
-        GitHubJson.list(json['repos']).map(githubRepoEntityFromJson).toList(),
+    monitoredRepos: GitHubJson.list(
+      json['repos'],
+    ).map(githubRepoEntityFromJson).toList(),
     alerts: GitHubJson.list(json['alerts']).map(_alertFromJson).toList(),
     stats: _statsFromJson(GitHubJson.map(json['stats'])),
   );

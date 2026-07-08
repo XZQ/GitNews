@@ -78,9 +78,9 @@ class AiNewsDetailPage extends ConsumerWidget {
     await Clipboard.setData(ClipboardData(text: link));
     if (!context.mounted) return;
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.tr('webview.copied'))),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(l10n.tr('webview.copied'))));
   }
 
   Future<void> _openOriginal(BuildContext context, AiNewsItem item) async {
@@ -90,9 +90,9 @@ class AiNewsDetailPage extends ConsumerWidget {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
       final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.tr('ai_news.open_failed'))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
     }
   }
 }

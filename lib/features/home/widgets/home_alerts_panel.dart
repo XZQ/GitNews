@@ -16,11 +16,7 @@ import '../../monitor/domain/entities.dart';
 *监控告警面板(手机首页 + 桌面右栏共用)。
 */
 class HomeAlertsPanel extends ConsumerWidget {
-  const HomeAlertsPanel({
-    this.showHeader = true,
-    this.maxItems = 4,
-    super.key,
-  });
+  const HomeAlertsPanel({this.showHeader = true, this.maxItems = 4, super.key});
 
   final bool showHeader;
   final int maxItems;

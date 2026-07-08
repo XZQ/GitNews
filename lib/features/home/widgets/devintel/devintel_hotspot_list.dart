@@ -28,9 +28,7 @@ class DevIntelHotspotList extends ConsumerWidget {
         children: [
           Text(
             l10n.tr('tech_hotspot.title'),
-            style: AppTypography.titleMedium.copyWith(
-              color: colors.onSurface,
-            ),
+            style: AppTypography.titleMedium.copyWith(color: colors.onSurface),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
@@ -67,9 +65,7 @@ class _HotspotTile extends StatelessWidget {
           height: 44,
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.14),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(AppRadius.md),
-            ),
+            borderRadius: const BorderRadius.all(Radius.circular(AppRadius.md)),
           ),
           alignment: Alignment.center,
           child: Text(

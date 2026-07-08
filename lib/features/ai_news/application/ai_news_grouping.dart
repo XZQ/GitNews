@@ -17,11 +17,7 @@ List<MapEntry<DateTime, List<AiNewsItem>>> groupAiNewsByDay(
   return map.entries.map((e) {
     final parts = e.key.split('-');
     return MapEntry(
-      DateTime(
-        int.parse(parts[0]),
-        int.parse(parts[1]),
-        int.parse(parts[2]),
-      ),
+      DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2])),
       e.value,
     );
   }).toList();

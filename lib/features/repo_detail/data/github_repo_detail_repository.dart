@@ -228,8 +228,9 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final stars = GitHubJson.intValue(json['stargazers_count']);
     final forks = GitHubJson.intValue(json['forks_count']);
     final issues = GitHubJson.intValue(json['open_issues_count']);
-    final pushedAt =
-        DateTime.tryParse(GitHubJson.string(json['pushed_at']))?.toUtc();
+    final pushedAt = DateTime.tryParse(
+      GitHubJson.string(json['pushed_at']),
+    )?.toUtc();
     return RepoEntity(
       fullName: fullName,
       description:

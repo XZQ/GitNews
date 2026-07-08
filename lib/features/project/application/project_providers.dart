@@ -19,8 +19,9 @@ final projectDigestProvider = FutureProvider<ProjectDigest>((ref) async {
 });
 
 // 应用本地搜索后的深度报告摘要。
-final filteredProjectDigestProvider =
-    FutureProvider<ProjectDigest>((ref) async {
+final filteredProjectDigestProvider = FutureProvider<ProjectDigest>((
+  ref,
+) async {
   final query = ref.watch(projectSearchQueryProvider);
   final digest = await ref.watch(projectDigestProvider.future);
   return filterProjectDigest(digest, query);

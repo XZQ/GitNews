@@ -18,10 +18,7 @@ class LanguageGrowthBars extends StatelessWidget {
   Widget build(BuildContext context) {
     if (languages.isEmpty) return const SizedBox.shrink();
     final maxV = languages
-        .fold<double>(
-          0,
-          (m, l) => l.delta.abs() > m ? l.delta.abs() : m,
-        )
+        .fold<double>(0, (m, l) => l.delta.abs() > m ? l.delta.abs() : m)
         .clamp(1.0, double.infinity);
     return Column(
       children: [
@@ -66,10 +63,7 @@ class _Bar extends StatelessWidget {
             borderRadius: BorderRadius.circular(AppRadius.sm),
             child: Stack(
               children: [
-                Container(
-                  height: 16,
-                  color: colors.surfaceContainerHighest,
-                ),
+                Container(height: 16, color: colors.surfaceContainerHighest),
                 FractionallySizedBox(
                   widthFactor: (value / maxValue).clamp(0.0, 1.0),
                   child: Container(

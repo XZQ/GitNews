@@ -62,8 +62,9 @@ final monitorDigestProvider = FutureProvider<MonitorDigest>((ref) {
 final monitorSearchQueryProvider = StateProvider<String>((ref) => '');
 
 // 应用本地搜索后的监控摘要。
-final filteredMonitorDigestProvider =
-    FutureProvider<MonitorDigest>((ref) async {
+final filteredMonitorDigestProvider = FutureProvider<MonitorDigest>((
+  ref,
+) async {
   final query = ref.watch(monitorSearchQueryProvider);
   final digest = await ref.watch(monitorDigestProvider.future);
   final alertState = ref.watch(monitorAlertStateControllerProvider);

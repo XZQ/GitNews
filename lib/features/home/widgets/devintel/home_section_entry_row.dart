@@ -51,8 +51,10 @@ class HomeSectionEntryRow extends ConsumerWidget {
         label: l10n.tr('home.entry.ai_news.label'),
         kpi:
             '${aiItems?.length ?? 0} ${l10n.tr('home.entry.ai_news.kpi_suffix')}',
-        delta:
-            _scoreDelta(l10n, aiItems?.fold<int>(0, (sum, e) => sum + e.score)),
+        delta: _scoreDelta(
+          l10n,
+          aiItems?.fold<int>(0, (sum, e) => sum + e.score),
+        ),
         icon: Icons.auto_awesome_rounded,
         color: AppColors.brand,
         path: '/ai_news',

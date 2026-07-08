@@ -44,8 +44,9 @@ class TrendingDataSourceStatus {
   }
 }
 
-final trendingDataSourceStatusProvider =
-    Provider<TrendingDataSourceStatus>((ref) {
+final trendingDataSourceStatusProvider = Provider<TrendingDataSourceStatus>((
+  ref,
+) {
   final mode = ref.watch(trendingDataSourceModeControllerProvider);
   final token = ref.watch(githubTokenControllerProvider);
   return TrendingDataSourceStatus(
@@ -63,8 +64,9 @@ final trendingDataSourceProvider = Provider<TrendingDataSource>((ref) {
   final mode = ref.watch(trendingDataSourceModeControllerProvider);
   return switch (mode) {
     TrendingDataSourceMode.local => const LocalTrendingDataSource(),
-    TrendingDataSourceMode.github =>
-      ref.watch(githubTrendingDataSourceProvider),
+    TrendingDataSourceMode.github => ref.watch(
+        githubTrendingDataSourceProvider,
+      ),
   };
 });
 
@@ -107,9 +109,7 @@ final localTrendingRepositoryProvider = Provider<TrendingRepository>((ref) {
 
 final trendingDigestProvider = FutureProvider<TrendingDigest>((ref) {
   final query = ref.watch(trendingQueryProvider);
-  return ref.watch(trendingRepositoryProvider).getDigest(
-        query: query,
-      );
+  return ref.watch(trendingRepositoryProvider).getDigest(query: query);
 });
 
 // 顶部搜索框关键词。空字符串表示不过滤当前热榜结果。
@@ -117,8 +117,9 @@ final trendingSearchQueryProvider = StateProvider<String>((ref) => '');
 
 // 应用本地搜索后的热榜摘要。
 // 搜索只作用于当前已拉取/缓存结果,避免输入关键词触发 GitHub Search 请求。
-final filteredTrendingDigestProvider =
-    FutureProvider<TrendingDigest>((ref) async {
+final filteredTrendingDigestProvider = FutureProvider<TrendingDigest>((
+  ref,
+) async {
   final query = ref.watch(trendingSearchQueryProvider);
   final digest = await ref.watch(trendingDigestProvider.future);
   return filterTrendingDigest(digest, query);

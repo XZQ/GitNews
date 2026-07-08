@@ -36,10 +36,7 @@ class LanguageTrendPage extends ConsumerWidget {
       body: state.when(
         data: (digest) {
           if (digest.languages.isEmpty) {
-            return const EmptyView(
-              icon: Icons.code_rounded,
-              message: '暂无语言趋势',
-            );
+            return const EmptyView(icon: Icons.code_rounded, message: '暂无语言趋势');
           }
           return ResponsiveLayout(
             compact: (_) => _Body(digest: digest),
@@ -109,10 +106,7 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(
-                title: '语言增长率排行',
-                subtitle: '本周 vs 上周',
-              ),
+              const SectionHeader(title: '语言增长率排行', subtitle: '本周 vs 上周'),
               const SizedBox(height: AppSpacing.md),
               LanguageGrowthBars(languages: digest.languages),
             ],

@@ -43,10 +43,7 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: 'API 调试',
-                subtitle: '开发者工具',
-              ),
+              SectionHeader(title: 'API 调试', subtitle: '开发者工具'),
               SizedBox(height: AppSpacing.md),
               _Row(label: 'GitHub API 端点', value: 'api.github.com'),
               _Row(label: '请求超时', value: '10s'),
@@ -62,10 +59,7 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: '实验功能',
-                subtitle: '可能不稳定',
-              ),
+              SectionHeader(title: '实验功能', subtitle: '可能不稳定'),
               SizedBox(height: AppSpacing.md),
               _Row(label: '新缓存策略', value: 'OFF'),
               _Row(label: '实时趋势', value: 'OFF'),

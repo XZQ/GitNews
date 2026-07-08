@@ -57,26 +57,12 @@ class GlobalSearchRouter {
       ),
       SearchRouteEntry(
         route: '/tech_hotspot',
-        keywords: const [
-          'agent',
-          'mcp',
-          'coding',
-          'rag',
-          '智能体',
-          '雷达',
-          '本地推理',
-        ],
+        keywords: const ['agent', 'mcp', 'coding', 'rag', '智能体', '雷达', '本地推理'],
         searchQueryProviderSetter: techHotspotSetter,
       ),
       SearchRouteEntry(
         route: '/monitor',
-        keywords: const [
-          'monitor',
-          'alert',
-          '告警',
-          '监控',
-          '规则',
-        ],
+        keywords: const ['monitor', 'alert', '告警', '监控', '规则'],
         searchQueryProviderSetter: monitorSetter,
       ),
       SearchRouteEntry(

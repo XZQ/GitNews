@@ -95,23 +95,22 @@ class AiNewsCacheDao {
       final batch = _db.batch();
       for (final item in digest.items) {
         batch.insert(
-          _table,
-          {
-            'id': item.id,
-            'category': item.category.code,
-            'title': item.title,
-            'title_en': item.titleEn,
-            'summary': item.summary,
-            'source': item.source,
-            'url': item.url,
-            'permalink': item.permalink,
-            'published_at': item.publishedAt.millisecondsSinceEpoch,
-            'score': item.score,
-            'selected': item.selected ? 1 : 0,
-            'cached_at': cachedAt,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+            _table,
+            {
+              'id': item.id,
+              'category': item.category.code,
+              'title': item.title,
+              'title_en': item.titleEn,
+              'summary': item.summary,
+              'source': item.source,
+              'url': item.url,
+              'permalink': item.permalink,
+              'published_at': item.publishedAt.millisecondsSinceEpoch,
+              'score': item.score,
+              'selected': item.selected ? 1 : 0,
+              'cached_at': cachedAt,
+            },
+            conflictAlgorithm: ConflictAlgorithm.replace);
       }
       await batch.commit(noResult: true);
       await _meta.upsert(cacheKey(category: category, cursor: cursor), now);
@@ -134,8 +133,9 @@ class AiNewsCacheDao {
     required Duration ttl,
     required DateTime now,
   }) async {
-    final last =
-        await _meta.lastFetched(cacheKey(category: category, cursor: cursor));
+    final last = await _meta.lastFetched(
+      cacheKey(category: category, cursor: cursor),
+    );
     if (last == null) return false;
     return now.difference(last) < ttl;
   }

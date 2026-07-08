@@ -90,8 +90,9 @@ class _DigestView extends StatelessWidget {
         const _HotChipsCard(),
         const SizedBox(height: AppSpacing.lg),
         ProjectRepoListCard(
-          title: AppLocalizations.of(context)
-              .tr('project.explore.recommended_repos'),
+          title: AppLocalizations.of(
+            context,
+          ).tr('project.explore.recommended_repos'),
           subtitle: AppLocalizations.of(context)
               .tr('project.explore.recommended_repos.subtitle')
               .replaceAll('{n}', digest.repos.length.toString()),
@@ -99,10 +100,12 @@ class _DigestView extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
         ProjectContributorsCard(
-          title: AppLocalizations.of(context)
-              .tr('project.explore.followable_devs'),
-          subtitle: AppLocalizations.of(context)
-              .tr('project.explore.followable_devs.subtitle'),
+          title: AppLocalizations.of(
+            context,
+          ).tr('project.explore.followable_devs'),
+          subtitle: AppLocalizations.of(
+            context,
+          ).tr('project.explore.followable_devs.subtitle'),
           contributors: digest.contributors,
         ),
       ],
@@ -162,10 +165,7 @@ class _HotChipsCard extends ConsumerWidget {
             runSpacing: AppSpacing.sm,
             children: [
               for (final c in chips)
-                ProjectTopicChip(
-                  label: c.label,
-                  color: c.color,
-                ),
+                ProjectTopicChip(label: c.label, color: c.color),
             ],
           ),
         ],

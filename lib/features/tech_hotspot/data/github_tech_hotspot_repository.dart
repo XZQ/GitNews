@@ -117,10 +117,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   Future<TechHotspotDigest> _fetchDigest(DateTime now) async {
-    final fetched = await gatherAll<GithubTechHotspotTopicResult>(
-      [for (final query in techHotspotTopicQueries) _fetchTopic(query, now)],
-      tag: 'githubTechHotspotFetch',
-    );
+    final fetched = await gatherAll<GithubTechHotspotTopicResult>([
+      for (final query in techHotspotTopicQueries) _fetchTopic(query, now),
+    ], tag: 'githubTechHotspotFetch');
     final results = await _withObservedHistory(fetched, now);
     final languages = buildTechHotspotLanguages(results);
     final tags = buildTechHotspotTags(results);
@@ -168,9 +167,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     Map<String, Object?> data,
   ) {
     final total = GitHubJson.intValue(data['total_count']);
-    final items = GitHubJson.list(data['items'])
-        .map(GitHubJson.map)
-        .toList(growable: false);
+    final items = GitHubJson.list(
+      data['items'],
+    ).map(GitHubJson.map).toList(growable: false);
     final stars = items.fold<int>(
       0,
       (sum, item) => sum + GitHubJson.intValue(item['stargazers_count']),

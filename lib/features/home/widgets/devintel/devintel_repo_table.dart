@@ -111,9 +111,8 @@ class _RepoRowTile extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final color = Color(repo.accentArgb);
     return InkWell(
-      onTap: () => context.go(
-        '/home/detail/${Uri.encodeComponent(repo.fullName)}',
-      ),
+      onTap: () =>
+          context.go('/home/detail/${Uri.encodeComponent(repo.fullName)}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(

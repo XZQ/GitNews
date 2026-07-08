@@ -56,13 +56,10 @@ class CacheMetaDao {
         limit: 1,
       );
       if (existing.isEmpty) {
-        await _db.insert(
-          _table,
-          {
-            'cache_key': cacheKey,
-            'last_fetched_at': at.millisecondsSinceEpoch,
-          },
-        );
+        await _db.insert(_table, {
+          'cache_key': cacheKey,
+          'last_fetched_at': at.millisecondsSinceEpoch,
+        });
       } else {
         await _db.update(
           _table,
@@ -138,14 +135,13 @@ class CacheMetaDao {
           ? 0
           : (existing.first['last_fetched_at'] as int? ?? 0);
       await _db.insert(
-        _table,
-        {
-          'cache_key': cacheKey,
-          'last_fetched_at': lastFetched,
-          'payload_hash': etag,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+          _table,
+          {
+            'cache_key': cacheKey,
+            'last_fetched_at': lastFetched,
+            'payload_hash': etag,
+          },
+          conflictAlgorithm: ConflictAlgorithm.replace);
     } catch (e, st) {
       throw AppException(
         kind: AppExceptionKind.cache,

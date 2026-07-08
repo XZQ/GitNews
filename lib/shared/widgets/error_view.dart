@@ -9,12 +9,7 @@ import '../../core/theme/app_typography.dart';
 *统一错误视图:按 AppException.kind 渲染不同文案与操作。
 */
 class ErrorView extends StatelessWidget {
-  const ErrorView({
-    required this.error,
-    this.onRetry,
-    this.onLogin,
-    super.key,
-  });
+  const ErrorView({required this.error, this.onRetry, this.onLogin, super.key});
 
   final AppException error;
   final VoidCallback? onRetry;

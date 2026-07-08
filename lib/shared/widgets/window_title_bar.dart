@@ -149,11 +149,7 @@ class _WindowButtonState extends State<_WindowButton> {
             height: 32,
             color: _hover ? hoverColor : Colors.transparent,
             alignment: Alignment.center,
-            child: Icon(
-              widget.icon,
-              size: 16,
-              color: iconColor,
-            ),
+            child: Icon(widget.icon, size: 16, color: iconColor),
           ),
         ),
       ),

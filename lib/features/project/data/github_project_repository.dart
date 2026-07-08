@@ -107,10 +107,9 @@ class GithubProjectRepository implements ProjectRepository {
   Future<List<ContributorEntity>> _fetchContributors(
     Iterable<String> repos,
   ) async {
-    final results = await gatherAll<List<ContributorEntity>>(
-      [for (final repo in repos) _fetchRepoContributors(repo)],
-      tag: 'githubProjectContributors',
-    );
+    final results = await gatherAll<List<ContributorEntity>>([
+      for (final repo in repos) _fetchRepoContributors(repo),
+    ], tag: 'githubProjectContributors');
     final byLogin = <String, ContributorEntity>{};
     for (final contributor in results.expand((e) => e)) {
       final old = byLogin[contributor.login];
@@ -160,9 +159,9 @@ class GithubProjectRepository implements ProjectRepository {
     final json = await _cache.read(_contributorsCacheKey);
     if (json == null) return const [];
     try {
-      return GitHubJson.list(json['contributors'])
-          .map(_contributorFromJson)
-          .toList(growable: false);
+      return GitHubJson.list(
+        json['contributors'],
+      ).map(_contributorFromJson).toList(growable: false);
     } catch (e) {
       AppLogger.warn(
         'githubProjectContributorsCacheParse',
