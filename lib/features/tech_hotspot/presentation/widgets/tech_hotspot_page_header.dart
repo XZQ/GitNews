@@ -50,9 +50,8 @@ class TechHotspotPageHeader extends ConsumerWidget {
       ],
       actions: [
         HeaderAction(
-          icon: category == 'all'
-              ? Icons.tune_rounded
-              : Icons.filter_alt_rounded,
+          icon:
+              category == 'all' ? Icons.tune_rounded : Icons.filter_alt_rounded,
           tooltip: l10n.tr('tech_hotspot.filter'),
           onPressed: () => _showCategoryFilterSheet(context, ref),
         ),

@@ -28,15 +28,15 @@ final repoSnapshotHistoryDaoProvider = Provider<RepoSnapshotHistoryDao>(
   (ref) => RepoSnapshotHistoryDao(ref.watch(jsonSnapshotCacheDaoProvider)),
 );
 
-// 容量管理辅助 Provider:供设置页等需要直接读取 DB 大小的地方使用。
+// 本地数据辅助 Provider:供设置页读取 DB 大小和手动清理缓存。
 // 之所以不把 [LocalDatabase] 直接暴露给 UI,是为了让 UI 只能调用
-// 容量相关的几个方法,避免误用 executor 干扰业务层。
+// 设置页需要的方法,避免误用 executor 干扰业务层。
 final storageSizeReporterProvider = Provider<StorageSizeReporter>(
   (ref) => StorageSizeReporter(ref.watch(appDatabaseProvider)),
 );
 
 /* 
-*包装容量管理能力,隔离 UI 与底层 [LocalDatabase]。
+*包装本地数据管理能力,隔离 UI 与底层 [LocalDatabase]。
 */
 class StorageSizeReporter {
   StorageSizeReporter(this._db);

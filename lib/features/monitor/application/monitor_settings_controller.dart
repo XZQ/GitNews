@@ -6,14 +6,14 @@ import '../../../core/i18n/app_localizations.dart';
 const int monitorNotificationCount = 7;
 
 List<String> monitorNotificationLabels(AppLocalizations l10n) => [
-  l10n.tr('monitor.notify.app'),
-  l10n.tr('monitor.notify.email'),
-  l10n.tr('monitor.notify.daily'),
-  l10n.tr('monitor.notify.weekly'),
-  l10n.tr('monitor.notify.critical_only'),
-  l10n.tr('monitor.notify.night_silent'),
-  l10n.tr('monitor.notify.work_hours'),
-];
+      l10n.tr('monitor.notify.app'),
+      l10n.tr('monitor.notify.email'),
+      l10n.tr('monitor.notify.daily'),
+      l10n.tr('monitor.notify.weekly'),
+      l10n.tr('monitor.notify.critical_only'),
+      l10n.tr('monitor.notify.night_silent'),
+      l10n.tr('monitor.notify.work_hours'),
+    ];
 
 class MonitorSettingsController extends Notifier<List<bool>> {
   static const _key = 'monitor_notification_settings';

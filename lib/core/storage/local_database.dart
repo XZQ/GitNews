@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
@@ -11,18 +10,12 @@ import 'database_schema.dart';
 // 数据库文件名。
 const String kDatabaseFileName = 'github_news.db';
 
-// 1 GB 容量上限。
-const int kMaxDatabaseBytes = 1 << 30; // 1024 * 1024 * 1024
-
-// 容量超限时,删除最旧条目的比例。
-const double _kEvictRatio = 0.1;
-
 /* 
 *本地 SQLite 数据库封装。
 *设计目标:
 *- 抽象掉 driver(sqflite_common_ffi),业务层只看到 [executor]
 *- schema 升级链集中在 database_schema.dart 维护
-*- 提供 [sizeInBytes] / [clearAll] / [enforceCap] 三个全局能力
+*- 提供 [sizeInBytes] / [clearAll] 两个全局能力
 *通用 schema 包含一张 [cache_meta] 表,任何按 cache_key 走 TTL 的模块
 *都通过 [CacheMetaDao] 共享它,避免每个 feature 各自维护 meta。
 */
@@ -60,11 +53,7 @@ class LocalDatabase {
         onUpgrade: onUpgradeSchema,
       ),
     );
-    final instance = LocalDatabase._(db, dbPath);
-    // 启动容量清扫:兜底覆盖「只浏览 trending/monitor 不进 ai_news」时
-    // 快照表从不触发 1GB 上限清理的场景(ai_news 落盘后另有触发)。
-    unawaited(instance.enforceCap());
-    return instance;
+    return LocalDatabase._(db, dbPath);
   }
 
   /* 
@@ -128,76 +117,12 @@ class LocalDatabase {
     }
   }
 
-  /* 
-  *容量守卫:超过 [kMaxDatabaseBytes] 时按 cached_at ASC 删旧 10%。
-  *设计为「尽力而为」:在 [upsert] 完成后异步触发,失败只吞掉——
-  *容量清理失败不应阻塞业务请求,下一轮再尝试。
+  /*
+  *历史兼容入口:项目当前不设置自动容量上限,因此这里保持 no-op。
+  *手动清理仍走 [clearAll]。
   */
   Future<void> enforceCap() async {
-    try {
-      final size = sizeInBytes();
-      if (size <= kMaxDatabaseBytes) return;
-      final aiRows =
-          await _db.rawQuery('SELECT COUNT(*) AS c FROM ai_news_item');
-      final trendingRows = await _db.rawQuery(
-        'SELECT COUNT(*) AS c FROM trending_snapshot_cache',
-      );
-      final jsonRows =
-          await _db.rawQuery('SELECT COUNT(*) AS c FROM json_snapshot_cache');
-      final aiCount = aiRows.isEmpty ? 0 : (aiRows.first['c'] as int? ?? 0);
-      final trendingCount =
-          trendingRows.isEmpty ? 0 : (trendingRows.first['c'] as int? ?? 0);
-      final jsonCount =
-          jsonRows.isEmpty ? 0 : (jsonRows.first['c'] as int? ?? 0);
-      final count = aiCount + trendingCount + jsonCount;
-      if (count == 0) {
-        await _db.execute('VACUUM');
-        return;
-      }
-      final evict = (count * _kEvictRatio).floor().clamp(1, count);
-      if (aiCount > 0) {
-        await _db.rawDelete(
-          '''
-          DELETE FROM ai_news_item
-          WHERE id IN (
-            SELECT id FROM ai_news_item
-            ORDER BY cached_at ASC
-            LIMIT ?
-          )
-          ''',
-          [evict.clamp(1, aiCount)],
-        );
-      }
-      if (trendingCount > 0) {
-        await _db.rawDelete(
-          '''
-          DELETE FROM trending_snapshot_cache
-          WHERE cache_key IN (
-            SELECT cache_key FROM trending_snapshot_cache
-            ORDER BY cached_at ASC
-            LIMIT ?
-          )
-          ''',
-          [evict.clamp(1, trendingCount)],
-        );
-      }
-      if (jsonCount > 0) {
-        await _db.rawDelete(
-          '''
-          DELETE FROM json_snapshot_cache
-          WHERE cache_key IN (
-            SELECT cache_key FROM json_snapshot_cache
-            ORDER BY cached_at ASC
-            LIMIT ?
-          )
-          ''',
-          [evict.clamp(1, jsonCount)],
-        );
-      }
-      await _db.execute('VACUUM');
-    } catch (_) {
-      // 容量超限清理失败不阻塞业务,下次再试
-    }
+    return;
   }
 
   /* 

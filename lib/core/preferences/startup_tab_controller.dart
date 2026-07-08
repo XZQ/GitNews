@@ -14,8 +14,7 @@ class StartupTabController extends Notifier<String> {
   @override
   String build() {
     final segment = ref.read(sharedPreferencesProvider).getString(_kKey);
-    if (segment != null &&
-        appTabs.any((tab) => tab.pathSegment == segment)) {
+    if (segment != null && appTabs.any((tab) => tab.pathSegment == segment)) {
       return segment;
     }
     return appTabs.first.pathSegment;

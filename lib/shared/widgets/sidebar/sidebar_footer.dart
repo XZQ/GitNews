@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/preferences/profile_session_controller.dart';
+import '../../../core/shared/local_content_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -25,20 +28,40 @@ class SidebarFooter extends StatelessWidget {
   }
 }
 
-class SidebarProfileCard extends StatefulWidget {
+class SidebarProfileCard extends ConsumerStatefulWidget {
   const SidebarProfileCard({super.key});
 
   @override
-  State<SidebarProfileCard> createState() => _SidebarProfileCardState();
+  ConsumerState<SidebarProfileCard> createState() => _SidebarProfileCardState();
 }
 
-class _SidebarProfileCardState extends State<SidebarProfileCard> {
+class _SidebarProfileCardState extends ConsumerState<SidebarProfileCard> {
   bool _hovered = false;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
+    final session = ref.watch(profileSessionControllerProvider);
+    final local = ref.watch(localContentControllerProvider);
+    final githubUser = local.cachedUserName;
+    final connected = githubUser != null && githubUser.isNotEmpty;
+    final signedIn = connected || session.isSignedIn;
+    final displayName = connected
+        ? githubUser
+        : signedIn
+            ? session.effectiveName
+            : l10n.tr('profile.user.anonymous_name');
+    final badge = connected
+        ? 'GitHub'
+        : signedIn
+            ? l10n.tr('profile.session.local_badge')
+            : l10n.tr('profile.signed_out');
+    final status = connected
+        ? l10n.tr('profile.github.connected')
+        : signedIn
+            ? l10n.tr('profile.session.signed_in')
+            : l10n.tr('profile.user.anonymous_status');
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
@@ -63,7 +86,7 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
               ),
               child: Row(
                 children: [
-                  const SidebarProfileAvatar(),
+                  SidebarProfileAvatar(active: signedIn),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: Column(
@@ -71,7 +94,7 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          'XZQ',
+                          displayName,
                           style: AppTypography.titleSmall.copyWith(
                             color: colors.onSurface,
                             fontWeight: FontWeight.w700,
@@ -89,20 +112,22 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
                                 vertical: 1,
                               ),
                               decoration: BoxDecoration(
-                                color: AppColors.starGold.withValues(
-                                  alpha: 0.16,
-                                ),
+                                color: signedIn
+                                    ? AppColors.starGold.withValues(alpha: 0.16)
+                                    : colors.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(
                                   AppRadius.xs,
                                 ),
                               ),
                               child: Text(
-                                'PRO',
+                                badge,
                                 style: AppTypography.labelSmall.copyWith(
-                                  color: AppColors.warning,
+                                  color: signedIn
+                                      ? AppColors.warning
+                                      : colors.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 10,
-                                  letterSpacing: 0.4,
+                                  letterSpacing: 0,
                                   height: 1.2,
                                 ),
                               ),
@@ -110,7 +135,7 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
                             const SizedBox(width: AppSpacing.xs),
                             Flexible(
                               child: Text(
-                                l10n.tr('profile.online'),
+                                status,
                                 style: AppTypography.labelSmall,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -133,7 +158,9 @@ class _SidebarProfileCardState extends State<SidebarProfileCard> {
 }
 
 class SidebarProfileAvatar extends StatelessWidget {
-  const SidebarProfileAvatar({super.key});
+  const SidebarProfileAvatar({required this.active, super.key});
+
+  final bool active;
 
   @override
   Widget build(BuildContext context) {
@@ -165,7 +192,7 @@ class SidebarProfileAvatar extends StatelessWidget {
               width: 10,
               height: 10,
               decoration: BoxDecoration(
-                color: AppColors.success,
+                color: active ? AppColors.success : colors.outline,
                 shape: BoxShape.circle,
                 border: Border.fromBorderSide(
                   BorderSide(color: colors.surface, width: 2),

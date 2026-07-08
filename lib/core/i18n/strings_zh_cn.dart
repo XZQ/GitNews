@@ -52,6 +52,7 @@ const Map<String, String> stringsZhCN = <String, String>{
 
   // profile
   'profile.online': '在线',
+  'profile.signed_out': '未登录',
   'profile.logout': '退出登录',
   'profile.anonymous_hint': '当前为匿名模式,无需登出',
 
@@ -69,8 +70,8 @@ const Map<String, String> stringsZhCN = <String, String>{
   'error_view.resource_not_found': '未找到资源',
 
   // home (DevIntel)
-  'home.title': '开发者情报',
-  'home.subtitle': '实时生态洞察',
+  'home.title': '总览',
+  'home.subtitle': '开发者情报与实时生态洞察',
   'home.search_hint': '搜索仓库、标签...',
   'home.live_sync': '实时同步',
   'home.monitor_center': '监控中心',
@@ -178,6 +179,8 @@ const Map<String, String> stringsZhCN = <String, String>{
   // monitor
   'monitor.title': '仓库监控',
   'monitor.subtitle': '实时跟踪、告警推送',
+  'monitor.search_hint': '搜索仓库、告警、规则...',
+  'monitor.unread_count': '{n} 未读',
   'monitor.detail_title': '监控详情',
   'monitor.empty': '还没有监控仓库',
   'monitor.empty.not_in_list': '该仓库未在监控列表中',
@@ -196,7 +199,8 @@ const Map<String, String> stringsZhCN = <String, String>{
   'monitor.alerts.title': '告警列表',
   'monitor.alerts.empty': '最近 24 小时暂无告警',
   'monitor.alerts.all': '所有告警',
-  'monitor.alerts.subtitle': '可见 {visible} 条 · 未读 {unread} 条 · 已归档 {archived} 条',
+  'monitor.alerts.subtitle':
+      '可见 {visible} 条 · 未读 {unread} 条 · 已归档 {archived} 条',
   'monitor.alerts.filter.all': '全部',
   'monitor.alerts.filter.unread': '未读',
   'monitor.alerts.filter.important': '重点',
@@ -235,7 +239,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'monitor.rule.discuss_heat': '讨论热度 >= 5x',
 
   // project
-  'project.title': '报告',
+  'project.title': '深度报告',
   'project.subtitle': '本周生态数据汇总',
   'project.tab.explore': '探索',
   'project.tab.activity': '活动',
@@ -406,7 +410,8 @@ const Map<String, String> stringsZhCN = <String, String>{
   'device_flow.expired': '验证码已过期,请重新登录',
   'device_flow.denied': '已拒绝授权',
   'device_flow.not_configured': '未配置 GitHub OAuth',
-  'device_flow.need_config': '需在 ApiEndpointsConfig 填入 OAuth App 的 client_id 才能启用设备登录',
+  'device_flow.need_config':
+      '需在 ApiEndpointsConfig 填入 OAuth App 的 client_id 才能启用设备登录',
   'device_flow.retry': '重试',
   'device_flow.hint_step1': '1. 点击下方按钮,GitHub 会给出一个验证码',
   'device_flow.hint_step2': '2. 浏览器会自动打开授权页,粘贴验证码并授权',
@@ -453,7 +458,9 @@ const Map<String, String> stringsZhCN = <String, String>{
   'profile.section.monitor_rules': '监控规则',
   'profile.section.settings': '偏好设置',
   'profile.user.anonymous_status': '匿名浏览 · 登录后可同步数据',
+  'profile.user.anonymous_name': '匿名浏览',
   'profile.user.login_moved': '登录入口已移至左侧底部',
+  'profile.session.local_badge': '本地',
   'profile.master.title': '设置',
   'profile.pro.title': 'GitHub 开发者情报 PRO',
   'profile.pro.subtitle': '解锁全部高级功能',
@@ -477,7 +484,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'profile.data.subtitle': '本地数据管理',
   'profile.data.db_size': '数据库占用',
   'profile.data.cap': '容量上限',
-  'profile.data.cap.value': '1 GB',
+  'profile.data.cap.value': '不限制',
   'profile.data.clearing': '清理中…',
   'profile.data.clear': '清理缓存',
   'profile.data.cleared': '已清理缓存 {size}',

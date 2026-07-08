@@ -130,9 +130,8 @@ class GithubMonitorRepository implements MonitorRepository {
         monitoredDelta: 0,
         unreadAlertCount: alerts.length,
         unreadAlertDelta: 0,
-        triggeredTodayCount: responses
-            .where((item) => _isToday(item.pushedAt, now))
-            .length,
+        triggeredTodayCount:
+            responses.where((item) => _isToday(item.pushedAt, now)).length,
         triggeredTodayDelta: 0,
         totalAlertCount: alerts.length,
         totalAlertDelta: 0,

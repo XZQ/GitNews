@@ -256,8 +256,7 @@ class _WebViewBody extends StatelessWidget {
           ),
           onWebViewCreated: (controller) => state._controller = controller,
           onTitleChanged: (controller, t) => state.onTitleChanged(t),
-          onProgressChanged: (_, progress) =>
-              state.onProgressChanged(progress),
+          onProgressChanged: (_, progress) => state.onProgressChanged(progress),
           onLoadStop: (controller, _) async {
             final canBack = await controller.canGoBack();
             state.onLoadStopFinished(canBack);

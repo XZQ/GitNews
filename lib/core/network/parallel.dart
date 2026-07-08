@@ -35,7 +35,10 @@ Future<List<T>> gatherAll<T>(
       );
       return null;
     } catch (e) {
-      AppLogger.warn(tag, meta: {'index': index, 'error': e.runtimeType.toString()});
+      AppLogger.warn(
+        tag,
+        meta: {'index': index, 'error': e.runtimeType.toString()},
+      );
       return null;
     }
   }

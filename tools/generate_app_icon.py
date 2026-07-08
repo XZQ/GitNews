@@ -1,17 +1,19 @@
-"""Generate the GitHub情报站 brand icon (.png + .ico).
+"""Generate the GitHub情报站 brand icon for desktop and mobile targets.
 
 Run: python tools/generate_app_icon.py
 """
 import math
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageOps
 import os
 
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SRC_PATH = os.path.join(ROOT_DIR, "assets", "brand", "app_icon_source.png")
 OUT_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    ROOT_DIR,
     "windows", "runner", "resources",
 )
 TMP_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+    ROOT_DIR,
     "build", "icons",
 )
 os.makedirs(TMP_DIR, exist_ok=True)
@@ -124,19 +126,34 @@ def draw_icon(size):
     return large.resize((size, size), Image.Resampling.LANCZOS)
 
 
+def render_icon(size):
+    if os.path.exists(SRC_PATH):
+        source = Image.open(SRC_PATH).convert("RGBA")
+        return ImageOps.fit(
+            source,
+            (size, size),
+            method=Image.Resampling.LANCZOS,
+            centering=(0.5, 0.5),
+        )
+    return draw_icon(size)
+
+
+def save_png(path, size):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    render_icon(size).save(path, format="PNG")
+    print(f"wrote {path}")
+
+
 def main():
-    icon_512 = draw_icon(512)
     preview_png_path = os.path.join(TMP_DIR, "app_icon.png")
-    icon_512.save(preview_png_path, format="PNG")
-    print(f"wrote {preview_png_path}")
+    save_png(preview_png_path, 512)
 
     resource_png_path = os.path.join(OUT_DIR, "app_icon.png")
-    icon_512.save(resource_png_path, format="PNG")
-    print(f"wrote {resource_png_path}")
+    save_png(resource_png_path, 512)
 
     # Build .ico with multiple sizes for crisp rendering.
     sizes = [16, 24, 32, 48, 64, 128, 256]
-    images = [draw_icon(s) for s in sizes]
+    images = [render_icon(s) for s in sizes]
     ico_path = os.path.join(OUT_DIR, "app_icon.ico")
     images[0].save(
         ico_path,
@@ -145,6 +162,55 @@ def main():
         append_images=images[1:],
     )
     print(f"wrote {ico_path}")
+
+    android_icons = {
+        "mipmap-mdpi/ic_launcher.png": 48,
+        "mipmap-hdpi/ic_launcher.png": 72,
+        "mipmap-xhdpi/ic_launcher.png": 96,
+        "mipmap-xxhdpi/ic_launcher.png": 144,
+        "mipmap-xxxhdpi/ic_launcher.png": 192,
+    }
+    android_root = os.path.join(ROOT_DIR, "android", "app", "src", "main", "res")
+    for rel_path, size in android_icons.items():
+        save_png(os.path.join(android_root, rel_path), size)
+
+    ios_icons = {
+        "Icon-App-20x20@1x.png": 20,
+        "Icon-App-20x20@2x.png": 40,
+        "Icon-App-20x20@3x.png": 60,
+        "Icon-App-29x29@1x.png": 29,
+        "Icon-App-29x29@2x.png": 58,
+        "Icon-App-29x29@3x.png": 87,
+        "Icon-App-40x40@1x.png": 40,
+        "Icon-App-40x40@2x.png": 80,
+        "Icon-App-40x40@3x.png": 120,
+        "Icon-App-60x60@2x.png": 120,
+        "Icon-App-60x60@3x.png": 180,
+        "Icon-App-76x76@1x.png": 76,
+        "Icon-App-76x76@2x.png": 152,
+        "Icon-App-83.5x83.5@2x.png": 167,
+        "Icon-App-1024x1024@1x.png": 1024,
+    }
+    ios_root = os.path.join(
+        ROOT_DIR, "ios", "Runner", "Assets.xcassets", "AppIcon.appiconset"
+    )
+    for filename, size in ios_icons.items():
+        save_png(os.path.join(ios_root, filename), size)
+
+    macos_icons = {
+        "app_icon_16.png": 16,
+        "app_icon_32.png": 32,
+        "app_icon_64.png": 64,
+        "app_icon_128.png": 128,
+        "app_icon_256.png": 256,
+        "app_icon_512.png": 512,
+        "app_icon_1024.png": 1024,
+    }
+    macos_root = os.path.join(
+        ROOT_DIR, "macos", "Runner", "Assets.xcassets", "AppIcon.appiconset"
+    )
+    for filename, size in macos_icons.items():
+        save_png(os.path.join(macos_root, filename), size)
 
 
 if __name__ == "__main__":

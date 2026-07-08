@@ -69,8 +69,12 @@ void main() {
     await pumpHeader(
       tester,
       Builder(
-        builder: (context) =>
-            headerConfig(context, 'home.title', 'home.subtitle', Icons.dashboard_outlined),
+        builder: (context) => headerConfig(
+          context,
+          'home.title',
+          'home.subtitle',
+          Icons.dashboard_outlined,
+        ),
       ),
     );
     await expectLater(

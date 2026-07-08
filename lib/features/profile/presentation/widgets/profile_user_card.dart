@@ -51,8 +51,11 @@ class ProfileUserCard extends ConsumerWidget {
                 connected && avatarUrl != null ? NetworkImage(avatarUrl) : null,
             child: connected && avatarUrl != null
                 ? null
-                : Icon(Icons.person,
-                    color: colors.onPrimaryContainer, size: 32,),
+                : Icon(
+                    Icons.person,
+                    color: colors.onPrimaryContainer,
+                    size: 32,
+                  ),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -82,7 +85,7 @@ class ProfileUserCard extends ConsumerWidget {
                         borderRadius: BorderRadius.circular(AppRadius.xs),
                       ),
                       child: Text(
-                        connected ? 'GitHub' : 'PRO',
+                        connected ? 'GitHub' : l10n.tr('profile.signed_out'),
                         style: AppTypography.labelSmall.copyWith(
                           color: connected
                               ? colors.onPrimary
@@ -102,7 +105,9 @@ class ProfileUserCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 TextButton(
-                  onPressed: connected ? signOut : () => context.go('/login'),
+                  onPressed: connected
+                      ? signOut
+                      : () => context.push('/profile/login'),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 28),

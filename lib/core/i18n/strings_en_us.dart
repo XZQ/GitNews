@@ -53,6 +53,7 @@ const Map<String, String> stringsEnUS = <String, String>{
 
   // profile
   'profile.online': 'Online',
+  'profile.signed_out': 'Signed out',
   'profile.logout': 'Log out',
   'profile.anonymous_hint': 'Anonymous mode — no need to log out',
 
@@ -70,8 +71,8 @@ const Map<String, String> stringsEnUS = <String, String>{
   'error_view.resource_not_found': 'Resource not found',
 
   // home
-  'home.title': 'Dev Intel',
-  'home.subtitle': 'Real-time ecosystem insights',
+  'home.title': 'Overview',
+  'home.subtitle': 'Developer intelligence and real-time ecosystem insights',
   'home.search_hint': 'Search repos, tags…',
   'home.live_sync': 'Live sync',
   'home.monitor_center': 'Monitor center',
@@ -178,8 +179,10 @@ const Map<String, String> stringsEnUS = <String, String>{
   'trending.search_hint': 'Search repos, languages, topics...',
 
   // monitor
-  'monitor.title': 'Monitors',
+  'monitor.title': 'Repository Monitor',
   'monitor.subtitle': 'Real-time tracking and alert push',
+  'monitor.search_hint': 'Search repos, alerts, rules...',
+  'monitor.unread_count': '{n} unread',
   'monitor.detail_title': 'Monitor detail',
   'monitor.empty': 'No monitored repos yet',
   'monitor.empty.not_in_list': 'Repo not in monitor list',
@@ -198,7 +201,8 @@ const Map<String, String> stringsEnUS = <String, String>{
   'monitor.alerts.title': 'Alerts',
   'monitor.alerts.empty': 'No alerts in the last 24 hours',
   'monitor.alerts.all': 'All alerts',
-  'monitor.alerts.subtitle': '{visible} visible · {unread} unread · {archived} archived',
+  'monitor.alerts.subtitle':
+      '{visible} visible · {unread} unread · {archived} archived',
   'monitor.alerts.filter.all': 'All',
   'monitor.alerts.filter.unread': 'Unread',
   'monitor.alerts.filter.important': 'Important',
@@ -237,7 +241,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'monitor.rule.discuss_heat': 'Discussion heat >= 5x',
 
   // project
-  'project.title': 'Reports',
+  'project.title': 'Deep Reports',
   'project.subtitle': 'Weekly ecosystem digest',
   'project.tab.explore': 'Explore',
   'project.tab.activity': 'Activity',
@@ -462,7 +466,9 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.section.monitor_rules': 'Monitor rules',
   'profile.section.settings': 'Preferences',
   'profile.user.anonymous_status': 'Browsing anonymously · Sign in to sync',
+  'profile.user.anonymous_name': 'Anonymous',
   'profile.user.login_moved': 'Sign-in entry moved to bottom-left',
+  'profile.session.local_badge': 'Local',
   'profile.master.title': 'Settings',
   'profile.pro.title': 'GitHub Developer Intelligence PRO',
   'profile.pro.subtitle': 'Unlock all advanced features',
@@ -486,7 +492,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.data.subtitle': 'Local data management',
   'profile.data.db_size': 'Database usage',
   'profile.data.cap': 'Storage cap',
-  'profile.data.cap.value': '1 GB',
+  'profile.data.cap.value': 'Unlimited',
   'profile.data.clearing': 'Clearing…',
   'profile.data.clear': 'Clear cache',
   'profile.data.cleared': 'Cache cleared {size}',

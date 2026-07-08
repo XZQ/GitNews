@@ -17,8 +17,8 @@ class TabSpec {
   final IconData selectedIcon;
 }
 
-// 桌面侧栏 7 栏 IA:
-// 总览 → AI 动态 → GitHub热榜 → AI雷达 → 仓库监控 → 深度报告 → 设置
+// 桌面侧栏 IA:
+// 总览 → AI 动态 → GitHub热榜 → AI雷达 → 发现 → 仓库监控 → 深度报告 → 设置
 const List<TabSpec> appTabs = <TabSpec>[
   TabSpec(
     labelKey: 'tab.home',
@@ -45,6 +45,12 @@ const List<TabSpec> appTabs = <TabSpec>[
     selectedIcon: Icons.device_hub_rounded,
   ),
   TabSpec(
+    labelKey: 'discover.title',
+    pathSegment: 'discover',
+    icon: Icons.explore_outlined,
+    selectedIcon: Icons.explore_rounded,
+  ),
+  TabSpec(
     labelKey: 'tab.monitor',
     pathSegment: 'monitor',
     icon: Icons.notifications_outlined,
@@ -55,12 +61,6 @@ const List<TabSpec> appTabs = <TabSpec>[
     pathSegment: 'project',
     icon: Icons.insights_outlined,
     selectedIcon: Icons.insights_rounded,
-  ),
-  TabSpec(
-    labelKey: 'discover.title',
-    pathSegment: 'discover',
-    icon: Icons.explore_outlined,
-    selectedIcon: Icons.explore_rounded,
   ),
   TabSpec(
     labelKey: 'tab.profile',

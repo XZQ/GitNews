@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,7 +6,6 @@ import '../../../core/domain/data_provenance.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/storage_providers.dart';
-import '../../../core/utils/app_logger.dart';
 import '../data/ai_news_api_client.dart';
 import '../data/ai_news_cache_dao.dart';
 import '../data/ai_news_seed_data.dart';
@@ -231,7 +228,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       _nextCursor = digest.nextCursor;
       _hasApiMore = digest.hasNext;
       provenance.state = DataProvenance.live;
-      // 落盘 + 更新 head meta + 容量守卫
+      // 落盘 + 更新 head meta。
       final dao = ref.read(aiNewsCacheDaoProvider);
       final now = ref.read(clockProvider)();
       await dao.upsertPage(
@@ -241,7 +238,6 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
         digest: digest,
         now: now,
       );
-      unawaited(_safeEnforceCap());
     } catch (e) {
       if (gen != _generation) return;
       _fetching = false;
@@ -256,14 +252,5 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       state = AsyncData(_currentSlice());
     }
     if (gen == _generation) _fetching = false;
-  }
-
-  Future<void> _safeEnforceCap() async {
-    try {
-      await ref.read(appDatabaseProvider).enforceCap();
-    } catch (e) {
-      // 容量管理是尽力而为,仅记录 kind 便于排查 SQLite 退化。
-      AppLogger.warn('enforceCap', meta: {'error': e.runtimeType.toString()});
-    }
   }
 }

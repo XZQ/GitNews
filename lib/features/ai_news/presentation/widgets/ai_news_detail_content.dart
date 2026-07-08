@@ -8,6 +8,8 @@ import '../../../../shared/widgets/app_card.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_category_style.dart';
 
+const double _detailHorizontalGutter = 40;
+
 class AiNewsDetailContent extends StatelessWidget {
   const AiNewsDetailContent({required this.item, super.key});
 
@@ -21,29 +23,24 @@ class AiNewsDetailContent extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
+              _detailHorizontalGutter,
               AppSpacing.lg,
-              AppSpacing.xl,
+              _detailHorizontalGutter,
               AppSpacing.xxxl,
             ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 920),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    AppCard(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      child: _ArticleSummary(item: item),
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    AppCard(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      child: _ArticleMeta(item: item),
-                    ),
-                  ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppCard(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: _ArticleSummary(item: item),
                 ),
-              ),
+                const SizedBox(height: AppSpacing.lg),
+                AppCard(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: _ArticleMeta(item: item),
+                ),
+              ],
             ),
           ),
         ),

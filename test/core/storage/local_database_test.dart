@@ -5,7 +5,7 @@ import 'package:github_news/core/storage/local_database.dart';
 *LocalDatabase 商业级稳定性测试:
 *- schema 完整性:启动后所有业务表必须存在(防止迁移漏建表导致运行时崩溃);
 *- clearAll 保留 schema 但清空数据;
-*- enforceCap 在远低于上限时为安全 no-op(不丢数据、不抛)。
+*- enforceCap 为兼容旧调用保留 no-op(项目不再自动限制容量)。
 *
 *注:真正的「旧版本 DB 文件 → 当前版本」迁移往返需要注入历史 schema,
 *当前迁移链(v1→v2、v2→v3)均为幂等的 `CREATE TABLE IF NOT EXISTS`,
@@ -52,7 +52,8 @@ void main() {
       expect(meta, isNotEmpty, reason: 'schema 应保留,清理后可立即重写');
     });
 
-    test('enforceCap is a safe no-op below the limit', () async {
+    test('enforceCap keeps data because automatic capacity limit is disabled',
+        () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
       await db.executor.insert(
@@ -61,7 +62,7 @@ void main() {
       );
       await db.enforceCap();
       final rows = await db.executor.query('cache_meta');
-      expect(rows.length, 1, reason: '低于 1GB 上限不应删除任何数据');
+      expect(rows.length, 1, reason: '项目不再设置自动容量上限');
     });
 
     test('business tables list covers all created tables', () async {

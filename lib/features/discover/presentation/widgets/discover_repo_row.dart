@@ -31,7 +31,8 @@ class DiscoverMonitorRow extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final monitored = ref.watch(
-      localContentControllerProvider.select((s) => s.isMonitored(repo.fullName)),
+      localContentControllerProvider
+          .select((s) => s.isMonitored(repo.fullName)),
     );
     final controller = ref.read(localContentControllerProvider.notifier);
 

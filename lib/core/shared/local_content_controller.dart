@@ -7,11 +7,11 @@ import '../i18n/app_localizations.dart';
 const int monitorRuleCount = 4;
 
 List<String> monitorRuleLabels(AppLocalizations l10n) => [
-  l10n.tr('monitor.rule.star_growth'),
-  l10n.tr('monitor.rule.daily_growth'),
-  l10n.tr('monitor.rule.fork_growth'),
-  l10n.tr('monitor.rule.discuss_heat'),
-];
+      l10n.tr('monitor.rule.star_growth'),
+      l10n.tr('monitor.rule.daily_growth'),
+      l10n.tr('monitor.rule.fork_growth'),
+      l10n.tr('monitor.rule.discuss_heat'),
+    ];
 
 class LocalContentState {
   const LocalContentState({
@@ -40,8 +40,7 @@ class LocalContentState {
 
   bool isMonitoredSkill(String fullName) => monitoredSkills.contains(fullName);
 
-  bool isFollowingDeveloper(String login) =>
-      followedDevelopers.contains(login);
+  bool isFollowingDeveloper(String login) => followedDevelopers.contains(login);
 
   LocalContentState copyWith({
     Set<String>? bookmarkedRepos,
@@ -59,12 +58,10 @@ class LocalContentState {
       monitoredSkills: monitoredSkills ?? this.monitoredSkills,
       followedDevelopers: followedDevelopers ?? this.followedDevelopers,
       monitorRules: monitorRules ?? this.monitorRules,
-      cachedUserName: clearCachedUser
-          ? null
-          : (cachedUserName ?? this.cachedUserName),
-      cachedAvatarUrl: clearCachedUser
-          ? null
-          : (cachedAvatarUrl ?? this.cachedAvatarUrl),
+      cachedUserName:
+          clearCachedUser ? null : (cachedUserName ?? this.cachedUserName),
+      cachedAvatarUrl:
+          clearCachedUser ? null : (cachedAvatarUrl ?? this.cachedAvatarUrl),
     );
   }
 }

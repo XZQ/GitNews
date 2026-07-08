@@ -37,7 +37,9 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
 String _monitorCacheKey(List<String> repos) {
   if (repos.length == githubMonitorDefaultRepos.length) {
     final set = repos.toSet();
-    if (set.containsAll(githubMonitorDefaultRepos)) return githubMonitorCacheKey;
+    if (set.containsAll(githubMonitorDefaultRepos)) {
+      return githubMonitorCacheKey;
+    }
   }
   final buffer = repos.join(',');
   var hash = 0;

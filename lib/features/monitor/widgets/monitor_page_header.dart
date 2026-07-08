@@ -23,9 +23,9 @@ class MonitorPageHeader extends ConsumerWidget {
     return PageHeader(
       icon: Icons.radar_rounded,
       iconAccent: AppColors.success,
-      title: '监控',
-      subtitle: '实时告警与仓库动态',
-      searchHint: '搜索仓库、告警、规则...',
+      title: l10n.tr('monitor.title'),
+      subtitle: l10n.tr('monitor.subtitle'),
+      searchHint: l10n.tr('monitor.search_hint'),
       searchValue: query,
       onSearchChanged: (v) =>
           ref.read(monitorSearchQueryProvider.notifier).state = v,
@@ -35,7 +35,9 @@ class MonitorPageHeader extends ConsumerWidget {
       pills: [
         HeaderStatPill(
           icon: Icons.circle,
-          label: '${stats.unreadAlertCount} 未读',
+          label: l10n
+              .tr('monitor.unread_count')
+              .replaceAll('{n}', stats.unreadAlertCount.toString()),
           color: AppColors.success,
         ),
       ],

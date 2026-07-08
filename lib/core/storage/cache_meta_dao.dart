@@ -173,7 +173,10 @@ class CacheMetaDao {
         whereArgs: [threshold],
       );
     } catch (e) {
-      AppLogger.warn('cacheMetaPrune', meta: {'error': e.runtimeType.toString()});
+      AppLogger.warn(
+        'cacheMetaPrune',
+        meta: {'error': e.runtimeType.toString()},
+      );
       return 0;
     }
   }

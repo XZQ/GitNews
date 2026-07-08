@@ -94,7 +94,10 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     );
   }
 
-  Widget _buildRepos(AsyncValue<List<RepoEntity>> async, AppLocalizations l10n) {
+  Widget _buildRepos(
+    AsyncValue<List<RepoEntity>> async,
+    AppLocalizations l10n,
+  ) {
     final query = ref.watch(discoverSearchQueryProvider);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -128,7 +131,10 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     );
   }
 
-  Widget _buildSkills(AsyncValue<List<SkillEntity>> async, AppLocalizations l10n) {
+  Widget _buildSkills(
+    AsyncValue<List<SkillEntity>> async,
+    AppLocalizations l10n,
+  ) {
     final query = ref.watch(discoverSearchQueryProvider);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),

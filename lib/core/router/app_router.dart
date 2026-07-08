@@ -164,6 +164,24 @@ GoRouter buildAppRouter(Ref ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/discover',
+                name: 'discover',
+                builder: (_, __) => const DiscoverHubPage(),
+                routes: [
+                  GoRoute(
+                    path: 'detail/:fullName',
+                    name: 'discover_detail',
+                    builder: (_, state) => RepoDetailPage(
+                      fullName: state.pathParameters['fullName']!,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: '/monitor',
                 name: 'monitor',
                 builder: (_, __) => const MonitorPage(),
@@ -225,28 +243,15 @@ GoRouter buildAppRouter(Ref ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/discover',
-                name: 'discover',
-                builder: (_, __) => const DiscoverHubPage(),
-                routes: [
-                  GoRoute(
-                    path: 'detail/:fullName',
-                    name: 'discover_detail',
-                    builder: (_, state) => RepoDetailPage(
-                      fullName: state.pathParameters['fullName']!,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: '/profile',
                 name: 'profile',
                 builder: (_, __) => const ProfilePage(),
                 routes: [
+                  GoRoute(
+                    path: 'login',
+                    name: 'profile_login',
+                    builder: (_, __) => const LoginPage(),
+                  ),
                   GoRoute(
                     path: 'collect',
                     name: 'profile_collect',
@@ -289,7 +294,7 @@ GoRouter buildAppRouter(Ref ref) {
       GoRoute(
         path: '/login',
         name: 'login',
-        builder: (_, __) => const LoginPage(),
+        redirect: (_, __) => '/profile/login',
       ),
       // 全局应用内 WebView:仅保留给非 Tab 场景。Tab 内链接应优先放在
       // 对应分支的子路由里,避免桌面端绕开侧栏和 B 区域。

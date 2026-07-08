@@ -18,7 +18,7 @@ class GitHubNewsApp extends ConsumerWidget {
     final mode = ref.watch(themeModeControllerProvider);
     final preset = ref.watch(themePresetControllerProvider);
     return Shortcuts(
-      // 桌面端全局快捷键:Ctrl/Cmd+数字切换 7 个一级 Tab。
+      // 桌面端全局快捷键:Ctrl/Cmd+数字切换一级 Tab。
       // 单独拦下 F5 / Ctrl+R 防止浏览器/Web 容器吃掉触发系统刷新。
       shortcuts: const {
         SingleActivator(LogicalKeyboardKey.digit1, control: true):
@@ -35,6 +35,8 @@ class GitHubNewsApp extends ConsumerWidget {
             _GoTabIntent(5),
         SingleActivator(LogicalKeyboardKey.digit7, control: true):
             _GoTabIntent(6),
+        SingleActivator(LogicalKeyboardKey.digit8, control: true):
+            _GoTabIntent(7),
         SingleActivator(LogicalKeyboardKey.keyR, control: true): _NoopIntent(),
         SingleActivator(LogicalKeyboardKey.f5): _NoopIntent(),
       },

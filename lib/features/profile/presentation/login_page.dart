@@ -263,7 +263,8 @@ class _CodeView extends ConsumerWidget {
     Clipboard.setData(ClipboardData(text: code));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text(AppLocalizations.of(context).tr('device_flow.copied')),),
+        content: Text(AppLocalizations.of(context).tr('device_flow.copied')),
+      ),
     );
   }
 }
@@ -332,8 +333,11 @@ class _Hint extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.check_circle_outline,
-              size: 16, color: AppColors.success,),
+          const Icon(
+            Icons.check_circle_outline,
+            size: 16,
+            color: AppColors.success,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text(text, style: AppTypography.bodyMedium),
@@ -355,8 +359,11 @@ class _Bullet extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_outline,
-              size: 16, color: AppColors.success,),
+          const Icon(
+            Icons.check_circle_outline,
+            size: 16,
+            color: AppColors.success,
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(text, style: AppTypography.bodyMedium)),
         ],

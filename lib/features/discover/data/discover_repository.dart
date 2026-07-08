@@ -67,7 +67,10 @@ class DiscoverRepository {
       } on AppException catch (e) {
         _report(e);
       } catch (e) {
-        AppLogger.warn('discoverTrending', meta: {'error': e.runtimeType.toString()});
+        AppLogger.warn(
+          'discoverTrending',
+          meta: {'error': e.runtimeType.toString()},
+        );
       }
     }
     final cached = await _cache.read(_kTrending);
@@ -108,7 +111,10 @@ class DiscoverRepository {
       } on AppException catch (e) {
         _report(e);
       } catch (e) {
-        AppLogger.warn('discoverSkills', meta: {'error': e.runtimeType.toString()});
+        AppLogger.warn(
+          'discoverSkills',
+          meta: {'error': e.runtimeType.toString()},
+        );
       }
     }
     final cached = await _cache.read(_kSkills);
@@ -187,7 +193,9 @@ class DiscoverRepository {
     if (text.contains('cursor')) return 'cursor';
     if (text.contains('copilot')) return 'copilot';
     if (text.contains('mcp')) return 'mcp';
-    if (text.contains('langchain') || text.contains('langgraph')) return 'agent';
+    if (text.contains('langchain') || text.contains('langgraph')) {
+      return 'agent';
+    }
     return 'other';
   }
 
@@ -209,7 +217,10 @@ class DiscoverRepository {
         'items': [for (final r in repos) _repoToJson(r)],
       };
 
-  static RepoEntity _repoFromJson(Map<String, Object?> json, DataProvenance p) =>
+  static RepoEntity _repoFromJson(
+    Map<String, Object?> json,
+    DataProvenance p,
+  ) =>
       RepoEntity(
         fullName: GitHubJson.string(json['fullName']),
         description: GitHubJson.string(json['description']),
@@ -222,7 +233,10 @@ class DiscoverRepository {
         trendProvenance: p,
       );
 
-  static List<RepoEntity> _decodeRepos(Map<String, Object?> json, DataProvenance p) =>
+  static List<RepoEntity> _decodeRepos(
+    Map<String, Object?> json,
+    DataProvenance p,
+  ) =>
       [
         for (final raw in GitHubJson.list(json['items']))
           _repoFromJson(GitHubJson.map(raw), p),
@@ -250,7 +264,10 @@ class DiscoverRepository {
           _skillFromJson(GitHubJson.map(raw), p),
       ];
 
-  static SkillEntity _skillFromJson(Map<String, Object?> json, DataProvenance p) {
+  static SkillEntity _skillFromJson(
+    Map<String, Object?> json,
+    DataProvenance p,
+  ) {
     final repoJson = GitHubJson.map(json['repo']);
     return SkillEntity(
       repo: _repoFromJson(repoJson, p),
