@@ -24,3 +24,30 @@ class SkillEntity {
 
   final String? summary;
 }
+
+enum DiscoverProfileKind { official, people }
+
+/// 发现页 GitHub 账号实体:用于官方组织与知名开发者推荐。
+class DiscoverProfileEntity {
+  const DiscoverProfileEntity({
+    required this.login,
+    required this.name,
+    required this.type,
+    required this.bio,
+    required this.publicRepos,
+    required this.followers,
+    required this.avatarUrl,
+    required this.htmlUrl,
+    required this.kind,
+  });
+
+  final String login;
+  final String name;
+  final String type;
+  final String bio;
+  final int publicRepos;
+  final int followers;
+  final String avatarUrl;
+  final String htmlUrl;
+  final DiscoverProfileKind kind;
+}

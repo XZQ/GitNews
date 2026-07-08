@@ -43,21 +43,56 @@ class DiscoverRepository {
       'topic:agent-skills OR topic:claude-skills OR topic:mcp stars:>50';
   static const String _kTrending = 'discover_trending_repos';
   static const String _kSkills = 'discover_agent_skills';
+  static const String _kProfiles = 'discover_profiles';
+  static const List<String> _officialLogins = [
+    'openai',
+    'anthropics',
+    'microsoft',
+    'langchain-ai',
+    'crewAIInc',
+    'modelcontextprotocol',
+    'vercel',
+    'google',
+    'meta-llama',
+    'huggingface',
+  ];
+  static const List<String> _peopleLogins = [
+    'karpathy',
+    'simonw',
+    'swyxio',
+    'hwchase17',
+    'jerryjliu',
+    'gdb',
+    'fchollet',
+    'soumith',
+    'TimDettmers',
+    'shreyashankar',
+  ];
 
-  Future<List<RepoEntity>> fetchTrendingRepos({bool force = false}) async {
+  Future<List<RepoEntity>> fetchTrendingRepos({
+    bool force = false,
+    int page = 1,
+    int perPage = 20,
+  }) async {
     final now = _now();
-    if (force) await _safeDelete(_kTrending);
+    final key = _pageKey(_kTrending, page, perPage);
+    if (force) await _safeDelete(key);
     if (!_blocked()) {
-      if (!force && await _isFresh(_kTrending, CacheTtlConfig.discover, now)) {
-        final cached = await _cache.read(_kTrending);
+      if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
+        final cached = await _cache.read(key);
         if (cached != null) {
           return _decodeRepos(cached, DataProvenance.freshCache);
         }
       }
       try {
-        final repos = await _searchRepos(_trendingQuery, perPage: 20, now: now);
+        final repos = await _searchRepos(
+          _trendingQuery,
+          page: page,
+          perPage: perPage,
+          now: now,
+        );
         await _cache.upsert(
-          key: _kTrending,
+          key: key,
           payload: _repoListToJson(repos),
           now: now,
         );
@@ -73,35 +108,46 @@ class DiscoverRepository {
         );
       }
     }
-    final cached = await _cache.read(_kTrending);
+    final cached = await _cache.read(key);
     if (cached != null) return _decodeRepos(cached, DataProvenance.staleCache);
-    return DiscoverSeed.seedPopularRepos;
+    return _slice(DiscoverSeed.seedPopularRepos, page: page, perPage: perPage);
   }
 
-  Future<List<SkillEntity>> fetchAgentSkills({bool force = false}) async {
+  Future<List<SkillEntity>> fetchAgentSkills({
+    bool force = false,
+    int page = 1,
+    int perPage = 20,
+  }) async {
     final now = _now();
-    if (force) await _safeDelete(_kSkills);
+    final key = _pageKey(_kSkills, page, perPage);
+    if (force) await _safeDelete(key);
     if (!_blocked()) {
-      if (!force && await _isFresh(_kSkills, CacheTtlConfig.skills, now)) {
-        final cached = await _cache.read(_kSkills);
+      if (!force && await _isFresh(key, CacheTtlConfig.skills, now)) {
+        final cached = await _cache.read(key);
         if (cached != null) {
           return _decodeSkills(cached, DataProvenance.freshCache);
         }
       }
       try {
-        final repos = await _searchRepos(_skillsQuery, perPage: 20, now: now);
+        final repos = await _searchRepos(
+          _skillsQuery,
+          page: page,
+          perPage: perPage,
+          now: now,
+        );
+        final offset = (page - 1) * perPage;
         final skills = [
           for (var i = 0; i < repos.length; i++)
             SkillEntity(
               repo: repos[i],
               category: _deriveCategory(repos[i]),
               source: 'github_search',
-              rank: i + 1,
+              rank: offset + i + 1,
               summary: repos[i].description,
             ),
         ];
         await _cache.upsert(
-          key: _kSkills,
+          key: key,
           payload: _skillsToJson(skills),
           now: now,
         );
@@ -117,9 +163,50 @@ class DiscoverRepository {
         );
       }
     }
-    final cached = await _cache.read(_kSkills);
+    final cached = await _cache.read(key);
     if (cached != null) return _decodeSkills(cached, DataProvenance.staleCache);
-    return DiscoverSeed.seedAgentSkills;
+    return _slice(DiscoverSeed.seedAgentSkills, page: page, perPage: perPage);
+  }
+
+  Future<List<DiscoverProfileEntity>> fetchProfiles({
+    required DiscoverProfileKind kind,
+    bool force = false,
+  }) async {
+    final now = _now();
+    final key = '$_kProfiles:${kind.name}';
+    if (force) await _safeDelete(key);
+    if (!_blocked()) {
+      if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
+        final cached = await _cache.read(key);
+        if (cached != null) {
+          return _decodeProfiles(cached, kind);
+        }
+      }
+      try {
+        final profiles = <DiscoverProfileEntity>[];
+        for (final login in _profileLogins(kind)) {
+          profiles.add(await _fetchProfile(login, kind));
+        }
+        await _cache.upsert(
+          key: key,
+          payload: _profilesToJson(profiles),
+          now: now,
+        );
+        return profiles;
+      } on DioException catch (e) {
+        _report(GitHubApiSupport.toAppException(e, now: _now));
+      } on AppException catch (e) {
+        _report(e);
+      } catch (e) {
+        AppLogger.warn(
+          'discoverProfiles',
+          meta: {'error': e.runtimeType.toString()},
+        );
+      }
+    }
+    final cached = await _cache.read(key);
+    if (cached != null) return _decodeProfiles(cached, kind);
+    return DiscoverSeed.seedProfiles(kind);
   }
 
   bool _blocked() => _isRateLimited?.call() ?? false;
@@ -151,6 +238,7 @@ class DiscoverRepository {
 
   Future<List<RepoEntity>> _searchRepos(
     String q, {
+    required int page,
     required int perPage,
     required DateTime now,
   }) async {
@@ -160,6 +248,7 @@ class DiscoverRepository {
         sort: 'stars',
         order: 'desc',
         perPage: perPage,
+        page: page,
       ),
       options: Options(headers: GitHubApiSupport.headers(token: _token)),
     );
@@ -167,6 +256,19 @@ class DiscoverRepository {
     if (data == null) throw const AppException(kind: AppExceptionKind.parse);
     final items = GitHubJson.list(data['items']);
     return [for (final raw in items) _parseSearchRepo(GitHubJson.map(raw))];
+  }
+
+  Future<DiscoverProfileEntity> _fetchProfile(
+    String login,
+    DiscoverProfileKind kind,
+  ) async {
+    final response = await _dio.get<Map<String, Object?>>(
+      ApiEndpointsConfig.githubPublicUserPath(login),
+      options: Options(headers: GitHubApiSupport.headers(token: _token)),
+    );
+    final data = response.data;
+    if (data == null) throw const AppException(kind: AppExceptionKind.parse);
+    return _profileFromJson(data, kind);
   }
 
   RepoEntity _parseSearchRepo(Map<String, Object?> json) {
@@ -197,6 +299,23 @@ class DiscoverRepository {
       return 'agent';
     }
     return 'other';
+  }
+
+  static String _pageKey(String base, int page, int perPage) =>
+      '$base:p$page:n$perPage';
+
+  static List<String> _profileLogins(DiscoverProfileKind kind) =>
+      kind == DiscoverProfileKind.official ? _officialLogins : _peopleLogins;
+
+  static List<T> _slice<T>(
+    List<T> items, {
+    required int page,
+    required int perPage,
+  }) {
+    final start = (page - 1) * perPage;
+    if (start >= items.length) return const [];
+    final end = (start + perPage).clamp(0, items.length);
+    return items.sublist(start, end);
   }
 
   // ---- JSON 编解码 ----
@@ -275,6 +394,58 @@ class DiscoverRepository {
       source: GitHubJson.string(json['source']),
       rank: GitHubJson.intValue(json['rank']),
       summary: GitHubJson.nullableString(json['summary']),
+    );
+  }
+
+  static Map<String, Object?> _profileToJson(DiscoverProfileEntity p) => {
+        'login': p.login,
+        'name': p.name,
+        'type': p.type,
+        'bio': p.bio,
+        'publicRepos': p.publicRepos,
+        'followers': p.followers,
+        'avatarUrl': p.avatarUrl,
+        'htmlUrl': p.htmlUrl,
+      };
+
+  static Map<String, Object?> _profilesToJson(
+    List<DiscoverProfileEntity> profiles,
+  ) =>
+      {
+        'items': [for (final p in profiles) _profileToJson(p)],
+      };
+
+  static List<DiscoverProfileEntity> _decodeProfiles(
+    Map<String, Object?> json,
+    DiscoverProfileKind kind,
+  ) =>
+      [
+        for (final raw in GitHubJson.list(json['items']))
+          _profileFromJson(GitHubJson.map(raw), kind),
+      ];
+
+  static DiscoverProfileEntity _profileFromJson(
+    Map<String, Object?> json,
+    DiscoverProfileKind kind,
+  ) {
+    final login = GitHubJson.string(json['login']);
+    final name = GitHubJson.nullableString(json['name']);
+    return DiscoverProfileEntity(
+      login: login,
+      name: (name == null || name.isEmpty) ? login : name,
+      type: GitHubJson.nullableString(json['type']) ??
+          (kind == DiscoverProfileKind.official ? 'Organization' : 'User'),
+      bio: GitHubJson.nullableString(json['bio']) ?? '',
+      publicRepos:
+          GitHubJson.intValue(json['public_repos'] ?? json['publicRepos']),
+      followers: GitHubJson.intValue(json['followers']),
+      avatarUrl: GitHubJson.nullableString(json['avatar_url']) ??
+          GitHubJson.nullableString(json['avatarUrl']) ??
+          '',
+      htmlUrl: GitHubJson.nullableString(json['html_url']) ??
+          GitHubJson.nullableString(json['htmlUrl']) ??
+          'https://github.com/$login',
+      kind: kind,
     );
   }
 }

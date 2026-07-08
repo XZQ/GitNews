@@ -8,6 +8,9 @@ import '../../../core/storage/storage_providers.dart';
 import '../data/discover_repository.dart';
 import '../domain/discover_entities.dart';
 
+const int discoverPageSize = 20;
+const double discoverLoadMoreScrollPixels = 520;
+
 /// 发现页数据仓库 Provider(复用 dio / 缓存 / token / 限流门控)。
 final discoverRepositoryProvider = Provider<DiscoverRepository>((ref) {
   final token = ref.watch(githubTokenControllerProvider).token;
@@ -31,35 +34,151 @@ final discoverSearchQueryProvider = StateProvider<String>((ref) => '');
 /// 刷新计数器:自增即触发强制刷新(绕过缓存 TTL)。
 final discoverRefreshTickProvider = StateProvider<int>((ref) => 0);
 
-/// 流行仓库(实时 Top20),force 取决于刷新计数器。
-final trendingReposProvider = FutureProvider<List<RepoEntity>>((ref) async {
+final trendingReposNotifierProvider =
+    AsyncNotifierProvider.autoDispose<TrendingReposNotifier, List<RepoEntity>>(
+  TrendingReposNotifier.new,
+);
+
+final agentSkillsNotifierProvider =
+    AsyncNotifierProvider.autoDispose<AgentSkillsNotifier, List<SkillEntity>>(
+  AgentSkillsNotifier.new,
+);
+
+final officialProfilesProvider =
+    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
   final force = ref.watch(discoverRefreshTickProvider) > 0;
-  return ref.watch(discoverRepositoryProvider).fetchTrendingRepos(force: force);
+  return ref.watch(discoverRepositoryProvider).fetchProfiles(
+        kind: DiscoverProfileKind.official,
+        force: force,
+      );
 });
 
-/// Agent Skills 榜(实时),force 取决于刷新计数器。
-final agentSkillsProvider = FutureProvider<List<SkillEntity>>((ref) async {
+final peopleProfilesProvider =
+    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
   final force = ref.watch(discoverRefreshTickProvider) > 0;
-  return ref.watch(discoverRepositoryProvider).fetchAgentSkills(force: force);
+  return ref.watch(discoverRepositoryProvider).fetchProfiles(
+        kind: DiscoverProfileKind.people,
+        force: force,
+      );
 });
 
 /// 应用本地搜索后的流行仓库。
-final filteredTrendingReposProvider =
-    FutureProvider<List<RepoEntity>>((ref) async {
-  final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
-  final repos = await ref.watch(trendingReposProvider.future);
-  if (query.isEmpty) return repos;
-  return repos.where((r) => _repoText(r).contains(query)).toList();
-});
+final filteredTrendingReposProvider = Provider<AsyncValue<List<RepoEntity>>>(
+  (ref) {
+    final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
+    final repos = ref.watch(trendingReposNotifierProvider);
+    if (query.isEmpty) return repos;
+    return repos.whenData(
+      (items) => items.where((r) => _repoText(r).contains(query)).toList(),
+    );
+  },
+);
 
 /// 应用本地搜索后的 Agent Skills。
-final filteredAgentSkillsProvider =
-    FutureProvider<List<SkillEntity>>((ref) async {
+final filteredAgentSkillsProvider = Provider<AsyncValue<List<SkillEntity>>>(
+  (ref) {
+    final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
+    final skills = ref.watch(agentSkillsNotifierProvider);
+    if (query.isEmpty) return skills;
+    return skills.whenData(
+      (items) => items.where((s) => _skillText(s).contains(query)).toList(),
+    );
+  },
+);
+
+final filteredOfficialProfilesProvider =
+    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
   final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
-  final skills = await ref.watch(agentSkillsProvider.future);
-  if (query.isEmpty) return skills;
-  return skills.where((s) => _skillText(s).contains(query)).toList();
+  final profiles = await ref.watch(officialProfilesProvider.future);
+  if (query.isEmpty) return profiles;
+  return profiles.where((p) => _profileText(p).contains(query)).toList();
 });
+
+final filteredPeopleProfilesProvider =
+    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
+  final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
+  final profiles = await ref.watch(peopleProfilesProvider.future);
+  if (query.isEmpty) return profiles;
+  return profiles.where((p) => _profileText(p).contains(query)).toList();
+});
+
+class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
+  int _page = 0;
+  bool _hasMore = true;
+  bool _loadingMore = false;
+
+  @override
+  Future<List<RepoEntity>> build() async {
+    final force = ref.watch(discoverRefreshTickProvider) > 0;
+    _page = 1;
+    final repos = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
+          force: force,
+          page: _page,
+          perPage: discoverPageSize,
+        );
+    _hasMore = repos.length == discoverPageSize;
+    return repos;
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || _loadingMore || state.hasError) return;
+    _loadingMore = true;
+    try {
+      final nextPage = _page + 1;
+      final repos =
+          await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
+                page: nextPage,
+                perPage: discoverPageSize,
+              );
+      _page = nextPage;
+      _hasMore = repos.length == discoverPageSize;
+      state = AsyncData([...?state.valueOrNull, ...repos]);
+    } finally {
+      _loadingMore = false;
+    }
+  }
+
+  bool get hasMore => _hasMore;
+}
+
+class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
+  int _page = 0;
+  bool _hasMore = true;
+  bool _loadingMore = false;
+
+  @override
+  Future<List<SkillEntity>> build() async {
+    final force = ref.watch(discoverRefreshTickProvider) > 0;
+    _page = 1;
+    final skills = await ref.read(discoverRepositoryProvider).fetchAgentSkills(
+          force: force,
+          page: _page,
+          perPage: discoverPageSize,
+        );
+    _hasMore = skills.length == discoverPageSize;
+    return skills;
+  }
+
+  Future<void> loadMore() async {
+    if (!_hasMore || _loadingMore || state.hasError) return;
+    _loadingMore = true;
+    try {
+      final nextPage = _page + 1;
+      final skills =
+          await ref.read(discoverRepositoryProvider).fetchAgentSkills(
+                page: nextPage,
+                perPage: discoverPageSize,
+              );
+      _page = nextPage;
+      _hasMore = skills.length == discoverPageSize;
+      state = AsyncData([...?state.valueOrNull, ...skills]);
+    } finally {
+      _loadingMore = false;
+    }
+  }
+
+  bool get hasMore => _hasMore;
+}
 
 String _repoText(RepoEntity r) =>
     '${r.fullName} ${r.description} ${r.language}'.toLowerCase();
@@ -67,3 +186,6 @@ String _repoText(RepoEntity r) =>
 String _skillText(SkillEntity s) =>
     '${s.repo.fullName} ${s.repo.description} ${s.category} ${s.source}'
         .toLowerCase();
+
+String _profileText(DiscoverProfileEntity p) =>
+    '${p.login} ${p.name} ${p.type} ${p.bio}'.toLowerCase();

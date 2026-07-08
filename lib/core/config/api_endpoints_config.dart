@@ -37,9 +37,13 @@ class ApiEndpointsConfig {
     String sort = 'stars',
     String order = 'desc',
     int perPage = 20,
+    int page = 1,
   }) =>
       '/search/repositories?q=${Uri.encodeQueryComponent(q)}'
-      '&sort=$sort&order=$order&per_page=$perPage';
+      '&sort=$sort&order=$order&per_page=$perPage&page=$page';
+
+  // GitHub 用户/组织公开资料:`GET /users/{login}`。
+  static String githubPublicUserPath(String login) => '/users/$login';
 
   // GitHub 用户详情(Device Flow 登录后回填真实用户名/头像):`GET /user`。
   static String githubUserPath = '/user';
