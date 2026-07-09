@@ -12,6 +12,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/discover_providers.dart';
 import '../domain/discover_entities.dart';
+import 'discover_navigation.dart';
 import 'widgets/discover_profile_row.dart';
 import 'widgets/discover_repo_row.dart';
 import 'widgets/discover_segmented.dart';
@@ -41,7 +42,9 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
   }
 
   Future<void> _refresh() async {
-    if (_refreshing) return;
+    if (_refreshing) {
+      return;
+    }
     setState(() => _refreshing = true);
     try {
       ref.read(discoverRefreshTickProvider.notifier).state++;
@@ -60,16 +63,23 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
           await ref.read(trendingReposNotifierProvider.future);
       }
     } finally {
-      if (mounted) setState(() => _refreshing = false);
+      if (mounted) {
+        setState(() => _refreshing = false);
+      }
     }
   }
 
   void _onScroll() {
-    if (ref.read(discoverSearchQueryProvider).trim().isNotEmpty) return;
-    if (!_scrollController.hasClients) return;
-    final distanceToBottom = _scrollController.position.maxScrollExtent -
-        _scrollController.position.pixels;
-    if (distanceToBottom >= discoverLoadMoreScrollPixels) return;
+    if (ref.read(discoverSearchQueryProvider).trim().isNotEmpty) {
+      return;
+    }
+    if (!_scrollController.hasClients) {
+      return;
+    }
+    final distanceToBottom = _scrollController.position.maxScrollExtent - _scrollController.position.pixels;
+    if (distanceToBottom >= discoverLoadMoreScrollPixels) {
+      return;
+    }
     switch (ref.read(discoverSegmentProvider)) {
       case 'skills':
         ref.read(agentSkillsNotifierProvider.notifier).loadMore();
@@ -97,24 +107,14 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
             icon: Icons.explore_rounded,
             searchHint: l10n.tr('discover.search_hint'),
             searchValue: query,
-            onSearchChanged: (v) =>
-                ref.read(discoverSearchQueryProvider.notifier).state = v,
+            onSearchChanged: (v) => ref.read(discoverSearchQueryProvider.notifier).state = v,
             onRefresh: _refresh,
             isRefreshing: _refreshing,
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.xl,
-              vertical: AppSpacing.md,
-            ),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: DiscoverSegmented(
-                value: segment,
-                onChanged: (v) =>
-                    ref.read(discoverSegmentProvider.notifier).state = v,
-              ),
-            ),
+          DiscoverSegmented(
+            value: segment,
+            compact: isCompact,
+            onChanged: (v) => ref.read(discoverSegmentProvider.notifier).state = v,
           ),
           Expanded(
             child: switch (segment) {
@@ -147,36 +147,42 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     AppLocalizations l10n,
   ) {
     final query = ref.watch(discoverSearchQueryProvider);
+    final useCards = !Breakpoints.isCompact(context);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => ErrorView(
-        error: e is AppException
-            ? e
-            : AppException(kind: AppExceptionKind.unknown, cause: e),
+        error: e is AppException ? e : AppException(kind: AppExceptionKind.unknown, cause: e),
         onRetry: _refresh,
       ),
       data: (repos) {
         if (repos.isEmpty) {
           return EmptyView(
             icon: Icons.explore_off_outlined,
-            message: query.trim().isEmpty
-                ? l10n.tr('discover.empty.repos')
-                : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
+            message: query.trim().isEmpty ? l10n.tr('discover.empty.repos') : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
           );
         }
-        final hasMore = query.trim().isEmpty &&
-            ref.read(trendingReposNotifierProvider.notifier).hasMore;
+        final hasMore = query.trim().isEmpty && ref.read(trendingReposNotifierProvider.notifier).hasMore;
         return ListView.separated(
           controller: _scrollController,
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          padding: useCards
+              ? const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.xl,
+                  AppSpacing.xxxl,
+                )
+              : const EdgeInsets.symmetric(vertical: AppSpacing.md),
           itemCount: repos.length + (hasMore ? 1 : 0),
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
           itemBuilder: (context, i) {
-            if (i >= repos.length) return const _LoadMoreIndicator();
+            if (i >= repos.length) {
+              return const _LoadMoreIndicator();
+            }
             return DiscoverMonitorRow(
               repo: repos[i],
+              cardStyle: useCards,
               onTap: () => context.go(
-                '/discover/detail/${Uri.encodeComponent(repos[i].fullName)}',
+                discoverRepoDetailLocation(repos[i].fullName),
               ),
             );
           },
@@ -190,37 +196,43 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     AppLocalizations l10n,
   ) {
     final query = ref.watch(discoverSearchQueryProvider);
+    final useCards = !Breakpoints.isCompact(context);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => ErrorView(
-        error: e is AppException
-            ? e
-            : AppException(kind: AppExceptionKind.unknown, cause: e),
+        error: e is AppException ? e : AppException(kind: AppExceptionKind.unknown, cause: e),
         onRetry: _refresh,
       ),
       data: (skills) {
         if (skills.isEmpty) {
           return EmptyView(
             icon: Icons.extension_off_outlined,
-            message: query.trim().isEmpty
-                ? l10n.tr('discover.empty.skills')
-                : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
+            message: query.trim().isEmpty ? l10n.tr('discover.empty.skills') : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
           );
         }
-        final hasMore = query.trim().isEmpty &&
-            ref.read(agentSkillsNotifierProvider.notifier).hasMore;
+        final hasMore = query.trim().isEmpty && ref.read(agentSkillsNotifierProvider.notifier).hasMore;
         return ListView.separated(
           controller: _scrollController,
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          padding: useCards
+              ? const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.xl,
+                  AppSpacing.xxxl,
+                )
+              : const EdgeInsets.symmetric(vertical: AppSpacing.md),
           itemCount: skills.length + (hasMore ? 1 : 0),
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
           itemBuilder: (context, i) {
-            if (i >= skills.length) return const _LoadMoreIndicator();
+            if (i >= skills.length) {
+              return const _LoadMoreIndicator();
+            }
             return DiscoverMonitorRow(
               repo: skills[i].repo,
               badge: '#${skills[i].rank} · ${skills[i].category}',
+              cardStyle: useCards,
               onTap: () => context.go(
-                '/discover/detail/${Uri.encodeComponent(skills[i].repo.fullName)}',
+                discoverRepoDetailLocation(skills[i].repo.fullName),
               ),
             );
           },
@@ -236,32 +248,36 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     String emptyMessage,
   ) {
     final query = ref.watch(discoverSearchQueryProvider);
+    final useCards = !Breakpoints.isCompact(context);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => ErrorView(
-        error: e is AppException
-            ? e
-            : AppException(kind: AppExceptionKind.unknown, cause: e),
+        error: e is AppException ? e : AppException(kind: AppExceptionKind.unknown, cause: e),
         onRetry: _refresh,
       ),
       data: (profiles) {
         if (profiles.isEmpty) {
           return EmptyView(
             icon: emptyIcon,
-            message: query.trim().isEmpty
-                ? emptyMessage
-                : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
+            message: query.trim().isEmpty ? emptyMessage : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
           );
         }
         return ListView.separated(
-          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          padding: useCards
+              ? const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.xl,
+                  AppSpacing.xxxl,
+                )
+              : const EdgeInsets.symmetric(vertical: AppSpacing.md),
           itemCount: profiles.length,
-          separatorBuilder: (_, __) => const Divider(height: 1),
+          separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
           itemBuilder: (context, i) => DiscoverProfileRow(
             profile: profiles[i],
+            cardStyle: useCards,
             onTap: () => context.go(
-              '/webview?url=${Uri.encodeComponent(profiles[i].htmlUrl)}'
-              '&title=${Uri.encodeComponent(profiles[i].name)}',
+              discoverProfileDetailLocation(profiles[i]),
             ),
           ),
         );

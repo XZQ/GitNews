@@ -4,6 +4,7 @@ import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/features/discover/application/discover_providers.dart';
 import 'package:github_news/features/discover/data/discover_repository.dart';
 import 'package:github_news/features/discover/domain/discover_entities.dart';
+import 'package:github_news/features/discover/presentation/discover_navigation.dart';
 
 class _FakeDiscoverRepository implements DiscoverRepository {
   final List<int> repoPages = [];
@@ -53,13 +54,12 @@ class _FakeDiscoverRepository implements DiscoverRepository {
         login: kind == DiscoverProfileKind.official ? 'openai' : 'karpathy',
         name: kind == DiscoverProfileKind.official ? 'OpenAI' : 'Andrej',
         type: kind == DiscoverProfileKind.official ? 'Organization' : 'User',
-        bio: kind == DiscoverProfileKind.official
-            ? 'Official AI research organization'
-            : 'AI researcher and educator',
+        bio: kind == DiscoverProfileKind.official ? 'Official AI research organization' : 'AI researcher and educator',
         publicRepos: 42,
         followers: 1000,
         avatarUrl: 'https://example.com/avatar.png',
         htmlUrl: 'https://github.com/example',
+        featuredRepoFullName: kind == DiscoverProfileKind.official ? 'openai/openai-agents-python' : 'karpathy/nanoGPT',
         kind: kind,
       ),
     ];
@@ -84,8 +84,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    final firstPage =
-        await container.read(trendingReposNotifierProvider.future);
+    final firstPage = await container.read(trendingReposNotifierProvider.future);
     expect(firstPage.length, discoverPageSize);
     expect(repo.repoPages, [1]);
 
@@ -120,12 +119,42 @@ void main() {
     addTearDown(container.dispose);
 
     container.read(discoverSearchQueryProvider.notifier).state = 'openai';
-    final official =
-        await container.read(filteredOfficialProfilesProvider.future);
+    final official = await container.read(filteredOfficialProfilesProvider.future);
     expect(official.single.login, 'openai');
 
     container.read(discoverSearchQueryProvider.notifier).state = 'researcher';
     final people = await container.read(filteredPeopleProfilesProvider.future);
     expect(people.single.login, 'karpathy');
+  });
+
+  test('官方账号和知名人士点击后进入仓库详情页', () {
+    const official = DiscoverProfileEntity(
+      login: 'openai',
+      name: 'OpenAI',
+      type: 'Organization',
+      bio: 'Official AI research organization',
+      publicRepos: 42,
+      followers: 1000,
+      avatarUrl: 'https://example.com/openai.png',
+      htmlUrl: 'https://github.com/openai',
+      featuredRepoFullName: 'openai/openai-agents-python',
+      kind: DiscoverProfileKind.official,
+    );
+    const person = DiscoverProfileEntity(
+      login: 'karpathy',
+      name: 'Andrej Karpathy',
+      type: 'User',
+      bio: 'AI researcher and educator',
+      publicRepos: 42,
+      followers: 1000,
+      avatarUrl: 'https://example.com/karpathy.png',
+      htmlUrl: 'https://github.com/karpathy',
+      featuredRepoFullName: 'karpathy/nanoGPT',
+      kind: DiscoverProfileKind.people,
+    );
+
+    expect(discoverProfileDetailLocation(official), '/discover/detail/openai%2Fopenai-agents-python');
+    expect(discoverProfileDetailLocation(person), '/discover/detail/karpathy%2FnanoGPT');
+    expect(discoverProfileDetailLocation(official), isNot(contains('/webview')));
   });
 }

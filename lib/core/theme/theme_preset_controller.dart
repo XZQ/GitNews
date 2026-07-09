@@ -19,19 +19,22 @@ class ThemePresetController extends Notifier<AppThemePreset> {
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_kKey);
-    if (raw == null) return;
+    if (raw == null) {
+      return;
+    }
     state = AppThemePreset.byId(raw);
   }
 
   Future<void> setPreset(AppThemePreset preset) async {
-    if (state == preset) return;
+    if (state == preset) {
+      return;
+    }
     state = preset;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kKey, preset.id);
   }
 }
 
-final themePresetControllerProvider =
-    NotifierProvider<ThemePresetController, AppThemePreset>(
+final themePresetControllerProvider = NotifierProvider<ThemePresetController, AppThemePreset>(
   ThemePresetController.new,
 );

@@ -29,7 +29,9 @@ final filteredProjectDigestProvider = FutureProvider<ProjectDigest>((
 
 ProjectDigest filterProjectDigest(ProjectDigest digest, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return digest;
+  if (keyword.isEmpty) {
+    return digest;
+  }
 
   return ProjectDigest(
     repos: filterProjectRepos(digest.repos, keyword),
@@ -41,7 +43,9 @@ ProjectDigest filterProjectDigest(ProjectDigest digest, String query) {
 
 List<RepoEntity> filterProjectRepos(List<RepoEntity> repos, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return repos;
+  if (keyword.isEmpty) {
+    return repos;
+  }
 
   return [
     for (final repo in repos)
@@ -54,7 +58,9 @@ List<ContributorEntity> filterProjectContributors(
   String query,
 ) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return contributors;
+  if (keyword.isEmpty) {
+    return contributors;
+  }
 
   return [
     for (final contributor in contributors)

@@ -89,8 +89,7 @@ void main() {
       );
     });
 
-    test('should expose empty digest when repository returns no data',
-        () async {
+    test('should expose empty digest when repository returns no data', () async {
       final repo = _MockTrendingRepository();
       when(
         () => repo.getDigest(query: any(named: 'query')),
@@ -176,8 +175,7 @@ void main() {
       expect(container.read(trendingLanguageFilterProvider), 'rust');
     });
 
-    test('filterTrendingRepos should match repo name description and language',
-        () {
+    test('filterTrendingRepos should match repo name description and language', () {
       final repos = [
         _repo(
           'openai/codex',
@@ -198,8 +196,7 @@ void main() {
       expect(filterTrendingRepos(repos, 'missing'), isEmpty);
     });
 
-    test('filteredTrendingDigestProvider should filter current digest locally',
-        () async {
+    test('filteredTrendingDigestProvider should filter current digest locally', () async {
       final repo = _MockTrendingRepository();
       when(
         () => repo.getDigest(query: any(named: 'query')),
@@ -254,8 +251,7 @@ void main() {
       );
     });
 
-    test('should use GitHub data source when persisted mode is github',
-        () async {
+    test('should use GitHub data source when persisted mode is github', () async {
       const fake = _FakeTrendingDataSource();
       final container = await _createContainer(
         prefs: {'trending_data_source_mode': 'github'},
@@ -284,9 +280,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      await container
-          .read(trendingDataSourceModeControllerProvider.notifier)
-          .setMode(TrendingDataSourceMode.github);
+      await container.read(trendingDataSourceModeControllerProvider.notifier).setMode(TrendingDataSourceMode.github);
 
       expect(prefs.getString('trending_data_source_mode'), 'github');
     });
@@ -371,10 +365,9 @@ void main() {
       expect(snapshot.trendingRepos, isNotEmpty);
       expect(
         snapshot.trendingRepos.every(
-          (repo) =>
-              '${repo.fullName} ${repo.description}'.toLowerCase().contains(
-                    'mcp',
-                  ),
+          (repo) => '${repo.fullName} ${repo.description}'.toLowerCase().contains(
+                'mcp',
+              ),
         ),
         isTrue,
       );

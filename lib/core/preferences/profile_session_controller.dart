@@ -11,7 +11,9 @@ class ProfileSessionState {
 
   String get effectiveName {
     final name = displayName?.trim();
-    if (name == null || name.isEmpty) return 'dev_explorer';
+    if (name == null || name.isEmpty) {
+      return 'dev_explorer';
+    }
     return name;
   }
 
@@ -19,9 +21,7 @@ class ProfileSessionState {
   *Returns the i18n key for the current session status.
   */
   String get statusKey {
-    return isSignedIn
-        ? 'profile.session.signed_in'
-        : 'profile.user.anonymous_status';
+    return isSignedIn ? 'profile.session.signed_in' : 'profile.user.anonymous_status';
   }
 }
 
@@ -36,7 +36,9 @@ class ProfileSessionController extends Notifier<ProfileSessionState> {
 
   Future<void> signInLocal(String displayName) async {
     final name = displayName.trim();
-    if (name.isEmpty) return signOut();
+    if (name.isEmpty) {
+      return signOut();
+    }
     state = ProfileSessionState(displayName: name);
     await ref.read(sharedPreferencesProvider).setString(_kDisplayNameKey, name);
   }
@@ -47,7 +49,6 @@ class ProfileSessionController extends Notifier<ProfileSessionState> {
   }
 }
 
-final profileSessionControllerProvider =
-    NotifierProvider<ProfileSessionController, ProfileSessionState>(
+final profileSessionControllerProvider = NotifierProvider<ProfileSessionController, ProfileSessionState>(
   ProfileSessionController.new,
 );

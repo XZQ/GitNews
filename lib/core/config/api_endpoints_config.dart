@@ -27,8 +27,7 @@ class ApiEndpointsConfig {
   static String githubRepoPath(String fullName) => '/repos/$fullName';
 
   // GitHub 仓库贡献者接口:`GET /repos/{fullName}/contributors`。
-  static String githubRepoContributorsPath(String fullName) =>
-      '/repos/$fullName/contributors';
+  static String githubRepoContributorsPath(String fullName) => '/repos/$fullName/contributors';
 
   // GitHub 仓库搜索(发现页:按 stars 排序的流行仓库 / AI Agent Skills 仓库)。
   // 返回完整 query path,与 [githubBaseUrl] 拼接后直接 GET。
@@ -62,9 +61,7 @@ class ApiEndpointsConfig {
   // 注意:该端点未验证可用(jaychempan/Agent-Skills-Leaderboard 路径 2026-07 核查 404),
   // 当前 discover 模块以 GitHub Search API(topic:agent-skills 等)为主数据源,
   // 此处仅保留占位,待确认可靠数据源后再启用,避免误用死链。
-  static const String agentSkillsLeaderboardBaseUrl =
-      'https://raw.githubusercontent.com';
+  static const String agentSkillsLeaderboardBaseUrl = 'https://raw.githubusercontent.com';
 
-  static String agentSkillsLeaderboardPath(String kind) =>
-      '/jaychempan/Agent-Skills-Leaderboard/main/data/$kind.json';
+  static String agentSkillsLeaderboardPath(String kind) => '/jaychempan/Agent-Skills-Leaderboard/main/data/$kind.json';
 }

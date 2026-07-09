@@ -33,8 +33,7 @@ ContributorEntity _contributor(String login, {int contributions = 42}) {
 
 void main() {
   group('project search', () {
-    test('filterProjectRepos should match repo name description and language',
-        () {
+    test('filterProjectRepos should match repo name description and language', () {
       final repos = [
         _repo('openai/codex', language: 'TypeScript'),
         _repo(
@@ -67,8 +66,7 @@ void main() {
       expect(filterProjectContributors(contributors, 'missing'), isEmpty);
     });
 
-    test('filteredProjectDigestProvider should filter current digest',
-        () async {
+    test('filteredProjectDigestProvider should filter current digest', () async {
       final repo = _MockProjectRepository();
       when(repo.getDigest).thenAnswer(
         (_) async => ProjectDigest(

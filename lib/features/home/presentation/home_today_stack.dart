@@ -175,8 +175,7 @@ class _TodayCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     // `primary` 在数据层用 brand 占位,运行时由当前主题 primary 实时替换,
     // 让卡片随主题强调色变化。
-    final iconColor =
-        data.iconColor == AppColors.brand ? primary : data.iconColor;
+    final iconColor = data.iconColor == AppColors.brand ? primary : data.iconColor;
     return AppCard(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,

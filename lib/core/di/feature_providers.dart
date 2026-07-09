@@ -19,12 +19,9 @@ export '../../features/trending/application/trending_providers.dart';
 // TODO(xzq): create sidebar_width_controller.dart.
 // export '../preferences/sidebar_width_controller.dart'
 //     show sidebarWidthProvider;
-export '../github/rate_limit_gate.dart'
-    show rateLimitGateProvider, RateLimitGateStatus;
+export '../github/rate_limit_gate.dart' show rateLimitGateProvider, RateLimitGateStatus;
 // core
 export '../network/dio_client.dart' show DioClient;
-export '../preferences/github_token_controller.dart'
-    show githubTokenControllerProvider, GitHubTokenState, GitHubTokenController;
+export '../preferences/github_token_controller.dart' show githubTokenControllerProvider, GitHubTokenState, GitHubTokenController;
 export '../storage/storage_providers.dart' show appDatabaseProvider;
-export 'providers.dart'
-    show dioProvider, sharedPreferencesProvider, secureStorageProvider;
+export 'providers.dart' show dioProvider, sharedPreferencesProvider, secureStorageProvider;

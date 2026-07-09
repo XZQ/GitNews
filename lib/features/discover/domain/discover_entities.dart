@@ -38,6 +38,7 @@ class DiscoverProfileEntity {
     required this.followers,
     required this.avatarUrl,
     required this.htmlUrl,
+    required this.featuredRepoFullName,
     required this.kind,
   });
 
@@ -49,5 +50,6 @@ class DiscoverProfileEntity {
   final int followers;
   final String avatarUrl;
   final String htmlUrl;
+  final String featuredRepoFullName;
   final DiscoverProfileKind kind;
 }

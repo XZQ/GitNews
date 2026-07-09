@@ -16,10 +16,10 @@ class LanguageGrowthBars extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (languages.isEmpty) return const SizedBox.shrink();
-    final maxV = languages
-        .fold<double>(0, (m, l) => l.delta.abs() > m ? l.delta.abs() : m)
-        .clamp(1.0, double.infinity);
+    if (languages.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    final maxV = languages.fold<double>(0, (m, l) => l.delta.abs() > m ? l.delta.abs() : m).clamp(1.0, double.infinity);
     return Column(
       children: [
         for (final l in languages) ...[

@@ -32,10 +32,7 @@ class AiNewsDayHeader extends StatelessWidget {
     } else if (date == yesterday) {
       label = l10n.tr('ai_news.yesterday');
     } else {
-      label = l10n
-          .tr('ai_news.date_md')
-          .replaceAll('{m}', '${date.month}')
-          .replaceAll('{d}', '${date.day}');
+      label = l10n.tr('ai_news.date_md').replaceAll('{m}', '${date.month}').replaceAll('{d}', '${date.day}');
     }
 
     return Padding(

@@ -32,11 +32,7 @@ class _SidebarItemState extends State<SidebarItem> {
     final accent = colors.primary;
     final isSelected = widget.selected;
 
-    final bg = isSelected
-        ? accent.withValues(alpha: 0.12)
-        : (_hovered
-            ? colors.surfaceContainerHighest.withValues(alpha: 0.72)
-            : Colors.transparent);
+    final bg = isSelected ? accent.withValues(alpha: 0.12) : (_hovered ? colors.surfaceContainerHighest.withValues(alpha: 0.72) : Colors.transparent);
 
     final fg = isSelected ? accent : colors.onSurfaceVariant;
     final fgStrong = isSelected ? accent : colors.onSurface;
@@ -80,8 +76,7 @@ class _SidebarItemState extends State<SidebarItem> {
                         label,
                         style: AppTypography.titleSmall.copyWith(
                           color: fgStrong,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                     ),

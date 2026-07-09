@@ -16,8 +16,12 @@ class Breakpoints {
 
   static FormFactor of(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    if (width < compactMax) return FormFactor.compact;
-    if (width < mediumMax) return FormFactor.medium;
+    if (width < compactMax) {
+      return FormFactor.compact;
+    }
+    if (width < mediumMax) {
+      return FormFactor.medium;
+    }
     return FormFactor.expanded;
   }
 

@@ -95,21 +95,13 @@ String homeChartSubtitle(
 ) {
   switch (tab) {
     case HomeLegacyTab.trending:
-      return l10n
-          .tr('home.chart.subtitle.trending')
-          .replaceAll('{window}', window);
+      return l10n.tr('home.chart.subtitle.trending').replaceAll('{window}', window);
     case HomeLegacyTab.growth:
-      return l10n
-          .tr('home.chart.subtitle.growth')
-          .replaceAll('{window}', window);
+      return l10n.tr('home.chart.subtitle.growth').replaceAll('{window}', window);
     case HomeLegacyTab.health:
-      return l10n
-          .tr('home.chart.subtitle.health')
-          .replaceAll('{window}', window);
+      return l10n.tr('home.chart.subtitle.health').replaceAll('{window}', window);
     case HomeLegacyTab.starred:
-      return l10n
-          .tr('home.chart.subtitle.starred')
-          .replaceAll('{window}', window);
+      return l10n.tr('home.chart.subtitle.starred').replaceAll('{window}', window);
   }
 }
 
@@ -238,7 +230,11 @@ List<ChartSeries> homeSeriesForWindow(
 }
 
 List<double> _windowedTrend(List<double>? values, int days) {
-  if (values == null || values.isEmpty) return const [];
-  if (values.length <= days) return values;
+  if (values == null || values.isEmpty) {
+    return const [];
+  }
+  if (values.length <= days) {
+    return values;
+  }
   return values.sublist(values.length - days);
 }

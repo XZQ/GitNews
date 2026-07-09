@@ -4,8 +4,7 @@ import 'package:github_news/core/domain/data_provenance.dart';
 import 'package:github_news/shared/widgets/data_provenance_badge.dart';
 
 void main() {
-  testWidgets('DataProvenanceBadge shows compact label and tooltip',
-      (tester) async {
+  testWidgets('DataProvenanceBadge shows compact label and tooltip', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         home: Scaffold(

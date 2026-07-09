@@ -20,8 +20,7 @@ class AiNewsTimelineRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final dotColor =
-        item.selected ? AppColors.starGold : aiNewsCategoryColor(item.category);
+    final dotColor = item.selected ? AppColors.starGold : aiNewsCategoryColor(item.category);
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -64,9 +64,7 @@ String _messageFor(AppLocalizations l10n, AppException error) {
       return l10n.tr('tech_hotspot.error.network');
     case AppExceptionKind.rateLimit:
       final secs = error.retryAfterSeconds ?? 60;
-      return l10n
-          .tr('tech_hotspot.error.rate_limit')
-          .replaceAll('{secs}', secs.toString());
+      return l10n.tr('tech_hotspot.error.rate_limit').replaceAll('{secs}', secs.toString());
     case AppExceptionKind.unauthorized:
       return l10n.tr('tech_hotspot.error.unauthorized');
     case AppExceptionKind.notFound:

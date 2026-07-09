@@ -152,8 +152,7 @@ class TrendingPopupMenu extends StatelessWidget {
     return PopupMenuButton<String>(
       onSelected: onSelected,
       itemBuilder: (_) => [
-        for (final o in options)
-          PopupMenuItem(value: o, child: Text(optionLabel(o))),
+        for (final o in options) PopupMenuItem(value: o, child: Text(optionLabel(o))),
       ],
       child: Container(
         padding: const EdgeInsets.symmetric(

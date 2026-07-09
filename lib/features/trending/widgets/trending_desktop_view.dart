@@ -52,9 +52,7 @@ class TrendingDesktopView extends ConsumerWidget {
                     children: [
                       TrendingBoardSelector(
                         value: board,
-                        onChanged: (value) => ref
-                            .read(trendingBoardFilterProvider.notifier)
-                            .state = value,
+                        onChanged: (value) => ref.read(trendingBoardFilterProvider.notifier).state = value,
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       const SectionHeader(

@@ -17,10 +17,6 @@ int repoDetailActivityScore({
   required DateTime? pushedAt,
   required DateTime now,
 }) {
-  final pushedBoost = pushedAt == null
-      ? 1
-      : (30 - now.toUtc().difference(pushedAt).inDays).clamp(1, 30);
-  return ((stars / 180) + (forks / 35) + (issues / 16) + pushedBoost)
-      .round()
-      .clamp(1, 9999);
+  final pushedBoost = pushedAt == null ? 1 : (30 - now.toUtc().difference(pushedAt).inDays).clamp(1, 30);
+  return ((stars / 180) + (forks / 35) + (issues / 16) + pushedBoost).round().clamp(1, 9999);
 }

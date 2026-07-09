@@ -86,9 +86,7 @@ class MetricCard extends StatelessWidget {
                 Row(
                   children: [
                     Icon(
-                      deltaPositive
-                          ? Icons.arrow_upward_rounded
-                          : Icons.arrow_downward_rounded,
+                      deltaPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
                       size: 12,
                       color: deltaColor,
                     ),

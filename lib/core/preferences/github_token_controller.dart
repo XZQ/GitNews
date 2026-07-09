@@ -14,8 +14,12 @@ class GitHubTokenState {
 
   String get maskedToken {
     final raw = token?.trim();
-    if (raw == null || raw.isEmpty) return '未配置';
-    if (raw.length <= 8) return '已配置';
+    if (raw == null || raw.isEmpty) {
+      return '未配置';
+    }
+    if (raw.length <= 8) {
+      return '已配置';
+    }
     return '${raw.substring(0, 4)}...${raw.substring(raw.length - 4)}';
   }
 
@@ -24,7 +28,9 @@ class GitHubTokenState {
   */
   String get cacheScope {
     final raw = token?.trim();
-    if (raw == null || raw.isEmpty) return 'anonymous';
+    if (raw == null || raw.isEmpty) {
+      return 'anonymous';
+    }
     var hash = 0;
     for (final unit in raw.codeUnits) {
       hash = (hash * 31 + unit) & 0x7fffffff;
@@ -70,7 +76,9 @@ class GitHubTokenController extends Notifier<GitHubTokenState> {
 
   Future<void> setToken(String value) async {
     final token = value.trim();
-    if (token.isEmpty) return clear();
+    if (token.isEmpty) {
+      return clear();
+    }
     state = GitHubTokenState(token: token);
     final secure = ref.read(secureStorageProvider);
     await secure.write(key: _kKey, value: token);
@@ -83,7 +91,6 @@ class GitHubTokenController extends Notifier<GitHubTokenState> {
   }
 }
 
-final githubTokenControllerProvider =
-    NotifierProvider<GitHubTokenController, GitHubTokenState>(
+final githubTokenControllerProvider = NotifierProvider<GitHubTokenController, GitHubTokenState>(
   GitHubTokenController.new,
 );

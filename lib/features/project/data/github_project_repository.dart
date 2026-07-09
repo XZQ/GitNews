@@ -70,7 +70,9 @@ class GithubProjectRepository implements ProjectRepository {
       return cached;
     }
     if (_isRateLimited?.call() ?? false) {
-      if (cached.isNotEmpty) return cached;
+      if (cached.isNotEmpty) {
+        return cached;
+      }
       return DemoData.contributors.map((e) => e.toEntity()).toList();
     }
 
@@ -91,15 +93,15 @@ class GithubProjectRepository implements ProjectRepository {
         'githubProjectContributorsFallback',
         meta: {'error': e.runtimeType.toString()},
       );
-      if (cached.isNotEmpty) return cached;
+      if (cached.isNotEmpty) {
+        return cached;
+      }
       return DemoData.contributors.map((e) => e.toEntity()).toList();
     }
   }
 
   void _maybeReportRateLimit(Object error) {
-    if (error is AppException &&
-        error.kind == AppExceptionKind.rateLimit &&
-        _onRateLimited != null) {
+    if (error is AppException && error.kind == AppExceptionKind.rateLimit && _onRateLimited != null) {
       _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
@@ -107,9 +109,12 @@ class GithubProjectRepository implements ProjectRepository {
   Future<List<ContributorEntity>> _fetchContributors(
     Iterable<String> repos,
   ) async {
-    final results = await gatherAll<List<ContributorEntity>>([
-      for (final repo in repos) _fetchRepoContributors(repo),
-    ], tag: 'githubProjectContributors');
+    final results = await gatherAll<List<ContributorEntity>>(
+      [
+        for (final repo in repos) _fetchRepoContributors(repo),
+      ],
+      tag: 'githubProjectContributors',
+    );
     final byLogin = <String, ContributorEntity>{};
     for (final contributor in results.expand((e) => e)) {
       final old = byLogin[contributor.login];
@@ -119,8 +124,7 @@ class GithubProjectRepository implements ProjectRepository {
         avatarAccentArgb: old?.avatarAccentArgb ?? contributor.avatarAccentArgb,
       );
     }
-    final contributors = byLogin.values.toList()
-      ..sort((a, b) => b.contributions.compareTo(a.contributions));
+    final contributors = byLogin.values.toList()..sort((a, b) => b.contributions.compareTo(a.contributions));
     return contributors.take(8).toList(growable: false);
   }
 
@@ -157,7 +161,9 @@ class GithubProjectRepository implements ProjectRepository {
 
   Future<List<ContributorEntity>> _readContributors() async {
     final json = await _cache.read(_contributorsCacheKey);
-    if (json == null) return const [];
+    if (json == null) {
+      return const [];
+    }
     try {
       return GitHubJson.list(
         json['contributors'],

@@ -28,10 +28,8 @@ class ProjectPageHeader extends ConsumerWidget {
       subtitle: l10n.tr('project.subtitle'),
       searchHint: l10n.tr('project.search_hint'),
       searchValue: query,
-      onSearchChanged: (v) =>
-          ref.read(projectSearchQueryProvider.notifier).state = v,
-      onSearchSubmitted: (v) =>
-          ref.read(projectSearchQueryProvider.notifier).state = v,
+      onSearchChanged: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
       onRefresh: () => ref.invalidate(projectDigestProvider),
       pills: [_NeutralPill(label: l10n.tr('project.pill.this_week'))],
       actions: [

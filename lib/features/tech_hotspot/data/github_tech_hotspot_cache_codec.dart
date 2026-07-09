@@ -100,7 +100,9 @@ DataProvenance _provenanceFromJson(
   required DataProvenance fallback,
 }) {
   final name = GitHubJson.nullableString(raw);
-  if (name == null) return fallback;
+  if (name == null) {
+    return fallback;
+  }
   return DataProvenance.values.firstWhere(
     (value) => value.name == name,
     orElse: () => fallback,

@@ -95,18 +95,12 @@ class ProjectContributorsCard extends ConsumerWidget {
               ),
               title: Text(contributor.login, style: AppTypography.titleSmall),
               subtitle: Text(
-                l10n
-                    .tr('project.activity.contrib')
-                    .replaceAll('{n}', contributor.contributions.toString()),
+                l10n.tr('project.activity.contrib').replaceAll('{n}', contributor.contributions.toString()),
               ),
               trailing: OutlinedButton(
-                onPressed: () => ref
-                    .read(localContentControllerProvider.notifier)
-                    .toggleDeveloper(contributor.login),
+                onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(contributor.login),
                 child: Text(
-                  content.isFollowingDeveloper(contributor.login)
-                      ? '已关注'
-                      : l10n.tr('project.discover.follow'),
+                  content.isFollowingDeveloper(contributor.login) ? '已关注' : l10n.tr('project.discover.follow'),
                 ),
               ),
             ),

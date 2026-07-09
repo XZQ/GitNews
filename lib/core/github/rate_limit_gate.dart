@@ -16,7 +16,9 @@ class RateLimitGateStatus {
 
   bool get isBlocked {
     final until = blockedUntil;
-    if (until == null) return false;
+    if (until == null) {
+      return false;
+    }
     return DateTime.now().isBefore(until);
   }
 
@@ -25,7 +27,9 @@ class RateLimitGateStatus {
   */
   int get remainingSeconds {
     final until = blockedUntil;
-    if (until == null) return 0;
+    if (until == null) {
+      return 0;
+    }
     final delta = until.difference(DateTime.now()).inSeconds;
     return delta < 0 ? 0 : delta;
   }
@@ -74,7 +78,6 @@ class RateLimitGateController extends Notifier<RateLimitGateStatus> {
   }
 }
 
-final rateLimitGateProvider =
-    NotifierProvider<RateLimitGateController, RateLimitGateStatus>(
+final rateLimitGateProvider = NotifierProvider<RateLimitGateController, RateLimitGateStatus>(
   RateLimitGateController.new,
 );

@@ -40,8 +40,7 @@ void main() {
     await db.close();
   });
 
-  test('should prefer observed local topic history for growth and heat trend',
-      () async {
+  test('should prefer observed local topic history for growth and heat trend', () async {
     await history.record(
       id: techHotspotTopicQueries.first.id,
       heat: 40,
@@ -80,8 +79,7 @@ void main() {
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
   return Response<Map<String, Object?>>(
-    requestOptions:
-        RequestOptions(path: ApiEndpointsConfig.githubSearchRepositoriesPath),
+    requestOptions: RequestOptions(path: ApiEndpointsConfig.githubSearchRepositoriesPath),
     statusCode: 200,
     data: body,
   );

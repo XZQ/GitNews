@@ -29,10 +29,8 @@ class TechHotspotPageHeader extends ConsumerWidget {
       subtitle: l10n.tr('tech_hotspot.subtitle'),
       searchHint: l10n.tr('tech_hotspot.search_hint'),
       searchValue: query,
-      onSearchChanged: (v) =>
-          ref.read(techHotspotSearchQueryProvider.notifier).state = v,
-      onSearchSubmitted: (v) =>
-          ref.read(techHotspotSearchQueryProvider.notifier).state = v,
+      onSearchChanged: (v) => ref.read(techHotspotSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) => ref.read(techHotspotSearchQueryProvider.notifier).state = v,
       onRefresh: () => ref.invalidate(techHotspotDigestProvider),
       pills: [
         HeaderStatPill(
@@ -42,16 +40,13 @@ class TechHotspotPageHeader extends ConsumerWidget {
         ),
         HeaderStatPill(
           icon: Icons.tag_rounded,
-          label: l10n
-              .tr('tech_hotspot.pill.themes')
-              .replaceAll('{n}', '$topicCount'),
+          label: l10n.tr('tech_hotspot.pill.themes').replaceAll('{n}', '$topicCount'),
           color: AppColors.brand,
         ),
       ],
       actions: [
         HeaderAction(
-          icon:
-              category == 'all' ? Icons.tune_rounded : Icons.filter_alt_rounded,
+          icon: category == 'all' ? Icons.tune_rounded : Icons.filter_alt_rounded,
           tooltip: l10n.tr('tech_hotspot.filter'),
           onPressed: () => _showCategoryFilterSheet(context, ref),
         ),
@@ -124,8 +119,7 @@ List<_CategoryOption> _categoryOptions(TechHotspotDigest? digest) {
   }
 
   return [
-    for (final value in values)
-      _CategoryOption(value: value, label: value == 'all' ? '全部' : value),
+    for (final value in values) _CategoryOption(value: value, label: value == 'all' ? '全部' : value),
   ];
 }
 

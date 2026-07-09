@@ -102,8 +102,7 @@ void main() {
     test('network error → retries 2 times then fails', () async {
       when(() => adapter.fetch(any(), any(), any())).thenAnswer(
         (invocation) async {
-          final requestOptions =
-              invocation.positionalArguments[0] as RequestOptions;
+          final requestOptions = invocation.positionalArguments[0] as RequestOptions;
           throw DioException(
             type: DioExceptionType.connectionError,
             requestOptions: requestOptions,

@@ -25,8 +25,7 @@ class TrendingCacheDao {
   *cache_key 构造规则:模块名:数据源:时间窗:榜单:语言。
   */
   static String cacheKey(TrendingQuery query, {String scope = 'anonymous'}) {
-    final language =
-        query.hasLanguageFilter ? query.language.trim().toLowerCase() : 'all';
+    final language = query.hasLanguageFilter ? query.language.trim().toLowerCase() : 'all';
     return 'trending:github:$scope:window=${query.window.name}:board=${query.board.value}:language=$language';
   }
 
@@ -42,7 +41,9 @@ class TrendingCacheDao {
         whereArgs: [cacheKey(query, scope: scope)],
         limit: 1,
       );
-      if (rows.isEmpty) return null;
+      if (rows.isEmpty) {
+        return null;
+      }
       final payload = rows.first['payload_json'] as String;
       final json = jsonDecode(payload) as Map<String, Object?>;
       return _snapshotFromJson(json);
@@ -66,13 +67,14 @@ class TrendingCacheDao {
     final cachedAt = now.millisecondsSinceEpoch;
     try {
       await _db.insert(
-          _table,
-          {
-            'cache_key': key,
-            'payload_json': jsonEncode(_snapshotToJson(snapshot)),
-            'cached_at': cachedAt,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
+        _table,
+        {
+          'cache_key': key,
+          'payload_json': jsonEncode(_snapshotToJson(snapshot)),
+          'cached_at': cachedAt,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
       await _meta.upsert(key, now);
     } catch (e, st) {
       throw AppException(
@@ -91,7 +93,9 @@ class TrendingCacheDao {
     required DateTime now,
   }) async {
     final last = await _meta.lastFetched(cacheKey(query, scope: scope));
-    if (last == null) return false;
+    if (last == null) {
+      return false;
+    }
     return now.difference(last) < ttl;
   }
 
@@ -205,12 +209,16 @@ class TrendingCacheDao {
   }
 
   List<Object?> _list(Object? raw) {
-    if (raw is List<Object?>) return raw;
+    if (raw is List<Object?>) {
+      return raw;
+    }
     throw const FormatException('Expected list');
   }
 
   Map<String, Object?> _map(Object? raw) {
-    if (raw is Map<String, Object?>) return raw;
+    if (raw is Map<String, Object?>) {
+      return raw;
+    }
     throw const FormatException('Expected object');
   }
 
@@ -219,18 +227,26 @@ class TrendingCacheDao {
   }
 
   String _string(Object? raw) {
-    if (raw is String) return raw;
+    if (raw is String) {
+      return raw;
+    }
     throw const FormatException('Expected string');
   }
 
   int _int(Object? raw) {
-    if (raw is int) return raw;
-    if (raw is double) return raw.round();
+    if (raw is int) {
+      return raw;
+    }
+    if (raw is double) {
+      return raw.round();
+    }
     throw const FormatException('Expected int');
   }
 
   double _double(Object? raw) {
-    if (raw is num) return raw.toDouble();
+    if (raw is num) {
+      return raw.toDouble();
+    }
     throw const FormatException('Expected double');
   }
 }

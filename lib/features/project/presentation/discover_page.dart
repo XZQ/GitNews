@@ -29,8 +29,7 @@ class DiscoverPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.tr('project.discover.title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/project'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/project'),
         ),
       ),
       body: ResponsiveLayout(
@@ -164,9 +163,7 @@ class _HotTopicsCard extends ConsumerWidget {
               for (final t in topics)
                 ProjectTopicCard(
                   label: t.label,
-                  description: l10n
-                      .tr('project.discover.topic_repos')
-                      .replaceAll('{n}', t.count.toString()),
+                  description: l10n.tr('project.discover.topic_repos').replaceAll('{n}', t.count.toString()),
                   color: t.color,
                 ),
             ],

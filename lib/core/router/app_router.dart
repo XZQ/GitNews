@@ -55,8 +55,7 @@ GoRouter buildAppRouter(Ref ref) {
     debugLogDiagnostics: false,
     routes: [
       StatefulShellRoute.indexedStack(
-        builder: (_, __, navigationShell) =>
-            ResponsiveScaffold(navigationShell: navigationShell),
+        builder: (_, __, navigationShell) => ResponsiveScaffold(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(
             routes: [
@@ -75,8 +74,7 @@ GoRouter buildAppRouter(Ref ref) {
                   GoRoute(
                     path: 'tech_hotspot_detail/:id',
                     name: 'home_tech_hotspot_detail',
-                    builder: (_, state) =>
-                        TechHotspotDetailPage(id: state.pathParameters['id']!),
+                    builder: (_, state) => TechHotspotDetailPage(id: state.pathParameters['id']!),
                   ),
                 ],
               ),
@@ -92,8 +90,7 @@ GoRouter buildAppRouter(Ref ref) {
                   GoRoute(
                     path: 'detail/:id',
                     name: 'ai_news_detail',
-                    builder: (_, state) =>
-                        AiNewsDetailPage(id: state.pathParameters['id']!),
+                    builder: (_, state) => AiNewsDetailPage(id: state.pathParameters['id']!),
                   ),
                   GoRoute(
                     path: 'webview',
@@ -151,8 +148,7 @@ GoRouter buildAppRouter(Ref ref) {
                   GoRoute(
                     path: 'detail/:id',
                     name: 'tech_hotspot_detail',
-                    builder: (_, state) =>
-                        TechHotspotDetailPage(id: state.pathParameters['id']!),
+                    builder: (_, state) => TechHotspotDetailPage(id: state.pathParameters['id']!),
                   ),
                 ],
               ),

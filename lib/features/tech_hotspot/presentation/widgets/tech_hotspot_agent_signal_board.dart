@@ -22,10 +22,7 @@ class TechHotspotAgentSignalBoard extends StatelessWidget {
     final formFactor = Breakpoints.of(context);
     final signals = topics
         .where(
-          (topic) =>
-              topic.category == 'Agent' ||
-              topic.name.contains('AI Coding') ||
-              topic.name.contains('本地推理'),
+          (topic) => topic.category == 'Agent' || topic.name.contains('AI Coding') || topic.name.contains('本地推理'),
         )
         .take(3)
         .toList(growable: false);

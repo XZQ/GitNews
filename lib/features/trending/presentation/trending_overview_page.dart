@@ -29,8 +29,7 @@ class TrendingOverviewPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Star 增长趋势'),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/home'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
         ),
       ),
       body: ResponsiveLayout(
@@ -50,9 +49,7 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return state.when(
-      data: (digest) => digest.isEmpty
-          ? const EmptyView(icon: Icons.show_chart_rounded, message: '暂无趋势数据')
-          : _DigestView(digest: digest),
+      data: (digest) => digest.isEmpty ? const EmptyView(icon: Icons.show_chart_rounded, message: '暂无趋势数据') : _DigestView(digest: digest),
       loading: () => const _OverviewSkeleton(),
       error: (error, stack) => ErrorView(
         error: error.asAppException(stack),

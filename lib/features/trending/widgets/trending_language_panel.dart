@@ -98,22 +98,14 @@ class TrendingLanguagePanel extends StatelessWidget {
   String _subtitleFor(AppLocalizations l10n, String category, int count) {
     switch (category) {
       case 'ai':
-        return l10n
-            .tr('trending.language.subtitle.ai')
-            .replaceAll('{count}', count.toString());
+        return l10n.tr('trending.language.subtitle.ai').replaceAll('{count}', count.toString());
       case 'web':
-        return l10n
-            .tr('trending.language.subtitle.web')
-            .replaceAll('{count}', count.toString());
+        return l10n.tr('trending.language.subtitle.web').replaceAll('{count}', count.toString());
       case 'system':
-        return l10n
-            .tr('trending.language.subtitle.system')
-            .replaceAll('{count}', count.toString());
+        return l10n.tr('trending.language.subtitle.system').replaceAll('{count}', count.toString());
       case 'all':
       default:
-        return l10n
-            .tr('trending.language.subtitle.all')
-            .replaceAll('{count}', count.toString());
+        return l10n.tr('trending.language.subtitle.all').replaceAll('{count}', count.toString());
     }
   }
 }

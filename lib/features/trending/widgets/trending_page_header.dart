@@ -26,11 +26,12 @@ class TrendingPageHeader extends ConsumerWidget {
       subtitle: l10n.tr('trending.page_header.subtitle'),
       searchHint: l10n.tr('trending.search_hint'),
       searchValue: query,
-      onSearchChanged: (v) =>
-          ref.read(trendingSearchQueryProvider.notifier).state = v,
+      onSearchChanged: (v) => ref.read(trendingSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) {
         ref.read(trendingSearchQueryProvider.notifier).state = v;
-        if (v.trim().isEmpty) return;
+        if (v.trim().isEmpty) {
+          return;
+        }
         context.go('/trending/repos');
       },
       pills: [
@@ -40,13 +41,9 @@ class TrendingPageHeader extends ConsumerWidget {
           color: AppColors.success,
         ),
         HeaderStatPill(
-          icon: sourceStatus.isGithub
-              ? Icons.cloud_outlined
-              : Icons.storage_rounded,
+          icon: sourceStatus.isGithub ? Icons.cloud_outlined : Icons.storage_rounded,
           label: sourceStatus.label(l10n),
-          color: sourceStatus.mode == TrendingDataSourceMode.github
-              ? AppColors.info
-              : AppColors.brand,
+          color: sourceStatus.mode == TrendingDataSourceMode.github ? AppColors.info : AppColors.brand,
         ),
       ],
       actions: [

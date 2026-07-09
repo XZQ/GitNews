@@ -57,8 +57,7 @@ void main() {
       );
     });
 
-    test('should throw parse AppException when response is malformed',
-        () async {
+    test('should throw parse AppException when response is malformed', () async {
       when(
         () => dio.get<Map<String, Object?>>(
           any(),
@@ -83,8 +82,7 @@ void main() {
       ).thenThrow(
         DioException(
           type: DioExceptionType.connectionError,
-          requestOptions:
-              RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
+          requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
         ),
       );
 
@@ -100,8 +98,7 @@ void main() {
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
   return Response<Map<String, Object?>>(
-    requestOptions:
-        RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
+    requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
     statusCode: 200,
     data: body,
   );

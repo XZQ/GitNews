@@ -57,9 +57,7 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final barColor = isDark
-        ? theme.colorScheme.surface
-        : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
+    final barColor = isDark ? theme.colorScheme.surface : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
 
     return Material(
       color: barColor,
@@ -83,13 +81,9 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
               tooltip: l10n.tr('window.minimize'),
             ),
             _WindowButton(
-              icon: _isMaximized
-                  ? Icons.filter_drama_rounded
-                  : Icons.crop_square_rounded,
+              icon: _isMaximized ? Icons.filter_drama_rounded : Icons.crop_square_rounded,
               onPressed: _onToggleMaximize,
-              tooltip: _isMaximized
-                  ? l10n.tr('window.restore')
-                  : l10n.tr('window.maximize'),
+              tooltip: _isMaximized ? l10n.tr('window.restore') : l10n.tr('window.maximize'),
             ),
             _WindowButton(
               icon: Icons.close_rounded,
@@ -127,12 +121,8 @@ class _WindowButtonState extends State<_WindowButton> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final hoverColor = widget.isClose
-        ? theme.colorScheme.error
-        : theme.colorScheme.onSurface.withValues(alpha: 0.08);
-    final iconColor = widget.isClose && _hover
-        ? theme.colorScheme.onError
-        : theme.colorScheme.onSurface.withValues(alpha: 0.8);
+    final hoverColor = widget.isClose ? theme.colorScheme.error : theme.colorScheme.onSurface.withValues(alpha: 0.08);
+    final iconColor = widget.isClose && _hover ? theme.colorScheme.onError : theme.colorScheme.onSurface.withValues(alpha: 0.8);
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hover = true),

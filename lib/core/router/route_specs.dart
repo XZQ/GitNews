@@ -74,9 +74,7 @@ extension TabIndexLookup on List<TabSpec> {
   int indexOfLocation(String location) {
     for (var i = 0; i < length; i++) {
       final segment = this[i].pathSegment;
-      if (location == '/$segment' ||
-          location.startsWith('/$segment/') ||
-          location.startsWith('/$segment?')) {
+      if (location == '/$segment' || location.startsWith('/$segment/') || location.startsWith('/$segment?')) {
         return i;
       }
     }

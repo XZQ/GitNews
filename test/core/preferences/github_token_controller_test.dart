@@ -55,9 +55,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      await container
-          .read(githubTokenControllerProvider.notifier)
-          .setToken('  ghp_abcdef  ');
+      await container.read(githubTokenControllerProvider.notifier).setToken('  ghp_abcdef  ');
 
       expect(prefs.getString('github_personal_access_token'), isNull);
       expect(

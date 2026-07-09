@@ -31,7 +31,9 @@ class LocalTrendingDataSource implements TrendingDataSource {
     final language = query.language.trim().toLowerCase();
     return repos
         .where((repo) {
-          if (!query.hasLanguageFilter) return true;
+          if (!query.hasLanguageFilter) {
+            return true;
+          }
           return repo.language.trim().toLowerCase() == language;
         })
         .where((repo) => _matchesBoard(repo, query.board))
@@ -39,7 +41,9 @@ class LocalTrendingDataSource implements TrendingDataSource {
   }
 
   bool _matchesBoard(RepoEntity repo, TrendingBoard board) {
-    if (board == TrendingBoard.all) return true;
+    if (board == TrendingBoard.all) {
+      return true;
+    }
     final text = [
       repo.fullName,
       repo.description,

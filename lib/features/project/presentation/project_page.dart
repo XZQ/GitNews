@@ -36,8 +36,7 @@ class ProjectPage extends ConsumerWidget {
           if (digest.isEmpty && query.isNotEmpty) {
             return EmptyView(
               icon: Icons.search_off_rounded,
-              message:
-                  l10n.tr('project.empty_search').replaceAll('{query}', query),
+              message: l10n.tr('project.empty_search').replaceAll('{query}', query),
             );
           }
           return ResponsiveLayout(
@@ -140,6 +139,8 @@ class _Desktop extends StatelessWidget {
 }
 
 List<RepoEntity> _recentRepos(List<RepoEntity> repos) {
-  if (repos.length <= 6) return repos;
+  if (repos.length <= 6) {
+    return repos;
+  }
   return repos.skip(6).toList(growable: false);
 }

@@ -51,8 +51,7 @@ void main() {
           options: any(named: 'options'),
         ),
       ).thenAnswer((invocation) async {
-        capturedQuery =
-            invocation.namedArguments[#queryParameters] as Map<String, Object?>;
+        capturedQuery = invocation.namedArguments[#queryParameters] as Map<String, Object?>;
         capturedOptions = invocation.namedArguments[#options] as Options;
         return _okResponse(_searchBody());
       });
@@ -83,8 +82,7 @@ void main() {
           options: any(named: 'options'),
         ),
       ).thenAnswer((invocation) async {
-        capturedQuery =
-            invocation.namedArguments[#queryParameters] as Map<String, Object?>;
+        capturedQuery = invocation.namedArguments[#queryParameters] as Map<String, Object?>;
         return _okResponse(_searchBody());
       });
 
@@ -105,8 +103,7 @@ void main() {
           options: any(named: 'options'),
         ),
       ).thenAnswer((invocation) async {
-        capturedQuery =
-            invocation.namedArguments[#queryParameters] as Map<String, Object?>;
+        capturedQuery = invocation.namedArguments[#queryParameters] as Map<String, Object?>;
         return _okResponse(_searchBody());
       });
 
@@ -170,8 +167,7 @@ void main() {
       expect(snapshot.primaryTrend, hasLength(7));
     });
 
-    test('should prefer observed local snapshot history for repo trend',
-        () async {
+    test('should prefer observed local snapshot history for repo trend', () async {
       await snapshotHistory.record(
         fullName: 'openai/codex',
         stars: 11900,
@@ -197,8 +193,7 @@ void main() {
       expect(snapshot.primaryTrend, [11900, 12000]);
     });
 
-    test('should throw parse AppException when items field is missing',
-        () async {
+    test('should throw parse AppException when items field is missing', () async {
       when(
         () => dio.get<Map<String, Object?>>(
           any(),
@@ -217,8 +212,7 @@ void main() {
       );
     });
 
-    test('should map GitHub search rate limit to rateLimit AppException',
-        () async {
+    test('should map GitHub search rate limit to rateLimit AppException', () async {
       when(
         () => dio.get<Map<String, Object?>>(
           any(),
@@ -248,9 +242,7 @@ void main() {
         dataSource.fetchTrending(const TrendingQuery()),
         throwsA(
           predicate<AppException>(
-            (e) =>
-                e.kind == AppExceptionKind.rateLimit &&
-                e.retryAfterSeconds != null,
+            (e) => e.kind == AppExceptionKind.rateLimit && e.retryAfterSeconds != null,
           ),
         ),
       );

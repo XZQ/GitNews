@@ -131,9 +131,7 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
                       }
                     },
                     child: Text(
-                      isLast
-                          ? l10n.tr('onboarding.done')
-                          : l10n.tr('onboarding.next'),
+                      isLast ? l10n.tr('onboarding.done') : l10n.tr('onboarding.next'),
                     ),
                   ),
                 ],
@@ -158,7 +156,9 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
 
   Future<void> _finish(BuildContext context) async {
     await markOnboardingCompleted(ref);
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
     Navigator.of(context).pop();
   }
 }

@@ -25,7 +25,9 @@ enum AppThemePreset {
 
   static AppThemePreset byId(String id) {
     for (final p in AppThemePreset.values) {
-      if (p.id == id) return p;
+      if (p.id == id) {
+        return p;
+      }
     }
     return AppThemePreset.teal;
   }

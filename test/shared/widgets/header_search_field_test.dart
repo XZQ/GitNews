@@ -3,8 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/shared/widgets/header_search_field.dart';
 
 void main() {
-  testWidgets('HeaderSearchField shows controlled value and clears it',
-      (tester) async {
+  testWidgets('HeaderSearchField shows controlled value and clears it', (tester) async {
     var changed = 'unchanged';
 
     await tester.pumpWidget(

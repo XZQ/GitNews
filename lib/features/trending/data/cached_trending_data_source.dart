@@ -36,9 +36,13 @@ class CachedTrendingDataSource implements TrendingDataSource {
       ttl: ttl,
       now: current,
     );
-    if (cached != null && fresh) return cached;
+    if (cached != null && fresh) {
+      return cached;
+    }
     if (isRateLimited != null && isRateLimited!()) {
-      if (cached != null) return cached;
+      if (cached != null) {
+        return cached;
+      }
       return remote.fetchTrending(query);
     }
 
@@ -52,12 +56,12 @@ class CachedTrendingDataSource implements TrendingDataSource {
       );
       return snapshot;
     } catch (e) {
-      if (e is AppException &&
-          e.kind == AppExceptionKind.rateLimit &&
-          onRateLimited != null) {
+      if (e is AppException && e.kind == AppExceptionKind.rateLimit && onRateLimited != null) {
         onRateLimited!(e.retryAfterSeconds ?? 60);
       }
-      if (cached != null) return cached;
+      if (cached != null) {
+        return cached;
+      }
       rethrow;
     }
   }

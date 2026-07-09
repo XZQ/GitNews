@@ -88,12 +88,7 @@ class AiNewsListResponseDto {
       count: (json['count'] as num?)?.toInt() ?? 0,
       hasNext: json['hasNext'] as bool? ?? false,
       nextCursor: json['nextCursor'] as String?,
-      items: list is List
-          ? list
-              .whereType<Map<String, Object?>>()
-              .map(AiNewsItemDto.fromJson)
-              .toList(growable: false)
-          : const [],
+      items: list is List ? list.whereType<Map<String, Object?>>().map(AiNewsItemDto.fromJson).toList(growable: false) : const [],
     );
   }
 

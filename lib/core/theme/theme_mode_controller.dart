@@ -19,7 +19,9 @@ class ThemeModeController extends Notifier<ThemeMode> {
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_kKey);
-    if (raw == null) return;
+    if (raw == null) {
+      return;
+    }
     state = ThemeMode.values.firstWhere(
       (m) => m.name == raw,
       orElse: () => ThemeMode.light,
@@ -27,7 +29,9 @@ class ThemeModeController extends Notifier<ThemeMode> {
   }
 
   Future<void> setMode(ThemeMode mode) async {
-    if (state == mode) return;
+    if (state == mode) {
+      return;
+    }
     state = mode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_kKey, mode.name);
@@ -39,5 +43,4 @@ class ThemeModeController extends Notifier<ThemeMode> {
   }
 }
 
-final themeModeControllerProvider =
-    NotifierProvider<ThemeModeController, ThemeMode>(ThemeModeController.new);
+final themeModeControllerProvider = NotifierProvider<ThemeModeController, ThemeMode>(ThemeModeController.new);

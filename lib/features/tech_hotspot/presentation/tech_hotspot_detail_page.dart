@@ -36,8 +36,7 @@ class TechHotspotDetailPage extends ConsumerWidget {
           orElse: () => Text(l10n.tr('tech_hotspot.detail_title')),
         ),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/tech_hotspot'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/tech_hotspot'),
         ),
       ),
       body: state.when(
@@ -68,8 +67,7 @@ class _Loaded extends ConsumerWidget {
     final relatedState = ref.watch(techHotspotRelatedProvider(id));
     final languagesState = ref.watch(techHotspotDigestProvider);
     final related = relatedState.valueOrNull ?? const <TechTopic>[];
-    final languages =
-        languagesState.valueOrNull?.languages ?? const <LanguageStat>[];
+    final languages = languagesState.valueOrNull?.languages ?? const <LanguageStat>[];
     final formFactor = Breakpoints.of(context);
     final relatedError = relatedState.hasError
         ? relatedState.error!.asAppException(

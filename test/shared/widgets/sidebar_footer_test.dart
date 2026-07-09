@@ -8,8 +8,7 @@ import 'package:github_news/shared/widgets/sidebar/sidebar_footer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('anonymous sidebar profile does not claim name, PRO, or online',
-      (tester) async {
+  testWidgets('anonymous sidebar profile does not claim name, PRO, or online', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 

@@ -90,16 +90,16 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   void _maybeReportRateLimit(Object error) {
-    if (error is AppException &&
-        error.kind == AppExceptionKind.rateLimit &&
-        _onRateLimited != null) {
+    if (error is AppException && error.kind == AppExceptionKind.rateLimit && _onRateLimited != null) {
       _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
 
   Future<MonitorDigest?> _readCached() async {
     final json = await _cache.read(cacheKey);
-    if (json == null) return null;
+    if (json == null) {
+      return null;
+    }
     try {
       return monitorDigestFromJson(json);
     } catch (e) {
@@ -112,15 +112,14 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   Future<MonitorDigest> _fetchDigest(DateTime now) async {
-    final responses = await gatherAll<GithubMonitorRemoteRepoItem>([
-      for (final repo in repos) _fetchRepo(repo, now),
-    ], tag: 'githubMonitorFetch');
-    final repoEntities =
-        responses.map((item) => item.repo).toList(growable: false);
-    final alerts = responses
-        .expand((item) => _alertsFor(item, now))
-        .take(12)
-        .toList(growable: false);
+    final responses = await gatherAll<GithubMonitorRemoteRepoItem>(
+      [
+        for (final repo in repos) _fetchRepo(repo, now),
+      ],
+      tag: 'githubMonitorFetch',
+    );
+    final repoEntities = responses.map((item) => item.repo).toList(growable: false);
+    final alerts = responses.expand((item) => _alertsFor(item, now)).take(12).toList(growable: false);
     return MonitorDigest(
       monitoredRepos: repoEntities,
       alerts: alerts,
@@ -129,8 +128,7 @@ class GithubMonitorRepository implements MonitorRepository {
         monitoredDelta: 0,
         unreadAlertCount: alerts.length,
         unreadAlertDelta: 0,
-        triggeredTodayCount:
-            responses.where((item) => _isToday(item.pushedAt, now)).length,
+        triggeredTodayCount: responses.where((item) => _isToday(item.pushedAt, now)).length,
         triggeredTodayDelta: 0,
         totalAlertCount: alerts.length,
         totalAlertDelta: 0,
@@ -153,7 +151,9 @@ class GithubMonitorRepository implements MonitorRepository {
       }
       final item = _parseRepo(data, now);
       final history = _snapshotHistory;
-      if (history == null) return item;
+      if (history == null) {
+        return item;
+      }
       await history.record(
         fullName: item.repo.fullName,
         stars: item.repo.starCount,
@@ -161,7 +161,9 @@ class GithubMonitorRepository implements MonitorRepository {
         capturedAt: now,
       );
       final starTrend = await history.starTrend(item.repo.fullName);
-      if (starTrend == null) return item;
+      if (starTrend == null) {
+        return item;
+      }
       return item.copyWith(
         repo: item.repo.copyWith(
           starDelta: _observedDelta(
@@ -182,14 +184,18 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   int _observedDelta(List<double> values, {required int fallback}) {
-    if (values.length < 2) return fallback;
+    if (values.length < 2) {
+      return fallback;
+    }
     final delta = values.last - values.first;
     return delta.round().clamp(0, 999999);
   }
 
   bool _isToday(DateTime? value, DateTime now) {
     final v = value?.toLocal();
-    if (v == null) return false;
+    if (v == null) {
+      return false;
+    }
     return v.year == now.year && v.month == now.month && v.day == now.day;
   }
 
@@ -208,8 +214,7 @@ class GithubMonitorRepository implements MonitorRepository {
     return GithubMonitorRemoteRepoItem(
       repo: RepoEntity(
         fullName: fullName,
-        description:
-            GitHubJson.nullableString(json['description']) ?? 'No description',
+        description: GitHubJson.nullableString(json['description']) ?? 'No description',
         language: language,
         starCount: stars,
         starDelta: githubMonitorActivityScore(
@@ -244,8 +249,7 @@ class GithubMonitorRepository implements MonitorRepository {
         metric: 'Open Issues',
         value: item.openIssues.toString(),
         time: githubMonitorRelativeTime(item.pushedAt, now),
-        severity:
-            item.openIssues > 500 ? AlertSeverity.warning : AlertSeverity.info,
+        severity: item.openIssues > 500 ? AlertSeverity.warning : AlertSeverity.info,
       ),
     ];
     return alerts;

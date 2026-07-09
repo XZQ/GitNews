@@ -79,9 +79,7 @@ class StarTrendChart extends StatelessWidget {
                 interval: (series.first.values.length / 5).clamp(1, 30),
                 getTitlesWidget: (value, _) {
                   final i = value.toInt();
-                  final label = (xLabels != null && i < xLabels!.length)
-                      ? xLabels![i]
-                      : '${i}d';
+                  final label = (xLabels != null && i < xLabels!.length) ? xLabels![i] : '${i}d';
                   return Padding(
                     padding: const EdgeInsets.only(top: AppSpacing.xs2),
                     child: Text(
@@ -100,8 +98,7 @@ class StarTrendChart extends StatelessWidget {
             for (final s in series)
               LineChartBarData(
                 spots: [
-                  for (var i = 0; i < s.values.length; i++)
-                    FlSpot(i.toDouble(), s.values[i]),
+                  for (var i = 0; i < s.values.length; i++) FlSpot(i.toDouble(), s.values[i]),
                 ],
                 isCurved: true,
                 curveSmoothness: 0.25,
@@ -204,7 +201,9 @@ class Sparkline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final resolved = color ?? Theme.of(context).colorScheme.tertiary;
-    if (values.isEmpty) return SizedBox(width: width, height: height);
+    if (values.isEmpty) {
+      return SizedBox(width: width, height: height);
+    }
     return CustomPaint(
       size: Size(width, height),
       painter: _SparklinePainter(values: values, color: resolved),
@@ -260,6 +259,5 @@ class _SparklinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _SparklinePainter old) =>
-      old.values != values || old.color != color;
+  bool shouldRepaint(covariant _SparklinePainter old) => old.values != values || old.color != color;
 }

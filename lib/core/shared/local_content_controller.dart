@@ -58,10 +58,8 @@ class LocalContentState {
       monitoredSkills: monitoredSkills ?? this.monitoredSkills,
       followedDevelopers: followedDevelopers ?? this.followedDevelopers,
       monitorRules: monitorRules ?? this.monitorRules,
-      cachedUserName:
-          clearCachedUser ? null : (cachedUserName ?? this.cachedUserName),
-      cachedAvatarUrl:
-          clearCachedUser ? null : (cachedAvatarUrl ?? this.cachedAvatarUrl),
+      cachedUserName: clearCachedUser ? null : (cachedUserName ?? this.cachedUserName),
+      cachedAvatarUrl: clearCachedUser ? null : (cachedAvatarUrl ?? this.cachedAvatarUrl),
     );
   }
 }
@@ -100,7 +98,9 @@ class LocalContentController extends Notifier<LocalContentState> {
 
   Future<void> toggleBookmark(String fullName) async {
     final next = {...state.bookmarkedRepos};
-    if (!next.add(fullName)) next.remove(fullName);
+    if (!next.add(fullName)) {
+      next.remove(fullName);
+    }
     state = state.copyWith(bookmarkedRepos: next);
     await _persistSet(_bookmarksKey, next);
   }
@@ -137,20 +137,26 @@ class LocalContentController extends Notifier<LocalContentState> {
 
   Future<void> toggleMonitorSkill(String fullName) async {
     final next = {...state.monitoredSkills};
-    if (!next.add(fullName)) next.remove(fullName);
+    if (!next.add(fullName)) {
+      next.remove(fullName);
+    }
     state = state.copyWith(monitoredSkills: next);
     await _persistSet(_skillsKey, next);
   }
 
   Future<void> toggleDeveloper(String login) async {
     final next = {...state.followedDevelopers};
-    if (!next.add(login)) next.remove(login);
+    if (!next.add(login)) {
+      next.remove(login);
+    }
     state = state.copyWith(followedDevelopers: next);
     await _persistSet(_developersKey, next);
   }
 
   Future<void> setMonitorRule(int index, bool enabled) async {
-    if (index < 0 || index >= state.monitorRules.length) return;
+    if (index < 0 || index >= state.monitorRules.length) {
+      return;
+    }
     final next = [...state.monitorRules]..[index] = enabled;
     state = state.copyWith(monitorRules: next);
     await ref.read(sharedPreferencesProvider).setStringList(_rulesKey, [
@@ -161,8 +167,12 @@ class LocalContentController extends Notifier<LocalContentState> {
   Future<void> setCachedUser({String? name, String? avatarUrl}) async {
     state = state.copyWith(cachedUserName: name, cachedAvatarUrl: avatarUrl);
     final prefs = ref.read(sharedPreferencesProvider);
-    if (name != null) await prefs.setString(_userNameKey, name);
-    if (avatarUrl != null) await prefs.setString(_userAvatarKey, avatarUrl);
+    if (name != null) {
+      await prefs.setString(_userNameKey, name);
+    }
+    if (avatarUrl != null) {
+      await prefs.setString(_userAvatarKey, avatarUrl);
+    }
   }
 
   Future<void> clearCachedUser() async {
@@ -190,8 +200,7 @@ class LocalContentController extends Notifier<LocalContentState> {
   }
 }
 
-final localContentControllerProvider =
-    NotifierProvider<LocalContentController, LocalContentState>(
+final localContentControllerProvider = NotifierProvider<LocalContentController, LocalContentState>(
   LocalContentController.new,
 );
 

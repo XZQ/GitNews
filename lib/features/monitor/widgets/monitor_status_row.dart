@@ -60,7 +60,9 @@ class MonitorStatusRow extends StatelessWidget {
   }
 
   String _formatDelta(int value) {
-    if (value > 0) return '+$value';
+    if (value > 0) {
+      return '+$value';
+    }
     return '$value';
   }
 }

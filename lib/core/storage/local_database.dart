@@ -80,7 +80,9 @@ class LocalDatabase {
   int sizeInBytes() {
     try {
       final f = File(path);
-      if (!f.existsSync()) return 0;
+      if (!f.existsSync()) {
+        return 0;
+      }
       return f.lengthSync();
     } catch (_) {
       return 0;

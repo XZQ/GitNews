@@ -53,7 +53,9 @@ class TrendingBoardSelector extends StatelessWidget {
             avatar: Icon(item.icon, size: 16),
             label: Text(item.label),
             onSelected: (_) {
-              if (value != item.value) onChanged(item.value);
+              if (value != item.value) {
+                onChanged(item.value);
+              }
             },
           ),
       ],

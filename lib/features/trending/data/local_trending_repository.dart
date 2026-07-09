@@ -5,8 +5,6 @@ import 'trending_repository_impl.dart';
 /* 
 *基于本地模拟数据的趋势仓库。
 */
-class LocalTrendingRepository extends TrendingRepositoryImpl
-    implements TrendingRepository {
-  const LocalTrendingRepository()
-      : super(dataSource: const LocalTrendingDataSource());
+class LocalTrendingRepository extends TrendingRepositoryImpl implements TrendingRepository {
+  const LocalTrendingRepository() : super(dataSource: const LocalTrendingDataSource());
 }

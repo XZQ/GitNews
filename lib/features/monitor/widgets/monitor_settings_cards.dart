@@ -35,9 +35,7 @@ class MonitorRulesCard extends ConsumerWidget {
         ? allRules
         : [
             for (final rule in allRules)
-              if (rule.label.toLowerCase().contains(keyword) ||
-                  rulesTitle.contains(keyword))
-                rule,
+              if (rule.label.toLowerCase().contains(keyword) || rulesTitle.contains(keyword)) rule,
           ];
     return AppCard(
       child: Column(
@@ -45,9 +43,7 @@ class MonitorRulesCard extends ConsumerWidget {
         children: [
           SectionHeader(
             title: l10n.tr('monitor.rules.title'),
-            subtitle: l10n
-                .tr('monitor.rules.enabled_count')
-                .replaceAll('{count}', '${content.enabledRuleCount}'),
+            subtitle: l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}'),
           ),
           const SizedBox(height: AppSpacing.md),
           if (rules.isEmpty)
@@ -83,9 +79,7 @@ class MonitorNotificationCard extends ConsumerWidget {
             MonitorNotificationRow(
               label: monitorNotificationLabels(l10n)[i],
               value: values[i],
-              onChanged: (value) => ref
-                  .read(monitorSettingsControllerProvider.notifier)
-                  .setEnabled(i, value),
+              onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
             ),
         ],
       ),
@@ -134,8 +128,7 @@ class _RuleRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final enabled =
-        ref.watch(localContentControllerProvider).monitorRules[rule.index];
+    final enabled = ref.watch(localContentControllerProvider).monitorRules[rule.index];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
       child: Row(
@@ -152,9 +145,7 @@ class _RuleRow extends ConsumerWidget {
           Expanded(child: Text(rule.label, style: AppTypography.bodyMedium)),
           Switch(
             value: enabled,
-            onChanged: (value) => ref
-                .read(localContentControllerProvider.notifier)
-                .setMonitorRule(rule.index, value),
+            onChanged: (value) => ref.read(localContentControllerProvider.notifier).setMonitorRule(rule.index, value),
           ),
         ],
       ),

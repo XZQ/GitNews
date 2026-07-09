@@ -14,8 +14,7 @@ void main() {
     expect(state.effectiveName, 'dev_explorer');
   });
 
-  test('ProfileSessionController should persist local sign in and sign out',
-      () async {
+  test('ProfileSessionController should persist local sign in and sign out', () async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     final container = ProviderContainer(
@@ -23,9 +22,7 @@ void main() {
     );
     addTearDown(container.dispose);
 
-    await container
-        .read(profileSessionControllerProvider.notifier)
-        .signInLocal('  XZQ  ');
+    await container.read(profileSessionControllerProvider.notifier).signInLocal('  XZQ  ');
 
     expect(prefs.getString('profile_display_name'), 'XZQ');
     expect(container.read(profileSessionControllerProvider).isSignedIn, isTrue);

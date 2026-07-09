@@ -6,8 +6,7 @@ import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_models.dar
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
-class _MockTechHotspotRepository extends Mock
-    implements TechHotspotRepository {}
+class _MockTechHotspotRepository extends Mock implements TechHotspotRepository {}
 
 const _sampleDigest = TechHotspotDigest(
   languages: [],
@@ -73,8 +72,7 @@ void main() {
       );
     });
 
-    test('should expose empty digest when repository returns no data',
-        () async {
+    test('should expose empty digest when repository returns no data', () async {
       final repo = _MockTechHotspotRepository();
       const empty = TechHotspotDigest(
         languages: [],
@@ -148,8 +146,7 @@ void main() {
   });
 
   group('tech hotspot search', () {
-    test('filterTechTopics should match topic name category summary and id',
-        () {
+    test('filterTechTopics should match topic name category summary and id', () {
       expect(filterTechTopics(_sampleDigest.topics, '').length, 2);
       expect(
         filterTechTopics(_sampleDigest.topics, 'agent').single.id,
@@ -166,8 +163,7 @@ void main() {
       expect(filterTechTopics(_sampleDigest.topics, 'missing'), isEmpty);
     });
 
-    test('filteredTechHotspotDigestProvider should filter current digest',
-        () async {
+    test('filteredTechHotspotDigestProvider should filter current digest', () async {
       final repo = _MockTechHotspotRepository();
       when(repo.getDigest).thenAnswer((_) async => _sampleDigest);
 
@@ -186,8 +182,7 @@ void main() {
       verify(repo.getDigest).called(1);
     });
 
-    test('filteredTechHotspotDigestProvider should apply category filter',
-        () async {
+    test('filteredTechHotspotDigestProvider should apply category filter', () async {
       final repo = _MockTechHotspotRepository();
       when(repo.getDigest).thenAnswer((_) async => _sampleDigest);
 
@@ -196,8 +191,7 @@ void main() {
       );
       addTearDown(container.dispose);
 
-      container.read(techHotspotCategoryFilterProvider.notifier).state =
-          'Agent';
+      container.read(techHotspotCategoryFilterProvider.notifier).state = 'Agent';
       final digest = await container.read(
         filteredTechHotspotDigestProvider.future,
       );

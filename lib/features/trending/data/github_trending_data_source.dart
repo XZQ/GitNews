@@ -72,14 +72,10 @@ class GithubTrendingDataSource implements TrendingDataSource {
     final cutoff = _now().toUtc().subtract(_windowDuration(query.window));
     final parts = <String>[
       'stars:>50',
-      if (query.board == TrendingBoard.newRepos)
-        'created:>=${GitHubApiSupport.formatDate(cutoff)}'
-      else
-        'pushed:>=${GitHubApiSupport.formatDate(cutoff)}',
+      if (query.board == TrendingBoard.newRepos) 'created:>=${GitHubApiSupport.formatDate(cutoff)}' else 'pushed:>=${GitHubApiSupport.formatDate(cutoff)}',
       'archived:false',
       ..._boardSearchParts(query.board),
-      if (query.hasLanguageFilter)
-        'language:${GitHubApiSupport.quoteSearchValue(query.language)}',
+      if (query.hasLanguageFilter) 'language:${GitHubApiSupport.quoteSearchValue(query.language)}',
     ];
     return parts.join(' ');
   }
@@ -111,9 +107,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     if (rawItems is! List<Object?>) {
       throw const FormatException('GitHub search response missing items');
     }
-    return rawItems
-        .map((raw) => _parseRepo(raw, query))
-        .toList(growable: false);
+    return rawItems.map((raw) => _parseRepo(raw, query)).toList(growable: false);
   }
 
   RepoEntity _parseRepo(Object? raw, TrendingQuery query) {
@@ -127,8 +121,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     final score = GitHubJson.doubleValue(raw['score']);
     return RepoEntity(
       fullName: fullName,
-      description:
-          GitHubJson.nullableString(raw['description']) ?? 'No description',
+      description: GitHubJson.nullableString(raw['description']) ?? 'No description',
       language: language,
       starCount: stars,
       starDelta: _momentumScore(
@@ -150,12 +143,13 @@ class GithubTrendingDataSource implements TrendingDataSource {
     TrendingQuery query,
   ) async {
     final history = _snapshotHistory;
-    if (history == null || repos.isEmpty) return repos;
+    if (history == null || repos.isEmpty) {
+      return repos;
+    }
 
     final capturedAt = _now();
     return Future.wait([
-      for (final repo in repos)
-        _withRepoHistory(repo, query.window, history, capturedAt),
+      for (final repo in repos) _withRepoHistory(repo, query.window, history, capturedAt),
     ]);
   }
 
@@ -172,7 +166,9 @@ class GithubTrendingDataSource implements TrendingDataSource {
       capturedAt: capturedAt,
     );
     final trend = await history.starTrend(repo.fullName);
-    if (trend == null) return repo;
+    if (trend == null) {
+      return repo;
+    }
 
     final values = _recentObservedValues(trend.values, window);
     return repo.copyWith(
@@ -191,12 +187,16 @@ class GithubTrendingDataSource implements TrendingDataSource {
       TrendingWindow.week => 7,
       TrendingWindow.month => 30,
     };
-    if (values.length <= maxPoints) return values;
+    if (values.length <= maxPoints) {
+      return values;
+    }
     return values.sublist(values.length - maxPoints);
   }
 
   int _observedDelta(List<double> values, {required int fallback}) {
-    if (values.length < 2) return fallback;
+    if (values.length < 2) {
+      return fallback;
+    }
     final delta = values.last - values.first;
     return delta.round().clamp(0, 999999);
   }
@@ -229,14 +229,15 @@ class GithubTrendingDataSource implements TrendingDataSource {
   }
 
   List<LanguageEntity> _buildLanguages(List<RepoEntity> repos) {
-    if (repos.isEmpty) return const [];
+    if (repos.isEmpty) {
+      return const [];
+    }
     final counts = <String, int>{};
     for (final repo in repos) {
       counts.update(repo.language, (value) => value + 1, ifAbsent: () => 1);
     }
     final total = repos.length;
-    final entries = counts.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final entries = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return entries.map((entry) {
       final percent = entry.value / total * 100;
       return LanguageEntity(
@@ -250,13 +251,12 @@ class GithubTrendingDataSource implements TrendingDataSource {
   }
 
   List<double> _buildTrend(List<RepoEntity> repos, double scale) {
-    if (repos.isEmpty) return const [];
+    if (repos.isEmpty) {
+      return const [];
+    }
     final observed = [
       for (final repo in repos)
-        if (repo.trendProvenance == DataProvenance.live &&
-            repo.trend != null &&
-            repo.trend!.length >= 2)
-          repo.trend!,
+        if (repo.trendProvenance == DataProvenance.live && repo.trend != null && repo.trend!.length >= 2) repo.trend!,
     ];
     if (observed.isNotEmpty) {
       final pointCount = observed.fold<int>(

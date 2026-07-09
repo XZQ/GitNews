@@ -23,8 +23,7 @@ class MonitorSettingsPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.tr('monitor.settings.title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/monitor'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'),
         ),
       ),
       body: ResponsiveLayout(
@@ -64,9 +63,7 @@ class _Body extends ConsumerWidget {
                 MonitorNotificationRow(
                   label: monitorNotificationLabels(l10n)[i],
                   value: values[i],
-                  onChanged: (value) => ref
-                      .read(monitorSettingsControllerProvider.notifier)
-                      .setEnabled(i, value),
+                  onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
                 ),
             ],
           ),
@@ -85,9 +82,7 @@ class _Body extends ConsumerWidget {
                 MonitorNotificationRow(
                   label: monitorNotificationLabels(l10n)[i],
                   value: values[i],
-                  onChanged: (value) => ref
-                      .read(monitorSettingsControllerProvider.notifier)
-                      .setEnabled(i, value),
+                  onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
                 ),
             ],
           ),

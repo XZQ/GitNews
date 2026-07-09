@@ -6,8 +6,7 @@ import 'dart:io' show Platform;
 class PlatformInfo {
   const PlatformInfo._();
 
-  static bool get isDesktop =>
-      Platform.isWindows || Platform.isMacOS || Platform.isLinux;
+  static bool get isDesktop => Platform.isWindows || Platform.isMacOS || Platform.isLinux;
   static bool get isMobile => Platform.isAndroid || Platform.isIOS;
   static bool get isTouch => isMobile;
 }

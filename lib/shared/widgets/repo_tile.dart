@@ -157,7 +157,9 @@ final Map<String, List<double>> _trendCache = <String, List<double>>{};
 
 List<double> _resolveTrend(RepoEntity repo) {
   final provided = repo.trend;
-  if (provided != null) return provided;
+  if (provided != null) {
+    return provided;
+  }
   final key = '${repo.fullName}:${repo.starCount}';
   return _trendCache.putIfAbsent(
     key,
@@ -166,7 +168,11 @@ List<double> _resolveTrend(RepoEntity repo) {
 }
 
 String _shortNumber(int v) {
-  if (v >= 1000000) return '${(v / 1000000).toStringAsFixed(1)}M';
-  if (v >= 1000) return '${(v / 1000).toStringAsFixed(1)}k';
+  if (v >= 1000000) {
+    return '${(v / 1000000).toStringAsFixed(1)}M';
+  }
+  if (v >= 1000) {
+    return '${(v / 1000).toStringAsFixed(1)}k';
+  }
   return v.toString();
 }

@@ -17,8 +17,7 @@ RepoEntity _repo(int index) {
 }
 
 void main() {
-  testWidgets('language distribution scrolls inside bounded card',
-      (tester) async {
+  testWidgets('language distribution scrolls inside bounded card', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(760, 260);
     addTearDown(tester.view.resetPhysicalSize);

@@ -46,8 +46,7 @@ class TechHotspotTagsCloud extends StatelessWidget {
               spacing: AppSpacing.sm,
               runSpacing: AppSpacing.sm,
               children: [
-                for (final tag in tags)
-                  _Tag(label: tag, onSelected: () => onTagSelected(tag)),
+                for (final tag in tags) _Tag(label: tag, onSelected: () => onTagSelected(tag)),
               ],
             ),
         ],

@@ -33,8 +33,7 @@ class HomeHotspotPreview extends ConsumerWidget {
         rank: '${index + 1}',
         rankColor: _heatColor(item.heat),
         title: item.name,
-        subtitle:
-            '${item.category} · ${item.relatedRepos} ${l10n.tr('home.section.hotspot.meta_suffix')}',
+        subtitle: '${item.category} · ${item.relatedRepos} ${l10n.tr('home.section.hotspot.meta_suffix')}',
         meta: '+${item.growth.toStringAsFixed(1)}%',
         onTap: () => context.go('/home/tech_hotspot_detail/${item.id}'),
       ),
@@ -42,8 +41,12 @@ class HomeHotspotPreview extends ConsumerWidget {
   }
 
   static Color _heatColor(int heat) {
-    if (heat >= 90) return AppColors.danger;
-    if (heat >= 75) return AppColors.warning;
+    if (heat >= 90) {
+      return AppColors.danger;
+    }
+    if (heat >= 75) {
+      return AppColors.warning;
+    }
     return AppColors.info;
   }
 }

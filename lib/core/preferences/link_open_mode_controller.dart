@@ -38,7 +38,9 @@ class LinkOpenModeController extends Notifier<LinkOpenMode> {
       return LinkOpenMode.external;
     }
     final raw = prefs.getString(_kKey);
-    if (raw == null) return LinkOpenMode.external;
+    if (raw == null) {
+      return LinkOpenMode.external;
+    }
     return LinkOpenMode.values.firstWhere(
       (m) => m.name == raw,
       orElse: () => LinkOpenMode.external,
@@ -46,14 +48,15 @@ class LinkOpenModeController extends Notifier<LinkOpenMode> {
   }
 
   Future<void> setMode(LinkOpenMode mode) async {
-    if (state == mode) return;
+    if (state == mode) {
+      return;
+    }
     state = mode;
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setString(_kKey, mode.name);
   }
 }
 
-final linkOpenModeControllerProvider =
-    NotifierProvider<LinkOpenModeController, LinkOpenMode>(
+final linkOpenModeControllerProvider = NotifierProvider<LinkOpenModeController, LinkOpenMode>(
   LinkOpenModeController.new,
 );

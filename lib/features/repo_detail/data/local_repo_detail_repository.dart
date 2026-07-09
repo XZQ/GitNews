@@ -19,10 +19,7 @@ class LocalRepoDetailRepository implements RepoDetailRepository {
       (item) => item.fullName == decoded,
       orElse: () => all.first,
     );
-    final relatedRepos = all
-        .where((item) => item.fullName != repo.fullName)
-        .take(4)
-        .toList(growable: false);
+    final relatedRepos = all.where((item) => item.fullName != repo.fullName).take(4).toList(growable: false);
     return RepoDetailDigest(
       repo: repo,
       contributors: DemoData.contributors.map((e) => e.toEntity()).toList(),

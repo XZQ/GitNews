@@ -35,14 +35,9 @@ class MonitorRecentAlerts extends ConsumerWidget {
             ),
             child: SectionHeader(
               title: '最近告警',
-              subtitle:
-                  unreadCount == 0 ? '当前可见告警均已处理' : '$unreadCount 条未读，需要关注',
+              subtitle: unreadCount == 0 ? '当前可见告警均已处理' : '$unreadCount 条未读，需要关注',
               trailing: TextButton.icon(
-                onPressed: alerts.isEmpty || unreadCount == 0
-                    ? null
-                    : () => ref
-                        .read(monitorAlertStateControllerProvider.notifier)
-                        .markAllRead(alerts),
+                onPressed: alerts.isEmpty || unreadCount == 0 ? null : () => ref.read(monitorAlertStateControllerProvider.notifier).markAllRead(alerts),
                 icon: const Icon(Icons.done_all_rounded, size: 16),
                 label: const Text('全部已读'),
               ),
@@ -149,9 +144,7 @@ class MonitorAlertRow extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.titleSmall.copyWith(
-                            color: isRead
-                                ? colors.onSurfaceVariant
-                                : colors.onSurface,
+                            color: isRead ? colors.onSurfaceVariant : colors.onSurface,
                           ),
                         ),
                       ),
@@ -193,13 +186,9 @@ class MonitorAlertRow extends ConsumerWidget {
               child: IconButton(
                 visualDensity: VisualDensity.compact,
                 iconSize: 18,
-                onPressed: () => ref
-                    .read(monitorAlertStateControllerProvider.notifier)
-                    .toggleRead(alert),
+                onPressed: () => ref.read(monitorAlertStateControllerProvider.notifier).toggleRead(alert),
                 icon: Icon(
-                  isRead
-                      ? Icons.mark_email_unread_outlined
-                      : Icons.mark_email_read_outlined,
+                  isRead ? Icons.mark_email_unread_outlined : Icons.mark_email_read_outlined,
                 ),
               ),
             ),

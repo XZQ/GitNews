@@ -7,8 +7,7 @@ import 'package:github_news/shared/widgets/error_view.dart';
 
 void main() {
   group('ErrorView', () {
-    testWidgets('network error renders wifi icon and retry button',
-        (tester) async {
+    testWidgets('network error renders wifi icon and retry button', (tester) async {
       var retried = 0;
       await tester.pumpWidget(
         MaterialApp(
@@ -61,8 +60,7 @@ void main() {
       expect(find.textContaining('30 秒'), findsOneWidget);
     });
 
-    testWidgets('unauthorized falls back to onRetry when onLogin missing',
-        (tester) async {
+    testWidgets('unauthorized falls back to onRetry when onLogin missing', (tester) async {
       var retried = 0;
       await tester.pumpWidget(
         MaterialApp(

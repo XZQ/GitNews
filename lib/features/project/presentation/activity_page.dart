@@ -25,8 +25,7 @@ class ActivityPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.tr('project.activity.title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/project'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/project'),
         ),
       ),
       body: ResponsiveLayout(

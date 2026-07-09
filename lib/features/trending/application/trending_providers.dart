@@ -33,14 +33,11 @@ class TrendingDataSourceStatus {
   bool get isGithub => mode == TrendingDataSourceMode.github;
 
   String label(AppLocalizations l10n) {
-    if (!isGithub) return l10n.tr('trending.source.local');
-    final source = hasToken
-        ? l10n.tr('trending.source.github_token')
-        : l10n.tr('trending.source.github_anonymous');
-    return source +
-        l10n
-            .tr('trending.source.cache_suffix')
-            .replaceAll('{minutes}', cacheTtl.inMinutes.toString());
+    if (!isGithub) {
+      return l10n.tr('trending.source.local');
+    }
+    final source = hasToken ? l10n.tr('trending.source.github_token') : l10n.tr('trending.source.github_anonymous');
+    return source + l10n.tr('trending.source.cache_suffix').replaceAll('{minutes}', cacheTtl.inMinutes.toString());
   }
 }
 
@@ -127,7 +124,9 @@ final filteredTrendingDigestProvider = FutureProvider<TrendingDigest>((
 
 TrendingDigest filterTrendingDigest(TrendingDigest digest, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return digest;
+  if (keyword.isEmpty) {
+    return digest;
+  }
 
   return TrendingDigest(
     trendingRepos: filterTrendingRepos(digest.trendingRepos, keyword),
@@ -141,7 +140,9 @@ TrendingDigest filterTrendingDigest(TrendingDigest digest, String query) {
 
 List<RepoEntity> filterTrendingRepos(List<RepoEntity> repos, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return repos;
+  if (keyword.isEmpty) {
+    return repos;
+  }
 
   return [
     for (final repo in repos)

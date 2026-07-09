@@ -1,5 +1,8 @@
 include: package:flutter_lints/flutter.yaml
 
+formatter:
+  page_width: 160
+
 analyzer:
   exclude:
     - "build/**"
@@ -35,3 +38,4 @@ linter:
     unnecessary_statements: true
     unsafe_html: true
     use_super_parameters: true
+    curly_braces_in_flow_control_structures: true

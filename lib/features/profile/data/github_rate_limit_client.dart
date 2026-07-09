@@ -52,13 +52,19 @@ class GitHubRateLimitClient {
   }
 
   Map<String, Object?> _map(Object? raw) {
-    if (raw is Map<String, Object?>) return raw;
+    if (raw is Map<String, Object?>) {
+      return raw;
+    }
     throw const FormatException('Expected object');
   }
 
   int _int(Object? raw) {
-    if (raw is int) return raw;
-    if (raw is double) return raw.round();
+    if (raw is int) {
+      return raw;
+    }
+    if (raw is double) {
+      return raw.round();
+    }
     throw const FormatException('Expected int');
   }
 }

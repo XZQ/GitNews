@@ -110,9 +110,7 @@ class _TrendingDataSourceToggle extends ConsumerWidget {
       ],
       selected: {mode},
       onSelectionChanged: (selection) {
-        ref
-            .read(trendingDataSourceModeControllerProvider.notifier)
-            .setMode(selection.first);
+        ref.read(trendingDataSourceModeControllerProvider.notifier).setMode(selection.first);
       },
       showSelectedIcon: false,
     );
@@ -211,8 +209,7 @@ class _LinkOpenModeToggle extends ConsumerWidget {
         ),
       ],
       selected: {mode},
-      onSelectionChanged: (s) =>
-          ref.read(linkOpenModeControllerProvider.notifier).setMode(s.first),
+      onSelectionChanged: (s) => ref.read(linkOpenModeControllerProvider.notifier).setMode(s.first),
       showSelectedIcon: false,
     );
   }
@@ -265,9 +262,7 @@ class _ThemeColorRow extends ConsumerWidget {
                 _ColorSwatch(
                   preset: p,
                   selected: p == current,
-                  onTap: () => ref
-                      .read(themePresetControllerProvider.notifier)
-                      .setPreset(p),
+                  onTap: () => ref.read(themePresetControllerProvider.notifier).setPreset(p),
                 ),
             ],
           ),
@@ -322,9 +317,7 @@ class _ColorSwatch extends StatelessWidget {
                 ),
               ),
               alignment: Alignment.center,
-              child: selected
-                  ? Icon(Icons.check, size: 14, color: colors.onPrimary)
-                  : null,
+              child: selected ? Icon(Icons.check, size: 14, color: colors.onPrimary) : null,
             ),
           ),
         ),

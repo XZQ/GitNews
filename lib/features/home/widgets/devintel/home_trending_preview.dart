@@ -17,13 +17,7 @@ class HomeTrendingPreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final items = ref
-            .watch(trendingDigestProvider)
-            .valueOrNull
-            ?.trendingRepos
-            .take(4)
-            .toList() ??
-        const <RepoEntity>[];
+    final items = ref.watch(trendingDigestProvider).valueOrNull?.trendingRepos.take(4).toList() ?? const <RepoEntity>[];
     return HomeSectionPreviewCard<RepoEntity>(
       title: l10n.tr('home.section.trending.title'),
       subtitle: l10n.tr('home.section.trending.subtitle'),
@@ -37,15 +31,18 @@ class HomeTrendingPreview extends ConsumerWidget {
         title: item.fullName,
         subtitle: item.description,
         meta: '+${_compactNumber(item.starDelta)}',
-        onTap: () =>
-            context.go('/home/detail/${Uri.encodeComponent(item.fullName)}'),
+        onTap: () => context.go('/home/detail/${Uri.encodeComponent(item.fullName)}'),
       ),
     );
   }
 
   String _compactNumber(int value) {
-    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
+    if (value >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)}M';
+    }
+    if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(1)}K';
+    }
     return value.toString();
   }
 }

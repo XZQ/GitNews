@@ -16,8 +16,7 @@ class MonitorAlertState {
 
   bool isRead(AlertEntity alert) => readAlertIds.contains(alertStableId(alert));
 
-  bool isArchived(AlertEntity alert) =>
-      archivedAlertIds.contains(alertStableId(alert));
+  bool isArchived(AlertEntity alert) => archivedAlertIds.contains(alertStableId(alert));
 
   List<AlertEntity> visibleAlerts(Iterable<AlertEntity> alerts) {
     return [
@@ -57,14 +56,18 @@ class MonitorAlertStateController extends Notifier<MonitorAlertState> {
   Future<void> toggleRead(AlertEntity alert) async {
     final id = alertStableId(alert);
     final next = {...state.readAlertIds};
-    if (!next.add(id)) next.remove(id);
+    if (!next.add(id)) {
+      next.remove(id);
+    }
     state = state.copyWith(readAlertIds: next);
     await _persistSet(_readKey, next);
   }
 
   Future<void> markRead(AlertEntity alert) async {
     final id = alertStableId(alert);
-    if (state.readAlertIds.contains(id)) return;
+    if (state.readAlertIds.contains(id)) {
+      return;
+    }
     final next = {...state.readAlertIds, id};
     state = state.copyWith(readAlertIds: next);
     await _persistSet(_readKey, next);
@@ -102,15 +105,15 @@ class MonitorAlertStateController extends Notifier<MonitorAlertState> {
   }
 
   Future<void> restoreAll() async {
-    if (state.archivedAlertIds.isEmpty) return;
+    if (state.archivedAlertIds.isEmpty) {
+      return;
+    }
     state = state.copyWith(archivedAlertIds: <String>{});
     await _persistSet(_archivedKey, const <String>{});
   }
 
   Set<String> _readSet(List<String>? raw) {
-    return (raw ?? const <String>[])
-        .where((item) => item.trim().isNotEmpty)
-        .toSet();
+    return (raw ?? const <String>[]).where((item) => item.trim().isNotEmpty).toSet();
   }
 
   Future<void> _persistSet(String key, Set<String> values) {
@@ -119,8 +122,7 @@ class MonitorAlertStateController extends Notifier<MonitorAlertState> {
   }
 }
 
-final monitorAlertStateControllerProvider =
-    NotifierProvider<MonitorAlertStateController, MonitorAlertState>(
+final monitorAlertStateControllerProvider = NotifierProvider<MonitorAlertStateController, MonitorAlertState>(
   MonitorAlertStateController.new,
 );
 

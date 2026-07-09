@@ -49,8 +49,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
     return [
       _EntrySpec(
         label: l10n.tr('home.entry.ai_news.label'),
-        kpi:
-            '${aiItems?.length ?? 0} ${l10n.tr('home.entry.ai_news.kpi_suffix')}',
+        kpi: '${aiItems?.length ?? 0} ${l10n.tr('home.entry.ai_news.kpi_suffix')}',
         delta: _scoreDelta(
           l10n,
           aiItems?.fold<int>(0, (sum, e) => sum + e.score),
@@ -61,40 +60,32 @@ class HomeSectionEntryRow extends ConsumerWidget {
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.trending.label'),
-        kpi:
-            '${trending?.allRepos.length ?? 0} ${l10n.tr('home.entry.trending.kpi_suffix')}',
-        delta:
-            '+${_compactNumber(trending?.trendingRepos.fold<int>(0, (sum, e) => sum + e.starDelta) ?? 0)}★',
+        kpi: '${trending?.allRepos.length ?? 0} ${l10n.tr('home.entry.trending.kpi_suffix')}',
+        delta: '+${_compactNumber(trending?.trendingRepos.fold<int>(0, (sum, e) => sum + e.starDelta) ?? 0)}★',
         icon: Icons.local_fire_department_rounded,
         color: AppColors.warning,
         path: '/trending',
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.hotspot.label'),
-        kpi:
-            '${hotspot?.topics.length ?? 0} ${l10n.tr('home.entry.hotspot.kpi_suffix')}',
-        delta:
-            '+${(hotspot?.topics.fold<double>(0, (sum, e) => sum + e.growth) ?? 0).toStringAsFixed(1)}%',
+        kpi: '${hotspot?.topics.length ?? 0} ${l10n.tr('home.entry.hotspot.kpi_suffix')}',
+        delta: '+${(hotspot?.topics.fold<double>(0, (sum, e) => sum + e.growth) ?? 0).toStringAsFixed(1)}%',
         icon: Icons.device_hub_rounded,
         color: AppColors.brand,
         path: '/tech_hotspot',
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.monitor.label'),
-        kpi:
-            '${monitor?.stats.monitoredCount ?? 0} ${l10n.tr('home.entry.monitor.kpi_suffix')}',
-        delta:
-            '${monitor?.stats.unreadAlertCount ?? 0} ${l10n.tr('home.entry.monitor.delta_suffix')}',
+        kpi: '${monitor?.stats.monitoredCount ?? 0} ${l10n.tr('home.entry.monitor.kpi_suffix')}',
+        delta: '${monitor?.stats.unreadAlertCount ?? 0} ${l10n.tr('home.entry.monitor.delta_suffix')}',
         icon: Icons.notifications_rounded,
         color: AppColors.info,
         path: '/monitor',
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.report.label'),
-        kpi:
-            '${project?.repos.length ?? 0} ${l10n.tr('home.entry.report.kpi_suffix')}',
-        delta:
-            '${project?.contributors.length ?? 0} ${l10n.tr('home.entry.report.delta_suffix')}',
+        kpi: '${project?.repos.length ?? 0} ${l10n.tr('home.entry.report.kpi_suffix')}',
+        delta: '${project?.contributors.length ?? 0} ${l10n.tr('home.entry.report.delta_suffix')}',
         icon: Icons.insights_rounded,
         color: AppColors.success,
         path: '/project',
@@ -103,13 +94,19 @@ class HomeSectionEntryRow extends ConsumerWidget {
   }
 
   String _scoreDelta(AppLocalizations l10n, int? score) {
-    if (score == null || score == 0) return l10n.tr('home.entry.syncing');
+    if (score == null || score == 0) {
+      return l10n.tr('home.entry.syncing');
+    }
     return '+${_compactNumber(score)}';
   }
 
   String _compactNumber(int value) {
-    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
+    if (value >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)}M';
+    }
+    if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(1)}K';
+    }
     return value.toString();
   }
 }
@@ -143,10 +140,7 @@ class _EntryTile extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
     return Semantics(
-      label: l10n
-          .tr('a11y.entry_tile')
-          .replaceAll('{label}', spec.label)
-          .replaceAll('{kpi}', spec.kpi),
+      label: l10n.tr('a11y.entry_tile').replaceAll('{label}', spec.label).replaceAll('{kpi}', spec.kpi),
       button: true,
       child: Container(
         decoration: BoxDecoration(

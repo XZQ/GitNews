@@ -27,16 +27,13 @@ class ProfileCollectDetailCard extends StatelessWidget {
           ProfileDetailRow(
             icon: Icons.bookmark_outline,
             iconColor: AppColors.info,
-            label:
-                l10n.tr('profile.detail.collect.count').replaceAll('{n}', '12'),
+            label: l10n.tr('profile.detail.collect.count').replaceAll('{n}', '12'),
             value: l10n.tr('profile.detail.collect.all'),
           ),
           const Divider(height: 1),
           ProfileDetailRow(
             icon: Icons.history,
-            iconColor: isLight
-                ? AppColors.textSecondaryLight
-                : AppColors.textSecondaryDark,
+            iconColor: isLight ? AppColors.textSecondaryLight : AppColors.textSecondaryDark,
             label: l10n.tr('profile.detail.collect.recent'),
             value: 'agent · llm · devops',
           ),
@@ -73,9 +70,7 @@ class ProfileDevelopersDetailCard extends StatelessWidget {
           ProfileDetailRow(
             icon: Icons.people_outline,
             iconColor: AppColors.success,
-            label: l10n
-                .tr('profile.detail.developers.count')
-                .replaceAll('{n}', '8'),
+            label: l10n.tr('profile.detail.developers.count').replaceAll('{n}', '8'),
             value: l10n.tr('profile.detail.collect.all'),
           ),
           const Divider(height: 1),
@@ -118,9 +113,7 @@ class ProfileMonitorTopicsDetailCard extends StatelessWidget {
           ProfileDetailRow(
             icon: Icons.visibility_outlined,
             iconColor: Theme.of(context).colorScheme.primary,
-            label: l10n
-                .tr('profile.detail.monitor_topics.count')
-                .replaceAll('{n}', '5'),
+            label: l10n.tr('profile.detail.monitor_topics.count').replaceAll('{n}', '5'),
             value: l10n.tr('profile.detail.collect.all'),
           ),
           const Divider(height: 1),
@@ -128,9 +121,7 @@ class ProfileMonitorTopicsDetailCard extends StatelessWidget {
             icon: Icons.timeline,
             iconColor: AppColors.info,
             label: l10n.tr('profile.detail.monitor_topics.recent'),
-            value: l10n
-                .tr('profile.detail.monitor_topics.unread')
-                .replaceAll('{n}', '2'),
+            value: l10n.tr('profile.detail.monitor_topics.unread').replaceAll('{n}', '2'),
           ),
           const SizedBox(height: AppSpacing.md),
           SizedBox(

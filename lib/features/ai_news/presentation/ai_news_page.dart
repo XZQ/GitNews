@@ -34,8 +34,7 @@ class AiNewsPage extends ConsumerWidget {
           const AiNewsPageHeader(),
           AiNewsCategoryNav(
             selected: category,
-            onSelected: (v) =>
-                ref.read(aiNewsCategoryFilterProvider.notifier).state = v,
+            onSelected: (v) => ref.read(aiNewsCategoryFilterProvider.notifier).state = v,
           ),
           Expanded(child: _Body(category: category)),
         ],
@@ -89,8 +88,7 @@ class _ItemList extends ConsumerStatefulWidget {
 class _FlatEntry {
   const _FlatEntry._({this.date, this.count, this.item});
 
-  factory _FlatEntry.header(DateTime date, int count) =>
-      _FlatEntry._(date: date, count: count);
+  factory _FlatEntry.header(DateTime date, int count) => _FlatEntry._(date: date, count: count);
   factory _FlatEntry.item(AiNewsItem item) => _FlatEntry._(item: item);
 
   final DateTime? date;
@@ -116,8 +114,12 @@ class _ItemListState extends ConsumerState<_ItemList> {
   }
 
   void _onScroll() {
-    if (widget.query.trim().isNotEmpty) return;
-    if (!_controller.hasClients) return;
+    if (widget.query.trim().isNotEmpty) {
+      return;
+    }
+    if (!_controller.hasClients) {
+      return;
+    }
     final metrics = _controller.position;
     final distanceToBottom = metrics.maxScrollExtent - metrics.pixels;
     if (distanceToBottom < aiNewsLoadMoreScrollPixels) {
@@ -136,9 +138,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
             ? l10n.tr('ai_news.empty_search').replaceAll('{query}', query)
             : widget.category == null
                 ? l10n.tr('ai_news.empty')
-                : l10n
-                    .tr('ai_news.empty_category')
-                    .replaceAll('{cat}', widget.category!.label),
+                : l10n.tr('ai_news.empty_category').replaceAll('{cat}', widget.category!.label),
       );
     }
     final notifier = ref.read(aiNewsItemsNotifierProvider.notifier);
@@ -162,20 +162,23 @@ class _ItemListState extends ConsumerState<_ItemList> {
             AppSpacing.xxxl,
           ),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
-              if (index < flat.length) {
-                final e = flat[index];
-                return RepaintBoundary(
-                  child: e.isHeader
-                      ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
-                      : AiNewsTimelineRow(
-                          item: e.item!,
-                          onTap: () => _openDetail(context, e.item!),
-                        ),
-                );
-              }
-              return const AiNewsLoadMoreIndicator();
-            }, childCount: flat.length + (hasMore ? 1 : 0)),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index < flat.length) {
+                  final e = flat[index];
+                  return RepaintBoundary(
+                    child: e.isHeader
+                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
+                        : AiNewsTimelineRow(
+                            item: e.item!,
+                            onTap: () => _openDetail(context, e.item!),
+                          ),
+                  );
+                }
+                return const AiNewsLoadMoreIndicator();
+              },
+              childCount: flat.length + (hasMore ? 1 : 0),
+            ),
           ),
         ),
       ],

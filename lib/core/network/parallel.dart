@@ -22,11 +22,15 @@ Future<List<T>> gatherAll<T>(
   String tag = 'gatherAll',
 }) async {
   final list = futures.toList();
-  if (list.isEmpty) return const [];
+  if (list.isEmpty) {
+    return const [];
+  }
 
   Future<T?> guard(int index, Future<T> future) async {
     try {
-      if (timeout == null) return await future;
+      if (timeout == null) {
+        return await future;
+      }
       return await future.timeout(timeout);
     } on TimeoutException {
       AppLogger.warn(tag, meta: {'index': index, 'error': 'TimeoutException'});

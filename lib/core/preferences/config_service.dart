@@ -72,7 +72,9 @@ class ConfigService {
     for (final entry in prefs.entries) {
       final key = entry.key;
       // 安全过滤:不导入 Token 相关 key
-      if (key.startsWith('github_personal_access_token')) continue;
+      if (key.startsWith('github_personal_access_token')) {
+        continue;
+      }
 
       final value = entry.value;
       if (value is String) {

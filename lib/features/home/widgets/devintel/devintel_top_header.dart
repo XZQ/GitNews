@@ -36,20 +36,15 @@ class DevIntelTopHeader extends ConsumerWidget {
 void _openGlobalSearch(BuildContext context, WidgetRef ref, String rawQuery) {
   final entries = GlobalSearchRouter.build(
     aiNewsSetter: (q) => ref.read(aiNewsSearchQueryProvider.notifier).state = q,
-    techHotspotSetter: (q) =>
-        ref.read(techHotspotSearchQueryProvider.notifier).state = q,
-    monitorSetter: (q) =>
-        ref.read(monitorSearchQueryProvider.notifier).state = q,
-    projectSetter: (q) =>
-        ref.read(projectSearchQueryProvider.notifier).state = q,
-    trendingSetter: (q) =>
-        ref.read(trendingSearchQueryProvider.notifier).state = q,
+    techHotspotSetter: (q) => ref.read(techHotspotSearchQueryProvider.notifier).state = q,
+    monitorSetter: (q) => ref.read(monitorSearchQueryProvider.notifier).state = q,
+    projectSetter: (q) => ref.read(projectSearchQueryProvider.notifier).state = q,
+    trendingSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q,
   );
   GlobalSearchRouter.route(
     rawQuery: rawQuery,
     entries: entries,
-    fallbackSetter: (q) =>
-        ref.read(trendingSearchQueryProvider.notifier).state = q,
+    fallbackSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q,
     onRoute: (route) => context.go(route),
   );
 }

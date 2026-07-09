@@ -30,19 +30,15 @@ class HotReposPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('热门仓库'),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/trending'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/trending'),
         ),
       ),
       body: state.when(
         data: (digest) {
           if (digest.allRepos.isEmpty) {
             return EmptyView(
-              icon: searchQuery.isEmpty
-                  ? Icons.local_fire_department_outlined
-                  : Icons.search_off_rounded,
-              message:
-                  searchQuery.isEmpty ? '暂无热门仓库' : '未找到与「$searchQuery」相关的仓库',
+              icon: searchQuery.isEmpty ? Icons.local_fire_department_outlined : Icons.search_off_rounded,
+              message: searchQuery.isEmpty ? '暂无热门仓库' : '未找到与「$searchQuery」相关的仓库',
             );
           }
           return ResponsiveLayout(

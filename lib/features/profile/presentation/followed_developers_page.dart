@@ -20,8 +20,7 @@ class FollowedDevelopersPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('关注的开发者'),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: ResponsiveLayout(
@@ -85,9 +84,7 @@ class _Body extends ConsumerWidget {
                   title: Text(devs[i].login, style: AppTypography.titleSmall),
                   subtitle: Text('+${devs[i].contributions} 本周贡献'),
                   trailing: OutlinedButton(
-                    onPressed: () => ref
-                        .read(localContentControllerProvider.notifier)
-                        .toggleDeveloper(devs[i].login),
+                    onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(devs[i].login),
                     child: const Text('取消关注'),
                   ),
                 ),

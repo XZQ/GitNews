@@ -19,8 +19,7 @@ class LocalTechHotspotRepository implements TechHotspotRepository {
   }
 
   @override
-  Future<TechTopic?> getById(String id) async =>
-      TechHotspotSeedData.topics.where((e) => e.id == id).firstOrNull;
+  Future<TechTopic?> getById(String id) async => TechHotspotSeedData.topics.where((e) => e.id == id).firstOrNull;
 
   @override
   Future<List<TechTopic>> allTopics() async => TechHotspotSeedData.topics;

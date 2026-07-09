@@ -52,9 +52,7 @@ class AiNewsDetailPage extends ConsumerWidget {
         ],
       ),
       body: async.when(
-        data: (item) => item == null
-            ? const _AiNewsDetailMissing()
-            : AiNewsDetailContent(item: item),
+        data: (item) => item == null ? const _AiNewsDetailMissing() : AiNewsDetailContent(item: item),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(
           error: e.asAppException(),
@@ -76,7 +74,9 @@ class AiNewsDetailPage extends ConsumerWidget {
   Future<void> _copyLink(BuildContext context, AiNewsItem item) async {
     final link = item.url.isNotEmpty ? item.url : item.permalink;
     await Clipboard.setData(ClipboardData(text: link));
-    if (!context.mounted) return;
+    if (!context.mounted) {
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(
       context,
@@ -86,7 +86,9 @@ class AiNewsDetailPage extends ConsumerWidget {
   Future<void> _openOriginal(BuildContext context, AiNewsItem item) async {
     final target = item.url.isNotEmpty ? item.url : item.permalink;
     final uri = Uri.tryParse(target);
-    if (uri == null) return;
+    if (uri == null) {
+      return;
+    }
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
       final l10n = AppLocalizations.of(context);

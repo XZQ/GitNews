@@ -24,8 +24,7 @@ class LoginPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.tr('device_flow.title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: ResponsiveLayout(
@@ -46,7 +45,9 @@ class _Body extends ConsumerWidget {
     ref.listen<DeviceFlowState>(githubDeviceFlowProvider, (prev, next) {
       if (next.status == DeviceFlowStatus.success) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) context.go('/profile');
+          if (context.mounted) {
+            context.go('/profile');
+          }
         });
       }
     });
@@ -129,9 +130,7 @@ class _FlowContent extends ConsumerWidget {
         return _ResultView(
           icon: Icons.error_outline_rounded,
           color: AppColors.danger,
-          message: notConfigured
-              ? l10n.tr('device_flow.not_configured')
-              : l10n.tr('device_flow.error'),
+          message: notConfigured ? l10n.tr('device_flow.not_configured') : l10n.tr('device_flow.error'),
           hint: notConfigured ? l10n.tr('device_flow.need_config') : null,
           retry: l10n.tr('device_flow.retry'),
           onRetry: () => ref.read(githubDeviceFlowProvider.notifier).start(),
@@ -157,8 +156,7 @@ class _IdleView extends ConsumerWidget {
         SizedBox(
           width: double.infinity,
           child: FilledButton.icon(
-            onPressed: () =>
-                ref.read(githubDeviceFlowProvider.notifier).start(),
+            onPressed: () => ref.read(githubDeviceFlowProvider.notifier).start(),
             icon: const Icon(Icons.login_rounded),
             label: Text(l10n.tr('device_flow.start')),
           ),
@@ -249,8 +247,7 @@ class _CodeView extends ConsumerWidget {
             ),
             const Spacer(),
             TextButton(
-              onPressed: () =>
-                  ref.read(githubDeviceFlowProvider.notifier).cancel(),
+              onPressed: () => ref.read(githubDeviceFlowProvider.notifier).cancel(),
               child: Text(l10n.tr('device_flow.cancel')),
             ),
           ],

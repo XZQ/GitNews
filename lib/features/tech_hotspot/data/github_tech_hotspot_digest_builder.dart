@@ -28,9 +28,10 @@ List<LanguageStat> buildTechHotspotLanguages(
     }
   }
   final total = counts.values.fold<int>(0, (sum, value) => sum + value);
-  if (total == 0) return const [];
-  final entries = counts.entries.toList()
-    ..sort((a, b) => b.value.compareTo(a.value));
+  if (total == 0) {
+    return const [];
+  }
+  final entries = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
   return entries.take(8).map((entry) {
     return LanguageStat(
       name: entry.key,
@@ -48,8 +49,7 @@ List<TechHeatPoint> buildTechHotspotHeatTrend(
 ) {
   final observed = [
     for (final result in results)
-      if (result.heatTrend != null && result.heatTrend!.length >= 2)
-        result.heatTrend!,
+      if (result.heatTrend != null && result.heatTrend!.length >= 2) result.heatTrend!,
   ];
   if (observed.isNotEmpty) {
     final pointCount = observed.fold<int>(
@@ -91,7 +91,9 @@ List<String> buildTechHotspotTags(List<GithubTechHotspotTopicResult> results) {
 }
 
 List<double> recentTechHotspotHeatValues(List<double> values) {
-  if (values.length <= 7) return values;
+  if (values.length <= 7) {
+    return values;
+  }
   return values.sublist(values.length - 7);
 }
 
@@ -115,11 +117,19 @@ TechTopic copyTechHotspotTopic(
 }
 
 List<String> _trendLabels(int count) {
-  if (count <= 0) return const [];
-  if (count == 2) return const ['起点', '今日'];
+  if (count <= 0) {
+    return const [];
+  }
+  if (count == 2) {
+    return const ['起点', '今日'];
+  }
   return List<String>.generate(count, (index) {
-    if (index == 0) return '起点';
-    if (index == count - 1) return '今日';
+    if (index == 0) {
+      return '起点';
+    }
+    if (index == count - 1) {
+      return '今日';
+    }
     return '+$index';
   });
 }

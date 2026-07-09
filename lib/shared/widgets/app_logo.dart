@@ -27,8 +27,7 @@ class AppLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = brightness == Brightness.dark ||
-        (brightness == null && Theme.of(context).brightness == Brightness.dark);
+    final isDark = brightness == Brightness.dark || (brightness == null && Theme.of(context).brightness == Brightness.dark);
     final l10n = AppLocalizations.of(context);
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -42,9 +41,7 @@ class AppLogo extends StatelessWidget {
               fontSize: size * 0.5,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.2,
-              color: isDark
-                  ? AppColors.textPrimaryDark
-                  : AppColors.textPrimaryLight,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
               height: 1.0,
             ),
           ),

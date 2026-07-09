@@ -111,8 +111,7 @@ class _RepoRowTile extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final color = Color(repo.accentArgb);
     return InkWell(
-      onTap: () =>
-          context.go('/home/detail/${Uri.encodeComponent(repo.fullName)}'),
+      onTap: () => context.go('/home/detail/${Uri.encodeComponent(repo.fullName)}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         child: Row(
@@ -192,16 +191,28 @@ class _RepoRowTile extends StatelessWidget {
 
   String _category(RepoEntity repo) {
     final text = '${repo.fullName} ${repo.description}'.toLowerCase();
-    if (text.contains('agent') || text.contains('langchain')) return 'Agent';
-    if (text.contains('mcp') || text.contains('context')) return 'MCP';
-    if (text.contains('code') || text.contains('coding')) return 'AI Coding';
-    if (text.contains('rag') || text.contains('vector')) return 'RAG';
+    if (text.contains('agent') || text.contains('langchain')) {
+      return 'Agent';
+    }
+    if (text.contains('mcp') || text.contains('context')) {
+      return 'MCP';
+    }
+    if (text.contains('code') || text.contains('coding')) {
+      return 'AI Coding';
+    }
+    if (text.contains('rag') || text.contains('vector')) {
+      return 'RAG';
+    }
     return '开源项目';
   }
 
   String _compactNumber(int value) {
-    if (value >= 1000000) return '${(value / 1000000).toStringAsFixed(1)}M';
-    if (value >= 1000) return '${(value / 1000).toStringAsFixed(1)}K';
+    if (value >= 1000000) {
+      return '${(value / 1000000).toStringAsFixed(1)}M';
+    }
+    if (value >= 1000) {
+      return '${(value / 1000).toStringAsFixed(1)}K';
+    }
     return value.toString();
   }
 }

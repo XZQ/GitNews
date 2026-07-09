@@ -34,9 +34,13 @@ enum AiNewsCategory {
   *从 API `category` 字符串反查枚举;未匹配返回 null。
   */
   static AiNewsCategory? fromCode(String? code) {
-    if (code == null) return null;
+    if (code == null) {
+      return null;
+    }
     for (final c in values) {
-      if (c.code == code) return c;
+      if (c.code == code) {
+        return c;
+      }
     }
     return null;
   }

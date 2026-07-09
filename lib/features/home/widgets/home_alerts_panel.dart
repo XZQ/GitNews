@@ -42,9 +42,7 @@ class HomeAlertsPanel extends ConsumerWidget {
               ),
               child: SectionHeader(
                 title: l10n.tr('home.section.alerts.title'),
-                subtitle: l10n
-                    .tr('home.section.alerts.unread')
-                    .replaceAll('{n}', '${items.length}'),
+                subtitle: l10n.tr('home.section.alerts.unread').replaceAll('{n}', '${items.length}'),
                 onTap: () => context.go('/monitor'),
               ),
             ),

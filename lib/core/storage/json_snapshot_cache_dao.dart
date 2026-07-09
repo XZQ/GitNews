@@ -26,9 +26,10 @@ class JsonSnapshotCacheDao {
         whereArgs: [key],
         limit: 1,
       );
-      if (rows.isEmpty) return null;
-      return jsonDecode(rows.first['payload_json'] as String)
-          as Map<String, Object?>;
+      if (rows.isEmpty) {
+        return null;
+      }
+      return jsonDecode(rows.first['payload_json'] as String) as Map<String, Object?>;
     } catch (e, st) {
       throw AppException(
         kind: AppExceptionKind.cache,
@@ -46,13 +47,14 @@ class JsonSnapshotCacheDao {
   }) async {
     try {
       await _db.insert(
-          _table,
-          {
-            'cache_key': key,
-            'payload_json': jsonEncode(payload),
-            'cached_at': now.millisecondsSinceEpoch,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
+        _table,
+        {
+          'cache_key': key,
+          'payload_json': jsonEncode(payload),
+          'cached_at': now.millisecondsSinceEpoch,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
       await _meta.upsert(key, now);
     } catch (e, st) {
       throw AppException(
@@ -70,7 +72,9 @@ class JsonSnapshotCacheDao {
     required DateTime now,
   }) async {
     final last = await _meta.lastFetched(key);
-    if (last == null) return false;
+    if (last == null) {
+      return false;
+    }
     return now.difference(last) < ttl;
   }
 

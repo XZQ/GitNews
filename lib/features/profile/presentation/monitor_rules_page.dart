@@ -20,8 +20,7 @@ class MonitorRulesPage extends StatelessWidget {
       appBar: AppBar(
         title: Text(l10n.tr('monitor.rules.title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: ResponsiveLayout(
@@ -50,9 +49,7 @@ class _Body extends ConsumerWidget {
             children: [
               SectionHeader(
                 title: l10n.tr('monitor.rules.title'),
-                subtitle: l10n
-                    .tr('monitor.rules.enabled_count')
-                    .replaceAll('{count}', '${content.enabledRuleCount}'),
+                subtitle: l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}'),
               ),
               const SizedBox(height: AppSpacing.md),
               for (var i = 0; i < monitorRuleCount; i++)
@@ -67,20 +64,14 @@ class _Body extends ConsumerWidget {
                         ),
                       ),
                       Text(
-                        enabledFlags[i]
-                            ? l10n.tr('monitor.rules.enabled')
-                            : l10n.tr('monitor.rules.disabled'),
+                        enabledFlags[i] ? l10n.tr('monitor.rules.enabled') : l10n.tr('monitor.rules.disabled'),
                         style: AppTypography.labelSmall.copyWith(
-                          color: enabledFlags[i]
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.onSurfaceVariant,
+                          color: enabledFlags[i] ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
                       Switch(
                         value: enabledFlags[i],
-                        onChanged: (value) => ref
-                            .read(localContentControllerProvider.notifier)
-                            .setMonitorRule(i, value),
+                        onChanged: (value) => ref.read(localContentControllerProvider.notifier).setMonitorRule(i, value),
                       ),
                     ],
                   ),

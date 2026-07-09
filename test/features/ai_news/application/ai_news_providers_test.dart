@@ -31,6 +31,25 @@ class _MockAiNewsRepository implements AiNewsRepository {
   }
 }
 
+class _PagedAiNewsRepository implements AiNewsRepository {
+  _PagedAiNewsRepository(this._pages);
+
+  final Map<String?, AiNewsDigest> _pages;
+  final List<String?> cursors = [];
+
+  @override
+  Future<AiNewsDigest> fetchItems({
+    AiNewsCategory? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  }) async {
+    cursors.add(cursor);
+    return _pages[cursor] ?? const AiNewsDigest(items: [], count: 0, hasNext: false);
+  }
+}
+
 AiNewsItem _item(
   String id, {
   AiNewsCategory category = AiNewsCategory.aiModels,
@@ -122,8 +141,7 @@ void main() {
 
     // 第二次:3 分钟后,应命中缓存
     final repo2 = _MockAiNewsRepository([_item('a')]);
-    final c2 =
-        makeContainer(repo2, clock: () => now.add(const Duration(minutes: 3)));
+    final c2 = makeContainer(repo2, clock: () => now.add(const Duration(minutes: 3)));
     final items = await _pumpUntilSettled(c2);
 
     expect(items.length, 1);
@@ -141,21 +159,18 @@ void main() {
 
     // 6 分钟后,缓存过期
     final repo2 = _MockAiNewsRepository([_item('a'), _item('b')]);
-    final c2 =
-        makeContainer(repo2, clock: () => now.add(const Duration(minutes: 6)));
+    final c2 = makeContainer(repo2, clock: () => now.add(const Duration(minutes: 6)));
     final items = await _pumpUntilSettled(c2);
 
     expect(repo2.callCount, 1);
     expect(items.length, 2);
   });
 
-  test('setting category filter should propagate code to the repository',
-      () async {
+  test('setting category filter should propagate code to the repository', () async {
     final repo = _MockAiNewsRepository([_item('a')]);
     final container = makeContainer(repo);
 
-    container.read(aiNewsCategoryFilterProvider.notifier).state =
-        AiNewsCategory.aiModels;
+    container.read(aiNewsCategoryFilterProvider.notifier).state = AiNewsCategory.aiModels;
     await container.read(aiNewsItemsNotifierProvider.future);
 
     expect(repo.lastCategoryArg, AiNewsCategory.aiModels);
@@ -184,6 +199,58 @@ void main() {
     expect(filterAiNewsItems(items, 'missing'), isEmpty);
   });
 
+  test('触底加载应使用 nextCursor 追加下一页', () async {
+    final repo = _PagedAiNewsRepository({
+      null: AiNewsDigest(
+        items: [for (var i = 0; i < aiNewsPageSize; i++) _item('head_$i')],
+        count: aiNewsPageSize,
+        hasNext: true,
+        nextCursor: 'cursor_2',
+      ),
+      'cursor_2': AiNewsDigest(
+        items: [_item('next_1'), _item('next_2')],
+        count: 2,
+        hasNext: false,
+      ),
+    });
+    final container = makeContainer(repo);
+    final sub = container.listen(aiNewsItemsNotifierProvider, (prev, next) {});
+    addTearDown(sub.close);
+
+    final firstPage = await container.read(aiNewsItemsNotifierProvider.future);
+    expect(firstPage, hasLength(aiNewsPageSize));
+
+    await container.read(aiNewsItemsNotifierProvider.notifier).loadMore();
+
+    final loaded = container.read(aiNewsItemsNotifierProvider).valueOrNull!;
+    expect(loaded.map((e) => e.id).toList(), [
+      for (var i = 0; i < aiNewsPageSize; i++) 'head_$i',
+      'next_1',
+      'next_2',
+    ]);
+    expect(repo.cursors, [null, 'cursor_2']);
+    expect(container.read(aiNewsItemsNotifierProvider.notifier).hasMore, isFalse);
+  });
+
+  test('远端缺少 nextCursor 时不应无限显示底部加载', () async {
+    final repo = _PagedAiNewsRepository({
+      null: AiNewsDigest(
+        items: [for (var i = 0; i < aiNewsPageSize; i++) _item('head_$i')],
+        count: aiNewsPageSize,
+        hasNext: true,
+      ),
+    });
+    final container = makeContainer(repo);
+    final sub = container.listen(aiNewsItemsNotifierProvider, (prev, next) {});
+    addTearDown(sub.close);
+
+    await container.read(aiNewsItemsNotifierProvider.future);
+    await container.read(aiNewsItemsNotifierProvider.notifier).loadMore();
+
+    expect(repo.cursors, [null]);
+    expect(container.read(aiNewsItemsNotifierProvider.notifier).hasMore, isFalse);
+  });
+
   test('无缓存且远端失败:应回退到种子数据并标记 seed', () async {
     final repo = _ThrowingAiNewsRepository();
     final container = makeContainer(repo);
@@ -208,8 +275,7 @@ void main() {
 
     // 远端开始持续失败,但缓存仍存在(且已过期,会触发后台刷新)
     final repo2 = _ThrowingAiNewsRepository();
-    final c2 =
-        makeContainer(repo2, clock: () => now.add(const Duration(minutes: 10)));
+    final c2 = makeContainer(repo2, clock: () => now.add(const Duration(minutes: 10)));
     final items = await _pumpUntilSettled(c2);
 
     expect(items.map((e) => e.id).toList(), ['a']);
@@ -217,8 +283,7 @@ void main() {
   });
 }
 
-DataProvenance readProvenance(ProviderContainer container) =>
-    container.read(aiNewsProvenanceProvider);
+DataProvenance readProvenance(ProviderContainer container) => container.read(aiNewsProvenanceProvider);
 
 class _ThrowingAiNewsRepository implements AiNewsRepository {
   @override

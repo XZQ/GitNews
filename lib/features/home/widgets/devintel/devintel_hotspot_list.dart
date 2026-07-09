@@ -113,18 +113,17 @@ class _HotspotTile extends StatelessWidget {
   }
 
   String _abbr(String name) {
-    final letters = name
-        .split(RegExp(r'\s+'))
-        .where((part) => part.isNotEmpty)
-        .map((part) => part.characters.first)
-        .take(3)
-        .join();
+    final letters = name.split(RegExp(r'\s+')).where((part) => part.isNotEmpty).map((part) => part.characters.first).take(3).join();
     return letters.isEmpty ? 'AI' : letters.toUpperCase();
   }
 
   Color _heatColor(int heat) {
-    if (heat >= 90) return AppColors.danger;
-    if (heat >= 75) return AppColors.warning;
+    if (heat >= 90) {
+      return AppColors.danger;
+    }
+    if (heat >= 75) {
+      return AppColors.warning;
+    }
     return AppColors.info;
   }
 }

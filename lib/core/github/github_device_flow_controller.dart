@@ -55,8 +55,7 @@ class DeviceFlowState {
         status: status ?? this.status,
         userCode: userCode ?? this.userCode,
         verificationUri: verificationUri ?? this.verificationUri,
-        verificationUriComplete:
-            verificationUriComplete ?? this.verificationUriComplete,
+        verificationUriComplete: verificationUriComplete ?? this.verificationUriComplete,
         interval: interval ?? this.interval,
         expiresIn: expiresIn ?? this.expiresIn,
         error: error ?? this.error,
@@ -85,8 +84,7 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
 
   Dio get _dio => DioClient.create(baseUrl: 'https://github.com');
 
-  bool get _configured =>
-      ApiEndpointsConfig.githubOAuthClientId != 'YOUR_OAUTH_APP_CLIENT_ID';
+  bool get _configured => ApiEndpointsConfig.githubOAuthClientId != 'YOUR_OAUTH_APP_CLIENT_ID';
 
   Future<void> start() async {
     if (!_configured) {
@@ -110,7 +108,9 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
         ),
       );
       final data = resp.data;
-      if (data == null) throw const AppException(kind: AppExceptionKind.parse);
+      if (data == null) {
+        throw const AppException(kind: AppExceptionKind.parse);
+      }
       _deviceCode = GitHubJson.string(data['device_code']);
       state = DeviceFlowState(
         status: DeviceFlowStatus.awaiting,
@@ -152,7 +152,9 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
 
   Future<void> _tick() async {
     final deviceCode = _deviceCode;
-    if (deviceCode == null) return;
+    if (deviceCode == null) {
+      return;
+    }
     try {
       final resp = await _dio.post<Map<String, Object?>>(
         ApiEndpointsConfig.githubDeviceTokenPath,
@@ -167,10 +169,14 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
         ),
       );
       final data = resp.data;
-      if (data == null) return;
+      if (data == null) {
+        return;
+      }
       if (data['error'] != null) {
         final err = GitHubJson.string(data['error']);
-        if (err == 'authorization_pending') return;
+        if (err == 'authorization_pending') {
+          return;
+        }
         if (err == 'slow_down') {
           state = state.copyWith(interval: state.interval + 5);
           _beginPolling();
@@ -178,9 +184,7 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
         }
         _timer?.cancel();
         state = DeviceFlowState(
-          status: err == 'access_denied'
-              ? DeviceFlowStatus.denied
-              : DeviceFlowStatus.expired,
+          status: err == 'access_denied' ? DeviceFlowStatus.denied : DeviceFlowStatus.expired,
         );
         return;
       }
@@ -202,12 +206,8 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
       final login = GitHubJson.nullableString(user.data?['login']);
       final avatar = GitHubJson.nullableString(user.data?['avatar_url']);
       if (login != null) {
-        await ref
-            .read(localContentControllerProvider.notifier)
-            .setCachedUser(name: login, avatarUrl: avatar);
-        await ref
-            .read(profileSessionControllerProvider.notifier)
-            .signInLocal(login);
+        await ref.read(localContentControllerProvider.notifier).setCachedUser(name: login, avatarUrl: avatar);
+        await ref.read(profileSessionControllerProvider.notifier).signInLocal(login);
       }
     } catch (_) {
       // 即便拉不到用户信息,Token 已写入,不影响后续 API 调用。
@@ -222,7 +222,6 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
   }
 }
 
-final githubDeviceFlowProvider =
-    NotifierProvider<GithubDeviceFlowController, DeviceFlowState>(
+final githubDeviceFlowProvider = NotifierProvider<GithubDeviceFlowController, DeviceFlowState>(
   GithubDeviceFlowController.new,
 );

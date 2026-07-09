@@ -29,8 +29,7 @@ class LanguageTrendPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('语言趋势'),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/trending'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/trending'),
         ),
       ),
       body: state.when(
@@ -85,8 +84,7 @@ class _Body extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               LanguageDonutChart(
                 data: digest.languages,
-                holeColor:
-                    isLight ? AppColors.surfaceLight : AppColors.surfaceDark,
+                holeColor: isLight ? AppColors.surfaceLight : AppColors.surfaceDark,
               ),
               const SizedBox(height: AppSpacing.lg),
               for (final l in digest.languages) ...[

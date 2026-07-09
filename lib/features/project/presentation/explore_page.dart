@@ -29,8 +29,7 @@ class ExplorePage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.tr('project.explore.title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/project'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/project'),
         ),
       ),
       body: ResponsiveLayout(
@@ -93,9 +92,7 @@ class _DigestView extends StatelessWidget {
           title: AppLocalizations.of(
             context,
           ).tr('project.explore.recommended_repos'),
-          subtitle: AppLocalizations.of(context)
-              .tr('project.explore.recommended_repos.subtitle')
-              .replaceAll('{n}', digest.repos.length.toString()),
+          subtitle: AppLocalizations.of(context).tr('project.explore.recommended_repos.subtitle').replaceAll('{n}', digest.repos.length.toString()),
           repos: digest.repos,
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -164,8 +161,7 @@ class _HotChipsCard extends ConsumerWidget {
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
             children: [
-              for (final c in chips)
-                ProjectTopicChip(label: c.label, color: c.color),
+              for (final c in chips) ProjectTopicChip(label: c.label, color: c.color),
             ],
           ),
         ],

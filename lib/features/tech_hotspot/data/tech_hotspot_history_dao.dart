@@ -31,11 +31,8 @@ class TechHotspotHistoryDao {
       for (final point in points) point.day: point,
       dayKey: nextPoint,
     };
-    final next = byDay.values.toList()
-      ..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
-    final bounded = next.length <= techHotspotHistoryMaxPoints
-        ? next
-        : next.sublist(next.length - techHotspotHistoryMaxPoints);
+    final next = byDay.values.toList()..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
+    final bounded = next.length <= techHotspotHistoryMaxPoints ? next : next.sublist(next.length - techHotspotHistoryMaxPoints);
     await _cache.upsert(
       key: key,
       payload: {
@@ -48,9 +45,13 @@ class TechHotspotHistoryDao {
 
   Future<TechHotspotTrendSnapshot?> trend(String id) async {
     final payload = await _cache.read(_cacheKey(id));
-    if (payload == null) return null;
+    if (payload == null) {
+      return null;
+    }
     final points = _pointsFromPayload(payload);
-    if (points.length < 2) return null;
+    if (points.length < 2) {
+      return null;
+    }
     final first = points.first;
     final last = points.last;
     return TechHotspotTrendSnapshot(
@@ -64,7 +65,9 @@ class TechHotspotHistoryDao {
     Map<String, Object?> payload,
   ) {
     final raw = payload['points'];
-    if (raw == null) return const [];
+    if (raw == null) {
+      return const [];
+    }
     return GitHubJson.list(
       raw,
     ).map(TechHotspotHistoryPoint.fromJson).toList(growable: false)
@@ -72,7 +75,9 @@ class TechHotspotHistoryDao {
   }
 
   double _growthPercent(int first, int last) {
-    if (first <= 0) return 0;
+    if (first <= 0) {
+      return 0;
+    }
     return ((last - first) / first * 100).clamp(-99, 999).toDouble();
   }
 

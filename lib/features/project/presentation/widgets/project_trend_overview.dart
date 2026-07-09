@@ -44,7 +44,9 @@ class ProjectTrendOverview extends StatelessWidget {
   }
 
   List<double> _safeTrend(List<double> values) {
-    if (values.isNotEmpty) return values;
+    if (values.isNotEmpty) {
+      return values;
+    }
     final stars = digest.repos.fold<int>(
       0,
       (sum, repo) => sum + repo.starDelta,

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- 发现页官方账号/知名人士点击行为改为进入代表仓库详情页，保持在桌面端应用壳 B 区域内，不再打开全屏 WebView。
+- 发现页文档同步为 4 个分段：流行仓库、Agent Skills、官方账号、知名人士；手机端仍保持既有规划不变。
+- 发现页 4 个分段切换和列表改为接近 AI 动态的信息流样式，仓库、Skills、官方账号、知名人士均使用卡片式列表。
+
+### Fixed
+- AI 动态触底加载在远端返回 `hasNext=true` 但缺少 `nextCursor` 时不再无限显示底部 loading。
+
 ### Security
 - **BREAKING**: GitHub Token 存储从 SharedPreferences 明文迁移至 `flutter_secure_storage`（Windows DPAPI / macOS Keychain 加密存储）
 - 首次启动自动迁移旧版明文 Token 至安全存储，迁移后清除 SharedPreferences 中的旧记录

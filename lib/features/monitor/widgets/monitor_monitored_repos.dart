@@ -75,11 +75,9 @@ class MonitorMonitoredRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final trend =
-        repo.trend ?? DemoData.generateStarTrend(repo.starCount - 5000, 5000);
+    final trend = repo.trend ?? DemoData.generateStarTrend(repo.starCount - 5000, 5000);
     return InkWell(
-      onTap: () =>
-          context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
+      onTap: () => context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.lg,

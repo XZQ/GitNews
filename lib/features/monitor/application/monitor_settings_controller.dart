@@ -28,7 +28,9 @@ class MonitorSettingsController extends Notifier<List<bool>> {
   }
 
   Future<void> setEnabled(int index, bool enabled) async {
-    if (index < 0 || index >= state.length) return;
+    if (index < 0 || index >= state.length) {
+      return;
+    }
     final next = [...state]..[index] = enabled;
     state = next;
     await ref.read(sharedPreferencesProvider).setStringList(_key, [
@@ -37,7 +39,6 @@ class MonitorSettingsController extends Notifier<List<bool>> {
   }
 }
 
-final monitorSettingsControllerProvider =
-    NotifierProvider<MonitorSettingsController, List<bool>>(
+final monitorSettingsControllerProvider = NotifierProvider<MonitorSettingsController, List<bool>>(
   MonitorSettingsController.new,
 );

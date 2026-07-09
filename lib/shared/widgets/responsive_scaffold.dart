@@ -20,9 +20,7 @@ class ResponsiveScaffold extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final location = navigationShell.currentIndex == 0
-        ? '/home'
-        : GoRouterState.of(context).matchedLocation;
+    final location = navigationShell.currentIndex == 0 ? '/home' : GoRouterState.of(context).matchedLocation;
     final index = appTabs.indexOfLocation(location);
     final formFactor = Breakpoints.of(context);
     void onTap(int i) => navigationShell.goBranch(
@@ -100,9 +98,7 @@ class _SidebarDragHandleState extends ConsumerState<_SidebarDragHandle> {
               duration: const Duration(milliseconds: 120),
               width: highlight ? 2 : 1,
               height: double.infinity,
-              color: highlight
-                  ? colors.primary.withValues(alpha: 0.6)
-                  : Colors.transparent,
+              color: highlight ? colors.primary.withValues(alpha: 0.6) : Colors.transparent,
             ),
           ),
         ),

@@ -25,18 +25,13 @@ class ProfileUserCard extends ConsumerWidget {
     final githubUser = local.cachedUserName;
     final avatarUrl = local.cachedAvatarUrl;
     final connected = githubUser != null && githubUser.isNotEmpty;
-    final displayName = (githubUser != null && githubUser.isNotEmpty)
-        ? githubUser
-        : session.effectiveName;
-    final statusKey =
-        connected ? 'profile.github.connected' : session.statusKey;
+    final displayName = (githubUser != null && githubUser.isNotEmpty) ? githubUser : session.effectiveName;
+    final statusKey = connected ? 'profile.github.connected' : session.statusKey;
 
     Future<void> signOut() async {
       if (connected) {
         await ref.read(githubTokenControllerProvider.notifier).clear();
-        await ref
-            .read(localContentControllerProvider.notifier)
-            .clearCachedUser();
+        await ref.read(localContentControllerProvider.notifier).clearCachedUser();
       }
       await ref.read(profileSessionControllerProvider.notifier).signOut();
     }
@@ -47,8 +42,7 @@ class ProfileUserCard extends ConsumerWidget {
           CircleAvatar(
             radius: 32,
             backgroundColor: colors.primaryContainer,
-            backgroundImage:
-                connected && avatarUrl != null ? NetworkImage(avatarUrl) : null,
+            backgroundImage: connected && avatarUrl != null ? NetworkImage(avatarUrl) : null,
             child: connected && avatarUrl != null
                 ? null
                 : Icon(
@@ -79,17 +73,13 @@ class ProfileUserCard extends ConsumerWidget {
                         vertical: AppSpacing.xxs,
                       ),
                       decoration: BoxDecoration(
-                        color: connected
-                            ? colors.primary
-                            : colors.primaryContainer,
+                        color: connected ? colors.primary : colors.primaryContainer,
                         borderRadius: BorderRadius.circular(AppRadius.xs),
                       ),
                       child: Text(
                         connected ? 'GitHub' : l10n.tr('profile.signed_out'),
                         style: AppTypography.labelSmall.copyWith(
-                          color: connected
-                              ? colors.onPrimary
-                              : colors.onPrimaryContainer,
+                          color: connected ? colors.onPrimary : colors.onPrimaryContainer,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -105,9 +95,7 @@ class ProfileUserCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 TextButton(
-                  onPressed: connected
-                      ? signOut
-                      : () => context.push('/profile/login'),
+                  onPressed: connected ? signOut : () => context.push('/profile/login'),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 28),
@@ -115,9 +103,7 @@ class ProfileUserCard extends ConsumerWidget {
                     alignment: Alignment.centerLeft,
                   ),
                   child: Text(
-                    connected
-                        ? l10n.tr('profile.logout')
-                        : l10n.tr('profile.login'),
+                    connected ? l10n.tr('profile.logout') : l10n.tr('profile.login'),
                   ),
                 ),
               ],

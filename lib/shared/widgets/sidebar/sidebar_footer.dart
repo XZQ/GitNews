@@ -69,9 +69,7 @@ class _SidebarProfileCardState extends ConsumerState<SidebarProfileCard> {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 140),
         decoration: BoxDecoration(
-          color: _hovered
-              ? colors.primary.withValues(alpha: 0.08)
-              : colors.surfaceContainerHighest,
+          color: _hovered ? colors.primary.withValues(alpha: 0.08) : colors.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(AppRadius.md),
         ),
         child: Material(
@@ -112,9 +110,7 @@ class _SidebarProfileCardState extends ConsumerState<SidebarProfileCard> {
                                 vertical: 1,
                               ),
                               decoration: BoxDecoration(
-                                color: signedIn
-                                    ? AppColors.starGold.withValues(alpha: 0.16)
-                                    : colors.surfaceContainerHighest,
+                                color: signedIn ? AppColors.starGold.withValues(alpha: 0.16) : colors.surfaceContainerHighest,
                                 borderRadius: BorderRadius.circular(
                                   AppRadius.xs,
                                 ),
@@ -122,9 +118,7 @@ class _SidebarProfileCardState extends ConsumerState<SidebarProfileCard> {
                               child: Text(
                                 badge,
                                 style: AppTypography.labelSmall.copyWith(
-                                  color: signedIn
-                                      ? AppColors.warning
-                                      : colors.onSurfaceVariant,
+                                  color: signedIn ? AppColors.warning : colors.onSurfaceVariant,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 10,
                                   letterSpacing: 0,

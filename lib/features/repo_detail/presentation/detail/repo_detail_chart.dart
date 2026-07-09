@@ -83,7 +83,9 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
   }
 
   List<double> _windowed(List<double> values) {
-    if (values.length <= _window) return values;
+    if (values.length <= _window) {
+      return values;
+    }
     return values.sublist(values.length - _window);
   }
 }

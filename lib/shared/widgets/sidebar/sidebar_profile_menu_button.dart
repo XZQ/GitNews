@@ -83,7 +83,9 @@ class SidebarProfileMenuButton extends ConsumerWidget {
               return;
             }
             await ref.read(profileSessionControllerProvider.notifier).signOut();
-            if (!context.mounted) return;
+            if (!context.mounted) {
+              return;
+            }
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(l10n.tr('profile.logout'))));

@@ -63,7 +63,9 @@ final aiNewsSearchQueryProvider = StateProvider<String>((ref) => '');
 */
 List<AiNewsItem> filterAiNewsItems(List<AiNewsItem> items, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return items;
+  if (keyword.isEmpty) {
+    return items;
+  }
 
   return [
     for (final item in items)
@@ -99,14 +101,12 @@ const Duration aiNewsCacheTtl = CacheTtlConfig.aiNews;
 // 2. **Phase B(后台静默)**:若 cache_meta 判定已过期(或从未拉取),
 // 静默发起远端请求;成功后刷新 buffer + state + DB;失败保持现状
 // 切换分类会触发 [ref.watch] 重建 → 状态自动重置。
-final aiNewsItemsNotifierProvider =
-    AsyncNotifierProvider.autoDispose<AiNewsItemsNotifier, List<AiNewsItem>>(
+final aiNewsItemsNotifierProvider = AsyncNotifierProvider.autoDispose<AiNewsItemsNotifier, List<AiNewsItem>>(
   AiNewsItemsNotifier.new,
 );
 
 // 资讯详情读取:详情页只依赖本地缓存,避免再次请求远端或打开不稳定外站。
-final aiNewsItemDetailProvider =
-    FutureProvider.autoDispose.family<AiNewsItem?, String>(
+final aiNewsItemDetailProvider = FutureProvider.autoDispose.family<AiNewsItem?, String>(
   (ref, id) => ref.watch(aiNewsCacheDaoProvider).readById(id),
 );
 
@@ -143,7 +143,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
 
     // Phase A:优先读缓存,瞬间出列表
     final cached = await dao.readAll(category: _category);
-    if (gen != _generation) return const [];
+    if (gen != _generation) {
+      return const [];
+    }
     if (cached.isNotEmpty) {
       _buffer = cached;
       // 缓存里没有分页游标信息;乐观认为远端可能还有更多,
@@ -159,7 +161,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       ttl: aiNewsCacheTtl,
       now: now,
     );
-    if (gen != _generation) return const [];
+    if (gen != _generation) {
+      return const [];
+    }
     if (fresh) {
       // 缓存命中且未过期:无需远端
       provenance.state = DataProvenance.freshCache;
@@ -167,7 +171,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     }
 
     await _fetchNextPage(generation: gen);
-    if (gen != _generation) return const [];
+    if (gen != _generation) {
+      return const [];
+    }
     return _currentSlice();
   }
 
@@ -178,7 +184,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
   *初次请求或后续预取请求打架。
   */
   Future<void> loadMore() async {
-    if (state.hasError) return;
+    if (state.hasError) {
+      return;
+    }
     final shown = state.valueOrNull?.length ?? 0;
     if (shown < _buffer.length) {
       final nextEnd = (shown + aiNewsPageSize).clamp(0, _buffer.length);
@@ -187,7 +195,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       }
       return;
     }
-    if (!_hasApiMore) return;
+    if (!_hasApiMore) {
+      return;
+    }
     await _fetchNextPage();
     final newShown = state.valueOrNull?.length ?? 0;
     final nextEnd = (newShown + aiNewsPageSize).clamp(0, _buffer.length);
@@ -204,25 +214,27 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     return shown < _buffer.length || _hasApiMore;
   }
 
-  List<AiNewsItem> _currentSlice() =>
-      _buffer.sublist(0, _buffer.length.clamp(0, aiNewsPageSize));
+  List<AiNewsItem> _currentSlice() => _buffer.sublist(0, _buffer.length.clamp(0, aiNewsPageSize));
 
   Future<void> _fetchNextPage({int? generation}) async {
     final gen = generation ?? _generation;
-    if (_fetching && gen == _generation) return;
+    if (_fetching && gen == _generation) {
+      return;
+    }
     _fetching = true;
     final provenance = ref.read(aiNewsProvenanceProvider.notifier);
     // 关键不变量:cursor=null 表示「拉 head 页」(初始化或刷新),
     // 用新结果覆盖 buffer;cursor 非空表示「翻下一页」,追加到 buffer。
     final isHead = _nextCursor == null;
     try {
-      final digest = await ref
-          .read(aiNewsRepositoryProvider)
-          .fetchItems(category: _category, cursor: _nextCursor);
-      if (gen != _generation) return;
+      final digest = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: _nextCursor);
+      if (gen != _generation) {
+        return;
+      }
       _buffer = isHead ? digest.items : [..._buffer, ...digest.items];
-      _nextCursor = digest.nextCursor;
-      _hasApiMore = digest.hasNext;
+      final nextCursor = digest.nextCursor?.trim();
+      _nextCursor = nextCursor == null || nextCursor.isEmpty ? null : nextCursor;
+      _hasApiMore = digest.hasNext && _nextCursor != null;
       provenance.state = DataProvenance.live;
       // 落盘 + 更新 head meta。
       final dao = ref.read(aiNewsCacheDaoProvider);
@@ -235,7 +247,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
         now: now,
       );
     } catch (e) {
-      if (gen != _generation) return;
+      if (gen != _generation) {
+        return;
+      }
       _fetching = false;
       // 后台刷新失败容忍:已有缓存数据就不报错,标记为陈旧缓存兜底
       if (state.valueOrNull != null) {
@@ -247,6 +261,8 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       provenance.state = DataProvenance.seed;
       state = AsyncData(_currentSlice());
     }
-    if (gen == _generation) _fetching = false;
+    if (gen == _generation) {
+      _fetching = false;
+    }
   }
 }

@@ -27,8 +27,7 @@ class MonitorAlertsPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.tr('monitor.alerts.title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/monitor'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'),
         ),
       ),
       body: state.when(
@@ -42,8 +41,7 @@ class MonitorAlertsPage extends ConsumerWidget {
             );
           }
           return ResponsiveLayout(
-            compact: (_) =>
-                _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
+            compact: (_) => _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
             medium: (_) => CenteredContent(
               child: _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
             ),
@@ -97,11 +95,7 @@ class _Body extends ConsumerWidget {
                 ),
                 child: SectionHeader(
                   title: l10n.tr('monitor.alerts.all'),
-                  subtitle: l10n
-                      .tr('monitor.alerts.subtitle')
-                      .replaceAll('{visible}', '${alerts.length}')
-                      .replaceAll('{unread}', '$unreadCount')
-                      .replaceAll(
+                  subtitle: l10n.tr('monitor.alerts.subtitle').replaceAll('{visible}', '${alerts.length}').replaceAll('{unread}', '$unreadCount').replaceAll(
                         '{archived}',
                         '${rawAlerts.length - alerts.length}',
                       ),
@@ -140,9 +134,7 @@ class _Body extends ConsumerWidget {
                         ),
                       ],
                       selected: {filter},
-                      onSelectionChanged: (values) => ref
-                          .read(monitorAlertFilterProvider.notifier)
-                          .state = values.single,
+                      onSelectionChanged: (values) => ref.read(monitorAlertFilterProvider.notifier).state = values.single,
                     ),
                     TextButton.icon(
                       onPressed: unreadCount == 0

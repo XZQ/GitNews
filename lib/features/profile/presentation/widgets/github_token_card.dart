@@ -48,9 +48,7 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
             title: l10n.tr('profile.token.title'),
             subtitle: l10n.tr('profile.token.subtitle'),
             trailing: _StatusPill(
-              label: tokenState.hasToken
-                  ? tokenState.maskedToken
-                  : l10n.tr('profile.token.not_configured'),
+              label: tokenState.hasToken ? tokenState.maskedToken : l10n.tr('profile.token.not_configured'),
               active: tokenState.hasToken,
             ),
           ),
@@ -104,11 +102,11 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
   }
 
   Future<void> _save() async {
-    await ref
-        .read(githubTokenControllerProvider.notifier)
-        .setToken(_controller.text);
+    await ref.read(githubTokenControllerProvider.notifier).setToken(_controller.text);
     _controller.clear();
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(
       context,
@@ -118,7 +116,9 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
   Future<void> _clear() async {
     await ref.read(githubTokenControllerProvider.notifier).clear();
     _controller.clear();
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(
       context,
@@ -129,12 +129,15 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     setState(() => _rateLimit = const AsyncLoading());
     try {
       final token = ref.read(githubTokenControllerProvider).token;
-      final snapshot =
-          await ref.read(githubRateLimitClientProvider).fetch(token: token);
-      if (!mounted) return;
+      final snapshot = await ref.read(githubRateLimitClientProvider).fetch(token: token);
+      if (!mounted) {
+        return;
+      }
       setState(() => _rateLimit = AsyncData(snapshot));
     } catch (e, st) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() => _rateLimit = AsyncError(e, st));
     }
   }
@@ -187,9 +190,7 @@ class _RateLimitStatus extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              l10n
-                  .tr('profile.token.check_time')
-                  .replaceAll('{time}', _formatTime(snapshot.checkedAt)),
+              l10n.tr('profile.token.check_time').replaceAll('{time}', _formatTime(snapshot.checkedAt)),
               style: AppTypography.labelSmall.copyWith(
                 color: colors.onSurfaceVariant,
               ),
@@ -269,9 +270,7 @@ class _StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final color = active
-        ? AppColors.success
-        : (isLight ? AppColors.textMutedLight : AppColors.textMutedDark);
+    final color = active ? AppColors.success : (isLight ? AppColors.textMutedLight : AppColors.textMutedDark);
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.sm,

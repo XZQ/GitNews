@@ -41,8 +41,12 @@ class AppException implements Exception {
   */
   int? get retryAfterSeconds {
     final v = meta['retryAfter'];
-    if (v is int) return v;
-    if (v is Duration) return v.inSeconds;
+    if (v is int) {
+      return v;
+    }
+    if (v is Duration) {
+      return v.inSeconds;
+    }
     return null;
   }
 
@@ -107,7 +111,9 @@ extension DioExceptionToApp on DioException {
 */
 extension ObjectAsAppException on Object {
   AppException asAppException([StackTrace? stack]) {
-    if (this is AppException) return this as AppException;
+    if (this is AppException) {
+      return this as AppException;
+    }
     return AppException(
       kind: AppExceptionKind.unknown,
       cause: this,

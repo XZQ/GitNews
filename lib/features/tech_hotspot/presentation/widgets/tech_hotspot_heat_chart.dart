@@ -41,9 +41,7 @@ class TechHotspotHeatChart extends StatelessWidget {
               ),
               const Spacer(),
               Text(
-                l10n
-                    .tr('tech_hotspot.heat_chart.peak')
-                    .replaceAll('{v}', values.last.value.toStringAsFixed(0)),
+                l10n.tr('tech_hotspot.heat_chart.peak').replaceAll('{v}', values.last.value.toStringAsFixed(0)),
                 style: AppTypography.labelSmall.copyWith(
                   color: colors.onSurfaceVariant,
                 ),
@@ -72,8 +70,7 @@ class TechHotspotHeatChart extends StatelessWidget {
                       color: AppColors.warning.withValues(alpha: 0.16),
                     ),
                     spots: [
-                      for (var i = 0; i < values.length; i++)
-                        FlSpot(i.toDouble(), values[i].value),
+                      for (var i = 0; i < values.length; i++) FlSpot(i.toDouble(), values[i].value),
                     ],
                   ),
                 ],

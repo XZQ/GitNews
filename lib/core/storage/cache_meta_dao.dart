@@ -28,9 +28,13 @@ class CacheMetaDao {
         whereArgs: [cacheKey],
         limit: 1,
       );
-      if (rows.isEmpty) return null;
+      if (rows.isEmpty) {
+        return null;
+      }
       final ms = rows.first['last_fetched_at'] as int?;
-      if (ms == null) return null;
+      if (ms == null) {
+        return null;
+      }
       return DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
     } catch (e, st) {
       throw AppException(
@@ -106,7 +110,9 @@ class CacheMetaDao {
         whereArgs: [cacheKey],
         limit: 1,
       );
-      if (rows.isEmpty) return null;
+      if (rows.isEmpty) {
+        return null;
+      }
       return rows.first['payload_hash'] as String?;
     } catch (e, st) {
       throw AppException(
@@ -131,17 +137,16 @@ class CacheMetaDao {
         whereArgs: [cacheKey],
         limit: 1,
       );
-      final lastFetched = existing.isEmpty
-          ? 0
-          : (existing.first['last_fetched_at'] as int? ?? 0);
+      final lastFetched = existing.isEmpty ? 0 : (existing.first['last_fetched_at'] as int? ?? 0);
       await _db.insert(
-          _table,
-          {
-            'cache_key': cacheKey,
-            'last_fetched_at': lastFetched,
-            'payload_hash': etag,
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace);
+        _table,
+        {
+          'cache_key': cacheKey,
+          'last_fetched_at': lastFetched,
+          'payload_hash': etag,
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
     } catch (e, st) {
       throw AppException(
         kind: AppExceptionKind.cache,
@@ -161,8 +166,7 @@ class CacheMetaDao {
     required Duration retainFor,
   }) async {
     try {
-      final threshold =
-          now.toUtc().millisecondsSinceEpoch - retainFor.inMilliseconds;
+      final threshold = now.toUtc().millisecondsSinceEpoch - retainFor.inMilliseconds;
       return _db.delete(
         _table,
         where: 'last_fetched_at < ?',

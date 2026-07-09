@@ -21,11 +21,12 @@ class StartupTabController extends Notifier<String> {
   }
 
   Future<void> setSegment(String segment) async {
-    if (!appTabs.any((tab) => tab.pathSegment == segment)) return;
+    if (!appTabs.any((tab) => tab.pathSegment == segment)) {
+      return;
+    }
     state = segment;
     await ref.read(sharedPreferencesProvider).setString(_kKey, segment);
   }
 }
 
-final startupTabControllerProvider =
-    NotifierProvider<StartupTabController, String>(StartupTabController.new);
+final startupTabControllerProvider = NotifierProvider<StartupTabController, String>(StartupTabController.new);

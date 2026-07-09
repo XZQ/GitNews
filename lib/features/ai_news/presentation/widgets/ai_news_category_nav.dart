@@ -97,9 +97,7 @@ class _NavChip extends StatelessWidget {
           decoration: BoxDecoration(
             color: bg,
             border: Border.all(
-              color: isSelected
-                  ? color.withValues(alpha: 0.45)
-                  : theme.colorScheme.outlineVariant,
+              color: isSelected ? color.withValues(alpha: 0.45) : theme.colorScheme.outlineVariant,
             ),
             borderRadius: BorderRadius.circular(AppRadius.pill),
           ),

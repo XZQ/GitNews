@@ -18,8 +18,7 @@ class DeveloperOptionsPage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('开发者选项'),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: ResponsiveLayout(

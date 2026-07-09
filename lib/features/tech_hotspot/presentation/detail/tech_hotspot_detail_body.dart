@@ -47,7 +47,9 @@ class TechHotspotDetailLanguages extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (languages.isEmpty) return const SizedBox.shrink();
+    if (languages.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return AppCard(
@@ -83,9 +85,7 @@ class TechHotspotDetailLanguages extends StatelessWidget {
                 Text(
                   '${lang.delta >= 0 ? '+' : ''}${lang.delta.toStringAsFixed(1)}%',
                   style: AppTypography.labelSmall.copyWith(
-                    color: lang.delta >= 0
-                        ? AppColors.trendUp
-                        : AppColors.trendDown,
+                    color: lang.delta >= 0 ? AppColors.trendUp : AppColors.trendDown,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

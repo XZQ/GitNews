@@ -47,8 +47,7 @@ void main() {
     });
 
     test('returns distinct title for each tab', () {
-      final titles =
-          HomeLegacyTab.values.map((t) => homeChartTitle(l10n, t)).toSet();
+      final titles = HomeLegacyTab.values.map((t) => homeChartTitle(l10n, t)).toSet();
       expect(titles.length, HomeLegacyTab.values.length);
     });
 
@@ -88,16 +87,13 @@ void main() {
     });
 
     test('returns distinct subtitle for each tab', () {
-      final subtitles = HomeLegacyTab.values
-          .map((t) => homeChartSubtitle(l10n, t, window))
-          .toSet();
+      final subtitles = HomeLegacyTab.values.map((t) => homeChartSubtitle(l10n, t, window)).toSet();
       expect(subtitles.length, HomeLegacyTab.values.length);
     });
 
     test('calls tr with correct key and replaces placeholder', () {
       final mockL10n = _MockAppLocalizations();
-      when(() => mockL10n.tr('home.chart.subtitle.trending'))
-          .thenReturn('{window} · vs last week');
+      when(() => mockL10n.tr('home.chart.subtitle.trending')).thenReturn('{window} · vs last week');
 
       final result = homeChartSubtitle(mockL10n, HomeLegacyTab.trending, '7d');
 
@@ -177,8 +173,7 @@ void main() {
     });
 
     group('null/empty data handling', () {
-      test('falls back to demo data when primaryTrend is null (trending tab)',
-          () {
+      test('falls back to demo data when primaryTrend is null (trending tab)', () {
         final series = homeSeriesForWindow(
           7,
           HomeLegacyTab.trending,
@@ -192,8 +187,7 @@ void main() {
         expect(series[1].color, AppColors.info);
       });
 
-      test('falls back to demo data when primaryTrend is empty (trending tab)',
-          () {
+      test('falls back to demo data when primaryTrend is empty (trending tab)', () {
         final series = homeSeriesForWindow(
           7,
           HomeLegacyTab.trending,

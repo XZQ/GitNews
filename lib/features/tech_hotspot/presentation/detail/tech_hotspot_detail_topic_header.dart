@@ -8,8 +8,12 @@ import '../../../../shared/widgets/gradient_hero_header.dart';
 import '../../domain/tech_hotspot_models.dart';
 
 Color techHeatColor(int heat) {
-  if (heat >= 90) return AppColors.danger;
-  if (heat >= 75) return AppColors.warning;
+  if (heat >= 90) {
+    return AppColors.danger;
+  }
+  if (heat >= 75) {
+    return AppColors.warning;
+  }
   return AppColors.info;
 }
 
@@ -29,9 +33,7 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
       badges: [
         HeroBadge(label: topic.category, color: heatColor),
         HeroBadge(
-          label: l10n
-              .tr('tech_hotspot.detail.heat_value')
-              .replaceAll('{heat}', topic.heat.toString()),
+          label: l10n.tr('tech_hotspot.detail.heat_value').replaceAll('{heat}', topic.heat.toString()),
           color: heatColor,
           icon: Icons.local_fire_department_rounded,
         ),

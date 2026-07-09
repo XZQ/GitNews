@@ -18,7 +18,9 @@ class _FakeRemoteTrendingDataSource implements TrendingDataSource {
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
     calls++;
     final e = error;
-    if (e != null) throw e;
+    if (e != null) {
+      throw e;
+    }
     return snapshot;
   }
 }
@@ -93,8 +95,7 @@ void main() {
       expect(await dao.readSnapshot(const TrendingQuery()), isNull);
     });
 
-    test('deleteSnapshot should remove only the matching query and scope',
-        () async {
+    test('deleteSnapshot should remove only the matching query and scope', () async {
       const python = TrendingQuery(language: 'Python');
       const rust = TrendingQuery(language: 'Rust');
       final now = DateTime.utc(2026, 7, 4, 10);
@@ -123,10 +124,7 @@ void main() {
         'rust/repo',
       );
       expect(
-        (await dao.readSnapshot(python, scope: 'token_1'))
-            ?.trendingRepos
-            .first
-            .fullName,
+        (await dao.readSnapshot(python, scope: 'token_1'))?.trendingRepos.first.fullName,
         'token/repo',
       );
       expect(
@@ -247,8 +245,7 @@ void main() {
         snapshot: _snapshot('stale/repo'),
         now: now,
       );
-      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'))
-        ..error = StateError('network down');
+      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'))..error = StateError('network down');
       final dataSource = CachedTrendingDataSource(
         remote: remote,
         cache: dao,

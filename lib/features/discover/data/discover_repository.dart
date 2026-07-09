@@ -39,8 +39,7 @@ class DiscoverRepository {
   static const String _trendingQuery = 'stars:>1000';
   // 按 topic 精准检索 Agent Skills 生态(agent-skills / claude-skills / mcp),
   // 比关键词 OR 命中更相关;stars:>50 过滤掉玩具项目。
-  static const String _skillsQuery =
-      'topic:agent-skills OR topic:claude-skills OR topic:mcp stars:>50';
+  static const String _skillsQuery = 'topic:agent-skills OR topic:claude-skills OR topic:mcp stars:>50';
   static const String _kTrending = 'discover_trending_repos';
   static const String _kSkills = 'discover_agent_skills';
   static const String _kProfiles = 'discover_profiles';
@@ -68,6 +67,28 @@ class DiscoverRepository {
     'TimDettmers',
     'shreyashankar',
   ];
+  static const Map<String, String> _featuredReposByLogin = {
+    'openai': 'openai/openai-agents-python',
+    'anthropics': 'anthropics/skills',
+    'microsoft': 'microsoft/autogen',
+    'langchain-ai': 'langchain-ai/langchain',
+    'crewAIInc': 'crewAIInc/crewAI',
+    'modelcontextprotocol': 'modelcontextprotocol/servers',
+    'vercel': 'vercel/ai',
+    'google': 'google-gemini/gemini-cli',
+    'meta-llama': 'meta-llama/llama-cookbook',
+    'huggingface': 'huggingface/transformers',
+    'karpathy': 'karpathy/nanoGPT',
+    'simonw': 'simonw/llm',
+    'swyxio': 'swyxio/ai-notes',
+    'hwchase17': 'langchain-ai/langchain',
+    'jerryjliu': 'run-llama/llama_index',
+    'gdb': 'openai/openai-cookbook',
+    'fchollet': 'keras-team/keras',
+    'soumith': 'pytorch/pytorch',
+    'TimDettmers': 'bitsandbytes-foundation/bitsandbytes',
+    'shreyashankar': 'lotus-data/lotus',
+  };
 
   Future<List<RepoEntity>> fetchTrendingRepos({
     bool force = false,
@@ -76,7 +97,9 @@ class DiscoverRepository {
   }) async {
     final now = _now();
     final key = _pageKey(_kTrending, page, perPage);
-    if (force) await _safeDelete(key);
+    if (force) {
+      await _safeDelete(key);
+    }
     if (!_blocked()) {
       if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
         final cached = await _cache.read(key);
@@ -109,7 +132,9 @@ class DiscoverRepository {
       }
     }
     final cached = await _cache.read(key);
-    if (cached != null) return _decodeRepos(cached, DataProvenance.staleCache);
+    if (cached != null) {
+      return _decodeRepos(cached, DataProvenance.staleCache);
+    }
     return _slice(DiscoverSeed.seedPopularRepos, page: page, perPage: perPage);
   }
 
@@ -120,7 +145,9 @@ class DiscoverRepository {
   }) async {
     final now = _now();
     final key = _pageKey(_kSkills, page, perPage);
-    if (force) await _safeDelete(key);
+    if (force) {
+      await _safeDelete(key);
+    }
     if (!_blocked()) {
       if (!force && await _isFresh(key, CacheTtlConfig.skills, now)) {
         final cached = await _cache.read(key);
@@ -164,7 +191,9 @@ class DiscoverRepository {
       }
     }
     final cached = await _cache.read(key);
-    if (cached != null) return _decodeSkills(cached, DataProvenance.staleCache);
+    if (cached != null) {
+      return _decodeSkills(cached, DataProvenance.staleCache);
+    }
     return _slice(DiscoverSeed.seedAgentSkills, page: page, perPage: perPage);
   }
 
@@ -174,7 +203,9 @@ class DiscoverRepository {
   }) async {
     final now = _now();
     final key = '$_kProfiles:${kind.name}';
-    if (force) await _safeDelete(key);
+    if (force) {
+      await _safeDelete(key);
+    }
     if (!_blocked()) {
       if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
         final cached = await _cache.read(key);
@@ -205,7 +236,9 @@ class DiscoverRepository {
       }
     }
     final cached = await _cache.read(key);
-    if (cached != null) return _decodeProfiles(cached, kind);
+    if (cached != null) {
+      return _decodeProfiles(cached, kind);
+    }
     return DiscoverSeed.seedProfiles(kind);
   }
 
@@ -229,9 +262,7 @@ class DiscoverRepository {
 
   void _report(Object error) {
     AppLogger.warn('discover', meta: {'error': error.runtimeType.toString()});
-    if (error is AppException &&
-        error.kind == AppExceptionKind.rateLimit &&
-        _onRateLimited != null) {
+    if (error is AppException && error.kind == AppExceptionKind.rateLimit && _onRateLimited != null) {
       _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
@@ -253,7 +284,9 @@ class DiscoverRepository {
       options: Options(headers: GitHubApiSupport.headers(token: _token)),
     );
     final data = response.data;
-    if (data == null) throw const AppException(kind: AppExceptionKind.parse);
+    if (data == null) {
+      throw const AppException(kind: AppExceptionKind.parse);
+    }
     final items = GitHubJson.list(data['items']);
     return [for (final raw in items) _parseSearchRepo(GitHubJson.map(raw))];
   }
@@ -267,15 +300,16 @@ class DiscoverRepository {
       options: Options(headers: GitHubApiSupport.headers(token: _token)),
     );
     final data = response.data;
-    if (data == null) throw const AppException(kind: AppExceptionKind.parse);
+    if (data == null) {
+      throw const AppException(kind: AppExceptionKind.parse);
+    }
     return _profileFromJson(data, kind);
   }
 
   RepoEntity _parseSearchRepo(Map<String, Object?> json) {
     final fullName = GitHubJson.string(json['full_name']);
     final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
-    final description =
-        GitHubJson.nullableString(json['description']) ?? 'No description';
+    final description = GitHubJson.nullableString(json['description']) ?? 'No description';
     return RepoEntity(
       fullName: fullName,
       description: description,
@@ -291,21 +325,29 @@ class DiscoverRepository {
 
   String _deriveCategory(RepoEntity repo) {
     final text = '${repo.fullName} ${repo.description}'.toLowerCase();
-    if (text.contains('claude')) return 'claude';
-    if (text.contains('cursor')) return 'cursor';
-    if (text.contains('copilot')) return 'copilot';
-    if (text.contains('mcp')) return 'mcp';
+    if (text.contains('claude')) {
+      return 'claude';
+    }
+    if (text.contains('cursor')) {
+      return 'cursor';
+    }
+    if (text.contains('copilot')) {
+      return 'copilot';
+    }
+    if (text.contains('mcp')) {
+      return 'mcp';
+    }
     if (text.contains('langchain') || text.contains('langgraph')) {
       return 'agent';
     }
     return 'other';
   }
 
-  static String _pageKey(String base, int page, int perPage) =>
-      '$base:p$page:n$perPage';
+  static String _pageKey(String base, int page, int perPage) => '$base:p$page:n$perPage';
 
-  static List<String> _profileLogins(DiscoverProfileKind kind) =>
-      kind == DiscoverProfileKind.official ? _officialLogins : _peopleLogins;
+  static List<String> _profileLogins(DiscoverProfileKind kind) => kind == DiscoverProfileKind.official ? _officialLogins : _peopleLogins;
+
+  static String _featuredRepoForLogin(String login) => _featuredReposByLogin[login] ?? '$login/$login';
 
   static List<T> _slice<T>(
     List<T> items, {
@@ -313,7 +355,9 @@ class DiscoverRepository {
     required int perPage,
   }) {
     final start = (page - 1) * perPage;
-    if (start >= items.length) return const [];
+    if (start >= items.length) {
+      return const [];
+    }
     final end = (start + perPage).clamp(0, items.length);
     return items.sublist(start, end);
   }
@@ -357,8 +401,7 @@ class DiscoverRepository {
     DataProvenance p,
   ) =>
       [
-        for (final raw in GitHubJson.list(json['items']))
-          _repoFromJson(GitHubJson.map(raw), p),
+        for (final raw in GitHubJson.list(json['items'])) _repoFromJson(GitHubJson.map(raw), p),
       ];
 
   static Map<String, Object?> _skillsToJson(List<SkillEntity> skills) => {
@@ -379,8 +422,7 @@ class DiscoverRepository {
     DataProvenance p,
   ) =>
       [
-        for (final raw in GitHubJson.list(json['items']))
-          _skillFromJson(GitHubJson.map(raw), p),
+        for (final raw in GitHubJson.list(json['items'])) _skillFromJson(GitHubJson.map(raw), p),
       ];
 
   static SkillEntity _skillFromJson(
@@ -406,6 +448,7 @@ class DiscoverRepository {
         'followers': p.followers,
         'avatarUrl': p.avatarUrl,
         'htmlUrl': p.htmlUrl,
+        'featuredRepoFullName': p.featuredRepoFullName,
       };
 
   static Map<String, Object?> _profilesToJson(
@@ -420,8 +463,7 @@ class DiscoverRepository {
     DiscoverProfileKind kind,
   ) =>
       [
-        for (final raw in GitHubJson.list(json['items']))
-          _profileFromJson(GitHubJson.map(raw), kind),
+        for (final raw in GitHubJson.list(json['items'])) _profileFromJson(GitHubJson.map(raw), kind),
       ];
 
   static DiscoverProfileEntity _profileFromJson(
@@ -433,18 +475,13 @@ class DiscoverRepository {
     return DiscoverProfileEntity(
       login: login,
       name: (name == null || name.isEmpty) ? login : name,
-      type: GitHubJson.nullableString(json['type']) ??
-          (kind == DiscoverProfileKind.official ? 'Organization' : 'User'),
+      type: GitHubJson.nullableString(json['type']) ?? (kind == DiscoverProfileKind.official ? 'Organization' : 'User'),
       bio: GitHubJson.nullableString(json['bio']) ?? '',
-      publicRepos:
-          GitHubJson.intValue(json['public_repos'] ?? json['publicRepos']),
+      publicRepos: GitHubJson.intValue(json['public_repos'] ?? json['publicRepos']),
       followers: GitHubJson.intValue(json['followers']),
-      avatarUrl: GitHubJson.nullableString(json['avatar_url']) ??
-          GitHubJson.nullableString(json['avatarUrl']) ??
-          '',
-      htmlUrl: GitHubJson.nullableString(json['html_url']) ??
-          GitHubJson.nullableString(json['htmlUrl']) ??
-          'https://github.com/$login',
+      avatarUrl: GitHubJson.nullableString(json['avatar_url']) ?? GitHubJson.nullableString(json['avatarUrl']) ?? '',
+      htmlUrl: GitHubJson.nullableString(json['html_url']) ?? GitHubJson.nullableString(json['htmlUrl']) ?? 'https://github.com/$login',
+      featuredRepoFullName: GitHubJson.nullableString(json['featuredRepoFullName']) ?? _featuredRepoForLogin(login),
       kind: kind,
     );
   }

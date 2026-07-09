@@ -99,8 +99,7 @@ class TechHotspotSeedData {
       growth: 22.6,
       mentions: 6940,
       relatedRepos: 166,
-      summary:
-          'Cursor、Windsurf、Claude Code 与开源 coding agent 持续迭代,代码工作流从补全走向任务代理。',
+      summary: 'Cursor、Windsurf、Claude Code 与开源 coding agent 持续迭代,代码工作流从补全走向任务代理。',
     ),
     TechTopic(
       id: 't-005',

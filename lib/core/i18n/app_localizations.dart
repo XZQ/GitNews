@@ -26,8 +26,7 @@ class AppLocalizations {
     return instance ?? AppLocalizations(fallbackLocale);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   // 默认支持的 locale 列表。zh-CN 为主翻译,en-US 为兜底。
   static const supportedLocales = <Locale>[
@@ -53,8 +52,7 @@ class AppLocalizations {
   String get empty => tr('common.empty');
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -63,8 +61,7 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  Future<AppLocalizations> load(Locale locale) async =>
-      AppLocalizations(locale);
+  Future<AppLocalizations> load(Locale locale) async => AppLocalizations(locale);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;

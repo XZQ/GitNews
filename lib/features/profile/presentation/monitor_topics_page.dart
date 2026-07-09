@@ -23,8 +23,7 @@ class MonitorTopicsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('监控的主题'),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: ResponsiveLayout(
@@ -91,9 +90,7 @@ class _Body extends ConsumerWidget {
                     IconButton(
                       tooltip: l10n.tr('a11y.monitor_remove'),
                       icon: const Icon(Icons.notifications_off_outlined),
-                      onPressed: () => ref
-                          .read(localContentControllerProvider.notifier)
-                          .removeMonitor(repos[i].fullName),
+                      onPressed: () => ref.read(localContentControllerProvider.notifier).removeMonitor(repos[i].fullName),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                   ],

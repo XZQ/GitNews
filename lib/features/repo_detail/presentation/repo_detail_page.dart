@@ -37,36 +37,25 @@ class RepoDetailPage extends ConsumerWidget {
           orElse: () => Text(l10n.tr('repo_detail.title')),
         ),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/home'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/home'),
         ),
         actions: [
           IconButton(
             icon: Icon(
-              content.isBookmarked(decodedFullName)
-                  ? Icons.bookmark
-                  : Icons.bookmark_border,
+              content.isBookmarked(decodedFullName) ? Icons.bookmark : Icons.bookmark_border,
             ),
             tooltip: l10n.tr(
-              content.isBookmarked(decodedFullName)
-                  ? 'a11y.bookmark_remove'
-                  : 'a11y.bookmark_add',
+              content.isBookmarked(decodedFullName) ? 'a11y.bookmark_remove' : 'a11y.bookmark_add',
             ),
-            onPressed: () => ref
-                .read(localContentControllerProvider.notifier)
-                .toggleBookmark(decodedFullName),
+            onPressed: () => ref.read(localContentControllerProvider.notifier).toggleBookmark(decodedFullName),
           ),
           IconButton(
             icon: Icon(
-              content.isMonitored(decodedFullName)
-                  ? Icons.notifications_active
-                  : Icons.notifications_none,
+              content.isMonitored(decodedFullName) ? Icons.notifications_active : Icons.notifications_none,
             ),
             tooltip: l10n.tr('repo_detail.subscribe'),
             onPressed: () {
-              ref
-                  .read(localContentControllerProvider.notifier)
-                  .addMonitor(decodedFullName);
+              ref.read(localContentControllerProvider.notifier).addMonitor(decodedFullName);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('已加入监控: $decodedFullName')),
               );

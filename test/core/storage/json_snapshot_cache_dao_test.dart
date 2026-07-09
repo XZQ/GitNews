@@ -98,8 +98,7 @@ void main() {
 
     tearDown(() async => db.close());
 
-    test('readWithEtag returns null payload and etag when key absent',
-        () async {
+    test('readWithEtag returns null payload and etag when key absent', () async {
       final entry = await dao.readWithEtag('missing');
       expect(entry.payload, isNull);
       expect(entry.etag, isNull);

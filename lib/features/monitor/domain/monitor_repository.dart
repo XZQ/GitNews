@@ -20,7 +20,9 @@ class MonitorDigest {
   RepoEntity? repoByFullName(String repoFullName) {
     final decoded = Uri.decodeComponent(repoFullName);
     for (final repo in monitoredRepos) {
-      if (repo.fullName == decoded) return repo;
+      if (repo.fullName == decoded) {
+        return repo;
+      }
     }
     return null;
   }

@@ -40,7 +40,7 @@ const Map<String, String> stringsZhCN = <String, String>{
 
   // tab
   'tab.home': '总览',
-  'tab.ai_news': 'AI 动态',
+  'tab.ai_news': 'AI动态',
   'tab.trending': 'GitHub热榜',
   'tab.tech_hotspot': 'AI雷达',
   'tab.monitor': '仓库监控',
@@ -202,8 +202,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'monitor.alerts.title': '告警列表',
   'monitor.alerts.empty': '最近 24 小时暂无告警',
   'monitor.alerts.all': '所有告警',
-  'monitor.alerts.subtitle':
-      '可见 {visible} 条 · 未读 {unread} 条 · 已归档 {archived} 条',
+  'monitor.alerts.subtitle': '可见 {visible} 条 · 未读 {unread} 条 · 已归档 {archived} 条',
   'monitor.alerts.filter.all': '全部',
   'monitor.alerts.filter.unread': '未读',
   'monitor.alerts.filter.important': '重点',
@@ -421,8 +420,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'device_flow.expired': '验证码已过期,请重新登录',
   'device_flow.denied': '已拒绝授权',
   'device_flow.not_configured': '未配置 GitHub OAuth',
-  'device_flow.need_config':
-      '需在 ApiEndpointsConfig 填入 OAuth App 的 client_id 才能启用设备登录',
+  'device_flow.need_config': '需在 ApiEndpointsConfig 填入 OAuth App 的 client_id 才能启用设备登录',
   'device_flow.retry': '重试',
   'device_flow.hint_step1': '1. 点击下方按钮,GitHub 会给出一个验证码',
   'device_flow.hint_step2': '2. 浏览器会自动打开授权页,粘贴验证码并授权',
@@ -540,8 +538,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'profile.token.configured': '已配置',
   'profile.token.hint': 'Personal Access Token',
   'profile.token.hint_placeholder': 'github_pat_... 或 ghp_...',
-  'profile.token.security_notice':
-      'Token 通过系统安全存储(Windows DPAPI / macOS Keychain)加密保存,不会明文写入磁盘。',
+  'profile.token.security_notice': 'Token 通过系统安全存储(Windows DPAPI / macOS Keychain)加密保存,不会明文写入磁盘。',
   'profile.token.save': '保存',
   'profile.token.clear': '清除',
   'profile.token.check_quota': '检查配额',

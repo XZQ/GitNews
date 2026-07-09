@@ -177,13 +177,9 @@ class _ReadButton extends ConsumerWidget {
       child: IconButton(
         visualDensity: VisualDensity.compact,
         iconSize: 18,
-        onPressed: () => ref
-            .read(monitorAlertStateControllerProvider.notifier)
-            .toggleRead(alert),
+        onPressed: () => ref.read(monitorAlertStateControllerProvider.notifier).toggleRead(alert),
         icon: Icon(
-          isRead
-              ? Icons.mark_email_unread_outlined
-              : Icons.mark_email_read_outlined,
+          isRead ? Icons.mark_email_unread_outlined : Icons.mark_email_read_outlined,
         ),
       ),
     );
@@ -203,9 +199,7 @@ class _ArchiveButton extends ConsumerWidget {
       child: IconButton(
         visualDensity: VisualDensity.compact,
         iconSize: 18,
-        onPressed: () => ref
-            .read(monitorAlertStateControllerProvider.notifier)
-            .archive(alert),
+        onPressed: () => ref.read(monitorAlertStateControllerProvider.notifier).archive(alert),
         icon: const Icon(Icons.archive_outlined),
       ),
     );
@@ -225,9 +219,7 @@ List<AlertEntity> filterAlertsByState(
       ],
     MonitorAlertFilter.important => [
         for (final alert in alerts)
-          if (alert.severity == AlertSeverity.warning ||
-              alert.severity == AlertSeverity.danger)
-            alert,
+          if (alert.severity == AlertSeverity.warning || alert.severity == AlertSeverity.danger) alert,
       ],
   };
 }

@@ -24,9 +24,7 @@ class LocalProjectRepository implements ProjectRepository {
     final digest = await trending.getDigest();
     return ProjectDigest(
       repos: digest.allRepos,
-      contributors: DemoData.contributors
-          .map((e) => e.toEntity())
-          .toList(growable: false),
+      contributors: DemoData.contributors.map((e) => e.toEntity()).toList(growable: false),
       primaryTrend: digest.primaryTrend,
       secondaryTrend: digest.secondaryTrend,
     );

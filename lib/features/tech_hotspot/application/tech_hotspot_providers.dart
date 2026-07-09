@@ -87,7 +87,9 @@ TechHotspotDigest filterTechHotspotDigest(
 
 List<TechTopic> filterTechTopics(List<TechTopic> topics, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return topics;
+  if (keyword.isEmpty) {
+    return topics;
+  }
 
   return [
     for (final topic in topics)

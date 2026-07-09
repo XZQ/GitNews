@@ -27,17 +27,13 @@ class MonitorPageHeader extends ConsumerWidget {
       subtitle: l10n.tr('monitor.subtitle'),
       searchHint: l10n.tr('monitor.search_hint'),
       searchValue: query,
-      onSearchChanged: (v) =>
-          ref.read(monitorSearchQueryProvider.notifier).state = v,
-      onSearchSubmitted: (v) =>
-          ref.read(monitorSearchQueryProvider.notifier).state = v,
+      onSearchChanged: (v) => ref.read(monitorSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) => ref.read(monitorSearchQueryProvider.notifier).state = v,
       onRefresh: () => ref.invalidate(monitorDigestProvider),
       pills: [
         HeaderStatPill(
           icon: Icons.circle,
-          label: l10n
-              .tr('monitor.unread_count')
-              .replaceAll('{n}', stats.unreadAlertCount.toString()),
+          label: l10n.tr('monitor.unread_count').replaceAll('{n}', stats.unreadAlertCount.toString()),
           color: AppColors.success,
         ),
       ],

@@ -54,9 +54,7 @@ class ErrorView extends StatelessWidget {
         return (Icons.wifi_off, l10n.tr('error_view.network'), onRetry);
       case AppExceptionKind.rateLimit:
         final secs = error.retryAfterSeconds ?? 60;
-        final unit = l10n
-            .tr('error_view.retry_after_seconds')
-            .replaceAll('{seconds}', secs.toString());
+        final unit = l10n.tr('error_view.retry_after_seconds').replaceAll('{seconds}', secs.toString());
         return (
           Icons.hourglass_bottom,
           '${l10n.tr('error_view.rate_limit')} ($unit)',

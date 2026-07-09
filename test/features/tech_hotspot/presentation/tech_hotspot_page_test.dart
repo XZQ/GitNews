@@ -15,7 +15,9 @@ class _StubRepo implements TechHotspotRepository {
 
   @override
   Future<TechHotspotDigest> getDigest() async {
-    if (shouldThrow) throw Exception('boom');
+    if (shouldThrow) {
+      throw Exception('boom');
+    }
     return _digest!;
   }
 
@@ -103,8 +105,7 @@ void main() {
     expect(find.byType(ErrorView), findsOneWidget);
   });
 
-  testWidgets('dense language panel should not overflow on desktop',
-      (tester) async {
+  testWidgets('dense language panel should not overflow on desktop', (tester) async {
     final digest = TechHotspotDigest(
       languages: [
         for (var i = 0; i < 10; i++)
@@ -130,8 +131,7 @@ void main() {
           ),
       ],
       heatTrend: [
-        for (var i = 0; i < 7; i++)
-          TechHeatPoint(label: 'D$i', value: (70 + i).toDouble()),
+        for (var i = 0; i < 7; i++) TechHeatPoint(label: 'D$i', value: (70 + i).toDouble()),
       ],
       hotTags: [for (var i = 0; i < 12; i++) 'tag-$i'],
     );

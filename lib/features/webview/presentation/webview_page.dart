@@ -37,8 +37,7 @@ class _WebViewPageState extends State<WebViewPage> {
   // Windows WebView2 默认是桌面 Edge UA,会被微信公众号 / 部分媒体站点拦截
   // 返回 403 / 空内容,导致主帧加载失败。改成 Android Chrome 移动 UA 后,
   // 多数站点返回适合内嵌阅读的移动版页面。
-  static const String _mobileUa =
-      'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, '
+  static const String _mobileUa = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, '
       'like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
 
   @override
@@ -80,19 +79,25 @@ class _WebViewPageState extends State<WebViewPage> {
       await _controller!.goBack();
       return;
     }
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     await Navigator.of(context).maybePop();
   }
 
   Future<void> _openInBrowser() async {
     final uri = Uri.tryParse(widget.url);
-    if (uri == null || !_isHttpScheme(uri)) return;
+    if (uri == null || !_isHttpScheme(uri)) {
+      return;
+    }
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
   Future<void> _copyLink() async {
     await Clipboard.setData(ClipboardData(text: widget.url));
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(
       context,
@@ -110,21 +115,31 @@ class _WebViewPageState extends State<WebViewPage> {
 
   // WebView 回调入口:集中调用 setState,避免在外部 Widget 中触发 protected 警告。
   void onTitleChanged(String? t) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() => _pageTitle = t ?? '');
   }
 
   void onProgressChanged(int progress) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _progress = progress;
-      if (progress > 0 && progress < 100) _failed = false;
-      if (progress > 30) _hasLoadedAnyContent = true;
+      if (progress > 0 && progress < 100) {
+        _failed = false;
+      }
+      if (progress > 30) {
+        _hasLoadedAnyContent = true;
+      }
     });
   }
 
   void onLoadStopFinished(bool canBack) {
-    if (!mounted) return;
+    if (!mounted) {
+      return;
+    }
     setState(() {
       _canGoBack = canBack;
       _failed = false;
@@ -133,8 +148,12 @@ class _WebViewPageState extends State<WebViewPage> {
   }
 
   void onMainFrameError() {
-    if (!mounted) return;
-    if (_hasLoadedAnyContent) return;
+    if (!mounted) {
+      return;
+    }
+    if (_hasLoadedAnyContent) {
+      return;
+    }
     setState(() => _failed = true);
   }
 
@@ -146,8 +165,7 @@ class _WebViewPageState extends State<WebViewPage> {
   /* 
   *仅允许 http/https scheme(防御开放重定向 / file:// 读沙箱 / javascript: 注入)。
   */
-  static bool _isHttpScheme(Uri uri) =>
-      uri.scheme == 'http' || uri.scheme == 'https';
+  static bool _isHttpScheme(Uri uri) => uri.scheme == 'http' || uri.scheme == 'https';
 }
 
 class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -214,7 +232,9 @@ class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
           tooltip: l10n.tr('webview.more'),
           icon: const Icon(Icons.more_vert_rounded),
           onSelected: (v) {
-            if (v == 'copy') onCopyLink();
+            if (v == 'copy') {
+              onCopyLink();
+            }
           },
           itemBuilder: (_) => [
             PopupMenuItem(
@@ -263,9 +283,10 @@ class _WebViewBody extends StatelessWidget {
           },
           onReceivedError: (controller, request, error) {
             // 子资源(图片 / CSS)错误也会回调,只对主帧致命错误置失败。
-            final isMainFrame = request.url.toString() == widget.url ||
-                request.isForMainFrame == true;
-            if (!isMainFrame) return;
+            final isMainFrame = request.url.toString() == widget.url || request.isForMainFrame == true;
+            if (!isMainFrame) {
+              return;
+            }
             state.onMainFrameError();
           },
         ),

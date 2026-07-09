@@ -10,9 +10,7 @@ void main() {
     final container = await _container();
     addTearDown(container.dispose);
 
-    await container
-        .read(monitorSettingsControllerProvider.notifier)
-        .setEnabled(1, true);
+    await container.read(monitorSettingsControllerProvider.notifier).setEnabled(1, true);
 
     expect(container.read(monitorSettingsControllerProvider)[1], isTrue);
 

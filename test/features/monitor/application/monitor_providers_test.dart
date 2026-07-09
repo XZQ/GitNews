@@ -78,8 +78,7 @@ void main() {
       );
     });
 
-    test('should expose empty digest when repository returns no data',
-        () async {
+    test('should expose empty digest when repository returns no data', () async {
       final repo = _MockMonitorRepository();
       when(repo.getDigest).thenAnswer(
         (_) async => const MonitorDigest(
@@ -133,8 +132,7 @@ void main() {
   });
 
   group('monitor search', () {
-    test('filterMonitorRepos should match repo name description and language',
-        () {
+    test('filterMonitorRepos should match repo name description and language', () {
       final repos = [
         _repo('openai/codex', language: 'TypeScript'),
         _repo(
@@ -176,8 +174,7 @@ void main() {
       expect(filterMonitorAlerts(alerts, 'missing'), isEmpty);
     });
 
-    test('filteredMonitorDigestProvider should filter current digest',
-        () async {
+    test('filteredMonitorDigestProvider should filter current digest', () async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       final repo = _MockMonitorRepository();
@@ -217,8 +214,7 @@ void main() {
       verify(repo.getDigest).called(1);
     });
 
-    test('applyMonitorAlertState should hide archived alerts and update stats',
-        () {
+    test('applyMonitorAlertState should hide archived alerts and update stats', () {
       const alerts = [
         AlertEntity(
           repoFullName: 'openai/codex',

@@ -44,9 +44,7 @@ class BorderedRow extends StatelessWidget {
           children: [
             for (var i = 0; i < children.length; i++)
               Expanded(
-                flex: (flexValues != null && i < flexValues!.length)
-                    ? flexValues![i]
-                    : 1,
+                flex: (flexValues != null && i < flexValues!.length) ? flexValues![i] : 1,
                 child: children[i],
               ),
           ],

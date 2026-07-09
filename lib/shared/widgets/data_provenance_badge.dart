@@ -32,13 +32,9 @@ class DataProvenanceBadge extends StatelessWidget {
           vertical: AppSpacing.xxs,
         ),
         decoration: BoxDecoration(
-          color: inverse
-              ? Colors.white.withValues(alpha: 0.18)
-              : color.withValues(alpha: 0.1),
+          color: inverse ? Colors.white.withValues(alpha: 0.18) : color.withValues(alpha: 0.1),
           border: Border.all(
-            color: inverse
-                ? Colors.white.withValues(alpha: 0.28)
-                : color.withValues(alpha: 0.28),
+            color: inverse ? Colors.white.withValues(alpha: 0.28) : color.withValues(alpha: 0.28),
             width: 0.7,
           ),
           borderRadius: BorderRadius.circular(AppRadius.pill),

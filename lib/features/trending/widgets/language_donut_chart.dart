@@ -76,6 +76,5 @@ class _DonutPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _DonutPainter old) =>
-      old.data != data || old.holeColor != holeColor;
+  bool shouldRepaint(covariant _DonutPainter old) => old.data != data || old.holeColor != holeColor;
 }

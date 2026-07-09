@@ -39,33 +39,39 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
   }
 
   Future<void> _onClear() async {
-    if (_clearing) return;
+    if (_clearing) {
+      return;
+    }
     setState(() => _clearing = true);
     final l10n = AppLocalizations.of(context);
     final reporter = ref.read(storageSizeReporterProvider);
     final before = _bytes ?? reporter.currentBytes();
     try {
       await reporter.clearAll();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       setState(() => _bytes = reporter.currentBytes());
       final freed = before - (_bytes ?? 0);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            l10n
-                .tr('profile.data.cleared')
-                .replaceAll('{size}', freed.toHumanReadableSize()),
+            l10n.tr('profile.data.cleared').replaceAll('{size}', freed.toHumanReadableSize()),
           ),
         ),
       );
     } catch (e) {
       AppLogger.warn('clearAll', meta: {'error': e.runtimeType.toString()});
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.tr('profile.data.clear_failed'))),
       );
     } finally {
-      if (mounted) setState(() => _clearing = false);
+      if (mounted) {
+        setState(() => _clearing = false);
+      }
     }
   }
 
@@ -74,18 +80,24 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
     final l10n = AppLocalizations.of(context);
     try {
       await ref.read(configServiceProvider).exportConfig();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.tr('config.exported'))));
     } catch (e) {
       AppLogger.warn('exportConfig', meta: {'error': e.runtimeType.toString()});
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
     } finally {
-      if (mounted) setState(() => _exporting = false);
+      if (mounted) {
+        setState(() => _exporting = false);
+      }
     }
   }
 
@@ -94,18 +106,24 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
     final l10n = AppLocalizations.of(context);
     try {
       final count = await ref.read(configServiceProvider).importConfig();
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${l10n.tr('config.imported')} ($count)')),
       );
     } catch (e) {
       AppLogger.warn('importConfig', meta: {'error': e.runtimeType.toString()});
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
     } finally {
-      if (mounted) setState(() => _importing = false);
+      if (mounted) {
+        setState(() => _importing = false);
+      }
     }
   }
 
@@ -137,9 +155,7 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
               onPressed: _clearing ? null : _onClear,
               icon: const Icon(Icons.cleaning_services_outlined, size: 16),
               label: Text(
-                _clearing
-                    ? l10n.tr('profile.data.clearing')
-                    : l10n.tr('profile.data.clear'),
+                _clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear'),
               ),
             ),
           ),

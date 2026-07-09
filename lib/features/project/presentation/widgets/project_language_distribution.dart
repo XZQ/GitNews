@@ -47,7 +47,9 @@ class ProjectLanguageDistribution extends StatelessWidget {
   }
 
   List<_LanguageSlice> _languages(List<RepoEntity> repos) {
-    if (repos.isEmpty) return const [];
+    if (repos.isEmpty) {
+      return const [];
+    }
     final counts = <String, _LanguageCount>{};
     for (final repo in repos) {
       final current = counts[repo.language];
@@ -56,8 +58,7 @@ class ProjectLanguageDistribution extends StatelessWidget {
         accentArgb: repo.accentArgb,
       );
     }
-    final entries = counts.entries.toList()
-      ..sort((a, b) => b.value.count.compareTo(a.value.count));
+    final entries = counts.entries.toList()..sort((a, b) => b.value.count.compareTo(a.value.count));
     return entries.map((entry) {
       return _LanguageSlice(
         name: entry.key,

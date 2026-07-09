@@ -17,8 +17,7 @@ final techHotspotDetailProvider = FutureProvider.family<TechTopic, String>((
 });
 
 // 与当前主题相关的其它主题(取前 3 条,排除自身)。
-final techHotspotRelatedProvider =
-    FutureProvider.family<List<TechTopic>, String>((ref, id) async {
+final techHotspotRelatedProvider = FutureProvider.family<List<TechTopic>, String>((ref, id) async {
   final all = await ref.watch(techHotspotRepositoryProvider).allTopics();
   return all.where((e) => e.id != id).take(3).toList();
 });

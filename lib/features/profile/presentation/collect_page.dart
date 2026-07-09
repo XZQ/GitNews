@@ -22,8 +22,7 @@ class CollectPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('收藏的主题'),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/profile'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
       ),
       body: ResponsiveLayout(
@@ -90,9 +89,7 @@ class _Body extends ConsumerWidget {
                     IconButton(
                       tooltip: l10n.tr('a11y.bookmark_remove'),
                       icon: const Icon(Icons.bookmark_remove_outlined),
-                      onPressed: () => ref
-                          .read(localContentControllerProvider.notifier)
-                          .removeBookmark(repos[i].fullName),
+                      onPressed: () => ref.read(localContentControllerProvider.notifier).removeBookmark(repos[i].fullName),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                   ],

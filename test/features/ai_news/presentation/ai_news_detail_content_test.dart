@@ -5,8 +5,7 @@ import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail
 import 'package:github_news/shared/widgets/app_card.dart';
 
 void main() {
-  testWidgets('article detail fills desktop width with 40px side gutters',
-      (tester) async {
+  testWidgets('article detail fills desktop width with 40px side gutters', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);

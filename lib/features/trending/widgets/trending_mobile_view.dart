@@ -57,9 +57,7 @@ class TrendingMobileView extends ConsumerWidget {
                       'python': 'Python',
                       'rust': 'Rust',
                     }[v]!,
-                    onSelected: (v) => ref
-                        .read(trendingLanguageFilterProvider.notifier)
-                        .state = v,
+                    onSelected: (v) => ref.read(trendingLanguageFilterProvider.notifier).state = v,
                   ),
                 ],
               ),
@@ -73,8 +71,7 @@ class TrendingMobileView extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               TrendingWindowSegmented(
                 value: window,
-                onChanged: (v) =>
-                    ref.read(trendingWindowFilterProvider.notifier).state = v,
+                onChanged: (v) => ref.read(trendingWindowFilterProvider.notifier).state = v,
               ),
               const SizedBox(height: AppSpacing.md),
               const TrendingHeroMetrics(),
@@ -179,9 +176,7 @@ Future<void> _showFilterSheet(BuildContext context, WidgetRef ref) async {
                         label: Text(entry.value),
                         selected: window == entry.key,
                         onSelected: (_) {
-                          ref
-                              .read(trendingWindowFilterProvider.notifier)
-                              .state = entry.key;
+                          ref.read(trendingWindowFilterProvider.notifier).state = entry.key;
                           setSheetState(() {});
                         },
                       ),
@@ -197,9 +192,7 @@ Future<void> _showFilterSheet(BuildContext context, WidgetRef ref) async {
                         label: Text(entry.value),
                         selected: lang == entry.key,
                         onSelected: (_) {
-                          ref
-                              .read(trendingLanguageFilterProvider.notifier)
-                              .state = entry.key;
+                          ref.read(trendingLanguageFilterProvider.notifier).state = entry.key;
                           setSheetState(() {});
                         },
                       ),

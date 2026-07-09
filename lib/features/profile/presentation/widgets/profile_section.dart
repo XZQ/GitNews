@@ -21,8 +21,7 @@ enum ProfileSection {
   final String labelKey;
   final IconData icon;
 
-  String label(BuildContext context) =>
-      AppLocalizations.of(context).tr(labelKey);
+  String label(BuildContext context) => AppLocalizations.of(context).tr(labelKey);
 
   /* 
   *区段强调色:跟随当前主题色(主区段)或保留语义色(子区段)。
@@ -30,10 +29,7 @@ enum ProfileSection {
   Color accentOf(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return switch (this) {
-      ProfileSection.pro ||
-      ProfileSection.monitorTopics ||
-      ProfileSection.settings =>
-        colors.primary,
+      ProfileSection.pro || ProfileSection.monitorTopics || ProfileSection.settings => colors.primary,
       ProfileSection.collect || ProfileSection.data => AppColors.info,
       ProfileSection.developers => AppColors.success,
       ProfileSection.monitorRules => AppColors.warning,

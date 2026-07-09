@@ -13,8 +13,7 @@ import 'package:github_news/core/storage/local_database.dart';
 */
 void main() {
   group('LocalDatabase schema', () {
-    test('openInMemory creates all business tables at current version',
-        () async {
+    test('openInMemory creates all business tables at current version', () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
       final rows = await db.executor.rawQuery(
@@ -52,8 +51,7 @@ void main() {
       expect(meta, isNotEmpty, reason: 'schema 应保留,清理后可立即重写');
     });
 
-    test('enforceCap keeps data because automatic capacity limit is disabled',
-        () async {
+    test('enforceCap keeps data because automatic capacity limit is disabled', () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
       await db.executor.insert(

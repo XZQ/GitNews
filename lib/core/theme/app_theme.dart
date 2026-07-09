@@ -48,8 +48,7 @@ class AppTheme {
   /* 
   *通用工厂。
   */
-  static ThemeData fromSeed(Brightness brightness, Color seed) =>
-      switch (brightness) {
+  static ThemeData fromSeed(Brightness brightness, Color seed) => switch (brightness) {
         Brightness.light => light(seed),
         Brightness.dark => dark(seed),
       };
@@ -129,16 +128,12 @@ class AppTheme {
         indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => AppTypography.labelSmall.copyWith(
-            color: states.contains(WidgetState.selected)
-                ? colorScheme.primary
-                : textSecondary,
+            color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary,
           ),
         ),
         iconTheme: WidgetStateProperty.resolveWith(
           (states) => IconThemeData(
-            color: states.contains(WidgetState.selected)
-                ? colorScheme.primary
-                : textSecondary,
+            color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary,
             size: 22,
           ),
         ),
@@ -238,19 +233,13 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected)
-              ? colorScheme.primary
-              : textMuted,
+          (s) => s.contains(WidgetState.selected) ? colorScheme.primary : textMuted,
         ),
         trackColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected)
-              ? colorScheme.primary.withValues(alpha: 0.42)
-              : border,
+          (s) => s.contains(WidgetState.selected) ? colorScheme.primary.withValues(alpha: 0.42) : border,
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected)
-              ? colorScheme.primary.withValues(alpha: 0.48)
-              : border,
+          (s) => s.contains(WidgetState.selected) ? colorScheme.primary.withValues(alpha: 0.48) : border,
         ),
       ),
     );

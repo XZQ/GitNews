@@ -22,10 +22,8 @@ class AiNewsPageHeader extends ConsumerWidget {
       subtitle: l10n.tr('ai_news.subtitle'),
       searchHint: l10n.tr('ai_news.search_hint'),
       searchValue: query,
-      onSearchChanged: (v) =>
-          ref.read(aiNewsSearchQueryProvider.notifier).state = v,
-      onSearchSubmitted: (v) =>
-          ref.read(aiNewsSearchQueryProvider.notifier).state = v,
+      onSearchChanged: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
       pills: [DataProvenanceBadge(provenance: provenance)],
       actions: [
         HeaderAction(

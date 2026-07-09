@@ -88,14 +88,20 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
   }
 
   List<double> _sliceWindow(List<double> values) {
-    if (values.isEmpty) return const [0, 0, 0, 0, 0, 0, 0];
+    if (values.isEmpty) {
+      return const [0, 0, 0, 0, 0, 0, 0];
+    }
     final target = _window == 7 ? 7 : values.length;
-    if (values.length <= target) return values;
+    if (values.length <= target) {
+      return values;
+    }
     return values.sublist(values.length - target);
   }
 
   List<String> _labels(AppLocalizations l10n, int count) {
-    if (count <= 0) return const [];
+    if (count <= 0) {
+      return const [];
+    }
     if (_window == 7) {
       return [
         l10n.tr('devintel.chart.label.mon'),
@@ -108,8 +114,12 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
       ];
     }
     return List<String>.generate(count, (index) {
-      if (index == 0) return l10n.tr('devintel.chart.label.start');
-      if (index == count - 1) return l10n.tr('common.today');
+      if (index == 0) {
+        return l10n.tr('devintel.chart.label.start');
+      }
+      if (index == count - 1) {
+        return l10n.tr('common.today');
+      }
       return index % 4 == 0 ? '+$index' : '';
     });
   }
@@ -135,14 +145,10 @@ class _WindowSegment extends StatelessWidget {
       showSelectedIcon: false,
       style: ButtonStyle(
         backgroundColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? AppColors.success
-              : colors.surfaceContainerHighest,
+          (states) => states.contains(WidgetState.selected) ? AppColors.success : colors.surfaceContainerHighest,
         ),
         foregroundColor: WidgetStateProperty.resolveWith(
-          (states) => states.contains(WidgetState.selected)
-              ? Colors.white
-              : colors.onSurfaceVariant,
+          (states) => states.contains(WidgetState.selected) ? Colors.white : colors.onSurfaceVariant,
         ),
         side: WidgetStateProperty.all(BorderSide.none),
         textStyle: WidgetStateProperty.all(

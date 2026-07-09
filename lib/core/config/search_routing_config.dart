@@ -93,7 +93,9 @@ class GlobalSearchRouter {
     required void Function(String route) onRoute,
   }) {
     final query = rawQuery.trim();
-    if (query.isEmpty) return;
+    if (query.isEmpty) {
+      return;
+    }
 
     final normalized = query.toLowerCase();
     for (final entry in entries) {

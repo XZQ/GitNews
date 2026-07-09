@@ -91,14 +91,22 @@ class _StatusTile extends StatelessWidget {
   }
 
   String _status(AppLocalizations l10n, RepoEntity repo) {
-    if (repo.starDelta >= 500) return l10n.tr('devintel.status.active');
-    if (repo.starDelta >= 120) return l10n.tr('devintel.status.syncing');
+    if (repo.starDelta >= 500) {
+      return l10n.tr('devintel.status.active');
+    }
+    if (repo.starDelta >= 120) {
+      return l10n.tr('devintel.status.syncing');
+    }
     return l10n.tr('devintel.status.stable');
   }
 
   Color _statusColor(RepoEntity repo) {
-    if (repo.starDelta >= 500) return AppColors.warning;
-    if (repo.starDelta >= 120) return AppColors.info;
+    if (repo.starDelta >= 500) {
+      return AppColors.warning;
+    }
+    if (repo.starDelta >= 120) {
+      return AppColors.info;
+    }
     return AppColors.success;
   }
 }

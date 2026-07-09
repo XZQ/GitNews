@@ -20,8 +20,7 @@ class GitHubApiSupport {
       'Accept': githubAccept,
       'X-GitHub-Api-Version': apiVersion,
       'User-Agent': userAgent,
-      if (trimmed != null && trimmed.isNotEmpty)
-        'Authorization': 'Bearer $trimmed',
+      if (trimmed != null && trimmed.isNotEmpty) 'Authorization': 'Bearer $trimmed',
       if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
     };
   }
@@ -34,7 +33,9 @@ class GitHubApiSupport {
 
   static String quoteSearchValue(String value) {
     final trimmed = value.trim();
-    if (!trimmed.contains(' ')) return trimmed;
+    if (!trimmed.contains(' ')) {
+      return trimmed;
+    }
     return '"$trimmed"';
   }
 
@@ -44,9 +45,10 @@ class GitHubApiSupport {
   }) {
     final response = e.response;
     final statusCode = response?.statusCode ?? 0;
-    final isGitHubRateLimit = statusCode == 403 &&
-        response?.headers.value('x-ratelimit-remaining') == '0';
-    if (!isGitHubRateLimit) return e.toAppException();
+    final isGitHubRateLimit = statusCode == 403 && response?.headers.value('x-ratelimit-remaining') == '0';
+    if (!isGitHubRateLimit) {
+      return e.toAppException();
+    }
 
     final reset = int.tryParse(
       response?.headers.value('x-ratelimit-reset') ?? '',
@@ -98,35 +100,53 @@ class GitHubJson {
   const GitHubJson._();
 
   static List<Object?> list(Object? raw) {
-    if (raw is List<Object?>) return raw;
+    if (raw is List<Object?>) {
+      return raw;
+    }
     throw const FormatException('Expected list');
   }
 
   static Map<String, Object?> map(Object? raw) {
-    if (raw is Map<String, Object?>) return raw;
+    if (raw is Map<String, Object?>) {
+      return raw;
+    }
     throw const FormatException('Expected object');
   }
 
   static String string(Object? raw) {
-    if (raw is String && raw.isNotEmpty) return raw;
+    if (raw is String && raw.isNotEmpty) {
+      return raw;
+    }
     throw const FormatException('Expected string');
   }
 
   static String? nullableString(Object? raw) {
-    if (raw == null) return null;
-    if (raw is String) return raw;
+    if (raw == null) {
+      return null;
+    }
+    if (raw is String) {
+      return raw;
+    }
     throw const FormatException('Expected nullable string');
   }
 
   static int intValue(Object? raw) {
-    if (raw is int) return raw;
-    if (raw is double) return raw.round();
+    if (raw is int) {
+      return raw;
+    }
+    if (raw is double) {
+      return raw.round();
+    }
     throw const FormatException('Expected int');
   }
 
   static double doubleValue(Object? raw, {double fallback = 0}) {
-    if (raw == null) return fallback;
-    if (raw is num) return raw.toDouble();
+    if (raw == null) {
+      return fallback;
+    }
+    if (raw is num) {
+      return raw.toDouble();
+    }
     throw const FormatException('Expected double');
   }
 

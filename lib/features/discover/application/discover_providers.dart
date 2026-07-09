@@ -34,18 +34,15 @@ final discoverSearchQueryProvider = StateProvider<String>((ref) => '');
 /// 刷新计数器:自增即触发强制刷新(绕过缓存 TTL)。
 final discoverRefreshTickProvider = StateProvider<int>((ref) => 0);
 
-final trendingReposNotifierProvider =
-    AsyncNotifierProvider.autoDispose<TrendingReposNotifier, List<RepoEntity>>(
+final trendingReposNotifierProvider = AsyncNotifierProvider.autoDispose<TrendingReposNotifier, List<RepoEntity>>(
   TrendingReposNotifier.new,
 );
 
-final agentSkillsNotifierProvider =
-    AsyncNotifierProvider.autoDispose<AgentSkillsNotifier, List<SkillEntity>>(
+final agentSkillsNotifierProvider = AsyncNotifierProvider.autoDispose<AgentSkillsNotifier, List<SkillEntity>>(
   AgentSkillsNotifier.new,
 );
 
-final officialProfilesProvider =
-    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
+final officialProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
   final force = ref.watch(discoverRefreshTickProvider) > 0;
   return ref.watch(discoverRepositoryProvider).fetchProfiles(
         kind: DiscoverProfileKind.official,
@@ -53,8 +50,7 @@ final officialProfilesProvider =
       );
 });
 
-final peopleProfilesProvider =
-    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
+final peopleProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
   final force = ref.watch(discoverRefreshTickProvider) > 0;
   return ref.watch(discoverRepositoryProvider).fetchProfiles(
         kind: DiscoverProfileKind.people,
@@ -67,7 +63,9 @@ final filteredTrendingReposProvider = Provider<AsyncValue<List<RepoEntity>>>(
   (ref) {
     final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
     final repos = ref.watch(trendingReposNotifierProvider);
-    if (query.isEmpty) return repos;
+    if (query.isEmpty) {
+      return repos;
+    }
     return repos.whenData(
       (items) => items.where((r) => _repoText(r).contains(query)).toList(),
     );
@@ -79,26 +77,30 @@ final filteredAgentSkillsProvider = Provider<AsyncValue<List<SkillEntity>>>(
   (ref) {
     final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
     final skills = ref.watch(agentSkillsNotifierProvider);
-    if (query.isEmpty) return skills;
+    if (query.isEmpty) {
+      return skills;
+    }
     return skills.whenData(
       (items) => items.where((s) => _skillText(s).contains(query)).toList(),
     );
   },
 );
 
-final filteredOfficialProfilesProvider =
-    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
+final filteredOfficialProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
   final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
   final profiles = await ref.watch(officialProfilesProvider.future);
-  if (query.isEmpty) return profiles;
+  if (query.isEmpty) {
+    return profiles;
+  }
   return profiles.where((p) => _profileText(p).contains(query)).toList();
 });
 
-final filteredPeopleProfilesProvider =
-    FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
+final filteredPeopleProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
   final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
   final profiles = await ref.watch(peopleProfilesProvider.future);
-  if (query.isEmpty) return profiles;
+  if (query.isEmpty) {
+    return profiles;
+  }
   return profiles.where((p) => _profileText(p).contains(query)).toList();
 });
 
@@ -121,15 +123,16 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
   }
 
   Future<void> loadMore() async {
-    if (!_hasMore || _loadingMore || state.hasError) return;
+    if (!_hasMore || _loadingMore || state.hasError) {
+      return;
+    }
     _loadingMore = true;
     try {
       final nextPage = _page + 1;
-      final repos =
-          await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
-                page: nextPage,
-                perPage: discoverPageSize,
-              );
+      final repos = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
+            page: nextPage,
+            perPage: discoverPageSize,
+          );
       _page = nextPage;
       _hasMore = repos.length == discoverPageSize;
       state = AsyncData([...?state.valueOrNull, ...repos]);
@@ -160,15 +163,16 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
   }
 
   Future<void> loadMore() async {
-    if (!_hasMore || _loadingMore || state.hasError) return;
+    if (!_hasMore || _loadingMore || state.hasError) {
+      return;
+    }
     _loadingMore = true;
     try {
       final nextPage = _page + 1;
-      final skills =
-          await ref.read(discoverRepositoryProvider).fetchAgentSkills(
-                page: nextPage,
-                perPage: discoverPageSize,
-              );
+      final skills = await ref.read(discoverRepositoryProvider).fetchAgentSkills(
+            page: nextPage,
+            perPage: discoverPageSize,
+          );
       _page = nextPage;
       _hasMore = skills.length == discoverPageSize;
       state = AsyncData([...?state.valueOrNull, ...skills]);
@@ -180,12 +184,8 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
   bool get hasMore => _hasMore;
 }
 
-String _repoText(RepoEntity r) =>
-    '${r.fullName} ${r.description} ${r.language}'.toLowerCase();
+String _repoText(RepoEntity r) => '${r.fullName} ${r.description} ${r.language}'.toLowerCase();
 
-String _skillText(SkillEntity s) =>
-    '${s.repo.fullName} ${s.repo.description} ${s.category} ${s.source}'
-        .toLowerCase();
+String _skillText(SkillEntity s) => '${s.repo.fullName} ${s.repo.description} ${s.category} ${s.source}'.toLowerCase();
 
-String _profileText(DiscoverProfileEntity p) =>
-    '${p.login} ${p.name} ${p.type} ${p.bio}'.toLowerCase();
+String _profileText(DiscoverProfileEntity p) => '${p.login} ${p.name} ${p.type} ${p.bio}'.toLowerCase();

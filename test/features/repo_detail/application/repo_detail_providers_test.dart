@@ -32,8 +32,7 @@ void main() {
       expect(digest.compareTrend, isNotEmpty);
     });
 
-    test('should propagate error when repository throws on unknown repo',
-        () async {
+    test('should propagate error when repository throws on unknown repo', () async {
       final repo = _MockRepoDetailRepository();
       when(() => repo.getDetail(any())).thenThrow(StateError('not found'));
 

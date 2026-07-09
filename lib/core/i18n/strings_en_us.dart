@@ -145,8 +145,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'ai_news.empty_category': 'No updates in "{cat}"',
   'ai_news.open_failed': 'Cannot open article link',
   'ai_news.detail_title': 'Article detail',
-  'ai_news.detail_missing':
-      'This article is not in the local cache. Go back and refresh the list.',
+  'ai_news.detail_missing': 'This article is not in the local cache. Go back and refresh the list.',
   'ai_news.detail_score': 'Score',
   'ai_news.detail_selected': 'Selected',
   'ai_news.detail_source': 'Source',
@@ -204,8 +203,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'monitor.alerts.title': 'Alerts',
   'monitor.alerts.empty': 'No alerts in the last 24 hours',
   'monitor.alerts.all': 'All alerts',
-  'monitor.alerts.subtitle':
-      '{visible} visible · {unread} unread · {archived} archived',
+  'monitor.alerts.subtitle': '{visible} visible · {unread} unread · {archived} archived',
   'monitor.alerts.filter.all': 'All',
   'monitor.alerts.filter.unread': 'Unread',
   'monitor.alerts.filter.important': 'Important',
@@ -271,8 +269,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'tech_hotspot.language_share': 'Language share',
   'tech_hotspot.tag_cloud': 'Radar tags',
   'tech_hotspot.agent_board.title': 'Agent rank signals',
-  'tech_hotspot.agent_board.subtitle':
-      'Heat, growth, discussion and related repos',
+  'tech_hotspot.agent_board.subtitle': 'Heat, growth, discussion and related repos',
   'tech_hotspot.agent_board.source': 'GitHub aggregate · estimated growth',
   'tech_hotspot.detail_title': 'Topic detail',
   'tech_hotspot.detail.summary': 'Overview',
@@ -307,8 +304,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'repo_detail.section.activity': 'Activity feed',
   'repo_detail.section.activity.subtitle': 'Recent commits / issues / releases',
   'repo_detail.section.star_trend': 'Star growth',
-  'repo_detail.section.star_trend.subtitle':
-      'Last 30 days · this repo vs average',
+  'repo_detail.section.star_trend.subtitle': 'Last 30 days · this repo vs average',
   'repo_detail.window.7d': '7d',
   'repo_detail.window.30d': '30d',
   'repo_detail.window.90d': '90d',
@@ -351,8 +347,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'project.activity.title': 'Activity feed',
   'project.activity.empty': 'No recent activity',
   'project.activity.recent_7d': 'Last 7 days',
-  'project.activity.recent_7d.subtitle':
-      'Commits / Issues / Releases across repos',
+  'project.activity.recent_7d.subtitle': 'Commits / Issues / Releases across repos',
   'project.activity.developers': 'Developers you might like',
   'project.activity.developers.subtitle': 'Active in the last 7 days',
   'project.activity.contrib': '+{n} this week',
@@ -363,8 +358,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'project.discover.topic_popular.subtitle': 'Based on your follows & history',
   'project.discover.topic_repos': '{n} repos',
   'project.discover.recommended_repos': 'Recommended repos',
-  'project.discover.recommended_repos.subtitle':
-      'Most relevant to your interests',
+  'project.discover.recommended_repos.subtitle': 'Most relevant to your interests',
   'project.discover.recommended_devs': 'Recommended developers',
   'project.discover.recommended_devs.subtitle': 'Active contributors to follow',
   'project.discover.follow': 'Follow',
@@ -372,8 +366,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'project.explore.title': 'Explore',
   'project.explore.empty': 'Nothing to explore yet',
   'project.explore.hot_topics': 'Hot topics',
-  'project.explore.hot_topics.subtitle':
-      'By this week\'s Star growth & discussion',
+  'project.explore.hot_topics.subtitle': 'By this week\'s Star growth & discussion',
   'project.explore.recommended_repos': 'Recommended repos',
   'project.explore.recommended_repos.subtitle': 'Based on follows · {n} total',
   'project.explore.followable_devs': 'Developers to follow',
@@ -428,8 +421,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'device_flow.expired': 'Code expired, please retry',
   'device_flow.denied': 'Authorization denied',
   'device_flow.not_configured': 'GitHub OAuth not configured',
-  'device_flow.need_config':
-      'Set the OAuth App client_id in ApiEndpointsConfig to enable device login',
+  'device_flow.need_config': 'Set the OAuth App client_id in ApiEndpointsConfig to enable device login',
   'device_flow.retry': 'Retry',
   'device_flow.hint_step1': '1. Tap below; GitHub will give you a code',
   'device_flow.hint_step2': '2. A browser opens — paste the code and authorize',
@@ -450,8 +442,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.login.password': 'Password',
   'profile.login.button': 'Sign in',
   'profile.login.with_github': 'Continue with GitHub',
-  'profile.login.disclaimer':
-      'By signing in you agree to the Terms and Privacy Policy',
+  'profile.login.disclaimer': 'By signing in you agree to the Terms and Privacy Policy',
   'profile.login.why_login': 'Why sign in?',
   'profile.login.why_login.subtitle': 'Most features work anonymously',
   'profile.login.bullet.sync': 'Sync monitor rules and alerts',
@@ -522,8 +513,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.detail.developers.count': 'Followed developers ({n})',
   'profile.detail.developers.notify': 'Notification policy',
   'profile.detail.developers.open': 'Open developers page',
-  'profile.detail.monitor_topics.subtitle':
-      'Track Star / Issue / Release of repos',
+  'profile.detail.monitor_topics.subtitle': 'Track Star / Issue / Release of repos',
   'profile.detail.monitor_topics.count': 'Monitoring ({n})',
   'profile.detail.monitor_topics.recent': 'Latest alerts',
   'profile.detail.monitor_topics.unread': '{n} unread',
@@ -549,16 +539,14 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.token.configured': 'Configured',
   'profile.token.hint': 'Personal Access Token',
   'profile.token.hint_placeholder': 'github_pat_... or ghp_...',
-  'profile.token.security_notice':
-      'Token is encrypted via system secure storage (Windows DPAPI / macOS Keychain), never stored in plaintext.',
+  'profile.token.security_notice': 'Token is encrypted via system secure storage (Windows DPAPI / macOS Keychain), never stored in plaintext.',
   'profile.token.save': 'Save',
   'profile.token.clear': 'Clear',
   'profile.token.check_quota': 'Check quota',
   'profile.token.saved': 'GitHub Token saved',
   'profile.token.cleared': 'GitHub Token cleared',
   'profile.token.checking': 'Checking GitHub quota...',
-  'profile.token.check_failed':
-      'Check failed, verify network or token validity',
+  'profile.token.check_failed': 'Check failed, verify network or token validity',
   'profile.token.rest_core': 'REST Core',
   'profile.token.search_api': 'Search API',
   'profile.token.check_time': 'Checked at {time}',
@@ -620,11 +608,9 @@ const Map<String, String> stringsEnUS = <String, String>{
 
   // common.onboarding
   'onboarding.welcome_title': 'Welcome to GitHub Intelligence',
-  'onboarding.welcome_desc':
-      'AI + GitHub intelligence workbench, track open-source ecosystem',
+  'onboarding.welcome_desc': 'AI + GitHub intelligence workbench, track open-source ecosystem',
   'onboarding.step1_title': 'AI News',
-  'onboarding.step1_desc':
-      'Daily curated AI industry updates, browse by category',
+  'onboarding.step1_desc': 'Daily curated AI industry updates, browse by category',
   'onboarding.step2_title': 'GitHub Trending',
   'onboarding.step2_desc': 'Multi-dimensional sorting: trend, growth, language',
   'onboarding.step3_title': 'Repo Monitor',
@@ -648,12 +634,9 @@ const Map<String, String> stringsEnUS = <String, String>{
   'provenance.seed.full': 'Local seed',
   'provenance.live.tooltip': 'Live from GitHub API or local daily snapshot',
   'provenance.fresh_cache.tooltip': 'From local cache and still within TTL',
-  'provenance.stale_cache.tooltip':
-      'From local cache but expired, shown only as fallback',
-  'provenance.estimated.tooltip':
-      'Derived from current observations, not complete history',
-  'provenance.seed.tooltip':
-      'Local seed data when remote is unavailable or on first launch',
+  'provenance.stale_cache.tooltip': 'From local cache but expired, shown only as fallback',
+  'provenance.estimated.tooltip': 'Derived from current observations, not complete history',
+  'provenance.seed.tooltip': 'Local seed data when remote is unavailable or on first launch',
 
   // a11y extras
   'a11y.clear_search': 'Clear search',
@@ -683,8 +666,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'trending.language.subtitle.ai': 'AI / ML · {count} languages',
   'trending.language.subtitle.web': 'Web & Frontend · {count} languages',
   'trending.language.subtitle.system': 'System & Infra · {count} languages',
-  'trending.language.subtitle.all':
-      'Language share of trending repos · {count} total',
+  'trending.language.subtitle.all': 'Language share of trending repos · {count} total',
   'trending.language.segment.system': 'System',
 
   // devintel signals

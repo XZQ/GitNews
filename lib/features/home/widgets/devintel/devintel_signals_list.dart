@@ -15,9 +15,7 @@ class DevIntelSignalsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final items =
-        ref.watch(aiNewsItemsNotifierProvider).valueOrNull?.take(4).toList() ??
-            const <AiNewsItem>[];
+    final items = ref.watch(aiNewsItemsNotifierProvider).valueOrNull?.take(4).toList() ?? const <AiNewsItem>[];
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -31,8 +29,7 @@ class DevIntelSignalsList extends ConsumerWidget {
           const SizedBox(height: AppSpacing.lg),
           for (var i = 0; i < items.length; i++) ...[
             _SignalTile(item: items[i]),
-            if (i != items.length - 1)
-              const SizedBox(height: AppSpacing.lg + AppSpacing.xs),
+            if (i != items.length - 1) const SizedBox(height: AppSpacing.lg + AppSpacing.xs),
           ],
         ],
       ),

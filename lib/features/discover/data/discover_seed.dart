@@ -55,10 +55,7 @@ class DiscoverSeed {
     ];
   }
 
-  static List<DiscoverProfileEntity> seedProfiles(DiscoverProfileKind kind) =>
-      kind == DiscoverProfileKind.official
-          ? _officialProfiles
-          : _peopleProfiles;
+  static List<DiscoverProfileEntity> seedProfiles(DiscoverProfileKind kind) => kind == DiscoverProfileKind.official ? _officialProfiles : _peopleProfiles;
 
   static RepoEntity _extraToEntity(_SeedExtra e) => RepoEntity(
         fullName: e.fullName,
@@ -219,6 +216,7 @@ class DiscoverSeed {
       followers: 125697,
       avatarUrl: 'https://github.com/openai.png',
       htmlUrl: 'https://github.com/openai',
+      featuredRepoFullName: 'openai/openai-agents-python',
       kind: DiscoverProfileKind.official,
     ),
     DiscoverProfileEntity(
@@ -230,6 +228,7 @@ class DiscoverSeed {
       followers: 75251,
       avatarUrl: 'https://github.com/anthropics.png',
       htmlUrl: 'https://github.com/anthropics',
+      featuredRepoFullName: 'anthropics/skills',
       kind: DiscoverProfileKind.official,
     ),
     DiscoverProfileEntity(
@@ -241,6 +240,7 @@ class DiscoverSeed {
       followers: 124666,
       avatarUrl: 'https://github.com/microsoft.png',
       htmlUrl: 'https://github.com/microsoft',
+      featuredRepoFullName: 'microsoft/autogen',
       kind: DiscoverProfileKind.official,
     ),
     DiscoverProfileEntity(
@@ -252,6 +252,7 @@ class DiscoverSeed {
       followers: 20669,
       avatarUrl: 'https://github.com/langchain-ai.png',
       htmlUrl: 'https://github.com/langchain-ai',
+      featuredRepoFullName: 'langchain-ai/langchain',
       kind: DiscoverProfileKind.official,
     ),
     DiscoverProfileEntity(
@@ -263,6 +264,7 @@ class DiscoverSeed {
       followers: 2138,
       avatarUrl: 'https://github.com/crewAIInc.png',
       htmlUrl: 'https://github.com/crewAIInc',
+      featuredRepoFullName: 'crewAIInc/crewAI',
       kind: DiscoverProfileKind.official,
     ),
     DiscoverProfileEntity(
@@ -274,6 +276,7 @@ class DiscoverSeed {
       followers: 48674,
       avatarUrl: 'https://github.com/modelcontextprotocol.png',
       htmlUrl: 'https://github.com/modelcontextprotocol',
+      featuredRepoFullName: 'modelcontextprotocol/servers',
       kind: DiscoverProfileKind.official,
     ),
     DiscoverProfileEntity(
@@ -285,6 +288,7 @@ class DiscoverSeed {
       followers: 29517,
       avatarUrl: 'https://github.com/vercel.png',
       htmlUrl: 'https://github.com/vercel',
+      featuredRepoFullName: 'vercel/ai',
       kind: DiscoverProfileKind.official,
     ),
     DiscoverProfileEntity(
@@ -296,6 +300,7 @@ class DiscoverSeed {
       followers: 65530,
       avatarUrl: 'https://github.com/huggingface.png',
       htmlUrl: 'https://github.com/huggingface',
+      featuredRepoFullName: 'huggingface/transformers',
       kind: DiscoverProfileKind.official,
     ),
   ];
@@ -310,6 +315,7 @@ class DiscoverSeed {
       followers: 208119,
       avatarUrl: 'https://github.com/karpathy.png',
       htmlUrl: 'https://github.com/karpathy',
+      featuredRepoFullName: 'karpathy/nanoGPT',
       kind: DiscoverProfileKind.people,
     ),
     DiscoverProfileEntity(
@@ -321,6 +327,7 @@ class DiscoverSeed {
       followers: 15819,
       avatarUrl: 'https://github.com/simonw.png',
       htmlUrl: 'https://github.com/simonw',
+      featuredRepoFullName: 'simonw/llm',
       kind: DiscoverProfileKind.people,
     ),
     DiscoverProfileEntity(
@@ -332,6 +339,7 @@ class DiscoverSeed {
       followers: 7587,
       avatarUrl: 'https://github.com/swyxio.png',
       htmlUrl: 'https://github.com/swyxio',
+      featuredRepoFullName: 'swyxio/ai-notes',
       kind: DiscoverProfileKind.people,
     ),
     DiscoverProfileEntity(
@@ -343,6 +351,7 @@ class DiscoverSeed {
       followers: 9937,
       avatarUrl: 'https://github.com/hwchase17.png',
       htmlUrl: 'https://github.com/hwchase17',
+      featuredRepoFullName: 'langchain-ai/langchain',
       kind: DiscoverProfileKind.people,
     ),
     DiscoverProfileEntity(
@@ -354,6 +363,7 @@ class DiscoverSeed {
       followers: 4328,
       avatarUrl: 'https://github.com/jerryjliu.png',
       htmlUrl: 'https://github.com/jerryjliu',
+      featuredRepoFullName: 'run-llama/llama_index',
       kind: DiscoverProfileKind.people,
     ),
     DiscoverProfileEntity(
@@ -365,6 +375,7 @@ class DiscoverSeed {
       followers: 18102,
       avatarUrl: 'https://github.com/fchollet.png',
       htmlUrl: 'https://github.com/fchollet',
+      featuredRepoFullName: 'keras-team/keras',
       kind: DiscoverProfileKind.people,
     ),
     DiscoverProfileEntity(
@@ -376,6 +387,7 @@ class DiscoverSeed {
       followers: 13392,
       avatarUrl: 'https://github.com/soumith.png',
       htmlUrl: 'https://github.com/soumith',
+      featuredRepoFullName: 'pytorch/pytorch',
       kind: DiscoverProfileKind.people,
     ),
     DiscoverProfileEntity(
@@ -387,6 +399,7 @@ class DiscoverSeed {
       followers: 1907,
       avatarUrl: 'https://github.com/shreyashankar.png',
       htmlUrl: 'https://github.com/shreyashankar',
+      featuredRepoFullName: 'lotus-data/lotus',
       kind: DiscoverProfileKind.people,
     ),
   ];

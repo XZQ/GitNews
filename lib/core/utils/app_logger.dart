@@ -12,7 +12,9 @@ class AppLogger {
   const AppLogger._();
 
   static void warn(String tag, {Map<String, Object?> meta = const {}}) {
-    if (kReleaseMode) return;
+    if (kReleaseMode) {
+      return;
+    }
     final parts = [tag, for (final e in meta.entries) '${e.key}=${e.value}'];
     debugPrint('[warn] ${parts.join(" ")}');
   }
@@ -22,7 +24,9 @@ class AppLogger {
     Object? kind,
     Map<String, Object?> meta = const {},
   }) {
-    if (kReleaseMode) return;
+    if (kReleaseMode) {
+      return;
+    }
     final parts = [tag, if (kind != null) 'kind=$kind'];
     debugPrint('[error] ${parts.join(" ")}');
   }

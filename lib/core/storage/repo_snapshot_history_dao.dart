@@ -29,11 +29,8 @@ class RepoSnapshotHistoryDao {
       for (final point in points) point.day: point,
       dayKey: nextPoint,
     };
-    final next = byDay.values.toList()
-      ..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
-    final bounded = next.length <= repoSnapshotHistoryMaxPoints
-        ? next
-        : next.sublist(next.length - repoSnapshotHistoryMaxPoints);
+    final next = byDay.values.toList()..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
+    final bounded = next.length <= repoSnapshotHistoryMaxPoints ? next : next.sublist(next.length - repoSnapshotHistoryMaxPoints);
     await _cache.upsert(
       key: key,
       payload: {
@@ -46,7 +43,9 @@ class RepoSnapshotHistoryDao {
 
   Future<RepoTrendSnapshot?> starTrend(String fullName) async {
     final points = await _pointsFor(fullName);
-    if (points.length < 2) return null;
+    if (points.length < 2) {
+      return null;
+    }
     return RepoTrendSnapshot(
       values: [for (final point in points) point.stars.toDouble()],
       provenance: DataProvenance.live,
@@ -55,7 +54,9 @@ class RepoSnapshotHistoryDao {
 
   Future<RepoTrendSnapshot?> forkTrend(String fullName) async {
     final points = await _pointsFor(fullName);
-    if (points.length < 2) return null;
+    if (points.length < 2) {
+      return null;
+    }
     return RepoTrendSnapshot(
       values: [for (final point in points) point.forks.toDouble()],
       provenance: DataProvenance.live,
@@ -64,13 +65,17 @@ class RepoSnapshotHistoryDao {
 
   Future<List<RepoSnapshotPoint>> _pointsFor(String fullName) async {
     final payload = await _cache.read(_cacheKey(fullName));
-    if (payload == null) return const [];
+    if (payload == null) {
+      return const [];
+    }
     return _pointsFromPayload(payload);
   }
 
   List<RepoSnapshotPoint> _pointsFromPayload(Map<String, Object?> payload) {
     final raw = payload['points'];
-    if (raw == null) return const [];
+    if (raw == null) {
+      return const [];
+    }
     return GitHubJson.list(
       raw,
     ).map(RepoSnapshotPoint.fromJson).toList(growable: false)

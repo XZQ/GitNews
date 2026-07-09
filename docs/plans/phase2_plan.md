@@ -5,7 +5,7 @@
 > 已定方向：① 数据=联网 GitHub API + 本地缓存兜底；② skill=AI Agent Skills 仓库；③ 登录=GitHub Device Flow。
 
 ## 任务划分
-- #36 模块1：发现页（流行仓库 Top20 + AI Agent Skills 榜）+ 监控增删闭环
+- #36 模块1：发现页（流行仓库 + AI Agent Skills + 官方账号 + 知名人士）+ 监控增删闭环
 - #37 模块2：个人中心（GitHub Device Flow 登录/注册 + 真实个人状态）
 - #38 模块3：设置页（独立 settings feature + 各 item 二级页）
 - #39 模块4：数据增强（Trending 镜像 + Agent Skills 排行榜 + awesome lists）
@@ -35,7 +35,7 @@
 - 限流：统一经 `gatherAll`；429 指数退避；失败回退 seed。
 
 ## UI/UX 方案（UI 专家）
-- **发现页**：`page_header`（标题=发现 + HeaderSearchField + HeaderAction 刷新）+ `SegmentedTab[流行仓库 Top20 | Agent Skills 榜]` + filter_row + `repo_tile` 列表（行尾 `monitor_toggle` 插槽，IconButton bookmark/bookmark_border 切换，isMonitored 驱动，tooltip「添加/移除监控」）+ 四态。
+- **发现页**：`page_header`（标题=发现 + HeaderSearchField + HeaderAction 刷新）+ `SegmentedTab[流行仓库 | Agent Skills | 官方账号 | 知名人士]` + filter_row + 列表四态。流行仓库/Agent Skills 使用 `repo_tile` 列表（行尾 `monitor_toggle` 插槽，IconButton bookmark/bookmark_border 切换，isMonitored 驱动，tooltip「添加/移除监控」）并支持触底加载；官方账号/知名人士使用账号行，但点击进入代表仓库详情页，保持在桌面端 B 区域内，不打开全屏 WebView。
 - **个人中心**：master-detail；Master=profile_summary_card（头像/昵称/在线/监控·收藏·关注真实 .length）；Detail=未登录(Device Flow 入口)/已登录(真实数据+列表)。Device Flow 状态机 idle→polling(显示 user-code+验证URL+复制+进度)→success→error/expired。
 - **设置页**：master-detail；Master=settings_group(账号/外观/数据/通知/隐私/关于)；Detail=各二级页（语言 Radio / 主题 Segmented / 缓存·通知 Switch / 关于 static / 账号跳转 profile）。
 - 复用：`page_header`+`HeaderAction`、`repo_tile`（加插槽）、`HeaderSearchField`、`SidebarProfileCard`（补字段）、`SegmentedTab`(按需新增，用 token)。
@@ -60,3 +60,8 @@
 4. 模块3 设置页 + 二级页 + sidebar 入口。
 5. 模块4 数据增强（trending 镜像 / skills 排行榜 / awesome seed）。
 6. #40 终验 + 提交推送。
+
+## 当前范围确认
+
+- 当前阶段只修改和验证 Windows 桌面端主链路。
+- 手机端继续保持独立 4 Tab 规划，本轮不扩展、不重排、不复用桌面侧边栏结构。

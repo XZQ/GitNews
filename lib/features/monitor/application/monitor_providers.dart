@@ -18,8 +18,7 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   final gate = ref.watch(rateLimitGateProvider);
   final gateController = ref.watch(rateLimitGateProvider.notifier);
   final monitored = ref.watch(localContentControllerProvider).monitoredRepos;
-  final repos =
-      monitored.isEmpty ? githubMonitorDefaultRepos : monitored.toList();
+  final repos = monitored.isEmpty ? githubMonitorDefaultRepos : monitored.toList();
   return GithubMonitorRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
@@ -94,7 +93,9 @@ MonitorDigest applyMonitorAlertState(
 
 MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return digest;
+  if (keyword.isEmpty) {
+    return digest;
+  }
 
   return MonitorDigest(
     monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword),
@@ -105,7 +106,9 @@ MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
 
 List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return repos;
+  if (keyword.isEmpty) {
+    return repos;
+  }
 
   return [
     for (final repo in repos)
@@ -115,7 +118,9 @@ List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {
 
 List<AlertEntity> filterMonitorAlerts(List<AlertEntity> alerts, String query) {
   final keyword = query.trim().toLowerCase();
-  if (keyword.isEmpty) return alerts;
+  if (keyword.isEmpty) {
+    return alerts;
+  }
 
   return [
     for (final alert in alerts)

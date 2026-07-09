@@ -103,8 +103,7 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
             children: [
               for (var i = 0; i < legends.length; i++) ...[
                 HomeLegendDot(color: legends[i].color, label: legends[i].label),
-                if (i != legends.length - 1)
-                  const SizedBox(width: AppSpacing.md),
+                if (i != legends.length - 1) const SizedBox(width: AppSpacing.md),
               ],
             ],
           ),

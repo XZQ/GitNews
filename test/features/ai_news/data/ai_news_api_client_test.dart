@@ -68,8 +68,7 @@ void main() {
       );
     });
 
-    test('should throw rateLimit AppException on 429 with Retry-After',
-        () async {
+    test('should throw rateLimit AppException on 429 with Retry-After', () async {
       when(
         () => dio.get<Map<String, Object?>>(
           any(),
@@ -93,9 +92,7 @@ void main() {
         client.fetchItems(),
         throwsA(
           predicate<AppException>(
-            (e) =>
-                e.kind == AppExceptionKind.rateLimit &&
-                e.retryAfterSeconds == 30,
+            (e) => e.kind == AppExceptionKind.rateLimit && e.retryAfterSeconds == 30,
           ),
         ),
       );

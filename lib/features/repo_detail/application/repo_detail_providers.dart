@@ -26,7 +26,6 @@ final localRepoDetailRepositoryProvider = Provider<RepoDetailRepository>((ref) {
   return const LocalRepoDetailRepository();
 });
 
-final repoDetailDigestProvider =
-    FutureProvider.family<RepoDetailDigest, String>((ref, fullName) {
+final repoDetailDigestProvider = FutureProvider.family<RepoDetailDigest, String>((ref, fullName) {
   return ref.watch(repoDetailRepositoryProvider).getDetail(fullName);
 });

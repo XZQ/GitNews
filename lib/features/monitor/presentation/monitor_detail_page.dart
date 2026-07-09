@@ -35,8 +35,7 @@ class MonitorDetailPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.tr('monitor.detail_title')),
         leading: BackButton(
-          onPressed: () =>
-              context.canPop() ? context.pop() : context.go('/monitor'),
+          onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'),
         ),
       ),
       body: state.when(
@@ -119,15 +118,13 @@ class _Body extends StatelessWidget {
             children: [
               SectionHeader(
                 title: l10n.tr('monitor.section.realtime_trend'),
-                subtitle:
-                    '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendProvenance.labelKey)}',
+                subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendProvenance.labelKey)}',
               ),
               const SizedBox(height: AppSpacing.md),
               StarTrendChart(
                 series: [
                   ChartSeries(
-                    values: repo.trend ??
-                        _estimatedTrend(repo.starCount - 5000, 5000),
+                    values: repo.trend ?? _estimatedTrend(repo.starCount - 5000, 5000),
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   ChartSeries(
@@ -204,8 +201,12 @@ class _DetailSkeleton extends StatelessWidget {
 }
 
 String _shortNumber(int n) {
-  if (n >= 1000000) return '${(n / 1000000).toStringAsFixed(1)}M';
-  if (n >= 1000) return '${(n / 1000).toStringAsFixed(1)}k';
+  if (n >= 1000000) {
+    return '${(n / 1000000).toStringAsFixed(1)}M';
+  }
+  if (n >= 1000) {
+    return '${(n / 1000).toStringAsFixed(1)}k';
+  }
   return '$n';
 }
 

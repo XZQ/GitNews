@@ -114,8 +114,7 @@ class _Desktop extends ConsumerWidget {
                     // 用可用高度而非全屏高度,窗口变矮时不再溢出;
                     // 外层 SingleChildScrollView 作为极矮窗口的安全兜底。
                     SizedBox(
-                      height: (available - _kStatusRowHeight - AppSpacing.lg)
-                          .clamp(220.0, 900.0),
+                      height: (available - _kStatusRowHeight - AppSpacing.lg).clamp(220.0, 900.0),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [

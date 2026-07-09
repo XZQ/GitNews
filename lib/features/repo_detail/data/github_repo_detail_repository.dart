@@ -85,16 +85,16 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   }
 
   void _maybeReportRateLimit(Object error) {
-    if (error is AppException &&
-        error.kind == AppExceptionKind.rateLimit &&
-        _onRateLimited != null) {
+    if (error is AppException && error.kind == AppExceptionKind.rateLimit && _onRateLimited != null) {
       _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
 
   Future<RepoDetailDigest?> _readCached(String cacheKey) async {
     final json = await _cache.read(cacheKey);
-    if (json == null) return null;
+    if (json == null) {
+      return null;
+    }
     try {
       return repoDetailDigestFromJson(json);
     } catch (e) {
@@ -125,7 +125,9 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
 
   Future<RepoEntity> _withHistoryTrend(RepoEntity repo, DateTime now) async {
     final history = _snapshotHistory;
-    if (history == null) return repo;
+    if (history == null) {
+      return repo;
+    }
     await history.record(
       fullName: repo.fullName,
       stars: repo.starCount,
@@ -133,7 +135,9 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       capturedAt: now,
     );
     final starTrend = await history.starTrend(repo.fullName);
-    if (starTrend == null) return repo;
+    if (starTrend == null) {
+      return repo;
+    }
     return repo.copyWith(
       starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta),
       trend: starTrend.values,
@@ -142,7 +146,9 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   }
 
   int _observedDelta(List<double> values, {required int fallback}) {
-    if (values.length < 2) return fallback;
+    if (values.length < 2) {
+      return fallback;
+    }
     final delta = values.last - values.first;
     return delta.round().clamp(0, 999999);
   }
@@ -190,14 +196,11 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
 
   Future<List<RepoEntity>> _fetchRelatedRepos(RepoEntity repo) async {
     try {
-      final language = repo.language == 'Unknown'
-          ? ''
-          : ' language:${GitHubApiSupport.quoteSearchValue(repo.language)}';
+      final language = repo.language == 'Unknown' ? '' : ' language:${GitHubApiSupport.quoteSearchValue(repo.language)}';
       final response = await _dio.get<Map<String, Object?>>(
         ApiEndpointsConfig.githubSearchRepositoriesPath,
         queryParameters: {
-          'q':
-              '${repo.fullName.split('/').last} in:name,description stars:>30 archived:false$language',
+          'q': '${repo.fullName.split('/').last} in:name,description stars:>30 archived:false$language',
           'sort': 'stars',
           'order': 'desc',
           'per_page': 6,
@@ -233,8 +236,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     )?.toUtc();
     return RepoEntity(
       fullName: fullName,
-      description:
-          GitHubJson.nullableString(json['description']) ?? 'No description',
+      description: GitHubJson.nullableString(json['description']) ?? 'No description',
       language: language,
       starCount: stars,
       starDelta: repoDetailActivityScore(

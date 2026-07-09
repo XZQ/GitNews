@@ -75,8 +75,12 @@ class TechHotspotTopicCard extends StatelessWidget {
   }
 
   static Color _heatColor(int heat) {
-    if (heat >= 90) return AppColors.danger;
-    if (heat >= 75) return AppColors.warning;
+    if (heat >= 90) {
+      return AppColors.danger;
+    }
+    if (heat >= 75) {
+      return AppColors.warning;
+    }
     return AppColors.info;
   }
 }

@@ -86,9 +86,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   void _maybeReportRateLimit(Object error) {
-    if (error is AppException &&
-        error.kind == AppExceptionKind.rateLimit &&
-        _onRateLimited != null) {
+    if (error is AppException && error.kind == AppExceptionKind.rateLimit && _onRateLimited != null) {
       _onRateLimited(error.retryAfterSeconds ?? 60);
     }
   }
@@ -104,7 +102,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
 
   Future<TechHotspotDigest?> _readCached() async {
     final json = await _cache.read(_cacheKey);
-    if (json == null) return null;
+    if (json == null) {
+      return null;
+    }
     try {
       return techHotspotDigestFromJson(json);
     } catch (e) {
@@ -117,9 +117,12 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   }
 
   Future<TechHotspotDigest> _fetchDigest(DateTime now) async {
-    final fetched = await gatherAll<GithubTechHotspotTopicResult>([
-      for (final query in techHotspotTopicQueries) _fetchTopic(query, now),
-    ], tag: 'githubTechHotspotFetch');
+    final fetched = await gatherAll<GithubTechHotspotTopicResult>(
+      [
+        for (final query in techHotspotTopicQueries) _fetchTopic(query, now),
+      ],
+      tag: 'githubTechHotspotFetch',
+    );
     final results = await _withObservedHistory(fetched, now);
     final languages = buildTechHotspotLanguages(results);
     final tags = buildTechHotspotTags(results);
@@ -140,8 +143,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       final response = await _dio.get<Map<String, Object?>>(
         ApiEndpointsConfig.githubSearchRepositoriesPath,
         queryParameters: {
-          'q':
-              '(${query.query}) in:name,description,readme stars:>30 pushed:>=${GitHubApiSupport.formatDate(cutoff)} archived:false',
+          'q': '(${query.query}) in:name,description,readme stars:>30 pushed:>=${GitHubApiSupport.formatDate(cutoff)} archived:false',
           'sort': 'stars',
           'order': 'desc',
           'per_page': 10,
@@ -204,7 +206,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     DateTime now,
   ) async {
     final history = _history;
-    if (history == null || results.isEmpty) return results;
+    if (history == null || results.isEmpty) {
+      return results;
+    }
     return Future.wait([
       for (final result in results) _withTopicHistory(result, history, now),
     ]);
@@ -224,7 +228,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       capturedAt: now,
     );
     final trend = await history.trend(topic.id);
-    if (trend == null) return result;
+    if (trend == null) {
+      return result;
+    }
     return GithubTechHotspotTopicResult(
       topic: copyTechHotspotTopic(
         topic,

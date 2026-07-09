@@ -70,9 +70,7 @@ class _Body extends ConsumerWidget {
               children: [
                 TechHotspotTagsCloud(
                   tags: digest.hotTags,
-                  onTagSelected: (tag) => ref
-                      .read(techHotspotSearchQueryProvider.notifier)
-                      .state = tag,
+                  onTagSelected: (tag) => ref.read(techHotspotSearchQueryProvider.notifier).state = tag,
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 TechHotspotAgentSignalBoard(topics: digest.topics),
