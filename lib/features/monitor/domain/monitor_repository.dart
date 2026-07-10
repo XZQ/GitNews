@@ -1,3 +1,4 @@
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import 'entities.dart';
 
@@ -34,5 +35,5 @@ class MonitorDigest {
 *回退过期缓存或本地监控种子数据。
 */
 abstract interface class MonitorRepository {
-  Future<MonitorDigest> getDigest();
+  Future<DataResult<MonitorDigest>> getDigest({bool force = false});
 }

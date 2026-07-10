@@ -17,7 +17,7 @@ class DevIntelMonitoringStatus extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final repos = ref.watch(monitorDigestProvider).maybeWhen(
+    final repos = ref.watch(visibleMonitorDigestProvider).maybeWhen(
           data: (digest) => digest.monitoredRepos.take(4).toList(),
           orElse: () => const <RepoEntity>[],
         );

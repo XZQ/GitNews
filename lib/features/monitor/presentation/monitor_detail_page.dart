@@ -18,6 +18,7 @@ import '../../../shared/widgets/skeleton.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../application/monitor_providers.dart';
 import '../domain/entities.dart';
+import '../widgets/monitor_alert_list_tile.dart';
 
 /* 
 *监控详情(对应监控页二级稿:实时趋势 + 告警历史)。
@@ -30,7 +31,7 @@ class MonitorDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(monitorDigestProvider);
+    final state = ref.watch(visibleMonitorDigestProvider);
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.tr('monitor.detail_title')),
@@ -66,7 +67,7 @@ class MonitorDetailPage extends ConsumerWidget {
         loading: () => const _DetailSkeleton(),
         error: (error, stack) => ErrorView(
           error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(monitorDigestProvider),
+          onRetry: () => forceRefreshMonitor(ref),
         ),
       ),
     );
@@ -82,6 +83,7 @@ class _Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final repoAlerts = alerts.where((alert) => alert.repoFullName == repo.fullName).take(5);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -147,7 +149,7 @@ class _Body extends StatelessWidget {
                 subtitle: l10n.tr('monitor.section.alert_history.subtitle'),
               ),
               const SizedBox(height: AppSpacing.md),
-              for (final alert in alerts.take(5)) ...[
+              for (final alert in repoAlerts) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   leading: Icon(
@@ -158,7 +160,9 @@ class _Body extends StatelessWidget {
                     alert.repoFullName,
                     style: AppTypography.titleSmall,
                   ),
-                  subtitle: Text('${alert.metric} · ${alert.time}'),
+                  subtitle: Text(
+                    '${monitorAlertMetricLabel(context, alert)} · ${alert.time}',
+                  ),
                   trailing: Text(
                     alert.value,
                     style: AppTypography.labelMedium.copyWith(

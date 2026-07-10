@@ -57,7 +57,7 @@ class _BellWithDot extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
-    final monitor = ref.watch(monitorDigestProvider).valueOrNull;
+    final monitor = ref.watch(visibleMonitorDigestProvider).valueOrNull;
     final hasUnread = (monitor?.stats.unreadAlertCount ?? 0) > 0;
     return Semantics(
       label: l10n.tr('a11y.notification'),

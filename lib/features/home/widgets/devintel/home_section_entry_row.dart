@@ -44,7 +44,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
     final aiItems = ref.watch(aiNewsItemsNotifierProvider).valueOrNull;
     final trending = ref.watch(trendingDigestProvider).valueOrNull;
     final hotspot = ref.watch(techHotspotDigestProvider).valueOrNull;
-    final monitor = ref.watch(monitorDigestProvider).valueOrNull;
+    final monitor = ref.watch(visibleMonitorDigestProvider).valueOrNull;
     final project = ref.watch(projectDigestProvider).valueOrNull;
     return [
       _EntrySpec(

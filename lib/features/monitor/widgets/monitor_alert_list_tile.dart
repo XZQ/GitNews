@@ -9,6 +9,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../application/monitor_alert_state_controller.dart';
 import '../domain/entities.dart';
+import '../domain/monitor_rule.dart';
 
 class MonitorAlertListTile extends ConsumerWidget {
   const MonitorAlertListTile({required this.alert, super.key});
@@ -36,11 +37,13 @@ class MonitorAlertListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final color = _accent();
-    final alertState = ref.watch(monitorAlertStateControllerProvider);
-    final isRead = alertState.isRead(alert);
+    final isRead = alert.isRead;
     return InkWell(
       onTap: () {
-        ref.read(monitorAlertStateControllerProvider.notifier).markRead(alert);
+        final id = alert.id;
+        if (id != null) {
+          ref.read(monitorAlertEventsProvider.notifier).markRead(id);
+        }
         context.go(
           '/project/detail/${Uri.encodeComponent(alert.repoFullName)}',
         );
@@ -121,7 +124,7 @@ class _AlertText extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xxs),
         Text(
-          alert.metric,
+          monitorAlertMetricLabel(context, alert),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: AppTypography.bodySmall.copyWith(
@@ -177,7 +180,7 @@ class _ReadButton extends ConsumerWidget {
       child: IconButton(
         visualDensity: VisualDensity.compact,
         iconSize: 18,
-        onPressed: () => ref.read(monitorAlertStateControllerProvider.notifier).toggleRead(alert),
+        onPressed: alert.id == null ? null : () => ref.read(monitorAlertEventsProvider.notifier).toggleRead(alert.id!),
         icon: Icon(
           isRead ? Icons.mark_email_unread_outlined : Icons.mark_email_read_outlined,
         ),
@@ -199,7 +202,7 @@ class _ArchiveButton extends ConsumerWidget {
       child: IconButton(
         visualDensity: VisualDensity.compact,
         iconSize: 18,
-        onPressed: () => ref.read(monitorAlertStateControllerProvider.notifier).archive(alert),
+        onPressed: alert.id == null ? null : () => ref.read(monitorAlertEventsProvider.notifier).archive(alert.id!),
         icon: const Icon(Icons.archive_outlined),
       ),
     );
@@ -208,18 +211,29 @@ class _ArchiveButton extends ConsumerWidget {
 
 List<AlertEntity> filterAlertsByState(
   List<AlertEntity> alerts,
-  MonitorAlertState alertState,
   MonitorAlertFilter filter,
 ) {
   return switch (filter) {
     MonitorAlertFilter.all => alerts,
     MonitorAlertFilter.unread => [
         for (final alert in alerts)
-          if (!alertState.isRead(alert)) alert,
+          if (!alert.isRead) alert,
       ],
     MonitorAlertFilter.important => [
         for (final alert in alerts)
           if (alert.severity == AlertSeverity.warning || alert.severity == AlertSeverity.danger) alert,
       ],
   };
+}
+
+String monitorAlertMetricLabel(BuildContext context, AlertEntity alert) {
+  final l10n = AppLocalizations.of(context);
+  final key = switch (alert.ruleId ?? alert.metric) {
+    MonitorRuleIds.starDailyDelta => 'monitor.rule.star_growth',
+    MonitorRuleIds.starDailyRate => 'monitor.rule.daily_growth',
+    MonitorRuleIds.forkDailyDelta => 'monitor.rule.fork_growth',
+    MonitorRuleIds.issueHeatRatio => 'monitor.rule.discuss_heat',
+    _ => null,
+  };
+  return key == null ? alert.metric : l10n.tr(key);
 }

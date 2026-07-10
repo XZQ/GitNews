@@ -24,7 +24,7 @@ class HomeAlertsPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final items = ref.watch(monitorDigestProvider).maybeWhen(
+    final items = ref.watch(visibleMonitorDigestProvider).maybeWhen(
           data: (digest) => digest.alerts.take(maxItems).toList(),
           orElse: () => const <AlertEntity>[],
         );

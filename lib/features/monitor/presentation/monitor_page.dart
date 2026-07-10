@@ -45,7 +45,7 @@ class MonitorPage extends ConsumerWidget {
         loading: () => const _MonitorSkeleton(),
         error: (error, stack) => ErrorView(
           error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(monitorDigestProvider),
+          onRetry: () => forceRefreshMonitor(ref),
         ),
       ),
     );

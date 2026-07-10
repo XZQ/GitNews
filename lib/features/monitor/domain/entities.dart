@@ -13,6 +13,11 @@ class AlertEntity {
     required this.value,
     required this.time,
     required this.severity,
+    this.id,
+    this.ruleId,
+    this.observedAt,
+    this.readAt,
+    this.archivedAt,
   });
 
   final String repoFullName;
@@ -22,6 +27,14 @@ class AlertEntity {
   // 友好相对时间(展示层按需二次格式化)。
   final String time;
   final AlertSeverity severity;
+  final String? id;
+  final String? ruleId;
+  final DateTime? observedAt;
+  final DateTime? readAt;
+  final DateTime? archivedAt;
+
+  bool get isRead => readAt != null;
+  bool get isArchived => archivedAt != null;
 }
 
 /* 

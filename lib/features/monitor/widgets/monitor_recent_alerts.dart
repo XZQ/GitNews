@@ -12,6 +12,7 @@ import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../application/monitor_alert_state_controller.dart';
 import '../domain/entities.dart';
+import 'monitor_alert_list_tile.dart';
 
 class MonitorRecentAlerts extends ConsumerWidget {
   const MonitorRecentAlerts({required this.alerts, super.key});
@@ -20,8 +21,7 @@ class MonitorRecentAlerts extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final alertState = ref.watch(monitorAlertStateControllerProvider);
-    final unreadCount = alertState.unreadCount(alerts);
+    final unreadCount = alerts.where((alert) => !alert.isRead).length;
     return AppCard(
       padding: EdgeInsets.zero,
       child: Column(
@@ -37,7 +37,9 @@ class MonitorRecentAlerts extends ConsumerWidget {
               title: '最近告警',
               subtitle: unreadCount == 0 ? '当前可见告警均已处理' : '$unreadCount 条未读，需要关注',
               trailing: TextButton.icon(
-                onPressed: alerts.isEmpty || unreadCount == 0 ? null : () => ref.read(monitorAlertStateControllerProvider.notifier).markAllRead(alerts),
+                onPressed: alerts.isEmpty || unreadCount == 0
+                    ? null
+                    : () => ref.read(monitorAlertEventsProvider.notifier).markAllRead(alerts.map((alert) => alert.id).whereType<String>()),
                 icon: const Icon(Icons.done_all_rounded, size: 16),
                 label: const Text('全部已读'),
               ),
@@ -95,11 +97,13 @@ class MonitorAlertRow extends ConsumerWidget {
     final color = _accent();
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
-    final alertState = ref.watch(monitorAlertStateControllerProvider);
-    final isRead = alertState.isRead(alert);
+    final isRead = alert.isRead;
     return InkWell(
       onTap: () {
-        ref.read(monitorAlertStateControllerProvider.notifier).markRead(alert);
+        final id = alert.id;
+        if (id != null) {
+          ref.read(monitorAlertEventsProvider.notifier).markRead(id);
+        }
         context.go(
           '/project/detail/${Uri.encodeComponent(alert.repoFullName)}',
         );
@@ -151,7 +155,7 @@ class MonitorAlertRow extends ConsumerWidget {
                     ],
                   ),
                   Text(
-                    alert.metric,
+                    monitorAlertMetricLabel(context, alert),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.bodySmall.copyWith(
@@ -186,7 +190,7 @@ class MonitorAlertRow extends ConsumerWidget {
               child: IconButton(
                 visualDensity: VisualDensity.compact,
                 iconSize: 18,
-                onPressed: () => ref.read(monitorAlertStateControllerProvider.notifier).toggleRead(alert),
+                onPressed: alert.id == null ? null : () => ref.read(monitorAlertEventsProvider.notifier).toggleRead(alert.id!),
                 icon: Icon(
                   isRead ? Icons.mark_email_unread_outlined : Icons.mark_email_read_outlined,
                 ),

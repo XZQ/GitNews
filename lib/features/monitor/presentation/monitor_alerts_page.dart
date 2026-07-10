@@ -21,7 +21,7 @@ class MonitorAlertsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(monitorDigestProvider);
+    final state = ref.watch(visibleMonitorDigestProvider);
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -32,28 +32,37 @@ class MonitorAlertsPage extends ConsumerWidget {
       ),
       body: state.when(
         data: (digest) {
-          final alertState = ref.watch(monitorAlertStateControllerProvider);
-          final visibleAlerts = alertState.visibleAlerts(digest.alerts);
-          if (digest.alerts.isEmpty) {
+          final events = ref.watch(monitorAlertEventsProvider).valueOrNull ?? const [];
+          final archivedCount = events.where((event) => event.isArchived).length;
+          if (digest.alerts.isEmpty && archivedCount == 0) {
             return EmptyView(
               icon: Icons.notifications_none_rounded,
               message: l10n.tr('monitor.alerts.empty'),
             );
           }
           return ResponsiveLayout(
-            compact: (_) => _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
+            compact: (_) => _Body(
+              alerts: digest.alerts,
+              archivedCount: archivedCount,
+            ),
             medium: (_) => CenteredContent(
-              child: _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
+              child: _Body(
+                alerts: digest.alerts,
+                archivedCount: archivedCount,
+              ),
             ),
             expanded: (_) => CenteredContent(
-              child: _Body(alerts: visibleAlerts, rawAlerts: digest.alerts),
+              child: _Body(
+                alerts: digest.alerts,
+                archivedCount: archivedCount,
+              ),
             ),
           );
         },
         loading: () => const _AlertsSkeleton(),
         error: (error, stack) => ErrorView(
           error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(monitorDigestProvider),
+          onRetry: () => forceRefreshMonitor(ref),
         ),
       ),
     );
@@ -61,18 +70,17 @@ class MonitorAlertsPage extends ConsumerWidget {
 }
 
 class _Body extends ConsumerWidget {
-  const _Body({required this.alerts, required this.rawAlerts});
+  const _Body({required this.alerts, required this.archivedCount});
 
   final List<AlertEntity> alerts;
-  final List<AlertEntity> rawAlerts;
+  final int archivedCount;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final alertState = ref.watch(monitorAlertStateControllerProvider);
     final filter = ref.watch(monitorAlertFilterProvider);
-    final filteredAlerts = filterAlertsByState(alerts, alertState, filter);
-    final unreadCount = alertState.unreadCount(alerts);
+    final filteredAlerts = filterAlertsByState(alerts, filter);
+    final unreadCount = alerts.where((alert) => !alert.isRead).length;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -97,7 +105,7 @@ class _Body extends ConsumerWidget {
                   title: l10n.tr('monitor.alerts.all'),
                   subtitle: l10n.tr('monitor.alerts.subtitle').replaceAll('{visible}', '${alerts.length}').replaceAll('{unread}', '$unreadCount').replaceAll(
                         '{archived}',
-                        '${rawAlerts.length - alerts.length}',
+                        '$archivedCount',
                       ),
                 ),
               ),
@@ -141,29 +149,31 @@ class _Body extends ConsumerWidget {
                           ? null
                           : () => ref
                               .read(
-                                monitorAlertStateControllerProvider.notifier,
+                                monitorAlertEventsProvider.notifier,
                               )
-                              .markAllRead(alerts),
+                              .markAllRead(
+                                alerts.map((alert) => alert.id).whereType<String>(),
+                              ),
                       icon: const Icon(Icons.done_all_rounded),
                       label: Text(l10n.tr('monitor.alerts.mark_all_read')),
                     ),
                     TextButton.icon(
-                      onPressed: alerts.any(alertState.isRead)
+                      onPressed: alerts.any((alert) => alert.isRead)
                           ? () => ref
                               .read(
-                                monitorAlertStateControllerProvider.notifier,
+                                monitorAlertEventsProvider.notifier,
                               )
-                              .archiveRead(alerts)
+                              .archiveRead()
                           : null,
                       icon: const Icon(Icons.cleaning_services_outlined),
                       label: Text(l10n.tr('monitor.alerts.clear_read')),
                     ),
                     TextButton.icon(
-                      onPressed: rawAlerts.length == alerts.length
+                      onPressed: archivedCount == 0
                           ? null
                           : () => ref
                               .read(
-                                monitorAlertStateControllerProvider.notifier,
+                                monitorAlertEventsProvider.notifier,
                               )
                               .restoreAll(),
                       icon: const Icon(Icons.restore_rounded),

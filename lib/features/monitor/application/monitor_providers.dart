@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
@@ -9,8 +10,10 @@ import '../../../core/storage/storage_providers.dart';
 import '../data/github_monitor_config.dart';
 import '../data/github_monitor_repository.dart';
 import '../data/local_monitor_repository.dart';
+import '../data/monitor_observation_dao.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
+import '../domain/monitor_rule.dart';
 import 'monitor_alert_state_controller.dart';
 
 final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
@@ -18,10 +21,16 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   final gate = ref.watch(rateLimitGateProvider);
   final gateController = ref.watch(rateLimitGateProvider.notifier);
   final monitored = ref.watch(localContentControllerProvider).monitoredRepos;
+  final ruleToggles = ref.watch(localContentControllerProvider).monitorRules;
   final repos = monitored.isEmpty ? githubMonitorDefaultRepos : monitored.toList();
   return GithubMonitorRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
+    observationDao: MonitorObservationDao(
+      ref.watch(jsonSnapshotCacheDaoProvider),
+    ),
+    alertDao: ref.watch(monitorAlertEventDaoProvider),
+    enabledRuleIds: _enabledRuleIds(ruleToggles),
     snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
     token: token,
     repos: repos,
@@ -53,8 +62,31 @@ final localMonitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   return const LocalMonitorRepository();
 });
 
-final monitorDigestProvider = FutureProvider<MonitorDigest>((ref) {
+final monitorDigestResultProvider = FutureProvider<DataResult<MonitorDigest>>((
+  ref,
+) {
   return ref.watch(monitorRepositoryProvider).getDigest();
+});
+
+final monitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
+  return (await ref.watch(monitorDigestResultProvider.future)).data;
+});
+
+/// 将仓库数据与独立持久化的告警状态合并为界面唯一读取的监控摘要。
+final visibleMonitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
+  final digest = await ref.watch(monitorDigestProvider.future);
+  final events = await ref.watch(monitorAlertEventsProvider.future);
+  return applyMonitorAlertEvents(
+    digest,
+    events,
+    ref.watch(monitorAlertClockProvider)(),
+  );
+});
+
+final monitorFreshnessProvider = Provider<AsyncValue<DataFreshness>>((ref) {
+  return ref.watch(monitorDigestResultProvider).whenData(
+        (result) => result.freshness,
+      );
 });
 
 // 仓库监控顶部搜索关键词。空字符串表示不过滤当前监控数据。
@@ -65,30 +97,87 @@ final filteredMonitorDigestProvider = FutureProvider<MonitorDigest>((
   ref,
 ) async {
   final query = ref.watch(monitorSearchQueryProvider);
-  final digest = await ref.watch(monitorDigestProvider.future);
-  final alertState = ref.watch(monitorAlertStateControllerProvider);
-  return filterMonitorDigest(applyMonitorAlertState(digest, alertState), query);
+  final digest = await ref.watch(visibleMonitorDigestProvider.future);
+  return filterMonitorDigest(digest, query);
 });
 
-MonitorDigest applyMonitorAlertState(
+Set<String> _enabledRuleIds(List<bool> toggles) {
+  const ids = [
+    MonitorRuleIds.starDailyDelta,
+    MonitorRuleIds.starDailyRate,
+    MonitorRuleIds.forkDailyDelta,
+    MonitorRuleIds.issueHeatRatio,
+  ];
+  return {
+    for (var index = 0; index < ids.length; index++)
+      if (index < toggles.length && toggles[index]) ids[index],
+  };
+}
+
+Future<void> forceRefreshMonitor(WidgetRef ref) async {
+  await ref.read(monitorRepositoryProvider).getDigest(force: true);
+  ref.invalidate(monitorDigestResultProvider);
+  ref.invalidate(monitorDigestProvider);
+  ref.invalidate(monitorAlertEventsProvider);
+  ref.invalidate(visibleMonitorDigestProvider);
+}
+
+MonitorDigest applyMonitorAlertEvents(
   MonitorDigest digest,
-  MonitorAlertState alertState,
+  Iterable<MonitorAlertEvent> events,
+  DateTime now,
 ) {
-  final visibleAlerts = alertState.visibleAlerts(digest.alerts);
+  final visibleEvents = events.where((event) => !event.isArchived).toList()..sort((left, right) => right.observedAt.compareTo(left.observedAt));
+  final alerts = [
+    for (final event in visibleEvents)
+      AlertEntity(
+        id: event.id,
+        repoFullName: event.repoFullName,
+        ruleId: event.ruleId,
+        metric: event.ruleId,
+        value: _formatMonitorAlertValue(event),
+        time: githubMonitorRelativeTime(event.observedAt, now),
+        severity: event.severity,
+        observedAt: event.observedAt,
+        readAt: event.readAt,
+        archivedAt: event.archivedAt,
+      ),
+  ];
+  final todayCount = visibleEvents.where((event) => _isSameLocalDay(event.observedAt, now)).length;
+
   return MonitorDigest(
     monitoredRepos: digest.monitoredRepos,
-    alerts: visibleAlerts,
+    alerts: alerts,
     stats: MonitorStats(
-      monitoredCount: digest.stats.monitoredCount,
+      monitoredCount: digest.monitoredRepos.length,
       monitoredDelta: digest.stats.monitoredDelta,
-      unreadAlertCount: alertState.unreadCount(digest.alerts),
-      unreadAlertDelta: digest.stats.unreadAlertDelta,
-      triggeredTodayCount: visibleAlerts.length,
-      triggeredTodayDelta: digest.stats.triggeredTodayDelta,
-      totalAlertCount: visibleAlerts.length,
-      totalAlertDelta: digest.stats.totalAlertDelta,
+      unreadAlertCount: visibleEvents.where((event) => !event.isRead).length,
+      unreadAlertDelta: 0,
+      triggeredTodayCount: todayCount,
+      triggeredTodayDelta: 0,
+      totalAlertCount: visibleEvents.length,
+      totalAlertDelta: 0,
     ),
   );
+}
+
+String _formatMonitorAlertValue(MonitorAlertEvent event) {
+  final value = event.value;
+  switch (event.ruleId) {
+    case MonitorRuleIds.starDailyRate:
+      return '${value.toStringAsFixed(1)}%';
+    case MonitorRuleIds.issueHeatRatio:
+      return '${value.toStringAsFixed(1)}x';
+    default:
+      final formatted = value == value.roundToDouble() ? value.toInt().toString() : value.toStringAsFixed(1);
+      return '+$formatted';
+  }
+}
+
+bool _isSameLocalDay(DateTime left, DateTime right) {
+  final localLeft = left.toLocal();
+  final localRight = right.toLocal();
+  return localLeft.year == localRight.year && localLeft.month == localRight.month && localLeft.day == localRight.day;
 }
 
 MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
