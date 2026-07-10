@@ -31,7 +31,10 @@ class ResponsiveScaffold extends ConsumerWidget {
     return switch (formFactor) {
       FormFactor.compact => Scaffold(
           body: SafeArea(child: navigationShell),
-          bottomNavigationBar: _BottomBar(currentIndex: index, onTap: onTap),
+          bottomNavigationBar: _BottomBar(
+            currentBranchIndex: index,
+            onTap: onTap,
+          ),
         ),
       FormFactor.medium => Scaffold(
           body: Row(
@@ -108,23 +111,30 @@ class _SidebarDragHandleState extends ConsumerState<_SidebarDragHandle> {
 }
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar({required this.currentIndex, required this.onTap});
+  const _BottomBar({
+    required this.currentBranchIndex,
+    required this.onTap,
+  });
 
-  final int currentIndex;
+  final int currentBranchIndex;
   final void Function(int) onTap;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return NavigationBar(
-      selectedIndex: currentIndex,
-      onDestinationSelected: onTap,
+      selectedIndex: mobileDestinationIndex(currentBranchIndex),
+      onDestinationSelected: (index) {
+        onTap(mobileAppTabs[index].branchIndex);
+      },
       destinations: [
-        for (final spec in appTabs)
+        for (final mobileSpec in mobileAppTabs)
           NavigationDestination(
-            icon: Icon(spec.icon),
-            selectedIcon: Icon(spec.selectedIcon),
-            label: l10n.tr(spec.labelKey),
+            icon: Icon(appTabs[mobileSpec.branchIndex].icon),
+            selectedIcon: Icon(
+              appTabs[mobileSpec.branchIndex].selectedIcon,
+            ),
+            label: l10n.tr(mobileSpec.labelKey),
           ),
       ],
     );

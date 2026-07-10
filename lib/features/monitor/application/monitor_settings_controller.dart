@@ -3,16 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/i18n/app_localizations.dart';
 
-const int monitorNotificationCount = 7;
+const int monitorNotificationCount = 1;
 
 List<String> monitorNotificationLabels(AppLocalizations l10n) => [
       l10n.tr('monitor.notify.app'),
-      l10n.tr('monitor.notify.email'),
-      l10n.tr('monitor.notify.daily'),
-      l10n.tr('monitor.notify.weekly'),
-      l10n.tr('monitor.notify.critical_only'),
-      l10n.tr('monitor.notify.night_silent'),
-      l10n.tr('monitor.notify.work_hours'),
     ];
 
 class MonitorSettingsController extends Notifier<List<bool>> {
@@ -21,10 +15,10 @@ class MonitorSettingsController extends Notifier<List<bool>> {
   @override
   List<bool> build() {
     final raw = ref.read(sharedPreferencesProvider).getStringList(_key);
-    if (raw == null || raw.length != monitorNotificationCount) {
-      return const [true, false, true, false, true, true, false];
+    if (raw == null || raw.isEmpty) {
+      return const [true];
     }
-    return [for (final value in raw) value == '1' || value == 'true'];
+    return [raw.first == '1' || raw.first == 'true'];
   }
 
   Future<void> setEnabled(int index, bool enabled) async {

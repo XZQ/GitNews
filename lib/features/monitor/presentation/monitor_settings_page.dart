@@ -59,26 +59,7 @@ class _Body extends ConsumerWidget {
                 subtitle: l10n.tr('monitor.settings.channel_subtitle'),
               ),
               const SizedBox(height: AppSpacing.md),
-              for (var i = 0; i < 5; i++)
-                MonitorNotificationRow(
-                  label: monitorNotificationLabels(l10n)[i],
-                  value: values[i],
-                  onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SectionHeader(
-                title: l10n.tr('monitor.settings.dnd'),
-                subtitle: l10n.tr('monitor.settings.dnd_subtitle'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              for (var i = 5; i < monitorNotificationCount; i++)
+              for (var i = 0; i < monitorNotificationCount; i++)
                 MonitorNotificationRow(
                   label: monitorNotificationLabels(l10n)[i],
                   value: values[i],

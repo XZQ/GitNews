@@ -17,6 +17,16 @@ class TabSpec {
   final IconData selectedIcon;
 }
 
+class MobileTabSpec {
+  const MobileTabSpec({
+    required this.labelKey,
+    required this.branchIndex,
+  });
+
+  final String labelKey;
+  final int branchIndex;
+}
+
 // 桌面侧栏 IA:
 // 总览 → AI 动态 → GitHub热榜 → AI雷达 → 发现 → 仓库监控 → 深度报告 → 设置
 const List<TabSpec> appTabs = <TabSpec>[
@@ -69,6 +79,22 @@ const List<TabSpec> appTabs = <TabSpec>[
     selectedIcon: Icons.person_rounded,
   ),
 ];
+
+const List<MobileTabSpec> mobileAppTabs = <MobileTabSpec>[
+  MobileTabSpec(labelKey: 'mobile.today', branchIndex: 0),
+  MobileTabSpec(labelKey: 'mobile.ai', branchIndex: 1),
+  MobileTabSpec(labelKey: 'mobile.project', branchIndex: 2),
+  MobileTabSpec(labelKey: 'mobile.settings', branchIndex: 7),
+];
+
+int mobileDestinationIndex(int branchIndex) {
+  return switch (branchIndex) {
+    0 => 0,
+    1 => 1,
+    7 => 3,
+    _ => 2,
+  };
+}
 
 extension TabIndexLookup on List<TabSpec> {
   int indexOfLocation(String location) {
