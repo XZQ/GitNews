@@ -633,6 +633,9 @@ const Map<String, String> stringsEnUS = <String, String>{
   'provenance.stale_cache.tooltip': 'From local cache but expired, shown only as fallback',
   'provenance.estimated.tooltip': 'Derived from current observations, not complete history',
   'provenance.seed.tooltip': 'Local seed data when remote is unavailable or on first launch',
+  'basis.observed': 'Observed',
+  'basis.observed.full': 'Observed data',
+  'basis.observed.tooltip': 'Calculated from remote fields or local cross-day snapshots',
 
   // a11y extras
   'a11y.clear_search': 'Clear search',

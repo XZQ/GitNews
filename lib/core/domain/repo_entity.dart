@@ -1,3 +1,4 @@
+import 'data_freshness.dart';
 import 'data_provenance.dart';
 
 /* 
@@ -45,6 +46,10 @@ class RepoEntity {
 
   final List<double>? trend;
 
+  MetricBasis get valueBasis => _basisFromLegacy(valueProvenance);
+
+  MetricBasis get trendBasis => _basisFromLegacy(trendProvenance);
+
   RepoEntity copyWith({
     String? fullName,
     String? description,
@@ -72,6 +77,14 @@ class RepoEntity {
   }
 }
 
+MetricBasis _basisFromLegacy(DataProvenance provenance) {
+  return switch (provenance) {
+    DataProvenance.estimated => MetricBasis.estimated,
+    DataProvenance.seed => MetricBasis.seed,
+    DataProvenance.live || DataProvenance.freshCache || DataProvenance.staleCache => MetricBasis.observed,
+  };
+}
+
 /* 
 *编程语言占比实体。
 */
@@ -89,4 +102,6 @@ class LanguageEntity {
   final double delta;
   final int accentArgb;
   final DataProvenance provenance;
+
+  MetricBasis get basis => _basisFromLegacy(provenance);
 }

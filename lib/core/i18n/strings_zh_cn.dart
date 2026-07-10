@@ -632,6 +632,9 @@ const Map<String, String> stringsZhCN = <String, String>{
   'provenance.stale_cache.tooltip': '来自本地缓存但已过期,仅作兜底展示',
   'provenance.estimated.tooltip': '根据当前观测值推导,不是完整历史',
   'provenance.seed.tooltip': '远端不可用或首次启动时的本地种子数据',
+  'basis.observed': '观测',
+  'basis.observed.full': '真实观测',
+  'basis.observed.tooltip': '基于远端字段或本地跨日快照计算',
 
   // a11y extras
   'a11y.clear_search': '清除搜索',
