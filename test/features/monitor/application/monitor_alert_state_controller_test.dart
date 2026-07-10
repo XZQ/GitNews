@@ -1,79 +1,106 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:github_news/core/di/providers.dart';
+import 'package:github_news/core/storage/local_database.dart';
+import 'package:github_news/core/storage/storage_providers.dart';
 import 'package:github_news/features/monitor/application/monitor_alert_state_controller.dart';
 import 'package:github_news/features/monitor/domain/entities.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
-const _alert = AlertEntity(
-  repoFullName: 'openai/codex',
-  metric: 'Star growth',
-  value: '+240',
-  time: '10 min ago',
-  severity: AlertSeverity.warning,
-);
+import 'package:github_news/features/monitor/domain/monitor_rule.dart';
 
 void main() {
-  test('should persist read and archived alert state', () async {
-    SharedPreferences.setMockInitialValues({});
-    final container = await _container();
+  late LocalDatabase database;
+
+  setUp(() async {
+    database = await LocalDatabase.openInMemory();
+  });
+
+  tearDown(() => database.close());
+
+  test('durable controller persists read and archived event state', () async {
+    final container = _container(database);
     addTearDown(container.dispose);
+    await container.read(monitorAlertEventsProvider.future);
+    final controller = container.read(monitorAlertEventsProvider.notifier);
 
-    final controller = container.read(
-      monitorAlertStateControllerProvider.notifier,
-    );
-    await controller.markRead(_alert);
-    await controller.archive(_alert);
+    await controller.upsertAll([event(id: 'one')]);
+    await controller.markRead('one');
+    await controller.archive('one');
 
-    expect(
-      container.read(monitorAlertStateControllerProvider).isRead(_alert),
-      isTrue,
-    );
-    expect(
-      container.read(monitorAlertStateControllerProvider).isArchived(_alert),
-      isTrue,
-    );
+    final current = container.read(monitorAlertEventsProvider).requireValue.single;
+    expect(current.isRead, isTrue);
+    expect(current.isArchived, isTrue);
 
-    final restored = await _container();
+    final restored = _container(database);
     addTearDown(restored.dispose);
+    final persisted = (await restored.read(monitorAlertEventsProvider.future)).single;
+    expect(persisted.isRead, isTrue);
+    expect(persisted.isArchived, isTrue);
+  });
 
+  test('archiveRead archives only read events and restoreAll reverses it', () async {
+    final container = _container(database);
+    addTearDown(container.dispose);
+    await container.read(monitorAlertEventsProvider.future);
+    final controller = container.read(monitorAlertEventsProvider.notifier);
+    await controller.upsertAll([event(id: 'read'), event(id: 'unread')]);
+    await controller.markRead('read');
+
+    await controller.archiveRead();
+
+    final archived = container.read(monitorAlertEventsProvider).requireValue;
+    expect(archived.firstWhere((item) => item.id == 'read').isArchived, isTrue);
     expect(
-      restored.read(monitorAlertStateControllerProvider).isRead(_alert),
-      isTrue,
+      archived.firstWhere((item) => item.id == 'unread').isArchived,
+      isFalse,
     );
+
+    await controller.restoreAll();
     expect(
-      restored.read(monitorAlertStateControllerProvider).isArchived(_alert),
-      isTrue,
+      container.read(monitorAlertEventsProvider).requireValue.any((item) => item.isArchived),
+      isFalse,
     );
   });
 
-  test('archiveRead should archive only read alerts', () async {
-    SharedPreferences.setMockInitialValues({});
-    final container = await _container();
+  test('toggleRead switches the durable read timestamp', () async {
+    final container = _container(database);
     addTearDown(container.dispose);
-    const unread = AlertEntity(
-      repoFullName: 'vercel/next.js',
-      metric: 'Fork growth',
-      value: '+52',
-      time: '1 hour ago',
-      severity: AlertSeverity.info,
+    await container.read(monitorAlertEventsProvider.future);
+    final controller = container.read(monitorAlertEventsProvider.notifier);
+    await controller.upsertAll([event(id: 'one')]);
+
+    await controller.toggleRead('one');
+    expect(
+      container.read(monitorAlertEventsProvider).requireValue.single.isRead,
+      isTrue,
     );
 
-    final controller = container.read(
-      monitorAlertStateControllerProvider.notifier,
+    await controller.toggleRead('one');
+    expect(
+      container.read(monitorAlertEventsProvider).requireValue.single.isRead,
+      isFalse,
     );
-    await controller.markRead(_alert);
-    await controller.archiveRead(const [_alert, unread]);
-
-    final state = container.read(monitorAlertStateControllerProvider);
-    expect(state.isArchived(_alert), isTrue);
-    expect(state.isArchived(unread), isFalse);
   });
 }
 
-Future<ProviderContainer> _container() async {
-  final prefs = await SharedPreferences.getInstance();
+ProviderContainer _container(LocalDatabase database) {
   return ProviderContainer(
-    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+    overrides: [
+      appDatabaseProvider.overrideWithValue(database),
+      monitorAlertClockProvider.overrideWithValue(
+        () => DateTime.utc(2026, 7, 3, 12),
+      ),
+    ],
+  );
+}
+
+MonitorAlertEvent event({required String id}) {
+  return MonitorAlertEvent(
+    id: id,
+    repoFullName: 'owner/repo',
+    ruleId: MonitorRuleIds.starDailyDelta,
+    metric: 'stars',
+    value: 200,
+    threshold: 200,
+    severity: AlertSeverity.success,
+    observedAt: DateTime.utc(2026, 7, 2),
   );
 }

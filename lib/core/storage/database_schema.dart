@@ -36,6 +36,21 @@ const String _kCreateJsonSnapshotCache = '''
   )
 ''';
 
+const String _kCreateMonitorAlertEvent = '''
+  CREATE TABLE IF NOT EXISTS monitor_alert_event (
+    id              TEXT PRIMARY KEY,
+    repo_full_name  TEXT NOT NULL,
+    rule_id         TEXT NOT NULL,
+    metric          TEXT NOT NULL,
+    value           REAL NOT NULL,
+    threshold       REAL NOT NULL,
+    severity        TEXT NOT NULL,
+    observed_at     INTEGER NOT NULL,
+    read_at         INTEGER,
+    archived_at     INTEGER
+  )
+''';
+
 // 当前 schema 全部 DDL。新增表在这里追加,旧表结构变更走 [_kMigrations]。
 const List<String> _kBootstrap = [
   _kCreateCacheMeta,
@@ -66,6 +81,10 @@ const List<String> _kBootstrap = [
   'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
   _kCreateJsonSnapshotCache,
   'CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)',
+  _kCreateMonitorAlertEvent,
+  'CREATE INDEX IF NOT EXISTS idx_monitor_alert_observed_at ON monitor_alert_event(observed_at)',
+  'CREATE INDEX IF NOT EXISTS idx_monitor_alert_archived_at ON monitor_alert_event(archived_at)',
+  'CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)',
 ];
 
 // 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
@@ -76,6 +95,7 @@ const List<String> _kBootstrap = [
 const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
   _migrateV1ToV2,
   _migrateV2ToV3,
+  _migrateV3ToV4,
 ];
 
 Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
@@ -89,6 +109,19 @@ Future<void> _migrateV2ToV3(DatabaseExecutor db) async {
   await db.execute(_kCreateJsonSnapshotCache);
   await db.execute(
     'CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)',
+  );
+}
+
+Future<void> _migrateV3ToV4(DatabaseExecutor db) async {
+  await db.execute(_kCreateMonitorAlertEvent);
+  await db.execute(
+    'CREATE INDEX IF NOT EXISTS idx_monitor_alert_observed_at ON monitor_alert_event(observed_at)',
+  );
+  await db.execute(
+    'CREATE INDEX IF NOT EXISTS idx_monitor_alert_archived_at ON monitor_alert_event(archived_at)',
+  );
+  await db.execute(
+    'CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)',
   );
 }
 

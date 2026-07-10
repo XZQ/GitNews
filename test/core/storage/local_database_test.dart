@@ -25,6 +25,7 @@ void main() {
         'ai_news_item',
         'trending_snapshot_cache',
         'json_snapshot_cache',
+        'monitor_alert_event',
       ];
       for (final table in expected) {
         expect(
@@ -63,8 +64,7 @@ void main() {
       expect(rows.length, 1, reason: '项目不再设置自动容量上限');
     });
 
-    test('business tables list covers all created tables', () async {
-      // clearAll 依赖 _kBusinessTables 覆盖所有业务表;若漏列会残留数据。
+    test('cache clear excludes durable user alert events', () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
       await db.executor.insert(
@@ -88,9 +88,20 @@ void main() {
           'cached_at': 0,
         },
       );
+      await db.executor.insert('monitor_alert_event', {
+        'id': 'alert-1',
+        'repo_full_name': 'owner/repo',
+        'rule_id': 'star_daily_delta',
+        'metric': 'stars',
+        'value': 200,
+        'threshold': 200,
+        'severity': 'success',
+        'observed_at': 1,
+      });
       await db.clearAll();
       expect(await db.executor.query('cache_meta'), isEmpty);
       expect(await db.executor.query('ai_news_item'), isEmpty);
+      expect(await db.executor.query('monitor_alert_event'), hasLength(1));
     });
   });
 }
