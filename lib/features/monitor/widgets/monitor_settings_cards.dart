@@ -66,6 +66,7 @@ class MonitorNotificationCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final values = ref.watch(monitorSettingsControllerProvider);
+    final labels = monitorNotificationLabels(l10n);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,9 +76,9 @@ class MonitorNotificationCard extends ConsumerWidget {
             subtitle: l10n.tr('monitor.settings_card.subtitle'),
           ),
           const SizedBox(height: AppSpacing.md),
-          for (var i = 0; i < 4; i++)
+          for (var i = 0; i < values.length && i < labels.length; i++)
             MonitorNotificationRow(
-              label: monitorNotificationLabels(l10n)[i],
+              label: labels[i],
               value: values[i],
               onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
             ),

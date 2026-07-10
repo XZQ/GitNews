@@ -1,7 +1,7 @@
 name: github_news
 description: GitHub情报站 — 仓库 Star 趋势分析与监控告警客户端。
 publish_to: none
-version: 0.1.0+1
+version: 1.2.0+2
 
 environment:
   sdk: ">=3.4.0 <4.0.0"

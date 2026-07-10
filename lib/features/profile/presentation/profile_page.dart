@@ -10,7 +10,6 @@ import 'widgets/profile_data_card.dart';
 import 'widgets/profile_list_cards.dart';
 import 'widgets/profile_master_detail.dart';
 import 'widgets/profile_page_header.dart';
-import 'widgets/profile_pro_card.dart';
 import 'widgets/profile_settings_card.dart';
 import 'widgets/profile_user_card.dart';
 
@@ -51,8 +50,6 @@ class _Mobile extends StatelessWidget {
       ),
       children: const [
         ProfileUserCard(),
-        SizedBox(height: AppSpacing.lg),
-        ProfileProCard(),
         SizedBox(height: AppSpacing.lg),
         ProfileCollectListCard(),
         SizedBox(height: AppSpacing.lg),

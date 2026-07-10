@@ -7,7 +7,6 @@ import '../../../../shared/widgets/app_card.dart';
 import 'profile_about_card.dart';
 import 'profile_data_card.dart';
 import 'profile_detail_cards.dart';
-import 'profile_pro_card.dart';
 import 'profile_section.dart';
 import 'profile_settings_card.dart';
 
@@ -141,7 +140,6 @@ class ProfileSectionDetail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Widget body = switch (section) {
-      ProfileSection.pro => const ProfileProCard(),
       ProfileSection.collect => const ProfileCollectDetailCard(),
       ProfileSection.developers => const ProfileDevelopersDetailCard(),
       ProfileSection.monitorTopics => const ProfileMonitorTopicsDetailCard(),

@@ -182,7 +182,7 @@ class _ReadButton extends ConsumerWidget {
         iconSize: 18,
         onPressed: alert.id == null ? null : () => ref.read(monitorAlertEventsProvider.notifier).toggleRead(alert.id!),
         icon: Icon(
-          isRead ? Icons.mark_email_unread_outlined : Icons.mark_email_read_outlined,
+          isRead ? Icons.notifications_active_outlined : Icons.done_outlined,
         ),
       ),
     );

@@ -7,7 +7,6 @@ import '../../../../core/theme/app_colors.dart';
 *设置页面桌面端 master-detail 区段。
 */
 enum ProfileSection {
-  pro('profile.section.pro', Icons.workspace_premium_outlined),
   collect('profile.section.collect', Icons.bookmark_outline),
   developers('profile.section.developers', Icons.people_outline),
   monitorTopics('profile.section.monitor_topics', Icons.visibility_outlined),
@@ -29,7 +28,7 @@ enum ProfileSection {
   Color accentOf(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return switch (this) {
-      ProfileSection.pro || ProfileSection.monitorTopics || ProfileSection.settings => colors.primary,
+      ProfileSection.monitorTopics || ProfileSection.settings => colors.primary,
       ProfileSection.collect || ProfileSection.data => AppColors.info,
       ProfileSection.developers => AppColors.success,
       ProfileSection.monitorRules => AppColors.warning,

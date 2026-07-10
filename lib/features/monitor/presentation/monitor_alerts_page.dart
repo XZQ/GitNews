@@ -131,7 +131,7 @@ class _Body extends ConsumerWidget {
                         ButtonSegment(
                           value: MonitorAlertFilter.unread,
                           label: Text(l10n.tr('monitor.alerts.filter.unread')),
-                          icon: const Icon(Icons.mark_email_unread_outlined),
+                          icon: const Icon(Icons.notifications_active_outlined),
                         ),
                         ButtonSegment(
                           value: MonitorAlertFilter.important,

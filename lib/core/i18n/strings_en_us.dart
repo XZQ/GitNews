@@ -127,7 +127,6 @@ const Map<String, String> stringsEnUS = <String, String>{
   'home.entry.trending.kpi': '36 projects',
   'home.entry.hotspot.kpi': '8 signals',
   'home.entry.monitor.kpi': '12 subs',
-  'home.entry.report.kpi': '4 reports',
   'home.entry.report.delta': 'Updated',
   'home.repo_table.title': "Today's hot repos",
   'home.repo_table.col_rank': 'Rank',
@@ -205,7 +204,7 @@ const Map<String, String> stringsEnUS = <String, String>{
 
   // monitor — alerts / settings / monitored repos / notification items
   'monitor.alerts.title': 'Alerts',
-  'monitor.alerts.empty': 'No alerts in the last 24 hours',
+  'monitor.alerts.empty': 'No rules have triggered an alert yet',
   'monitor.alerts.all': 'All alerts',
   'monitor.alerts.subtitle': '{visible} visible · {unread} unread · {archived} archived',
   'monitor.alerts.filter.all': 'All',
@@ -231,7 +230,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'monitor.rules.enabled': 'Enabled',
   'monitor.rules.disabled': 'Disabled',
   'monitor.settings_card.title': 'Notifications',
-  'monitor.settings_card.subtitle': 'Channels & frequency',
+  'monitor.settings_card.subtitle': 'Manage in-app alerts stored on this device',
   'monitor.rule.star_growth': 'Star growth >= 200/day',
   'monitor.rule.daily_growth': 'Daily growth >= 10%',
   'monitor.rule.fork_growth': 'Fork growth >= 50/day',
@@ -239,7 +238,7 @@ const Map<String, String> stringsEnUS = <String, String>{
 
   // project
   'project.title': 'Deep Reports',
-  'project.subtitle': 'Weekly ecosystem digest',
+  'project.subtitle': 'Local repository and contributor summary',
   'project.tab.explore': 'Explore',
   'project.tab.activity': 'Activity',
   'project.tab.discover': 'Discover',
@@ -327,7 +326,6 @@ const Map<String, String> stringsEnUS = <String, String>{
   // project
   'project.search_hint': 'Search reports, repos, topics…',
   'project.export': 'Export',
-  'project.pill.this_week': 'This week',
   'project.metric.weekly_stars': 'Weekly Star growth',
   'project.metric.new_repos': 'New repos',
   'project.metric.active_contributors': 'Active contributors',
@@ -457,7 +455,6 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.about.app_version': 'App version',
   'profile.about.feedback': 'Feedback',
   'profile.subtitle.short': 'Account · Starred · Preferences',
-  'profile.section.pro': 'Upgrade PRO',
   'profile.section.collect': 'Starred topics',
   'profile.section.developers': 'Followed developers',
   'profile.section.monitor_topics': 'Monitored topics',
@@ -468,12 +465,6 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.user.login_moved': 'Sign-in entry moved to bottom-left',
   'profile.session.local_badge': 'Local',
   'profile.master.title': 'Settings',
-  'profile.pro.title': 'GitHub Developer Intelligence PRO',
-  'profile.pro.subtitle': 'Unlock all advanced features',
-  'profile.pro.bullet.unlimited': 'Unlimited monitored repos',
-  'profile.pro.bullet.alerts': 'Advanced alerts & daily reports',
-  'profile.pro.bullet.export': 'GitHub & Gitee data export',
-  'profile.pro.upgrade': 'Upgrade to PRO',
   'profile.settings.title': 'Preferences',
   'profile.settings.subtitle': 'Theme / Notifications / Launch',
   'profile.settings.theme_color': 'Theme color',

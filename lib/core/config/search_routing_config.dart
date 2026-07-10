@@ -70,7 +70,6 @@ class GlobalSearchRouter {
         keywords: const [
           'report',
           '报告',
-          '周报',
           '贡献者',
           'developer',
           'contributor',

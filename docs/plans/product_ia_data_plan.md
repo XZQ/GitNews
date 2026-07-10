@@ -1,121 +1,116 @@
-# GitHub 情报站产品与数据方案
+# GitHub 情报站：产品、数据与系统边界
 
-更新时间：2026-07-09
+更新时间：2026-07-10  
+对应版本：`1.2.0+2`
 
-## 产品定位
+## 1. 第一性原理
 
-GitHub 情报站不是普通 AI 新闻 App，而是面向开发者的 AI + GitHub 情报工作台。当前迭代只收敛桌面端，强调筛选、监控、趋势、报告和本地内容管理；手机端应做轻量阅读与跟踪，不直接复用桌面侧边栏结构，本轮保持既有规划不变。
+产品要解决的不是“展示更多卡片”，而是帮助开发者在有限注意力下完成三个判断：
 
-## 信息架构
+1. 今天有哪些 AI 与 GitHub 变化值得看。
+2. 哪些仓库或主题值得持续跟踪。
+3. 当前判断来自实时数据、历史观测、估算还是兜底数据。
 
-### 桌面端当前 7 个入口
+在没有服务端的约束下，可信方案只能是“客户端直连公开 API + 本机持久化 + 明确数据口径”。因此当前版本不承诺后台定时采集、系统推送、云同步或跨用户协作。
 
-1. 总览：跨模块入口和今日摘要。
-2. AI 动态：AI 行业资讯流。
-3. GitHub热榜：GitHub 热门仓库、本周趋势、Agent/MCP/AI Coding 榜单。
-4. AI雷达：Agent、MCP、AI Coding、RAG、本地推理等主题信号矩阵。
-5. 仓库监控：关注仓库、告警、规则和通知设置。
-6. 深度报告：基于仓库和贡献者的聚合分析与 Markdown 导出。
-7. 设置：主题、账号、本地能力中心、GitHub Token、数据管理。
+## 2. 信息架构
 
-### 桌面端发现页
+### 桌面端：8 个主入口
 
-发现页当前作为桌面端工作台里的仓库入口聚合页，不替代手机端信息架构：
+1. 总览：跨模块摘要和快捷入口。
+2. AI 动态：远端 AI 资讯流。
+3. GitHub 热榜：按窗口、语言和榜单类型筛选仓库。
+4. AI 雷达：聚合 Agent、MCP、AI Coding、RAG、本地推理等主题信号。
+5. 发现：流行仓库、Agent Skills、官方账号和知名人士。
+6. 仓库监控：仓库观测、规则、告警和应用内通知设置。
+7. 深度报告：仓库与贡献者聚合、筛选和 Markdown 导出。
+8. 设置：本地内容、主题、语言、GitHub Token 和数据管理。
 
-1. 流行仓库：GitHub Search + 本地缓存 + 种子兜底，默认 20 条并支持触底加载。
-2. Agent Skills：GitHub Search/排行榜/种子兜底，保留连续排名并支持触底加载。
-3. 官方账号：展示 OpenAI、Anthropic、Microsoft、LangChain、MCP、Vercel、Hugging Face 等账号；点击进入对应代表仓库详情，而不是外部或全屏 WebView。
-4. 知名人士：展示 AI 工程与开源生态人物；点击进入对应代表仓库详情，而不是个人主页 WebView。
+### 紧凑窗口与移动端：4 个主入口
 
-以上详情跳转均使用桌面端应用壳内的 B 区域详情页，保留返回路径和侧边栏上下文。
+1. 今日：总览。
+2. AI：AI 动态。
+3. 项目：承接热榜、雷达、发现、监控和报告相关路由。
+4. 设置：本地内容和应用配置。
 
-### 手机端规划
+移动端不是桌面侧栏的缩小复刻；路由映射保留功能可达性，底部导航只保留用户心智所需的四个目的地。
 
-手机端保留 4 个底部 Tab，但不在当前桌面端收尾批次中展开：
+## 3. 数据来源
 
-1. 今日：摘要、快讯、重点项目、机会雷达。
-2. AI：模型、Agent/MCP、AI Coding、论文、产品动态。
-3. 项目：GitHub热榜、本周增长、新晋项目、已监控仓库。
-4. 设置：收藏、关注、监控、规则、报告。
+| 功能 | 远端来源 | 本机持久化 | 无网络降级 |
+|---|---|---|---|
+| AI 动态 | 第三方 AI 资讯 API | SQLite 条目与缓存元数据 | 过期缓存 / 错误态 |
+| GitHub 热榜 | GitHub Search | JSON/仓库快照 | 过期缓存 / 种子 |
+| AI 雷达 | GitHub Search | 主题每日快照 | 过期缓存 / 种子 |
+| 发现 | GitHub Search、Skills 排行源 | JSON 快照 | 过期缓存 / 种子 |
+| 仓库监控 | Repository、Contributors | 每日观测、告警事件 | 过期缓存 / 本地历史 |
+| 仓库详情 | Repository、Search、Contributors | 单资源 ETag 与详情快照 | 过期缓存 / 种子 |
+| 深度报告 | RepositoryFeed、Contributors | 聚合快照 | 过期缓存 / 种子 |
+| API 配额 | Rate Limit | 短期状态 | 明确错误 |
 
-## 当前数据状态
+## 4. 缓存和一致性
 
-### 已接入真实远端
+- AI 动态、GitHub 热榜、AI 雷达：5 分钟。
+- 仓库监控：10 分钟。
+- 仓库详情、深度报告：30 分钟。
+- 发现：6 小时。
+- Agent Skills 排行：24 小时。
+- 默认读取新鲜缓存；缓存缺失、过期或显式刷新时请求远端。
+- 远端失败时先用过期缓存；只有没有可用缓存时才进入种子或错误态。
+- Repository、Contributors、User 等单资源请求保存 ETag；`304 Not Modified` 复用已解码实体并更新缓存时间。
+- 手动刷新只影响当前查询或资源，不清空无关缓存。
 
-- AI 动态：第三方 AI 资讯源。
-- GitHub热榜：GitHub Search API，可在设置中切换本地/GitHub 数据源。
-- 发现页：GitHub Search API + 本地缓存 + 种子兜底，覆盖流行仓库、Agent Skills、官方账号和知名人士推荐。
-- AI雷达：GitHub Search API 聚合主题。
-- 仓库监控：GitHub Repository API。
-- 仓库详情：GitHub Repository、Search、Contributors API。
-- 深度报告：复用热榜仓库，并通过 Contributors API 聚合贡献者。
-- 开发者设置：GitHub `/rate_limit` 查询。
+## 5. 数据可信度模型
 
-### 已接入本地缓存
+响应级新鲜度 `DataFreshness`：
 
-- 远端数据默认 TTL 为 5 分钟。
-- 5 分钟内优先返回本地缓存，不因搜索框输入额外请求远端。
-- 手动刷新删除当前查询缓存后重新请求，不影响其他查询缓存。
-- 远端失败时优先回退过期缓存；没有缓存时再使用本地种子兜底或显示错误。
-- `json_snapshot_cache` 用于结构仍在变化的聚合结果。
-- `RepoSnapshotHistoryDao` 记录仓库每日 Star/Fork 快照。
-- `TechHotspotHistoryDao` 记录技术主题每日 heat、mentions、relatedRepos 快照。
+- `live`：本次来自远端成功响应。
+- `freshCache`：在 TTL 内的本地缓存。
+- `staleCache`：远端失败后使用的过期缓存。
+- `seed`：随应用提供的兜底数据。
 
-### 已接入本地用户数据
+指标级口径 `MetricBasis`：
 
-- 收藏仓库。
-- 监控仓库。
-- 关注开发者。
-- 监控规则。
-- 通知设置。
-- 告警已读、归档和恢复。
-- GitHub Token。
-- 本地登录展示名。
+- `observed`：来自 API 字段或本机历史实测。
+- `estimated`：历史不足时生成的估算值。
+- `seed`：种子数据自带的展示值。
 
-### 仍是本地兜底或估算
+二者不能混用：缓存中的真实指标仍然是 `observed`，只是响应新鲜度可能是 `freshCache` 或 `staleCache`。
 
-- 没有服务端定时任务，因此跨天趋势依赖本机多次打开后的本地快照。
-- 本地快照不足 2 天时，Star/Fork 趋势曲线会使用估算曲线兜底。
-- 部分收藏、关注和监控默认列表来自种子数据，用于首次启动时给用户一个可操作初始状态。
-- GH Archive、HN、Reddit、X 等社区信号暂未接入客户端。
+## 6. 监控与告警闭环
 
-## 无服务端阶段策略
+1. 应用前台加载或刷新监控仓库。
+2. 每个仓库每天保存一条 Star/Fork 观测。
+3. 有足够历史时计算增长、停更和活跃下降；本次贡献者数据用于判断集中度。
+4. 规则命中后生成稳定指纹并写入 SQLite，避免同一事件重复创建。
+5. 用户在应用内完成已读、归档和恢复。
 
-当前用户无法搭建服务端，因此项目采用客户端直连公开 API + 本地缓存的策略：
+这不是后台监控服务：应用未运行时不会采集，也不会触发系统或第三方渠道推送。
 
-- GitHub 请求优先使用用户配置的 Personal Access Token。
-- 匿名 GitHub 模式只适合验证链路，稳定使用建议配置 Token。
-- 搜索框只过滤当前已加载或已缓存数据。
-- 所有远端聚合必须有缓存和失败兜底。
-- 不在 Flutter 客户端直接处理 GH Archive 这类大体量事件数据。
-- 用户内容管理保持本地数据，不伪装成云端同步。
+## 7. 本地数据与安全
 
-## 已完成的桌面端收尾
+- SQLite：远端缓存、仓库/主题每日快照、监控告警事件。
+- SharedPreferences：收藏、关注、监控列表、规则、主题、语言和其他非敏感偏好。
+- FlutterSecureStorage：GitHub Token；Windows 使用 DPAPI，macOS 使用 Keychain。
+- Token 不进入日志、测试 fixture、导出报告或源码。
+- 所有用户内容均是设备本地状态；卸载或清除应用数据后无法从云端恢复。
 
-- 顶部搜索框统一为页面主操作区宽度。
-- 轻/暗色主题卡片边框、圆角和侧栏分隔线已做减重。
-- GitHub热榜标题、设置入口和主导航命名已统一。
-- 语言占比等动态长列表改为可滚动布局，避免固定高度溢出。
-- 首页、AI 动态、GitHub热榜、AI雷达、监控、报告搜索均走本地过滤或跨页跳转写入目标页搜索词。
-- 收藏、监控、关注、设置、通知、告警处理等本地交互已闭环并持久化。
-- 仓库详情和列表中的主要仓库入口可跳转详情页。
-- 发现页官方账号/知名人士已改为代表仓库详情跳转，保持在桌面端 B 区域内，不再打开全屏 WebView。
-- 深度报告支持当前筛选结果导出 Markdown。
+## 8. 架构边界
 
-## 继续优先级
+- `core/` 提供配置、GitHub 协议、存储、数据可信度、跨功能领域接口和依赖组合。
+- feature 的 presentation 不直接依赖 data 实现。
+- 深度报告通过 `RepositoryFeed` 消费仓库摘要，不导入 trending 的 repository。
+- API 路径、缓存 TTL 和 GitHub 头部集中管理，feature 不散落协议常量。
+- 业务状态由 Riverpod notifier/provider 管理；页面级瞬时选择才使用 `setState`。
 
-1. 桌面端继续扫“看起来可点击但无动作”的细节入口。
-2. 给关键桌面页面补布局回归测试，覆盖 1366x768 和窄宽度场景。
-3. 拆分仍超过 300 行的页面或数据仓库文件。
-4. 增强数据来源标识，让用户能区分真实观测、估算、本地兜底。
-5. 手机端按 4 Tab 独立设计，不直接复制桌面端布局。
+## 9. 当前完成定义
 
-## 参考数据源
+本地优先客户端在以下条件同时成立时才算闭环：
 
-- GitHub REST Search API: https://docs.github.com/en/rest/search/search
-- GitHub REST Rate Limit: https://docs.github.com/en/rest/rate-limit/rate-limit
-- GitHub GraphQL API: https://docs.github.com/en/graphql
-- GH Archive: https://www.gharchive.org/
-- Hacker News API: https://github.com/HackerNews/API
-- arXiv API: https://info.arxiv.org/help/api/user-manual.html
-- OpenAI News RSS: https://openai.com/news/rss.xml
+- 8/4 导航在对应窗口宽度下可达。
+- 远端成功、缓存命中、过期降级和种子兜底均有明确口径。
+- 真实观测能落库，规则能生成持久告警，处理状态可恢复。
+- Token 使用系统安全存储。
+- format、analyze、全量 test 和 Windows Release build 全部通过。
+
+服务端定时采集、系统推送、跨设备同步、GH Archive 全量分析属于下一阶段；它们需要新的鉴权、数据、任务调度和运维设计，不能作为当前客户端的隐藏待办。

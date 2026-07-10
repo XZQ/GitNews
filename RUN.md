@@ -1,83 +1,29 @@
-# 启动指南
+# 启动与发布指南
 
-> 当前项目已能在本机执行 `flutter analyze` 与 `flutter test`。当前迭代只验证 Windows 桌面端主链路；手机端保持既有 4 Tab 规划，不作为本轮改动范围。
+当前版本为 `1.2.0+2`。Windows 桌面端是发布验证目标；紧凑窗口和移动端已使用 4 Tab 导航，但本轮发布只要求 Windows Release 构建通过。
 
-## 1. 拉依赖
+## 1. 环境检查
 
 ```bash
-cd D:\workspace\github_news
+flutter doctor -v
 flutter pub get
 ```
 
-## 2. 桌面端启动(Windows)
-
-```bash
-flutter run -d windows
-```
-
-如果首次启用 Windows 桌面平台,需要先:
+若仓库缺少 Windows 平台目录，再执行：
 
 ```bash
 flutter create --platforms=windows .
 ```
 
-### 2.1 Release 打包(Windows)
-
-发布构建使用 `--release`,并开启符号混淆与调试信息分离,降低逆向可读性:
+## 2. Windows 启动
 
 ```bash
-flutter build windows --release \
-  --obfuscate \
-  --split-debug-info=build/symbols
+flutter run -d windows
 ```
 
-要点:
+应用可匿名访问 GitHub API；稳定使用建议在“设置 → 开发者选项”配置 Personal Access Token。Token 只存入系统安全存储，不写入仓库、日志或 SharedPreferences。
 
-- `--obfuscate` 会混淆 Dart 符号;`--split-debug-info=build/symbols` 把调试信息
-  (用于解析崩溃栈)输出到指定目录。**该目录必须妥善保管**,丢失后无法解析线上崩溃栈。
-- 产物在 `build/windows/x64/runner/Release/`,分发时需连同 `flutter_windows.dll`
-  及数据目录整体打包。
-- 版本号由 `pubspec.yaml` 的 `version: 0.1.0+1` 自动注入到 `Runner.rc` 的
-  `VERSION_AS_NUMBER` / `VERSION_AS_STRING`(经 CMake 的 `FLUTTER_VERSION_*` 宏)，
-  右键「属性 → 详细信息」可见。改版本只改 `pubspec.yaml`,无需手改 `Runner.rc`。
-- 运行环境最低要求 **Windows 10**(已在 `runner.exe.manifest` 的 `supportedOS` 中
-  仅声明 Win10/11 GUID;WebView2 控件依赖 Win10+ 预装的 Edge 运行时)。
-- 混淆构建出现崩溃时,用 `flutter symbolize -i <stack-trace.txt> -d build/symbols`
-  还原符号后再定位。
-
-## 3. 桌面端启动(macOS)
-
-macOS 桌面端必须在 Mac + Xcode 环境运行,Windows 不能模拟或构建 macOS
-桌面目标。
-
-```bash
-flutter pub get
-flutter run -d macos
-```
-
-打包验证:
-
-```bash
-flutter build macos --release
-```
-
-如果 AI 动态首屏显示网络失败,先验证接口与沙盒权限:
-
-```bash
-curl -I -A "GitHubNews/0.1 (Flutter)" "https://aihot.virxact.com/api/public/items?mode=selected"
-```
-
-`macos/Runner/*.entitlements` 必须包含
-`com.apple.security.network.client`,否则 macOS App Sandbox 会阻止出站网络请求。
-
-## 4. 其它平台(可选)
-
-```bash
-flutter run -d android   # 需连真机 / 模拟器
-flutter run -d chrome     # 浏览器调试
-```
-
-## 5. 静态检查 + 测试
+## 3. 质量检查
 
 ```bash
 dart format .
@@ -85,37 +31,75 @@ flutter analyze
 flutter test
 ```
 
-## 6. 已知产品化待办
+在 Codex 环境中使用：
 
-| 位置 | 风险 | 修法 |
-|---|---|---|
-| 本地 Repository | 除 `ai_news` 外仍以本地模拟数据为主 | 真实 API 阶段替换 Repository 实现 |
-| `lib/core/storage/local_database.dart` | 当前负责 AI 动态缓存与通用 `cache_meta`; 其它 feature 尚未接入持久缓存 | 接入真实 API 时按 feature 补 DAO 与迁移 |
-| `StarTrendChart` 中 `LineChartData.maxY` 用 `+50` 留白 | 极小数据集可能反序 | 真实接入时按数据动态算 |
+```bash
+rtk dart format .
+rtk flutter analyze
+rtk flutter test
+```
+
+## 4. Windows Release 构建
+
+标准验证构建：
+
+```bash
+flutter build windows --release
+```
+
+发布时如需混淆并保留符号文件：
+
+```bash
+flutter build windows --release --obfuscate --split-debug-info=build/symbols
+```
+
+- 产物目录：`build/windows/x64/runner/Release/`。分发时必须连同 DLL 和 `data/` 目录整体打包。
+- `build/symbols/` 用于还原混淆后的崩溃栈，必须与发布版本对应保存。
+- 版本来自 `pubspec.yaml`，无需手改 `windows/runner/Runner.rc`。
+- Windows Runner 声明支持 Windows 10/11。
+
+## 5. 其他平台
+
+macOS 必须在安装 Xcode 的 Mac 上构建：
+
+```bash
+flutter run -d macos
+flutter build macos --release
+```
+
+Android 或 Web 可用于交互调试，但不属于当前发布门禁：
+
+```bash
+flutter run -d android
+flutter run -d chrome
+```
+
+## 6. 运行时数据行为
+
+- 先读新鲜本地缓存；缓存缺失、过期或用户手动刷新时才请求远端。
+- 远端失败时优先回退过期缓存；无缓存时部分列表使用种子数据。
+- GitHub 单资源请求使用 ETag；服务端返回 `304` 时复用本地实体并刷新缓存时间。
+- 监控仓库只在应用前台加载或刷新时产生每日观测并计算规则，没有后台常驻任务。
+- 告警、观测、快照和偏好都保存在本机；清除应用数据会同时清除这些历史。
 
 ## 7. 目录速览
 
-```
+```text
 lib/
-├── main.dart, app.dart
-├── core/                  # theme / errors / network / storage / di / router / utils / platform / demo_data
+├── core/                    # 配置、网络、GitHub 协议、存储、领域边界、DI、路由、主题
 ├── features/
-│   ├── home/              # 总览(手机 + 桌面 + 指标 / 趋势 / 预览)
-│   ├── ai_news/           # AI 动态(远端 API + 本地缓存 DAO + 响应式信息流)
-│   ├── trending/          # 趋势 + 3 个二级页(总览 / 语言 / 热门仓库)
-│   ├── discover/          # 发现页(流行仓库 / Agent Skills / 官方账号 / 知名人士)
-│   ├── tech_hotspot/      # 技术趋势(本地 Repository + 响应式趋势面板)
-│   ├── monitor/           # 监控 + 3 个二级页(详情 / 告警 / 设置)
-│   ├── project/           # 报告 + 3 个二级页(探索 / 活动 / 发现)
-│   ├── repo_detail/       # 仓库详情(手机 + 桌面)
-│   └── profile/           # 设置 + 5 个二级页(收藏 / 关注 / 监控主题 / 监控规则 / 开发者选项) + 登录
-└── shared/widgets/        # 通用 AppCard / MetricCard / SectionHeader / RepoTile / StarTrendChart / ResponsiveLayout / ResponsiveScaffold / ErrorView / EmptyView / Skeleton
+│   ├── home/                # 今日总览
+│   ├── ai_news/             # AI 资讯与缓存
+│   ├── trending/            # GitHub 热榜与 RepositoryFeed 适配
+│   ├── tech_hotspot/        # AI 主题雷达
+│   ├── discover/            # 仓库、Skills、官方账号、人物发现
+│   ├── monitor/             # 观测、规则、告警与设置
+│   ├── project/             # 仓库与贡献者报告
+│   ├── repo_detail/         # 仓库详情
+│   └── profile/             # 本地内容、主题、Token 与数据管理
+└── shared/widgets/          # 跨功能展示组件
 ```
 
-## 8. 设计稿对应
+## 8. 明确边界
 
-- 手机一级页: `总览` / `AI 动态` / `GitHub热榜` / `技术趋势` / `仓库监控` / `深度报告` / `设置`。本轮桌面端收尾不调整手机端实现。
-- 5 个手机二级页: `首页2级 (1) ~ (5).png`
-- 5 个趋势页(已合并进 trending): `趋势页.png` + `趋势1 ~ 4.png`
-- 4 个监控页(已合并进 monitor): `监控页.png`
-- 桌面端: `桌面.png` (深色) + `桌面端白色.png` (浅色,默认主题)
+当前客户端不具备服务端定时采集、系统通知推送、跨设备同步、多人协作或全量 GH Archive 事件分析。需要这些能力时，应新增经过鉴权和运维设计的服务端，而不是在 Flutter 客户端中用文案模拟。

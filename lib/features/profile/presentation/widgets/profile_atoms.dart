@@ -1,35 +1,11 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
 /* 
 *通用列表行原子组件:设置页各卡片共用。
 */
-class ProfileBullet extends StatelessWidget {
-  const ProfileBullet(this.text, {super.key});
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-      child: Row(
-        children: [
-          const Icon(
-            Icons.check_circle_outline,
-            size: 16,
-            color: AppColors.success,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(child: Text(text, style: AppTypography.bodyMedium)),
-        ],
-      ),
-    );
-  }
-}
-
 class ProfileDataRow extends StatelessWidget {
   const ProfileDataRow({required this.label, required this.value, super.key});
   final String label;

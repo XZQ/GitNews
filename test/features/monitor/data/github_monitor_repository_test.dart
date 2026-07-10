@@ -132,7 +132,6 @@ void main() {
     expect(await alerts.list(includeArchived: true), isEmpty);
     expect(await observations.read('owner/repo'), isEmpty);
   });
-
 }
 
 MonitorDigest emptyDigest() {

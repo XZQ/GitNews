@@ -126,7 +126,6 @@ const Map<String, String> stringsZhCN = <String, String>{
   'home.entry.trending.kpi': '36 个项目',
   'home.entry.hotspot.kpi': '8 信号',
   'home.entry.monitor.kpi': '12 订阅',
-  'home.entry.report.kpi': '4 份周报',
   'home.entry.report.delta': '更新',
   'home.repo_table.title': '今日热门仓库',
   'home.repo_table.col_rank': '排名',
@@ -204,7 +203,7 @@ const Map<String, String> stringsZhCN = <String, String>{
 
   // monitor — 告警 / 设置 / 监控仓库 / 通知项
   'monitor.alerts.title': '告警列表',
-  'monitor.alerts.empty': '最近 24 小时暂无告警',
+  'monitor.alerts.empty': '尚无规则命中的告警',
   'monitor.alerts.all': '所有告警',
   'monitor.alerts.subtitle': '可见 {visible} 条 · 未读 {unread} 条 · 已归档 {archived} 条',
   'monitor.alerts.filter.all': '全部',
@@ -230,7 +229,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'monitor.rules.enabled': '已启用',
   'monitor.rules.disabled': '已停用',
   'monitor.settings_card.title': '通知设置',
-  'monitor.settings_card.subtitle': '推送渠道与频次',
+  'monitor.settings_card.subtitle': '仅管理保存在本机的应用内告警',
   'monitor.rule.star_growth': 'Star 增速 >= 200/天',
   'monitor.rule.daily_growth': '单日增长 >= 10%',
   'monitor.rule.fork_growth': 'Fork 增速 >= 50/天',
@@ -238,7 +237,7 @@ const Map<String, String> stringsZhCN = <String, String>{
 
   // project
   'project.title': '深度报告',
-  'project.subtitle': '本周生态数据汇总',
+  'project.subtitle': '仓库与贡献者本地汇总',
   'project.tab.explore': '探索',
   'project.tab.activity': '活动',
   'project.tab.discover': '发现',
@@ -326,7 +325,6 @@ const Map<String, String> stringsZhCN = <String, String>{
   // project
   'project.search_hint': '搜索报告、仓库、主题...',
   'project.export': '导出',
-  'project.pill.this_week': '本周',
   'project.metric.weekly_stars': '本周 Star 增长',
   'project.metric.new_repos': '新增仓库',
   'project.metric.active_contributors': '活跃贡献者',
@@ -456,7 +454,6 @@ const Map<String, String> stringsZhCN = <String, String>{
   'profile.about.app_version': '应用版本',
   'profile.about.feedback': '反馈与建议',
   'profile.subtitle.short': '账户 · 收藏 · 偏好',
-  'profile.section.pro': '升级 PRO',
   'profile.section.collect': '收藏的主题',
   'profile.section.developers': '关注的开发者',
   'profile.section.monitor_topics': '监控的主题',
@@ -467,12 +464,6 @@ const Map<String, String> stringsZhCN = <String, String>{
   'profile.user.login_moved': '登录入口已移至左侧底部',
   'profile.session.local_badge': '本地',
   'profile.master.title': '设置',
-  'profile.pro.title': 'GitHub 开发者情报 PRO',
-  'profile.pro.subtitle': '解锁全部高级功能',
-  'profile.pro.bullet.unlimited': '无限监控仓库',
-  'profile.pro.bullet.alerts': '高级告警与每日报告',
-  'profile.pro.bullet.export': 'GitHub 与 Gitee 数据导出',
-  'profile.pro.upgrade': '升级 PRO',
   'profile.settings.title': '偏好设置',
   'profile.settings.subtitle': '主题 / 通知 / 启动',
   'profile.settings.theme_color': '主题色',

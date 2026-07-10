@@ -7,7 +7,7 @@ import '../../core/theme/app_colors.dart';
 
 /* 
 *GitHub情报站 品牌标识。
-*- [mark]: 仅图标(用于左上角、登录、PRO 卡片)
+*- [mark]: 仅图标(用于左上角、登录)
 *- [wordmark]: 纯文字标(图标右侧)
 *- [compact] / [full]: 横排组合,带可选文字
 */
