@@ -58,6 +58,7 @@ app.*.map.json
 .rtk/
 .codegraph/
 .claude/worktrees/
+.worktrees/
 .github/workflows/
 .workbuddy/memory/
 
