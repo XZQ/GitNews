@@ -5,13 +5,13 @@ import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repository_feed.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/github/github_resource_cache.dart';
 import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
-import '../../trending/domain/trending_repository.dart';
 import '../domain/project_repository.dart';
 
 const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
@@ -21,7 +21,7 @@ const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
 */
 class GithubProjectRepository implements ProjectRepository {
   GithubProjectRepository({
-    required TrendingRepository trending,
+    required RepositoryFeed repositoryFeed,
     required Dio dio,
     required JsonSnapshotCacheDao cache,
     String? token,
@@ -29,7 +29,7 @@ class GithubProjectRepository implements ProjectRepository {
     DateTime Function()? now,
     bool Function()? isRateLimited,
     void Function(int retryAfterSeconds)? onRateLimited,
-  })  : _trending = trending,
+  })  : _repositoryFeed = repositoryFeed,
         _cache = cache,
         _resources = GitHubResourceCache(
           dio: dio,
@@ -42,7 +42,7 @@ class GithubProjectRepository implements ProjectRepository {
         _isRateLimited = isRateLimited,
         _onRateLimited = onRateLimited;
 
-  final TrendingRepository _trending;
+  final RepositoryFeed _repositoryFeed;
   final JsonSnapshotCacheDao _cache;
   final GitHubResourceCache _resources;
   final DateTime Function() _now;
@@ -53,25 +53,25 @@ class GithubProjectRepository implements ProjectRepository {
 
   @override
   Future<DataResult<ProjectDigest>> getDigest() async {
-    final trendingResult = await _trending.getDigest();
-    final trending = trendingResult.data;
-    final contributorResult = await _contributorsFor(trending);
+    final feedResult = await _repositoryFeed.load();
+    final feed = feedResult.data;
+    final contributorResult = await _contributorsFor(feed);
     return DataResult(
       freshness: _leastFresh(
-        trendingResult.freshness,
+        feedResult.freshness,
         contributorResult.freshness,
       ),
       data: ProjectDigest(
-        repos: trending.allRepos,
+        repos: feed.repos,
         contributors: contributorResult.data,
-        primaryTrend: trending.primaryTrend,
-        secondaryTrend: trending.secondaryTrend,
+        primaryTrend: feed.primaryTrend,
+        secondaryTrend: feed.secondaryTrend,
       ),
     );
   }
 
   Future<DataResult<List<ContributorEntity>>> _contributorsFor(
-    TrendingDigest digest,
+    RepositoryFeedDigest digest,
   ) async {
     final now = _now();
     final cached = await _readContributors();
@@ -100,7 +100,7 @@ class GithubProjectRepository implements ProjectRepository {
     }
 
     try {
-      final repos = digest.allRepos.take(4).map((repo) => repo.fullName);
+      final repos = digest.repos.take(4).map((repo) => repo.fullName);
       final result = await _fetchContributors(repos);
       final contributors = result.data;
       await _cache.upsert(

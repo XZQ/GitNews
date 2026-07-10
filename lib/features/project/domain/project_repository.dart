@@ -26,7 +26,7 @@ class ProjectDigest {
 
 /* 
 *项目深度报告仓库。
-*当前实现组合 trending 摘要与本地贡献者 fixture,
+*当前实现组合 Core 仓库信息流与本地贡献者数据,
 *后续可替换为 GitHub API(repo + contributors + activity)。
 */
 abstract interface class ProjectRepository {

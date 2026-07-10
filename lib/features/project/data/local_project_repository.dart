@@ -1,59 +1,28 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
-import '../../../core/di/providers.dart';
 import '../../../core/domain/data_freshness.dart';
-import '../../../core/github/rate_limit_gate.dart';
-import '../../../core/preferences/github_token_controller.dart';
-import '../../../core/storage/storage_providers.dart';
-import '../../trending/application/trending_providers.dart';
-import '../../trending/domain/trending_repository.dart';
+import '../../../core/domain/repository_feed.dart';
 import '../domain/project_repository.dart';
-import 'github_project_repository.dart';
 
 /* 
 *基于 [DemoData] + [TrendingRepository] 的本地项目仓库。
 */
 class LocalProjectRepository implements ProjectRepository {
-  const LocalProjectRepository({required this.trending});
+  const LocalProjectRepository({required this.repositoryFeed});
 
-  final TrendingRepository trending;
+  final RepositoryFeed repositoryFeed;
 
   @override
   Future<DataResult<ProjectDigest>> getDigest() async {
-    final trendingResult = await trending.getDigest();
-    final digest = trendingResult.data;
+    final feed = (await repositoryFeed.load()).data;
     return DataResult(
       freshness: DataFreshness.seed,
       data: ProjectDigest(
-        repos: digest.allRepos,
+        repos: feed.repos,
         contributors: DemoData.contributors.map((e) => e.toEntity()).toList(growable: false),
-        primaryTrend: digest.primaryTrend,
-        secondaryTrend: digest.secondaryTrend,
+        primaryTrend: feed.primaryTrend,
+        secondaryTrend: feed.secondaryTrend,
       ),
     );
   }
 }
-
-// 依赖注入入口。
-final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
-  final trending = ref.watch(trendingRepositoryProvider);
-  final gate = ref.watch(rateLimitGateProvider);
-  final gateController = ref.watch(rateLimitGateProvider.notifier);
-  return GithubProjectRepository(
-    trending: trending,
-    dio: ref.watch(dioProvider),
-    cache: ref.watch(jsonSnapshotCacheDaoProvider),
-    token: ref.watch(githubTokenControllerProvider).token,
-    cacheScope: ref.watch(githubTokenControllerProvider).cacheScope,
-    isRateLimited: () => gate.isBlocked,
-    onRateLimited: gateController.trigger,
-  );
-});
-
-final localProjectRepositoryProvider = Provider<ProjectRepository>((ref) {
-  return LocalProjectRepository(
-    trending: ref.watch(trendingRepositoryProvider),
-  );
-});

@@ -293,12 +293,8 @@ class _IconMetric extends StatelessWidget {
   }
 }
 
-String _shortNumber(int v) {
-  if (v >= 1000000) {
-    return '${(v / 1000000).toStringAsFixed(1)}M';
-  }
-  if (v >= 1000) {
-    return '${(v / 1000).toStringAsFixed(1)}k';
-  }
-  return v.toString();
-}
+String _shortNumber(int value) => switch (value) {
+      >= 1000000 => '${(value / 1000000).toStringAsFixed(1)}M',
+      >= 1000 => '${(value / 1000).toStringAsFixed(1)}k',
+      _ => value.toString(),
+    };

@@ -9,12 +9,6 @@ import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 
-/* 
-*应用内 WebView 页面。
-*顶层路由 `/webview`(脱离 [StatefulShellRoute] / 侧栏),全屏浏览外链;
-*顶栏提供「刷新 / 在浏览器中打开 / 复制链接 / 返回」,顶栏下方进度条提示加载进度。
-*Windows 平台依赖 WebView2 运行时(现代 Win10/11 已预装)。
-*/
 class WebViewPage extends StatefulWidget {
   const WebViewPage({required this.url, this.title, super.key});
 
@@ -33,16 +27,11 @@ class _WebViewPageState extends State<WebViewPage> {
   bool _failed = false;
   bool _hasLoadedAnyContent = false;
 
-  // 移动端 Chrome UA。
-  // Windows WebView2 默认是桌面 Edge UA,会被微信公众号 / 部分媒体站点拦截
-  // 返回 403 / 空内容,导致主帧加载失败。改成 Android Chrome 移动 UA 后,
-  // 多数站点返回适合内嵌阅读的移动版页面。
   static const String _mobileUa = 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, '
       'like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
 
   @override
   void dispose() {
-    // Windows 下 WebView2 不显式 dispose 会残留进程并在退出时崩溃。
     _controller?.dispose();
     super.dispose();
   }
@@ -51,8 +40,6 @@ class _WebViewPageState extends State<WebViewPage> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final uri = Uri.tryParse(widget.url);
-    // 仅允许 http/https,拒绝 javascript: / file: / blob: / data: 等 scheme
-    // (CWE-939):否则应用内 WebView 可被构造为执行任意 JS 或读沙箱文件。
     final urlInvalid = widget.url.isEmpty || uri == null || !_isHttpScheme(uri);
     final title = widget.title?.isNotEmpty == true ? widget.title! : _pageTitle;
     return Scaffold(
@@ -113,7 +100,6 @@ class _WebViewPageState extends State<WebViewPage> {
     _controller?.reload();
   }
 
-  // WebView 回调入口:集中调用 setState,避免在外部 Widget 中触发 protected 警告。
   void onTitleChanged(String? t) {
     if (!mounted) {
       return;
@@ -162,9 +148,6 @@ class _WebViewPageState extends State<WebViewPage> {
     return uri?.host.isNotEmpty == true ? uri!.host : (uri?.authority ?? url);
   }
 
-  /* 
-  *仅允许 http/https scheme(防御开放重定向 / file:// 读沙箱 / javascript: 注入)。
-  */
   static bool _isHttpScheme(Uri uri) => uri.scheme == 'http' || uri.scheme == 'https';
 }
 
@@ -248,11 +231,6 @@ class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/* 
-*WebView 主体 + 进度条 / 错误覆盖层。
-*持有 [_WebViewPageState] 引用以便回调 [State.setState] 与控制器赋值。
-*两个类均私有于本文件,耦合可控。
-*/
 class _WebViewBody extends StatelessWidget {
   const _WebViewBody({required this.state});
 
@@ -261,8 +239,6 @@ class _WebViewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final widget = state.widget;
-    // InAppWebView 常驻:错误态用 ErrorView 覆盖层叠加,而非替换控件,
-    // 避免错误↔内容切换时销毁并重建 WebView2(丢失滚动/加载进度,且重建有进程开销)。
     return Stack(
       children: [
         InAppWebView(
@@ -282,7 +258,6 @@ class _WebViewBody extends StatelessWidget {
             state.onLoadStopFinished(canBack);
           },
           onReceivedError: (controller, request, error) {
-            // 子资源(图片 / CSS)错误也会回调,只对主帧致命错误置失败。
             final isMainFrame = request.url.toString() == widget.url || request.isForMainFrame == true;
             if (!isMainFrame) {
               return;

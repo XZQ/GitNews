@@ -1,11 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/di/project_composition.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/providers/app_search_query_provider.dart';
-import '../data/local_project_repository.dart';
 import '../domain/project_repository.dart';
 
+export '../../../core/di/project_composition.dart' show projectRepositoryProvider, localProjectRepositoryProvider;
 export '../../../shared/providers/app_search_query_provider.dart';
 export '../domain/project_repository.dart' show ProjectDigest;
 

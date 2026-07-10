@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/features/project/application/project_providers.dart';
-import 'package:github_news/features/project/data/local_project_repository.dart';
 import 'package:github_news/features/project/domain/project_repository.dart';
 import 'package:mocktail/mocktail.dart';
 

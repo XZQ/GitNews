@@ -10,8 +10,6 @@ import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
-import '../domain/entities.dart';
-import '../domain/monitor_observation.dart';
 import '../domain/monitor_repository.dart';
 import '../domain/monitor_rule.dart';
 import '../domain/monitor_rule_evaluator.dart';
@@ -20,12 +18,13 @@ import 'github_monitor_config.dart';
 import 'github_monitor_remote_repo_item.dart';
 import 'local_monitor_repository.dart';
 import 'monitor_alert_event_dao.dart';
+import 'monitor_digest_assembler.dart';
 import 'monitor_observation_dao.dart';
 
 const Duration monitorRemoteCacheTtl = CacheTtlConfig.monitor;
 
 class GithubMonitorRepository implements MonitorRepository {
-  const GithubMonitorRepository({
+  GithubMonitorRepository({
     required Dio dio,
     required JsonSnapshotCacheDao cache,
     required MonitorObservationDao observationDao,
@@ -42,11 +41,13 @@ class GithubMonitorRepository implements MonitorRepository {
     this.cacheKey = githubMonitorCacheKey,
   })  : _dio = dio,
         _cache = cache,
-        _observationDao = observationDao,
-        _alertDao = alertDao,
+        _assembler = MonitorDigestAssembler(
+          observationDao: observationDao,
+          alertDao: alertDao,
+          evaluator: evaluator,
+          enabledRuleIds: enabledRuleIds,
+        ),
         _snapshotHistory = snapshotHistory,
-        _evaluator = evaluator,
-        _enabledRuleIds = enabledRuleIds,
         _token = token,
         _now = now ?? DateTime.now,
         _fallback = fallback,
@@ -55,11 +56,8 @@ class GithubMonitorRepository implements MonitorRepository {
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
-  final MonitorObservationDao _observationDao;
-  final MonitorAlertEventDao _alertDao;
+  final MonitorDigestAssembler _assembler;
   final RepoSnapshotHistoryDao? _snapshotHistory;
-  final MonitorRuleEvaluator _evaluator;
-  final Set<String> _enabledRuleIds;
   final String? _token;
   final DateTime Function() _now;
   final MonitorRepository _fallback;
@@ -76,7 +74,7 @@ class GithubMonitorRepository implements MonitorRepository {
 
     if (!force && fresh) {
       return DataResult(
-        data: await _withStoredAlerts(cached, now),
+        data: await _assembler.withStoredAlerts(cached, now),
         freshness: DataFreshness.freshCache,
       );
     }
@@ -89,15 +87,15 @@ class GithubMonitorRepository implements MonitorRepository {
 
     try {
       final responses = await _fetchRepos(now);
-      final digest = _digestFromResponses(responses);
-      await _recordObservationsAndAlerts(responses, now);
+      final digest = _assembler.fromResponses(responses);
+      await _assembler.recordObservationsAndAlerts(responses, now);
       await _cache.upsert(
         key: cacheKey,
         payload: monitorDigestToJson(digest),
         now: now,
       );
       return DataResult(
-        data: await _withStoredAlerts(digest, now),
+        data: await _assembler.withStoredAlerts(digest, now),
         freshness: DataFreshness.live,
       );
     } catch (error) {
@@ -116,13 +114,13 @@ class GithubMonitorRepository implements MonitorRepository {
   ) async {
     if (cached != null) {
       return DataResult(
-        data: await _withStoredAlerts(cached, now),
+        data: await _assembler.withStoredAlerts(cached, now),
         freshness: DataFreshness.staleCache,
       );
     }
     final fallback = await _fallback.getDigest();
     return DataResult(
-      data: await _withStoredAlerts(fallback.data, now),
+      data: await _assembler.withStoredAlerts(fallback.data, now),
       freshness: fallback.freshness,
     );
   }
@@ -174,98 +172,6 @@ class GithubMonitorRepository implements MonitorRepository {
     return gatherAll<GithubMonitorRemoteRepoItem>(
       [for (final repo in repos) _fetchRepo(repo, now)],
       tag: 'githubMonitorFetch',
-    );
-  }
-
-  MonitorDigest _digestFromResponses(
-    List<GithubMonitorRemoteRepoItem> responses,
-  ) {
-    final repos = responses.map((item) => item.repo).toList(growable: false);
-    return MonitorDigest(
-      monitoredRepos: repos,
-      alerts: const [],
-      stats: MonitorStats(
-        monitoredCount: repos.length,
-        monitoredDelta: 0,
-        unreadAlertCount: 0,
-        unreadAlertDelta: 0,
-        triggeredTodayCount: 0,
-        triggeredTodayDelta: 0,
-        totalAlertCount: 0,
-        totalAlertDelta: 0,
-      ),
-    );
-  }
-
-  Future<void> _recordObservationsAndAlerts(
-    List<GithubMonitorRemoteRepoItem> responses,
-    DateTime now,
-  ) async {
-    final events = <MonitorAlertEvent>[];
-    for (final item in responses) {
-      final current = MonitorObservation(
-        repoFullName: item.repo.fullName,
-        stars: item.repo.starCount,
-        forks: item.repo.forkCount,
-        openIssues: item.openIssues,
-        observedAt: now,
-      );
-      final previous = await _observationDao.latestBefore(
-        repoFullName: current.repoFullName,
-        observedAt: current.observedAt,
-      );
-      events.addAll(
-        _evaluator.evaluate(
-          previous: previous,
-          current: current,
-          enabledRuleIds: _enabledRuleIds,
-        ),
-      );
-      await _observationDao.record(current);
-    }
-    await _alertDao.upsertAll(events);
-  }
-
-  Future<MonitorDigest> _withStoredAlerts(
-    MonitorDigest digest,
-    DateTime now,
-  ) async {
-    final stored = await _alertDao.list(includeArchived: true);
-    final visible = stored.where((event) => !event.isArchived).toList();
-    final alerts = visible.map((event) => _toAlertEntity(event, now)).toList();
-    return MonitorDigest(
-      monitoredRepos: digest.monitoredRepos,
-      alerts: alerts,
-      stats: MonitorStats(
-        monitoredCount: digest.monitoredRepos.length,
-        monitoredDelta: 0,
-        unreadAlertCount: visible.where((event) => !event.isRead).length,
-        unreadAlertDelta: 0,
-        triggeredTodayCount: visible.where((event) => _isToday(event.observedAt, now)).length,
-        triggeredTodayDelta: 0,
-        totalAlertCount: visible.length,
-        totalAlertDelta: 0,
-      ),
-    );
-  }
-
-  AlertEntity _toAlertEntity(MonitorAlertEvent event, DateTime now) {
-    final value = switch (event.ruleId) {
-      MonitorRuleIds.starDailyRate => '${event.value.toStringAsFixed(1)}%',
-      MonitorRuleIds.issueHeatRatio => '${event.value.toStringAsFixed(1)}x',
-      _ => '+${event.value.round()}',
-    };
-    return AlertEntity(
-      id: event.id,
-      repoFullName: event.repoFullName,
-      ruleId: event.ruleId,
-      metric: event.ruleId,
-      value: value,
-      time: githubMonitorRelativeTime(event.observedAt, now),
-      severity: event.severity,
-      observedAt: event.observedAt,
-      readAt: event.readAt,
-      archivedAt: event.archivedAt,
     );
   }
 
@@ -338,12 +244,6 @@ class GithubMonitorRepository implements MonitorRepository {
       return fallback;
     }
     return (values.last - values.first).round().clamp(0, 999999);
-  }
-
-  bool _isToday(DateTime? value, DateTime now) {
-    final local = value?.toLocal();
-    final today = now.toLocal();
-    return local != null && local.year == today.year && local.month == today.month && local.day == today.day;
   }
 
   GithubMonitorRemoteRepoItem _parseRepo(

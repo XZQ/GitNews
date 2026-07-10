@@ -14,6 +14,7 @@ import '../../../shared/widgets/page_header.dart';
 import '../application/discover_providers.dart';
 import '../domain/discover_entities.dart';
 import 'discover_navigation.dart';
+import 'widgets/discover_load_more_indicator.dart';
 import 'widgets/discover_profile_row.dart';
 import 'widgets/discover_repo_row.dart';
 import 'widgets/discover_segmented.dart';
@@ -179,7 +180,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
           separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
           itemBuilder: (context, i) {
             if (i >= repos.length) {
-              return const _LoadMoreIndicator();
+              return const DiscoverLoadMoreIndicator();
             }
             return DiscoverMonitorRow(
               repo: repos[i],
@@ -228,7 +229,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
           separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
           itemBuilder: (context, i) {
             if (i >= skills.length) {
-              return const _LoadMoreIndicator();
+              return const DiscoverLoadMoreIndicator();
             }
             return DiscoverMonitorRow(
               repo: skills[i].repo,
@@ -285,18 +286,6 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
           ),
         );
       },
-    );
-  }
-}
-
-class _LoadMoreIndicator extends StatelessWidget {
-  const _LoadMoreIndicator();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      child: Center(child: CircularProgressIndicator()),
     );
   }
 }
