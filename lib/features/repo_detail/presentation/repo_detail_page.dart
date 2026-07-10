@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
@@ -27,13 +28,13 @@ class RepoDetailPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final state = ref.watch(repoDetailDigestProvider(fullName));
+    final state = ref.watch(repoDetailResultProvider(fullName));
     final content = ref.watch(localContentControllerProvider);
     final decodedFullName = Uri.decodeComponent(fullName);
     return Scaffold(
       appBar: AppBar(
         title: state.maybeWhen(
-          data: (digest) => Text(digest.repo.fullName),
+          data: (result) => Text(result.data.repo.fullName),
           orElse: () => Text(l10n.tr('repo_detail.title')),
         ),
         leading: BackButton(
@@ -64,17 +65,31 @@ class RepoDetailPage extends ConsumerWidget {
         ],
       ),
       body: state.when(
-        data: (digest) {
+        data: (result) {
+          final digest = result.data;
           return ResponsiveLayout(
-            compact: (_) => _Mobile(digest: digest),
-            medium: (_) => CenteredContent(child: _Desktop(digest: digest)),
-            expanded: (_) => CenteredContent(child: _Desktop(digest: digest)),
+            compact: (_) => _Mobile(
+              digest: digest,
+              freshness: result.freshness,
+            ),
+            medium: (_) => CenteredContent(
+              child: _Desktop(
+                digest: digest,
+                freshness: result.freshness,
+              ),
+            ),
+            expanded: (_) => CenteredContent(
+              child: _Desktop(
+                digest: digest,
+                freshness: result.freshness,
+              ),
+            ),
           );
         },
         loading: () => const RepoDetailSkeleton(),
         error: (error, stack) => ErrorView(
           error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(repoDetailDigestProvider(fullName)),
+          onRetry: () => ref.invalidate(repoDetailResultProvider(fullName)),
         ),
       ),
     );
@@ -82,9 +97,10 @@ class RepoDetailPage extends ConsumerWidget {
 }
 
 class _Mobile extends StatelessWidget {
-  const _Mobile({required this.digest});
+  const _Mobile({required this.digest, required this.freshness});
 
   final RepoDetailDigest digest;
+  final DataFreshness freshness;
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +112,7 @@ class _Mobile extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: [
-        RepoDetailHeader(repo: digest.repo),
+        RepoDetailHeader(repo: digest.repo, freshness: freshness),
         const SizedBox(height: AppSpacing.lg),
         RepoDetailStats(
           repo: digest.repo,
@@ -114,16 +130,17 @@ class _Mobile extends StatelessWidget {
 }
 
 class _Desktop extends StatelessWidget {
-  const _Desktop({required this.digest});
+  const _Desktop({required this.digest, required this.freshness});
 
   final RepoDetailDigest digest;
+  final DataFreshness freshness;
 
   @override
   Widget build(BuildContext context) {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
       children: [
-        RepoDetailHeader(repo: digest.repo),
+        RepoDetailHeader(repo: digest.repo, freshness: freshness),
         const SizedBox(height: AppSpacing.lg),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,

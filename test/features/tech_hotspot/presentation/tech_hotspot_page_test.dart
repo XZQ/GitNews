@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/features/tech_hotspot/application/tech_hotspot_providers.dart';
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_models.dart';
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_repository.dart';
@@ -14,11 +15,11 @@ class _StubRepo implements TechHotspotRepository {
   final bool shouldThrow;
 
   @override
-  Future<TechHotspotDigest> getDigest() async {
+  Future<DataResult<TechHotspotDigest>> getDigest() async {
     if (shouldThrow) {
       throw Exception('boom');
     }
-    return _digest!;
+    return DataResult(data: _digest!, freshness: DataFreshness.live);
   }
 
   @override

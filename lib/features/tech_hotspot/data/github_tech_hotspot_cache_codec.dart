@@ -1,4 +1,4 @@
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/github_api_support.dart';
 import '../domain/tech_hotspot_models.dart';
 
@@ -42,7 +42,7 @@ LanguageStat _languageFromJson(Object? raw) {
     delta: GitHubJson.doubleValue(json['delta']),
     color: GitHubJson.intValue(json['color']),
     repoCount: GitHubJson.intValue(json['repoCount']),
-    provenance: DataProvenance.estimated,
+    basis: MetricBasis.estimated,
   );
 }
 
@@ -56,8 +56,8 @@ Map<String, Object?> _topicToJson(TechTopic topic) {
     'mentions': topic.mentions,
     'relatedRepos': topic.relatedRepos,
     'summary': topic.summary,
-    'provenance': topic.provenance.name,
-    'growthProvenance': topic.growthProvenance.name,
+    'valueBasis': topic.valueBasis.name,
+    'growthBasis': topic.growthBasis.name,
   };
 }
 
@@ -72,13 +72,15 @@ TechTopic _topicFromJson(Object? raw) {
     mentions: GitHubJson.intValue(json['mentions']),
     relatedRepos: GitHubJson.intValue(json['relatedRepos']),
     summary: GitHubJson.string(json['summary']),
-    provenance: _provenanceFromJson(
-      json['provenance'],
-      fallback: DataProvenance.live,
+    valueBasis: _basisFromJson(
+      json['valueBasis'],
+      legacy: json['provenance'],
+      fallback: MetricBasis.observed,
     ),
-    growthProvenance: _provenanceFromJson(
-      json['growthProvenance'],
-      fallback: DataProvenance.estimated,
+    growthBasis: _basisFromJson(
+      json['growthBasis'],
+      legacy: json['growthProvenance'],
+      fallback: MetricBasis.estimated,
     ),
   );
 }
@@ -95,16 +97,15 @@ TechHeatPoint _heatFromJson(Object? raw) {
   );
 }
 
-DataProvenance _provenanceFromJson(
+MetricBasis _basisFromJson(
   Object? raw, {
-  required DataProvenance fallback,
+  Object? legacy,
+  required MetricBasis fallback,
 }) {
   final name = GitHubJson.nullableString(raw);
   if (name == null) {
-    return fallback;
+    final legacyName = GitHubJson.nullableString(legacy);
+    return legacyName == null ? fallback : MetricBasis.fromLegacyName(legacyName);
   }
-  return DataProvenance.values.firstWhere(
-    (value) => value.name == name,
-    orElse: () => fallback,
-  );
+  return MetricBasis.fromName(name);
 }

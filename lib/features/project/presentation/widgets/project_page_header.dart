@@ -4,9 +4,7 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/page_header.dart';
 import '../../application/project_exporter.dart';
 import '../../application/project_providers.dart';
@@ -21,6 +19,7 @@ class ProjectPageHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(projectSearchQueryProvider);
+    final freshness = ref.watch(projectFreshnessProvider).valueOrNull;
     return PageHeader(
       icon: Icons.insights_rounded,
       iconAccent: AppColors.warning,
@@ -30,8 +29,13 @@ class ProjectPageHeader extends ConsumerWidget {
       searchValue: query,
       onSearchChanged: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
-      onRefresh: () => ref.invalidate(projectDigestProvider),
-      pills: [_NeutralPill(label: l10n.tr('project.pill.this_week'))],
+      onRefresh: () {
+        ref.invalidate(projectDigestResultProvider);
+        ref.invalidate(projectDigestProvider);
+      },
+      pills: [
+        if (freshness != null) DataFreshnessBadge(freshness: freshness),
+      ],
       actions: [
         HeaderAction(
           icon: Icons.download_outlined,
@@ -56,33 +60,5 @@ Future<void> _exportReport(BuildContext context, WidgetRef ref) async {
     messenger.showSnackBar(SnackBar(content: Text('报告已导出: ${file.path}')));
   } catch (_) {
     messenger.showSnackBar(const SnackBar(content: Text('报告导出失败,请稍后重试')));
-  }
-}
-
-class _NeutralPill extends StatelessWidget {
-  const _NeutralPill({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs2,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(
-        label,
-        style: AppTypography.labelSmall.copyWith(
-          color: colors.onSurfaceVariant,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
-    );
   }
 }

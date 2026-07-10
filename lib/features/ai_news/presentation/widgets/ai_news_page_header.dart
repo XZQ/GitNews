@@ -16,7 +16,7 @@ class AiNewsPageHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(aiNewsSearchQueryProvider);
-    final provenance = ref.watch(aiNewsProvenanceProvider);
+    final freshness = ref.watch(aiNewsFreshnessProvider);
     return PageHeader(
       title: l10n.tr('ai_news.title'),
       subtitle: l10n.tr('ai_news.subtitle'),
@@ -24,7 +24,7 @@ class AiNewsPageHeader extends ConsumerWidget {
       searchValue: query,
       onSearchChanged: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
-      pills: [DataProvenanceBadge(provenance: provenance)],
+      pills: [DataFreshnessBadge(freshness: freshness)],
       actions: [
         HeaderAction(
           icon: Icons.refresh_rounded,

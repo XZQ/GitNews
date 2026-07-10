@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/features/tech_hotspot/application/tech_hotspot_providers.dart';
 import 'package:github_news/features/tech_hotspot/data/local_tech_hotspot_repository.dart';
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_models.dart';
@@ -38,6 +39,24 @@ const _sampleDigest = TechHotspotDigest(
 
 void main() {
   group('techHotspotDigestProvider', () {
+    test('local digest result is explicitly marked as seed data', () async {
+      final container = ProviderContainer(
+        overrides: [
+          techHotspotRepositoryProvider.overrideWithValue(
+            const LocalTechHotspotRepository(),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final result = await container.read(
+        techHotspotDigestResultProvider.future,
+      );
+
+      expect(result.freshness, DataFreshness.seed);
+      expect(result.data.topics, isNotEmpty);
+    });
+
     test('should expose local digest when repository returns data', () async {
       final container = ProviderContainer(
         overrides: [
@@ -80,7 +99,12 @@ void main() {
         heatTrend: [],
         hotTags: [],
       );
-      when(repo.getDigest).thenAnswer((_) async => empty);
+      when(repo.getDigest).thenAnswer(
+        (_) async => const DataResult(
+          data: empty,
+          freshness: DataFreshness.live,
+        ),
+      );
       when(repo.allTopics).thenAnswer((_) async => const []);
       when(() => repo.getById(any())).thenAnswer((_) async => null);
 
@@ -165,7 +189,12 @@ void main() {
 
     test('filteredTechHotspotDigestProvider should filter current digest', () async {
       final repo = _MockTechHotspotRepository();
-      when(repo.getDigest).thenAnswer((_) async => _sampleDigest);
+      when(repo.getDigest).thenAnswer(
+        (_) async => const DataResult(
+          data: _sampleDigest,
+          freshness: DataFreshness.live,
+        ),
+      );
 
       final container = ProviderContainer(
         overrides: [techHotspotRepositoryProvider.overrideWithValue(repo)],
@@ -184,7 +213,12 @@ void main() {
 
     test('filteredTechHotspotDigestProvider should apply category filter', () async {
       final repo = _MockTechHotspotRepository();
-      when(repo.getDigest).thenAnswer((_) async => _sampleDigest);
+      when(repo.getDigest).thenAnswer(
+        (_) async => const DataResult(
+          data: _sampleDigest,
+          freshness: DataFreshness.live,
+        ),
+      );
 
       final container = ProviderContainer(
         overrides: [techHotspotRepositoryProvider.overrideWithValue(repo)],

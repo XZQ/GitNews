@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -49,7 +49,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   final void Function(int retryAfterSeconds)? _onRateLimited;
 
   @override
-  Future<RepoDetailDigest> getDetail(String fullName) async {
+  Future<DataResult<RepoDetailDigest>> getDetail(String fullName) async {
     final decoded = Uri.decodeComponent(fullName);
     final cacheKey = repoDetailCacheKey(decoded);
     final now = _now();
@@ -60,10 +60,19 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
           ttl: repoDetailRemoteCacheTtl,
           now: now,
         )) {
-      return cached;
+      return DataResult(
+        data: cached,
+        freshness: DataFreshness.freshCache,
+      );
     }
     if (_isRateLimited?.call() ?? false) {
-      return cached ?? _fallback.getDetail(decoded);
+      if (cached != null) {
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
+      }
+      return _fallback.getDetail(decoded);
     }
 
     try {
@@ -73,14 +82,20 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
         payload: repoDetailDigestToJson(digest),
         now: now,
       );
-      return digest;
+      return DataResult(data: digest, freshness: DataFreshness.live);
     } catch (e) {
       _maybeReportRateLimit(e);
       AppLogger.warn(
         'githubRepoDetailFallback',
         meta: {'repo': decoded, 'error': e.runtimeType.toString()},
       );
-      return cached ?? _fallback.getDetail(decoded);
+      if (cached != null) {
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
+      }
+      return _fallback.getDetail(decoded);
     }
   }
 
@@ -141,7 +156,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     return repo.copyWith(
       starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta),
       trend: starTrend.values,
-      trendProvenance: starTrend.provenance,
+      trendBasis: starTrend.basis,
     );
   }
 
@@ -248,8 +263,8 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       ),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
-      valueProvenance: DataProvenance.live,
-      trendProvenance: DataProvenance.estimated,
+      valueBasis: MetricBasis.observed,
+      trendBasis: MetricBasis.estimated,
       trend: estimatedRepoTrend(stars, 1),
     );
   }

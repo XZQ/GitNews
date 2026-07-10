@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:github_news/core/domain/data_provenance.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
 import 'package:github_news/core/storage/storage_providers.dart';
@@ -18,7 +18,7 @@ class _MockAiNewsRepository implements AiNewsRepository {
   int callCount = 0;
 
   @override
-  Future<AiNewsDigest> fetchItems({
+  Future<DataResult<AiNewsDigest>> fetchItems({
     AiNewsCategory? category,
     DateTime? since,
     String? query,
@@ -27,7 +27,14 @@ class _MockAiNewsRepository implements AiNewsRepository {
   }) async {
     callCount++;
     lastCategoryArg = category;
-    return AiNewsDigest(items: _stub, count: _stub.length, hasNext: false);
+    return DataResult(
+      data: AiNewsDigest(
+        items: _stub,
+        count: _stub.length,
+        hasNext: false,
+      ),
+      freshness: DataFreshness.live,
+    );
   }
 }
 
@@ -38,7 +45,7 @@ class _PagedAiNewsRepository implements AiNewsRepository {
   final List<String?> cursors = [];
 
   @override
-  Future<AiNewsDigest> fetchItems({
+  Future<DataResult<AiNewsDigest>> fetchItems({
     AiNewsCategory? category,
     DateTime? since,
     String? query,
@@ -46,7 +53,10 @@ class _PagedAiNewsRepository implements AiNewsRepository {
     bool selectedOnly = true,
   }) async {
     cursors.add(cursor);
-    return _pages[cursor] ?? const AiNewsDigest(items: [], count: 0, hasNext: false);
+    return DataResult(
+      data: _pages[cursor] ?? const AiNewsDigest(items: [], count: 0, hasNext: false),
+      freshness: DataFreshness.live,
+    );
   }
 }
 
@@ -146,7 +156,7 @@ void main() {
 
     expect(items.length, 1);
     expect(repo2.callCount, 0); // 未触发远端
-    expect(readProvenance(c2), DataProvenance.freshCache);
+    expect(readFreshness(c2), DataFreshness.freshCache);
   });
 
   test('缓存过期:应在后台静默刷新', () async {
@@ -262,7 +272,7 @@ void main() {
       items.map((e) => e.id).toList(),
       AiNewsSeedData.items.map((e) => e.id).toList(),
     );
-    expect(container.read(aiNewsProvenanceProvider), DataProvenance.seed);
+    expect(container.read(aiNewsFreshnessProvider), DataFreshness.seed);
   });
 
   test('缓存命中但远端失败:应保留缓存并标记陈旧缓存', () async {
@@ -279,15 +289,15 @@ void main() {
     final items = await _pumpUntilSettled(c2);
 
     expect(items.map((e) => e.id).toList(), ['a']);
-    expect(readProvenance(c2), DataProvenance.staleCache);
+    expect(readFreshness(c2), DataFreshness.staleCache);
   });
 }
 
-DataProvenance readProvenance(ProviderContainer container) => container.read(aiNewsProvenanceProvider);
+DataFreshness readFreshness(ProviderContainer container) => container.read(aiNewsFreshnessProvider);
 
 class _ThrowingAiNewsRepository implements AiNewsRepository {
   @override
-  Future<AiNewsDigest> fetchItems({
+  Future<DataResult<AiNewsDigest>> fetchItems({
     AiNewsCategory? category,
     DateTime? since,
     String? query,

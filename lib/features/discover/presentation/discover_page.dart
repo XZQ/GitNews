@@ -7,6 +7,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
+import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/page_header.dart';
@@ -94,6 +95,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     final colors = Theme.of(context).colorScheme;
     final isCompact = Breakpoints.isCompact(context);
     final segment = ref.watch(discoverSegmentProvider);
+    final freshness = ref.watch(discoverFreshnessProvider);
     final query = ref.watch(discoverSearchQueryProvider);
 
     return Scaffold(
@@ -108,6 +110,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
             searchHint: l10n.tr('discover.search_hint'),
             searchValue: query,
             onSearchChanged: (v) => ref.read(discoverSearchQueryProvider.notifier).state = v,
+            pills: [DataFreshnessBadge(freshness: freshness)],
             onRefresh: _refresh,
             isRefreshing: _refreshing,
           ),

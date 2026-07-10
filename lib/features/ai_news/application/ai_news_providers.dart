@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/cache_ttl_config.dart';
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -113,8 +113,8 @@ final aiNewsItemDetailProvider = FutureProvider.autoDispose.family<AiNewsItem?, 
 // 当前资讯流的数据来源口径(live/freshCache/staleCache/seed)。
 // 由 [AiNewsItemsNotifier] 在关键决策点写入,供页头与首页预览展示 badge,
 // 让用户清楚当前看到的是实时、缓存还是种子兜底数据。
-final aiNewsProvenanceProvider = StateProvider<DataProvenance>(
-  (ref) => DataProvenance.live,
+final aiNewsFreshnessProvider = StateProvider<DataFreshness>(
+  (ref) => DataFreshness.live,
 );
 
 class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
@@ -139,7 +139,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
 
     final dao = ref.read(aiNewsCacheDaoProvider);
     final now = ref.read(clockProvider)();
-    final provenance = ref.read(aiNewsProvenanceProvider.notifier);
+    final freshness = ref.read(aiNewsFreshnessProvider.notifier);
 
     // Phase A:优先读缓存,瞬间出列表
     final cached = await dao.readAll(category: _category);
@@ -166,7 +166,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     }
     if (fresh) {
       // 缓存命中且未过期:无需远端
-      provenance.state = DataProvenance.freshCache;
+      freshness.state = DataFreshness.freshCache;
       return _currentSlice();
     }
 
@@ -222,12 +222,13 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       return;
     }
     _fetching = true;
-    final provenance = ref.read(aiNewsProvenanceProvider.notifier);
+    final freshness = ref.read(aiNewsFreshnessProvider.notifier);
     // 关键不变量:cursor=null 表示「拉 head 页」(初始化或刷新),
     // 用新结果覆盖 buffer;cursor 非空表示「翻下一页」,追加到 buffer。
     final isHead = _nextCursor == null;
     try {
-      final digest = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: _nextCursor);
+      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: _nextCursor);
+      final digest = result.data;
       if (gen != _generation) {
         return;
       }
@@ -235,7 +236,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       final nextCursor = digest.nextCursor?.trim();
       _nextCursor = nextCursor == null || nextCursor.isEmpty ? null : nextCursor;
       _hasApiMore = digest.hasNext && _nextCursor != null;
-      provenance.state = DataProvenance.live;
+      freshness.state = result.freshness;
       // 落盘 + 更新 head meta。
       final dao = ref.read(aiNewsCacheDaoProvider);
       final now = ref.read(clockProvider)();
@@ -253,12 +254,12 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       _fetching = false;
       // 后台刷新失败容忍:已有缓存数据就不报错,标记为陈旧缓存兜底
       if (state.valueOrNull != null) {
-        provenance.state = DataProvenance.staleCache;
+        freshness.state = DataFreshness.staleCache;
         return;
       }
       // 没有任何缓存且远端不可用:回退到本地种子数据,保证首启可渲染。
       _buffer = AiNewsSeedData.items;
-      provenance.state = DataProvenance.seed;
+      freshness.state = DataFreshness.seed;
       state = AsyncData(_currentSlice());
     }
     if (gen == _generation) {

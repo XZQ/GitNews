@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -90,7 +90,7 @@ class DiscoverRepository {
     'shreyashankar': 'lotus-data/lotus',
   };
 
-  Future<List<RepoEntity>> fetchTrendingRepos({
+  Future<DataResult<List<RepoEntity>>> fetchTrendingRepos({
     bool force = false,
     int page = 1,
     int perPage = 20,
@@ -104,7 +104,10 @@ class DiscoverRepository {
       if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
         final cached = await _cache.read(key);
         if (cached != null) {
-          return _decodeRepos(cached, DataProvenance.freshCache);
+          return DataResult(
+            data: _decodeRepos(cached),
+            freshness: DataFreshness.freshCache,
+          );
         }
       }
       try {
@@ -119,7 +122,7 @@ class DiscoverRepository {
           payload: _repoListToJson(repos),
           now: now,
         );
-        return repos;
+        return DataResult(data: repos, freshness: DataFreshness.live);
       } on DioException catch (e) {
         _report(GitHubApiSupport.toAppException(e, now: _now));
       } on AppException catch (e) {
@@ -133,12 +136,22 @@ class DiscoverRepository {
     }
     final cached = await _cache.read(key);
     if (cached != null) {
-      return _decodeRepos(cached, DataProvenance.staleCache);
+      return DataResult(
+        data: _decodeRepos(cached),
+        freshness: DataFreshness.staleCache,
+      );
     }
-    return _slice(DiscoverSeed.seedPopularRepos, page: page, perPage: perPage);
+    return DataResult(
+      data: _slice(
+        DiscoverSeed.seedPopularRepos,
+        page: page,
+        perPage: perPage,
+      ),
+      freshness: DataFreshness.seed,
+    );
   }
 
-  Future<List<SkillEntity>> fetchAgentSkills({
+  Future<DataResult<List<SkillEntity>>> fetchAgentSkills({
     bool force = false,
     int page = 1,
     int perPage = 20,
@@ -152,7 +165,10 @@ class DiscoverRepository {
       if (!force && await _isFresh(key, CacheTtlConfig.skills, now)) {
         final cached = await _cache.read(key);
         if (cached != null) {
-          return _decodeSkills(cached, DataProvenance.freshCache);
+          return DataResult(
+            data: _decodeSkills(cached),
+            freshness: DataFreshness.freshCache,
+          );
         }
       }
       try {
@@ -178,7 +194,7 @@ class DiscoverRepository {
           payload: _skillsToJson(skills),
           now: now,
         );
-        return skills;
+        return DataResult(data: skills, freshness: DataFreshness.live);
       } on DioException catch (e) {
         _report(GitHubApiSupport.toAppException(e, now: _now));
       } on AppException catch (e) {
@@ -192,12 +208,22 @@ class DiscoverRepository {
     }
     final cached = await _cache.read(key);
     if (cached != null) {
-      return _decodeSkills(cached, DataProvenance.staleCache);
+      return DataResult(
+        data: _decodeSkills(cached),
+        freshness: DataFreshness.staleCache,
+      );
     }
-    return _slice(DiscoverSeed.seedAgentSkills, page: page, perPage: perPage);
+    return DataResult(
+      data: _slice(
+        DiscoverSeed.seedAgentSkills,
+        page: page,
+        perPage: perPage,
+      ),
+      freshness: DataFreshness.seed,
+    );
   }
 
-  Future<List<DiscoverProfileEntity>> fetchProfiles({
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
     required DiscoverProfileKind kind,
     bool force = false,
   }) async {
@@ -210,7 +236,10 @@ class DiscoverRepository {
       if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
         final cached = await _cache.read(key);
         if (cached != null) {
-          return _decodeProfiles(cached, kind);
+          return DataResult(
+            data: _decodeProfiles(cached, kind),
+            freshness: DataFreshness.freshCache,
+          );
         }
       }
       try {
@@ -223,7 +252,7 @@ class DiscoverRepository {
           payload: _profilesToJson(profiles),
           now: now,
         );
-        return profiles;
+        return DataResult(data: profiles, freshness: DataFreshness.live);
       } on DioException catch (e) {
         _report(GitHubApiSupport.toAppException(e, now: _now));
       } on AppException catch (e) {
@@ -237,9 +266,15 @@ class DiscoverRepository {
     }
     final cached = await _cache.read(key);
     if (cached != null) {
-      return _decodeProfiles(cached, kind);
+      return DataResult(
+        data: _decodeProfiles(cached, kind),
+        freshness: DataFreshness.staleCache,
+      );
     }
-    return DiscoverSeed.seedProfiles(kind);
+    return DataResult(
+      data: DiscoverSeed.seedProfiles(kind),
+      freshness: DataFreshness.seed,
+    );
   }
 
   bool _blocked() => _isRateLimited?.call() ?? false;
@@ -318,8 +353,8 @@ class DiscoverRepository {
       starDelta: 0,
       forkCount: GitHubJson.intValue(json['forks_count']),
       accentArgb: GitHubApiSupport.languageColor(language),
-      valueProvenance: DataProvenance.live,
-      trendProvenance: DataProvenance.live,
+      valueBasis: MetricBasis.observed,
+      trendBasis: MetricBasis.estimated,
     );
   }
 
@@ -372,19 +407,15 @@ class DiscoverRepository {
         'starDelta': r.starDelta,
         'forkCount': r.forkCount,
         'accentArgb': r.accentArgb,
-        'valueProvenance': r.valueProvenance.name,
-        'trendProvenance': r.trendProvenance.name,
+        'valueBasis': r.valueBasis.name,
+        'trendBasis': r.trendBasis.name,
       };
 
   static Map<String, Object?> _repoListToJson(List<RepoEntity> repos) => {
         'items': [for (final r in repos) _repoToJson(r)],
       };
 
-  static RepoEntity _repoFromJson(
-    Map<String, Object?> json,
-    DataProvenance p,
-  ) =>
-      RepoEntity(
+  static RepoEntity _repoFromJson(Map<String, Object?> json) => RepoEntity(
         fullName: GitHubJson.string(json['fullName']),
         description: GitHubJson.string(json['description']),
         language: GitHubJson.string(json['language']),
@@ -392,16 +423,12 @@ class DiscoverRepository {
         starDelta: GitHubJson.intValue(json['starDelta']),
         forkCount: GitHubJson.intValue(json['forkCount']),
         accentArgb: GitHubJson.intValue(json['accentArgb']),
-        valueProvenance: p,
-        trendProvenance: p,
+        valueBasis: _basisFromJson(json, 'valueBasis', 'valueProvenance'),
+        trendBasis: _basisFromJson(json, 'trendBasis', 'trendProvenance'),
       );
 
-  static List<RepoEntity> _decodeRepos(
-    Map<String, Object?> json,
-    DataProvenance p,
-  ) =>
-      [
-        for (final raw in GitHubJson.list(json['items'])) _repoFromJson(GitHubJson.map(raw), p),
+  static List<RepoEntity> _decodeRepos(Map<String, Object?> json) => [
+        for (final raw in GitHubJson.list(json['items'])) _repoFromJson(GitHubJson.map(raw)),
       ];
 
   static Map<String, Object?> _skillsToJson(List<SkillEntity> skills) => {
@@ -417,26 +444,32 @@ class DiscoverRepository {
         ],
       };
 
-  static List<SkillEntity> _decodeSkills(
-    Map<String, Object?> json,
-    DataProvenance p,
-  ) =>
-      [
-        for (final raw in GitHubJson.list(json['items'])) _skillFromJson(GitHubJson.map(raw), p),
+  static List<SkillEntity> _decodeSkills(Map<String, Object?> json) => [
+        for (final raw in GitHubJson.list(json['items'])) _skillFromJson(GitHubJson.map(raw)),
       ];
 
-  static SkillEntity _skillFromJson(
-    Map<String, Object?> json,
-    DataProvenance p,
-  ) {
+  static SkillEntity _skillFromJson(Map<String, Object?> json) {
     final repoJson = GitHubJson.map(json['repo']);
     return SkillEntity(
-      repo: _repoFromJson(repoJson, p),
+      repo: _repoFromJson(repoJson),
       category: GitHubJson.string(json['category']),
       source: GitHubJson.string(json['source']),
       rank: GitHubJson.intValue(json['rank']),
       summary: GitHubJson.nullableString(json['summary']),
     );
+  }
+
+  static MetricBasis _basisFromJson(
+    Map<String, Object?> json,
+    String key,
+    String legacyKey,
+  ) {
+    final name = GitHubJson.nullableString(json[key]);
+    return name == null
+        ? MetricBasis.fromLegacyName(
+            GitHubJson.nullableString(json[legacyKey]),
+          )
+        : MetricBasis.fromName(name);
   }
 
   static Map<String, Object?> _profileToJson(DiscoverProfileEntity p) => {

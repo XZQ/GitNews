@@ -99,7 +99,7 @@ class RepoTile extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
-                      DataProvenanceBadge(provenance: repo.trendProvenance),
+                      MetricBasisBadge(basis: repo.trendBasis),
                     ],
                   ),
                 ],

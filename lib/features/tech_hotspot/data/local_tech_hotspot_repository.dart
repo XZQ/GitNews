@@ -1,3 +1,4 @@
+import '../../../core/domain/data_freshness.dart';
 import '../domain/tech_hotspot_models.dart';
 import '../domain/tech_hotspot_repository.dart';
 import 'tech_hotspot_seed_data.dart';
@@ -9,12 +10,15 @@ class LocalTechHotspotRepository implements TechHotspotRepository {
   const LocalTechHotspotRepository();
 
   @override
-  Future<TechHotspotDigest> getDigest() async {
-    return const TechHotspotDigest(
-      languages: TechHotspotSeedData.languages,
-      topics: TechHotspotSeedData.topics,
-      heatTrend: TechHotspotSeedData.heatTrend,
-      hotTags: TechHotspotSeedData.hotTags,
+  Future<DataResult<TechHotspotDigest>> getDigest() async {
+    return const DataResult(
+      freshness: DataFreshness.seed,
+      data: TechHotspotDigest(
+        languages: TechHotspotSeedData.languages,
+        topics: TechHotspotSeedData.topics,
+        heatTrend: TechHotspotSeedData.heatTrend,
+        hotTags: TechHotspotSeedData.hotTags,
+      ),
     );
   }
 

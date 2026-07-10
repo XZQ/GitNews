@@ -1,3 +1,4 @@
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import 'entities.dart';
 
@@ -26,5 +27,5 @@ class RepoDetailDigest {
 *本地快照缓存;远端失败时可回退过期缓存或本地详情种子数据。
 */
 abstract interface class RepoDetailRepository {
-  Future<RepoDetailDigest> getDetail(String fullName);
+  Future<DataResult<RepoDetailDigest>> getDetail(String fullName);
 }

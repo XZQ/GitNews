@@ -1,4 +1,4 @@
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/github_api_support.dart';
 import '../domain/tech_hotspot_models.dart';
 
@@ -39,7 +39,7 @@ List<LanguageStat> buildTechHotspotLanguages(
       delta: 0,
       color: GitHubApiSupport.languageColor(entry.key),
       repoCount: entry.value,
-      provenance: DataProvenance.estimated,
+      basis: MetricBasis.estimated,
     );
   }).toList(growable: false);
 }
@@ -100,7 +100,7 @@ List<double> recentTechHotspotHeatValues(List<double> values) {
 TechTopic copyTechHotspotTopic(
   TechTopic topic, {
   double? growth,
-  DataProvenance? growthProvenance,
+  MetricBasis? growthBasis,
 }) {
   return TechTopic(
     id: topic.id,
@@ -111,8 +111,8 @@ TechTopic copyTechHotspotTopic(
     mentions: topic.mentions,
     relatedRepos: topic.relatedRepos,
     summary: topic.summary,
-    provenance: topic.provenance,
-    growthProvenance: growthProvenance ?? topic.growthProvenance,
+    valueBasis: topic.valueBasis,
+    growthBasis: growthBasis ?? topic.growthBasis,
   );
 }
 

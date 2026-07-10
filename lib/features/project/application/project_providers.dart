@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/providers/app_search_query_provider.dart';
 import '../data/local_project_repository.dart';
@@ -8,7 +9,7 @@ import '../domain/project_repository.dart';
 export '../../../shared/providers/app_search_query_provider.dart';
 export '../domain/project_repository.dart' show ProjectDigest;
 
-final projectDigestProvider = FutureProvider<ProjectDigest>((ref) async {
+final projectDigestResultProvider = FutureProvider<DataResult<ProjectDigest>>((ref) async {
   try {
     return await ref.watch(projectRepositoryProvider).getDigest();
   } on AppException {
@@ -16,6 +17,14 @@ final projectDigestProvider = FutureProvider<ProjectDigest>((ref) async {
   } catch (error, stack) {
     throw error.asAppException(stack);
   }
+});
+
+final projectDigestProvider = FutureProvider<ProjectDigest>((ref) async {
+  return (await ref.watch(projectDigestResultProvider.future)).data;
+});
+
+final projectFreshnessProvider = Provider<AsyncValue<DataFreshness>>((ref) {
+  return ref.watch(projectDigestResultProvider).whenData((result) => result.freshness);
 });
 
 // 应用本地搜索后的深度报告摘要。

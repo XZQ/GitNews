@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/config/api_endpoints_config.dart';
-import 'package:github_news/core/domain/data_provenance.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/json_snapshot_cache_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
@@ -65,11 +65,13 @@ void main() {
       );
     });
 
-    final digest = await repository.getDigest();
+    final result = await repository.getDigest();
+    final digest = result.data;
     final firstTopic = digest.topics.first;
 
     expect(firstTopic.growth, 30);
-    expect(firstTopic.growthProvenance, DataProvenance.live);
+    expect(firstTopic.growthBasis, MetricBasis.observed);
+    expect(result.freshness, DataFreshness.live);
     expect(
       digest.heatTrend.map((point) => point.value).toList(),
       [40, firstTopic.heat],

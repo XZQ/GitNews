@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
-import 'package:github_news/core/domain/data_provenance.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 
 void main() {
@@ -30,7 +29,7 @@ void main() {
     }
   });
 
-  test('legacy repo provenance maps to metric basis during migration', () {
+  test('repo stores metric basis without response freshness', () {
     const repo = RepoEntity(
       fullName: 'owner/repo',
       description: 'desc',
@@ -39,11 +38,18 @@ void main() {
       starDelta: 2,
       forkCount: 1,
       accentArgb: 0xFF000000,
-      valueProvenance: DataProvenance.live,
-      trendProvenance: DataProvenance.estimated,
+      valueBasis: MetricBasis.observed,
+      trendBasis: MetricBasis.estimated,
     );
 
     expect(repo.valueBasis, MetricBasis.observed);
     expect(repo.trendBasis, MetricBasis.estimated);
+  });
+
+  test('legacy cache names decode into metric basis only', () {
+    expect(MetricBasis.fromLegacyName('live'), MetricBasis.observed);
+    expect(MetricBasis.fromLegacyName('freshCache'), MetricBasis.observed);
+    expect(MetricBasis.fromLegacyName('estimated'), MetricBasis.estimated);
+    expect(MetricBasis.fromLegacyName('unknown'), MetricBasis.seed);
   });
 }

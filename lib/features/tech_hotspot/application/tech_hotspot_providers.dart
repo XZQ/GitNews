@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -32,8 +33,16 @@ final localTechHotspotRepositoryProvider = Provider<TechHotspotRepository>(
   (ref) => const LocalTechHotspotRepository(),
 );
 
-final techHotspotDigestProvider = FutureProvider<TechHotspotDigest>((ref) {
+final techHotspotDigestResultProvider = FutureProvider<DataResult<TechHotspotDigest>>((ref) {
   return ref.watch(techHotspotRepositoryProvider).getDigest();
+});
+
+final techHotspotDigestProvider = FutureProvider<TechHotspotDigest>((ref) async {
+  return (await ref.watch(techHotspotDigestResultProvider.future)).data;
+});
+
+final techHotspotFreshnessProvider = Provider<AsyncValue<DataFreshness>>((ref) {
+  return ref.watch(techHotspotDigestResultProvider).whenData((result) => result.freshness);
 });
 
 // AI 雷达顶部搜索关键词。空字符串表示不过滤当前本地雷达数据。

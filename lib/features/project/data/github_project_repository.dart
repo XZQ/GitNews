@@ -4,6 +4,7 @@ import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/network/parallel.dart';
@@ -45,18 +46,25 @@ class GithubProjectRepository implements ProjectRepository {
   static const String _contributorsCacheKey = 'project:github:contributors:v1';
 
   @override
-  Future<ProjectDigest> getDigest() async {
-    final trending = await _trending.getDigest();
-    final contributors = await _contributorsFor(trending);
-    return ProjectDigest(
-      repos: trending.allRepos,
-      contributors: contributors,
-      primaryTrend: trending.primaryTrend,
-      secondaryTrend: trending.secondaryTrend,
+  Future<DataResult<ProjectDigest>> getDigest() async {
+    final trendingResult = await _trending.getDigest();
+    final trending = trendingResult.data;
+    final contributorResult = await _contributorsFor(trending);
+    return DataResult(
+      freshness: _leastFresh(
+        trendingResult.freshness,
+        contributorResult.freshness,
+      ),
+      data: ProjectDigest(
+        repos: trending.allRepos,
+        contributors: contributorResult.data,
+        primaryTrend: trending.primaryTrend,
+        secondaryTrend: trending.secondaryTrend,
+      ),
     );
   }
 
-  Future<List<ContributorEntity>> _contributorsFor(
+  Future<DataResult<List<ContributorEntity>>> _contributorsFor(
     TrendingDigest digest,
   ) async {
     final now = _now();
@@ -67,13 +75,22 @@ class GithubProjectRepository implements ProjectRepository {
           ttl: projectRemoteCacheTtl,
           now: now,
         )) {
-      return cached;
+      return DataResult(
+        data: cached,
+        freshness: DataFreshness.freshCache,
+      );
     }
     if (_isRateLimited?.call() ?? false) {
       if (cached.isNotEmpty) {
-        return cached;
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
       }
-      return DemoData.contributors.map((e) => e.toEntity()).toList();
+      return DataResult(
+        data: DemoData.contributors.map((e) => e.toEntity()).toList(),
+        freshness: DataFreshness.seed,
+      );
     }
 
     try {
@@ -86,7 +103,10 @@ class GithubProjectRepository implements ProjectRepository {
         },
         now: now,
       );
-      return contributors;
+      return DataResult(
+        data: contributors,
+        freshness: DataFreshness.live,
+      );
     } catch (e) {
       _maybeReportRateLimit(e);
       AppLogger.warn(
@@ -94,9 +114,15 @@ class GithubProjectRepository implements ProjectRepository {
         meta: {'error': e.runtimeType.toString()},
       );
       if (cached.isNotEmpty) {
-        return cached;
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
       }
-      return DemoData.contributors.map((e) => e.toEntity()).toList();
+      return DataResult(
+        data: DemoData.contributors.map((e) => e.toEntity()).toList(),
+        freshness: DataFreshness.seed,
+      );
     }
   }
 
@@ -193,4 +219,14 @@ class GithubProjectRepository implements ProjectRepository {
       avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
     );
   }
+}
+
+DataFreshness _leastFresh(DataFreshness left, DataFreshness right) {
+  const priority = {
+    DataFreshness.live: 0,
+    DataFreshness.freshCache: 1,
+    DataFreshness.staleCache: 2,
+    DataFreshness.seed: 3,
+  };
+  return priority[left]! >= priority[right]! ? left : right;
 }

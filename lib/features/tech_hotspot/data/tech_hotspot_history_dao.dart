@@ -1,4 +1,4 @@
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 
@@ -57,7 +57,7 @@ class TechHotspotHistoryDao {
     return TechHotspotTrendSnapshot(
       heatValues: [for (final point in points) point.heat.toDouble()],
       growth: _growthPercent(first.relatedRepos, last.relatedRepos),
-      provenance: DataProvenance.live,
+      basis: MetricBasis.observed,
     );
   }
 
@@ -90,12 +90,12 @@ class TechHotspotTrendSnapshot {
   const TechHotspotTrendSnapshot({
     required this.heatValues,
     required this.growth,
-    required this.provenance,
+    required this.basis,
   });
 
   final List<double> heatValues;
   final double growth;
-  final DataProvenance provenance;
+  final MetricBasis basis;
 }
 
 class TechHotspotHistoryPoint {

@@ -1,7 +1,7 @@
 // AI 雷达领域模型(纯 Dart)。
 library;
 
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 
 /* 
 *AI/技术栈分类:用于 [TechHotspotPage] 的趋势筛选。
@@ -28,7 +28,7 @@ class LanguageStat {
     required this.delta,
     required this.color,
     required this.repoCount,
-    this.provenance = DataProvenance.seed,
+    this.basis = MetricBasis.seed,
   });
 
   final String name;
@@ -36,7 +36,7 @@ class LanguageStat {
   final double delta;
   final int color;
   final int repoCount;
-  final DataProvenance provenance;
+  final MetricBasis basis;
 }
 
 /* 
@@ -52,8 +52,8 @@ class TechTopic {
     required this.mentions,
     required this.relatedRepos,
     required this.summary,
-    this.provenance = DataProvenance.seed,
-    this.growthProvenance = DataProvenance.seed,
+    this.valueBasis = MetricBasis.seed,
+    this.growthBasis = MetricBasis.seed,
   });
 
   final String id;
@@ -72,8 +72,8 @@ class TechTopic {
   // 相关仓库数。
   final int relatedRepos;
   final String summary;
-  final DataProvenance provenance;
-  final DataProvenance growthProvenance;
+  final MetricBasis valueBasis;
+  final MetricBasis growthBasis;
 }
 
 /* 

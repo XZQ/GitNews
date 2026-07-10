@@ -1,3 +1,4 @@
+import '../../../core/domain/data_freshness.dart';
 import 'ai_news_item.dart';
 
 /* 
@@ -13,7 +14,7 @@ abstract interface class AiNewsRepository {
   *- [cursor]:分页游标(上一页返回的 [AiNewsDigest.nextCursor])
   *- [selectedOnly]:true=仅精选(默认);false=`mode=all`
   */
-  Future<AiNewsDigest> fetchItems({
+  Future<DataResult<AiNewsDigest>> fetchItems({
     AiNewsCategory? category,
     DateTime? since,
     String? query,

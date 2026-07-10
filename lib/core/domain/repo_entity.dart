@@ -1,5 +1,4 @@
 import 'data_freshness.dart';
-import 'data_provenance.dart';
 
 /* 
 *仓库情报实体(纯 Dart 业务实体)。
@@ -20,8 +19,8 @@ class RepoEntity {
     required this.starDelta,
     required this.forkCount,
     required this.accentArgb,
-    this.valueProvenance = DataProvenance.seed,
-    this.trendProvenance = DataProvenance.seed,
+    this.valueBasis = MetricBasis.seed,
+    this.trendBasis = MetricBasis.seed,
     this.trend,
   });
 
@@ -39,16 +38,12 @@ class RepoEntity {
   final int accentArgb;
 
   // Star/Fork/语言等当前快照字段的数据口径。
-  final DataProvenance valueProvenance;
+  final MetricBasis valueBasis;
 
   // `starDelta` 与 `trend` 曲线的数据口径。
-  final DataProvenance trendProvenance;
+  final MetricBasis trendBasis;
 
   final List<double>? trend;
-
-  MetricBasis get valueBasis => _basisFromLegacy(valueProvenance);
-
-  MetricBasis get trendBasis => _basisFromLegacy(trendProvenance);
 
   RepoEntity copyWith({
     String? fullName,
@@ -58,8 +53,8 @@ class RepoEntity {
     int? starDelta,
     int? forkCount,
     int? accentArgb,
-    DataProvenance? valueProvenance,
-    DataProvenance? trendProvenance,
+    MetricBasis? valueBasis,
+    MetricBasis? trendBasis,
     List<double>? trend,
   }) {
     return RepoEntity(
@@ -70,19 +65,11 @@ class RepoEntity {
       starDelta: starDelta ?? this.starDelta,
       forkCount: forkCount ?? this.forkCount,
       accentArgb: accentArgb ?? this.accentArgb,
-      valueProvenance: valueProvenance ?? this.valueProvenance,
-      trendProvenance: trendProvenance ?? this.trendProvenance,
+      valueBasis: valueBasis ?? this.valueBasis,
+      trendBasis: trendBasis ?? this.trendBasis,
       trend: trend ?? this.trend,
     );
   }
-}
-
-MetricBasis _basisFromLegacy(DataProvenance provenance) {
-  return switch (provenance) {
-    DataProvenance.estimated => MetricBasis.estimated,
-    DataProvenance.seed => MetricBasis.seed,
-    DataProvenance.live || DataProvenance.freshCache || DataProvenance.staleCache => MetricBasis.observed,
-  };
 }
 
 /* 
@@ -94,14 +81,12 @@ class LanguageEntity {
     required this.percent,
     required this.delta,
     required this.accentArgb,
-    this.provenance = DataProvenance.seed,
+    this.basis = MetricBasis.seed,
   });
 
   final String name;
   final double percent;
   final double delta;
   final int accentArgb;
-  final DataProvenance provenance;
-
-  MetricBasis get basis => _basisFromLegacy(provenance);
+  final MetricBasis basis;
 }

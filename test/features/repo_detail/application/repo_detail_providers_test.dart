@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/demo_data.dart';
 import 'package:github_news/core/demo_data_mappers.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/features/repo_detail/application/repo_detail_providers.dart';
 import 'package:github_news/features/repo_detail/data/local_repo_detail_repository.dart';
 import 'package:github_news/features/repo_detail/domain/repo_detail_repository.dart';
@@ -11,6 +12,24 @@ class _MockRepoDetailRepository extends Mock implements RepoDetailRepository {}
 
 void main() {
   group('repoDetailDigestProvider', () {
+    test('local detail result is explicitly marked as seed data', () async {
+      final container = ProviderContainer(
+        overrides: [
+          repoDetailRepositoryProvider.overrideWithValue(
+            const LocalRepoDetailRepository(),
+          ),
+        ],
+      );
+      addTearDown(container.dispose);
+
+      final result = await container.read(
+        repoDetailResultProvider('denoland/deno').future,
+      );
+
+      expect(result.freshness, DataFreshness.seed);
+      expect(result.data.repo.fullName, 'denoland/deno');
+    });
+
     test('should expose local digest for known repo', () async {
       final container = ProviderContainer(
         overrides: [
@@ -55,21 +74,27 @@ void main() {
       final repoB = DemoData.trending.elementAt(1).toEntity();
 
       when(() => repo.getDetail(repoA.fullName)).thenAnswer(
-        (_) async => RepoDetailDigest(
-          repo: repoA,
-          contributors: const [],
-          relatedRepos: const [],
-          primaryTrend: const [1.0],
-          compareTrend: const [0.5],
+        (_) async => DataResult(
+          freshness: DataFreshness.live,
+          data: RepoDetailDigest(
+            repo: repoA,
+            contributors: const [],
+            relatedRepos: const [],
+            primaryTrend: const [1.0],
+            compareTrend: const [0.5],
+          ),
         ),
       );
       when(() => repo.getDetail(repoB.fullName)).thenAnswer(
-        (_) async => RepoDetailDigest(
-          repo: repoB,
-          contributors: const [],
-          relatedRepos: const [],
-          primaryTrend: const [2.0],
-          compareTrend: const [1.0],
+        (_) async => DataResult(
+          freshness: DataFreshness.live,
+          data: RepoDetailDigest(
+            repo: repoB,
+            contributors: const [],
+            relatedRepos: const [],
+            primaryTrend: const [2.0],
+            compareTrend: const [1.0],
+          ),
         ),
       );
 

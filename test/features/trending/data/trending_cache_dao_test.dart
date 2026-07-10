@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
@@ -215,6 +216,25 @@ void main() {
       expect(remote.calls, 0);
     });
 
+    test('should report fresh cache response freshness', () async {
+      const query = TrendingQuery();
+      await dao.upsertSnapshot(
+        query: query,
+        snapshot: _snapshot('cached/repo'),
+        now: now,
+      );
+      final dataSource = CachedTrendingDataSource(
+        remote: _FakeRemoteTrendingDataSource(_snapshot('remote/repo')),
+        cache: dao,
+        now: () => now.add(const Duration(minutes: 3)),
+        ttl: const Duration(minutes: 5),
+      );
+
+      final result = await dataSource.fetchTrendingResult(query);
+
+      expect(result.freshness, DataFreshness.freshCache);
+    });
+
     test('should refresh stale cache and store remote snapshot', () async {
       const query = TrendingQuery(language: 'Python');
       await dao.upsertSnapshot(
@@ -257,6 +277,26 @@ void main() {
 
       expect(snapshot.trendingRepos.first.fullName, 'stale/repo');
       expect(remote.calls, 1);
+    });
+
+    test('should report stale cache when remote refresh fails', () async {
+      const query = TrendingQuery();
+      await dao.upsertSnapshot(
+        query: query,
+        snapshot: _snapshot('stale/repo'),
+        now: now,
+      );
+      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'))..error = StateError('network down');
+      final dataSource = CachedTrendingDataSource(
+        remote: remote,
+        cache: dao,
+        now: () => now.add(const Duration(minutes: 6)),
+        ttl: const Duration(minutes: 5),
+      );
+
+      final result = await dataSource.fetchTrendingResult(query);
+
+      expect(result.freshness, DataFreshness.staleCache);
     });
   });
 }

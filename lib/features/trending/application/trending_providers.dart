@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/preferences/github_token_controller.dart';
@@ -104,9 +105,19 @@ final localTrendingRepositoryProvider = Provider<TrendingRepository>((ref) {
   return const LocalTrendingRepository();
 });
 
-final trendingDigestProvider = FutureProvider<TrendingDigest>((ref) {
+final trendingDigestResultProvider = FutureProvider<DataResult<TrendingDigest>>((
+  ref,
+) {
   final query = ref.watch(trendingQueryProvider);
   return ref.watch(trendingRepositoryProvider).getDigest(query: query);
+});
+
+final trendingDigestProvider = FutureProvider<TrendingDigest>((ref) async {
+  return (await ref.watch(trendingDigestResultProvider.future)).data;
+});
+
+final trendingFreshnessProvider = Provider<AsyncValue<DataFreshness>>((ref) {
+  return ref.watch(trendingDigestResultProvider).whenData((result) => result.freshness);
 });
 
 // 顶部搜索框关键词。空字符串表示不过滤当前热榜结果。
@@ -178,6 +189,7 @@ Future<void> refreshTrendingDigest(WidgetRef ref) async {
         );
   }
   ref.invalidate(trendingDigestProvider);
+  ref.invalidate(trendingDigestResultProvider);
 }
 
 // 时间窗筛选:`today` / `week` / `month`。

@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/config/api_endpoints_config.dart';
-import 'package:github_news/core/domain/data_provenance.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/errors/app_exception.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/json_snapshot_cache_dao.dart';
@@ -189,7 +189,7 @@ void main() {
       final repo = snapshot.trendingRepos.first;
       expect(repo.starDelta, 100);
       expect(repo.trend, [11900, 12000]);
-      expect(repo.trendProvenance, DataProvenance.live);
+      expect(repo.trendBasis, MetricBasis.observed);
       expect(snapshot.primaryTrend, [11900, 12000]);
     });
 

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/features/project/application/project_providers.dart';
 import 'package:github_news/features/project/data/local_project_repository.dart';
 import 'package:github_news/features/project/domain/project_repository.dart';
@@ -32,6 +33,29 @@ ContributorEntity _contributor(String login, {int contributions = 42}) {
 }
 
 void main() {
+  test('project result exposes repository response freshness', () async {
+    final repo = _MockProjectRepository();
+    when(repo.getDigest).thenAnswer(
+      (_) async => DataResult(
+        freshness: DataFreshness.live,
+        data: ProjectDigest(
+          repos: [_repo('openai/codex')],
+          contributors: const [],
+          primaryTrend: const [],
+          secondaryTrend: const [],
+        ),
+      ),
+    );
+    final container = ProviderContainer(
+      overrides: [projectRepositoryProvider.overrideWithValue(repo)],
+    );
+    addTearDown(container.dispose);
+
+    final result = await container.read(projectDigestResultProvider.future);
+
+    expect(result.freshness, DataFreshness.live);
+  });
+
   group('project search', () {
     test('filterProjectRepos should match repo name description and language', () {
       final repos = [
@@ -69,17 +93,20 @@ void main() {
     test('filteredProjectDigestProvider should filter current digest', () async {
       final repo = _MockProjectRepository();
       when(repo.getDigest).thenAnswer(
-        (_) async => ProjectDigest(
-          repos: [
-            _repo('openai/codex', language: 'TypeScript'),
-            _repo('vercel/next.js', language: 'JavaScript'),
-          ],
-          contributors: [
-            _contributor('codex-maintainer'),
-            _contributor('frontend-dev'),
-          ],
-          primaryTrend: const [],
-          secondaryTrend: const [],
+        (_) async => DataResult(
+          freshness: DataFreshness.live,
+          data: ProjectDigest(
+            repos: [
+              _repo('openai/codex', language: 'TypeScript'),
+              _repo('vercel/next.js', language: 'JavaScript'),
+            ],
+            contributors: [
+              _contributor('codex-maintainer'),
+              _contributor('frontend-dev'),
+            ],
+            primaryTrend: const [],
+            secondaryTrend: const [],
+          ),
         ),
       );
 

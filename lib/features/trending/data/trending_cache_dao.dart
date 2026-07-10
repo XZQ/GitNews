@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/storage/cache_meta_dao.dart';
@@ -161,8 +161,8 @@ class TrendingCacheDao {
       'starDelta': repo.starDelta,
       'forkCount': repo.forkCount,
       'accentArgb': repo.accentArgb,
-      'valueProvenance': repo.valueProvenance.name,
-      'trendProvenance': repo.trendProvenance.name,
+      'valueBasis': repo.valueBasis.name,
+      'trendBasis': repo.trendBasis.name,
       'trend': repo.trend,
     };
   }
@@ -177,12 +177,8 @@ class TrendingCacheDao {
       starDelta: _int(json['starDelta']),
       forkCount: _int(json['forkCount']),
       accentArgb: _int(json['accentArgb']),
-      valueProvenance: DataProvenance.fromName(
-        json['valueProvenance'] as String?,
-      ),
-      trendProvenance: DataProvenance.fromName(
-        json['trendProvenance'] as String?,
-      ),
+      valueBasis: _basisFromJson(json, 'valueBasis', 'valueProvenance'),
+      trendBasis: _basisFromJson(json, 'trendBasis', 'trendProvenance'),
       trend: json['trend'] == null ? null : _doubleList(json['trend']),
     );
   }
@@ -193,7 +189,7 @@ class TrendingCacheDao {
       'percent': language.percent,
       'delta': language.delta,
       'accentArgb': language.accentArgb,
-      'provenance': language.provenance.name,
+      'basis': language.basis.name,
     };
   }
 
@@ -204,7 +200,7 @@ class TrendingCacheDao {
       percent: _double(json['percent']),
       delta: _double(json['delta']),
       accentArgb: _int(json['accentArgb']),
-      provenance: DataProvenance.fromName(json['provenance'] as String?),
+      basis: _basisFromJson(json, 'basis', 'provenance'),
     );
   }
 
@@ -248,5 +244,14 @@ class TrendingCacheDao {
       return raw.toDouble();
     }
     throw const FormatException('Expected double');
+  }
+
+  MetricBasis _basisFromJson(
+    Map<String, Object?> json,
+    String key,
+    String legacyKey,
+  ) {
+    final name = json[key] as String?;
+    return name == null ? MetricBasis.fromLegacyName(json[legacyKey] as String?) : MetricBasis.fromName(name);
   }
 }

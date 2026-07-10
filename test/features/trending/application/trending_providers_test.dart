@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/di/providers.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/preferences/github_token_controller.dart';
@@ -58,6 +59,15 @@ void main() {
   });
 
   group('trendingDigestProvider', () {
+    test('local digest result is explicitly marked as seed data', () async {
+      final container = await _createContainer();
+
+      final result = await container.read(trendingDigestResultProvider.future);
+
+      expect(result.freshness, DataFreshness.seed);
+      expect(result.data.trendingRepos, isNotEmpty);
+    });
+
     test('should expose local digest when repository returns data', () async {
       final container = await _createContainer();
 
@@ -94,13 +104,16 @@ void main() {
       when(
         () => repo.getDigest(query: any(named: 'query')),
       ).thenAnswer(
-        (_) async => const TrendingDigest(
-          trendingRepos: [],
-          recentRepos: [],
-          languages: [],
-          primaryTrend: [],
-          secondaryTrend: [],
-          tertiaryTrend: [],
+        (_) async => const DataResult(
+          freshness: DataFreshness.live,
+          data: TrendingDigest(
+            trendingRepos: [],
+            recentRepos: [],
+            languages: [],
+            primaryTrend: [],
+            secondaryTrend: [],
+            tertiaryTrend: [],
+          ),
         ),
       );
 
@@ -124,13 +137,16 @@ void main() {
         () => repo.getDigest(query: any(named: 'query')),
       ).thenAnswer((invocation) async {
         capturedQuery = invocation.namedArguments[#query] as TrendingQuery;
-        return const TrendingDigest(
-          trendingRepos: [],
-          recentRepos: [],
-          languages: [],
-          primaryTrend: [],
-          secondaryTrend: [],
-          tertiaryTrend: [],
+        return const DataResult(
+          freshness: DataFreshness.live,
+          data: TrendingDigest(
+            trendingRepos: [],
+            recentRepos: [],
+            languages: [],
+            primaryTrend: [],
+            secondaryTrend: [],
+            tertiaryTrend: [],
+          ),
         );
       });
 
@@ -201,18 +217,21 @@ void main() {
       when(
         () => repo.getDigest(query: any(named: 'query')),
       ).thenAnswer(
-        (_) async => TrendingDigest(
-          trendingRepos: [
-            _repo('openai/codex', language: 'TypeScript'),
-            _repo('google/gemini-cli', language: 'Go'),
-          ],
-          recentRepos: [
-            _repo('modelcontextprotocol/servers', language: 'Python'),
-          ],
-          languages: const [],
-          primaryTrend: const [],
-          secondaryTrend: const [],
-          tertiaryTrend: const [],
+        (_) async => DataResult(
+          freshness: DataFreshness.live,
+          data: TrendingDigest(
+            trendingRepos: [
+              _repo('openai/codex', language: 'TypeScript'),
+              _repo('google/gemini-cli', language: 'Go'),
+            ],
+            recentRepos: [
+              _repo('modelcontextprotocol/servers', language: 'Python'),
+            ],
+            languages: const [],
+            primaryTrend: const [],
+            secondaryTrend: const [],
+            tertiaryTrend: const [],
+          ),
         ),
       );
 

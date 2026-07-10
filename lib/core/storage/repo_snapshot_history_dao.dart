@@ -1,4 +1,4 @@
-import '../domain/data_provenance.dart';
+import '../domain/data_freshness.dart';
 import '../github/github_api_support.dart';
 import 'json_snapshot_cache_dao.dart';
 
@@ -48,7 +48,7 @@ class RepoSnapshotHistoryDao {
     }
     return RepoTrendSnapshot(
       values: [for (final point in points) point.stars.toDouble()],
-      provenance: DataProvenance.live,
+      basis: MetricBasis.observed,
     );
   }
 
@@ -59,7 +59,7 @@ class RepoSnapshotHistoryDao {
     }
     return RepoTrendSnapshot(
       values: [for (final point in points) point.forks.toDouble()],
-      provenance: DataProvenance.live,
+      basis: MetricBasis.observed,
     );
   }
 
@@ -88,10 +88,10 @@ class RepoSnapshotHistoryDao {
 }
 
 class RepoTrendSnapshot {
-  const RepoTrendSnapshot({required this.values, required this.provenance});
+  const RepoTrendSnapshot({required this.values, required this.basis});
 
   final List<double> values;
-  final DataProvenance provenance;
+  final MetricBasis basis;
 }
 
 class RepoSnapshotPoint {

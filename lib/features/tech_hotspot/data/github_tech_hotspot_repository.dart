@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/network/parallel.dart';
@@ -52,7 +52,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   static const String _cacheKey = 'tech_hotspot:github:default:v1';
 
   @override
-  Future<TechHotspotDigest> getDigest() async {
+  Future<DataResult<TechHotspotDigest>> getDigest() async {
     final now = _now();
     final cached = await _readCached();
     if (cached != null &&
@@ -61,10 +61,19 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
           ttl: techHotspotRemoteCacheTtl,
           now: now,
         )) {
-      return cached;
+      return DataResult(
+        data: cached,
+        freshness: DataFreshness.freshCache,
+      );
     }
     if (_isRateLimited?.call() ?? false) {
-      return cached ?? _fallback.getDigest();
+      if (cached != null) {
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
+      }
+      return _fallback.getDigest();
     }
 
     try {
@@ -74,14 +83,20 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         payload: techHotspotDigestToJson(digest),
         now: now,
       );
-      return digest;
+      return DataResult(data: digest, freshness: DataFreshness.live);
     } catch (e) {
       _maybeReportRateLimit(e);
       AppLogger.warn(
         'githubTechHotspotFallback',
         meta: {'error': e.runtimeType.toString()},
       );
-      return cached ?? _fallback.getDigest();
+      if (cached != null) {
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
+      }
+      return _fallback.getDigest();
     }
   }
 
@@ -93,12 +108,12 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
 
   @override
   Future<TechTopic?> getById(String id) async {
-    final digest = await getDigest();
+    final digest = (await getDigest()).data;
     return digest.topics.where((topic) => topic.id == id).firstOrNull;
   }
 
   @override
-  Future<List<TechTopic>> allTopics() async => (await getDigest()).topics;
+  Future<List<TechTopic>> allTopics() async => (await getDigest()).data.topics;
 
   Future<TechHotspotDigest?> _readCached() async {
     final json = await _cache.read(_cacheKey);
@@ -194,8 +209,8 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         mentions: total,
         relatedRepos: relatedRepos,
         summary: query.summary,
-        provenance: DataProvenance.live,
-        growthProvenance: DataProvenance.estimated,
+        valueBasis: MetricBasis.observed,
+        growthBasis: MetricBasis.estimated,
       ),
       languages: languages,
     );
@@ -235,7 +250,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       topic: copyTechHotspotTopic(
         topic,
         growth: trend.growth,
-        growthProvenance: trend.provenance,
+        growthBasis: trend.basis,
       ),
       languages: result.languages,
       heatTrend: recentTechHotspotHeatValues(trend.heatValues),

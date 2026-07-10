@@ -1,5 +1,4 @@
 import '../../../core/demo_data.dart';
-import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/github/github_api_support.dart';
 import '../domain/discover_entities.dart';
@@ -18,8 +17,6 @@ class DiscoverSeed {
         starDelta: f.starDelta,
         forkCount: f.forkCount,
         accentArgb: GitHubApiSupport.languageColor(f.language),
-        valueProvenance: DataProvenance.seed,
-        trendProvenance: DataProvenance.seed,
       );
 
   /// 流行仓库种子(约 20 个):DemoData 流行 + 最近 + 精选补充。
@@ -44,8 +41,6 @@ class DiscoverSeed {
             starDelta: _skillDefs[i].$5,
             forkCount: _skillDefs[i].$6,
             accentArgb: GitHubApiSupport.languageColor('TypeScript'),
-            valueProvenance: DataProvenance.seed,
-            trendProvenance: DataProvenance.seed,
           ),
           category: _skillDefs[i].$3,
           source: 'seed',
@@ -65,8 +60,6 @@ class DiscoverSeed {
         starDelta: e.starDelta,
         forkCount: e.forkCount,
         accentArgb: GitHubApiSupport.languageColor(e.language),
-        valueProvenance: DataProvenance.seed,
-        trendProvenance: DataProvenance.seed,
       );
 
   static const List<_SeedExtra> _curatedExtras = [

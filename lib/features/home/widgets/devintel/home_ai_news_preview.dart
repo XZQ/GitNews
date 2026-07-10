@@ -21,7 +21,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemsNotifierProvider);
-    final provenance = ref.watch(aiNewsProvenanceProvider);
+    final freshness = ref.watch(aiNewsFreshnessProvider);
     final items = async.valueOrNull?.take(4).toList() ?? const <AiNewsItem>[];
     return HomeSectionPreviewCard<AiNewsItem>(
       title: l10n.tr('home.section.ai_news.title'),
@@ -29,7 +29,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
       accentColor: AppColors.brand,
       icon: Icons.auto_awesome_rounded,
       path: '/ai_news',
-      trailing: DataProvenanceBadge(provenance: provenance),
+      trailing: DataFreshnessBadge(freshness: freshness),
       items: items,
       tileBuilder: (context, item, index) => PreviewRow(
         rank: '${index + 1}',

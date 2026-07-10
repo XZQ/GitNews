@@ -1,4 +1,5 @@
 import '../../../core/config/cache_ttl_config.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/trending_repository.dart';
 import 'trending_cache_dao.dart';
@@ -7,7 +8,7 @@ import 'trending_data_source.dart';
 /* 
 *带 SQLite TTL 缓存的趋势数据源包装器。
 */
-class CachedTrendingDataSource implements TrendingDataSource {
+class CachedTrendingDataSource implements TrendingDataSource, FreshnessTrendingDataSource {
   const CachedTrendingDataSource({
     required this.remote,
     required this.cache,
@@ -28,6 +29,13 @@ class CachedTrendingDataSource implements TrendingDataSource {
 
   @override
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
+    return (await fetchTrendingResult(query)).data;
+  }
+
+  @override
+  Future<DataResult<TrendingDataSnapshot>> fetchTrendingResult(
+    TrendingQuery query,
+  ) async {
     final current = now();
     final cached = await cache.readSnapshot(query, scope: cacheScope);
     final fresh = await cache.isFresh(
@@ -37,13 +45,22 @@ class CachedTrendingDataSource implements TrendingDataSource {
       now: current,
     );
     if (cached != null && fresh) {
-      return cached;
+      return DataResult(
+        data: cached,
+        freshness: DataFreshness.freshCache,
+      );
     }
     if (isRateLimited != null && isRateLimited!()) {
       if (cached != null) {
-        return cached;
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
       }
-      return remote.fetchTrending(query);
+      return DataResult(
+        data: await remote.fetchTrending(query),
+        freshness: DataFreshness.live,
+      );
     }
 
     try {
@@ -54,13 +71,16 @@ class CachedTrendingDataSource implements TrendingDataSource {
         snapshot: snapshot,
         now: now(),
       );
-      return snapshot;
+      return DataResult(data: snapshot, freshness: DataFreshness.live);
     } catch (e) {
       if (e is AppException && e.kind == AppExceptionKind.rateLimit && onRateLimited != null) {
         onRateLimited!(e.retryAfterSeconds ?? 60);
       }
       if (cached != null) {
-        return cached;
+        return DataResult(
+          data: cached,
+          freshness: DataFreshness.staleCache,
+        );
       }
       rethrow;
     }

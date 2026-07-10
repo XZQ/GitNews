@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -26,6 +27,10 @@ final localRepoDetailRepositoryProvider = Provider<RepoDetailRepository>((ref) {
   return const LocalRepoDetailRepository();
 });
 
-final repoDetailDigestProvider = FutureProvider.family<RepoDetailDigest, String>((ref, fullName) {
+final repoDetailResultProvider = FutureProvider.family<DataResult<RepoDetailDigest>, String>((ref, fullName) {
   return ref.watch(repoDetailRepositoryProvider).getDetail(fullName);
+});
+
+final repoDetailDigestProvider = FutureProvider.family<RepoDetailDigest, String>((ref, fullName) async {
+  return (await ref.watch(repoDetailResultProvider(fullName).future)).data;
 });

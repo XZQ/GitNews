@@ -115,7 +115,7 @@ class MonitorMonitoredRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs),
-                  DataProvenanceBadge(provenance: repo.trendProvenance),
+                  MetricBasisBadge(basis: repo.trendBasis),
                 ],
               ),
             ),

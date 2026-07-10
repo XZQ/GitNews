@@ -120,7 +120,7 @@ class _Body extends StatelessWidget {
             children: [
               SectionHeader(
                 title: l10n.tr('monitor.section.realtime_trend'),
-                subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendProvenance.labelKey)}',
+                subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendBasis.labelKey)}',
               ),
               const SizedBox(height: AppSpacing.md),
               StarTrendChart(

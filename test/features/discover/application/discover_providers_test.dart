@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/features/discover/application/discover_providers.dart';
 import 'package:github_news/features/discover/data/discover_repository.dart';
@@ -12,57 +13,66 @@ class _FakeDiscoverRepository implements DiscoverRepository {
   final List<DiscoverProfileKind> profileKinds = [];
 
   @override
-  Future<List<RepoEntity>> fetchTrendingRepos({
+  Future<DataResult<List<RepoEntity>>> fetchTrendingRepos({
     bool force = false,
     int page = 1,
     int perPage = discoverPageSize,
   }) async {
     repoPages.add(page);
-    return List.generate(
-      perPage,
-      (i) => _repo('popular-${page}_$i'),
+    return DataResult(
+      freshness: DataFreshness.live,
+      data: List.generate(
+        perPage,
+        (i) => _repo('popular-${page}_$i'),
+      ),
     );
   }
 
   @override
-  Future<List<SkillEntity>> fetchAgentSkills({
+  Future<DataResult<List<SkillEntity>>> fetchAgentSkills({
     bool force = false,
     int page = 1,
     int perPage = discoverPageSize,
   }) async {
     skillPages.add(page);
     final offset = (page - 1) * perPage;
-    return [
-      for (var i = 0; i < perPage; i++)
-        SkillEntity(
-          repo: _repo('skill-${page}_$i'),
-          category: 'agent',
-          source: 'test',
-          rank: offset + i + 1,
-        ),
-    ];
+    return DataResult(
+      freshness: DataFreshness.live,
+      data: [
+        for (var i = 0; i < perPage; i++)
+          SkillEntity(
+            repo: _repo('skill-${page}_$i'),
+            category: 'agent',
+            source: 'test',
+            rank: offset + i + 1,
+          ),
+      ],
+    );
   }
 
   @override
-  Future<List<DiscoverProfileEntity>> fetchProfiles({
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
     required DiscoverProfileKind kind,
     bool force = false,
   }) async {
     profileKinds.add(kind);
-    return [
-      DiscoverProfileEntity(
-        login: kind == DiscoverProfileKind.official ? 'openai' : 'karpathy',
-        name: kind == DiscoverProfileKind.official ? 'OpenAI' : 'Andrej',
-        type: kind == DiscoverProfileKind.official ? 'Organization' : 'User',
-        bio: kind == DiscoverProfileKind.official ? 'Official AI research organization' : 'AI researcher and educator',
-        publicRepos: 42,
-        followers: 1000,
-        avatarUrl: 'https://example.com/avatar.png',
-        htmlUrl: 'https://github.com/example',
-        featuredRepoFullName: kind == DiscoverProfileKind.official ? 'openai/openai-agents-python' : 'karpathy/nanoGPT',
-        kind: kind,
-      ),
-    ];
+    return DataResult(
+      freshness: DataFreshness.live,
+      data: [
+        DiscoverProfileEntity(
+          login: kind == DiscoverProfileKind.official ? 'openai' : 'karpathy',
+          name: kind == DiscoverProfileKind.official ? 'OpenAI' : 'Andrej',
+          type: kind == DiscoverProfileKind.official ? 'Organization' : 'User',
+          bio: kind == DiscoverProfileKind.official ? 'Official AI research organization' : 'AI researcher and educator',
+          publicRepos: 42,
+          followers: 1000,
+          avatarUrl: 'https://example.com/avatar.png',
+          htmlUrl: 'https://github.com/example',
+          featuredRepoFullName: kind == DiscoverProfileKind.official ? 'openai/openai-agents-python' : 'karpathy/nanoGPT',
+          kind: kind,
+        ),
+      ],
+    );
   }
 }
 
@@ -86,6 +96,7 @@ void main() {
 
     final firstPage = await container.read(trendingReposNotifierProvider.future);
     expect(firstPage.length, discoverPageSize);
+    expect(container.read(discoverReposFreshnessProvider), DataFreshness.live);
     expect(repo.repoPages, [1]);
 
     await container.read(trendingReposNotifierProvider.notifier).loadMore();

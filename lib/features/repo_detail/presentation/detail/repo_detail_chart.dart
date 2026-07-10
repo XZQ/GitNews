@@ -38,8 +38,8 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
                   subtitle: l10n.tr('repo_detail.section.star_trend.subtitle'),
                 ),
               ),
-              DataProvenanceBadge(
-                provenance: widget.digest.repo.trendProvenance,
+              MetricBasisBadge(
+                basis: widget.digest.repo.trendBasis,
                 compact: false,
               ),
               const SizedBox(width: AppSpacing.md),

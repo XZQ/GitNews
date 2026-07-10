@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../core/config/api_endpoints_config.dart';
-import '../../../core/domain/data_provenance.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -132,8 +132,8 @@ class GithubTrendingDataSource implements TrendingDataSource {
       ),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
-      valueProvenance: DataProvenance.live,
-      trendProvenance: DataProvenance.estimated,
+      valueBasis: MetricBasis.observed,
+      trendBasis: MetricBasis.estimated,
       trend: _repoTrend(stars, query.window),
     );
   }
@@ -174,7 +174,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     return repo.copyWith(
       starDelta: _observedDelta(values, fallback: repo.starDelta),
       trend: values,
-      trendProvenance: trend.provenance,
+      trendBasis: trend.basis,
     );
   }
 
@@ -245,7 +245,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
         percent: percent,
         delta: 0,
         accentArgb: GitHubApiSupport.languageColor(entry.key),
-        provenance: DataProvenance.estimated,
+        basis: MetricBasis.estimated,
       );
     }).toList(growable: false);
   }
@@ -256,7 +256,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     }
     final observed = [
       for (final repo in repos)
-        if (repo.trendProvenance == DataProvenance.live && repo.trend != null && repo.trend!.length >= 2) repo.trend!,
+        if (repo.trendBasis == MetricBasis.observed && repo.trend != null && repo.trend!.length >= 2) repo.trend!,
     ];
     if (observed.isNotEmpty) {
       final pointCount = observed.fold<int>(

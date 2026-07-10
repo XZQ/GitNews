@@ -23,6 +23,20 @@ enum MetricBasis {
       orElse: () => MetricBasis.seed,
     );
   }
+
+  static MetricBasis fromLegacyName(String? name) {
+    return switch (name) {
+      'live' || 'freshCache' || 'staleCache' || 'observed' => MetricBasis.observed,
+      'estimated' => MetricBasis.estimated,
+      _ => MetricBasis.seed,
+    };
+  }
+
+  String get labelKey => switch (this) {
+        MetricBasis.observed => 'basis.observed.full',
+        MetricBasis.estimated => 'provenance.estimated.full',
+        MetricBasis.seed => 'provenance.seed.full',
+      };
 }
 
 class DataResult<T> {

@@ -1,3 +1,4 @@
+import '../../../core/domain/data_freshness.dart';
 import '../domain/entities.dart';
 import '../domain/trending_repository.dart';
 
@@ -29,4 +30,10 @@ class TrendingDataSnapshot {
 */
 abstract interface class TrendingDataSource {
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query);
+}
+
+abstract interface class FreshnessTrendingDataSource {
+  Future<DataResult<TrendingDataSnapshot>> fetchTrendingResult(
+    TrendingQuery query,
+  );
 }

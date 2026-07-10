@@ -145,7 +145,7 @@ class DiscoverMonitorRow extends ConsumerWidget {
                           color: colors.secondary,
                         ),
                         _DeltaPill(value: repo.starDelta),
-                        DataProvenanceBadge(provenance: repo.trendProvenance),
+                        MetricBasisBadge(basis: repo.trendBasis),
                       ],
                     ),
                   ],

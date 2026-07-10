@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
-import '../../../core/domain/data_provenance.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -329,7 +328,7 @@ class GithubMonitorRepository implements MonitorRepository {
           fallback: item.repo.starDelta,
         ),
         trend: starTrend.values,
-        trendProvenance: starTrend.provenance,
+        trendBasis: starTrend.basis,
       ),
     );
   }
@@ -374,8 +373,8 @@ class GithubMonitorRepository implements MonitorRepository {
         ),
         forkCount: forks,
         accentArgb: GitHubApiSupport.languageColor(language),
-        valueProvenance: DataProvenance.live,
-        trendProvenance: DataProvenance.estimated,
+        valueBasis: MetricBasis.observed,
+        trendBasis: MetricBasis.estimated,
         trend: githubMonitorEstimatedRepoTrend(stars),
       ),
       openIssues: openIssues,

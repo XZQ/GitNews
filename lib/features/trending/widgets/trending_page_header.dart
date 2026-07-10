@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/preferences/trending_data_source_mode_controller.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/trending_providers.dart';
 
@@ -18,6 +19,7 @@ class TrendingPageHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final sourceStatus = ref.watch(trendingDataSourceStatusProvider);
+    final freshness = ref.watch(trendingFreshnessProvider).valueOrNull;
     final query = ref.watch(trendingSearchQueryProvider);
     return PageHeader(
       icon: Icons.trending_up_rounded,
@@ -35,11 +37,7 @@ class TrendingPageHeader extends ConsumerWidget {
         context.go('/trending/repos');
       },
       pills: [
-        const HeaderStatPill(
-          icon: Icons.local_fire_department_rounded,
-          label: '今日 +124',
-          color: AppColors.success,
-        ),
+        if (freshness != null) DataFreshnessBadge(freshness: freshness),
         HeaderStatPill(
           icon: sourceStatus.isGithub ? Icons.cloud_outlined : Icons.storage_rounded,
           label: sourceStatus.label(l10n),

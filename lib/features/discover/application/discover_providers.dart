@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/di/providers.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
@@ -34,6 +35,28 @@ final discoverSearchQueryProvider = StateProvider<String>((ref) => '');
 /// 刷新计数器:自增即触发强制刷新(绕过缓存 TTL)。
 final discoverRefreshTickProvider = StateProvider<int>((ref) => 0);
 
+final discoverReposFreshnessProvider = StateProvider<DataFreshness>(
+  (ref) => DataFreshness.seed,
+);
+final discoverSkillsFreshnessProvider = StateProvider<DataFreshness>(
+  (ref) => DataFreshness.seed,
+);
+final discoverOfficialFreshnessProvider = StateProvider<DataFreshness>(
+  (ref) => DataFreshness.seed,
+);
+final discoverPeopleFreshnessProvider = StateProvider<DataFreshness>(
+  (ref) => DataFreshness.seed,
+);
+
+final discoverFreshnessProvider = Provider<DataFreshness>((ref) {
+  return switch (ref.watch(discoverSegmentProvider)) {
+    'skills' => ref.watch(discoverSkillsFreshnessProvider),
+    'official' => ref.watch(discoverOfficialFreshnessProvider),
+    'people' => ref.watch(discoverPeopleFreshnessProvider),
+    _ => ref.watch(discoverReposFreshnessProvider),
+  };
+});
+
 final trendingReposNotifierProvider = AsyncNotifierProvider.autoDispose<TrendingReposNotifier, List<RepoEntity>>(
   TrendingReposNotifier.new,
 );
@@ -42,20 +65,24 @@ final agentSkillsNotifierProvider = AsyncNotifierProvider.autoDispose<AgentSkill
   AgentSkillsNotifier.new,
 );
 
-final officialProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
+final officialProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
   final force = ref.watch(discoverRefreshTickProvider) > 0;
-  return ref.watch(discoverRepositoryProvider).fetchProfiles(
+  final result = await ref.watch(discoverRepositoryProvider).fetchProfiles(
         kind: DiscoverProfileKind.official,
         force: force,
       );
+  ref.read(discoverOfficialFreshnessProvider.notifier).state = result.freshness;
+  return result.data;
 });
 
-final peopleProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) {
+final peopleProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
   final force = ref.watch(discoverRefreshTickProvider) > 0;
-  return ref.watch(discoverRepositoryProvider).fetchProfiles(
+  final result = await ref.watch(discoverRepositoryProvider).fetchProfiles(
         kind: DiscoverProfileKind.people,
         force: force,
       );
+  ref.read(discoverPeopleFreshnessProvider.notifier).state = result.freshness;
+  return result.data;
 });
 
 /// 应用本地搜索后的流行仓库。
@@ -113,11 +140,13 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
   Future<List<RepoEntity>> build() async {
     final force = ref.watch(discoverRefreshTickProvider) > 0;
     _page = 1;
-    final repos = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
+    final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
           force: force,
           page: _page,
           perPage: discoverPageSize,
         );
+    final repos = result.data;
+    ref.read(discoverReposFreshnessProvider.notifier).state = result.freshness;
     _hasMore = repos.length == discoverPageSize;
     return repos;
   }
@@ -129,10 +158,12 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
     _loadingMore = true;
     try {
       final nextPage = _page + 1;
-      final repos = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
+      final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(
             page: nextPage,
             perPage: discoverPageSize,
           );
+      final repos = result.data;
+      ref.read(discoverReposFreshnessProvider.notifier).state = result.freshness;
       _page = nextPage;
       _hasMore = repos.length == discoverPageSize;
       state = AsyncData([...?state.valueOrNull, ...repos]);
@@ -153,11 +184,13 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
   Future<List<SkillEntity>> build() async {
     final force = ref.watch(discoverRefreshTickProvider) > 0;
     _page = 1;
-    final skills = await ref.read(discoverRepositoryProvider).fetchAgentSkills(
+    final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(
           force: force,
           page: _page,
           perPage: discoverPageSize,
         );
+    final skills = result.data;
+    ref.read(discoverSkillsFreshnessProvider.notifier).state = result.freshness;
     _hasMore = skills.length == discoverPageSize;
     return skills;
   }
@@ -169,10 +202,12 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
     _loadingMore = true;
     try {
       final nextPage = _page + 1;
-      final skills = await ref.read(discoverRepositoryProvider).fetchAgentSkills(
+      final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(
             page: nextPage,
             perPage: discoverPageSize,
           );
+      final skills = result.data;
+      ref.read(discoverSkillsFreshnessProvider.notifier).state = result.freshness;
       _page = nextPage;
       _hasMore = skills.length == discoverPageSize;
       state = AsyncData([...?state.valueOrNull, ...skills]);

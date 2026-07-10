@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/di/providers.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/rate_limit_gate.dart';
 import '../../../core/preferences/github_token_controller.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -20,13 +21,17 @@ class LocalProjectRepository implements ProjectRepository {
   final TrendingRepository trending;
 
   @override
-  Future<ProjectDigest> getDigest() async {
-    final digest = await trending.getDigest();
-    return ProjectDigest(
-      repos: digest.allRepos,
-      contributors: DemoData.contributors.map((e) => e.toEntity()).toList(growable: false),
-      primaryTrend: digest.primaryTrend,
-      secondaryTrend: digest.secondaryTrend,
+  Future<DataResult<ProjectDigest>> getDigest() async {
+    final trendingResult = await trending.getDigest();
+    final digest = trendingResult.data;
+    return DataResult(
+      freshness: DataFreshness.seed,
+      data: ProjectDigest(
+        repos: digest.allRepos,
+        contributors: DemoData.contributors.map((e) => e.toEntity()).toList(growable: false),
+        primaryTrend: digest.primaryTrend,
+        secondaryTrend: digest.secondaryTrend,
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import '../../../core/domain/contributor_entity.dart';
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 
 export '../../../core/domain/contributor_entity.dart' show ContributorEntity;
@@ -29,5 +30,5 @@ class ProjectDigest {
 *后续可替换为 GitHub API(repo + contributors + activity)。
 */
 abstract interface class ProjectRepository {
-  Future<ProjectDigest> getDigest();
+  Future<DataResult<ProjectDigest>> getDigest();
 }
