@@ -46,6 +46,7 @@ final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     token: ref.watch(githubTokenControllerProvider).token,
+    cacheScope: ref.watch(githubTokenControllerProvider).cacheScope,
     isRateLimited: () => gate.isBlocked,
     onRateLimited: gateController.trigger,
   );

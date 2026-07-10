@@ -18,6 +18,7 @@ final repoDetailRepositoryProvider = Provider<RepoDetailRepository>((ref) {
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
     token: token,
+    cacheScope: ref.watch(githubTokenControllerProvider).cacheScope,
     isRateLimited: () => gate.isBlocked,
     onRateLimited: gateController.trigger,
   );

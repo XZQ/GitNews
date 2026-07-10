@@ -7,6 +7,7 @@ import '../../../core/demo_data_mappers.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/github/github_resource_cache.dart';
 import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
@@ -19,26 +20,31 @@ const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
 *基于趋势仓库 + GitHub contributors 的深度报告仓库。
 */
 class GithubProjectRepository implements ProjectRepository {
-  const GithubProjectRepository({
+  GithubProjectRepository({
     required TrendingRepository trending,
     required Dio dio,
     required JsonSnapshotCacheDao cache,
     String? token,
+    String cacheScope = 'anonymous',
     DateTime Function()? now,
     bool Function()? isRateLimited,
     void Function(int retryAfterSeconds)? onRateLimited,
   })  : _trending = trending,
-        _dio = dio,
         _cache = cache,
-        _token = token,
+        _resources = GitHubResourceCache(
+          dio: dio,
+          cache: cache,
+          token: token,
+          cacheScope: cacheScope,
+          now: now,
+        ),
         _now = now ?? DateTime.now,
         _isRateLimited = isRateLimited,
         _onRateLimited = onRateLimited;
 
   final TrendingRepository _trending;
-  final Dio _dio;
   final JsonSnapshotCacheDao _cache;
-  final String? _token;
+  final GitHubResourceCache _resources;
   final DateTime Function() _now;
   final bool Function()? _isRateLimited;
   final void Function(int retryAfterSeconds)? _onRateLimited;
@@ -95,7 +101,8 @@ class GithubProjectRepository implements ProjectRepository {
 
     try {
       final repos = digest.allRepos.take(4).map((repo) => repo.fullName);
-      final contributors = await _fetchContributors(repos);
+      final result = await _fetchContributors(repos);
+      final contributors = result.data;
       await _cache.upsert(
         key: _contributorsCacheKey,
         payload: {
@@ -103,10 +110,7 @@ class GithubProjectRepository implements ProjectRepository {
         },
         now: now,
       );
-      return DataResult(
-        data: contributors,
-        freshness: DataFreshness.live,
-      );
+      return DataResult(data: contributors, freshness: result.freshness);
     } catch (e) {
       _maybeReportRateLimit(e);
       AppLogger.warn(
@@ -132,17 +136,17 @@ class GithubProjectRepository implements ProjectRepository {
     }
   }
 
-  Future<List<ContributorEntity>> _fetchContributors(
+  Future<DataResult<List<ContributorEntity>>> _fetchContributors(
     Iterable<String> repos,
   ) async {
-    final results = await gatherAll<List<ContributorEntity>>(
+    final results = await gatherAll<DataResult<List<ContributorEntity>>>(
       [
         for (final repo in repos) _fetchRepoContributors(repo),
       ],
       tag: 'githubProjectContributors',
     );
     final byLogin = <String, ContributorEntity>{};
-    for (final contributor in results.expand((e) => e)) {
+    for (final contributor in results.expand((result) => result.data)) {
       final old = byLogin[contributor.login];
       byLogin[contributor.login] = ContributorEntity(
         login: contributor.login,
@@ -151,23 +155,27 @@ class GithubProjectRepository implements ProjectRepository {
       );
     }
     final contributors = byLogin.values.toList()..sort((a, b) => b.contributions.compareTo(a.contributions));
-    return contributors.take(8).toList(growable: false);
+    return DataResult(
+      data: contributors.take(8).toList(growable: false),
+      freshness: results.every(
+        (result) => result.freshness == DataFreshness.freshCache,
+      )
+          ? DataFreshness.freshCache
+          : DataFreshness.live,
+    );
   }
 
-  Future<List<ContributorEntity>> _fetchRepoContributors(String repo) async {
+  Future<DataResult<List<ContributorEntity>>> _fetchRepoContributors(
+    String repo,
+  ) async {
     try {
-      final response = await _dio.get<List<Object?>>(
-        ApiEndpointsConfig.githubRepoContributorsPath(repo),
+      final result = await _resources.getList(
+        url: ApiEndpointsConfig.githubRepoContributorsPath(repo),
         queryParameters: const {'per_page': 8},
-        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
-      final data = response.data;
-      if (data == null) {
-        throw const AppException(kind: AppExceptionKind.parse);
-      }
-      return data.map(_parseContributor).toList(growable: false);
-    } on DioException catch (e) {
-      throw GitHubApiSupport.toAppException(e, now: _now);
+      return result.map(
+        (data) => data.map(_parseContributor).toList(growable: false),
+      );
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {

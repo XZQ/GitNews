@@ -6,6 +6,7 @@ import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/github/github_resource_cache.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/discover_entities.dart';
@@ -15,16 +16,24 @@ import 'discover_seed.dart';
 /// 两个数据源均走「GitHub Search API → 本地缓存 → 种子」三级回退,
 /// 与监控/热榜一致的离线路优先策略。
 class DiscoverRepository {
-  const DiscoverRepository({
+  DiscoverRepository({
     required Dio dio,
     required JsonSnapshotCacheDao cache,
     String? token,
+    String cacheScope = 'anonymous',
     DateTime Function()? now,
     bool Function()? isRateLimited,
     void Function(int retryAfterSeconds)? onRateLimited,
   })  : _dio = dio,
         _cache = cache,
         _token = token,
+        _resources = GitHubResourceCache(
+          dio: dio,
+          cache: cache,
+          token: token,
+          cacheScope: cacheScope,
+          now: now,
+        ),
         _now = now ?? DateTime.now,
         _isRateLimited = isRateLimited,
         _onRateLimited = onRateLimited;
@@ -32,6 +41,7 @@ class DiscoverRepository {
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
   final String? _token;
+  final GitHubResourceCache _resources;
   final DateTime Function() _now;
   final bool Function()? _isRateLimited;
   final void Function(int retryAfterSeconds)? _onRateLimited;
@@ -243,16 +253,24 @@ class DiscoverRepository {
         }
       }
       try {
-        final profiles = <DiscoverProfileEntity>[];
+        final results = <DataResult<DiscoverProfileEntity>>[];
         for (final login in _profileLogins(kind)) {
-          profiles.add(await _fetchProfile(login, kind));
+          results.add(await _fetchProfile(login, kind));
         }
+        final profiles = [for (final result in results) result.data];
         await _cache.upsert(
           key: key,
           payload: _profilesToJson(profiles),
           now: now,
         );
-        return DataResult(data: profiles, freshness: DataFreshness.live);
+        return DataResult(
+          data: profiles,
+          freshness: results.every(
+            (result) => result.freshness == DataFreshness.freshCache,
+          )
+              ? DataFreshness.freshCache
+              : DataFreshness.live,
+        );
       } on DioException catch (e) {
         _report(GitHubApiSupport.toAppException(e, now: _now));
       } on AppException catch (e) {
@@ -326,19 +344,14 @@ class DiscoverRepository {
     return [for (final raw in items) _parseSearchRepo(GitHubJson.map(raw))];
   }
 
-  Future<DiscoverProfileEntity> _fetchProfile(
+  Future<DataResult<DiscoverProfileEntity>> _fetchProfile(
     String login,
     DiscoverProfileKind kind,
   ) async {
-    final response = await _dio.get<Map<String, Object?>>(
-      ApiEndpointsConfig.githubPublicUserPath(login),
-      options: Options(headers: GitHubApiSupport.headers(token: _token)),
+    final result = await _resources.getObject(
+      url: ApiEndpointsConfig.githubPublicUserPath(login),
     );
-    final data = response.data;
-    if (data == null) {
-      throw const AppException(kind: AppExceptionKind.parse);
-    }
-    return _profileFromJson(data, kind);
+    return result.map((data) => _profileFromJson(data, kind));
   }
 
   RepoEntity _parseSearchRepo(Map<String, Object?> json) {

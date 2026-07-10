@@ -21,6 +21,7 @@ final discoverRepositoryProvider = Provider<DiscoverRepository>((ref) {
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
     token: token,
+    cacheScope: ref.watch(githubTokenControllerProvider).cacheScope,
     isRateLimited: () => gate.isBlocked,
     onRateLimited: gateController.trigger,
   );

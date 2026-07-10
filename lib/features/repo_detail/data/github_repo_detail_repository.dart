@@ -6,6 +6,7 @@ import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/github/github_resource_cache.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
@@ -21,11 +22,12 @@ const Duration repoDetailRemoteCacheTtl = CacheTtlConfig.repoDetail;
 *基于 GitHub REST API 的仓库详情仓库。
 */
 class GithubRepoDetailRepository implements RepoDetailRepository {
-  const GithubRepoDetailRepository({
+  GithubRepoDetailRepository({
     required Dio dio,
     required JsonSnapshotCacheDao cache,
     RepoSnapshotHistoryDao? snapshotHistory,
     String? token,
+    String cacheScope = 'anonymous',
     DateTime Function()? now,
     RepoDetailRepository fallback = const LocalRepoDetailRepository(),
     bool Function()? isRateLimited,
@@ -34,6 +36,13 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
         _cache = cache,
         _snapshotHistory = snapshotHistory,
         _token = token,
+        _resources = GitHubResourceCache(
+          dio: dio,
+          cache: cache,
+          token: token,
+          cacheScope: cacheScope,
+          now: now,
+        ),
         _now = now ?? DateTime.now,
         _fallback = fallback,
         _isRateLimited = isRateLimited,
@@ -43,6 +52,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   final JsonSnapshotCacheDao _cache;
   final RepoSnapshotHistoryDao? _snapshotHistory;
   final String? _token;
+  final GitHubResourceCache _resources;
   final DateTime Function() _now;
   final RepoDetailRepository _fallback;
   final bool Function()? _isRateLimited;
@@ -170,17 +180,10 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
 
   Future<RepoEntity> _fetchRepo(String fullName, DateTime now) async {
     try {
-      final response = await _dio.get<Map<String, Object?>>(
-        ApiEndpointsConfig.githubRepoPath(fullName),
-        options: Options(headers: GitHubApiSupport.headers(token: _token)),
+      final result = await _resources.getObject(
+        url: ApiEndpointsConfig.githubRepoPath(fullName),
       );
-      final data = response.data;
-      if (data == null) {
-        throw const AppException(kind: AppExceptionKind.parse);
-      }
-      return _parseRepo(data, now);
-    } on DioException catch (e) {
-      throw GitHubApiSupport.toAppException(e, now: _now);
+      return _parseRepo(result.data, now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
@@ -190,18 +193,11 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
 
   Future<List<ContributorEntity>> _fetchContributors(String fullName) async {
     try {
-      final response = await _dio.get<List<Object?>>(
-        ApiEndpointsConfig.githubRepoContributorsPath(fullName),
+      final result = await _resources.getList(
+        url: ApiEndpointsConfig.githubRepoContributorsPath(fullName),
         queryParameters: const {'per_page': 12},
-        options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
-      final data = response.data;
-      if (data == null) {
-        throw const AppException(kind: AppExceptionKind.parse);
-      }
-      return data.map(_parseContributor).toList(growable: false);
-    } on DioException catch (e) {
-      throw GitHubApiSupport.toAppException(e, now: _now);
+      return result.data.map(_parseContributor).toList(growable: false);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
