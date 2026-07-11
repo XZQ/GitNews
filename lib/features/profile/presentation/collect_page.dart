@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/demo_data.dart';
-import '../../../core/demo_data_mappers.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/shared/local_content_controller.dart';
 import '../../../core/theme/app_spacing.dart';
@@ -41,13 +39,9 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final content = ref.watch(localContentControllerProvider);
-    final allRepos = [
-      ...DemoData.trending.map((e) => e.toEntity()),
-      ...DemoData.recent.map((e) => e.toEntity()),
-    ];
     final repos = [
-      for (final repo in allRepos)
-        if (content.isBookmarked(repo.fullName)) repo,
+      for (final id in content.bookmarkedRepos)
+        if (content.bookmarkedRepoSnapshots[id] case final snapshot?) snapshot.toEntity(),
     ];
     if (repos.isEmpty) {
       return const EmptyView(

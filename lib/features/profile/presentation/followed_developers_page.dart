@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/demo_data.dart';
 import '../../../core/shared/local_content_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -39,8 +38,8 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final content = ref.watch(localContentControllerProvider);
     final devs = [
-      for (final dev in DemoData.contributors)
-        if (content.isFollowingDeveloper(dev.login)) dev,
+      for (final id in content.followedDevelopers)
+        if (content.followedDeveloperSnapshots[id] case final snapshot?) snapshot.toEntity(),
     ];
     if (devs.isEmpty) {
       return const EmptyView(
@@ -72,19 +71,19 @@ class _Body extends ConsumerWidget {
                 ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Color(
-                      devs[i].avatarColor,
+                      devs[i].avatarAccentArgb,
                     ).withValues(alpha: 0.16),
                     child: Text(
                       devs[i].login[0].toUpperCase(),
                       style: AppTypography.titleSmall.copyWith(
-                        color: Color(devs[i].avatarColor),
+                        color: Color(devs[i].avatarAccentArgb),
                       ),
                     ),
                   ),
                   title: Text(devs[i].login, style: AppTypography.titleSmall),
                   subtitle: Text('+${devs[i].contributions} 本周贡献'),
                   trailing: OutlinedButton(
-                    onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(devs[i].login),
+                    onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(devs[i]),
                     child: const Text('取消关注'),
                   ),
                 ),

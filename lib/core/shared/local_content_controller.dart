@@ -1,8 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../demo_data.dart';
 import '../di/providers.dart';
+import '../domain/contributor_entity.dart';
+import '../domain/repo_entity.dart';
 import '../i18n/app_localizations.dart';
+import 'local_content_defaults.dart';
+import 'local_content_snapshots.dart';
 
 const int monitorRuleCount = 4;
 
@@ -20,6 +23,8 @@ class LocalContentState {
     required this.monitoredSkills,
     required this.followedDevelopers,
     required this.monitorRules,
+    required this.repoSnapshots,
+    required this.developerSnapshots,
     this.cachedUserName,
     this.cachedAvatarUrl,
   });
@@ -29,6 +34,8 @@ class LocalContentState {
   final Set<String> monitoredSkills;
   final Set<String> followedDevelopers;
   final List<bool> monitorRules;
+  final Map<String, SavedRepoSnapshot> repoSnapshots;
+  final Map<String, SavedDeveloperSnapshot> developerSnapshots;
   final String? cachedUserName;
   final String? cachedAvatarUrl;
 
@@ -42,12 +49,29 @@ class LocalContentState {
 
   bool isFollowingDeveloper(String login) => followedDevelopers.contains(login);
 
+  Map<String, SavedRepoSnapshot> get bookmarkedRepoSnapshots => {
+        for (final id in bookmarkedRepos)
+          if (repoSnapshots[id] case final snapshot?) id: snapshot,
+      };
+
+  Map<String, SavedRepoSnapshot> get monitoredRepoSnapshots => {
+        for (final id in monitoredRepos)
+          if (repoSnapshots[id] case final snapshot?) id: snapshot,
+      };
+
+  Map<String, SavedDeveloperSnapshot> get followedDeveloperSnapshots => {
+        for (final id in followedDevelopers)
+          if (developerSnapshots[id] case final snapshot?) id: snapshot,
+      };
+
   LocalContentState copyWith({
     Set<String>? bookmarkedRepos,
     Set<String>? monitoredRepos,
     Set<String>? monitoredSkills,
     Set<String>? followedDevelopers,
     List<bool>? monitorRules,
+    Map<String, SavedRepoSnapshot>? repoSnapshots,
+    Map<String, SavedDeveloperSnapshot>? developerSnapshots,
     String? cachedUserName,
     String? cachedAvatarUrl,
     bool clearCachedUser = false,
@@ -58,6 +82,8 @@ class LocalContentState {
       monitoredSkills: monitoredSkills ?? this.monitoredSkills,
       followedDevelopers: followedDevelopers ?? this.followedDevelopers,
       monitorRules: monitorRules ?? this.monitorRules,
+      repoSnapshots: repoSnapshots ?? this.repoSnapshots,
+      developerSnapshots: developerSnapshots ?? this.developerSnapshots,
       cachedUserName: clearCachedUser ? null : (cachedUserName ?? this.cachedUserName),
       cachedAvatarUrl: clearCachedUser ? null : (cachedAvatarUrl ?? this.cachedAvatarUrl),
     );
@@ -72,55 +98,89 @@ class LocalContentController extends Notifier<LocalContentState> {
   static const _rulesKey = 'local_content_monitor_rules';
   static const _userNameKey = 'local_content_cached_user_name';
   static const _userAvatarKey = 'local_content_cached_user_avatar';
+  static const _repoSnapshotsKey = 'local_content_repo_snapshots_v1';
+  static const _developerSnapshotsKey = 'local_content_developer_snapshots_v1';
 
   @override
   LocalContentState build() {
     final prefs = ref.read(sharedPreferencesProvider);
+    final bookmarks = _readSet(
+      prefs.getStringList(_bookmarksKey),
+      defaultBookmarkedRepos,
+    );
+    final monitors = _readSet(
+      prefs.getStringList(_monitorsKey),
+      defaultMonitoredRepos,
+    );
+    final developers = _readSet(
+      prefs.getStringList(_developersKey),
+      defaultFollowedDevelopers,
+    );
     return LocalContentState(
-      bookmarkedRepos: _readSet(
-        prefs.getStringList(_bookmarksKey),
-        _defaultBookmarkedRepos,
-      ),
-      monitoredRepos: _readSet(
-        prefs.getStringList(_monitorsKey),
-        _defaultMonitoredRepos,
-      ),
+      bookmarkedRepos: bookmarks,
+      monitoredRepos: monitors,
       monitoredSkills: _readSet(prefs.getStringList(_skillsKey), const []),
-      followedDevelopers: _readSet(
-        prefs.getStringList(_developersKey),
-        _defaultFollowedDevelopers,
-      ),
+      followedDevelopers: developers,
       monitorRules: _readRules(prefs.getStringList(_rulesKey)),
+      repoSnapshots: hydrateRepoSnapshots(
+        {...bookmarks, ...monitors},
+        decodeRepoSnapshots(prefs.getString(_repoSnapshotsKey)),
+      ),
+      developerSnapshots: hydrateDeveloperSnapshots(
+        developers,
+        decodeDeveloperSnapshots(prefs.getString(_developerSnapshotsKey)),
+      ),
       cachedUserName: prefs.getString(_userNameKey),
       cachedAvatarUrl: prefs.getString(_userAvatarKey),
     );
   }
 
-  Future<void> toggleBookmark(String fullName) async {
+  Future<void> toggleBookmark(RepoEntity repo) async {
+    final fullName = repo.fullName;
     final next = {...state.bookmarkedRepos};
-    if (!next.add(fullName)) {
+    final snapshots = {...state.repoSnapshots};
+    if (next.add(fullName)) {
+      snapshots[fullName] = SavedRepoSnapshot.fromEntity(repo, DateTime.now());
+    } else {
       next.remove(fullName);
+      if (!state.monitoredRepos.contains(fullName)) {
+        snapshots.remove(fullName);
+      }
     }
-    state = state.copyWith(bookmarkedRepos: next);
+    state = state.copyWith(bookmarkedRepos: next, repoSnapshots: snapshots);
     await _persistSet(_bookmarksKey, next);
+    await _persistRepoSnapshots(snapshots);
   }
 
   Future<void> removeBookmark(String fullName) async {
     final next = {...state.bookmarkedRepos}..remove(fullName);
-    state = state.copyWith(bookmarkedRepos: next);
+    final snapshots = {...state.repoSnapshots};
+    if (!state.monitoredRepos.contains(fullName)) {
+      snapshots.remove(fullName);
+    }
+    state = state.copyWith(bookmarkedRepos: next, repoSnapshots: snapshots);
     await _persistSet(_bookmarksKey, next);
+    await _persistRepoSnapshots(snapshots);
   }
 
-  Future<void> addMonitor(String fullName) async {
+  Future<void> addMonitor(RepoEntity repo) async {
+    final fullName = repo.fullName;
     final next = {...state.monitoredRepos, fullName};
-    state = state.copyWith(monitoredRepos: next);
+    final snapshots = {...state.repoSnapshots}..[fullName] = SavedRepoSnapshot.fromEntity(repo, DateTime.now());
+    state = state.copyWith(monitoredRepos: next, repoSnapshots: snapshots);
     await _persistSet(_monitorsKey, next);
+    await _persistRepoSnapshots(snapshots);
   }
 
   Future<void> removeMonitor(String fullName) async {
     final next = {...state.monitoredRepos}..remove(fullName);
-    state = state.copyWith(monitoredRepos: next);
+    final snapshots = {...state.repoSnapshots};
+    if (!state.bookmarkedRepos.contains(fullName)) {
+      snapshots.remove(fullName);
+    }
+    state = state.copyWith(monitoredRepos: next, repoSnapshots: snapshots);
     await _persistSet(_monitorsKey, next);
+    await _persistRepoSnapshots(snapshots);
   }
 
   Future<void> addMonitorSkill(String fullName) async {
@@ -144,13 +204,25 @@ class LocalContentController extends Notifier<LocalContentState> {
     await _persistSet(_skillsKey, next);
   }
 
-  Future<void> toggleDeveloper(String login) async {
+  Future<void> toggleDeveloper(ContributorEntity developer) async {
+    final login = developer.login;
     final next = {...state.followedDevelopers};
-    if (!next.add(login)) {
+    final snapshots = {...state.developerSnapshots};
+    if (next.add(login)) {
+      snapshots[login] = SavedDeveloperSnapshot.fromEntity(
+        developer,
+        DateTime.now(),
+      );
+    } else {
       next.remove(login);
+      snapshots.remove(login);
     }
-    state = state.copyWith(followedDevelopers: next);
+    state = state.copyWith(
+      followedDevelopers: next,
+      developerSnapshots: snapshots,
+    );
     await _persistSet(_developersKey, next);
+    await _persistDeveloperSnapshots(snapshots);
   }
 
   Future<void> setMonitorRule(int index, bool enabled) async {
@@ -198,21 +270,23 @@ class LocalContentController extends Notifier<LocalContentState> {
     final sorted = values.toList()..sort();
     return ref.read(sharedPreferencesProvider).setStringList(key, sorted);
   }
+
+  Future<void> _persistRepoSnapshots(
+    Map<String, SavedRepoSnapshot> snapshots,
+  ) {
+    return ref.read(sharedPreferencesProvider).setString(_repoSnapshotsKey, encodeRepoSnapshots(snapshots));
+  }
+
+  Future<void> _persistDeveloperSnapshots(
+    Map<String, SavedDeveloperSnapshot> snapshots,
+  ) {
+    return ref.read(sharedPreferencesProvider).setString(
+          _developerSnapshotsKey,
+          encodeDeveloperSnapshots(snapshots),
+        );
+  }
 }
 
 final localContentControllerProvider = NotifierProvider<LocalContentController, LocalContentState>(
   LocalContentController.new,
 );
-
-final List<String> _defaultBookmarkedRepos = [
-  for (final repo in DemoData.trending.take(4)) repo.fullName,
-];
-
-final List<String> _defaultMonitoredRepos = [
-  for (final repo in DemoData.trending.take(4)) repo.fullName,
-  for (final repo in DemoData.recent) repo.fullName,
-];
-
-final List<String> _defaultFollowedDevelopers = {
-  for (final contributor in DemoData.contributors) contributor.login,
-}.toList();

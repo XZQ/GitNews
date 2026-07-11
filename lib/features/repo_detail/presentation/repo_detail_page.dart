@@ -31,6 +31,7 @@ class RepoDetailPage extends ConsumerWidget {
     final state = ref.watch(repoDetailResultProvider(fullName));
     final content = ref.watch(localContentControllerProvider);
     final decodedFullName = Uri.decodeComponent(fullName);
+    final actionRepo = state.asData?.value.data.repo;
     return Scaffold(
       appBar: AppBar(
         title: state.maybeWhen(
@@ -48,19 +49,21 @@ class RepoDetailPage extends ConsumerWidget {
             tooltip: l10n.tr(
               content.isBookmarked(decodedFullName) ? 'a11y.bookmark_remove' : 'a11y.bookmark_add',
             ),
-            onPressed: () => ref.read(localContentControllerProvider.notifier).toggleBookmark(decodedFullName),
+            onPressed: actionRepo == null ? null : () => ref.read(localContentControllerProvider.notifier).toggleBookmark(actionRepo),
           ),
           IconButton(
             icon: Icon(
               content.isMonitored(decodedFullName) ? Icons.notifications_active : Icons.notifications_none,
             ),
             tooltip: l10n.tr('repo_detail.subscribe'),
-            onPressed: () {
-              ref.read(localContentControllerProvider.notifier).addMonitor(decodedFullName);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('已加入监控: $decodedFullName')),
-              );
-            },
+            onPressed: actionRepo == null
+                ? null
+                : () {
+                    ref.read(localContentControllerProvider.notifier).addMonitor(actionRepo);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('已加入监控: $decodedFullName')),
+                    );
+                  },
           ),
         ],
       ),

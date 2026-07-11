@@ -63,7 +63,7 @@ class DiscoverMonitorRow extends ConsumerWidget {
               if (monitored) {
                 await controller.removeMonitor(repo.fullName);
               } else {
-                await controller.addMonitor(repo.fullName);
+                await controller.addMonitor(repo);
               }
             },
             constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
@@ -162,7 +162,7 @@ class DiscoverMonitorRow extends ConsumerWidget {
                   if (monitored) {
                     await controller.removeMonitor(repo.fullName);
                   } else {
-                    await controller.addMonitor(repo.fullName);
+                    await controller.addMonitor(repo);
                   }
                 },
                 constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
