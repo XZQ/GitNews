@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/shared/local_content_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -15,9 +16,10 @@ class FollowedDevelopersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('关注的开发者'),
+        title: Text(l10n.tr('profile.collection.developers.title')),
         leading: BackButton(
           onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
@@ -36,15 +38,16 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final content = ref.watch(localContentControllerProvider);
     final devs = [
       for (final id in content.followedDevelopers)
         if (content.followedDeveloperSnapshots[id] case final snapshot?) snapshot.toEntity(),
     ];
     if (devs.isEmpty) {
-      return const EmptyView(
+      return EmptyView(
         icon: Icons.person_add_outlined,
-        message: '还没有关注的开发者',
+        message: l10n.tr('profile.collection.developers.empty'),
       );
     }
     return ListView(
@@ -62,29 +65,45 @@ class _Body extends ConsumerWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '关注的开发者',
-                  subtitle: '共 ${devs.length} 位',
+                  title: l10n.tr('profile.collection.developers.title'),
+                  subtitle: l10n.tr('profile.collection.developers.count').replaceAll('{n}', '${devs.length}'),
                 ),
               ),
               for (var i = 0; i < devs.length; i++) ...[
                 if (i != 0) const Divider(height: 1),
                 ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: Color(
-                      devs[i].avatarAccentArgb,
-                    ).withValues(alpha: 0.16),
-                    child: Text(
-                      devs[i].login[0].toUpperCase(),
-                      style: AppTypography.titleSmall.copyWith(
-                        color: Color(devs[i].avatarAccentArgb),
+                  leading: Semantics(
+                    image: true,
+                    label: l10n.tr('a11y.developer_avatar').replaceAll('{name}', devs[i].login),
+                    child: ExcludeSemantics(
+                      child: CircleAvatar(
+                        backgroundColor: Color(
+                          devs[i].avatarAccentArgb,
+                        ).withValues(alpha: 0.16),
+                        child: Text(
+                          devs[i].login[0].toUpperCase(),
+                          style: AppTypography.titleSmall.copyWith(
+                            color: Color(devs[i].avatarAccentArgb),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   title: Text(devs[i].login, style: AppTypography.titleSmall),
-                  subtitle: Text('+${devs[i].contributions} 本周贡献'),
-                  trailing: OutlinedButton(
-                    onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(devs[i]),
-                    child: const Text('取消关注'),
+                  subtitle: Text(
+                    l10n.tr('profile.collection.developers.contribution').replaceAll('{n}', '${devs[i].contributions}'),
+                  ),
+                  trailing: Semantics(
+                    button: true,
+                    label: l10n.tr('a11y.developer_unfollow').replaceAll('{name}', devs[i].login),
+                    child: OutlinedButton(
+                      onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(devs[i]),
+                      child: Text(
+                        l10n.tr(
+                          'profile.collection.developers.unfollow',
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],

@@ -68,7 +68,7 @@ class RepoDetailTopicsCard extends ConsumerWidget {
                 ActionChip(
                   avatar: const Icon(Icons.search_rounded, size: 16),
                   label: Text(topic),
-                  tooltip: '搜索 $topic 项目',
+                  tooltip: l10n.tr('repo_detail.topic.search').replaceAll('{topic}', topic),
                   onPressed: () {
                     ref.read(projectSearchQueryProvider.notifier).state = topic;
                     context.go('/project');

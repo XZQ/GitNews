@@ -61,7 +61,11 @@ class RepoDetailPage extends ConsumerWidget {
                 : () {
                     ref.read(localContentControllerProvider.notifier).addMonitor(actionRepo);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('已加入监控: $decodedFullName')),
+                      SnackBar(
+                        content: Text(
+                          l10n.tr('repo_detail.subscribed').replaceAll('{name}', decodedFullName),
+                        ),
+                      ),
                     );
                   },
           ),

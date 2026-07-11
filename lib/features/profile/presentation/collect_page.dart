@@ -16,9 +16,10 @@ class CollectPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('收藏的主题'),
+        title: Text(l10n.tr('profile.collection.starred.title')),
         leading: BackButton(
           onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
@@ -44,9 +45,9 @@ class _Body extends ConsumerWidget {
         if (content.bookmarkedRepoSnapshots[id] case final snapshot?) snapshot.toEntity(),
     ];
     if (repos.isEmpty) {
-      return const EmptyView(
+      return EmptyView(
         icon: Icons.bookmark_border_rounded,
-        message: '还没有收藏的主题',
+        message: l10n.tr('profile.collection.starred.empty'),
       );
     }
     return ListView(
@@ -64,8 +65,8 @@ class _Body extends ConsumerWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '收藏的主题',
-                  subtitle: '共 ${repos.length} 个',
+                  title: l10n.tr('profile.collection.starred.title'),
+                  subtitle: l10n.tr('profile.collection.starred.count').replaceAll('{n}', '${repos.length}'),
                 ),
               ),
               for (var i = 0; i < repos.length; i++) ...[
@@ -80,10 +81,16 @@ class _Body extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    IconButton(
-                      tooltip: l10n.tr('a11y.bookmark_remove'),
-                      icon: const Icon(Icons.bookmark_remove_outlined),
-                      onPressed: () => ref.read(localContentControllerProvider.notifier).removeBookmark(repos[i].fullName),
+                    Semantics(
+                      container: true,
+                      button: true,
+                      label: l10n.tr('a11y.bookmark_remove'),
+                      excludeSemantics: true,
+                      child: IconButton(
+                        tooltip: l10n.tr('a11y.bookmark_remove'),
+                        icon: const Icon(Icons.bookmark_remove_outlined),
+                        onPressed: () => ref.read(localContentControllerProvider.notifier).removeBookmark(repos[i].fullName),
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                   ],

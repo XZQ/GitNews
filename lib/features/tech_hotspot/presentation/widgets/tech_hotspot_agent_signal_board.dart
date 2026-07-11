@@ -62,9 +62,9 @@ class TechHotspotAgentSignalBoard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           if (signals.isEmpty)
-            const EmptyView(
+            EmptyView(
               icon: Icons.search_off_rounded,
-              message: '没有匹配的 Agent 信号',
+              message: l10n.tr('tech_hotspot.empty.agent_signals'),
             )
           else if (formFactor == FormFactor.expanded)
             Row(

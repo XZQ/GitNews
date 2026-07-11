@@ -62,6 +62,7 @@ Future<void> _showCategoryFilterSheet(
 ) async {
   final categories = _categoryOptions(
     ref.read(techHotspotDigestProvider).valueOrNull,
+    AppLocalizations.of(context),
   );
   await showModalBottomSheet<void>(
     context: context,
@@ -78,7 +79,12 @@ Future<void> _showCategoryFilterSheet(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('筛选分类', style: AppTypography.titleMedium),
+                  Text(
+                    AppLocalizations.of(context).tr(
+                      'tech_hotspot.filter.title',
+                    ),
+                    style: AppTypography.titleMedium,
+                  ),
                   const SizedBox(height: AppSpacing.md),
                   Wrap(
                     spacing: AppSpacing.sm,
@@ -109,7 +115,10 @@ Future<void> _showCategoryFilterSheet(
   );
 }
 
-List<_CategoryOption> _categoryOptions(TechHotspotDigest? digest) {
+List<_CategoryOption> _categoryOptions(
+  TechHotspotDigest? digest,
+  AppLocalizations l10n,
+) {
   final values = <String>{'all'};
   if (digest != null) {
     for (final topic in digest.topics) {
@@ -120,7 +129,11 @@ List<_CategoryOption> _categoryOptions(TechHotspotDigest? digest) {
   }
 
   return [
-    for (final value in values) _CategoryOption(value: value, label: value == 'all' ? '全部' : value),
+    for (final value in values)
+      _CategoryOption(
+        value: value,
+        label: value == 'all' ? l10n.tr('tech_hotspot.filter.all') : value,
+      ),
   ];
 }
 

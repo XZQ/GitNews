@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/empty_view.dart';
@@ -136,9 +137,11 @@ class _TopicGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (topics.isEmpty) {
-      return const EmptyView(
+      return EmptyView(
         icon: Icons.search_off_rounded,
-        message: '没有匹配的雷达主题',
+        message: AppLocalizations.of(context).tr(
+          'tech_hotspot.empty.topics',
+        ),
       );
     }
 

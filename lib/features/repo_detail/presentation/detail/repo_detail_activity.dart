@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../core/domain/repo_activity_event.dart';
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/i18n/relative_time_formatter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -60,29 +61,40 @@ class _ActivityTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final visual = _visualFor(context, activity.type);
     final actor = activity.actorLogin.isEmpty ? '' : '@${activity.actorLogin} · ';
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      onTap: activity.htmlUrl == null ? null : () => _open(activity.htmlUrl!),
-      leading: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: visual.color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(AppRadius.sm),
+    final time = formatRelativeTime(l10n, activity.occurredAt);
+    final key = activity.htmlUrl == null ? 'a11y.activity_item' : 'a11y.activity_open';
+    final label = l10n.tr(key).replaceAll('{repo}', activity.repoFullName).replaceAll('{title}', activity.title).replaceAll('{time}', time);
+    return Semantics(
+      container: true,
+      button: activity.htmlUrl != null,
+      label: label,
+      child: ExcludeSemantics(
+        child: ListTile(
+          contentPadding: EdgeInsets.zero,
+          onTap: activity.htmlUrl == null ? null : () => _open(activity.htmlUrl!),
+          leading: Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: visual.color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+            child: Icon(visual.icon, color: visual.color, size: 18),
+          ),
+          title: Text(
+            activity.title,
+            style: AppTypography.titleSmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            '$actor$time',
+            style: AppTypography.labelSmall,
+          ),
         ),
-        child: Icon(visual.icon, color: visual.color, size: 18),
-      ),
-      title: Text(
-        activity.title,
-        style: AppTypography.titleSmall,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(
-        '$actor${activity.occurredAt.toLocal()}',
-        style: AppTypography.labelSmall,
       ),
     );
   }

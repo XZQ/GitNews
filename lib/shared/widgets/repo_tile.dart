@@ -74,23 +74,29 @@ class RepoTile extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xs2),
-                  Row(
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: [
                       _Pill(text: repo.language, color: accent),
-                      const SizedBox(width: AppSpacing.sm),
-                      Icon(
-                        Icons.star_rounded,
-                        size: 12,
-                        color: colors.tertiary,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.star_rounded,
+                            size: 12,
+                            color: colors.tertiary,
+                          ),
+                          const SizedBox(width: AppSpacing.xxs),
+                          Text(
+                            _shortNumber(repo.starCount),
+                            style: AppTypography.labelSmall.copyWith(
+                              color: colors.onSurface,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: AppSpacing.xxs),
-                      Text(
-                        _shortNumber(repo.starCount),
-                        style: AppTypography.labelSmall.copyWith(
-                          color: colors.onSurface,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
                       Text(
                         '+${_shortNumber(repo.starDelta)}',
                         style: AppTypography.labelSmall.copyWith(
@@ -98,7 +104,6 @@ class RepoTile extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.sm),
                       MetricBasisBadge(basis: repo.trendBasis),
                     ],
                   ),

@@ -17,9 +17,10 @@ class MonitorTopicsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('监控的主题'),
+        title: Text(l10n.tr('profile.collection.monitored.title')),
         leading: BackButton(
           onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
@@ -45,9 +46,9 @@ class _Body extends ConsumerWidget {
         if (content.monitoredRepoSnapshots[id] case final snapshot?) snapshot.toEntity(),
     ];
     if (repos.isEmpty) {
-      return const EmptyView(
+      return EmptyView(
         icon: Icons.visibility_off_outlined,
-        message: '还没有监控的仓库',
+        message: l10n.tr('profile.collection.monitored.empty'),
       );
     }
     return ListView(
@@ -65,8 +66,8 @@ class _Body extends ConsumerWidget {
                   AppSpacing.xs,
                 ),
                 child: SectionHeader(
-                  title: '正在监控',
-                  subtitle: '共 ${repos.length} 个仓库',
+                  title: l10n.tr('profile.collection.monitored.section'),
+                  subtitle: l10n.tr('profile.collection.monitored.count').replaceAll('{n}', '${repos.length}'),
                 ),
               ),
               for (var i = 0; i < repos.length; i++) ...[
@@ -81,10 +82,16 @@ class _Body extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    IconButton(
-                      tooltip: l10n.tr('a11y.monitor_remove'),
-                      icon: const Icon(Icons.notifications_off_outlined),
-                      onPressed: () => ref.read(localContentControllerProvider.notifier).removeMonitor(repos[i].fullName),
+                    Semantics(
+                      container: true,
+                      button: true,
+                      label: l10n.tr('a11y.monitor_remove'),
+                      excludeSemantics: true,
+                      child: IconButton(
+                        tooltip: l10n.tr('a11y.monitor_remove'),
+                        icon: const Icon(Icons.notifications_off_outlined),
+                        onPressed: () => ref.read(localContentControllerProvider.notifier).removeMonitor(repos[i].fullName),
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                   ],

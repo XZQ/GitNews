@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/domain/repo_activity_event.dart';
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/i18n/relative_time_formatter.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -67,56 +68,71 @@ class _EventTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final visual = _visualFor(context, activity.type);
     final actor = activity.actorLogin.isEmpty ? '' : '@${activity.actorLogin} · ';
-    return InkWell(
-      onTap: () => context.go(
-        '/project/detail/${Uri.encodeComponent(activity.repoFullName)}',
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(
-                color: visual.color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(AppRadius.sm),
-              ),
-              child: Icon(visual.icon, color: visual.color, size: 18),
+    final time = formatRelativeTime(l10n, activity.occurredAt);
+    final semanticsLabel = l10n.tr('a11y.activity_open').replaceAll('{repo}', activity.repoFullName).replaceAll('{title}', activity.title);
+    return Semantics(
+      container: true,
+      button: true,
+      label: semanticsLabel,
+      child: ExcludeSemantics(
+        child: InkWell(
+          onTap: () => context.go(
+            '/project/detail/${Uri.encodeComponent(activity.repoFullName)}',
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
             ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    activity.repoFullName,
-                    style: AppTypography.titleSmall,
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: visual.color.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
-                  Text(
-                    activity.title,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  child: Icon(visual.icon, color: visual.color, size: 18),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        activity.repoFullName,
+                        style: AppTypography.titleSmall,
+                      ),
+                      Text(
+                        activity.title,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '$actor$time',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(width: AppSpacing.md),
-            Text(
-              '$actor${activity.occurredAt.toLocal()}',
-              style: AppTypography.labelSmall.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

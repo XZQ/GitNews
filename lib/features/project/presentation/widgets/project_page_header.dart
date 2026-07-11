@@ -48,6 +48,10 @@ class ProjectPageHeader extends ConsumerWidget {
 }
 
 Future<void> _exportReport(BuildContext context, WidgetRef ref) async {
+  final l10n = AppLocalizations.of(context);
+  final copy = ProjectReportCopy.fromLocalizations(l10n);
+  final exportedMessage = l10n.tr('project.exported');
+  final failedMessage = l10n.tr('project.export_failed');
   final messenger = ScaffoldMessenger.of(context);
   try {
     final digest = await ref.read(filteredProjectDigestProvider.future);
@@ -56,9 +60,16 @@ Future<void> _exportReport(BuildContext context, WidgetRef ref) async {
       digest: digest,
       outputDirectory: directory,
       generatedAt: DateTime.now(),
+      copy: copy,
     );
-    messenger.showSnackBar(SnackBar(content: Text('报告已导出: ${file.path}')));
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(exportedMessage.replaceAll('{path}', file.path)),
+      ),
+    );
   } catch (_) {
-    messenger.showSnackBar(const SnackBar(content: Text('报告导出失败,请稍后重试')));
+    messenger.showSnackBar(
+      SnackBar(content: Text(failedMessage)),
+    );
   }
 }

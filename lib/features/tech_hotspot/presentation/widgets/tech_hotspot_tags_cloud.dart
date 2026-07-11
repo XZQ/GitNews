@@ -40,7 +40,10 @@ class TechHotspotTagsCloud extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           if (tags.isEmpty)
-            const EmptyView(icon: Icons.sell_outlined, message: '没有匹配的雷达标签')
+            EmptyView(
+              icon: Icons.sell_outlined,
+              message: l10n.tr('tech_hotspot.empty.tags'),
+            )
           else
             Wrap(
               spacing: AppSpacing.sm,

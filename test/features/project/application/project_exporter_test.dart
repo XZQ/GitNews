@@ -39,11 +39,30 @@ void main() {
         activities: const [],
       ),
       generatedAt: DateTime.utc(2026, 7, 4, 12),
+      copy: ProjectReportCopy.zhCN,
     );
 
     expect(markdown, contains('# GitHub 情报站深度报告'));
     expect(markdown, contains('openai/codex'));
     expect(markdown, contains('@maintainer'));
+  });
+
+  test('English report contains no Chinese headings or field labels', () {
+    final markdown = formatProjectDigestMarkdown(
+      ProjectDigest(
+        repos: [_repo('openai/codex')],
+        contributors: [_contributor('maintainer')],
+        primaryTrend: const [],
+        secondaryTrend: const [],
+        activities: const [],
+      ),
+      generatedAt: DateTime.utc(2026, 7, 4, 12),
+      copy: ProjectReportCopy.enUS,
+    );
+
+    expect(markdown, contains('# GitHub Intelligence Report'));
+    expect(markdown, contains('## Popular repositories'));
+    expect(markdown, isNot(matches(RegExp(r'[\u4e00-\u9fff]'))));
   });
 
   test('writeProjectDigestMarkdown should write report file', () async {
@@ -60,6 +79,7 @@ void main() {
       ),
       outputDirectory: temp,
       generatedAt: DateTime.utc(2026, 7, 4, 12, 30, 5),
+      copy: ProjectReportCopy.enUS,
     );
 
     expect(file.path, contains('report_20260704_123005.md'));
