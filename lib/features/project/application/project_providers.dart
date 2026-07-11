@@ -48,6 +48,7 @@ ProjectDigest filterProjectDigest(ProjectDigest digest, String query) {
     contributors: filterProjectContributors(digest.contributors, keyword),
     primaryTrend: digest.primaryTrend,
     secondaryTrend: digest.secondaryTrend,
+    activities: digest.activities,
   );
 }
 

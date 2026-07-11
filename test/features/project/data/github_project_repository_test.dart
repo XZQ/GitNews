@@ -71,18 +71,21 @@ void main() {
         queryParameters: any(named: 'queryParameters'),
         options: any(named: 'options'),
       ),
-    ).thenAnswer(
-      (_) async => Response<Object?>(
-        requestOptions: RequestOptions(path: '/contributors'),
+    ).thenAnswer((invocation) async {
+      final path = invocation.positionalArguments.first as String;
+      return Response<Object?>(
+        requestOptions: RequestOptions(path: path),
         statusCode: 200,
-        data: [
-          {
-            'login': 'fresh-for-b',
-            'contributions': 7,
-          },
-        ],
-      ),
-    );
+        data: path.endsWith('/events')
+            ? <Object?>[]
+            : <Object?>[
+                {
+                  'login': 'fresh-for-b',
+                  'contributions': 7,
+                },
+              ],
+      );
+    });
     final repository = GithubProjectRepository(
       repositoryFeed: const _FakeRepositoryFeed([_repoB]),
       dio: dio,
@@ -110,7 +113,124 @@ void main() {
       ),
     ).called(1);
   });
+
+  test('merges repository events by time and caps the activity feed', () async {
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((invocation) async {
+      final path = invocation.positionalArguments.first as String;
+      final data = path.endsWith('/contributors')
+          ? <Object?>[]
+          : path.endsWith('/events')
+              ? List<Object?>.generate(
+                  20,
+                  (index) => _activityPayload(
+                    repo: path.contains('/a/one/') ? 'a/one' : 'b/two',
+                    hour: path.contains('/a/one/') ? index : index + 20,
+                  ),
+                )
+              : throw StateError('Unexpected request: $path');
+      return Response<Object?>(
+        requestOptions: RequestOptions(path: path),
+        statusCode: 200,
+        data: data,
+      );
+    });
+    final repository = GithubProjectRepository(
+      repositoryFeed: const _FakeRepositoryFeed([_repoA, _repoB]),
+      dio: dio,
+      cache: cache,
+      now: () => now,
+    );
+
+    final result = await repository.getDigest();
+
+    expect(result.data.activities, hasLength(30));
+    expect(
+      result.data.activities.first.occurredAt.isAfter(
+        result.data.activities.last.occurredAt,
+      ),
+      isTrue,
+    );
+    expect(
+      result.data.activities.map((event) => event.repoFullName).toSet(),
+      containsAll({'a/one', 'b/two'}),
+    );
+  });
+
+  test('uses stale aggregated activities while GitHub is rate limited', () async {
+    final key = projectActivitiesCacheKey(
+      repos: const ['b/two'],
+      cacheScope: 'anonymous',
+    );
+    await cache.upsert(
+      key: key,
+      payload: {
+        'activities': [
+          {
+            'repoFullName': 'b/two',
+            'type': 'release',
+            'title': 'published: cached release',
+            'actorLogin': 'octocat',
+            'occurredAt': '2026-07-10T10:00:00.000Z',
+            'htmlUrl': null,
+            'basis': 'observed',
+          },
+        ],
+      },
+      now: now.subtract(const Duration(hours: 2)),
+    );
+    final repository = GithubProjectRepository(
+      repositoryFeed: const _FakeRepositoryFeed([_repoB]),
+      dio: dio,
+      cache: cache,
+      now: () => now,
+      isRateLimited: () => true,
+    );
+
+    final result = await repository.getDigest();
+
+    expect(result.data.activities.single.title, 'published: cached release');
+    verifyNever(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    );
+  });
 }
+
+Map<String, Object?> _activityPayload({
+  required String repo,
+  required int hour,
+}) {
+  return {
+    'type': 'PushEvent',
+    'actor': {'login': 'octocat'},
+    'repo': {'name': repo},
+    'created_at': DateTime.utc(2026, 7, 9).add(Duration(hours: hour)).toIso8601String(),
+    'payload': {
+      'commits': [
+        {'sha': 'sha-$hour', 'message': 'event-$hour'},
+      ],
+    },
+  };
+}
+
+const _repoA = RepoEntity(
+  fullName: 'a/one',
+  description: 'Repository A',
+  language: 'Dart',
+  starCount: 10,
+  starDelta: 1,
+  forkCount: 2,
+  accentArgb: 0xFF00A389,
+);
 
 const _repoB = RepoEntity(
   fullName: 'b/two',

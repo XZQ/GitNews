@@ -41,4 +41,29 @@ void main() {
     );
     expect(anonymous, startsWith('project:github:contributors:v2:'));
   });
+
+  test('activities cache key is ordered, scoped, and independent', () {
+    final first = projectActivitiesCacheKey(
+      repos: ['b/two', 'a/one'],
+      cacheScope: 'anonymous',
+    );
+
+    expect(
+      first,
+      projectActivitiesCacheKey(
+        repos: ['a/one', 'b/two'],
+        cacheScope: 'anonymous',
+      ),
+    );
+    expect(
+      first,
+      isNot(
+        projectActivitiesCacheKey(
+          repos: ['a/one', 'b/two'],
+          cacheScope: 'token_abcd',
+        ),
+      ),
+    );
+    expect(first, startsWith('project:github:activities:v1:'));
+  });
 }

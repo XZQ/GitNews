@@ -42,6 +42,7 @@ void main() {
           contributors: const [],
           primaryTrend: const [],
           secondaryTrend: const [],
+          activities: const [],
         ),
       ),
     );
@@ -105,6 +106,7 @@ void main() {
             ],
             primaryTrend: const [],
             secondaryTrend: const [],
+            activities: const [],
           ),
         ),
       );

@@ -76,7 +76,7 @@ class _DigestView extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: [
-        const ActivityEventsCard(),
+        ActivityEventsCard(activities: digest.activities),
         const SizedBox(height: AppSpacing.lg),
         ActivityContributorsCard(contributors: digest.contributors),
       ],

@@ -1,5 +1,6 @@
 import '../../../core/domain/contributor_entity.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/domain/repo_entity.dart';
 
 export '../../../core/domain/contributor_entity.dart' show ContributorEntity;
@@ -14,14 +15,16 @@ class ProjectDigest {
     required this.contributors,
     required this.primaryTrend,
     required this.secondaryTrend,
+    required this.activities,
   });
 
   final List<RepoEntity> repos;
   final List<ContributorEntity> contributors;
   final List<double> primaryTrend;
   final List<double> secondaryTrend;
+  final List<RepoActivityEvent> activities;
 
-  bool get isEmpty => repos.isEmpty && contributors.isEmpty;
+  bool get isEmpty => repos.isEmpty && contributors.isEmpty && activities.isEmpty;
 }
 
 /* 

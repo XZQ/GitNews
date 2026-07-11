@@ -36,6 +36,7 @@ void main() {
         ],
         primaryTrend: const [],
         secondaryTrend: const [],
+        activities: const [],
       ),
       generatedAt: DateTime.utc(2026, 7, 4, 12),
     );
@@ -55,6 +56,7 @@ void main() {
         contributors: const [],
         primaryTrend: const [],
         secondaryTrend: const [],
+        activities: const [],
       ),
       outputDirectory: temp,
       generatedAt: DateTime.utc(2026, 7, 4, 12, 30, 5),

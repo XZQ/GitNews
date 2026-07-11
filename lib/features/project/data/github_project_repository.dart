@@ -5,6 +5,7 @@ import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/domain/repository_feed.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -13,6 +14,7 @@ import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/project_repository.dart';
+import 'github_project_activity_loader.dart';
 import 'project_cache_keys.dart';
 
 const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
@@ -56,7 +58,19 @@ class GithubProjectRepository implements ProjectRepository {
   Future<DataResult<ProjectDigest>> getDigest() async {
     final feedResult = await _repositoryFeed.load();
     final feed = feedResult.data;
-    final contributorResult = await _contributorsFor(feed);
+    final parts = await Future.wait<dynamic>([
+      _contributorsFor(feed),
+      GithubProjectActivityLoader(
+        cache: _cache,
+        resources: _resources,
+        cacheScope: _cacheScope,
+        now: _now,
+        isRateLimited: _isRateLimited,
+        onRateLimited: _onRateLimited,
+      ).load(feed),
+    ]);
+    final contributorResult = parts[0] as DataResult<List<ContributorEntity>>;
+    final activities = parts[1] as List<RepoActivityEvent>;
     return DataResult(
       freshness: _leastFresh(
         feedResult.freshness,
@@ -67,6 +81,7 @@ class GithubProjectRepository implements ProjectRepository {
         contributors: contributorResult.data,
         primaryTrend: feed.primaryTrend,
         secondaryTrend: feed.secondaryTrend,
+        activities: activities,
       ),
     );
   }

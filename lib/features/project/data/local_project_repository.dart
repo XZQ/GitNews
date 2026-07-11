@@ -22,6 +22,7 @@ class LocalProjectRepository implements ProjectRepository {
         contributors: DemoData.contributors.map((e) => e.toEntity()).toList(growable: false),
         primaryTrend: feed.primaryTrend,
         secondaryTrend: feed.secondaryTrend,
+        activities: const [],
       ),
     );
   }
