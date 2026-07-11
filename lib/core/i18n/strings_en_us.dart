@@ -2,6 +2,14 @@
 // 与 [stringsZhCN] 一一对应。任何 zh 表新增的 key 都必须在此处补译文,
 // 否则 `AppLocalizations.tr` 会回落到 key 本身。
 const Map<String, String> stringsEnUS = <String, String>{
+  // bootstrap
+  'bootstrap.loading': 'Preparing local data',
+  'bootstrap.failure.title': 'Local data initialization failed',
+  'bootstrap.failure.message': 'The app did not delete or rebuild your data. Retry, or open the data directory to check file locks and permissions.',
+  'bootstrap.retry': 'Retry',
+  'bootstrap.open_data_directory': 'Open data directory',
+  'bootstrap.open_failed': 'Could not open the data directory',
+
   // app
   'app.name': 'GitHub News',
   'app.language': 'Language',

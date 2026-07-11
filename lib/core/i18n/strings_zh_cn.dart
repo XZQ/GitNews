@@ -1,6 +1,14 @@
 // 中文(zh-CN)字符串表。
 // 按 feature/页面分组组织。新加 key 时遵循 `<分组>.<语义>` 命名。
 const Map<String, String> stringsZhCN = <String, String>{
+  // bootstrap
+  'bootstrap.loading': '正在准备本地数据',
+  'bootstrap.failure.title': '本地数据初始化失败',
+  'bootstrap.failure.message': '应用没有删除或重建你的数据。请重试，或打开数据目录检查文件占用和权限。',
+  'bootstrap.retry': '重试',
+  'bootstrap.open_data_directory': '打开数据目录',
+  'bootstrap.open_failed': '无法打开数据目录',
+
   // app
   'app.name': 'GitHub 情报站',
   'app.language': '语言',
