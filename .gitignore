@@ -59,7 +59,6 @@ app.*.map.json
 .codegraph/
 .claude/worktrees/
 .worktrees/
-.github/workflows/
 .workbuddy/memory/
 
 # Golden test failure artifacts (auto-generated)

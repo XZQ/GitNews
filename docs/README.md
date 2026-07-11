@@ -15,6 +15,8 @@
 ## 常用文档
 
 - [当前产品、数据与系统边界](plans/product_ia_data_plan.md)
+- [1.3.0 产品可信度加固设计](superpowers/specs/2026-07-11-product-trust-hardening-design.md)
+- [1.3.0 产品可信度加固实施计划](superpowers/plans/2026-07-11-product-trust-hardening-implementation.md)
 - [运行与发布指南](../RUN.md)
 - [版本变更记录](../CHANGELOG.md)
 - [第二阶段实施计划（历史）](plans/phase2_plan.md)

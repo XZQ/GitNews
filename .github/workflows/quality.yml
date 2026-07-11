@@ -1,0 +1,48 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze
+      - run: flutter test --coverage
+
+  windows-release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build windows --release
+      - name: Smoke-test Windows release
+        shell: powershell
+        run: >-
+          ./tools/windows_release_smoke.ps1
+          -ReleaseDir build/windows/x64/runner/Release
+          -TimeoutSeconds 15
+      - name: Upload smoke diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-release-smoke-diagnostics
+          path: |
+            build/windows/x64/runner/Release/
+            build/windows/x64/runner/Release/smoke-test.log
+          if-no-files-found: warn

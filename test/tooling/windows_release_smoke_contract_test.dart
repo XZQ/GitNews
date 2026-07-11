@@ -1,0 +1,24 @@
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Windows smoke script validates artifacts and a visible window', () {
+    final script = File('tools/windows_release_smoke.ps1').readAsStringSync();
+
+    expect(script, contains('github_news.exe'));
+    expect(script, contains('flutter_windows.dll'));
+    expect(script, contains('data\\app.so'));
+    expect(script, contains('data\\flutter_assets'));
+    expect(script, contains('MainWindowHandle'));
+    expect(script, contains('TimeoutSeconds'));
+  });
+
+  test('quality workflow runs Linux coverage and Windows smoke gates', () {
+    final workflow = File('.github/workflows/quality.yml').readAsStringSync();
+
+    expect(workflow, contains('flutter test --coverage'));
+    expect(workflow, contains('flutter build windows --release'));
+    expect(workflow, contains('windows_release_smoke.ps1'));
+  });
+}

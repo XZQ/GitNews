@@ -1,7 +1,7 @@
 # GitHub 情报站：产品、数据与系统边界
 
-更新时间：2026-07-10  
-对应版本：`1.2.0+2`
+更新时间：2026-07-11  
+对应版本：`1.3.0+3`
 
 ## 1. 第一性原理
 
@@ -44,8 +44,8 @@
 | AI 雷达 | GitHub Search | 主题每日快照 | 过期缓存 / 种子 |
 | 发现 | GitHub Search、Skills 排行源 | JSON 快照 | 过期缓存 / 种子 |
 | 仓库监控 | Repository、Contributors | 每日观测、告警事件 | 过期缓存 / 本地历史 |
-| 仓库详情 | Repository、Search、Contributors | 单资源 ETag 与详情快照 | 过期缓存 / 种子 |
-| 深度报告 | RepositoryFeed、Contributors | 聚合快照 | 过期缓存 / 种子 |
+| 仓库详情 | Repository、Search、Contributors、Events | 单资源 ETag、详情和真实活动快照 | 过期缓存 / 种子或空活动 |
+| 深度报告 | RepositoryFeed、Contributors、Events | 按仓库集合与凭据隔离的聚合快照 | 过期缓存 / 种子或空活动 |
 | API 配额 | Rate Limit | 短期状态 | 明确错误 |
 
 ## 4. 缓存和一致性
@@ -93,7 +93,10 @@
 - SharedPreferences：收藏、关注、监控列表、规则、主题、语言和其他非敏感偏好。
 - FlutterSecureStorage：GitHub Token；Windows 使用 DPAPI，macOS 使用 Keychain。
 - Token 不进入日志、测试 fixture、导出报告或源码。
+- OAuth Client ID 只通过 `GITHUB_OAUTH_CLIENT_ID` 构建配置注入；未配置构建不暴露失效登录入口。
+- 配置导出使用非敏感白名单，导入先完整校验并在写入失败时回滚。
 - 所有用户内容均是设备本地状态；卸载或清除应用数据后无法从云端恢复。
+- 初始化失败不会触发自动删库；恢复界面只提供重试和打开数据目录。
 
 ## 8. 架构边界
 
@@ -111,6 +114,6 @@
 - 远端成功、缓存命中、过期降级和种子兜底均有明确口径。
 - 真实观测能落库，规则能生成持久告警，处理状态可恢复。
 - Token 使用系统安全存储。
-- format、analyze、全量 test 和 Windows Release build 全部通过。
+- format、analyze、全量 coverage test、Windows Release build 和可见主窗口烟测全部通过。
 
 服务端定时采集、系统推送、跨设备同步、GH Archive 全量分析属于下一阶段；它们需要新的鉴权、数据、任务调度和运维设计，不能作为当前客户端的隐藏待办。
