@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+import '../di/providers.dart';
 
 import 'app_theme_preset.dart';
 
@@ -12,17 +13,12 @@ class ThemePresetController extends Notifier<AppThemePreset> {
 
   @override
   AppThemePreset build() {
-    _loadFromPrefs();
-    return AppThemePreset.teal;
-  }
-
-  Future<void> _loadFromPrefs() async {
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ref.read(sharedPreferencesProvider);
     final raw = prefs.getString(_kKey);
     if (raw == null) {
-      return;
+      return AppThemePreset.teal;
     }
-    state = AppThemePreset.byId(raw);
+    return AppThemePreset.byId(raw);
   }
 
   Future<void> setPreset(AppThemePreset preset) async {
@@ -30,7 +26,7 @@ class ThemePresetController extends Notifier<AppThemePreset> {
       return;
     }
     state = preset;
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setString(_kKey, preset.id);
   }
 }
