@@ -12,13 +12,29 @@ class MonitorRuleEvaluator {
     required MonitorObservation current,
     required Set<String> enabledRuleIds,
   }) {
-    if (previous == null || previous.repoFullName != current.repoFullName || previous.localDayKey == current.localDayKey) {
+    if (previous == null || previous.repoFullName != current.repoFullName) {
       return const [];
     }
 
-    final starDelta = math.max(0, current.stars - previous.stars).toDouble();
-    final forkDelta = math.max(0, current.forks - previous.forks).toDouble();
-    final starRate = previous.stars <= 0 ? 0.0 : starDelta / previous.stars * 100;
+    final elapsedDays = _elapsedLocalDays(
+      previous.observedAt,
+      current.observedAt,
+    );
+    if (elapsedDays <= 0) {
+      return const [];
+    }
+    final starDelta = math.max(0, current.stars - previous.stars) / elapsedDays;
+    final forkDelta = math.max(0, current.forks - previous.forks) / elapsedDays;
+    final starRate = previous.stars <= 0 || current.stars <= previous.stars
+        ? 0.0
+        : (math
+                    .pow(
+                      current.stars / previous.stars,
+                      1 / elapsedDays,
+                    )
+                    .toDouble() -
+                1) *
+            100;
     final issueRatio = (current.openIssues + 1) / (previous.openIssues + 1);
     final events = <MonitorAlertEvent>[];
 
@@ -76,5 +92,21 @@ class MonitorRuleEvaluator {
     );
 
     return events;
+  }
+
+  int _elapsedLocalDays(DateTime previous, DateTime current) {
+    final previousLocal = previous.toLocal();
+    final currentLocal = current.toLocal();
+    final previousDay = DateTime(
+      previousLocal.year,
+      previousLocal.month,
+      previousLocal.day,
+    );
+    final currentDay = DateTime(
+      currentLocal.year,
+      currentLocal.month,
+      currentLocal.day,
+    );
+    return currentDay.difference(previousDay).inDays;
   }
 }

@@ -22,7 +22,7 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   final gateController = ref.watch(rateLimitGateProvider.notifier);
   final monitored = ref.watch(localContentControllerProvider).monitoredRepos;
   final ruleToggles = ref.watch(localContentControllerProvider).monitorRules;
-  final repos = monitored.isEmpty ? githubMonitorDefaultRepos : monitored.toList();
+  final repos = monitorReposFor(monitored);
   return GithubMonitorRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
@@ -39,6 +39,10 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
     onRateLimited: gateController.trigger,
   );
 });
+
+List<String> monitorReposFor(Set<String> monitored) {
+  return monitored.toList()..sort();
+}
 
 /// 监控缓存 key:默认仓库集合沿用历史 key,用户自定义集合按内容哈希隔离,
 /// 避免不同监控列表互相覆盖缓存。

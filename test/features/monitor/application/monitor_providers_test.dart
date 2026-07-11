@@ -50,6 +50,19 @@ const _stats = MonitorStats(
 );
 
 void main() {
+  group('monitor repository selection', () {
+    test('explicit empty monitor selection stays empty', () {
+      expect(monitorReposFor(<String>{}), isEmpty);
+    });
+
+    test('selected repositories use deterministic ordering', () {
+      expect(
+        monitorReposFor({'z/last', 'a/first'}),
+        ['a/first', 'z/last'],
+      );
+    });
+  });
+
   group('monitorDigestProvider', () {
     test('should expose local digest when repository returns data', () async {
       final container = ProviderContainer(

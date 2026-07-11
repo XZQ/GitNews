@@ -107,9 +107,68 @@ void main() {
     expect(first.single.id, second.single.id);
     expect(first.single.id, 'owner/repo|star_daily_delta|2026-07-02');
   });
+
+  test('thirty day growth is normalized before daily thresholds', () {
+    final events = evaluator.evaluate(
+      previous: observation(day: 1, stars: 1000, forks: 10),
+      current: observation(day: 31, stars: 1200, forks: 60),
+      enabledRuleIds: allRules,
+    );
+
+    expect(
+      events.map((event) => event.ruleId),
+      isNot(contains(MonitorRuleIds.starDailyDelta)),
+    );
+    expect(
+      events.map((event) => event.ruleId),
+      isNot(contains(MonitorRuleIds.forkDailyDelta)),
+    );
+    expect(
+      events.map((event) => event.ruleId),
+      isNot(contains(MonitorRuleIds.starDailyRate)),
+    );
+  });
+
+  test('cross-month two day values trigger at normalized thresholds', () {
+    final events = evaluator.evaluate(
+      previous: observation(month: 7, day: 31, stars: 1000, forks: 10),
+      current: observation(month: 8, day: 2, stars: 1400, forks: 110),
+      enabledRuleIds: allRules,
+    );
+
+    expect(
+      events.map((event) => event.ruleId).toSet(),
+      containsAll({
+        MonitorRuleIds.starDailyDelta,
+        MonitorRuleIds.starDailyRate,
+        MonitorRuleIds.forkDailyDelta,
+      }),
+    );
+  });
+
+  test('seven day totals below normalized thresholds do not trigger', () {
+    final events = evaluator.evaluate(
+      previous: observation(day: 1, stars: 1000, forks: 10),
+      current: observation(day: 8, stars: 1699, forks: 59),
+      enabledRuleIds: allRules,
+    );
+
+    expect(events, isEmpty);
+  });
+
+  test('reverse observation dates do not trigger', () {
+    final events = evaluator.evaluate(
+      previous: observation(day: 2, stars: 1000),
+      current: observation(day: 1, stars: 5000),
+      enabledRuleIds: allRules,
+    );
+
+    expect(events, isEmpty);
+  });
 }
 
 MonitorObservation observation({
+  int month = 7,
   int day = 1,
   int hour = 12,
   int stars = 1000,
@@ -121,6 +180,6 @@ MonitorObservation observation({
     stars: stars,
     forks: forks,
     openIssues: issues,
-    observedAt: DateTime(2026, 7, day, hour),
+    observedAt: DateTime(2026, month, day, hour),
   );
 }
