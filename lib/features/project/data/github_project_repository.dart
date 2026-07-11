@@ -13,6 +13,7 @@ import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/utils/app_logger.dart';
 import '../domain/project_repository.dart';
+import 'project_cache_keys.dart';
 
 const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
 
@@ -38,6 +39,7 @@ class GithubProjectRepository implements ProjectRepository {
           cacheScope: cacheScope,
           now: now,
         ),
+        _cacheScope = cacheScope,
         _now = now ?? DateTime.now,
         _isRateLimited = isRateLimited,
         _onRateLimited = onRateLimited;
@@ -45,11 +47,10 @@ class GithubProjectRepository implements ProjectRepository {
   final RepositoryFeed _repositoryFeed;
   final JsonSnapshotCacheDao _cache;
   final GitHubResourceCache _resources;
+  final String _cacheScope;
   final DateTime Function() _now;
   final bool Function()? _isRateLimited;
   final void Function(int retryAfterSeconds)? _onRateLimited;
-
-  static const String _contributorsCacheKey = 'project:github:contributors:v1';
 
   @override
   Future<DataResult<ProjectDigest>> getDigest() async {
@@ -74,10 +75,15 @@ class GithubProjectRepository implements ProjectRepository {
     RepositoryFeedDigest digest,
   ) async {
     final now = _now();
-    final cached = await _readContributors();
+    final repos = digest.repos.take(4).map((repo) => repo.fullName).toList(growable: false);
+    final cacheKey = projectContributorsCacheKey(
+      repos: repos,
+      cacheScope: _cacheScope,
+    );
+    final cached = await _readContributors(cacheKey);
     if (cached.isNotEmpty &&
         await _cache.isFresh(
-          key: _contributorsCacheKey,
+          key: cacheKey,
           ttl: projectRemoteCacheTtl,
           now: now,
         )) {
@@ -100,11 +106,10 @@ class GithubProjectRepository implements ProjectRepository {
     }
 
     try {
-      final repos = digest.repos.take(4).map((repo) => repo.fullName);
       final result = await _fetchContributors(repos);
       final contributors = result.data;
       await _cache.upsert(
-        key: _contributorsCacheKey,
+        key: cacheKey,
         payload: {
           'contributors': contributors.map(_contributorToJson).toList(),
         },
@@ -193,8 +198,8 @@ class GithubProjectRepository implements ProjectRepository {
     );
   }
 
-  Future<List<ContributorEntity>> _readContributors() async {
-    final json = await _cache.read(_contributorsCacheKey);
+  Future<List<ContributorEntity>> _readContributors(String cacheKey) async {
+    final json = await _cache.read(cacheKey);
     if (json == null) {
       return const [];
     }
