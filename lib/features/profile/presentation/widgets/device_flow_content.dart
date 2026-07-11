@@ -68,8 +68,8 @@ class DeviceFlowContent extends ConsumerWidget {
         notConfigured ? 'device_flow.not_configured' : 'device_flow.error',
       ),
       hint: notConfigured ? l10n.tr('device_flow.need_config') : null,
-      retry: l10n.tr('device_flow.retry'),
-      onRetry: () => ref.read(githubDeviceFlowProvider.notifier).start(),
+      retry: notConfigured ? null : l10n.tr('device_flow.retry'),
+      onRetry: notConfigured ? null : () => ref.read(githubDeviceFlowProvider.notifier).start(),
     );
   }
 }

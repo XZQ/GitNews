@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/config/api_endpoints_config.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/preferences/github_token_controller.dart';
 import '../../../../core/preferences/profile_session_controller.dart';
@@ -27,6 +28,7 @@ class ProfileUserCard extends ConsumerWidget {
     final connected = githubUser != null && githubUser.isNotEmpty;
     final displayName = (githubUser != null && githubUser.isNotEmpty) ? githubUser : session.effectiveName;
     final statusKey = connected ? 'profile.github.connected' : session.statusKey;
+    final oauthConfigured = ApiEndpointsConfig.githubOAuthConfigured;
 
     Future<void> signOut() async {
       if (connected) {
@@ -95,7 +97,11 @@ class ProfileUserCard extends ConsumerWidget {
                 ),
                 const SizedBox(height: AppSpacing.xxs),
                 TextButton(
-                  onPressed: connected ? signOut : () => context.push('/profile/login'),
+                  onPressed: connected
+                      ? signOut
+                      : () => context.push(
+                            oauthConfigured ? '/profile/login' : '/profile/developer',
+                          ),
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
                     minimumSize: const Size(0, 28),
@@ -103,7 +109,11 @@ class ProfileUserCard extends ConsumerWidget {
                     alignment: Alignment.centerLeft,
                   ),
                   child: Text(
-                    connected ? l10n.tr('profile.logout') : l10n.tr('profile.login'),
+                    connected
+                        ? l10n.tr('profile.logout')
+                        : l10n.tr(
+                            oauthConfigured ? 'profile.login' : 'profile.login.configure_pat',
+                          ),
                   ),
                 ),
               ],

@@ -56,9 +56,12 @@ class ApiEndpointsConfig {
   // GitHub OAuth Device Flow:轮询换取 access_token。
   static String githubDeviceTokenPath = '/login/oauth/access_token';
 
-  // GitHub OAuth Device Flow 的 client_id。
-  // 注意:需替换为在 GitHub 注册的 OAuth App 的 client_id(桌面应用启用 Device Flow)。
-  static const String githubOAuthClientId = 'YOUR_OAUTH_APP_CLIENT_ID';
+  // GitHub OAuth Device Flow 的 client_id，由构建参数注入。
+  static const String githubOAuthClientId = String.fromEnvironment(
+    'GITHUB_OAUTH_CLIENT_ID',
+  );
+
+  static bool get githubOAuthConfigured => githubOAuthClientId.trim().isNotEmpty;
 
   // 第三方 Agent Skills 排行榜数据源 baseUrl(raw.githubusercontent.com)。
   // 注意:该端点未验证可用(jaychempan/Agent-Skills-Leaderboard 路径 2026-07 核查 404),

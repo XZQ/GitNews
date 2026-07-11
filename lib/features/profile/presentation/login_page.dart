@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/github/github_device_flow_controller.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -20,7 +21,11 @@ class LoginPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.tr('device_flow.title')),
+        title: Text(
+          l10n.tr(
+            ApiEndpointsConfig.githubOAuthConfigured ? 'device_flow.title' : 'profile.token.title',
+          ),
+        ),
         leading: BackButton(
           onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
         ),
@@ -40,6 +45,9 @@ class _Body extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    if (!ApiEndpointsConfig.githubOAuthConfigured) {
+      return _PatFallback(l10n: l10n);
+    }
     ref.listen<DeviceFlowState>(githubDeviceFlowProvider, (prev, next) {
       if (next.status == DeviceFlowStatus.success) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -76,6 +84,61 @@ class _Body extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               _Bullet(l10n.tr('profile.login.bullet.sync')),
               _Bullet(l10n.tr('profile.login.bullet.cross_device')),
+              _Bullet(l10n.tr('profile.login.bullet.api_quota')),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PatFallback extends StatelessWidget {
+  const _PatFallback({required this.l10n});
+
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: [
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SectionHeader(
+                title: l10n.tr('profile.token.title'),
+                subtitle: l10n.tr('profile.token.subtitle'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                l10n.tr('profile.token.security_notice'),
+                style: AppTypography.bodyMedium,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => context.go('/profile/developer'),
+                  icon: const Icon(Icons.key_rounded),
+                  label: Text(l10n.tr('profile.login.configure_pat')),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SectionHeader(
+                title: l10n.tr('profile.login.why_login'),
+                subtitle: l10n.tr('profile.login.why_login.subtitle'),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _Bullet(l10n.tr('profile.login.bullet.sync')),
               _Bullet(l10n.tr('profile.login.bullet.api_quota')),
             ],
           ),

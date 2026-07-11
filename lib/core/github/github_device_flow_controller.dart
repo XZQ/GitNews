@@ -82,12 +82,10 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
     return const DeviceFlowState();
   }
 
-  Dio get _dio => DioClient.create(baseUrl: 'https://github.com');
-
-  bool get _configured => ApiEndpointsConfig.githubOAuthClientId != 'YOUR_OAUTH_APP_CLIENT_ID';
+  Dio get _dio => ref.read(githubDeviceFlowDioProvider);
 
   Future<void> start() async {
-    if (!_configured) {
+    if (!ApiEndpointsConfig.githubOAuthConfigured) {
       state = const DeviceFlowState(
         status: DeviceFlowStatus.error,
         error: 'not_configured',
@@ -224,4 +222,8 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
 
 final githubDeviceFlowProvider = NotifierProvider<GithubDeviceFlowController, DeviceFlowState>(
   GithubDeviceFlowController.new,
+);
+
+final githubDeviceFlowDioProvider = Provider<Dio>(
+  (ref) => DioClient.create(baseUrl: 'https://github.com'),
 );

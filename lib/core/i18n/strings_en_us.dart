@@ -430,6 +430,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'profile.section.data': 'Data',
   'profile.section.about': 'About',
   'profile.login': 'Sign in',
+  'profile.login.configure_pat': 'Configure Personal Access Token',
   'profile.login_github': 'Sign in to GitHub',
   'profile.login_github.subtitle': 'Raise GitHub API limits and read your public profile',
   'profile.login.username_hint': 'Username / email',

@@ -429,6 +429,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'profile.section.data': '数据',
   'profile.section.about': '关于',
   'profile.login': '登录',
+  'profile.login.configure_pat': '配置 Personal Access Token',
   'profile.login_github': '登录 GitHub',
   'profile.login_github.subtitle': '提升 GitHub API 配额并读取公开资料',
   'profile.login.username_hint': '用户名 / 邮箱',
