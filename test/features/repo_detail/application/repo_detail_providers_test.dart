@@ -82,6 +82,7 @@ void main() {
             relatedRepos: const [],
             primaryTrend: const [1.0],
             compareTrend: const [0.5],
+            activities: const [],
           ),
         ),
       );
@@ -94,6 +95,7 @@ void main() {
             relatedRepos: const [],
             primaryTrend: const [2.0],
             compareTrend: const [1.0],
+            activities: const [],
           ),
         ),
       );

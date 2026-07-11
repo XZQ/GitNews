@@ -3,9 +3,11 @@ import 'package:dio/dio.dart';
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
+import '../../../core/github/github_repo_activity_source.dart';
 import '../../../core/github/github_resource_cache.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/storage/repo_snapshot_history_dao.dart';
@@ -136,15 +138,18 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final results = await Future.wait([
       _fetchContributors(fullName),
       _fetchRelatedRepos(repo),
+      _fetchActivities(fullName),
     ]);
     final contributors = results[0] as List<ContributorEntity>;
     final relatedRepos = results[1] as List<RepoEntity>;
+    final activities = results[2] as List<RepoActivityEvent>;
     return RepoDetailDigest(
       repo: repo,
       contributors: contributors,
       relatedRepos: relatedRepos,
       primaryTrend: repo.trend ?? estimatedRepoTrend(repo.starCount, 1),
       compareTrend: estimatedRepoTrend(repo.starCount, 0.72),
+      activities: activities,
     );
   }
 
@@ -203,6 +208,14 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     } on TypeError catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     }
+  }
+
+  Future<List<RepoActivityEvent>> _fetchActivities(String fullName) async {
+    return (await fetchGitHubRepoActivities(
+      resources: _resources,
+      fullName: fullName,
+    ))
+        .data;
   }
 
   Future<List<RepoEntity>> _fetchRelatedRepos(RepoEntity repo) async {

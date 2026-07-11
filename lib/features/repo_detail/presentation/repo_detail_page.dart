@@ -126,7 +126,7 @@ class _Mobile extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         RepoDetailContributors(contributors: digest.contributors),
         const SizedBox(height: AppSpacing.lg),
-        const RepoDetailActivity(),
+        RepoDetailActivity(activities: digest.activities),
       ],
     );
   }
@@ -176,7 +176,7 @@ class _Left extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         RepoDetailContributors(contributors: digest.contributors),
         const SizedBox(height: AppSpacing.lg),
-        const RepoDetailActivity(),
+        RepoDetailActivity(activities: digest.activities),
       ],
     );
   }

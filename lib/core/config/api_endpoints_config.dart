@@ -29,6 +29,9 @@ class ApiEndpointsConfig {
   // GitHub 仓库贡献者接口:`GET /repos/{fullName}/contributors`。
   static String githubRepoContributorsPath(String fullName) => '/repos/$fullName/contributors';
 
+  // GitHub 仓库公开活动接口:`GET /repos/{fullName}/events`。
+  static String githubRepoEventsPath(String fullName) => '/repos/$fullName/events';
+
   // GitHub 仓库搜索(发现页:按 stars 排序的流行仓库 / AI Agent Skills 仓库)。
   // 返回完整 query path,与 [githubBaseUrl] 拼接后直接 GET。
   static String githubSearchRepositoriesUrl({

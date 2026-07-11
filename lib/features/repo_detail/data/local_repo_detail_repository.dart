@@ -29,6 +29,7 @@ class LocalRepoDetailRepository implements RepoDetailRepository {
         relatedRepos: relatedRepos,
         primaryTrend: DemoData.generateStarTrend(repo.starCount - 5000, 5000),
         compareTrend: DemoData.generateStarTrend(repo.starCount - 8000, 3500),
+        activities: const [],
       ),
     );
   }

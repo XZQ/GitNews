@@ -1,3 +1,5 @@
+import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/github/github_repo_entity_codec.dart';
 import '../domain/entities.dart';
@@ -10,6 +12,7 @@ Map<String, Object?> repoDetailDigestToJson(RepoDetailDigest digest) {
     'relatedRepos': digest.relatedRepos.map(githubRepoEntityToJson).toList(),
     'primaryTrend': digest.primaryTrend,
     'compareTrend': digest.compareTrend,
+    'activities': digest.activities.map(_activityToJson).toList(),
   };
 }
 
@@ -24,6 +27,7 @@ RepoDetailDigest repoDetailDigestFromJson(Map<String, Object?> json) {
     ).map(githubRepoEntityFromJson).toList(),
     primaryTrend: GitHubJson.doubleList(json['primaryTrend']),
     compareTrend: GitHubJson.doubleList(json['compareTrend']),
+    activities: json['activities'] == null ? const [] : GitHubJson.list(json['activities']).map(_activityFromJson).toList(growable: false),
   );
 }
 
@@ -41,5 +45,35 @@ ContributorEntity _contributorFromJson(Object? raw) {
     login: GitHubJson.string(json['login']),
     contributions: GitHubJson.intValue(json['contributions']),
     avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
+  );
+}
+
+Map<String, Object?> _activityToJson(RepoActivityEvent activity) {
+  return {
+    'repoFullName': activity.repoFullName,
+    'type': activity.type.name,
+    'title': activity.title,
+    'actorLogin': activity.actorLogin,
+    'occurredAt': activity.occurredAt.toUtc().toIso8601String(),
+    'htmlUrl': activity.htmlUrl,
+    'basis': activity.basis.name,
+  };
+}
+
+RepoActivityEvent _activityFromJson(Object? raw) {
+  final json = GitHubJson.map(raw);
+  return RepoActivityEvent(
+    repoFullName: GitHubJson.string(json['repoFullName']),
+    type: RepoActivityType.values.firstWhere(
+      (value) => value.name == GitHubJson.string(json['type']),
+      orElse: () => RepoActivityType.other,
+    ),
+    title: GitHubJson.string(json['title']),
+    actorLogin: GitHubJson.string(json['actorLogin']),
+    occurredAt: DateTime.parse(
+      GitHubJson.string(json['occurredAt']),
+    ).toUtc(),
+    htmlUrl: GitHubJson.nullableString(json['htmlUrl']),
+    basis: MetricBasis.fromName(GitHubJson.nullableString(json['basis'])),
   );
 }

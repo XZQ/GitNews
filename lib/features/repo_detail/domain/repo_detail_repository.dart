@@ -1,4 +1,5 @@
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/domain/repo_entity.dart';
 import 'entities.dart';
 
@@ -12,6 +13,7 @@ class RepoDetailDigest {
     required this.relatedRepos,
     required this.primaryTrend,
     required this.compareTrend,
+    required this.activities,
   });
 
   final RepoEntity repo;
@@ -19,6 +21,7 @@ class RepoDetailDigest {
   final List<RepoEntity> relatedRepos;
   final List<double> primaryTrend;
   final List<double> compareTrend;
+  final List<RepoActivityEvent> activities;
 }
 
 /* 
