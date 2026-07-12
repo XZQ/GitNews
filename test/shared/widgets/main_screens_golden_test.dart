@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -65,93 +67,99 @@ void main() {
     );
   }
 
-  testWidgets('Main screen header — Home golden', (tester) async {
-    await pumpHeader(
-      tester,
-      Builder(
-        builder: (context) => headerConfig(
-          context,
-          'home.title',
-          'home.subtitle',
-          Icons.dashboard_outlined,
-        ),
-      ),
-    );
-    await expectLater(
-      find.byType(PageHeader),
-      matchesGoldenFile('goldens/main_header_home.png'),
-    );
-  });
+  group(
+    'Windows golden baselines',
+    () {
+      testWidgets('Main screen header — Home golden', (tester) async {
+        await pumpHeader(
+          tester,
+          Builder(
+            builder: (context) => headerConfig(
+              context,
+              'home.title',
+              'home.subtitle',
+              Icons.dashboard_outlined,
+            ),
+          ),
+        );
+        await expectLater(
+          find.byType(PageHeader),
+          matchesGoldenFile('goldens/main_header_home.png'),
+        );
+      });
 
-  testWidgets('Main screen header — AI News golden', (tester) async {
-    await pumpHeader(
-      tester,
-      Builder(
-        builder: (context) => headerConfig(
-          context,
-          'ai_news.title',
-          'ai_news.subtitle',
-          Icons.auto_awesome_rounded,
-        ),
-      ),
-    );
-    await expectLater(
-      find.byType(PageHeader),
-      matchesGoldenFile('goldens/main_header_ai_news.png'),
-    );
-  });
+      testWidgets('Main screen header — AI News golden', (tester) async {
+        await pumpHeader(
+          tester,
+          Builder(
+            builder: (context) => headerConfig(
+              context,
+              'ai_news.title',
+              'ai_news.subtitle',
+              Icons.auto_awesome_rounded,
+            ),
+          ),
+        );
+        await expectLater(
+          find.byType(PageHeader),
+          matchesGoldenFile('goldens/main_header_ai_news.png'),
+        );
+      });
 
-  testWidgets('Main screen header — Trending golden', (tester) async {
-    await pumpHeader(
-      tester,
-      Builder(
-        builder: (context) => headerConfig(
-          context,
-          'trending.title',
-          'trending.page_header.subtitle',
-          Icons.trending_up_rounded,
-        ),
-      ),
-    );
-    await expectLater(
-      find.byType(PageHeader),
-      matchesGoldenFile('goldens/main_header_trending.png'),
-    );
-  });
+      testWidgets('Main screen header — Trending golden', (tester) async {
+        await pumpHeader(
+          tester,
+          Builder(
+            builder: (context) => headerConfig(
+              context,
+              'trending.title',
+              'trending.page_header.subtitle',
+              Icons.trending_up_rounded,
+            ),
+          ),
+        );
+        await expectLater(
+          find.byType(PageHeader),
+          matchesGoldenFile('goldens/main_header_trending.png'),
+        );
+      });
 
-  testWidgets('Main screen header — Tech Hotspot golden', (tester) async {
-    await pumpHeader(
-      tester,
-      Builder(
-        builder: (context) => headerConfig(
-          context,
-          'tech_hotspot.title',
-          'tech_hotspot.subtitle',
-          Icons.device_hub_rounded,
-        ),
-      ),
-    );
-    await expectLater(
-      find.byType(PageHeader),
-      matchesGoldenFile('goldens/main_header_tech_hotspot.png'),
-    );
-  });
+      testWidgets('Main screen header — Tech Hotspot golden', (tester) async {
+        await pumpHeader(
+          tester,
+          Builder(
+            builder: (context) => headerConfig(
+              context,
+              'tech_hotspot.title',
+              'tech_hotspot.subtitle',
+              Icons.device_hub_rounded,
+            ),
+          ),
+        );
+        await expectLater(
+          find.byType(PageHeader),
+          matchesGoldenFile('goldens/main_header_tech_hotspot.png'),
+        );
+      });
 
-  testWidgets('Main screen header — Monitor golden', (tester) async {
-    await pumpHeader(
-      tester,
-      Builder(
-        builder: (context) => headerConfig(
-          context,
-          'monitor.title',
-          'monitor.subtitle',
-          Icons.radar_rounded,
-        ),
-      ),
-    );
-    await expectLater(
-      find.byType(PageHeader),
-      matchesGoldenFile('goldens/main_header_monitor.png'),
-    );
-  });
+      testWidgets('Main screen header — Monitor golden', (tester) async {
+        await pumpHeader(
+          tester,
+          Builder(
+            builder: (context) => headerConfig(
+              context,
+              'monitor.title',
+              'monitor.subtitle',
+              Icons.radar_rounded,
+            ),
+          ),
+        );
+        await expectLater(
+          find.byType(PageHeader),
+          matchesGoldenFile('goldens/main_header_monitor.png'),
+        );
+      });
+    },
+    skip: !Platform.isWindows,
+  );
 }

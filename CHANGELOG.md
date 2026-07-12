@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- 将像素 Golden 基线固定在 Windows 执行，并在 Windows CI 中显式运行全部视觉回归，避免 Ubuntu 字体与渲染差异造成伪失败。
+
 ## [1.3.0+3] - 2026-07-11
 
 ### Added

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -35,51 +37,57 @@ void main() {
     expect(find.byType(finderType, skipOffstage: false), findsOneWidget);
   }
 
-  testWidgets('EmptyView golden', (tester) async {
-    await pumpScene(
-      tester,
-      const EmptyView(icon: Icons.inbox_outlined, message: '暂无数据'),
-      finderType: EmptyView,
-    );
-    await expectLater(
-      find.byType(EmptyView),
-      matchesGoldenFile('goldens/empty_view.png'),
-    );
-  });
+  group(
+    'Windows golden baselines',
+    () {
+      testWidgets('EmptyView golden', (tester) async {
+        await pumpScene(
+          tester,
+          const EmptyView(icon: Icons.inbox_outlined, message: '暂无数据'),
+          finderType: EmptyView,
+        );
+        await expectLater(
+          find.byType(EmptyView),
+          matchesGoldenFile('goldens/empty_view.png'),
+        );
+      });
 
-  testWidgets('ErrorView network golden', (tester) async {
-    await pumpScene(
-      tester,
-      const ErrorView(
-        error: AppException(kind: AppExceptionKind.network),
-      ),
-      finderType: ErrorView,
-    );
-    await expectLater(
-      find.byType(ErrorView),
-      matchesGoldenFile('goldens/error_view_network.png'),
-    );
-  });
+      testWidgets('ErrorView network golden', (tester) async {
+        await pumpScene(
+          tester,
+          const ErrorView(
+            error: AppException(kind: AppExceptionKind.network),
+          ),
+          finderType: ErrorView,
+        );
+        await expectLater(
+          find.byType(ErrorView),
+          matchesGoldenFile('goldens/error_view_network.png'),
+        );
+      });
 
-  testWidgets('RepoTile golden', (tester) async {
-    await pumpScene(
-      tester,
-      const RepoTile(
-        repo: RepoEntity(
-          fullName: 'rust-lang/rust',
-          description: 'Empowering everyone to build reliable and efficient software.',
-          language: 'Rust',
-          starCount: 98000,
-          starDelta: 320,
-          forkCount: 12500,
-          accentArgb: 0xFFCE412B,
-        ),
-      ),
-      finderType: RepoTile,
-    );
-    await expectLater(
-      find.byType(RepoTile),
-      matchesGoldenFile('goldens/repo_tile.png'),
-    );
-  });
+      testWidgets('RepoTile golden', (tester) async {
+        await pumpScene(
+          tester,
+          const RepoTile(
+            repo: RepoEntity(
+              fullName: 'rust-lang/rust',
+              description: 'Empowering everyone to build reliable and efficient software.',
+              language: 'Rust',
+              starCount: 98000,
+              starDelta: 320,
+              forkCount: 12500,
+              accentArgb: 0xFFCE412B,
+            ),
+          ),
+          finderType: RepoTile,
+        );
+        await expectLater(
+          find.byType(RepoTile),
+          matchesGoldenFile('goldens/repo_tile.png'),
+        );
+      });
+    },
+    skip: !Platform.isWindows,
+  );
 }
