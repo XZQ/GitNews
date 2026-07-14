@@ -36,7 +36,6 @@ void main() {
 
 class _RecordingAdapter implements HttpClientAdapter {
   String? lastPath;
-  Map<String, dynamic>? lastQuery;
   Map<String, dynamic>? lastHeaders;
 
   @override
@@ -49,7 +48,8 @@ class _RecordingAdapter implements HttpClientAdapter {
     Future<void>? cancelFuture,
   ) async {
     lastPath = options.path;
-    lastQuery = options.queryParameters;
+    // Dio 把 githubSearchUsersUrl 预拼的整串放进 path,queryParameters 为空,
+    // 故查询参数从 lastPath 用 Uri.parse 解出。
     lastHeaders = options.headers;
     final payload = jsonEncode({
       'items': [
