@@ -7,11 +7,11 @@ import 'package:github_news/features/discover/data/discover_repository.dart';
 import 'package:github_news/features/discover/domain/discover_entities.dart';
 
 class _FakeRepo implements DiscoverRepository {
-  final int whitelistSize;
+  _FakeRepo({this.searchPageSize = 20});
+
+  static const int whitelistSize = 8;
   final int searchPageSize;
   final Map<String, DiscoverProfileEntity> _detail = {};
-
-  _FakeRepo({this.whitelistSize = 8, this.searchPageSize = 20});
 
   @override
   Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
