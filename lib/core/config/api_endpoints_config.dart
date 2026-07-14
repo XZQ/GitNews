@@ -53,6 +53,19 @@ class ApiEndpointsConfig {
       '/search/repositories?q=${Uri.encodeQueryComponent(q)}'
       '&sort=$sort&order=$order&per_page=$perPage&page=$page';
 
+  // GitHub Users 搜索接口:`GET /search/users`。
+  // 发现页 official / people 段分页数据源。
+  static const String githubSearchUsersPath = '/search/users';
+
+  // GitHub 用户/组织搜索(发现页:官方账号 / 知名开发者)。
+  static String githubSearchUsersUrl({
+    required String q,
+    int perPage = 20,
+    int page = 1,
+  }) =>
+      '/search/users?q=${Uri.encodeQueryComponent(q)}'
+      '&per_page=$perPage&page=$page';
+
   // GitHub 用户/组织公开资料:`GET /users/{login}`。
   static String githubPublicUserPath(String login) => '/users/$login';
 
