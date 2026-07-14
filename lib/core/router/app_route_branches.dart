@@ -70,6 +70,15 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
                   title: state.uri.queryParameters['title'],
                 ),
               ),
+              // 资讯 → 仓库打通:详情页「相关仓库」跳转。
+              // 不能复用 `detail/:fullName`,会与上面的资讯详情路由冲突。
+              GoRoute(
+                path: 'repo/:fullName',
+                name: 'ai_news_repo_detail',
+                builder: (_, state) => RepoDetailPage(
+                  fullName: state.pathParameters['fullName']!,
+                ),
+              ),
             ],
           ),
         ],

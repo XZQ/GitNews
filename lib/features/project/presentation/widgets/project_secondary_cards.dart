@@ -41,15 +41,27 @@ class ProjectRepoListCard extends StatelessWidget {
             ),
             child: SectionHeader(title: title, subtitle: subtitle),
           ),
-          for (var i = 0; i < repos.length; i++) ...[
-            if (i != 0) const Divider(height: 1),
-            RepoTile(
-              repo: repos[i],
-              onTap: () => context.go(
-                '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.xs,
+              AppSpacing.md,
+              AppSpacing.md,
             ),
-          ],
+            child: Column(
+              children: [
+                for (var i = 0; i < repos.length; i++) ...[
+                  if (i != 0) const SizedBox(height: AppSpacing.sm),
+                  RepoTile(
+                    repo: repos[i],
+                    onTap: () => context.go(
+                      '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );

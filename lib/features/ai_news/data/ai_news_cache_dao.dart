@@ -55,7 +55,53 @@ class AiNewsCacheDao {
     }
   }
 
-  /* 
+  // 单次搜索返回上限。
+  static const int _searchLimit = 100;
+
+  /*
+  *资讯库全库搜索:LIKE 匹配标题/英文标题/摘要/来源,按发布时间倒序。
+  *与 [readAll] 不同,这里不受 [_readLimit] 的「首屏渲染」定位约束,
+  *面向的是沉淀在本地的全部历史条目。`%`/`_`/转义符做 ESCAPE 处理。
+  */
+  Future<List<AiNewsItem>> searchAll(
+    String query, {
+    AiNewsCategory? category,
+  }) async {
+    final keyword = query.trim();
+    if (keyword.isEmpty) {
+      return const [];
+    }
+    final escaped = keyword.replaceAll(r'\', r'\\').replaceAll('%', r'\%').replaceAll('_', r'\_');
+    final pattern = '%$escaped%';
+    try {
+      final where = StringBuffer(
+        "(title LIKE ? ESCAPE '\\' OR title_en LIKE ? ESCAPE '\\' "
+        "OR summary LIKE ? ESCAPE '\\' OR source LIKE ? ESCAPE '\\')",
+      );
+      final args = <Object?>[pattern, pattern, pattern, pattern];
+      if (category != null) {
+        where.write(' AND category = ?');
+        args.add(category.code);
+      }
+      final rows = await _db.query(
+        _table,
+        where: where.toString(),
+        whereArgs: args,
+        orderBy: 'published_at DESC',
+        limit: _searchLimit,
+      );
+      return rows.map(_rowToItem).toList(growable: false);
+    } catch (e, st) {
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'searchAll'},
+      );
+    }
+  }
+
+  /*
   *按条目 id 读取缓存详情。
   */
   Future<AiNewsItem?> readById(String id) async {

@@ -52,21 +52,26 @@ class TrendingList extends StatelessWidget {
                   child: SectionHeader(title: '热门仓库', subtitle: '按 Star 增速排序'),
                 ),
               ),
-              SliverList.builder(
-                itemCount: repos.length,
-                itemBuilder: (context, i) {
-                  return Column(
-                    children: [
-                      if (i != 0) const Divider(height: 1),
-                      RepoTile(
-                        repo: repos[i],
-                        onTap: () => context.go(
-                          '/trending/detail/${Uri.encodeComponent(repos[i].fullName)}',
-                        ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.xs,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                ),
+                sliver: SliverList.separated(
+                  itemCount: repos.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                  itemBuilder: (context, i) {
+                    return RepoTile(
+                      repo: repos[i],
+                      rank: i + 1,
+                      onTap: () => context.go(
+                        '/trending/detail/${Uri.encodeComponent(repos[i].fullName)}',
                       ),
-                    ],
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ],
           ),

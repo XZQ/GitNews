@@ -14,6 +14,15 @@ class ApiEndpointsConfig {
   // AI 动态列表接口:`GET /api/public/items`。
   static const String aiNewsItemsPath = '/api/public/items';
 
+  // AI 日报 LLM 默认 baseUrl(OpenAI 兼容;用户可在应用内改为任意兼容端点)。
+  static const String aiDigestDefaultBaseUrl = 'https://api.openai.com/v1';
+
+  // OpenAI 兼容 Chat Completions 路径(与用户配置的 baseUrl 拼接)。
+  static const String aiDigestChatCompletionsPath = '/chat/completions';
+
+  // AI 日报默认模型(用户可覆盖)。
+  static const String aiDigestDefaultModel = 'gpt-4o-mini';
+
   // GitHub REST API 默认 baseUrl。
   static const String githubBaseUrl = 'https://api.github.com';
 

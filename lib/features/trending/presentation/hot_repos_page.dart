@@ -114,13 +114,12 @@ class _Body extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: AppSpacing.sm),
           child: RepaintBoundary(
-            child: AppCard(
-              padding: EdgeInsets.zero,
-              child: RepoTile(
-                repo: repo,
-                onTap: () => context.go(
-                  '/trending/detail/${Uri.encodeComponent(repo.fullName)}',
-                ),
+            // RepoTile 自带统一卡片样式,这里不再叠一层 AppCard。
+            child: RepoTile(
+              repo: repo,
+              rank: i + 1,
+              onTap: () => context.go(
+                '/trending/detail/${Uri.encodeComponent(repo.fullName)}',
               ),
             ),
           ),

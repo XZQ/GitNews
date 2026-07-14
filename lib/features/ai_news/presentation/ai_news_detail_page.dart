@@ -8,6 +8,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../application/ai_news_library_providers.dart';
 import '../application/ai_news_providers.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_detail_content.dart';
@@ -27,6 +28,13 @@ class AiNewsDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemDetailProvider(id));
+    // 打开详情即标记已读(幂等、失败静默)。
+    ref.listen(aiNewsItemDetailProvider(id), (prev, next) {
+      final item = next.valueOrNull;
+      if (item != null && prev?.valueOrNull?.id != item.id) {
+        ref.read(aiNewsLibraryControllerProvider).markRead(item);
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(onPressed: () => _back(context)),
@@ -36,6 +44,7 @@ class AiNewsDetailPage extends ConsumerWidget {
             data: (item) => item == null
                 ? <Widget>[]
                 : <Widget>[
+                    _ReadLaterButton(item: item),
                     IconButton(
                       tooltip: l10n.tr('webview.copy_link'),
                       onPressed: () => _copyLink(context, item),
@@ -96,6 +105,36 @@ class AiNewsDetailPage extends ConsumerWidget {
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
     }
+  }
+}
+
+class _ReadLaterButton extends ConsumerWidget {
+  const _ReadLaterButton({required this.item});
+
+  final AiNewsItem item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final saved = ref.watch(aiNewsItemStateProvider(item.id)).valueOrNull?.isReadLater ?? false;
+    return IconButton(
+      tooltip: l10n.tr(saved ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
+      onPressed: () => _toggle(context, ref),
+      icon: Icon(saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded),
+    );
+  }
+
+  Future<void> _toggle(BuildContext context, WidgetRef ref) async {
+    final added = await ref.read(aiNewsLibraryControllerProvider).toggleReadLater(item);
+    if (!context.mounted) {
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.tr(added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed')),
+      ),
+    );
   }
 }
 

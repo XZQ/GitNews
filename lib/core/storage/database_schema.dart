@@ -51,6 +51,30 @@ const String _kCreateMonitorAlertEvent = '''
   )
 ''';
 
+// AI 资讯用户状态:已读 / 稍后读 + 条目实体快照。
+// 快照模式与收藏/监控一致:即使 ai_news_item 缓存被清空,
+// 稍后读列表仍能凭快照完整渲染。不属于可清理缓存,不进业务表清单。
+const String _kCreateAiNewsState = '''
+  CREATE TABLE IF NOT EXISTS ai_news_state (
+    item_id       TEXT PRIMARY KEY,
+    read_at       INTEGER,
+    read_later_at INTEGER,
+    category      TEXT NOT NULL,
+    title         TEXT NOT NULL,
+    title_en      TEXT NOT NULL,
+    summary       TEXT NOT NULL,
+    source        TEXT NOT NULL,
+    url           TEXT NOT NULL,
+    permalink     TEXT NOT NULL,
+    published_at  INTEGER NOT NULL,
+    score         INTEGER NOT NULL,
+    selected      INTEGER NOT NULL,
+    updated_at    INTEGER NOT NULL,
+    ext1          TEXT,
+    ext2          INTEGER
+  )
+''';
+
 // 当前 schema 全部 DDL。新增表在这里追加,旧表结构变更走 [_kMigrations]。
 const List<String> _kBootstrap = [
   _kCreateCacheMeta,
@@ -85,6 +109,8 @@ const List<String> _kBootstrap = [
   'CREATE INDEX IF NOT EXISTS idx_monitor_alert_observed_at ON monitor_alert_event(observed_at)',
   'CREATE INDEX IF NOT EXISTS idx_monitor_alert_archived_at ON monitor_alert_event(archived_at)',
   'CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)',
+  _kCreateAiNewsState,
+  'CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)',
 ];
 
 // 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
@@ -96,6 +122,7 @@ const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
   _migrateV1ToV2,
   _migrateV2ToV3,
   _migrateV3ToV4,
+  _migrateV4ToV5,
 ];
 
 Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
@@ -122,6 +149,13 @@ Future<void> _migrateV3ToV4(DatabaseExecutor db) async {
   );
   await db.execute(
     'CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)',
+  );
+}
+
+Future<void> _migrateV4ToV5(DatabaseExecutor db) async {
+  await db.execute(_kCreateAiNewsState);
+  await db.execute(
+    'CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)',
   );
 }
 

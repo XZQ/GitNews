@@ -51,7 +51,8 @@ class DiscoverMonitorRow extends ConsumerWidget {
             const SizedBox(width: AppSpacing.sm),
           ],
           Expanded(
-            child: RepoTile(repo: repo, onTap: onTap),
+            // 紧凑布局自带行容器与行尾按钮,RepoTile 用扁平样式避免卡片嵌套。
+            child: RepoTile(repo: repo, onTap: onTap, card: false),
           ),
           IconButton(
             tooltip: monitored ? l10n.tr('discover.monitor_remove') : l10n.tr('discover.monitor_add'),

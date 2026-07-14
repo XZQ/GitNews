@@ -70,33 +70,38 @@ class _Body extends ConsumerWidget {
                   subtitle: l10n.tr('profile.collection.monitored.count').replaceAll('{n}', '${repos.length}'),
                 ),
               ),
-              for (var i = 0; i < repos.length; i++) ...[
-                if (i != 0) const Divider(height: 1),
-                Row(
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.md,
+                  AppSpacing.xs,
+                  AppSpacing.md,
+                  AppSpacing.md,
+                ),
+                child: Column(
                   children: [
-                    Expanded(
-                      child: RepoTile(
+                    for (var i = 0; i < repos.length; i++) ...[
+                      if (i != 0) const SizedBox(height: AppSpacing.sm),
+                      RepoTile(
                         repo: repos[i],
                         onTap: () => context.go(
                           '/profile/detail/${Uri.encodeComponent(repos[i].fullName)}',
                         ),
+                        trailing: Semantics(
+                          container: true,
+                          button: true,
+                          label: l10n.tr('a11y.monitor_remove'),
+                          excludeSemantics: true,
+                          child: IconButton(
+                            tooltip: l10n.tr('a11y.monitor_remove'),
+                            icon: const Icon(Icons.notifications_off_outlined),
+                            onPressed: () => ref.read(localContentControllerProvider.notifier).removeMonitor(repos[i].fullName),
+                          ),
+                        ),
                       ),
-                    ),
-                    Semantics(
-                      container: true,
-                      button: true,
-                      label: l10n.tr('a11y.monitor_remove'),
-                      excludeSemantics: true,
-                      child: IconButton(
-                        tooltip: l10n.tr('a11y.monitor_remove'),
-                        icon: const Icon(Icons.notifications_off_outlined),
-                        onPressed: () => ref.read(localContentControllerProvider.notifier).removeMonitor(repos[i].fullName),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
+                    ],
                   ],
                 ),
-              ],
+              ),
             ],
           ),
         ),

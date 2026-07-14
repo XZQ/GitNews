@@ -46,15 +46,28 @@ class ProjectPopularRepos extends StatelessWidget {
                 message: '没有匹配的热门仓库',
               ),
             ),
-          for (var i = 0; i < repos.length; i++) ...[
-            if (i != 0) const Divider(height: 1),
-            RepoTile(
-              repo: repos[i],
-              onTap: () => context.go(
-                '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.xs,
+              AppSpacing.md,
+              AppSpacing.md,
             ),
-          ],
+            child: Column(
+              children: [
+                for (var i = 0; i < repos.length; i++) ...[
+                  if (i != 0) const SizedBox(height: AppSpacing.sm),
+                  RepoTile(
+                    repo: repos[i],
+                    rank: i + 1,
+                    onTap: () => context.go(
+                      '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -98,15 +111,27 @@ class ProjectRecentlyUpdated extends StatelessWidget {
                 message: '没有匹配的最近活跃仓库',
               ),
             ),
-          for (var i = 0; i < repos.length; i++) ...[
-            if (i != 0) const Divider(height: 1),
-            RepoTile(
-              repo: repos[i],
-              onTap: () => context.go(
-                '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.md,
+              AppSpacing.xs,
+              AppSpacing.md,
+              AppSpacing.md,
             ),
-          ],
+            child: Column(
+              children: [
+                for (var i = 0; i < repos.length; i++) ...[
+                  if (i != 0) const SizedBox(height: AppSpacing.sm),
+                  RepoTile(
+                    repo: repos[i],
+                    onTap: () => context.go(
+                      '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );

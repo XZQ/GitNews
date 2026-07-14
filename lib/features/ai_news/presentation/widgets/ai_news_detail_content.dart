@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -6,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../domain/ai_news_item.dart';
+import '../../domain/github_repo_link_extractor.dart';
 import 'ai_news_category_style.dart';
 
 const double _detailHorizontalGutter = 40;
@@ -40,9 +42,63 @@ class AiNewsDetailContent extends StatelessWidget {
                   padding: const EdgeInsets.all(AppSpacing.xl),
                   child: _ArticleMeta(item: item),
                 ),
+                ..._relatedReposSection(item),
               ],
             ),
           ),
+        ),
+      ],
+    );
+  }
+
+  // 资讯 → GitHub 打通:从标题/摘要/链接抽取仓库,展示可跳转入口。
+  List<Widget> _relatedReposSection(AiNewsItem item) {
+    final repos = extractGitHubRepoLinks(
+      [item.title, item.titleEn, item.summary, item.url, item.permalink],
+    );
+    if (repos.isEmpty) {
+      return const [];
+    }
+    return [
+      const SizedBox(height: AppSpacing.lg),
+      AppCard(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: _RelatedRepos(repos: repos),
+      ),
+    ];
+  }
+}
+
+class _RelatedRepos extends StatelessWidget {
+  const _RelatedRepos({required this.repos});
+
+  final List<String> repos;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          l10n.tr('ai_news.related_repos'),
+          style: AppTypography.titleMedium.copyWith(color: colors.onSurface),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [
+            for (final fullName in repos)
+              ActionChip(
+                avatar: Icon(Icons.folder_open_rounded, size: 16, color: colors.primary),
+                label: Text(fullName, style: AppTypography.labelLarge),
+                onPressed: () => context.go(
+                  '/ai_news/repo/${Uri.encodeComponent(fullName)}',
+                ),
+              ),
+          ],
         ),
       ],
     );

@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+### Added
+
+- AI 动态多源聚合:主源之外并行接入 OpenAI News、Hugging Face Blog、Google AI Blog、arXiv cs.AI 四个 RSS/Atom 源,规范化 URL/标题去重合并;单源失败隔离,主源失效时模块仍有实时数据。
+- 资讯库:关键词搜索改查 SQLite 全部本地沉淀条目;新增已读与稍后读状态(schema v5 `ai_news_state`,实体快照模式,清缓存不丢用户状态),列表页可只看稍后读。
+- 资讯 ↔ GitHub 打通:详情页从标题/摘要/链接抽取相关仓库,一键跳转仓库详情(`/ai_news/repo/:fullName`)。
+- 今日 AI 日报:用户自带 OpenAI 兼容 API Key(secure storage),基于本地资讯库当天条目生成中文日报,按天缓存不重复计费;未配置不发请求,失败明确报错。
+- 规划文档 `docs/plans/ai_news_roadmap.md`。
+
+### Changed
+
+- 统一仓库列表设计语言:`RepoTile` 升级为全局一致的卡片式条目(细边框 + md 圆角 + 排名角标 + 尾部插槽),深度报告「本周热门/最近活跃」、仓库监控、热榜、收藏、监控主题等页统一改为间距卡片列表,替换原分隔线扁平行。
+- 数据口径诚实化:列表右侧趋势曲线只在存在真实观测历史时绘制;无历史时展示 Star 增量与趋势箭头,不再用合成曲线兜底(消除千篇一律的假曲线)。视觉基线需在 Windows 上 `flutter test --update-goldens` 重新生成 `repo_tile.png`。
+
 ### Fixed
 
 - 将像素 Golden 基线固定在 Windows 执行，并在 Windows CI 中显式运行全部视觉回归，避免 Ubuntu 字体与渲染差异造成伪失败。

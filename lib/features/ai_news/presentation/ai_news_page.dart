@@ -8,10 +8,12 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/ai_news_grouping.dart';
+import '../application/ai_news_library_providers.dart';
 import '../application/ai_news_providers.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_category_nav.dart';
 import 'widgets/ai_news_day_header.dart';
+import 'widgets/ai_news_digest_card.dart';
 import 'widgets/ai_news_list_skeleton.dart';
 import 'widgets/ai_news_page_header.dart';
 import 'widgets/ai_news_timeline_row.dart';
@@ -36,6 +38,7 @@ class AiNewsPage extends ConsumerWidget {
             selected: category,
             onSelected: (v) => ref.read(aiNewsCategoryFilterProvider.notifier).state = v,
           ),
+          const AiNewsDigestCard(),
           Expanded(child: _Body(category: category)),
         ],
       ),
@@ -50,13 +53,51 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final query = ref.watch(aiNewsSearchQueryProvider).trim();
+    final readLaterOnly = ref.watch(aiNewsReadLaterOnlyProvider);
+
+    // 稍后读视图:实体快照列表,静态展示(无远端分页)。
+    if (readLaterOnly) {
+      final async = ref.watch(aiNewsReadLaterItemsProvider);
+      return async.when(
+        data: (items) => items.isEmpty
+            ? EmptyView(
+                icon: Icons.bookmark_border_rounded,
+                message: AppLocalizations.of(context).tr('ai_news.read_later_empty'),
+              )
+            : _ItemList(items: items, category: category, query: '', staticList: true),
+        loading: () => const AiNewsListSkeleton(),
+        error: (e, _) => ErrorView(
+          error: e.asAppException(),
+          onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider),
+        ),
+      );
+    }
+
+    // 关键词搜索:查 SQLite 沉淀的全部历史条目(资讯库),而非内存分页。
+    if (query.isNotEmpty) {
+      final async = ref.watch(aiNewsLibrarySearchProvider(query));
+      return async.when(
+        data: (items) => _ItemList(
+          items: items,
+          category: category,
+          query: query,
+          staticList: true,
+        ),
+        loading: () => const AiNewsListSkeleton(),
+        error: (e, _) => ErrorView(
+          error: e.asAppException(),
+          onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query)),
+        ),
+      );
+    }
+
     final async = ref.watch(aiNewsItemsNotifierProvider);
-    final query = ref.watch(aiNewsSearchQueryProvider);
     return async.when(
       data: (items) => _ItemList(
-        items: filterAiNewsItems(items, query),
+        items: items,
         category: category,
-        query: query,
+        query: '',
       ),
       loading: () => const AiNewsListSkeleton(),
       error: (e, _) => ErrorView(
@@ -72,11 +113,15 @@ class _ItemList extends ConsumerStatefulWidget {
     required this.items,
     required this.category,
     required this.query,
+    this.staticList = false,
   });
 
   final List<AiNewsItem> items;
   final AiNewsCategory? category;
   final String query;
+
+  // true = 静态数据集(搜索结果/稍后读),不做触底加载。
+  final bool staticList;
 
   @override
   ConsumerState<_ItemList> createState() => _ItemListState();
@@ -114,7 +159,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
   }
 
   void _onScroll() {
-    if (widget.query.trim().isNotEmpty) {
+    if (widget.staticList || widget.query.trim().isNotEmpty) {
       return;
     }
     if (!_controller.hasClients) {
@@ -141,8 +186,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
                 : l10n.tr('ai_news.empty_category').replaceAll('{cat}', widget.category!.label),
       );
     }
-    final notifier = ref.read(aiNewsItemsNotifierProvider.notifier);
-    final hasMore = query.isEmpty && notifier.hasMore;
+    final hasMore = !widget.staticList && query.isEmpty && ref.read(aiNewsItemsNotifierProvider.notifier).hasMore;
     final groups = groupAiNewsByDay(widget.items);
     // 扁平化分组为 (header / row) 序列,SliverList 按 index lazy build。
     final flat = <_FlatEntry>[

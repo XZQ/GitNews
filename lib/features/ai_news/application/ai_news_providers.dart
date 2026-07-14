@@ -6,9 +6,12 @@ import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/storage/storage_providers.dart';
+import '../data/aggregated_ai_news_repository.dart';
 import '../data/ai_news_api_client.dart';
 import '../data/ai_news_cache_dao.dart';
+import '../data/ai_news_rss_client.dart';
 import '../data/ai_news_seed_data.dart';
+import '../data/ai_news_state_dao.dart';
 import '../data/remote_ai_news_repository.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_repository.dart';
@@ -33,8 +36,22 @@ final aiNewsApiClientProvider = Provider<AiNewsApiClient>(
   ),
 );
 
+// 补充 RSS/Atom 源共享一个 Dio:feed URL 是绝对地址,baseUrl 不参与拼接;
+// 走同一 keyed 工厂便于测试按 URL override。
+final aiNewsRssClientProvider = Provider<AiNewsRssClient>(
+  (ref) => AiNewsRssClient(
+    ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl)),
+  ),
+);
+
+// 聚合仓库:主源(精选流)+ 补充 RSS 源,head 页去重合并。
+// 任一源失败都不影响其余源;全部失败才抛错走缓存/种子降级。
 final aiNewsRepositoryProvider = Provider<AiNewsRepository>(
-  (ref) => RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)),
+  (ref) => AggregatedAiNewsRepository(
+    RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)),
+    ref.watch(aiNewsRssClientProvider),
+    clock: ref.watch(clockProvider),
+  ),
 );
 
 // AI 资讯缓存 DAO。共享全局 [appDatabaseProvider] 的 executor。
@@ -105,10 +122,15 @@ final aiNewsItemsNotifierProvider = AsyncNotifierProvider.autoDispose<AiNewsItem
   AiNewsItemsNotifier.new,
 );
 
-// 资讯详情读取:详情页只依赖本地缓存,避免再次请求远端或打开不稳定外站。
-final aiNewsItemDetailProvider = FutureProvider.autoDispose.family<AiNewsItem?, String>(
-  (ref, id) => ref.watch(aiNewsCacheDaoProvider).readById(id),
-);
+// 资讯详情读取:详情页只依赖本地数据,避免再次请求远端或打开不稳定外站。
+// 优先条目缓存;缓存被清理后回退稍后读的实体快照(ai_news_state)。
+final aiNewsItemDetailProvider = FutureProvider.autoDispose.family<AiNewsItem?, String>((ref, id) async {
+  final cached = await ref.watch(aiNewsCacheDaoProvider).readById(id);
+  if (cached != null) {
+    return cached;
+  }
+  return AiNewsStateDao(ref.watch(appDatabaseProvider).executor).snapshotOf(id);
+});
 
 // 当前资讯流的数据来源口径(live/freshCache/staleCache/seed)。
 // 由 [AiNewsItemsNotifier] 在关键决策点写入,供页头与首页预览展示 badge,
