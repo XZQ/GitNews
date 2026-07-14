@@ -40,6 +40,8 @@ class DiscoverProfileEntity {
     required this.htmlUrl,
     required this.featuredRepoFullName,
     required this.kind,
+    this.enriched = true,
+    this.enrichFailed = false,
   });
 
   final String login;
@@ -52,4 +54,38 @@ class DiscoverProfileEntity {
   final String htmlUrl;
   final String featuredRepoFullName;
   final DiscoverProfileKind kind;
+
+  /// 是否已通过 /users/{login} 补全完整字段。
+  /// `/search/users` 返回的占位 entity 此字段为 false。
+  final bool enriched;
+
+  /// 补全失败标记,避免无限重试。
+  final bool enrichFailed;
+
+  DiscoverProfileEntity copyWith({
+    String? bio,
+    int? publicRepos,
+    int? followers,
+    String? name,
+    String? type,
+    String? avatarUrl,
+    String? htmlUrl,
+    String? featuredRepoFullName,
+    bool? enriched,
+    bool? enrichFailed,
+  }) =>
+      DiscoverProfileEntity(
+        login: login,
+        name: name ?? this.name,
+        type: type ?? this.type,
+        bio: bio ?? this.bio,
+        publicRepos: publicRepos ?? this.publicRepos,
+        followers: followers ?? this.followers,
+        avatarUrl: avatarUrl ?? this.avatarUrl,
+        htmlUrl: htmlUrl ?? this.htmlUrl,
+        featuredRepoFullName: featuredRepoFullName ?? this.featuredRepoFullName,
+        kind: kind,
+        enriched: enriched ?? this.enriched,
+        enrichFailed: enrichFailed ?? this.enrichFailed,
+      );
 }

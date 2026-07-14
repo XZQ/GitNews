@@ -79,6 +79,8 @@ class DiscoverCacheCodec {
       htmlUrl: GitHubJson.nullableString(json['html_url']) ?? GitHubJson.nullableString(json['htmlUrl']) ?? 'https://github.com/$login',
       featuredRepoFullName: GitHubJson.nullableString(json['featuredRepoFullName']) ?? DiscoverQueries.featuredRepoForLogin(login),
       kind: kind,
+      enriched: true,
+      enrichFailed: false,
     );
   }
 
@@ -142,5 +144,7 @@ class DiscoverCacheCodec {
         'avatarUrl': profile.avatarUrl,
         'htmlUrl': profile.htmlUrl,
         'featuredRepoFullName': profile.featuredRepoFullName,
+        'enriched': profile.enriched,
+        'enrichFailed': profile.enrichFailed,
       };
 }

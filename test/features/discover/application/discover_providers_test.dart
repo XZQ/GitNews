@@ -54,6 +54,8 @@ class _FakeDiscoverRepository implements DiscoverRepository {
   Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
     required DiscoverProfileKind kind,
     bool force = false,
+    int page = 1,
+    int perPage = 20,
   }) async {
     profileKinds.add(kind);
     return DataResult(
