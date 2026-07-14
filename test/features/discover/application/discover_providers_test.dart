@@ -76,6 +76,28 @@ class _FakeDiscoverRepository implements DiscoverRepository {
       ],
     );
   }
+
+  @override
+  Future<DataResult<DiscoverProfileEntity>> fetchProfileDetail({
+    required String login,
+    required DiscoverProfileKind kind,
+  }) async {
+    return DataResult(
+      freshness: DataFreshness.live,
+      data: DiscoverProfileEntity(
+        login: login,
+        name: login,
+        type: kind == DiscoverProfileKind.official ? 'Organization' : 'User',
+        bio: '',
+        publicRepos: 0,
+        followers: 0,
+        avatarUrl: '',
+        htmlUrl: 'https://github.com/$login',
+        featuredRepoFullName: '$login/$login',
+        kind: kind,
+      ),
+    );
+  }
 }
 
 RepoEntity _repo(String suffix) => RepoEntity(
