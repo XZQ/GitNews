@@ -70,7 +70,7 @@ class DiscoverProfileRow extends StatelessWidget {
                         color: colors.onSurfaceVariant,
                       ),
                     ),
-                    if (profile.bio.isNotEmpty) ...[
+                    if (profile.enriched && profile.bio.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.xxs),
                       Text(
                         profile.bio,
@@ -78,6 +78,14 @@ class DiscoverProfileRow extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.bodySmall.copyWith(
                           color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                    ] else if (!profile.enriched) ...[
+                      const SizedBox(height: AppSpacing.xxs),
+                      Text(
+                        '—',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.5),
                         ),
                       ),
                     ],
@@ -88,7 +96,7 @@ class DiscoverProfileRow extends StatelessWidget {
                           icon: Icons.group_rounded,
                           value: l10n.tr('discover.profile.followers').replaceAll(
                                 '{n}',
-                                _shortNumber(profile.followers),
+                                _placeholderOrNumber(profile.followers, profile.enriched),
                               ),
                           color: colors.tertiary,
                         ),
@@ -97,7 +105,7 @@ class DiscoverProfileRow extends StatelessWidget {
                           icon: Icons.folder_rounded,
                           value: l10n.tr('discover.profile.repos').replaceAll(
                                 '{n}',
-                                _shortNumber(profile.publicRepos),
+                                _placeholderOrNumber(profile.publicRepos, profile.enriched),
                               ),
                           color: colors.secondary,
                         ),
@@ -175,7 +183,7 @@ class DiscoverProfileRow extends StatelessWidget {
                         color: colors.onSurfaceVariant,
                       ),
                     ),
-                    if (profile.bio.isNotEmpty) ...[
+                    if (profile.enriched && profile.bio.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.sm),
                       Text(
                         profile.bio,
@@ -183,6 +191,15 @@ class DiscoverProfileRow extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.bodySmall.copyWith(
                           color: colors.onSurfaceVariant,
+                          height: 1.55,
+                        ),
+                      ),
+                    ] else if (!profile.enriched) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        '—',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.5),
                           height: 1.55,
                         ),
                       ),
@@ -201,7 +218,7 @@ class DiscoverProfileRow extends StatelessWidget {
                           icon: Icons.group_rounded,
                           value: l10n.tr('discover.profile.followers').replaceAll(
                                 '{n}',
-                                _shortNumber(profile.followers),
+                                _placeholderOrNumber(profile.followers, profile.enriched),
                               ),
                           color: colors.tertiary,
                         ),
@@ -209,7 +226,7 @@ class DiscoverProfileRow extends StatelessWidget {
                           icon: Icons.folder_rounded,
                           value: l10n.tr('discover.profile.repos').replaceAll(
                                 '{n}',
-                                _shortNumber(profile.publicRepos),
+                                _placeholderOrNumber(profile.publicRepos, profile.enriched),
                               ),
                           color: colors.secondary,
                         ),
@@ -298,3 +315,6 @@ String _shortNumber(int value) => switch (value) {
       >= 1000 => '${(value / 1000).toStringAsFixed(1)}k',
       _ => value.toString(),
     };
+
+String _placeholderOrNumber(int value, bool enriched) =>
+    enriched ? _shortNumber(value) : '—';
