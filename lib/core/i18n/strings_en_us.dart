@@ -450,6 +450,8 @@ const Map<String, String> stringsEnUS = <String, String>{
   'discover.profile.people': 'Person',
   'discover.profile.followers': '{n} followers',
   'discover.profile.repos': '{n} repos',
+  'discover.profile.loading': 'Loading…',
+  'discover.profile.enrich_failed': 'Failed to load details',
 
   // device_flow
   'device_flow.title': 'GitHub Device Login',

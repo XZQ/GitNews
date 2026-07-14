@@ -448,6 +448,8 @@ const Map<String, String> stringsZhCN = <String, String>{
   'discover.profile.people': '人物',
   'discover.profile.followers': '{n} followers',
   'discover.profile.repos': '{n} repos',
+  'discover.profile.loading': '加载中…',
+  'discover.profile.enrich_failed': '详细信息加载失败',
 
   // device_flow (GitHub Device Flow 登录)
   'device_flow.title': 'GitHub 设备登录',
