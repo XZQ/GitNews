@@ -316,5 +316,4 @@ String _shortNumber(int value) => switch (value) {
       _ => value.toString(),
     };
 
-String _placeholderOrNumber(int value, bool enriched) =>
-    enriched ? _shortNumber(value) : '—';
+String _placeholderOrNumber(int value, bool enriched) => enriched ? _shortNumber(value) : '—';

@@ -80,8 +80,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     }
     final useCards = !Breakpoints.isCompact(context);
     final extent = useCards ? discoverItemExtentCards : discoverItemExtentCompact;
-    final remaining =
-        (_scrollController.position.maxScrollExtent - _scrollController.position.pixels) / extent;
+    final remaining = (_scrollController.position.maxScrollExtent - _scrollController.position.pixels) / extent;
     if (remaining > discoverLoadMoreRemainingItems) {
       return;
     }
@@ -277,11 +276,8 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
             message: query.trim().isEmpty ? emptyMessage : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
           );
         }
-        final notifierProvider = kind == DiscoverProfileKind.official
-            ? officialProfilesNotifierProvider
-            : peopleProfilesNotifierProvider;
-        final hasMore = query.trim().isEmpty &&
-            ref.read(notifierProvider.notifier).hasMore;
+        final notifierProvider = kind == DiscoverProfileKind.official ? officialProfilesNotifierProvider : peopleProfilesNotifierProvider;
+        final hasMore = query.trim().isEmpty && ref.read(notifierProvider.notifier).hasMore;
         return ListView.separated(
           controller: _scrollController,
           padding: useCards
