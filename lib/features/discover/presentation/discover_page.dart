@@ -52,8 +52,8 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
       ref.read(discoverRefreshTickProvider.notifier).state++;
       ref.invalidate(trendingReposNotifierProvider);
       ref.invalidate(agentSkillsNotifierProvider);
-      ref.invalidate(officialProfilesProvider);
-      ref.invalidate(peopleProfilesProvider);
+      ref.invalidate(officialProfilesNotifierProvider);
+      ref.invalidate(peopleProfilesNotifierProvider);
       switch (ref.read(discoverSegmentProvider)) {
         case 'skills':
           await ref.read(agentSkillsNotifierProvider.future);
@@ -78,8 +78,11 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     if (!_scrollController.hasClients) {
       return;
     }
-    final distanceToBottom = _scrollController.position.maxScrollExtent - _scrollController.position.pixels;
-    if (distanceToBottom >= discoverLoadMoreScrollPixels) {
+    final useCards = !Breakpoints.isCompact(context);
+    final extent = useCards ? discoverItemExtentCards : discoverItemExtentCompact;
+    final remaining =
+        (_scrollController.position.maxScrollExtent - _scrollController.position.pixels) / extent;
+    if (remaining > discoverLoadMoreRemainingItems) {
       return;
     }
     switch (ref.read(discoverSegmentProvider)) {
@@ -87,6 +90,10 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
         ref.read(agentSkillsNotifierProvider.notifier).loadMore();
       case 'repos':
         ref.read(trendingReposNotifierProvider.notifier).loadMore();
+      case 'official':
+        ref.read(officialProfilesNotifierProvider.notifier).loadMore();
+      case 'people':
+        ref.read(peopleProfilesNotifierProvider.notifier).loadMore();
     }
   }
 
@@ -127,16 +134,18 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
                   l10n,
                 ),
               'official' => _buildProfiles(
-                  ref.watch(filteredOfficialProfilesProvider),
+                  filteredOfficialProfilesProvider,
                   l10n,
                   Icons.verified_outlined,
                   l10n.tr('discover.empty.official'),
+                  DiscoverProfileKind.official,
                 ),
               'people' => _buildProfiles(
-                  ref.watch(filteredPeopleProfilesProvider),
+                  filteredPeopleProfilesProvider,
                   l10n,
                   Icons.person_search_outlined,
                   l10n.tr('discover.empty.people'),
+                  DiscoverProfileKind.people,
                 ),
               _ => _buildRepos(ref.watch(filteredTrendingReposProvider), l10n),
             },
@@ -246,13 +255,15 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
   }
 
   Widget _buildProfiles(
-    AsyncValue<List<DiscoverProfileEntity>> async,
+    ProviderListenable<AsyncValue<List<DiscoverProfileEntity>>> provider,
     AppLocalizations l10n,
     IconData emptyIcon,
     String emptyMessage,
+    DiscoverProfileKind kind,
   ) {
     final query = ref.watch(discoverSearchQueryProvider);
     final useCards = !Breakpoints.isCompact(context);
+    final async = ref.watch(provider);
     return async.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => ErrorView(
@@ -266,7 +277,13 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
             message: query.trim().isEmpty ? emptyMessage : l10n.tr('discover.empty_filter').replaceAll('{query}', query),
           );
         }
+        final notifierProvider = kind == DiscoverProfileKind.official
+            ? officialProfilesNotifierProvider
+            : peopleProfilesNotifierProvider;
+        final hasMore = query.trim().isEmpty &&
+            ref.read(notifierProvider.notifier).hasMore;
         return ListView.separated(
+          controller: _scrollController,
           padding: useCards
               ? const EdgeInsets.fromLTRB(
                   AppSpacing.lg,
@@ -275,15 +292,20 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
                   AppSpacing.xxxl,
                 )
               : const EdgeInsets.symmetric(vertical: AppSpacing.md),
-          itemCount: profiles.length,
+          itemCount: profiles.length + (hasMore ? 1 : 0),
           separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
-          itemBuilder: (context, i) => DiscoverProfileRow(
-            profile: profiles[i],
-            cardStyle: useCards,
-            onTap: () => context.go(
-              discoverProfileDetailLocation(profiles[i]),
-            ),
-          ),
+          itemBuilder: (context, i) {
+            if (i >= profiles.length) {
+              return const DiscoverLoadMoreIndicator();
+            }
+            return DiscoverProfileRow(
+              profile: profiles[i],
+              cardStyle: useCards,
+              onTap: () => context.go(
+                discoverProfileDetailLocation(profiles[i]),
+              ),
+            );
+          },
         );
       },
     );
