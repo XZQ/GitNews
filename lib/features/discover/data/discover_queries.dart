@@ -5,7 +5,16 @@ class DiscoverQueries {
   const DiscoverQueries._();
 
   static const String trending = 'stars:>1000';
-  static const String skills = 'topic:agent-skills OR topic:claude-skills OR topic:mcp stars:>50';
+  static const String skills = 'topic:agent-skills OR topic:claude-skills OR topic:mcp '
+      'OR topic:ai-agent OR topic:llm-agent OR topic:mcp-server '
+      'stars:>10';
+
+  /// /search/users:官方组织(AI 相关)。
+  static const String officialSearchQuery = 'type:org followers:>5000 ai in:name,bio';
+
+  /// /search/users:知名开发者(AI 相关)。
+  static const String peopleSearchQuery = 'type:user followers:>1000 ai in:bio';
+
   static const String trendingCache = 'discover_trending_repos';
   static const String skillsCache = 'discover_agent_skills';
   static const String profilesCache = 'discover_profiles';
@@ -82,6 +91,13 @@ class DiscoverQueries {
   static String pageKey(String base, int page, int perPage) {
     return '$base:p$page:n$perPage';
   }
+
+  static String profilesPageKey(
+    DiscoverProfileKind kind,
+    int page,
+    int perPage,
+  ) =>
+      '${DiscoverQueries.profilesCache}:${kind.name}:p$page:n$perPage';
 
   static List<T> slice<T>(
     List<T> items, {
