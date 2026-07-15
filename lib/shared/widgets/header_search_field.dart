@@ -32,7 +32,6 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.value);
-    _controller.addListener(_handleTextChanged);
   }
 
   @override
@@ -48,17 +47,8 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
 
   @override
   void dispose() {
-    _controller.removeListener(_handleTextChanged);
     _controller.dispose();
     super.dispose();
-  }
-
-  void _handleTextChanged() {
-    // 父级通过 onChanged 重建即可刷新后缀图标;仅在无外部回调时本地重建,
-    // 避免每次输入触发双重 rebuild。
-    if (widget.onChanged == null) {
-      setState(() {});
-    }
   }
 
   void _clear() {
@@ -92,17 +82,23 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
             hintStyle: AppTypography.bodySmall.copyWith(
               color: colors.onSurfaceVariant,
             ),
-            suffixIcon: _controller.text.isEmpty
-                ? null
-                : IconButton(
-                    tooltip: l10n.tr('a11y.clear_search'),
-                    onPressed: _clear,
-                    icon: Icon(
-                      Icons.close_rounded,
-                      size: 16,
-                      color: colors.onSurfaceVariant,
-                    ),
+            suffixIcon: ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                if (_controller.text.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return IconButton(
+                  tooltip: l10n.tr('a11y.clear_search'),
+                  onPressed: _clear,
+                  icon: Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: colors.onSurfaceVariant,
                   ),
+                );
+              },
+            ),
             isDense: true,
             contentPadding: EdgeInsets.zero,
             filled: true,

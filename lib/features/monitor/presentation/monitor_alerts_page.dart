@@ -194,11 +194,18 @@ class _Body extends ConsumerWidget {
                     icon: Icons.notifications_off_outlined,
                     message: l10n.tr('monitor.alerts.filtered_empty'),
                   ),
+                )
+              else
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  itemCount: filteredAlerts.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, i) => RepaintBoundary(
+                    child: MonitorAlertListTile(alert: filteredAlerts[i]),
+                  ),
                 ),
-              for (var i = 0; i < filteredAlerts.length; i++) ...[
-                if (i != 0) const Divider(height: 1),
-                MonitorAlertListTile(alert: filteredAlerts[i]),
-              ],
             ],
           ),
         ),

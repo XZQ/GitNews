@@ -751,4 +751,51 @@ const Map<String, String> stringsEnUS = <String, String>{
 
   // profile session
   'profile.session.signed_in': 'Local account · Signed in',
+
+  // common extras
+  'common.done': 'Done',
+
+  // trending mobile view
+  'trending.mobile.star_growth_rank': 'Star Growth Ranking',
+  'trending.mobile.tracking_subtitle': 'Tracking {window} · Star growth ranking',
+  'trending.mobile.repos_count': '{window} · {count} items',
+  'trending.mobile.time_window': 'Time Window',
+  'trending.mobile.language': 'Language',
+  'trending.language.all': 'All Languages',
+  'trending.action.filter': 'Filter',
+
+  // trending hot repos page
+  'trending.hot_repos.title': 'Popular Repos',
+  'trending.hot_repos.empty': 'No popular repos yet',
+  'trending.hot_repos.empty_search': 'No repos matching "{query}"',
+  'trending.hot_repos.list_title': 'Popular Repos · Full List',
+  'trending.hot_repos.list_subtitle': 'Sorted by Star growth · {count} total',
+  'trending.hot_repos.notes_title': 'Notes',
+  'trending.hot_repos.notes_subtitle': 'Data source and refresh strategy',
+  'trending.hot_repos.note1': 'GitHub Trending + community aggregation · refreshed every 5 minutes',
+  'trending.hot_repos.note2': 'Star growth based on last 24h · with historical comparison',
+  'trending.hot_repos.note3': 'Tap a repo to view 30-day Star history',
+
+  // trending language trend page
+  'trending.language_trend.title': 'Language Trends',
+  'trending.language_trend.empty': 'No language trends yet',
+  'trending.language_trend.overview_title': 'Language Trends Overview',
+  'trending.language_trend.overview_subtitle': 'Language share of popular repos · last 30 days',
+  'trending.language_trend.growth_title': 'Language Growth Ranking',
+  'trending.language_trend.growth_subtitle': 'This week vs last week',
+
+  // trending list
+  'trending.list.empty': 'No matching popular repos',
+  'trending.list.subtitle.short': 'Sorted by Star growth',
+  'trending.list.updating': 'Updating trending list',
+
+  // project repo lists
+  'project.repos.popular_empty': 'No matching popular repos',
+  'project.repos.active_empty': 'No matching recently active repos',
+
+  // monitor recent alerts
+  'monitor.recent_alerts.title': 'Recent Alerts',
+  'monitor.recent_alerts.subtitle_done': 'All visible alerts handled',
+  'monitor.recent_alerts.subtitle_unread': '{n} unread, needs attention',
+  'monitor.recent_alerts.empty': 'No matching alerts',
 };

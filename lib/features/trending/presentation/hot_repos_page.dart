@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -16,7 +17,7 @@ import '../../../shared/widgets/skeleton.dart';
 import '../application/trending_providers.dart';
 import '../domain/trending_repository.dart';
 
-/* 
+/*
 *二级页 3:热门仓库(完整列表 + 表格视图)。
 */
 class HotReposPage extends ConsumerWidget {
@@ -24,11 +25,12 @@ class HotReposPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(filteredTrendingDigestProvider);
     final searchQuery = ref.watch(trendingSearchQueryProvider).trim();
     return Scaffold(
       appBar: AppBar(
-        title: const Text('热门仓库'),
+        title: Text(l10n.tr('trending.hot_repos.title')),
         leading: BackButton(
           onPressed: () => context.canPop() ? context.pop() : context.go('/trending'),
         ),
@@ -38,7 +40,8 @@ class HotReposPage extends ConsumerWidget {
           if (digest.allRepos.isEmpty) {
             return EmptyView(
               icon: searchQuery.isEmpty ? Icons.local_fire_department_outlined : Icons.search_off_rounded,
-              message: searchQuery.isEmpty ? '暂无热门仓库' : '未找到与「$searchQuery」相关的仓库',
+              message:
+                  searchQuery.isEmpty ? l10n.tr('trending.hot_repos.empty') : l10n.tr('trending.hot_repos.empty_search').replaceAll('{query}', searchQuery),
             );
           }
           return ResponsiveLayout(
@@ -68,6 +71,7 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final repos = digest.allRepos;
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(
@@ -87,23 +91,23 @@ class _Body extends StatelessWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: '热门仓库 · 完整列表',
-              subtitle: '按 Star 增速排序 · 共 ${repos.length} 个',
+              title: l10n.tr('trending.hot_repos.list_title'),
+              subtitle: l10n.tr('trending.hot_repos.list_subtitle').replaceAll('{count}', '${repos.length}'),
             ),
           );
         }
         if (index == repos.length + 1) {
-          return const Padding(
-            padding: EdgeInsets.only(top: AppSpacing.lg),
+          return Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.lg),
             child: AppCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SectionHeader(title: '说明', subtitle: '数据来源与刷新策略'),
-                  SizedBox(height: AppSpacing.sm),
-                  _Bullet('GitHub Trending 与社区聚合 · 每 5 分钟刷新'),
-                  _Bullet('Star 增速以最近 24h 为基准 · 含历史对比'),
-                  _Bullet('点击仓库进入详情页,查看 30 天 Star 历史'),
+                  SectionHeader(title: l10n.tr('trending.hot_repos.notes_title'), subtitle: l10n.tr('trending.hot_repos.notes_subtitle')),
+                  const SizedBox(height: AppSpacing.sm),
+                  _Bullet(l10n.tr('trending.hot_repos.note1')),
+                  _Bullet(l10n.tr('trending.hot_repos.note2')),
+                  _Bullet(l10n.tr('trending.hot_repos.note3')),
                 ],
               ),
             ),

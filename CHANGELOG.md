@@ -2,7 +2,7 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 和[语义化版本](https://semver.org/spec/v2.0.0.html)。
 
-## [Unreleased]
+## [1.4.0+4] - 2026-07-15
 
 ### Added
 
@@ -10,16 +10,23 @@
 - 资讯库:关键词搜索改查 SQLite 全部本地沉淀条目;新增已读与稍后读状态(schema v5 `ai_news_state`,实体快照模式,清缓存不丢用户状态),列表页可只看稍后读。
 - 资讯 ↔ GitHub 打通:详情页从标题/摘要/链接抽取相关仓库,一键跳转仓库详情(`/ai_news/repo/:fullName`)。
 - 今日 AI 日报:用户自带 OpenAI 兼容 API Key(secure storage),基于本地资讯库当天条目生成中文日报,按天缓存不重复计费;未配置不发请求,失败明确报错。
-- 规划文档 `docs/plans/ai_news_roadmap.md`。
+- SQLite 迁移链 v1→v5 往返测试覆盖全链路与部分链路,锁死 onUpgrade 数据守卫。
+- 主屏视觉 Golden 在原页头基线之外,新增「完整 chrome」基线(PageHeader + MetricCard 行 + AppCard + Skeleton),锁定桌面端 B/C 区域真实组合。
+- `feature_providers` DI 桶补齐 `themeModeControllerProvider`/`themePresetControllerProvider`/`sidebarWidthProvider` 的 re-export,消除历史 TODO。
 
 ### Changed
 
 - 统一仓库列表设计语言:`RepoTile` 升级为全局一致的卡片式条目(细边框 + md 圆角 + 排名角标 + 尾部插槽),深度报告「本周热门/最近活跃」、仓库监控、热榜、收藏、监控主题等页统一改为间距卡片列表,替换原分隔线扁平行。
 - 数据口径诚实化:列表右侧趋势曲线只在存在真实观测历史时绘制;无历史时展示 Star 增量与趋势箭头,不再用合成曲线兜底(消除千篇一律的假曲线)。视觉基线需在 Windows 上 `flutter test --update-goldens` 重新生成 `repo_tile.png`。
+- 发现页继续按 AGENTS.md 300 行约束拆分:`discover_repository` 的 profile 抽取到 `discover_profile_composition`;3 个 Notifier 抽到 `discover_notifiers`;`discover_page` 的三个 section 抽到 `discover_sections`;`discover_profile_row` 的 _Pill/_IconMetric 抽到 `discover_profile_metrics`。4 个原超长文件全部回到 300 行以内。
+- 移动端趋势、热门仓库二级页、语言趋势、项目仓库列表、监控最近告警等 6 个用户可见文件全部接入 i18n,新增 30+ 文案 key,消除裸中文字面量。
 
 ### Fixed
 
 - 将像素 Golden 基线固定在 Windows 执行，并在 Windows CI 中显式运行全部视觉回归，避免 Ubuntu 字体与渲染差异造成伪失败。
+- 告警列表从 `for` 循环改为 `ListView.separated` + `RepaintBoundary`,大列表滚动重绘开销下降。
+- `HeaderSearchField` 用 `ListenableBuilder` 替换受保护的 `setState`,彻底消除输入时的双重 rebuild。
+- 发现页 3 个 `loadMore` 补齐 `catch → AsyncError`,网络异常不再被 `try/finally` 吞掉,UI 能正确展示错误并阻止重试风暴。
 
 ## [1.3.0+3] - 2026-07-11
 

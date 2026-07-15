@@ -34,8 +34,8 @@ class ProjectPopularRepos extends StatelessWidget {
             ),
           ),
           if (repos.isEmpty)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.md,
                 AppSpacing.lg,
@@ -43,7 +43,7 @@ class ProjectPopularRepos extends StatelessWidget {
               ),
               child: EmptyView(
                 icon: Icons.search_off_rounded,
-                message: '没有匹配的热门仓库',
+                message: l10n.tr('project.repos.popular_empty'),
               ),
             ),
           Padding(
@@ -99,8 +99,8 @@ class ProjectRecentlyUpdated extends StatelessWidget {
             ),
           ),
           if (repos.isEmpty)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.md,
                 AppSpacing.lg,
@@ -108,7 +108,7 @@ class ProjectRecentlyUpdated extends StatelessWidget {
               ),
               child: EmptyView(
                 icon: Icons.search_off_rounded,
-                message: '没有匹配的最近活跃仓库',
+                message: l10n.tr('project.repos.active_empty'),
               ),
             ),
           Padding(

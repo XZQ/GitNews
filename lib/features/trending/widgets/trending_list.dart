@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -9,7 +10,7 @@ import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../domain/entities.dart';
 
-/* 
+/*
 *趋势热榜仓库列表(含空态与加载遮罩)。
 *从 trending_desktop_view 拆出,保持主视图文件 < 300 行(AGENTS.md)。
 */
@@ -21,16 +22,17 @@ class TrendingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     if (repos.isEmpty) {
       return Stack(
         children: [
-          const AppCard(
+          AppCard(
             child: EmptyView(
               icon: Icons.search_off_rounded,
-              message: '没有匹配的热门仓库',
+              message: l10n.tr('trending.list.empty'),
             ),
           ),
-          if (isLoading) const _TrendingListLoadingOverlay(),
+          if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating')),
         ],
       );
     }
@@ -41,15 +43,15 @@ class TrendingList extends StatelessWidget {
           padding: EdgeInsets.zero,
           child: CustomScrollView(
             slivers: [
-              const SliverToBoxAdapter(
+              SliverToBoxAdapter(
                 child: Padding(
-                  padding: EdgeInsets.fromLTRB(
+                  padding: const EdgeInsets.fromLTRB(
                     AppSpacing.lg,
                     AppSpacing.md,
                     AppSpacing.lg,
                     AppSpacing.xs,
                   ),
-                  child: SectionHeader(title: '热门仓库', subtitle: '按 Star 增速排序'),
+                  child: SectionHeader(title: l10n.tr('trending.page.repos'), subtitle: l10n.tr('trending.list.subtitle.short')),
                 ),
               ),
               SliverPadding(
@@ -76,14 +78,16 @@ class TrendingList extends StatelessWidget {
             ],
           ),
         ),
-        if (isLoading) const _TrendingListLoadingOverlay(),
+        if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating')),
       ],
     );
   }
 }
 
 class _TrendingListLoadingOverlay extends StatelessWidget {
-  const _TrendingListLoadingOverlay();
+  const _TrendingListLoadingOverlay({required this.message});
+
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -110,21 +114,21 @@ class _TrendingListLoadingOverlay extends StatelessWidget {
                   ),
                 ],
               ),
-              child: const Padding(
-                padding: EdgeInsets.symmetric(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.lg,
                   vertical: AppSpacing.md,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                    SizedBox(width: AppSpacing.sm),
-                    Text('正在更新热榜'),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(message),
                   ],
                 ),
               ),

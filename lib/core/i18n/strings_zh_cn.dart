@@ -749,4 +749,51 @@ const Map<String, String> stringsZhCN = <String, String>{
 
   // profile session
   'profile.session.signed_in': '本地账号 · 已登录',
+
+  // common extras
+  'common.done': '完成',
+
+  // trending mobile view
+  'trending.mobile.star_growth_rank': 'Star 增长榜',
+  'trending.mobile.tracking_subtitle': '追踪 {window} · Star 增速排名',
+  'trending.mobile.repos_count': '{window} · {count} 个项目',
+  'trending.mobile.time_window': '时间窗',
+  'trending.mobile.language': '语言',
+  'trending.language.all': '全部语言',
+  'trending.action.filter': '筛选',
+
+  // trending hot repos page
+  'trending.hot_repos.title': '热门仓库',
+  'trending.hot_repos.empty': '暂无热门仓库',
+  'trending.hot_repos.empty_search': '未找到与「{query}」相关的仓库',
+  'trending.hot_repos.list_title': '热门仓库 · 完整列表',
+  'trending.hot_repos.list_subtitle': '按 Star 增速排序 · 共 {count} 个',
+  'trending.hot_repos.notes_title': '说明',
+  'trending.hot_repos.notes_subtitle': '数据来源与刷新策略',
+  'trending.hot_repos.note1': 'GitHub Trending 与社区聚合 · 每 5 分钟刷新',
+  'trending.hot_repos.note2': 'Star 增速以最近 24h 为基准 · 含历史对比',
+  'trending.hot_repos.note3': '点击仓库进入详情页,查看 30 天 Star 历史',
+
+  // trending language trend page
+  'trending.language_trend.title': '语言趋势',
+  'trending.language_trend.empty': '暂无语言趋势',
+  'trending.language_trend.overview_title': '语言趋势总览',
+  'trending.language_trend.overview_subtitle': '热门仓库的编程语言占比 · 最近 30 天',
+  'trending.language_trend.growth_title': '语言增长率排行',
+  'trending.language_trend.growth_subtitle': '本周 vs 上周',
+
+  // trending list
+  'trending.list.empty': '没有匹配的热门仓库',
+  'trending.list.subtitle.short': '按 Star 增速排序',
+  'trending.list.updating': '正在更新热榜',
+
+  // project repo lists
+  'project.repos.popular_empty': '没有匹配的热门仓库',
+  'project.repos.active_empty': '没有匹配的最近活跃仓库',
+
+  // monitor recent alerts
+  'monitor.recent_alerts.title': '最近告警',
+  'monitor.recent_alerts.subtitle_done': '当前可见告警均已处理',
+  'monitor.recent_alerts.subtitle_unread': '{n} 条未读，需要关注',
+  'monitor.recent_alerts.empty': '没有匹配的告警',
 };

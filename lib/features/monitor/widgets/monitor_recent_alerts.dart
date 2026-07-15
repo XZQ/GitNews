@@ -21,6 +21,7 @@ class MonitorRecentAlerts extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final unreadCount = alerts.where((alert) => !alert.isRead).length;
     return AppCard(
       padding: EdgeInsets.zero,
@@ -34,21 +35,23 @@ class MonitorRecentAlerts extends ConsumerWidget {
               AppSpacing.xs,
             ),
             child: SectionHeader(
-              title: '最近告警',
-              subtitle: unreadCount == 0 ? '当前可见告警均已处理' : '$unreadCount 条未读，需要关注',
+              title: l10n.tr('monitor.recent_alerts.title'),
+              subtitle: unreadCount == 0
+                  ? l10n.tr('monitor.recent_alerts.subtitle_done')
+                  : l10n.tr('monitor.recent_alerts.subtitle_unread').replaceAll('{n}', '$unreadCount'),
               trailing: TextButton.icon(
                 onPressed: alerts.isEmpty || unreadCount == 0
                     ? null
                     : () => ref.read(monitorAlertEventsProvider.notifier).markAllRead(alerts.map((alert) => alert.id).whereType<String>()),
                 icon: const Icon(Icons.done_all_rounded, size: 16),
-                label: const Text('全部已读'),
+                label: Text(l10n.tr('monitor.alerts.mark_all_read')),
               ),
               onTap: () => context.go('/monitor/alerts'),
             ),
           ),
           if (alerts.isEmpty)
-            const Padding(
-              padding: EdgeInsets.fromLTRB(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,
                 AppSpacing.md,
                 AppSpacing.lg,
@@ -56,7 +59,7 @@ class MonitorRecentAlerts extends ConsumerWidget {
               ),
               child: EmptyView(
                 icon: Icons.notifications_off_outlined,
-                message: '没有匹配的告警',
+                message: l10n.tr('monitor.recent_alerts.empty'),
               ),
             ),
           for (var i = 0; i < alerts.length; i++) ...[

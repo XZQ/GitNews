@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -16,7 +17,7 @@ import '../domain/trending_repository.dart';
 import '../widgets/language_donut_chart.dart';
 import '../widgets/language_growth_bars.dart';
 
-/* 
+/*
 *二级页 2:语言趋势(饼图 + 列表)。
 */
 class LanguageTrendPage extends ConsumerWidget {
@@ -24,10 +25,11 @@ class LanguageTrendPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(trendingDigestProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('语言趋势'),
+        title: Text(l10n.tr('trending.language_trend.title')),
         leading: BackButton(
           onPressed: () => context.canPop() ? context.pop() : context.go('/trending'),
         ),
@@ -35,7 +37,7 @@ class LanguageTrendPage extends ConsumerWidget {
       body: state.when(
         data: (digest) {
           if (digest.languages.isEmpty) {
-            return const EmptyView(icon: Icons.code_rounded, message: '暂无语言趋势');
+            return EmptyView(icon: Icons.code_rounded, message: l10n.tr('trending.language_trend.empty'));
           }
           return ResponsiveLayout(
             compact: (_) => _Body(digest: digest),
@@ -64,6 +66,7 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isLight = Theme.of(context).brightness == Brightness.light;
     return ListView(
       padding: const EdgeInsets.fromLTRB(
@@ -77,9 +80,9 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(
-                title: '语言趋势总览',
-                subtitle: '热门仓库的编程语言占比 · 最近 30 天',
+              SectionHeader(
+                title: l10n.tr('trending.language_trend.overview_title'),
+                subtitle: l10n.tr('trending.language_trend.overview_subtitle'),
               ),
               const SizedBox(height: AppSpacing.lg),
               LanguageDonutChart(
@@ -104,7 +107,7 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(title: '语言增长率排行', subtitle: '本周 vs 上周'),
+              SectionHeader(title: l10n.tr('trending.language_trend.growth_title'), subtitle: l10n.tr('trending.language_trend.growth_subtitle')),
               const SizedBox(height: AppSpacing.md),
               LanguageGrowthBars(languages: digest.languages),
             ],

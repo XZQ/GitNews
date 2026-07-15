@@ -11,14 +11,18 @@ import '../../../core/utils/app_logger.dart';
 import '../domain/discover_entities.dart';
 import 'discover_cache_codec.dart';
 import 'discover_profile_client.dart';
+import 'discover_profile_composition.dart';
 import 'discover_queries.dart';
 import 'discover_search_client.dart';
 import 'discover_seed.dart';
 import 'discover_users_search_client.dart';
 
-/// 发现页数据仓库。
-/// 两个数据源均走「GitHub Search API → 本地缓存 → 种子」三级回退,
-/// 与监控/热榜一致的离线路优先策略。
+/*
+ *发现页数据仓库。
+ *
+ *两个数据源均走「GitHub Search API → 本地缓存 → 种子」三级回退,
+ *与监控/热榜一致的离线路优先策略。
+ */
 class DiscoverRepository {
   DiscoverRepository({
     required Dio dio,
@@ -197,137 +201,18 @@ class DiscoverRepository {
     int page = 1,
     int perPage = 20,
   }) async {
-    final now = _now();
-    final searchQuery = kind == DiscoverProfileKind.official ? DiscoverQueries.officialSearchQuery : DiscoverQueries.peopleSearchQuery;
-    final key = DiscoverQueries.profilesPageKey(kind, page, perPage);
-
-    if (force) {
-      await _safeDelete(key);
-    }
-
-    final bool useRemote = !_blocked();
-    List<DiscoverProfileEntity>? searchHits;
-    if (useRemote) {
-      if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
-        final cached = await _cache.read(key);
-        if (cached != null) {
-          final cachedList = DiscoverCacheCodec.decodeProfiles(cached, kind);
-          return _composeWithWhitelist(
-            kind,
-            page,
-            cachedList,
-            fromCache: true,
-          );
-        }
-      }
-      try {
-        final hits = await _usersSearchClient.searchUsers(
-          query: searchQuery,
-          page: page,
-          perPage: perPage,
-        );
-        searchHits = [
-          for (final hit in hits)
-            DiscoverProfileEntity(
-              login: hit.login,
-              name: hit.login,
-              type: hit.type,
-              bio: '',
-              publicRepos: 0,
-              followers: 0,
-              avatarUrl: hit.avatarUrl,
-              htmlUrl: hit.htmlUrl,
-              featuredRepoFullName: DiscoverQueries.featuredRepoForLogin(hit.login),
-              kind: kind,
-              enriched: false,
-              enrichFailed: false,
-            ),
-        ];
-        await _cache.upsert(
-          key: key,
-          payload: DiscoverCacheCodec.profilesToJson(searchHits),
-          now: now,
-        );
-      } on DioException catch (e) {
-        _report(GitHubApiSupport.toAppException(e, now: _now));
-      } on AppException catch (e) {
-        _report(e);
-      } catch (e) {
-        AppLogger.warn(
-          'discoverProfilesSearch',
-          meta: {'error': e.runtimeType.toString()},
-        );
-      }
-    }
-
-    final List<DiscoverProfileEntity> searchResult;
-    final DataFreshness searchFreshness;
-    if (searchHits != null) {
-      searchResult = searchHits;
-      searchFreshness = DataFreshness.live;
-    } else {
-      final cached = await _cache.read(key);
-      if (cached != null) {
-        searchResult = DiscoverCacheCodec.decodeProfiles(cached, kind);
-        searchFreshness = DataFreshness.staleCache;
-      } else {
-        searchResult = const [];
-        searchFreshness = page == 1 ? DataFreshness.seed : DataFreshness.staleCache;
-      }
-    }
-    return _composeWithWhitelist(
-      kind,
-      page,
-      searchResult,
-      searchFreshness: searchFreshness,
+    return fetchProfilesPage(
+      profileClient: _profileClient,
+      usersSearchClient: _usersSearchClient,
+      cache: _cache,
+      now: _now,
+      isBlocked: _blocked,
+      report: _report,
+      kind: kind,
+      force: force,
+      page: page,
+      perPage: perPage,
     );
-  }
-
-  /// 仅 page==1 时,在搜索结果前置白名单(enriched),并对与白名单重复的 login 去重。
-  Future<DataResult<List<DiscoverProfileEntity>>> _composeWithWhitelist(
-    DiscoverProfileKind kind,
-    int page,
-    List<DiscoverProfileEntity> searchResult, {
-    DataFreshness? searchFreshness,
-    bool fromCache = false,
-  }) async {
-    if (page != 1) {
-      return DataResult(
-        data: searchResult,
-        freshness: searchFreshness ?? DataFreshness.live,
-      );
-    }
-    final whitelist = await _fetchWhitelist(kind);
-    final whitelistLogins = whitelist.map((p) => p.login).toSet();
-    final dedupedSearch = searchResult.where((p) => !whitelistLogins.contains(p.login)).toList();
-    final DataFreshness freshness;
-    if (whitelist.isEmpty && searchResult.isEmpty) {
-      freshness = DataFreshness.seed;
-    } else if (fromCache) {
-      freshness = DataFreshness.freshCache;
-    } else {
-      freshness = searchFreshness ?? DataFreshness.live;
-    }
-    return DataResult(
-      data: [...whitelist, ...dedupedSearch],
-      freshness: freshness,
-    );
-  }
-
-  Future<List<DiscoverProfileEntity>> _fetchWhitelist(
-    DiscoverProfileKind kind,
-  ) async {
-    final logins = DiscoverQueries.profileLogins(kind);
-    final results = <DiscoverProfileEntity>[];
-    for (final login in logins) {
-      try {
-        final r = await _profileClient.fetch(login, kind);
-        results.add(r.data);
-      } catch (_) {
-        // 单条失败不阻断白名单整体返回;跳过。
-      }
-    }
-    return results;
   }
 
   Future<DataResult<DiscoverProfileEntity>> fetchProfileDetail({
