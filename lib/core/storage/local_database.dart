@@ -26,7 +26,7 @@ class LocalDatabase {
   final String path;
 
   // 当前 schema 版本。每次新增迁移在 database_schema.dart 的迁移链末尾追加并自增此值。
-  static const int _kCurrentVersion = 5;
+  static const int _kCurrentVersion = 6;
 
   /* 
   *业务方拿到这个 executor 后,在自己的 DAO 内执行 SQL。

@@ -61,15 +61,19 @@ class MonitorMonitoredRepos extends StatelessWidget {
 *监控仓库条目:统一的 [RepoTile] 卡片 + 尾部健康状态徽章。
 */
 class MonitorMonitoredRow extends StatelessWidget {
-  const MonitorMonitoredRow({required this.repo, super.key});
+  const MonitorMonitoredRow({required this.repo, this.dense = false, super.key});
 
   final RepoEntity repo;
+
+  // 紧凑密度(移动端)。
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return RepoTile(
       repo: repo,
+      dense: dense,
       trailing: _StatusPill(text: l10n.tr('monitor.monitored_repos.status_ok')),
       onTap: () => context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
     );

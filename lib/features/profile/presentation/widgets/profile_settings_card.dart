@@ -34,6 +34,18 @@ class ProfileSettingsCard extends ConsumerWidget {
           ),
           ProfileSettingRow(icon: Icons.rocket_launch_outlined, label: l10n.tr('profile.settings.launch_theme'), trailing: const StartupTabPreference()),
           ProfileSettingRow(icon: Icons.cloud_outlined, label: l10n.tr('profile.settings.data_source'), trailing: const TrendingDataSourcePreference()),
+          ProfileSettingRow(
+            icon: Icons.rss_feed_rounded,
+            label: l10n.tr('settings.ai_sources.title'),
+            trailing: const Icon(Icons.chevron_right, size: 18),
+            onTap: () => context.go('/profile/sources'),
+          ),
+          ProfileSettingRow(
+            icon: Icons.cloud_sync_outlined,
+            label: l10n.tr('settings.server.title'),
+            trailing: const Icon(Icons.chevron_right, size: 18),
+            onTap: () => context.go('/profile/server'),
+          ),
           ProfileSettingRow(icon: Icons.open_in_new_rounded, label: l10n.tr('profile.link_open_mode'), trailing: const LinkOpenModePreference()),
           ProfileSettingRow(
             icon: Icons.code,

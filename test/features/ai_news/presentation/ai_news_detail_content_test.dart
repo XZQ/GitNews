@@ -10,8 +10,13 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-
-    await tester.pumpWidget(MaterialApp(home: Scaffold(body: AiNewsDetailContent(item: _item()))));
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: AiNewsDetailContent(item: _item(), showEnrichment: false),
+        ),
+      ),
+    );
 
     final summaryRect = tester.getRect(find.byType(AppCard).first);
 

@@ -253,7 +253,7 @@ Recommended order:
 - Add regression tests with bug fixes when the behavior can reasonably break
   again.
 
-## Project Overlay: GitHub News
+## Project Overlay: AI资讯
 
 - Follow `AGENTS.md` for feature layout, data boundaries, commands, and Git
   workflow.

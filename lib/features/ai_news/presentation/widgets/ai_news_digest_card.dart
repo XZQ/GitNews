@@ -75,7 +75,21 @@ class _DigestBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     if (!config.configured) {
-      return Text(l10n.tr('ai_news.digest_unconfigured'), style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant));
+      // 未配置态收成单行:一句引导 + 配置入口;安全说明挪进配置对话框。
+      return Row(children: [
+        Expanded(
+          child: Text(
+            l10n.tr('ai_news.digest_unconfigured'),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+          ),
+        ),
+        TextButton(
+          onPressed: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
+          child: Text(l10n.tr('ai_news.digest_configure')),
+        ),
+      ]);
     }
     if (digest.isLoading) {
       return const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.md), child: Center(child: CircularProgressIndicator()));
@@ -156,7 +170,12 @@ class _AiDigestSettingsDialogState extends ConsumerState<AiDigestSettingsDialog>
             const SizedBox(height: AppSpacing.md),
             TextField(controller: _baseUrlController, decoration: InputDecoration(labelText: l10n.tr('ai_news.digest_base_url'))),
             const SizedBox(height: AppSpacing.md),
-            TextField(controller: _modelController, decoration: InputDecoration(labelText: l10n.tr('ai_news.digest_model')))
+            TextField(controller: _modelController, decoration: InputDecoration(labelText: l10n.tr('ai_news.digest_model'))),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              l10n.tr('ai_news.digest_key_note'),
+              style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            )
           ],
         ),
       ),

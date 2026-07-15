@@ -15,6 +15,7 @@ export '../../features/trending/application/trending_providers.dart';
 export '../../shared/widgets/app_sidebar.dart' show sidebarWidthProvider;
 export '../github/rate_limit_gate.dart' show rateLimitGateProvider, RateLimitGateStatus;
 export '../network/dio_client.dart' show DioClient;
+export '../preferences/ai_news_source_controller.dart' show aiNewsSourceControllerProvider, AiNewsSourceState, AiNewsSourceController;
 export '../preferences/github_token_controller.dart' show githubTokenControllerProvider, GitHubTokenState, GitHubTokenController;
 export '../storage/storage_providers.dart' show appDatabaseProvider;
 export '../theme/theme_mode_controller.dart' show themeModeControllerProvider, ThemeModeController;

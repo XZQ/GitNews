@@ -3,6 +3,7 @@ import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
 import 'package:github_news/features/ai_news/data/ai_news_cache_dao.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
+import 'package:github_news/features/ai_news/domain/ai_news_library_filter.dart';
 
 void main() {
   group('AiNewsCacheDao', () {
@@ -16,14 +17,21 @@ void main() {
 
     tearDown(() async => db.close());
 
-    AiNewsItem makeItem(String id, {AiNewsCategory category = AiNewsCategory.aiModels, DateTime? publishedAt}) {
+    AiNewsItem makeItem(
+      String id, {
+      AiNewsCategory category = AiNewsCategory.aiModels,
+      DateTime? publishedAt,
+      String? title,
+      String? summary,
+      String source = 'src',
+    }) {
       return AiNewsItem(
         id: id,
         category: category,
-        title: 'title $id',
+        title: title ?? 'title $id',
         titleEn: 'title en $id',
-        summary: 'summary $id',
-        source: 'src',
+        summary: summary ?? 'summary $id',
+        source: source,
         url: 'https://example.com/$id',
         permalink: 'https://aihot.virxact.com/items/$id',
         publishedAt: publishedAt ?? DateTime.utc(2026, 6, 28),
@@ -194,6 +202,87 @@ void main() {
       );
       await dao.clear();
       expect(await dao.readAll(), isEmpty);
+    });
+
+    test('FTS5 search follows insert and replace updates', () async {
+      final now = DateTime.utc(2026, 7, 16);
+      await dao.upsertPage(
+        category: null,
+        cursor: null,
+        digest: AiNewsDigest(
+          items: [makeItem('a', title: 'Quantum model benchmark')],
+          count: 1,
+          hasNext: false,
+        ),
+        now: now,
+      );
+      expect((await dao.searchAll('quantum')).single.id, 'a');
+
+      await dao.upsertPage(
+        category: null,
+        cursor: null,
+        digest: AiNewsDigest(
+          items: [makeItem('a', title: 'Vision model benchmark')],
+          count: 1,
+          hasNext: false,
+        ),
+        now: now,
+      );
+
+      expect(await dao.searchAll('quantum'), isEmpty);
+      expect((await dao.searchAll('vision')).single.id, 'a');
+    });
+
+    test('library search filters source, time and read state', () async {
+      final now = DateTime.utc(2026, 7, 16);
+      await dao.upsertPage(
+        category: null,
+        cursor: null,
+        digest: AiNewsDigest(
+          items: [
+            makeItem(
+              'new',
+              title: 'Agent release',
+              source: 'OpenAI',
+              publishedAt: now,
+            ),
+            makeItem(
+              'old',
+              title: 'Agent archive',
+              source: 'Other',
+              publishedAt: now.subtract(const Duration(days: 60)),
+            ),
+          ],
+          count: 2,
+          hasNext: false,
+        ),
+        now: now,
+      );
+      await db.executor.insert('ai_news_state', {
+        'item_id': 'new',
+        'read_at': now.millisecondsSinceEpoch,
+        'category': 'ai-models',
+        'title': 'Agent release',
+        'title_en': '',
+        'summary': '',
+        'source': 'OpenAI',
+        'url': '',
+        'permalink': '',
+        'published_at': now.millisecondsSinceEpoch,
+        'score': 0,
+        'selected': 0,
+        'updated_at': now.millisecondsSinceEpoch,
+      });
+
+      final results = await dao.searchAll(
+        'agent',
+        filter: AiNewsLibraryFilter(
+          source: 'OpenAI',
+          publishedAfter: now.subtract(const Duration(days: 7)),
+          read: AiNewsReadFilter.read,
+        ),
+      );
+      expect(results.map((item) => item.id), ['new']);
     });
   });
 }

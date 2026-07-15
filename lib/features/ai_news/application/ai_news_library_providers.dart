@@ -4,6 +4,7 @@ import '../../../core/storage/storage_providers.dart';
 import '../data/ai_news_state_dao.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_item_state.dart';
+import '../domain/ai_news_library_filter.dart';
 import 'ai_news_providers.dart';
 
 /*
@@ -16,11 +17,25 @@ final aiNewsStateDaoProvider = Provider<AiNewsStateDao>((ref) => AiNewsStateDao(
 // 只看稍后读开关(列表页)。
 final aiNewsReadLaterOnlyProvider = StateProvider<bool>((ref) => false);
 
+// 资讯库来源/时间/已读过滤器；分类仍复用页面主分类导航。
+final aiNewsLibraryFilterProvider = StateProvider<AiNewsLibraryFilter>(
+  (ref) => const AiNewsLibraryFilter(),
+);
+
+final aiNewsLibrarySourcesProvider = FutureProvider.autoDispose<List<String>>(
+  (ref) => ref.watch(aiNewsCacheDaoProvider).sources(),
+);
+
 // 全库搜索:关键词非空时查询 SQLite 沉淀的全部历史条目,
 // 不再只过滤内存中已加载的分页 buffer。跟随当前分类筛选。
 final aiNewsLibrarySearchProvider = FutureProvider.autoDispose.family<List<AiNewsItem>, String>((ref, query) {
   final category = ref.watch(aiNewsCategoryFilterProvider);
-  return ref.watch(aiNewsCacheDaoProvider).searchAll(query, category: category);
+  final filter = ref.watch(aiNewsLibraryFilterProvider);
+  return ref.watch(aiNewsCacheDaoProvider).searchAll(
+        query,
+        category: category,
+        filter: filter,
+      );
 });
 
 // 稍后读列表(实体快照重建,清缓存不受影响)。

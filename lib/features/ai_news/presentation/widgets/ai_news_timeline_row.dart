@@ -11,10 +11,16 @@ import 'ai_news_category_style.dart';
 *单条时间线行:左列时间 + 圆点 + 竖线,右列卡片。
 */
 class AiNewsTimelineRow extends StatelessWidget {
-  const AiNewsTimelineRow({required this.item, required this.onTap, super.key});
+  const AiNewsTimelineRow({
+    required this.item,
+    required this.onTap,
+    this.eventSources = const [],
+    super.key,
+  });
 
   final AiNewsItem item;
   final VoidCallback onTap;
+  final List<String> eventSources;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +68,19 @@ class AiNewsTimelineRow extends StatelessWidget {
               ],
             ),
           ),
-          Expanded(child: Padding(padding: const EdgeInsets.only(left: AppSpacing.sm, bottom: AppSpacing.md), child: AiNewsArticleCard(item: item, onTap: onTap)))
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(
+                left: AppSpacing.sm,
+                bottom: AppSpacing.md,
+              ),
+              child: AiNewsArticleCard(
+                item: item,
+                onTap: onTap,
+                eventSources: eventSources,
+              ),
+            ),
+          )
         ],
       ),
     );

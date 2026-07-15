@@ -7,9 +7,11 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
-import '../application/ai_news_grouping.dart';
+import '../application/ai_news_event_clustering.dart';
+import '../application/ai_news_feedback_providers.dart';
 import '../application/ai_news_library_providers.dart';
 import '../application/ai_news_providers.dart';
+import '../domain/ai_news_feedback.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_category_nav.dart';
 import 'widgets/ai_news_day_header.dart';
@@ -35,7 +37,6 @@ class AiNewsPage extends ConsumerWidget {
         children: [
           const AiNewsPageHeader(),
           AiNewsCategoryNav(selected: category, onSelected: (v) => ref.read(aiNewsCategoryFilterProvider.notifier).state = v),
-          const AiNewsDigestCard(),
           Expanded(child: _Body(category: category))
         ],
       ),
@@ -52,6 +53,7 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final query = ref.watch(aiNewsSearchQueryProvider).trim();
     final readLaterOnly = ref.watch(aiNewsReadLaterOnlyProvider);
+    final libraryFilter = ref.watch(aiNewsLibraryFilterProvider);
 
     // 稍后读视图:实体快照列表,静态展示(无远端分页)。
     if (readLaterOnly) {
@@ -64,6 +66,7 @@ class _Body extends ConsumerWidget {
                 category: category,
                 query: '',
                 staticList: true,
+                header: const AiNewsDigestCard(),
               ),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider)),
@@ -71,7 +74,7 @@ class _Body extends ConsumerWidget {
     }
 
     // 关键词搜索:查 SQLite 沉淀的全部历史条目(资讯库),而非内存分页。
-    if (query.isNotEmpty) {
+    if (query.isNotEmpty || libraryFilter.isActive) {
       final async = ref.watch(aiNewsLibrarySearchProvider(query));
       return async.when(
         data: (items) => _ItemList(
@@ -79,6 +82,7 @@ class _Body extends ConsumerWidget {
           category: category,
           query: query,
           staticList: true,
+          header: const AiNewsDigestCard(),
         ),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query))),
@@ -87,7 +91,12 @@ class _Body extends ConsumerWidget {
 
     final async = ref.watch(aiNewsItemsNotifierProvider);
     return async.when(
-      data: (items) => _ItemList(items: items, category: category, query: ''),
+      data: (items) => _ItemList(
+        items: items,
+        category: category,
+        query: '',
+        header: const AiNewsDigestCard(),
+      ),
       loading: () => const AiNewsListSkeleton(),
       error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider)),
     );
@@ -100,6 +109,7 @@ class _ItemList extends ConsumerStatefulWidget {
     required this.category,
     required this.query,
     this.staticList = false,
+    this.header,
   });
 
   final List<AiNewsItem> items;
@@ -109,6 +119,9 @@ class _ItemList extends ConsumerStatefulWidget {
   // true = 静态数据集(搜索结果/稍后读),不做触底加载。
   final bool staticList;
 
+  // 列表顶部同向滚动的吸顶片(如 AI 日报卡片);为 null 时不渲染。
+  final Widget? header;
+
   @override
   ConsumerState<_ItemList> createState() => _ItemListState();
 }
@@ -117,14 +130,14 @@ class _ItemList extends ConsumerStatefulWidget {
 *扁平化分组后的列表项(header / row)。
 */
 class _FlatEntry {
-  const _FlatEntry._({this.date, this.count, this.item});
+  const _FlatEntry._({this.date, this.count, this.cluster});
 
   factory _FlatEntry.header(DateTime date, int count) => _FlatEntry._(date: date, count: count);
-  factory _FlatEntry.item(AiNewsItem item) => _FlatEntry._(item: item);
+  factory _FlatEntry.item(AiNewsEventCluster cluster) => _FlatEntry._(cluster: cluster);
 
   final DateTime? date;
   final int? count;
-  final AiNewsItem? item;
+  final AiNewsEventCluster? cluster;
 
   bool get isHeader => date != null;
 }
@@ -173,12 +186,15 @@ class _ItemListState extends ConsumerState<_ItemList> {
       );
     }
     final hasMore = !widget.staticList && query.isEmpty && ref.read(aiNewsItemsNotifierProvider.notifier).hasMore;
-    final groups = groupAiNewsByDay(widget.items);
+    final profile = ref.watch(aiNewsInterestProfileProvider).valueOrNull ?? AiNewsInterestProfile.empty;
+    final ranked = rankAiNewsByInterest(widget.items, profile);
+    final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
     // 扁平化分组为 (header / row) 序列,SliverList 按 index lazy build。
     final flat = <_FlatEntry>[
       for (final g in groups) ...[_FlatEntry.header(g.key, g.value.length), for (final item in g.value) _FlatEntry.item(item)]
     ];
     return CustomScrollView(controller: _controller, slivers: [
+      if (widget.header != null) SliverToBoxAdapter(child: widget.header),
       SliverPadding(
           padding: const EdgeInsets.fromLTRB(
             AppSpacing.lg,
@@ -190,11 +206,33 @@ class _ItemListState extends ConsumerState<_ItemList> {
               delegate: SliverChildBuilderDelegate((context, index) {
             if (index < flat.length) {
               final e = flat[index];
-              return RepaintBoundary(child: e.isHeader ? AiNewsDayHeader(date: e.date!, itemCount: e.count!) : AiNewsTimelineRow(item: e.item!, onTap: () => _openDetail(context, e.item!)));
+              final cluster = e.cluster;
+              return RepaintBoundary(
+                child: e.isHeader
+                    ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
+                    : AiNewsTimelineRow(
+                        item: cluster!.primary,
+                        eventSources: cluster.sources,
+                        onTap: () => _openDetail(context, cluster.primary),
+                      ),
+              );
             }
             return const AiNewsLoadMoreIndicator();
           }, childCount: flat.length + (hasMore ? 1 : 0))))
     ]);
+  }
+
+  List<MapEntry<DateTime, List<AiNewsEventCluster>>> _groupEventsByDay(
+    List<AiNewsEventCluster> clusters,
+  ) {
+    final groups = <DateTime, List<AiNewsEventCluster>>{};
+    for (final cluster in clusters) {
+      final local = cluster.primary.publishedAt.toLocal();
+      final day = DateTime(local.year, local.month, local.day);
+      groups.putIfAbsent(day, () => []).add(cluster);
+    }
+    final entries = groups.entries.toList()..sort((left, right) => right.key.compareTo(left.key));
+    return entries;
   }
 
   void _openDetail(BuildContext context, AiNewsItem item) {

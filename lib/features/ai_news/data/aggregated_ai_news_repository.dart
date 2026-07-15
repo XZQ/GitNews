@@ -20,12 +20,16 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
     this._rssClient, {
     this.sources = AiNewsSourcesConfig.sources,
     this.clock = DateTime.now,
+    this.onSourceSuccess,
+    this.onSourceFailure,
   });
 
   final AiNewsRepository _primary;
   final AiNewsRssClient _rssClient;
   final List<AiNewsSourceConfig> sources;
   final DateTime Function() clock;
+  final Future<void> Function(String sourceId, DateTime at)? onSourceSuccess;
+  final Future<void> Function(String sourceId, DateTime at, Object error)? onSourceFailure;
 
   @override
   Future<DataResult<AiNewsDigest>> fetchItems({
@@ -55,7 +59,7 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
     ];
 
     final primaryFuture = _guard(() => _primary.fetchItems(category: category, since: since, selectedOnly: selectedOnly));
-    final rssFutures = [for (final s in applicable) _guard(() => _rssClient.fetchSource(s, now: now))];
+    final rssFutures = [for (final source in applicable) _fetchSource(source, now)];
 
     final primaryOutcome = await primaryFuture;
     final rssOutcomes = await Future.wait(rssFutures);
@@ -86,6 +90,37 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
       return _Outcome(value: await run());
     } catch (e) {
       return _Outcome(error: e);
+    }
+  }
+
+  Future<_Outcome<List<AiNewsItem>>> _fetchSource(AiNewsSourceConfig source, DateTime now) async {
+    try {
+      final items = await _rssClient.fetchSource(source, now: now);
+      await _reportSuccess(source.id, now);
+      return _Outcome(value: items);
+    } catch (error) {
+      await _reportFailure(source.id, now, error);
+      return _Outcome(error: error);
+    }
+  }
+
+  Future<void> _reportSuccess(String sourceId, DateTime at) async {
+    try {
+      await onSourceSuccess?.call(sourceId, at);
+    } catch (_) {
+      // 健康状态落盘失败不应把已成功抓取的资讯判为源失败。
+    }
+  }
+
+  Future<void> _reportFailure(
+    String sourceId,
+    DateTime at,
+    Object error,
+  ) async {
+    try {
+      await onSourceFailure?.call(sourceId, at, error);
+    } catch (_) {
+      // 健康状态仅用于诊断；记录失败不能改变聚合仓库的降级语义。
     }
   }
 }

@@ -9,13 +9,19 @@ import '../../../../shared/widgets/app_card.dart';
 import '../../domain/ai_news_item.dart';
 import '../../domain/github_repo_link_extractor.dart';
 import 'ai_news_category_style.dart';
+import 'ai_news_enrichment_card.dart';
 
 const double _detailHorizontalGutter = 40;
 
 class AiNewsDetailContent extends StatelessWidget {
-  const AiNewsDetailContent({required this.item, super.key});
+  const AiNewsDetailContent({
+    required this.item,
+    this.showEnrichment = true,
+    super.key,
+  });
 
   final AiNewsItem item;
+  final bool showEnrichment;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +41,10 @@ class AiNewsDetailContent extends StatelessWidget {
               children: [
                 AppCard(padding: const EdgeInsets.all(AppSpacing.xl), child: _ArticleSummary(item: item)),
                 const SizedBox(height: AppSpacing.lg),
+                if (showEnrichment) ...[
+                  AiNewsEnrichmentCard(item: item),
+                  const SizedBox(height: AppSpacing.lg),
+                ],
                 AppCard(padding: const EdgeInsets.all(AppSpacing.xl), child: _ArticleMeta(item: item)),
                 ..._relatedReposSection(item)
               ],

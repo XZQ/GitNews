@@ -38,10 +38,12 @@ The structure is reusable across projects:
 
 - Flutter desktop-first app for AI and GitHub intelligence.
 - Windows desktop is the current implementation priority.
-- Mobile keeps the planned 4-tab information architecture, but do not expand
-  mobile scope unless requested.
-- There is no backend server in this phase. Remote data must be cached locally
-  and the app must remain usable offline.
+- Compact windows and mobile use the implemented 5-tab information
+  architecture: Today, AI, Discover, Monitor, and Profile. Do not expand
+  mobile scope beyond those destinations unless requested.
+- The Flutter client remains local-first and fully usable without a server.
+  `server/` is an optional self-hosted boundary for scheduled ingestion, sync,
+  collaboration, push delivery bridging, and GH Archive analytics.
 
 ## Commands
 
@@ -53,6 +55,12 @@ The structure is reusable across projects:
   - `rtk flutter test`
 - For desktop-impacting changes, also run:
   - `rtk flutter build windows --release`
+  - `rtk proxy powershell -NoProfile -ExecutionPolicy Bypass -File tools/windows_release_smoke.ps1 -ReleaseDir build/windows/x64/runner/Release -TimeoutSeconds 15`
+- For server-impacting changes, run from `server/`:
+  - `rtk uv run ruff check .`
+  - `rtk uv run ruff format --check .`
+  - `rtk uv run pytest`
+  - `rtk uv run python tools/live_smoke.py`
 
 ## Architecture
 
@@ -80,6 +88,9 @@ The structure is reusable across projects:
   code, and mechanical codecs are acceptable exceptions.
 - Split complex `build` methods into private widget classes instead of
   widget-returning helper methods.
+- Keep the optional Python service under `server/app/`; HTTP routers delegate
+  to services, SQLite DDL remains centralized in `server/app/db.py`, and API
+  secrets come only from environment variables.
 
 ## Data
 
@@ -104,8 +115,9 @@ The structure is reusable across projects:
 - Store user data locally with the existing SharedPreferences / SQLite patterns:
   favorites, monitored repos, followed developers, read or archived alerts,
   notification settings, and GitHub token.
-- Do not introduce a backend service, cron worker, or cloud sync unless the user
-  explicitly changes scope.
+- Do not make the optional server mandatory for client startup or offline use.
+  New server capabilities must preserve workspace isolation, durable outbox or
+  version semantics, and explicit deployment/credential boundaries.
 
 ## UI And Product
 

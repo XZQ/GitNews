@@ -1,5 +1,7 @@
 # GitHub 情报站产品可信度加固 Implementation Plan
 
+> 历史快照：本文是从 `1.2.0+2` 升级到 `1.3.0+3` 的执行计划，标题、命令、版本号和复选框保留为实施证据，不代表当前待办。当前中文产品名为“AI资讯”，当前基线请查看 [产品、数据与系统边界](../../plans/product_ia_data_plan.md) 和 [README](../../../README.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 将 `1.2.0+2` 升级为 `1.3.0+3`，修复本地集合丢失、监控时间口径、缓存串用、虚假活动、失效 OAuth 入口、启动不可恢复和配置导入不可信等问题，并建立 Windows 可启动发布门禁。

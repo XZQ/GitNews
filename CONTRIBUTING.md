@@ -1,4 +1,4 @@
-# Contributing to GitHub 情报站
+# Contributing to AI资讯
 
 感谢你参与本项目！以下是开发环境搭建和工作流指南。
 
@@ -12,6 +12,9 @@
 | Dart SDK | 3.4.0 | 随 Flutter 附带 |
 | Windows | 10 (1903+) | 桌面端需 WebView2 运行时 |
 | macOS | 12+ | 需 Xcode + CocoaPods |
+| Python | 3.12+ | 仅开发 `server/` 时需要 |
+| uv | 最新稳定版 | 服务端依赖、检查和测试入口 |
+| Docker | 最新稳定版 | 可选，仅用于验证自托管镜像 |
 
 ### IDE 推荐
 
@@ -47,7 +50,7 @@ lib/
 ├── core/                     # 基础设施
 │   ├── config/               # 配置（TTL、常量）
 │   ├── di/                   # 依赖注入
-│   ├── domain/               # 领域基础（DataProvenance）
+│   ├── domain/               # 领域基础（DataFreshness、MetricBasis）
 │   ├── errors/               # 异常体系
 │   ├── github/               # GitHub 相关（rate limit gate）
 │   ├── i18n/                 # 国际化
@@ -60,16 +63,22 @@ lib/
 │   └── utils/                # 工具
 ├── features/                 # 功能模块
 │   ├── ai_news/              # AI 动态
+│   ├── discover/             # 仓库、Skills、官方账号与人物发现
 │   ├── home/                 # 首页
 │   ├── monitor/              # 仓库监控
 │   ├── project/              # 深度报告
 │   ├── repo_detail/          # 仓库详情
 │   ├── tech_hotspot/         # 技术热点
 │   ├── trending/             # GitHub 热榜
-│   ├── profile/              # 设置
+│   ├── profile/              # 个人中心与设置入口
+│   ├── settings/             # 独立设置、资讯源与自托管服务页面
 │   └── webview/              # 应用内浏览器
 └── shared/                   # 共享组件
     └── widgets/
+server/                       # 可选 FastAPI 自托管服务
+├── app/                      # API、调度器和领域服务
+├── tests/                    # 服务端测试
+└── tools/                    # 真实进程烟测
 ```
 
 ### Feature 分层规则
@@ -94,24 +103,43 @@ features/<feature>/
 2. **复用 theme token**：颜色用 `AppColors`、间距用 `AppSpacing`、圆角用 `AppRadius`、字号用 `AppTypography`，不写裸值
 3. **每页四态**：loading（骨架屏）/ error（ErrorView）/ empty（EmptyView）/ data
 4. **i18n**：UI 字符串使用 `l10n.tr('key')`，不硬编码中文
-5. **异常处理**：Repository 边界用 `DioExceptionToApp` 转换，UI 用 `ErrorView` 渲染
+5. **异常处理**：Repository 边界转换为项目的 `AppException`，UI 用 `ErrorView` 渲染
 6. **日志**：使用 `AppLogger`，不调用 `print()`
 7. **测试**：mocktail + in-memory DB，新功能需附带测试
 
 ## 提交前检查
 
 ```bash
+# 格式化
+dart format .
+
 # 静态分析
 flutter analyze
-
-# 格式化
-dart format --set-exit-if-changed lib/ test/
 
 # 测试
 flutter test
 
-# 依赖检查
-flutter pub outdated
+# Windows 桌面影响改动
+flutter build windows --release
+
+# 托盘行为影响改动
+powershell -ExecutionPolicy Bypass -File tools/windows_tray_smoke.ps1
+
+# 文档改动
+powershell -ExecutionPolicy Bypass -File tools/check_markdown_links.ps1
+```
+
+在 Codex 环境中按 `AGENTS.md` 要求给上述命令加 `rtk` 前缀。服务端改动另运行：
+
+```bash
+cd server
+uv sync --all-groups
+uv run ruff format --check .
+uv run ruff check .
+uv run pytest
+uv run python tools/live_smoke.py
+# 需要联网：验证真实 RSS/Atom 拉取和落库。
+uv run python tools/feed_live_smoke.py
 ```
 
 ## Git 工作流
@@ -133,19 +161,18 @@ flutter pub global run devtools
 ### 查看数据库
 
 ```bash
-# Windows: SQLite 数据库位于
-# %APPDATA%/com.example.githubNews/local_cache.db
-sqlite3 local_cache.db ".tables"
+# 数据库文件名为 github_news.db。
+# 具体目录由 path_provider 决定，可在应用恢复页或数据管理入口打开。
+sqlite3 github_news.db ".tables"
 ```
 
 ### 查看 SharedPreferences
 
 ```bash
-# Windows: 位于
-# %APPDATA%/com.example.githubNews/shared_preferences.json
+# 具体位置由 shared_preferences 的平台实现管理，不应依赖硬编码路径。
 ```
 
 ### 查看 Secure Storage
 
-- Windows: 由 DPAPI 加密，无法直接查看
+- Windows: GitHub Token、LLM Key 和自托管服务 API Key 由 DPAPI 加密，无法直接查看
 - macOS: 使用 Keychain Access 工具搜索 `github_personal_access_token`

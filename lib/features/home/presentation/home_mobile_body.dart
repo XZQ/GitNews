@@ -61,7 +61,8 @@ class _MobileHeroState extends ConsumerState<_MobileHero> {
           const SizedBox(height: AppSpacing.sm),
           Text('$_window ${l10n.tr('common.day')}', style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: AppSpacing.md),
-          StarTrendChart(series: series, height: 200)
+          // 图表隔离重绘,滚动时不连带整卡 repaint。
+          RepaintBoundary(child: StarTrendChart(series: series, height: 200))
         ],
       ),
     );

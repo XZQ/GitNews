@@ -14,7 +14,6 @@ const int discoverPageSize = 30;
 const int discoverProfilesPageSize = 20;
 const int discoverLoadMoreRemainingItems = 3;
 const double discoverItemExtentCards = 96.0;
-const double discoverItemExtentCompact = 72.0;
 const int discoverProfileEnrichBatchSize = 10;
 
 /*

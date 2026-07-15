@@ -25,6 +25,25 @@ class HomeAlertsPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final items = ref.watch(visibleMonitorDigestProvider).maybeWhen(data: (digest) => digest.alerts.take(maxItems).toList(), orElse: () => const <AlertEntity>[]);
+    // 无告警时收成单行入口,不再让空卡片占一大块首屏。
+    if (items.isEmpty && showHeader) {
+      return AppCard(
+        padding: EdgeInsets.zero,
+        onTap: () => context.go('/monitor'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          child: Row(children: [
+            Expanded(child: Text(l10n.tr('home.section.alerts.title'), style: AppTypography.titleSmall)),
+            Text(
+              l10n.tr('home.section.alerts.unread').replaceAll('{n}', '0'),
+              style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Icon(Icons.chevron_right_rounded, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          ]),
+        ),
+      );
+    }
     return AppCard(
         padding: EdgeInsets.zero,
         child: Column(children: [

@@ -8,8 +8,8 @@ import 'package:github_news/core/storage/local_database.dart';
 *- enforceCap 为兼容旧调用保留 no-op(项目不再自动限制容量)。
 *
 *注:真正的「旧版本 DB 文件 → 当前版本」迁移往返需要注入历史 schema,
-*当前迁移链(v1→v2、v2→v3)均为幂等的 `CREATE TABLE IF NOT EXISTS`,
-*无 ALTER / 数据变换,数据丢失风险极低;此处锁定 schema 完整性与容量守卫行为。
+*迁移链以幂等 DDL 为主，并在 v6 为历史资讯回填 FTS 索引；此处锁定
+*schema 完整性与容量守卫行为。
 */
 void main() {
   group('LocalDatabase schema', () {
@@ -18,7 +18,18 @@ void main() {
       addTearDown(db.close);
       final rows = await db.executor.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
       final names = rows.map((r) => r['name'] as String).toSet();
-      const expected = ['cache_meta', 'ai_news_item', 'trending_snapshot_cache', 'json_snapshot_cache', 'monitor_alert_event'];
+      const expected = [
+        'cache_meta',
+        'ai_news_item',
+        'trending_snapshot_cache',
+        'json_snapshot_cache',
+        'monitor_alert_event',
+        'ai_news_state',
+        'ai_news_fts',
+        'ai_news_enrichment',
+        'ai_news_feedback',
+        'ai_news_reminder'
+      ];
       for (final table in expected) {
         expect(names, contains(table), reason: '$table 必须存在,否则对应 DAO 会运行时报错');
       }

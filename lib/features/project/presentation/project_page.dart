@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
@@ -8,7 +9,9 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/section_header.dart';
 import '../application/project_providers.dart';
 import 'widgets/project_language_distribution.dart';
 import 'widgets/project_page_header.dart';
@@ -54,24 +57,81 @@ class _Mobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
+    final l10n = AppLocalizations.of(context);
+    final recent = _recentRepos(digest.repos);
+    // 移动端用 Sliver 懒构建替代 ListView(children:) 的整页急构建;
+    // 仓库列表不再套外层 AppCard(RepoTile 本身即卡片),视觉与桌面区分密度。
+    return CustomScrollView(slivers: [
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          0,
+        ),
+        sliver: SliverToBoxAdapter(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProjectSummaryMetrics(digest: digest),
+              const SizedBox(height: AppSpacing.lg),
+              RepaintBoundary(child: ProjectLanguageDistribution(repos: digest.repos)),
+              const SizedBox(height: AppSpacing.lg),
+              RepaintBoundary(child: ProjectTrendOverview(digest: digest)),
+            ],
+          ),
+        ),
+      ),
+      _MobileRepoSection(titleKey: 'project.section.popular.title', subtitleKey: 'project.section.popular.subtitle', l10n: l10n),
+      _MobileRepoList(repos: digest.repos, ranked: true),
+      _MobileRepoSection(titleKey: 'project.section.recent.title', subtitleKey: 'project.section.recent.subtitle', l10n: l10n),
+      _MobileRepoList(repos: recent, ranked: false),
+      const SliverPadding(padding: EdgeInsets.only(bottom: AppSpacing.xl)),
+    ]);
+  }
+}
+
+class _MobileRepoSection extends StatelessWidget {
+  const _MobileRepoSection({required this.titleKey, required this.subtitleKey, required this.l10n});
+
+  final String titleKey;
+  final String subtitleKey;
+  final AppLocalizations l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
       padding: const EdgeInsets.fromLTRB(
         AppSpacing.lg,
-        AppSpacing.sm,
         AppSpacing.lg,
-        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xs,
       ),
-      children: [
-        ProjectSummaryMetrics(digest: digest),
-        const SizedBox(height: AppSpacing.lg),
-        ProjectLanguageDistribution(repos: digest.repos),
-        const SizedBox(height: AppSpacing.lg),
-        ProjectTrendOverview(digest: digest),
-        const SizedBox(height: AppSpacing.lg),
-        ProjectPopularRepos(repos: digest.repos),
-        const SizedBox(height: AppSpacing.lg),
-        ProjectRecentlyUpdated(repos: _recentRepos(digest.repos))
-      ],
+      sliver: SliverToBoxAdapter(child: SectionHeader(title: l10n.tr(titleKey), subtitle: l10n.tr(subtitleKey))),
+    );
+  }
+}
+
+class _MobileRepoList extends StatelessWidget {
+  const _MobileRepoList({required this.repos, required this.ranked});
+
+  final List<RepoEntity> repos;
+  final bool ranked;
+
+  @override
+  Widget build(BuildContext context) {
+    return SliverPadding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      sliver: SliverList.separated(
+        itemCount: repos.length,
+        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+        itemBuilder: (context, i) => RepoTile(
+          repo: repos[i],
+          rank: ranked ? i + 1 : null,
+          dense: true,
+          onTap: () => context.go('/project/detail/${Uri.encodeComponent(repos[i].fullName)}'),
+        ),
+      ),
     );
   }
 }

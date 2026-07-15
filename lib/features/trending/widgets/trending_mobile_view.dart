@@ -29,15 +29,18 @@ class TrendingMobileView extends ConsumerWidget {
     final window = ref.watch(trendingWindowFilterProvider);
     final lang = ref.watch(trendingLanguageFilterProvider);
     final windowLabel = _windowLabel(l10n, window);
-    return ListView(
+    // CustomScrollView + Sliver:列表懒构建,替代旧的
+    // `ListView(children:) + shrinkWrap` 反模式(后者会一次性构建全部条目)。
+    return CustomScrollView(slivers: [
+      SliverPadding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.lg,
           AppSpacing.sm,
           AppSpacing.lg,
-          AppSpacing.xl,
+          0,
         ),
-        children: [
-          AppCard(
+        sliver: SliverToBoxAdapter(
+          child: AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -59,50 +62,56 @@ class TrendingMobileView extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.md),
                 const TrendingHeroMetrics(),
                 const SizedBox(height: AppSpacing.md),
-                StarTrendChart(
-                  series: [ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary), ChartSeries(values: digest.secondaryTrend, color: AppColors.success)],
-                  height: 200,
+                // 图表隔离重绘:滚动时不再连带整页 repaint。
+                RepaintBoundary(
+                  child: StarTrendChart(
+                    series: [ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary), ChartSeries(values: digest.secondaryTrend, color: AppColors.success)],
+                    height: 200,
+                  ),
                 )
               ],
             ),
           ),
-          const SizedBox(height: AppSpacing.lg),
-          AppCard(
-              padding: EdgeInsets.zero,
-              child: Column(children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                    AppSpacing.lg,
-                    AppSpacing.xs,
-                  ),
-                  child: SectionHeader(
-                    title: l10n.tr('trending.page.repos'),
-                    subtitle: l10n.tr('trending.mobile.repos_count').replaceAll('{window}', windowLabel).replaceAll('{count}', '${digest.trendingRepos.length}'),
-                    trailing: TextButton(onPressed: () => _showFilterSheet(context, ref), child: Text(l10n.tr('trending.action.filter'))),
-                  ),
-                ),
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppSpacing.md,
-                      AppSpacing.xs,
-                      AppSpacing.md,
-                      AppSpacing.md,
-                    ),
-                    child: ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: digest.trendingRepos.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                        itemBuilder: (context, i) {
-                          final repo = digest.trendingRepos[i];
-                          return RepoTile(repo: repo, rank: i + 1, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repo.fullName)}'));
-                        }))
-              ])),
-          const SizedBox(height: AppSpacing.lg),
-          const TrendingTopicsPanel()
-        ]);
+        ),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.xs,
+        ),
+        sliver: SliverToBoxAdapter(
+          child: SectionHeader(
+            title: l10n.tr('trending.page.repos'),
+            subtitle: l10n.tr('trending.mobile.repos_count').replaceAll('{window}', windowLabel).replaceAll('{count}', '${digest.trendingRepos.length}'),
+            trailing: TextButton(onPressed: () => _showFilterSheet(context, ref), child: Text(l10n.tr('trending.action.filter'))),
+          ),
+        ),
+      ),
+      // 移动端不再用外层 AppCard 包整张列表:RepoTile 本身就是卡片,
+      // 去掉嵌套后视觉更透气,也少一层无谓的合成。
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        sliver: SliverList.separated(
+          itemCount: digest.trendingRepos.length,
+          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+          itemBuilder: (context, i) {
+            final repo = digest.trendingRepos[i];
+            return RepoTile(repo: repo, rank: i + 1, dense: true, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repo.fullName)}'));
+          },
+        ),
+      ),
+      const SliverPadding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.xl,
+        ),
+        sliver: SliverToBoxAdapter(child: TrendingTopicsPanel()),
+      ),
+    ]);
   }
 }
 

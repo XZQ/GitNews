@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'app_colors.dart';
 import 'app_radius.dart';
@@ -112,6 +113,16 @@ class AppTheme {
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: AppTypography.titleLarge.copyWith(color: textPrimary),
+        // 顶部沉浸:状态栏全透明,图标亮度跟随主题;
+        // AppBar 会用自己的 overlayStyle 覆盖全局设置,必须在主题里钉死。
+        systemOverlayStyle: SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness: isLight ? Brightness.dark : Brightness.light,
+          statusBarBrightness: isLight ? Brightness.light : Brightness.dark,
+          systemNavigationBarColor: Colors.transparent,
+          systemStatusBarContrastEnforced: false,
+          systemNavigationBarContrastEnforced: false,
+        ),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,

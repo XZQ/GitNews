@@ -31,8 +31,20 @@ class StarTrendChart extends StatelessWidget {
       return SizedBox(height: height);
     }
     final allValues = series.expand((s) => s.values).toList();
-    final minY = (allValues.reduce((a, b) => a < b ? a : b)) - 50;
-    final maxY = (allValues.reduce((a, b) => a > b ? a : b)) + 50;
+    final rawMin = allValues.reduce((a, b) => a < b ? a : b);
+    final rawMax = allValues.reduce((a, b) => a > b ? a : b);
+    // 按数据量程比例留白(而非固定 ±50):十万级数据固定 50 几乎无留白,
+    // 且会让 min/max 边界标签与相邻刻度重叠(如 71.8k 压 70.0k)。
+    final pad = (rawMax - rawMin) == 0 ? (rawMax == 0 ? 1.0 : rawMax * 0.1) : (rawMax - rawMin) * 0.08;
+    final minY = rawMin - pad;
+    final maxY = rawMax + pad;
+    // 纵轴固定 5 个等距刻度:显式 interval 后 fl_chart 不再额外标注
+    // min/max 边界值,消除相邻标签互相叠压。
+    final yInterval = (maxY - minY) / 4;
+    final maxX = (series.first.values.length - 1).toDouble();
+    // 横轴取整数间隔,且跳过非间隔点(fl_chart 会强制给 maxX 加标签,
+    // 与最后一个刻度过近时出现「5d 6d」贴在一起)。
+    final xInterval = (maxX / 4).ceilToDouble().clamp(1.0, 30.0);
 
     return SizedBox(
         height: height,
@@ -40,11 +52,11 @@ class StarTrendChart extends StatelessWidget {
             minY: minY,
             maxY: maxY,
             minX: 0,
-            maxX: (series.first.values.length - 1).toDouble(),
+            maxX: maxX,
             gridData: FlGridData(
               show: true,
               drawVerticalLine: false,
-              horizontalInterval: (maxY - minY) / 4,
+              horizontalInterval: yInterval,
               getDrawingHorizontalLine: (_) => FlLine(color: colors.outlineVariant.withValues(alpha: 0.35), strokeWidth: 1, dashArray: [4, 4]),
             ),
             borderData: FlBorderData(show: false),
@@ -54,7 +66,8 @@ class StarTrendChart extends StatelessWidget {
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
                     showTitles: true,
-                    reservedSize: 36,
+                    reservedSize: 40,
+                    interval: yInterval,
                     getTitlesWidget: (value, _) => Text(_shortNumber(value), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
                   ),
                 ),
@@ -62,8 +75,12 @@ class StarTrendChart extends StatelessWidget {
                     sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 22,
-                        interval: (series.first.values.length / 5).clamp(1, 30),
+                        interval: xInterval,
                         getTitlesWidget: (value, _) {
+                          // 只在整数间隔点标注,丢弃 fl_chart 强塞的边界重复标签。
+                          if (value % xInterval != 0) {
+                            return const SizedBox.shrink();
+                          }
                           final i = value.toInt();
                           final label = (xLabels != null && i < xLabels!.length) ? xLabels![i] : '${i}d';
                           return Padding(padding: const EdgeInsets.only(top: AppSpacing.xs2), child: Text(label, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)));

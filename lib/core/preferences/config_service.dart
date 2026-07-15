@@ -12,8 +12,11 @@ import '../shared/local_content_controller.dart';
 import '../theme/app_theme_preset.dart';
 import '../theme/theme_mode_controller.dart';
 import '../theme/theme_preset_controller.dart';
+import 'ai_news_reminder_preferences.dart';
+import 'ai_news_source_controller.dart';
 import 'link_open_mode_controller.dart';
 import 'locale_controller.dart';
+import 'server_connection_controller.dart';
 import 'startup_tab_controller.dart';
 import 'trending_data_source_mode_controller.dart';
 
@@ -68,6 +71,10 @@ class ConfigService {
     'startup_tab_segment',
     'trending_data_source_mode',
     'link_open_mode',
+    aiNewsSourcesPreferenceKey,
+    aiNewsRemindersEnabledPreferenceKey,
+    serverBaseUrlPreferenceKey,
+    serverWorkspacePreferenceKey,
     'local_content_monitor_rules',
     'monitor_notification_settings'
   };
@@ -155,6 +162,27 @@ class ConfigService {
   }
 
   Object _validateValue(String key, Object? value) {
+    if (key == aiNewsSourcesPreferenceKey) {
+      return validateAiNewsSourcesPreference(value);
+    }
+    if (key == aiNewsRemindersEnabledPreferenceKey) {
+      if (value is! bool) {
+        throw FormatException('Invalid value for $key');
+      }
+      return value;
+    }
+    if (key == serverBaseUrlPreferenceKey) {
+      if (value is! String) {
+        throw FormatException('Invalid value for $key');
+      }
+      return normalizeServerBaseUrl(value);
+    }
+    if (key == serverWorkspacePreferenceKey) {
+      if (value is! String || value.trim().isEmpty || value.length > 120) {
+        throw FormatException('Invalid value for $key');
+      }
+      return value.trim();
+    }
     final validStringValues = switch (key) {
       'app_locale' => const {'zh_CN', 'en_US'},
       'theme_mode' => ThemeMode.values.map((mode) => mode.name).toSet(),
@@ -210,6 +238,9 @@ class ConfigService {
       ..invalidate(startupTabControllerProvider)
       ..invalidate(trendingDataSourceModeControllerProvider)
       ..invalidate(linkOpenModeControllerProvider)
+      ..invalidate(aiNewsSourceControllerProvider)
+      ..invalidate(aiNewsReminderPreferencesProvider)
+      ..invalidate(serverConnectionControllerProvider)
       ..invalidate(localContentControllerProvider)
       ..invalidate(monitorSettingsControllerProvider);
   }

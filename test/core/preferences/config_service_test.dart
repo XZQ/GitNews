@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/di/providers.dart';
+import 'package:github_news/core/preferences/ai_news_reminder_preferences.dart';
+import 'package:github_news/core/preferences/ai_news_source_controller.dart';
 import 'package:github_news/core/preferences/config_service.dart';
 import 'package:github_news/core/preferences/link_open_mode_controller.dart';
 import 'package:github_news/core/preferences/locale_controller.dart';
@@ -72,6 +74,8 @@ void main() {
     expect(container.read(startupTabControllerProvider), 'home');
     expect(container.read(trendingDataSourceModeControllerProvider), TrendingDataSourceMode.local);
     expect(container.read(linkOpenModeControllerProvider), LinkOpenMode.external);
+    expect(container.read(aiNewsSourceControllerProvider).entries.any((entry) => entry.isCustom), isFalse);
+    expect(container.read(aiNewsReminderPreferencesProvider), isTrue);
     container.read(localContentControllerProvider);
     container.read(monitorSettingsControllerProvider);
 
@@ -83,18 +87,27 @@ void main() {
             'startup_tab_segment': 'project',
             'trending_data_source_mode': 'github',
             'link_open_mode': 'inApp',
+            aiNewsSourcesPreferenceKey: jsonEncode([
+              {'id': 'custom_example', 'name': 'Example AI', 'feedUrl': 'https://example.com/feed.xml', 'categoryCode': 'industry', 'enabled': true, 'isCustom': true}
+            ]),
+            aiNewsRemindersEnabledPreferenceKey: false,
             'local_content_monitor_rules': ['0', '1', '1', '0'],
             'monitor_notification_settings': ['0']
           }),
         );
 
-    expect(count, 8);
+    expect(count, 10);
     expect(container.read(themeModeControllerProvider), ThemeMode.dark);
     expect(container.read(themePresetControllerProvider), AppThemePreset.violet);
     expect(container.read(localeControllerProvider), const Locale('en', 'US'));
     expect(container.read(startupTabControllerProvider), 'project');
     expect(container.read(trendingDataSourceModeControllerProvider), TrendingDataSourceMode.github);
     expect(container.read(linkOpenModeControllerProvider), LinkOpenMode.inApp);
+    expect(
+      container.read(aiNewsSourceControllerProvider).entries.any((entry) => entry.config.id == 'custom_example'),
+      isTrue,
+    );
+    expect(container.read(aiNewsReminderPreferencesProvider), isFalse);
     expect(container.read(localContentControllerProvider).monitorRules, [false, true, true, false]);
     expect(container.read(monitorSettingsControllerProvider), [false]);
   });

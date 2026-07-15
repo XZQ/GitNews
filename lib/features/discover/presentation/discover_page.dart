@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/data_provenance_badge.dart';
+import '../../../shared/widgets/header_search_field.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/discover_providers.dart';
 import '../domain/discover_entities.dart';
@@ -71,9 +73,8 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     if (!_scrollController.hasClients) {
       return;
     }
-    final useCards = !Breakpoints.isCompact(context);
     final twoColumn = Breakpoints.isExpanded(context);
-    final extent = twoColumn ? discoverItemExtentCards / 2 : (useCards ? discoverItemExtentCards : discoverItemExtentCompact);
+    final extent = twoColumn ? discoverItemExtentCards / 2 : discoverItemExtentCards;
     final remaining = (_scrollController.position.maxScrollExtent - _scrollController.position.pixels) / extent;
     if (remaining > discoverLoadMoreRemainingItems) {
       return;
@@ -100,21 +101,51 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     final query = ref.watch(discoverSearchQueryProvider);
 
     return Scaffold(
-      appBar: isCompact ? AppBar(title: Text(l10n.tr('discover.title'))) : null,
+      // 移动端只保留系统 AppBar(徽章与刷新并入 actions),
+      // 不再叠一层桌面 PageHeader 造成双头部。
+      appBar: isCompact
+          ? AppBar(
+              title: Text(l10n.tr('discover.title')),
+              actions: [
+                Center(child: DataFreshnessBadge(freshness: freshness)),
+                IconButton(
+                  tooltip: l10n.tr('common.refresh'),
+                  onPressed: _refreshing ? null : _refresh,
+                  icon: const Icon(Icons.refresh_rounded),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+              ],
+            )
+          : null,
       backgroundColor: colors.surface,
       body: Column(
         children: [
-          PageHeader(
-            title: l10n.tr('discover.title'),
-            subtitle: l10n.tr('discover.subtitle'),
-            icon: Icons.explore_rounded,
-            searchHint: l10n.tr('discover.search_hint'),
-            searchValue: query,
-            onSearchChanged: (v) => ref.read(discoverSearchQueryProvider.notifier).state = v,
-            pills: [DataFreshnessBadge(freshness: freshness)],
-            onRefresh: _refresh,
-            isRefreshing: _refreshing,
-          ),
+          if (!isCompact)
+            PageHeader(
+              title: l10n.tr('discover.title'),
+              subtitle: l10n.tr('discover.subtitle'),
+              icon: Icons.explore_rounded,
+              searchHint: l10n.tr('discover.search_hint'),
+              searchValue: query,
+              onSearchChanged: (v) => ref.read(discoverSearchQueryProvider.notifier).state = v,
+              pills: [DataFreshnessBadge(freshness: freshness)],
+              onRefresh: _refresh,
+              isRefreshing: _refreshing,
+            )
+          else
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.sm,
+                AppSpacing.lg,
+                0,
+              ),
+              child: HeaderSearchField(
+                hintText: l10n.tr('discover.search_hint'),
+                value: query,
+                onChanged: (v) => ref.read(discoverSearchQueryProvider.notifier).state = v,
+              ),
+            ),
           DiscoverSegmented(value: segment, compact: isCompact, onChanged: (v) => ref.read(discoverSegmentProvider.notifier).state = v),
           Expanded(
               child: switch (segment) {

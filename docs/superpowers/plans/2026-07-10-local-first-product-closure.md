@@ -1,5 +1,7 @@
 # Local-First Product Closure Implementation Plan
 
+> Historical snapshot: this plan targeted `1.2.0+2`; its four-tab compact shell was the decision at that time. The current `1.4.0+4` plus `Unreleased` baseline uses five mobile destinations. See the current [product and data boundary](../../plans/product_ia_data_plan.md) and [README](../../../README.md).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Turn GitHub 情报站 into an honest, complete local-first desktop client with foreground rule evaluation, durable alerts, consistent data trust labels, a four-tab compact shell, aligned release docs, and verified Windows output.

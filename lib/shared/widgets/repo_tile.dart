@@ -16,6 +16,7 @@ import 'star_trend_chart.dart';
 *- 右侧曲线只在 [RepoEntity.trend] 有真实数据时绘制;没有观测历史时
 *  展示醒目的 Star 增量,不再用合成曲线充数(口径诚实,消除千篇一律)
 *- `card: false` 保持无边框扁平行,供需要自行包裹容器的场景
+*- `dense: true` 为移动端紧凑密度:小头像、单行描述、收紧内边距
 */
 class RepoTile extends StatelessWidget {
   const RepoTile({
@@ -25,6 +26,7 @@ class RepoTile extends StatelessWidget {
     this.rank,
     this.trailing,
     this.card = true,
+    this.dense = false,
     super.key,
   });
 
@@ -41,6 +43,9 @@ class RepoTile extends StatelessWidget {
   // 卡片样式开关。
   final bool card;
 
+  // 紧凑密度(移动端)。
+  final bool dense;
+
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
@@ -51,13 +56,13 @@ class RepoTile extends StatelessWidget {
       children: [
         if (rank != null) ...[_RankBadge(rank: rank!, accent: accent), const SizedBox(width: AppSpacing.sm)],
         Container(
-          width: AppSpacing.xxl,
-          height: AppSpacing.xxl,
+          width: dense ? AppSpacing.xl2 : AppSpacing.xxl,
+          height: dense ? AppSpacing.xl2 : AppSpacing.xxl,
           decoration: BoxDecoration(color: accent.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(AppRadius.sm)),
           alignment: Alignment.center,
-          child: Text(repo.language.isNotEmpty ? repo.language[0] : '?', style: AppTypography.titleSmall.copyWith(color: accent)),
+          child: Text(repo.language.isNotEmpty ? repo.language[0] : '?', style: (dense ? AppTypography.labelMedium : AppTypography.titleSmall).copyWith(color: accent)),
         ),
-        const SizedBox(width: AppSpacing.md),
+        SizedBox(width: dense ? AppSpacing.sm : AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -71,7 +76,7 @@ class RepoTile extends StatelessWidget {
               const SizedBox(height: AppSpacing.xxs),
               Text(
                 repo.description,
-                maxLines: 2,
+                maxLines: dense ? 1 : 2,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
               ),
@@ -115,7 +120,7 @@ class RepoTile extends StatelessWidget {
         borderRadius: radius,
         child: Container(
           decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.45 : 0.6))),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
+          padding: EdgeInsets.symmetric(horizontal: dense ? AppSpacing.sm2 : AppSpacing.md, vertical: dense ? AppSpacing.sm : AppSpacing.md),
           child: row,
         ),
       ),
@@ -140,6 +145,17 @@ class _TrendCell extends StatelessWidget {
     final deltaText = Text('${delta >= 0 ? '+' : ''}${_shortNumber(delta.abs())}', style: AppTypography.titleSmall.copyWith(color: deltaColor, fontWeight: FontWeight.w700));
     final trend = repo.trend;
     if (!showTrend || trend == null || trend.isEmpty) {
+      // 无增量信息时不再渲染「+0 ↗」噪声,给一个安静的占位。
+      if (delta == 0) {
+        return SizedBox(
+          width: 40,
+          child: Text(
+            '—',
+            textAlign: TextAlign.right,
+            style: AppTypography.titleSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+          ),
+        );
+      }
       return SizedBox(
         width: 64,
         child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [

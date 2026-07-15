@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/ai_news/presentation/ai_news_detail_page.dart';
 import '../../features/ai_news/presentation/ai_news_page.dart';
+import '../../features/ai_news/presentation/ai_news_reminders_page.dart';
 import '../../features/discover/presentation/discover_page.dart';
 import '../../features/home/presentation/home_page.dart';
 import '../../features/monitor/presentation/monitor_alerts_page.dart';
@@ -20,6 +21,8 @@ import '../../features/project/presentation/discover_page.dart';
 import '../../features/project/presentation/explore_page.dart';
 import '../../features/project/presentation/project_page.dart';
 import '../../features/repo_detail/presentation/repo_detail_page.dart';
+import '../../features/settings/presentation/ai_news_sources_page.dart';
+import '../../features/settings/presentation/self_hosted_server_page.dart';
 import '../../features/tech_hotspot/presentation/tech_hotspot_detail_page.dart';
 import '../../features/tech_hotspot/presentation/tech_hotspot_page.dart';
 import '../../features/trending/presentation/hot_repos_page.dart';
@@ -54,6 +57,11 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
             builder: (_, __) => const AiNewsPage(),
             routes: [
               GoRoute(path: 'detail/:id', name: 'ai_news_detail', builder: (_, state) => AiNewsDetailPage(id: state.pathParameters['id']!)),
+              GoRoute(
+                path: 'reminders',
+                name: 'ai_news_reminders',
+                builder: (_, __) => const AiNewsRemindersPage(),
+              ),
               GoRoute(
                 path: 'webview',
                 name: 'ai_news_webview',
@@ -147,6 +155,12 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
               GoRoute(path: 'monitor', name: 'profile_monitor', builder: (_, __) => const MonitorTopicsPage()),
               GoRoute(path: 'rules', name: 'profile_rules', builder: (_, __) => const MonitorRulesPage()),
               GoRoute(path: 'developer', name: 'profile_developer', builder: (_, __) => const DeveloperOptionsPage()),
+              GoRoute(path: 'sources', name: 'profile_ai_news_sources', builder: (_, __) => const AiNewsSourcesPage()),
+              GoRoute(
+                path: 'server',
+                name: 'profile_self_hosted_server',
+                builder: (_, __) => const SelfHostedServerPage(),
+              ),
               _repoDetailRoute('profile_detail')
             ],
           )

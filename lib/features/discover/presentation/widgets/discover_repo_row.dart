@@ -9,7 +9,6 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/data_provenance_badge.dart';
-import '../../../../shared/widgets/repo_tile.dart';
 
 /*
  *发现页仓库卡片:仓库信息 + 行尾监控开关。
@@ -23,14 +22,12 @@ class DiscoverMonitorRow extends ConsumerWidget {
     required this.repo,
     this.badge,
     this.onTap,
-    this.cardStyle = true,
     super.key,
   });
 
   final RepoEntity repo;
   final String? badge;
   final VoidCallback? onTap;
-  final bool cardStyle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -40,27 +37,6 @@ class DiscoverMonitorRow extends ConsumerWidget {
     final accent = Color(repo.accentArgb);
     final monitored = ref.watch(localContentControllerProvider.select((s) => s.isMonitored(repo.fullName)));
     final controller = ref.read(localContentControllerProvider.notifier);
-    if (!cardStyle) {
-      return Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
-        if (badge != null) ...[_Pill(text: badge!, color: colors.tertiary), const SizedBox(width: AppSpacing.sm)],
-        Expanded(
-          // 紧凑布局自带行容器与行尾按钮,RepoTile 用扁平样式避免卡片嵌套。
-          child: RepoTile(repo: repo, onTap: onTap, card: false),
-        ),
-        IconButton(
-            tooltip: monitored ? l10n.tr('discover.monitor_remove') : l10n.tr('discover.monitor_add'),
-            icon: Icon(monitored ? Icons.notifications_active_rounded : Icons.notifications_none_rounded, color: monitored ? colors.primary : colors.onSurfaceVariant),
-            onPressed: () async {
-              if (monitored) {
-                await controller.removeMonitor(repo.fullName);
-              } else {
-                await controller.addMonitor(repo);
-              }
-            },
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44)),
-        const SizedBox(width: AppSpacing.sm)
-      ]);
-    }
     final radius = BorderRadius.circular(AppRadius.lg);
 
     return Material(

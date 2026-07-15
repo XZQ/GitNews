@@ -8,8 +8,10 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../application/ai_news_feedback_providers.dart';
 import '../application/ai_news_library_providers.dart';
 import '../application/ai_news_providers.dart';
+import '../domain/ai_news_feedback.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_detail_content.dart';
 
@@ -44,6 +46,7 @@ class AiNewsDetailPage extends ConsumerWidget {
             data: (item) => item == null
                 ? <Widget>[]
                 : <Widget>[
+                    _FeedbackActions(item: item),
                     _ReadLaterButton(item: item),
                     IconButton(tooltip: l10n.tr('webview.copy_link'), onPressed: () => _copyLink(context, item), icon: const Icon(Icons.content_copy_rounded)),
                     IconButton(
@@ -94,6 +97,50 @@ class AiNewsDetailPage extends ConsumerWidget {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
     }
+  }
+}
+
+class _FeedbackActions extends ConsumerWidget {
+  const _FeedbackActions({required this.item});
+
+  final AiNewsItem item;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final signal = ref.watch(aiNewsInterestProfileProvider).valueOrNull?.itemSignals[item.id];
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        IconButton(
+          tooltip: l10n.tr('ai_news.feedback.less'),
+          color: signal == AiNewsFeedbackSignal.less ? Theme.of(context).colorScheme.error : null,
+          onPressed: () => _set(context, ref, AiNewsFeedbackSignal.less),
+          icon: const Icon(Icons.thumb_down_alt_outlined),
+        ),
+        IconButton(
+          tooltip: l10n.tr('ai_news.feedback.more'),
+          color: signal == AiNewsFeedbackSignal.more ? Theme.of(context).colorScheme.primary : null,
+          onPressed: () => _set(context, ref, AiNewsFeedbackSignal.more),
+          icon: const Icon(Icons.thumb_up_alt_outlined),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _set(
+    BuildContext context,
+    WidgetRef ref,
+    AiNewsFeedbackSignal signal,
+  ) async {
+    await ref.read(aiNewsFeedbackControllerProvider).set(item, signal);
+    if (!context.mounted) {
+      return;
+    }
+    final l10n = AppLocalizations.of(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(l10n.tr('ai_news.feedback.saved'))),
+    );
   }
 }
 

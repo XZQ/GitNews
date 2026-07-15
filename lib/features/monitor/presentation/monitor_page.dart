@@ -8,6 +8,7 @@ import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../application/monitor_providers.dart';
 import '../domain/entities.dart';
@@ -44,8 +45,10 @@ class MonitorPage extends ConsumerWidget {
   }
 }
 
-/* 
+/*
 *手机:状态 4 卡 + 我的监控仓库 + 最近告警。
+*不复用桌面版 [MonitorMonitoredRepos](内部自带 CustomScrollView,
+*放进外层滚动会高度无界);监控行改为 Sliver 懒构建的紧凑卡片。
 */
 class _Mobile extends StatelessWidget {
   const _Mobile({required this.digest});
@@ -54,21 +57,46 @@ class _Mobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
+    final l10n = AppLocalizations.of(context);
+    return CustomScrollView(slivers: [
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          0,
+        ),
+        sliver: SliverToBoxAdapter(child: MonitorStatusRow(stats: digest.stats)),
       ),
-      children: [
-        MonitorStatusRow(stats: digest.stats),
-        const SizedBox(height: AppSpacing.lg),
-        MonitorMonitoredRepos(repos: digest.monitoredRepos),
-        const SizedBox(height: AppSpacing.lg),
-        MonitorRecentAlerts(alerts: digest.alerts)
-      ],
-    );
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.xs,
+        ),
+        sliver: SliverToBoxAdapter(
+          child: SectionHeader(title: l10n.tr('monitor.monitored_repos.title'), subtitle: l10n.tr('monitor.monitored_repos.subtitle')),
+        ),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        sliver: SliverList.separated(
+          itemCount: digest.monitoredRepos.length,
+          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+          itemBuilder: (context, i) => MonitorMonitoredRow(repo: digest.monitoredRepos[i], dense: true),
+        ),
+      ),
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.xl,
+        ),
+        sliver: SliverToBoxAdapter(child: MonitorRecentAlerts(alerts: digest.alerts)),
+      ),
+    ]);
   }
 }
 

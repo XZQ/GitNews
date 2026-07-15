@@ -30,6 +30,9 @@ class AiNewsSourceConfig {
 class AiNewsSourcesConfig {
   const AiNewsSourcesConfig._();
 
+  // 自定义源可选择的分类编码,与 AI 资讯领域枚举保持稳定协议。
+  static const List<String> supportedCategoryCodes = ['ai-models', 'ai-products', 'paper', 'tip', 'industry'];
+
   // 每个源单次聚合最多贡献的条目数,防止高频源淹没时间线。
   static const int maxItemsPerSource = 20;
 

@@ -1,5 +1,7 @@
 # 第 1 批实施计划：ETag + 列表虚拟化 + 启动并行化
 
+> 历史快照：本文是 2026-07-06 的执行计划，命令、行号和复选框不代表当前待办。当前基线为 `1.4.0+4` 加 `Unreleased` 改动；当前事实请查看 [产品、数据与系统边界](../../plans/product_ia_data_plan.md) 和 [README](../../../README.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 落地 `docs/superpowers/specs/2026-07-06-full-optimization-design.md` 第 1 批的三件事：GitHub ETag/If-None-Match、增长型列表虚拟化、main.dart 启动并行化。

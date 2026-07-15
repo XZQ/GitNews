@@ -1,5 +1,7 @@
 # 商业级打磨方案 (Commercial-Grade Polish Plan)
 
+> 历史快照（2026-07-08）：本文是当时基于 187 项测试的只读评审清单，其中多项问题已在 1.2～1.4 版本解决，行号和完成状态不再代表当前代码。当前基线为 `1.4.0+4` 加 `Unreleased` 改动；请以 [产品、数据与系统边界](product_ia_data_plan.md)、[README](../../README.md)、[CHANGELOG](../../CHANGELOG.md) 和实际代码为准。
+
 生成于 2026-07-08，基于 4 位专家并行只读评审（架构 / UI-UX / 性能 / 测试）。
 基线：`flutter analyze` = No issues；`flutter test` = 187 passing。
 已完成项（不再重复）：DataProvenance 5 态、ai_news 种子兜底、monitor 桌面溢出修复、profile 裸圆角、sidebar 背景、repo_tile 致命崩溃修复。

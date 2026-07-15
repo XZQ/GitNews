@@ -12,105 +12,17 @@ class DiscoverProfileRow extends StatelessWidget {
   const DiscoverProfileRow({
     required this.profile,
     this.onTap,
-    this.cardStyle = true,
     super.key,
   });
 
   final DiscoverProfileEntity profile;
   final VoidCallback? onTap;
-  final bool cardStyle;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final labelKey = profile.kind == DiscoverProfileKind.official ? 'discover.profile.official' : 'discover.profile.people';
-    if (!cardStyle) {
-      return _CompactProfileRow(profile: profile, onTap: onTap, label: l10n.tr(labelKey));
-    }
     return _CardProfileRow(profile: profile, onTap: onTap, label: l10n.tr(labelKey));
-  }
-}
-
-class _CompactProfileRow extends StatelessWidget {
-  const _CompactProfileRow({required this.profile, required this.label, this.onTap});
-
-  final DiscoverProfileEntity profile;
-  final String label;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context);
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 22,
-              backgroundColor: colors.primaryContainer,
-              backgroundImage: profile.avatarUrl.isEmpty ? null : NetworkImage(profile.avatarUrl),
-              child: profile.avatarUrl.isEmpty ? Text(profile.login.characters.first.toUpperCase()) : null,
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                          child: Text(
-                        profile.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
-                      )),
-                      DiscoverProfileMetricPill(text: label, color: colors.primary)
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xxs),
-                  Text('@${profile.login}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
-                  if (profile.enriched && profile.bio.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.xxs),
-                    Text(
-                      profile.bio,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
-                    )
-                  ] else if (!profile.enriched) ...[
-                    const SizedBox(height: AppSpacing.xxs),
-                    Text('—', style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.5)))
-                  ],
-                  const SizedBox(height: AppSpacing.xs2),
-                  Row(
-                    children: [
-                      DiscoverProfileIconMetric(
-                        icon: Icons.group_rounded,
-                        value: l10n.tr('discover.profile.followers').replaceAll('{n}', placeholderOrNumber(profile.followers, profile.enriched)),
-                        color: colors.tertiary,
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      DiscoverProfileIconMetric(
-                        icon: Icons.folder_rounded,
-                        value: l10n.tr('discover.profile.repos').replaceAll('{n}', placeholderOrNumber(profile.publicRepos, profile.enriched)),
-                        color: colors.secondary,
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Icon(Icons.chevron_right_rounded, size: 18, color: colors.onSurfaceVariant)
-          ],
-        ),
-      ),
-    );
   }
 }
 

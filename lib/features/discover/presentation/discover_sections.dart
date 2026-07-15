@@ -17,7 +17,7 @@ import 'widgets/discover_profile_row.dart';
 import 'widgets/discover_repo_row.dart';
 
 /*
- *发现页列表容器:桌面端(≥1024)一行 2 项,其余沿用单列。
+ *发现页列表容器:桌面端(≥1024)一行 2 项,其余单列卡片。
  *
  *桌面端两列通过把相邻两项包进同一 `Row` 实现,行高由较高的项决定,
  *避免 GridView 强制 aspectRatio 带来的描述文字裁切。
@@ -29,7 +29,6 @@ Widget _buildDiscoverList({
   required bool hasMore,
   required Widget Function(BuildContext, int) itemBuilder,
 }) {
-  final useCards = !Breakpoints.isCompact(context);
   final twoColumn = Breakpoints.isExpanded(context);
   final cardPadding = const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl);
   if (twoColumn) {
@@ -52,11 +51,12 @@ Widget _buildDiscoverList({
           ]);
         });
   }
+  // 单列(手机 / 平板):统一卡片式条目,与监控页、趋势页移动端保持一致。
   return ListView.separated(
       controller: scrollController,
-      padding: useCards ? cardPadding : const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl),
       itemCount: itemCount + (hasMore ? 1 : 0),
-      separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
+      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
       itemBuilder: (context, i) {
         if (i >= itemCount) {
           return const DiscoverLoadMoreIndicator();
@@ -81,7 +81,6 @@ class DiscoverReposSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(discoverSearchQueryProvider);
-    final useCards = !Breakpoints.isCompact(context);
     return async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(error: e is AppException ? e : AppException(kind: AppExceptionKind.unknown, cause: e), onRetry: onRetry),
@@ -95,7 +94,7 @@ class DiscoverReposSection extends ConsumerWidget {
             scrollController: scrollController,
             itemCount: repos.length,
             hasMore: hasMore,
-            itemBuilder: (context, i) => DiscoverMonitorRow(repo: repos[i], cardStyle: useCards, onTap: () => context.go(discoverRepoDetailLocation(repos[i].fullName))),
+            itemBuilder: (context, i) => DiscoverMonitorRow(repo: repos[i], onTap: () => context.go(discoverRepoDetailLocation(repos[i].fullName))),
           );
         });
   }
@@ -117,7 +116,6 @@ class DiscoverSkillsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(discoverSearchQueryProvider);
-    final useCards = !Breakpoints.isCompact(context);
     return async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => ErrorView(error: e is AppException ? e : AppException(kind: AppExceptionKind.unknown, cause: e), onRetry: onRetry),
@@ -134,7 +132,6 @@ class DiscoverSkillsSection extends ConsumerWidget {
             itemBuilder: (context, i) => DiscoverMonitorRow(
               repo: skills[i].repo,
               badge: '#${skills[i].rank} · ${skills[i].category}',
-              cardStyle: useCards,
               onTap: () => context.go(discoverRepoDetailLocation(skills[i].repo.fullName)),
             ),
           );
@@ -164,7 +161,6 @@ class DiscoverProfilesSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(discoverSearchQueryProvider);
-    final useCards = !Breakpoints.isCompact(context);
     final async = ref.watch(provider);
     return async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -180,7 +176,7 @@ class DiscoverProfilesSection extends ConsumerWidget {
             scrollController: scrollController,
             itemCount: profiles.length,
             hasMore: hasMore,
-            itemBuilder: (context, i) => DiscoverProfileRow(profile: profiles[i], cardStyle: useCards, onTap: () => context.go(discoverProfileDetailLocation(profiles[i]))),
+            itemBuilder: (context, i) => DiscoverProfileRow(profile: profiles[i], onTap: () => context.go(discoverProfileDetailLocation(profiles[i]))),
           );
         });
   }

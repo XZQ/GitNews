@@ -1,5 +1,7 @@
 # 发现页分页与扩容 Implementation Plan
 
+> 历史快照：本文计划已经在 1.4.0+4 基线中实施，命令、行号和复选框仅保留为执行记录。当前事实请查看 [产品、数据与系统边界](../../plans/product_ia_data_plan.md) 和 [README](../../../README.md)。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 让发现页四个分段(repos / skills / official / people)都支持按"剩余 item ≤ 3"触发的无限滚动,扩大单页数据量,并让 official/people 通过 `/search/users` 突破 10 条白名单上限。

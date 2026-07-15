@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -11,10 +12,16 @@ import 'ai_news_category_style.dart';
 *AI 动态列表卡片。
 */
 class AiNewsArticleCard extends StatelessWidget {
-  const AiNewsArticleCard({required this.item, required this.onTap, super.key});
+  const AiNewsArticleCard({
+    required this.item,
+    required this.onTap,
+    this.eventSources = const [],
+    super.key,
+  });
 
   final AiNewsItem item;
   final VoidCallback onTap;
+  final List<String> eventSources;
 
   @override
   Widget build(BuildContext context) {
@@ -60,12 +67,42 @@ class AiNewsArticleCard extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
+              if (eventSources.length > 1) ...[
+                const SizedBox(height: AppSpacing.sm),
+                _EventSources(sources: eventSources),
+              ],
               const SizedBox(height: AppSpacing.md),
               _Meta(publishedAt: item.publishedAt)
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class _EventSources extends StatelessWidget {
+  const _EventSources({required this.sources});
+
+  final List<String> sources;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        Icon(Icons.hub_rounded, size: 14, color: colors.primary),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Text(
+            '${l10n.tr('ai_news.event_sources').replaceAll('{count}', '${sources.length}')} · ${sources.join(' · ')}',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.labelSmall.copyWith(color: colors.primary),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -3,6 +3,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/storage/cache_meta_dao.dart';
 import '../domain/ai_news_item.dart';
+import '../domain/ai_news_library_filter.dart';
 
 /* 
 *AI 资讯本地缓存 DAO。
@@ -59,33 +60,59 @@ class AiNewsCacheDao {
   static const int _searchLimit = 100;
 
   /*
-  *资讯库全库搜索:LIKE 匹配标题/英文标题/摘要/来源,按发布时间倒序。
+  *资讯库全库搜索:FTS5 匹配标题/英文标题/摘要/来源,并支持来源、时间、
+  *分类、已读状态过滤。非空查询按 BM25 相关性优先,同分按时间倒序。
   *与 [readAll] 不同,这里不受 [_readLimit] 的「首屏渲染」定位约束,
   *面向的是沉淀在本地的全部历史条目。`%`/`_`/转义符做 ESCAPE 处理。
   */
-  Future<List<AiNewsItem>> searchAll(String query, {AiNewsCategory? category}) async {
+  Future<List<AiNewsItem>> searchAll(
+    String query, {
+    AiNewsCategory? category,
+    AiNewsLibraryFilter filter = const AiNewsLibraryFilter(),
+  }) async {
     final keyword = query.trim();
-    if (keyword.isEmpty) {
-      return const [];
-    }
-    final escaped = keyword.replaceAll(r'\', r'\\').replaceAll('%', r'\%').replaceAll('_', r'\_');
-    final pattern = '%$escaped%';
     try {
-      final where = StringBuffer(
-        "(title LIKE ? ESCAPE '\\' OR title_en LIKE ? ESCAPE '\\' "
-        "OR summary LIKE ? ESCAPE '\\' OR source LIKE ? ESCAPE '\\')",
-      );
-      final args = <Object?>[pattern, pattern, pattern, pattern];
-      if (category != null) {
-        where.write(' AND category = ?');
-        args.add(category.code);
+      final where = <String>[];
+      final args = <Object?>[];
+      final selectedCategory = filter.category ?? category;
+      if (keyword.isNotEmpty) {
+        where.add('ai_news_fts MATCH ?');
+        args.add(_ftsQuery(keyword));
       }
-      final rows = await _db.query(
-        _table,
-        where: where.toString(),
-        whereArgs: args,
-        orderBy: 'published_at DESC',
-        limit: _searchLimit,
+      if (selectedCategory != null) {
+        where.add('i.category = ?');
+        args.add(selectedCategory.code);
+      }
+      final source = filter.source?.trim();
+      if (source != null && source.isNotEmpty) {
+        where.add('i.source = ?');
+        args.add(source);
+      }
+      if (filter.publishedAfter != null) {
+        where.add('i.published_at >= ?');
+        args.add(filter.publishedAfter!.millisecondsSinceEpoch);
+      }
+      if (filter.publishedBefore != null) {
+        where.add('i.published_at < ?');
+        args.add(filter.publishedBefore!.millisecondsSinceEpoch);
+      }
+      switch (filter.read) {
+        case AiNewsReadFilter.all:
+          break;
+        case AiNewsReadFilter.unread:
+          where.add('s.read_at IS NULL');
+          break;
+        case AiNewsReadFilter.read:
+          where.add('s.read_at IS NOT NULL');
+          break;
+      }
+      final rows = await _db.rawQuery(
+        'SELECT i.* FROM ${keyword.isEmpty ? 'ai_news_item i' : 'ai_news_fts JOIN ai_news_item i ON i.id = ai_news_fts.item_id'} '
+        'LEFT JOIN ai_news_state s ON s.item_id = i.id '
+        '${where.isEmpty ? '' : 'WHERE ${where.join(' AND ')}'} '
+        'ORDER BY ${keyword.isEmpty ? '' : 'bm25(ai_news_fts), '}i.published_at DESC '
+        'LIMIT $_searchLimit',
+        args,
       );
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
@@ -94,6 +121,24 @@ class AiNewsCacheDao {
         cause: e,
         stack: st,
         meta: {'op': 'searchAll'},
+      );
+    }
+  }
+
+  /* 返回资讯库中可用于过滤的来源列表。 */
+  Future<List<String>> sources() async {
+    try {
+      final rows = await _db.rawQuery(
+        'SELECT DISTINCT source FROM $_table WHERE source != ? ORDER BY source',
+        [''],
+      );
+      return rows.map((row) => row['source'] as String).toList(growable: false);
+    } catch (e, st) {
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'sources'},
       );
     }
   }
@@ -217,5 +262,10 @@ class AiNewsCacheDao {
       score: row['score'] as int,
       selected: (row['selected'] as int) == 1,
     );
+  }
+
+  static String _ftsQuery(String query) {
+    final tokens = query.trim().split(RegExp(r'\s+')).where((token) => token.isNotEmpty).map((token) => '"${token.replaceAll('"', '""')}"*');
+    return tokens.join(' AND ');
   }
 }

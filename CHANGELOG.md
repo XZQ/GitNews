@@ -2,6 +2,29 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 和[语义化版本](https://semver.org/spec/v2.0.0.html)。
 
+## [Unreleased]
+
+### Added
+
+- 独立 `settings` feature 与 AI 资讯源管理：支持 RSS/Atom 源增删、启停、健康状态和非敏感配置导入导出。
+- AI 资讯阶段二：逐条 LLM 摘要/翻译/重要性与实体缓存、时间窗事件聚类、SQLite FTS5 全文检索、按源/时间/已读筛选，以及“更多此类/不感兴趣”本地排序反馈。
+- Windows 托盘常驻、周期刷新、应用内提醒中心和本机系统通知；新增可验证关闭窗口后进程驻留的托盘烟测。
+- 可选 `server/` 自托管服务：FastAPI + SQLite 定时 RSS/Atom 采集、版本化跨设备配置同步、成员与共享批注、可靠 push outbox、签名 webhook、GH Archive 小时聚合、Docker 部署文件和真实进程烟测。
+- 客户端自托管服务设置页：API Key 安全存储、连通性检查、成员注册和非敏感配置手动推送/拉取。
+
+### Changed
+
+- 本地数据库升级至 schema v6，新增 FTS5 索引、增强缓存、兴趣反馈和提醒表，并覆盖迁移回填与触发器同步。
+- 品牌与信息架构：中文产品名统一为“AI资讯”，落地 Branch Pulse 全平台图标；紧凑窗口与移动端导航调整为今日、AI、发现、监控、我的 5 个目的地。
+- 移动端滚动性能:热榜/项目/监控/告警中心的 `ListView(children:) + shrinkWrap` 反模式全部改为 `CustomScrollView` + Sliver 懒构建,长列表不再一次性构建全部条目;滚动内容中的 fl_chart 图表统一包 `RepaintBoundary` 隔离重绘。
+- 移动端视觉密度:`RepoTile` 新增 `dense` 紧凑变体(小头像/单行描述/收紧内边距),移动列表去掉外层 AppCard 嵌套,直接以卡片条目呈现。
+- 移动端顶部沉浸式:启动开启 edge-to-edge,状态栏/导航栏透明并关闭系统对比度遮罩;`AppBarTheme.systemOverlayStyle` 按主题亮暗钉死状态栏样式,防止 AppBar 默认样式覆盖全局设置(MIUI 等 ROM 上的灰色顶条随之消失)。
+- 移动端第二轮打磨(对照真机截图):总览页补 AppBar、无告警时告警卡收成单行入口;趋势图轴标签防重叠(纵轴等距 5 刻度、横轴整数间隔并丢弃边界重复标签、量程比例留白);发现页去掉双头部(徽章/刷新并入 AppBar、紧凑搜索框内联)、分段选择器改单行横向滚动;零增量仓库不再显示「+0 ↗」噪声;AI 日报未配置态收成单行引导,安全说明挪进配置对话框。
+
+### Fixed
+
+- 监控页移动分支此前把自滚动的 `MonitorMonitoredRepos`(内含 CustomScrollView)嵌入 `ListView` children,存在高度无界的布局风险;改为 Sliver 化的紧凑监控行。
+
 ## [1.4.0+4] - 2026-07-15
 
 ### Added

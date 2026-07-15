@@ -1,5 +1,7 @@
 # 第二阶段实施计划（4 大模块升级）
 
+> 历史快照（2026-07-08）：本文记录第二阶段启动前的设计输入，不是当前实施清单。发现、真实本地集合、Device Flow、数据缓存等内容已在后续版本部分或全部落地；当前基线为 `1.4.0+4` 加 `Unreleased` 改动，移动端已经采用 5 Tab。当前事实请以 [产品、数据与系统边界](product_ia_data_plan.md)、[README](../../README.md) 和实际代码为准。
+
 > 基于架构 / 数据API / UI-UX / 测试 4 专家并行设计评审汇总。
 > 项目约束：Flutter 桌面优先（Windows）、无后端、离线优先、本地缓存；feature-first；presentation 不依赖 data 类；跨 feature 经 core/domain|config|shared；.dart <300 行；Riverpod + go_router。
 > 已定方向：① 数据=联网 GitHub API + 本地缓存兜底；② skill=AI Agent Skills 仓库；③ 登录=GitHub Device Flow。
@@ -61,7 +63,13 @@
 5. 模块4 数据增强（trending 镜像 / skills 排行榜 / awesome seed）。
 6. #40 终验 + 提交推送。
 
-## 当前范围确认
+## 当时范围确认（历史）
 
 - 当前阶段只修改和验证 Windows 桌面端主链路。
 - 手机端继续保持独立 4 Tab 规划，本轮不扩展、不重排、不复用桌面侧边栏结构。
+
+## 与当前基线的关系
+
+- 发现页、监控增删闭环、真实本地实体快照、GitHub Token 安全存储和 Device Flow 已进入当前代码。
+- 独立 `lib/features/settings/` 已在后续 `Unreleased` 基线建立，承载 AI 资讯源和自托管服务连接；本文第 4 项仅保留为当时设计记录。
+- 移动端已在后续品牌与导航迭代中调整为今日、AI、发现、监控、我的 5 Tab；上面的 4 Tab 是本计划当时的范围约束。

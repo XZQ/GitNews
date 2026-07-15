@@ -5,6 +5,7 @@ import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/network/dio_client.dart';
+import '../../../core/preferences/ai_news_source_controller.dart';
 import '../../../core/storage/storage_providers.dart';
 import '../data/aggregated_ai_news_repository.dart';
 import '../data/ai_news_api_client.dart';
@@ -30,11 +31,18 @@ final aiNewsRssClientProvider = Provider<AiNewsRssClient>((ref) => AiNewsRssClie
 
 // 聚合仓库:主源(精选流)+ 补充 RSS 源,head 页去重合并。
 // 任一源失败都不影响其余源;全部失败才抛错走缓存/种子降级。
-final aiNewsRepositoryProvider = Provider<AiNewsRepository>((ref) => AggregatedAiNewsRepository(
-      RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)),
-      ref.watch(aiNewsRssClientProvider),
-      clock: ref.watch(clockProvider),
-    ));
+final aiNewsRepositoryProvider = Provider<AiNewsRepository>((ref) {
+  final sources = ref.watch(aiNewsSourceControllerProvider);
+  final controller = ref.read(aiNewsSourceControllerProvider.notifier);
+  return AggregatedAiNewsRepository(
+    RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)),
+    ref.watch(aiNewsRssClientProvider),
+    sources: sources.enabledConfigs,
+    clock: ref.watch(clockProvider),
+    onSourceSuccess: (id, at) => controller.reportSuccess(id, at),
+    onSourceFailure: (id, at, error) => controller.reportFailure(id, at, error),
+  );
+});
 
 // AI 资讯缓存 DAO。共享全局 [appDatabaseProvider] 的 executor。
 final aiNewsCacheDaoProvider = Provider<AiNewsCacheDao>((ref) => AiNewsCacheDao(ref.watch(appDatabaseProvider).executor, ref.watch(cacheMetaDaoProvider)));

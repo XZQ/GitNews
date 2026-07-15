@@ -32,23 +32,24 @@ class DiscoverSegmented extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     if (compact) {
-      return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
-          child: Align(
-              alignment: Alignment.centerLeft,
-              child: Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
-                for (final item in _items)
-                  ChoiceChip(
-                      selected: value == item.value,
-                      showCheckmark: false,
-                      avatar: Icon(item.icon, size: 16),
-                      label: Text(l10n.tr(item.labelKey)),
-                      onSelected: (_) {
-                        if (value != item.value) {
-                          onChanged(item.value);
-                        }
-                      })
-              ])));
+      // 移动端单行横向滚动:Wrap 会折成两行,吃掉太多首屏。
+      return SizedBox(
+          height: 52,
+          child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm), children: [
+            for (var i = 0; i < _items.length; i++) ...[
+              if (i > 0) const SizedBox(width: AppSpacing.sm),
+              ChoiceChip(
+                  selected: value == _items[i].value,
+                  showCheckmark: false,
+                  avatar: Icon(_items[i].icon, size: 16),
+                  label: Text(l10n.tr(_items[i].labelKey)),
+                  onSelected: (_) {
+                    if (value != _items[i].value) {
+                      onChanged(_items[i].value);
+                    }
+                  })
+            ]
+          ]));
     }
     return Container(
         height: 52,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/utils/breakpoint.dart';
+import '../../../shared/widgets/mobile_page_header.dart';
 import '../../../shared/widgets/onboarding_dialog.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../widgets/devintel/devintel_desktop_page.dart';
@@ -44,11 +46,18 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (Breakpoints.of(context) == FormFactor.expanded) {
       return const DevIntelDesktopPage();
     }
+    final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-        body: ResponsiveLayout(
-      compact: (_) => const HomeMobileBody(),
-      medium: (_) => const HomeTabletBody(),
-      expanded: (_) => const SizedBox.shrink(),
-    ));
+        body: Column(children: [
+      // 移动端统一页头(大标题 + 图标动作),替代默认 AppBar。
+      if (isCompact) MobilePageHeader(title: AppLocalizations.of(context).tr('home.title')),
+      Expanded(
+        child: ResponsiveLayout(
+          compact: (_) => const HomeMobileBody(),
+          medium: (_) => const HomeTabletBody(),
+          expanded: (_) => const SizedBox.shrink(),
+        ),
+      ),
+    ]));
   }
 }

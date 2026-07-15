@@ -75,6 +75,80 @@ const String _kCreateAiNewsState = '''
   )
 ''';
 
+// AI 资讯全文索引。使用独立 FTS5 表和触发器同步 ai_news_item，避免业务
+// DAO 手动维护两份写入逻辑；迁移时会为已有条目补建索引。
+const String _kCreateAiNewsFts = '''
+  CREATE VIRTUAL TABLE IF NOT EXISTS ai_news_fts USING fts5(
+    item_id UNINDEXED,
+    title,
+    title_en,
+    summary,
+    source,
+    tokenize = 'unicode61'
+  )
+''';
+
+const List<String> _kCreateAiNewsFtsTriggers = [
+  '''
+    CREATE TRIGGER IF NOT EXISTS ai_news_fts_insert AFTER INSERT ON ai_news_item
+    BEGIN
+      DELETE FROM ai_news_fts WHERE item_id = new.id;
+      INSERT INTO ai_news_fts(item_id, title, title_en, summary, source)
+      VALUES (new.id, new.title, new.title_en, new.summary, new.source);
+    END
+  ''',
+  '''
+    CREATE TRIGGER IF NOT EXISTS ai_news_fts_update AFTER UPDATE ON ai_news_item
+    BEGIN
+      DELETE FROM ai_news_fts WHERE item_id = old.id OR item_id = new.id;
+      INSERT INTO ai_news_fts(item_id, title, title_en, summary, source)
+      VALUES (new.id, new.title, new.title_en, new.summary, new.source);
+    END
+  ''',
+  '''
+    CREATE TRIGGER IF NOT EXISTS ai_news_fts_delete AFTER DELETE ON ai_news_item
+    BEGIN
+      DELETE FROM ai_news_fts WHERE item_id = old.id;
+    END
+  ''',
+];
+
+// 逐条 LLM 增强结果。原文不被覆盖，结果按条目和模型持久缓存。
+const String _kCreateAiNewsEnrichment = '''
+  CREATE TABLE IF NOT EXISTS ai_news_enrichment (
+    item_id             TEXT PRIMARY KEY,
+    generated_summary   TEXT NOT NULL,
+    translated_title    TEXT NOT NULL,
+    translated_summary  TEXT NOT NULL,
+    importance_score    REAL NOT NULL,
+    entities_json       TEXT NOT NULL,
+    model               TEXT NOT NULL,
+    updated_at          INTEGER NOT NULL
+  )
+''';
+
+// 本地兴趣反馈。signal=-1 表示减少此类，signal=1 表示更多此类。
+const String _kCreateAiNewsFeedback = '''
+  CREATE TABLE IF NOT EXISTS ai_news_feedback (
+    item_id      TEXT PRIMARY KEY,
+    signal       INTEGER NOT NULL CHECK(signal IN (-1, 1)),
+    topic_key    TEXT NOT NULL,
+    updated_at   INTEGER NOT NULL
+  )
+''';
+
+// 后台刷新发现的新资讯提醒。提醒已读状态属于用户数据，不随缓存清理。
+const String _kCreateAiNewsReminder = '''
+  CREATE TABLE IF NOT EXISTS ai_news_reminder (
+    item_id       TEXT PRIMARY KEY,
+    title         TEXT NOT NULL,
+    source        TEXT NOT NULL,
+    published_at  INTEGER NOT NULL,
+    created_at    INTEGER NOT NULL,
+    read_at       INTEGER
+  )
+''';
+
 // 当前 schema 全部 DDL。新增表在这里追加,旧表结构变更走 [_kMigrations]。
 const List<String> _kBootstrap = [
   _kCreateCacheMeta,
@@ -110,7 +184,15 @@ const List<String> _kBootstrap = [
   'CREATE INDEX IF NOT EXISTS idx_monitor_alert_archived_at ON monitor_alert_event(archived_at)',
   'CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)',
   _kCreateAiNewsState,
-  'CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)'
+  'CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)',
+  _kCreateAiNewsFts,
+  ..._kCreateAiNewsFtsTriggers,
+  _kCreateAiNewsEnrichment,
+  _kCreateAiNewsFeedback,
+  'CREATE INDEX IF NOT EXISTS idx_ai_news_feedback_topic ON ai_news_feedback(topic_key, signal)',
+  _kCreateAiNewsReminder,
+  'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_created ON ai_news_reminder(created_at DESC)',
+  'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_read ON ai_news_reminder(read_at)'
 ];
 
 // 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
@@ -118,7 +200,13 @@ const List<String> _kBootstrap = [
 // ```dart
 // (db) async => await db.execute('ALTER TABLE ai_news_item ADD COLUMN ext6 TEXT'),
 // ```
-const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [_migrateV1ToV2, _migrateV2ToV3, _migrateV3ToV4, _migrateV4ToV5];
+const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
+  _migrateV1ToV2,
+  _migrateV2ToV3,
+  _migrateV3ToV4,
+  _migrateV4ToV5,
+  _migrateV5ToV6,
+];
 
 Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
   await db.execute(_kCreateTrendingSnapshotCache);
@@ -140,6 +228,33 @@ Future<void> _migrateV3ToV4(DatabaseExecutor db) async {
 Future<void> _migrateV4ToV5(DatabaseExecutor db) async {
   await db.execute(_kCreateAiNewsState);
   await db.execute('CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)');
+}
+
+Future<void> _migrateV5ToV6(DatabaseExecutor db) async {
+  await db.execute(_kCreateAiNewsFts);
+  for (final statement in _kCreateAiNewsFtsTriggers) {
+    await db.execute(statement);
+  }
+  await db.execute('DELETE FROM ai_news_fts');
+  await db.execute(
+    'INSERT INTO ai_news_fts(item_id, title, title_en, summary, source) '
+    'SELECT id, title, title_en, summary, source FROM ai_news_item',
+  );
+  await db.execute(_kCreateAiNewsEnrichment);
+  await db.execute(_kCreateAiNewsFeedback);
+  await db.execute(
+    'CREATE INDEX IF NOT EXISTS idx_ai_news_feedback_topic '
+    'ON ai_news_feedback(topic_key, signal)',
+  );
+  await db.execute(_kCreateAiNewsReminder);
+  await db.execute(
+    'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_created '
+    'ON ai_news_reminder(created_at DESC)',
+  );
+  await db.execute(
+    'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_read '
+    'ON ai_news_reminder(read_at)',
+  );
 }
 
 // 新建库时一次性创建全部业务表。
