@@ -873,5 +873,6 @@ const Map<String, String> stringsEnUS = <String, String>{
   'settings.server.pushed': 'Configuration uploaded to this workspace.',
   'settings.server.pulled': 'Remote configuration validated and applied.',
   'settings.server.failed': 'Operation failed. Check the URL, key, workspace, and server status.',
+  'settings.server.conflict': 'Remote config is newer. Pull before pushing again.',
   'settings.server.invalid': 'Invalid connection configuration.'
 };

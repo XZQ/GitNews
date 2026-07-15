@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/preferences/config_service.dart';
 import '../../../core/preferences/server_connection_controller.dart';
 import '../data/self_hosted_server_client.dart';
@@ -88,6 +89,13 @@ class SelfHostedServerController extends Notifier<SelfHostedServerStatus> {
       state = SelfHostedServerStatus(
         messageKey: successKey,
         lastSuccessAt: DateTime.now().toUtc(),
+      );
+    } on AppException catch (e) {
+      // 推送冲突需要用户先拉取,给针对性提示而非笼统失败。
+      final conflict = e.meta['reason'] == 'conflict';
+      state = SelfHostedServerStatus(
+        messageKey: conflict ? 'settings.server.conflict' : 'settings.server.failed',
+        error: true,
       );
     } catch (_) {
       state = const SelfHostedServerStatus(

@@ -4,6 +4,12 @@
 *.pyc
 *.swp
 .DS_Store
+
+# Self-hosted server local artifacts (never commit venv or runtime DB)
+server/.venv/
+server/data/
+__pycache__/
+*.py[cod]
 .atom/
 .build/
 .buildlog/

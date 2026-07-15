@@ -872,5 +872,6 @@ const Map<String, String> stringsZhCN = <String, String>{
   'settings.server.pushed': '配置已上传到当前工作区。',
   'settings.server.pulled': '远端配置已校验并应用。',
   'settings.server.failed': '操作失败，请检查地址、Key、工作区和服务状态。',
+  'settings.server.conflict': '远端配置已更新，请先拉取再重新上传。',
   'settings.server.invalid': '连接配置无效。'
 };

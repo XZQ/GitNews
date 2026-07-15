@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ..auth import RequestContext, require_context
 from ..deps import push
 from ..models import PushEventInput, PushSubscriptionInput
-from ..push_service import PushService
+from ..push_service import PushService, SubscriptionOwnershipError
 
 router = APIRouter(prefix="/v1/push", tags=["push"])
 
@@ -17,7 +17,10 @@ def subscribe(
 ) -> dict[str, object]:
     if subscription_id != value.id:
         raise HTTPException(status_code=400, detail="subscription id mismatch")
-    return service.subscribe(context.workspace_id, value)
+    try:
+        return service.subscribe(context.workspace_id, value)
+    except SubscriptionOwnershipError as error:
+        raise HTTPException(status_code=409, detail=str(error)) from error
 
 
 @router.post("/events")

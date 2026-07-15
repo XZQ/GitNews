@@ -21,6 +21,24 @@ jobs:
       - run: flutter analyze
       - run: flutter test --coverage
 
+  server-quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: server/uv.lock
+      - run: uv sync --all-groups
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+      # 真实进程冒烟:临时目录 + 本地端口,不依赖外网 feed。
+      - run: uv run python tools/live_smoke.py
+
   windows-release:
     runs-on: windows-latest
     steps:

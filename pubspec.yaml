@@ -1,7 +1,7 @@
 name: github_news
 description: AI资讯 — 仓库 Star 趋势分析与监控告警客户端。
 publish_to: none
-version: 1.4.0+4
+version: 1.5.0+5
 
 environment:
   sdk: ">=3.4.0 <4.0.0"

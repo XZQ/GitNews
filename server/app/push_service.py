@@ -11,6 +11,14 @@ from .db import Database, json_text, parse_json
 from .models import PushEventInput, PushSubscriptionInput
 
 
+class SubscriptionOwnershipError(Exception):
+    """Raised when a subscription id already belongs to another workspace."""
+
+    def __init__(self, subscription_id: str) -> None:
+        super().__init__(f"subscription id already exists in another workspace: {subscription_id}")
+        self.subscription_id = subscription_id
+
+
 class PushService:
     def __init__(self, database: Database, timeout_seconds: float = 30) -> None:
         self.database = database
@@ -19,16 +27,26 @@ class PushService:
     def subscribe(self, workspace_id: str, value: PushSubscriptionInput) -> dict[str, object]:
         now = _now()
         with self.database.connection() as connection:
+            # Subscription ids are client-supplied: scope the upsert to the
+            # caller's workspace so an id collision from another workspace
+            # cannot hijack the endpoint/secret of an existing subscription.
             connection.execute(
                 """
                 INSERT INTO push_subscriptions(id,workspace_id,kind,endpoint,secret,enabled,created_at)
                 VALUES(?,?,?,?,?,1,?)
                 ON CONFLICT(id) DO UPDATE SET
-                  workspace_id=excluded.workspace_id, kind=excluded.kind,
-                  endpoint=excluded.endpoint, secret=excluded.secret, enabled=1
+                  kind=excluded.kind, endpoint=excluded.endpoint,
+                  secret=excluded.secret, enabled=1
+                WHERE push_subscriptions.workspace_id=excluded.workspace_id
                 """,
                 (value.id, workspace_id, value.kind, value.endpoint, value.secret, now),
             )
+            owner = connection.execute(
+                "SELECT workspace_id FROM push_subscriptions WHERE id=?",
+                (value.id,),
+            ).fetchone()
+        if owner is not None and owner["workspace_id"] != workspace_id:
+            raise SubscriptionOwnershipError(value.id)
         return {"workspace_id": workspace_id, **value.model_dump(), "enabled": True, "created_at": now}
 
     def enqueue(self, workspace_id: str, event: PushEventInput) -> int:

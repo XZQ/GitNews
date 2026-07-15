@@ -71,3 +71,20 @@ def test_push_bridge_outbox_and_ack(client, auth_headers):
     assert client.post(f"/v1/push/outbox/{event_id}/ack", headers=auth_headers).json() == {
         "acknowledged": True
     }
+
+
+def test_push_subscription_cannot_be_hijacked_across_workspaces(client, auth_headers):
+    subscription = {"id": "shared-id", "kind": "fcm", "endpoint": "token-a"}
+    created = client.put("/v1/push/subscriptions/shared-id", headers=auth_headers, json=subscription)
+    assert created.status_code == 200
+
+    other_headers = {**auth_headers, "X-Workspace-ID": "workspace-b"}
+    takeover = {"id": "shared-id", "kind": "fcm", "endpoint": "token-b"}
+    denied = client.put("/v1/push/subscriptions/shared-id", headers=other_headers, json=takeover)
+    assert denied.status_code == 409
+
+    event = {"event_type": "news.created", "payload": {"item_id": "n1"}}
+    assert client.post("/v1/push/events", headers=auth_headers, json=event).json() == {"enqueued": 1}
+    outbox = client.get("/v1/push/outbox", headers=auth_headers).json()
+    # 原工作区的订阅端点未被篡改。
+    assert outbox[0]["endpoint"] == "token-a"

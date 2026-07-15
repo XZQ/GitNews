@@ -21,7 +21,11 @@ class SelfHostedServerClient {
         '${connection.baseUrl}/health',
       );
       if (response.data?['status'] != 'ok') {
-        throw const FormatException('Unexpected health response');
+        // 统一异常边界:presentation 只应见到 AppException。
+        throw const AppException(
+          kind: AppExceptionKind.parse,
+          meta: {'reason': 'unexpected health payload'},
+        );
       }
     } on DioException catch (error) {
       throw error.toAppException();
@@ -67,7 +71,12 @@ class SelfHostedServerClient {
       );
       final conflicts = response.data?['conflicts'];
       if (conflicts is List && conflicts.isNotEmpty) {
-        throw StateError('Remote config is newer; pull before pushing again');
+        // 冲突是唯一需要用户采取不同动作(先拉取)的失败,单独标记
+        // 让上层给出针对性提示,而不是笼统的「操作失败」。
+        throw const AppException(
+          kind: AppExceptionKind.unknown,
+          meta: {'reason': 'conflict'},
+        );
       }
     } on DioException catch (error) {
       throw error.toAppException();

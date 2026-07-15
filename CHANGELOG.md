@@ -2,10 +2,11 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 和[语义化版本](https://semver.org/spec/v2.0.0.html)。
 
-## [Unreleased]
+## [1.5.0+5] - 2026-07-16
 
 ### Added
 
+- CI 新增 `server-quality` 任务：uv 环境下运行 ruff 检查/格式校验、pytest 与真实进程冒烟,自托管服务与客户端同门禁。
 - 独立 `settings` feature 与 AI 资讯源管理：支持 RSS/Atom 源增删、启停、健康状态和非敏感配置导入导出。
 - AI 资讯阶段二：逐条 LLM 摘要/翻译/重要性与实体缓存、时间窗事件聚类、SQLite FTS5 全文检索、按源/时间/已读筛选，以及“更多此类/不感兴趣”本地排序反馈。
 - Windows 托盘常驻、周期刷新、应用内提醒中心和本机系统通知；新增可验证关闭窗口后进程驻留的托盘烟测。
@@ -24,6 +25,9 @@
 ### Fixed
 
 - 监控页移动分支此前把自滚动的 `MonitorMonitoredRepos`(内含 CustomScrollView)嵌入 `ListView` children,存在高度无界的布局风险;改为 Sliver 化的紧凑监控行。
+- 托盘后台提醒的已见集合改为与历史合并而非整表覆盖:此前单源临时失败会把旧条目挤出 head 页,源恢复后被误判为新条目而重复提醒。
+- 自托管配置推送冲突不再被吞成笼统「操作失败」:新增 `settings.server.conflict` 提示引导先拉取;健康检查与冲突异常统一收敛到 `AppException` 边界。
+- `.gitignore` 排除 `server/.venv`、`server/data/` 与 `__pycache__`,防止本地虚拟环境和运行时数据库被意外提交。
 
 ## [1.4.0+4] - 2026-07-15
 

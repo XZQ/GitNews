@@ -86,9 +86,12 @@ class _AiNewsBackgroundHostState extends ConsumerState<AiNewsBackgroundHost> wit
         seenIds: previous.toSet(),
         now: now,
       );
+      // 与历史合并而非整表覆盖:head 页只有几十条,单源临时失败会把
+      // 老条目挤出列表;若直接覆盖,源恢复后这些条目会被误判为新条目
+      // 而重复提醒。新 id 在前,截断只淘汰最旧的。
       await preferences.setStringList(
         _seenPreferenceKey,
-        items.map((item) => item.id).take(300).toList(),
+        <String>{...items.map((item) => item.id), ...previous}.take(300).toList(),
       );
       if (previous.isEmpty || freshItems.isEmpty) {
         return;

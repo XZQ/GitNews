@@ -16,9 +16,17 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> Settings:
+        # Fail fast: a missing or default master key would leave every
+        # authenticated endpoint effectively open. Docker compose already
+        # enforces this via `${...:?}`; this guards bare `uvicorn` runs.
+        master_key = os.getenv("GITHUB_NEWS_MASTER_KEY", "").strip()
+        if not master_key or master_key == "change-me":
+            raise RuntimeError(
+                "GITHUB_NEWS_MASTER_KEY must be set to a non-default secret before starting the server"
+            )
         return cls(
             database_path=Path(os.getenv("GITHUB_NEWS_DB", "data/github_news_server.db")),
-            master_key=os.getenv("GITHUB_NEWS_MASTER_KEY", "change-me"),
+            master_key=master_key,
             scheduler_enabled=_bool_env("GITHUB_NEWS_SCHEDULER_ENABLED", True),
             ingest_interval_seconds=max(60, int(os.getenv("GITHUB_NEWS_INGEST_INTERVAL", "900"))),
             push_interval_seconds=max(10, int(os.getenv("GITHUB_NEWS_PUSH_INTERVAL", "30"))),
