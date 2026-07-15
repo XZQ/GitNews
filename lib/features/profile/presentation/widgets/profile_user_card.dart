@@ -56,7 +56,13 @@ class ProfileUserCard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Flexible(child: Text(displayName, style: AppTypography.titleLarge, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    Flexible(
+                        child: Text(
+                      displayName,
+                      style: AppTypography.titleLarge,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )),
                     const SizedBox(width: AppSpacing.xs2),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: AppSpacing.xxs),
@@ -73,7 +79,12 @@ class ProfileUserCard extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xxs),
                 TextButton(
                   onPressed: connected ? signOut : () => context.push(oauthConfigured ? '/profile/login' : '/profile/developer'),
-                  style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 28), tapTargetSize: MaterialTapTargetSize.shrinkWrap, alignment: Alignment.centerLeft),
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 28),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    alignment: Alignment.centerLeft,
+                  ),
                   child: Text(connected ? l10n.tr('profile.logout') : l10n.tr(oauthConfigured ? 'profile.login' : 'profile.login.configure_pat')),
                 )
               ],

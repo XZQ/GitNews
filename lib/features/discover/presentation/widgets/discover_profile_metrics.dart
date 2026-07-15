@@ -15,13 +15,23 @@ class DiscoverProfileMetricPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.xs)),
-      child: Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
+      child: Text(
+        text,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+      ),
     );
   }
 }
 
 class DiscoverProfileIconMetric extends StatelessWidget {
-  const DiscoverProfileIconMetric({required this.icon, required this.value, required this.color, super.key});
+  const DiscoverProfileIconMetric({
+    required this.icon,
+    required this.value,
+    required this.color,
+    super.key,
+  });
 
   final IconData icon;
   final String value;

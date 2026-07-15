@@ -24,8 +24,16 @@ class TrendingDataSourcePreference extends ConsumerWidget {
     return SegmentedButton<TrendingDataSourceMode>(
       style: _compactStyle,
       segments: [
-        ButtonSegment(value: TrendingDataSourceMode.local, icon: const Icon(Icons.storage_rounded, size: 14), label: Text(l10n.tr('profile.settings.data_source.local'))),
-        ButtonSegment(value: TrendingDataSourceMode.github, icon: const Icon(Icons.cloud_outlined, size: 14), label: Text(l10n.tr('profile.settings.data_source.github')))
+        ButtonSegment(
+          value: TrendingDataSourceMode.local,
+          icon: const Icon(Icons.storage_rounded, size: 14),
+          label: Text(l10n.tr('profile.settings.data_source.local')),
+        ),
+        ButtonSegment(
+          value: TrendingDataSourceMode.github,
+          icon: const Icon(Icons.cloud_outlined, size: 14),
+          label: Text(l10n.tr('profile.settings.data_source.github')),
+        )
       ],
       selected: {mode},
       onSelectionChanged: (selection) => ref.read(trendingDataSourceModeControllerProvider.notifier).setMode(selection.first),
@@ -55,7 +63,14 @@ class LanguagePreference extends ConsumerWidget {
     final current = ref.watch(localeControllerProvider);
     return SegmentedButton<Locale>(
       style: _compactStyle,
-      segments: [for (final option in _options) ButtonSegment(value: option, icon: const Icon(Icons.translate_rounded, size: 14), label: Text(l10n.tr(_labelKeyFor(option))))],
+      segments: [
+        for (final option in _options)
+          ButtonSegment(
+            value: option,
+            icon: const Icon(Icons.translate_rounded, size: 14),
+            label: Text(l10n.tr(_labelKeyFor(option))),
+          )
+      ],
       selected: {current},
       onSelectionChanged: (selection) => ref.read(localeControllerProvider.notifier).setLocale(selection.first),
       showSelectedIcon: false,
@@ -113,7 +128,12 @@ class ThemeColorPreference extends ConsumerWidget {
             spacing: AppSpacing.sm2,
             runSpacing: AppSpacing.sm2,
             children: [
-              for (final preset in AppThemePreset.values) _ColorSwatch(preset: preset, selected: preset == current, onTap: () => ref.read(themePresetControllerProvider.notifier).setPreset(preset))
+              for (final preset in AppThemePreset.values)
+                _ColorSwatch(
+                  preset: preset,
+                  selected: preset == current,
+                  onTap: () => ref.read(themePresetControllerProvider.notifier).setPreset(preset),
+                )
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -149,7 +169,11 @@ class _ColorSwatch extends StatelessWidget {
               duration: const Duration(milliseconds: 140),
               width: 28,
               height: 28,
-              decoration: BoxDecoration(color: preset.seed, shape: BoxShape.circle, border: Border.all(color: selected ? colors.onSurface : Colors.transparent, width: 2)),
+              decoration: BoxDecoration(
+                color: preset.seed,
+                shape: BoxShape.circle,
+                border: Border.all(color: selected ? colors.onSurface : Colors.transparent, width: 2),
+              ),
               alignment: Alignment.center,
               child: selected ? Icon(Icons.check, size: 14, color: colors.onPrimary) : null,
             ),

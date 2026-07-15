@@ -57,7 +57,12 @@ class _Body extends ConsumerWidget {
         const TechHotspotPageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(isCompact ? AppSpacing.lg : AppSpacing.xl, AppSpacing.lg, isCompact ? AppSpacing.lg : AppSpacing.xl, AppSpacing.xxxl),
+            padding: EdgeInsets.fromLTRB(
+              isCompact ? AppSpacing.lg : AppSpacing.xl,
+              AppSpacing.lg,
+              isCompact ? AppSpacing.lg : AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -138,7 +143,12 @@ class _TechHotspotSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.xxxl,
+      ),
       children: const [Skeleton(height: 92), SizedBox(height: AppSpacing.lg), Skeleton(height: 280), SizedBox(height: AppSpacing.lg), Skeleton(height: 320)],
     );
   }

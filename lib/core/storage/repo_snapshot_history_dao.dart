@@ -9,12 +9,22 @@ class RepoSnapshotHistoryDao {
 
   final JsonSnapshotCacheDao _cache;
 
-  Future<void> record({required String fullName, required int stars, required int forks, required DateTime capturedAt}) async {
+  Future<void> record({
+    required String fullName,
+    required int stars,
+    required int forks,
+    required DateTime capturedAt,
+  }) async {
     final key = _cacheKey(fullName);
     final payload = await _cache.read(key) ?? const <String, Object?>{};
     final points = _pointsFromPayload(payload);
     final dayKey = GitHubApiSupport.formatDate(capturedAt.toUtc());
-    final nextPoint = RepoSnapshotPoint(day: dayKey, stars: stars, forks: forks, capturedAt: capturedAt.toUtc());
+    final nextPoint = RepoSnapshotPoint(
+      day: dayKey,
+      stars: stars,
+      forks: forks,
+      capturedAt: capturedAt.toUtc(),
+    );
     final byDay = {for (final point in points) point.day: point, dayKey: nextPoint};
     final next = byDay.values.toList()..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
     final bounded = next.length <= repoSnapshotHistoryMaxPoints ? next : next.sublist(next.length - repoSnapshotHistoryMaxPoints);
@@ -66,7 +76,12 @@ class RepoTrendSnapshot {
 }
 
 class RepoSnapshotPoint {
-  const RepoSnapshotPoint({required this.day, required this.stars, required this.forks, required this.capturedAt});
+  const RepoSnapshotPoint({
+    required this.day,
+    required this.stars,
+    required this.forks,
+    required this.capturedAt,
+  });
 
   final String day;
   final int stars;

@@ -82,10 +82,20 @@ class _RepoRowTile extends StatelessWidget {
             const SizedBox(width: AppSpacing.md),
             Expanded(flex: 5, child: Text(repo.fullName, style: AppTypography.labelLarge.copyWith(color: colors.onSurface), overflow: TextOverflow.ellipsis)),
             SizedBox(width: 100, child: _CategoryBadge(text: _category(repo), color: color)),
-            SizedBox(width: 80, child: Text(repo.language, textAlign: TextAlign.right, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant))),
+            SizedBox(
+                width: 80,
+                child: Text(
+                  repo.language,
+                  textAlign: TextAlign.right,
+                  style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+                )),
             SizedBox(
               width: 90,
-              child: Text('+${_compactNumber(repo.starDelta)}', textAlign: TextAlign.right, style: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700, color: AppColors.success)),
+              child: Text(
+                '+${_compactNumber(repo.starDelta)}',
+                textAlign: TextAlign.right,
+                style: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700, color: AppColors.success),
+              ),
             ),
             SizedBox(
               width: 70,

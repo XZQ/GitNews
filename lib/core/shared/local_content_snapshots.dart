@@ -22,7 +22,15 @@ class SavedRepoSnapshot {
   }
 
   factory SavedRepoSnapshot.minimal(String fullName, DateTime now) {
-    return SavedRepoSnapshot(fullName: fullName, description: '', language: 'Unknown', starCount: 0, forkCount: 0, accentArgb: _fallbackAccentArgb, updatedAt: now.toUtc());
+    return SavedRepoSnapshot(
+      fullName: fullName,
+      description: '',
+      language: 'Unknown',
+      starCount: 0,
+      forkCount: 0,
+      accentArgb: _fallbackAccentArgb,
+      updatedAt: now.toUtc(),
+    );
   }
 
   factory SavedRepoSnapshot.fromJson(Map<String, Object?> json) {
@@ -46,7 +54,15 @@ class SavedRepoSnapshot {
   final DateTime updatedAt;
 
   RepoEntity toEntity() {
-    return RepoEntity(fullName: fullName, description: description, language: language, starCount: starCount, starDelta: 0, forkCount: forkCount, accentArgb: accentArgb);
+    return RepoEntity(
+      fullName: fullName,
+      description: description,
+      language: language,
+      starCount: starCount,
+      starDelta: 0,
+      forkCount: forkCount,
+      accentArgb: accentArgb,
+    );
   }
 
   Map<String, Object?> toJson() {
@@ -63,14 +79,29 @@ class SavedRepoSnapshot {
 }
 
 class SavedDeveloperSnapshot {
-  const SavedDeveloperSnapshot({required this.login, required this.contributions, required this.avatarAccentArgb, required this.updatedAt});
+  const SavedDeveloperSnapshot({
+    required this.login,
+    required this.contributions,
+    required this.avatarAccentArgb,
+    required this.updatedAt,
+  });
 
   factory SavedDeveloperSnapshot.fromEntity(ContributorEntity developer, DateTime now) {
-    return SavedDeveloperSnapshot(login: developer.login, contributions: developer.contributions, avatarAccentArgb: developer.avatarAccentArgb, updatedAt: now.toUtc());
+    return SavedDeveloperSnapshot(
+      login: developer.login,
+      contributions: developer.contributions,
+      avatarAccentArgb: developer.avatarAccentArgb,
+      updatedAt: now.toUtc(),
+    );
   }
 
   factory SavedDeveloperSnapshot.minimal(String login, DateTime now) {
-    return SavedDeveloperSnapshot(login: login, contributions: 0, avatarAccentArgb: _fallbackAccentArgb, updatedAt: now.toUtc());
+    return SavedDeveloperSnapshot(
+      login: login,
+      contributions: 0,
+      avatarAccentArgb: _fallbackAccentArgb,
+      updatedAt: now.toUtc(),
+    );
   }
 
   factory SavedDeveloperSnapshot.fromJson(Map<String, Object?> json) {

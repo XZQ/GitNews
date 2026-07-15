@@ -16,8 +16,12 @@ import 'trending_data_source.dart';
 *或 GH Archive 后再替换为真实增量。
 */
 class GithubTrendingDataSource implements TrendingDataSource {
-  GithubTrendingDataSource({required Dio dio, String? token, DateTime Function()? now, RepoSnapshotHistoryDao? snapshotHistory})
-      : _dio = dio,
+  GithubTrendingDataSource({
+    required Dio dio,
+    String? token,
+    DateTime Function()? now,
+    RepoSnapshotHistoryDao? snapshotHistory,
+  })  : _dio = dio,
         _token = token?.trim(),
         _now = now ?? DateTime.now,
         _snapshotHistory = snapshotHistory;
@@ -108,7 +112,12 @@ class GithubTrendingDataSource implements TrendingDataSource {
       description: GitHubJson.nullableString(raw['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: _momentumScore(stars: stars, forks: forks, score: score, window: query.window),
+      starDelta: _momentumScore(
+        stars: stars,
+        forks: forks,
+        score: score,
+        window: query.window,
+      ),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
       valueBasis: MetricBasis.observed,
@@ -124,11 +133,29 @@ class GithubTrendingDataSource implements TrendingDataSource {
     }
 
     final capturedAt = _now();
-    return Future.wait([for (final repo in repos) _withRepoHistory(repo, query.window, history, capturedAt)]);
+    return Future.wait([
+      for (final repo in repos)
+        _withRepoHistory(
+          repo,
+          query.window,
+          history,
+          capturedAt,
+        )
+    ]);
   }
 
-  Future<RepoEntity> _withRepoHistory(RepoEntity repo, TrendingWindow window, RepoSnapshotHistoryDao history, DateTime capturedAt) async {
-    await history.record(fullName: repo.fullName, stars: repo.starCount, forks: repo.forkCount, capturedAt: capturedAt);
+  Future<RepoEntity> _withRepoHistory(
+    RepoEntity repo,
+    TrendingWindow window,
+    RepoSnapshotHistoryDao history,
+    DateTime capturedAt,
+  ) async {
+    await history.record(
+      fullName: repo.fullName,
+      stars: repo.starCount,
+      forks: repo.forkCount,
+      capturedAt: capturedAt,
+    );
     final trend = await history.starTrend(repo.fullName);
     if (trend == null) {
       return repo;
@@ -154,7 +181,12 @@ class GithubTrendingDataSource implements TrendingDataSource {
     return delta.round().clamp(0, 999999);
   }
 
-  int _momentumScore({required int stars, required int forks, required double score, required TrendingWindow window}) {
+  int _momentumScore({
+    required int stars,
+    required int forks,
+    required double score,
+    required TrendingWindow window,
+  }) {
     final divisor = switch (window) { TrendingWindow.today => 160, TrendingWindow.week => 90, TrendingWindow.month => 52 };
     final value = (stars / divisor) + (forks / 24) + score;
     return value.clamp(1, 9999).round();
@@ -180,7 +212,13 @@ class GithubTrendingDataSource implements TrendingDataSource {
     final entries = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return entries.map((entry) {
       final percent = entry.value / total * 100;
-      return LanguageEntity(name: entry.key, percent: percent, delta: 0, accentArgb: GitHubApiSupport.languageColor(entry.key), basis: MetricBasis.estimated);
+      return LanguageEntity(
+        name: entry.key,
+        percent: percent,
+        delta: 0,
+        accentArgb: GitHubApiSupport.languageColor(entry.key),
+        basis: MetricBasis.estimated,
+      );
     }).toList(growable: false);
   }
 

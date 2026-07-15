@@ -60,6 +60,11 @@ class _TopicWord extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final lightness = 0.45 + weight * 0.4;
-    return Text(text, style: TextStyle(fontSize: size, fontWeight: FontWeight.w600, color: HSLColor.fromColor(colors.primary).withLightness(lightness.clamp(0.3, 0.7)).toColor()));
+    return Text(text,
+        style: TextStyle(
+          fontSize: size,
+          fontWeight: FontWeight.w600,
+          color: HSLColor.fromColor(colors.primary).withLightness(lightness.clamp(0.3, 0.7)).toColor(),
+        ));
   }
 }

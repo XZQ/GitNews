@@ -59,7 +59,12 @@ class _Body extends ConsumerWidget {
       return async.when(
         data: (items) => items.isEmpty
             ? EmptyView(icon: Icons.bookmark_border_rounded, message: AppLocalizations.of(context).tr('ai_news.read_later_empty'))
-            : _ItemList(items: items, category: category, query: '', staticList: true),
+            : _ItemList(
+                items: items,
+                category: category,
+                query: '',
+                staticList: true,
+              ),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider)),
       );
@@ -69,7 +74,12 @@ class _Body extends ConsumerWidget {
     if (query.isNotEmpty) {
       final async = ref.watch(aiNewsLibrarySearchProvider(query));
       return async.when(
-        data: (items) => _ItemList(items: items, category: category, query: query, staticList: true),
+        data: (items) => _ItemList(
+          items: items,
+          category: category,
+          query: query,
+          staticList: true,
+        ),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query))),
       );
@@ -85,7 +95,12 @@ class _Body extends ConsumerWidget {
 }
 
 class _ItemList extends ConsumerStatefulWidget {
-  const _ItemList({required this.items, required this.category, required this.query, this.staticList = false});
+  const _ItemList({
+    required this.items,
+    required this.category,
+    required this.query,
+    this.staticList = false,
+  });
 
   final List<AiNewsItem> items;
   final AiNewsCategory? category;
@@ -165,7 +180,12 @@ class _ItemListState extends ConsumerState<_ItemList> {
     ];
     return CustomScrollView(controller: _controller, slivers: [
       SliverPadding(
-          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.xl,
+            AppSpacing.xxxl,
+          ),
           sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
             if (index < flat.length) {

@@ -54,9 +54,13 @@ class AiDigestNotifier extends AsyncNotifier<String?> {
     state = const AsyncLoading();
     try {
       final items = await _todayItems(now);
-      final text = await ref
-          .read(aiDigestLlmClientProvider)
-          .complete(baseUrl: config.baseUrl, apiKey: config.apiKey!, model: config.model, systemPrompt: _systemPrompt, userPrompt: _buildUserPrompt(items, now));
+      final text = await ref.read(aiDigestLlmClientProvider).complete(
+            baseUrl: config.baseUrl,
+            apiKey: config.apiKey!,
+            model: config.model,
+            systemPrompt: _systemPrompt,
+            userPrompt: _buildUserPrompt(items, now),
+          );
       await prefs.setString(_cacheKey(now), text);
       state = AsyncData(text);
     } catch (e, st) {

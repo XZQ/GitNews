@@ -36,8 +36,16 @@ class GlobalSearchRouter {
       required void Function(String) projectSetter,
       required void Function(String) trendingSetter}) {
     return [
-      SearchRouteEntry(route: '/ai_news', keywords: const ['ai', 'openai', 'anthropic', 'gemini', '模型', '资讯', '新闻', '论文'], searchQueryProviderSetter: aiNewsSetter),
-      SearchRouteEntry(route: '/tech_hotspot', keywords: const ['agent', 'mcp', 'coding', 'rag', '智能体', '雷达', '本地推理'], searchQueryProviderSetter: techHotspotSetter),
+      SearchRouteEntry(
+        route: '/ai_news',
+        keywords: const ['ai', 'openai', 'anthropic', 'gemini', '模型', '资讯', '新闻', '论文'],
+        searchQueryProviderSetter: aiNewsSetter,
+      ),
+      SearchRouteEntry(
+        route: '/tech_hotspot',
+        keywords: const ['agent', 'mcp', 'coding', 'rag', '智能体', '雷达', '本地推理'],
+        searchQueryProviderSetter: techHotspotSetter,
+      ),
       SearchRouteEntry(route: '/monitor', keywords: const ['monitor', 'alert', '告警', '监控', '规则'], searchQueryProviderSetter: monitorSetter),
       SearchRouteEntry(route: '/project', keywords: const ['report', '报告', '贡献者', 'developer', 'contributor'], searchQueryProviderSetter: projectSetter)
     ];

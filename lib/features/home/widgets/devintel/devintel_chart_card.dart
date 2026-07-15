@@ -34,8 +34,11 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
     final labels = _labels(l10n, primary.length);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      decoration:
-          BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(AppRadius.lg), border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1), width: 1)),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1), width: 1),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,

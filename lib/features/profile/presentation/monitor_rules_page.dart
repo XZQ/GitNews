@@ -18,7 +18,11 @@ class MonitorRulesPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.tr('monitor.rules.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile'))),
-      body: ResponsiveLayout(compact: (_) => const _Body(), medium: (_) => const CenteredContent(child: _Body()), expanded: (_) => const CenteredContent(child: _Body())),
+      body: ResponsiveLayout(
+        compact: (_) => const _Body(),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
+      ),
     );
   }
 }

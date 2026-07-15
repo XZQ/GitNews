@@ -33,7 +33,11 @@ class MonitorPage extends ConsumerWidget {
               if (digest.isEmpty) {
                 return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty'));
               }
-              return ResponsiveLayout(compact: (_) => _Mobile(digest: digest), medium: (_) => _Desktop(digest: digest), expanded: (_) => _Desktop(digest: digest));
+              return ResponsiveLayout(
+                compact: (_) => _Mobile(digest: digest),
+                medium: (_) => _Desktop(digest: digest),
+                expanded: (_) => _Desktop(digest: digest),
+              );
             },
             loading: () => const _MonitorSkeleton(),
             error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => forceRefreshMonitor(ref))));
@@ -51,7 +55,12 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: [
         MonitorStatusRow(stats: digest.stats),
         const SizedBox(height: AppSpacing.lg),
@@ -79,7 +88,12 @@ class _Desktop extends ConsumerWidget {
       Expanded(child: LayoutBuilder(builder: (context, constraints) {
         final available = constraints.maxHeight;
         return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               MonitorStatusRow(stats: digest.stats),
               const SizedBox(height: AppSpacing.lg),
@@ -132,7 +146,12 @@ class _MonitorSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.lg,
+        AppSpacing.xl,
+        AppSpacing.xxxl,
+      ),
       children: const [
         Row(
           children: [

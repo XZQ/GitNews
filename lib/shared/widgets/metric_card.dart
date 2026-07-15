@@ -8,7 +8,17 @@ import '../../core/theme/app_typography.dart';
 *通用指标卡(可显示 Star 增速 / 监控数 / 告警数 / 语言分布等)。
 */
 class MetricCard extends StatelessWidget {
-  const MetricCard({required this.title, required this.value, this.delta, this.deltaPositive = true, this.subtitle, this.icon, this.accent, this.onTap, super.key});
+  const MetricCard({
+    required this.title,
+    required this.value,
+    this.delta,
+    this.deltaPositive = true,
+    this.subtitle,
+    this.icon,
+    this.accent,
+    this.onTap,
+    super.key,
+  });
 
   final String title;
   final String value;
@@ -59,7 +69,12 @@ class MetricCard extends StatelessWidget {
                     Text(delta!, style: AppTypography.labelSmall.copyWith(color: deltaColor, fontWeight: FontWeight.w600)),
                     if (subtitle != null) ...[
                       const SizedBox(width: AppSpacing.xs2),
-                      Flexible(child: Text(subtitle!, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant), overflow: TextOverflow.ellipsis))
+                      Flexible(
+                          child: Text(
+                        subtitle!,
+                        style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
+                        overflow: TextOverflow.ellipsis,
+                      ))
                     ]
                   ],
                 )

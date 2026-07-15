@@ -63,9 +63,17 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
             children: [
               FilledButton.icon(onPressed: _save, icon: const Icon(Icons.save_outlined, size: 16), label: Text(l10n.tr('profile.token.save'))),
               const SizedBox(width: AppSpacing.sm),
-              OutlinedButton.icon(onPressed: tokenState.hasToken ? _clear : null, icon: const Icon(Icons.delete_outline, size: 16), label: Text(l10n.tr('profile.token.clear'))),
+              OutlinedButton.icon(
+                onPressed: tokenState.hasToken ? _clear : null,
+                icon: const Icon(Icons.delete_outline, size: 16),
+                label: Text(l10n.tr('profile.token.clear')),
+              ),
               const SizedBox(width: AppSpacing.sm),
-              OutlinedButton.icon(onPressed: _rateLimit?.isLoading == true ? null : _checkQuota, icon: const Icon(Icons.speed_rounded, size: 16), label: Text(l10n.tr('profile.token.check_quota')))
+              OutlinedButton.icon(
+                onPressed: _rateLimit?.isLoading == true ? null : _checkQuota,
+                icon: const Icon(Icons.speed_rounded, size: 16),
+                label: Text(l10n.tr('profile.token.check_quota')),
+              )
             ],
           ),
           if (_rateLimit != null) ...[const SizedBox(height: AppSpacing.md), _RateLimitStatus(value: _rateLimit!)]
@@ -163,7 +171,12 @@ class _QuotaRow extends StatelessWidget {
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.pill),
-            child: LinearProgressIndicator(value: ratio.clamp(0, 1), minHeight: 7, color: accent, backgroundColor: colors.surfaceContainerHighest),
+            child: LinearProgressIndicator(
+              value: ratio.clamp(0, 1),
+              minHeight: 7,
+              color: accent,
+              backgroundColor: colors.surfaceContainerHighest,
+            ),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
@@ -193,7 +206,11 @@ class _StatusPill extends StatelessWidget {
     final color = active ? AppColors.success : (isLight ? AppColors.textMutedLight : AppColors.textMutedDark);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.pill), border: Border.all(color: color.withValues(alpha: 0.32))),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: color.withValues(alpha: 0.32)),
+      ),
       child: Text(label, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
     );
   }

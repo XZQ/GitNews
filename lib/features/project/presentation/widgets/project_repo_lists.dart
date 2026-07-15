@@ -21,16 +21,31 @@ class ProjectPopularRepos extends StatelessWidget {
         padding: EdgeInsets.zero,
         child: Column(children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.xs,
+            ),
             child: SectionHeader(title: l10n.tr('project.section.popular.title'), subtitle: l10n.tr('project.section.popular.subtitle')),
           ),
           if (repos.isEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
               child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('project.repos.popular_empty')),
             ),
           Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.xs,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               child: Column(children: [
                 for (var i = 0; i < repos.length; i++) ...[
                   if (i != 0) const SizedBox(height: AppSpacing.sm),
@@ -53,16 +68,31 @@ class ProjectRecentlyUpdated extends StatelessWidget {
         padding: EdgeInsets.zero,
         child: Column(children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.xs,
+            ),
             child: SectionHeader(title: l10n.tr('project.section.recent.title'), subtitle: l10n.tr('project.section.recent.subtitle')),
           ),
           if (repos.isEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
               child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('project.repos.active_empty')),
             ),
           Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.xs,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               child: Column(children: [
                 for (var i = 0; i < repos.length; i++) ...[
                   if (i != 0) const SizedBox(height: AppSpacing.sm),

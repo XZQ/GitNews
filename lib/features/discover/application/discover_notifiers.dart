@@ -103,7 +103,12 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
     _hasMore = true;
     _enrichingLogins.clear();
     _enrichFailedLogins.clear();
-    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, force: force, page: _page, perPage: discoverProfilesPageSize);
+    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(
+          kind: kind,
+          force: force,
+          page: _page,
+          perPage: discoverProfilesPageSize,
+        );
     final list = result.data;
     _updateFreshness(result.freshness);
     _updateHasMore(list, page: _page);

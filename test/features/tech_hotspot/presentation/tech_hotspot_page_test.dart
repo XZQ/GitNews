@@ -30,8 +30,27 @@ class _StubRepo implements TechHotspotRepository {
 }
 
 const _stubDigest = TechHotspotDigest(
-  languages: [LanguageStat(name: 'Rust', percent: 28.0, delta: 1.2, color: 0xFFCE422B, repoCount: 12)],
-  topics: [TechTopic(id: 't1', name: 'Rust 1.80', category: 'language', heat: 88, growth: 4.5, mentions: 100, relatedRepos: 8, summary: 'const generics')],
+  languages: [
+    LanguageStat(
+      name: 'Rust',
+      percent: 28.0,
+      delta: 1.2,
+      color: 0xFFCE422B,
+      repoCount: 12,
+    )
+  ],
+  topics: [
+    TechTopic(
+      id: 't1',
+      name: 'Rust 1.80',
+      category: 'language',
+      heat: 88,
+      growth: 4.5,
+      mentions: 100,
+      relatedRepos: 8,
+      summary: 'const generics',
+    )
+  ],
   heatTrend: [TechHeatPoint(label: 'Mon', value: 70), TechHeatPoint(label: 'Sun', value: 92)],
   hotTags: ['rust', 'wasm'],
 );
@@ -79,7 +98,14 @@ void main() {
 
   testWidgets('dense language panel should not overflow on desktop', (tester) async {
     final digest = TechHotspotDigest(languages: [
-      for (var i = 0; i < 10; i++) LanguageStat(name: 'LanguageWithLongName$i', percent: 10, delta: i.isEven ? 1.2 : -0.8, color: 0xFF3178C6 + i, repoCount: 12 - i)
+      for (var i = 0; i < 10; i++)
+        LanguageStat(
+          name: 'LanguageWithLongName$i',
+          percent: 10,
+          delta: i.isEven ? 1.2 : -0.8,
+          color: 0xFF3178C6 + i,
+          repoCount: 12 - i,
+        )
     ], topics: [
       for (var i = 0; i < 6; i++)
         TechTopic(

@@ -73,7 +73,15 @@ void main() {
     when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer(
       (invocation) async => Response<Map<String, Object?>>(requestOptions: RequestOptions(path: invocation.positionalArguments.first as String), statusCode: 200, data: const {'items': <Object?>[]}),
     );
-    final repository = GithubRepoDetailRepository(dio: dio, cache: cache, now: () => DateTime.utc(2026, 7, 11, 12));
+    final repository = GithubRepoDetailRepository(
+        dio: dio,
+        cache: cache,
+        now: () => DateTime.utc(
+              2026,
+              7,
+              11,
+              12,
+            ));
 
     final result = await repository.getDetail('owner/repo');
 

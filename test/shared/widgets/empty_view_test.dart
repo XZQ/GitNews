@@ -14,7 +14,13 @@ void main() {
 
     testWidgets('renders action button when provided', (tester) async {
       var tapped = 0;
-      await tester.pumpWidget(MaterialApp(home: Scaffold(body: EmptyView(icon: Icons.inbox, message: '暂无数据', action: FilledButton(onPressed: () => tapped++, child: const Text('刷新'))))));
+      await tester.pumpWidget(MaterialApp(
+          home: Scaffold(
+              body: EmptyView(
+        icon: Icons.inbox,
+        message: '暂无数据',
+        action: FilledButton(onPressed: () => tapped++, child: const Text('刷新')),
+      ))));
       final button = find.widgetWithText(FilledButton, '刷新');
       expect(button, findsOneWidget);
       await tester.tap(button);

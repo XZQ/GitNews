@@ -84,7 +84,13 @@ class _AgentSignalItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(child: Text(topic.name, style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                    Expanded(
+                        child: Text(
+                      topic.name,
+                      style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )),
                     const SizedBox(width: AppSpacing.sm),
                     Icon(Icons.trending_up_rounded, size: 14, color: accent),
                     const SizedBox(width: AppSpacing.xxs),
@@ -92,7 +98,12 @@ class _AgentSignalItem extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(topic.summary, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.45), maxLines: 2, overflow: TextOverflow.ellipsis),
+                Text(
+                  topic.summary,
+                  style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.45),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Row(
                   children: [

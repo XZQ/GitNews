@@ -65,7 +65,12 @@ class _Body extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final repoAlerts = alerts.where((alert) => alert.repoFullName == repo.fullName).take(5);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: [
         GradientHeroHeader(
           accent: Color(repo.accentArgb),
@@ -125,7 +130,12 @@ class _DetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: const [Skeleton(height: 180), SizedBox(height: AppSpacing.lg), Skeleton(height: 300), SizedBox(height: AppSpacing.lg), Skeleton(height: 260)],
     );
   }

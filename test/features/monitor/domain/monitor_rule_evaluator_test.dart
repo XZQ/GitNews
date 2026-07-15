@@ -14,44 +14,83 @@ void main() {
   });
 
   test('exact threshold values trigger all enabled rules', () {
-    final events = evaluator.evaluate(previous: observation(day: 1, stars: 2000, forks: 10, issues: 1), current: observation(day: 2, stars: 2200, forks: 60, issues: 9), enabledRuleIds: allRules);
+    final events = evaluator.evaluate(
+      previous: observation(day: 1, stars: 2000, forks: 10, issues: 1),
+      current: observation(day: 2, stars: 2200, forks: 60, issues: 9),
+      enabledRuleIds: allRules,
+    );
 
     expect(events.map((event) => event.ruleId).toSet(), allRules);
   });
 
   test('values below every threshold do not trigger', () {
-    final events = evaluator.evaluate(previous: observation(day: 1, stars: 1000, forks: 10, issues: 1), current: observation(day: 2, stars: 1099, forks: 59, issues: 8), enabledRuleIds: allRules);
+    final events = evaluator.evaluate(
+      previous: observation(day: 1, stars: 1000, forks: 10, issues: 1),
+      current: observation(day: 2, stars: 1099, forks: 59, issues: 8),
+      enabledRuleIds: allRules,
+    );
 
     expect(events, isEmpty);
   });
 
   test('disabled rules never trigger', () {
     final events = evaluator.evaluate(
-        previous: observation(day: 1, stars: 1, forks: 1, issues: 0), current: observation(day: 2, stars: 1000, forks: 1000, issues: 20), enabledRuleIds: const {MonitorRuleIds.forkDailyDelta});
+        previous: observation(
+          day: 1,
+          stars: 1,
+          forks: 1,
+          issues: 0,
+        ),
+        current: observation(
+          day: 2,
+          stars: 1000,
+          forks: 1000,
+          issues: 20,
+        ),
+        enabledRuleIds: const {MonitorRuleIds.forkDailyDelta});
 
     expect(events, hasLength(1));
     expect(events.single.ruleId, MonitorRuleIds.forkDailyDelta);
   });
 
   test('same local day and negative deltas never trigger', () {
-    final sameDay = evaluator.evaluate(previous: observation(day: 1, hour: 1), current: observation(day: 1, hour: 20, stars: 5000, forks: 5000), enabledRuleIds: allRules);
-    final negative =
-        evaluator.evaluate(previous: observation(day: 1, stars: 5000, forks: 5000, issues: 50), current: observation(day: 2, stars: 1000, forks: 1000, issues: 1), enabledRuleIds: allRules);
+    final sameDay = evaluator.evaluate(
+      previous: observation(day: 1, hour: 1),
+      current: observation(day: 1, hour: 20, stars: 5000, forks: 5000),
+      enabledRuleIds: allRules,
+    );
+    final negative = evaluator.evaluate(
+      previous: observation(day: 1, stars: 5000, forks: 5000, issues: 50),
+      current: observation(day: 2, stars: 1000, forks: 1000, issues: 1),
+      enabledRuleIds: allRules,
+    );
 
     expect(sameDay, isEmpty);
     expect(negative, isEmpty);
   });
 
   test('event id is stable for repository rule and local day', () {
-    final first = evaluator.evaluate(previous: observation(day: 1, stars: 1000), current: observation(day: 2, stars: 1200, hour: 1), enabledRuleIds: const {MonitorRuleIds.starDailyDelta});
-    final second = evaluator.evaluate(previous: observation(day: 1, stars: 1000), current: observation(day: 2, stars: 1400, hour: 20), enabledRuleIds: const {MonitorRuleIds.starDailyDelta});
+    final first = evaluator.evaluate(
+      previous: observation(day: 1, stars: 1000),
+      current: observation(day: 2, stars: 1200, hour: 1),
+      enabledRuleIds: const {MonitorRuleIds.starDailyDelta},
+    );
+    final second = evaluator.evaluate(
+      previous: observation(day: 1, stars: 1000),
+      current: observation(day: 2, stars: 1400, hour: 20),
+      enabledRuleIds: const {MonitorRuleIds.starDailyDelta},
+    );
 
     expect(first.single.id, second.single.id);
     expect(first.single.id, 'owner/repo|star_daily_delta|2026-07-02');
   });
 
   test('thirty day growth is normalized before daily thresholds', () {
-    final events = evaluator.evaluate(previous: observation(day: 1, stars: 1000, forks: 10), current: observation(day: 31, stars: 1200, forks: 60), enabledRuleIds: allRules);
+    final events = evaluator.evaluate(
+      previous: observation(day: 1, stars: 1000, forks: 10),
+      current: observation(day: 31, stars: 1200, forks: 60),
+      enabledRuleIds: allRules,
+    );
 
     expect(events.map((event) => event.ruleId), isNot(contains(MonitorRuleIds.starDailyDelta)));
     expect(events.map((event) => event.ruleId), isNot(contains(MonitorRuleIds.forkDailyDelta)));
@@ -59,13 +98,27 @@ void main() {
   });
 
   test('cross-month two day values trigger at normalized thresholds', () {
-    final events = evaluator.evaluate(previous: observation(month: 7, day: 31, stars: 1000, forks: 10), current: observation(month: 8, day: 2, stars: 1400, forks: 110), enabledRuleIds: allRules);
+    final events = evaluator.evaluate(
+      previous: observation(month: 7, day: 31, stars: 1000, forks: 10),
+      current: observation(month: 8, day: 2, stars: 1400, forks: 110),
+      enabledRuleIds: allRules,
+    );
 
-    expect(events.map((event) => event.ruleId).toSet(), containsAll({MonitorRuleIds.starDailyDelta, MonitorRuleIds.starDailyRate, MonitorRuleIds.forkDailyDelta}));
+    expect(
+        events.map((event) => event.ruleId).toSet(),
+        containsAll({
+          MonitorRuleIds.starDailyDelta,
+          MonitorRuleIds.starDailyRate,
+          MonitorRuleIds.forkDailyDelta,
+        }));
   });
 
   test('seven day totals below normalized thresholds do not trigger', () {
-    final events = evaluator.evaluate(previous: observation(day: 1, stars: 1000, forks: 10), current: observation(day: 8, stars: 1699, forks: 59), enabledRuleIds: allRules);
+    final events = evaluator.evaluate(
+      previous: observation(day: 1, stars: 1000, forks: 10),
+      current: observation(day: 8, stars: 1699, forks: 59),
+      enabledRuleIds: allRules,
+    );
 
     expect(events, isEmpty);
   });
@@ -77,6 +130,19 @@ void main() {
   });
 }
 
-MonitorObservation observation({int month = 7, int day = 1, int hour = 12, int stars = 1000, int forks = 10, int issues = 1}) {
-  return MonitorObservation(repoFullName: 'owner/repo', stars: stars, forks: forks, openIssues: issues, observedAt: DateTime(2026, month, day, hour));
+MonitorObservation observation({
+  int month = 7,
+  int day = 1,
+  int hour = 12,
+  int stars = 1000,
+  int forks = 10,
+  int issues = 1,
+}) {
+  return MonitorObservation(
+    repoFullName: 'owner/repo',
+    stars: stars,
+    forks: forks,
+    openIssues: issues,
+    observedAt: DateTime(2026, month, day, hour),
+  );
 }

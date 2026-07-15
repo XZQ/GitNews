@@ -74,7 +74,12 @@ class RepoDetailRelatedReposCard extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.xs,
+            ),
             child: SectionHeader(title: l10n.tr('repo_detail.section.related'), subtitle: l10n.tr('repo_detail.section.related.subtitle')),
           ),
           for (final r in repos) ...[

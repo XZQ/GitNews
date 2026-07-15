@@ -30,7 +30,13 @@ class AiNewsApiClient {
   *`GET /api/public/items`。
   *参数语义见 [AiNewsRepository.fetchItems]。
   */
-  Future<AiNewsListResponseDto> fetchItems({String? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<AiNewsListResponseDto> fetchItems({
+    String? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  }) async {
     final qp = <String, Object?>{
       'mode': selectedOnly ? 'selected' : 'all',
       if (category != null) 'category': category,

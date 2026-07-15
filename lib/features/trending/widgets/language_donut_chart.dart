@@ -7,7 +7,13 @@ import '../domain/entities.dart';
 *语言占比环形图(中心洞口显示总量)。
 */
 class LanguageDonutChart extends StatelessWidget {
-  const LanguageDonutChart({required this.data, required this.holeColor, this.centerValue = '2.36M', this.centerLabel = '总 Star 增长', super.key});
+  const LanguageDonutChart({
+    required this.data,
+    required this.holeColor,
+    this.centerValue = '2.36M',
+    this.centerLabel = '总 Star 增长',
+    super.key,
+  });
 
   final List<LanguageEntity> data;
   final Color holeColor;

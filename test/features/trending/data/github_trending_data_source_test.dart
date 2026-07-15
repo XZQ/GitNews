@@ -27,7 +27,15 @@ void main() {
     db = await LocalDatabase.openInMemory();
     snapshotHistory = RepoSnapshotHistoryDao(JsonSnapshotCacheDao(db.executor, CacheMetaDao(db.executor)));
     dio = _MockDio();
-    dataSource = GithubTrendingDataSource(dio: dio, now: () => DateTime.utc(2026, 7, 4, 12), snapshotHistory: snapshotHistory);
+    dataSource = GithubTrendingDataSource(
+        dio: dio,
+        now: () => DateTime.utc(
+              2026,
+              7,
+              4,
+              12,
+            ),
+        snapshotHistory: snapshotHistory);
   });
 
   tearDown(() async {
@@ -38,7 +46,11 @@ void main() {
     test('should call GitHub search with query qualifiers', () async {
       Map<String, Object?>? capturedQuery;
       Options? capturedOptions;
-      when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+      when(() => dio.get<Map<String, Object?>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((invocation) async {
         capturedQuery = invocation.namedArguments[#queryParameters] as Map<String, Object?>;
         capturedOptions = invocation.namedArguments[#options] as Options;
         return _okResponse(_searchBody());
@@ -58,7 +70,11 @@ void main() {
 
     test('should add board keywords to GitHub search query', () async {
       Map<String, Object?>? capturedQuery;
-      when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+      when(() => dio.get<Map<String, Object?>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((invocation) async {
         capturedQuery = invocation.namedArguments[#queryParameters] as Map<String, Object?>;
         return _okResponse(_searchBody());
       });
@@ -71,7 +87,11 @@ void main() {
 
     test('should use created qualifier for new repos board', () async {
       Map<String, Object?>? capturedQuery;
-      when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+      when(() => dio.get<Map<String, Object?>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((invocation) async {
         capturedQuery = invocation.namedArguments[#queryParameters] as Map<String, Object?>;
         return _okResponse(_searchBody());
       });
@@ -84,8 +104,17 @@ void main() {
 
     test('should send bearer token when token is configured', () async {
       Options? capturedOptions;
-      dataSource = GithubTrendingDataSource(dio: dio, token: 'github_pat_test', now: () => DateTime.utc(2026, 7, 4, 12), snapshotHistory: snapshotHistory);
-      when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+      dataSource = GithubTrendingDataSource(
+        dio: dio,
+        token: 'github_pat_test',
+        now: () => DateTime.utc(2026, 7, 4, 12),
+        snapshotHistory: snapshotHistory,
+      );
+      when(() => dio.get<Map<String, Object?>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((invocation) async {
         capturedOptions = invocation.namedArguments[#options] as Options;
         return _okResponse(_searchBody());
       });
@@ -96,7 +125,11 @@ void main() {
     });
 
     test('should map GitHub search response to trending snapshot', () async {
-      when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((_) async => _okResponse(_searchBody()));
+      when(() => dio.get<Map<String, Object?>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((_) async => _okResponse(_searchBody()));
 
       final snapshot = await dataSource.fetchTrending(const TrendingQuery(language: 'Python'));
 
@@ -110,8 +143,17 @@ void main() {
     });
 
     test('should prefer observed local snapshot history for repo trend', () async {
-      await snapshotHistory.record(fullName: 'openai/codex', stars: 11900, forks: 790, capturedAt: DateTime.utc(2026, 6, 29, 8));
-      when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((_) async => _okResponse(_searchBody()));
+      await snapshotHistory.record(
+        fullName: 'openai/codex',
+        stars: 11900,
+        forks: 790,
+        capturedAt: DateTime.utc(2026, 6, 29, 8),
+      );
+      when(() => dio.get<Map<String, Object?>>(
+            any(),
+            queryParameters: any(named: 'queryParameters'),
+            options: any(named: 'options'),
+          )).thenAnswer((_) async => _okResponse(_searchBody()));
 
       final snapshot = await dataSource.fetchTrending(const TrendingQuery(window: TrendingWindow.week));
 

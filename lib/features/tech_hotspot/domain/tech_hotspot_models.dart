@@ -12,7 +12,14 @@ enum TechStack { all, ai, frontend, backend, cloud, data, mobile, rust, security
 *编程语言排行条目。
 */
 class LanguageStat {
-  const LanguageStat({required this.name, required this.percent, required this.delta, required this.color, required this.repoCount, this.basis = MetricBasis.seed});
+  const LanguageStat({
+    required this.name,
+    required this.percent,
+    required this.delta,
+    required this.color,
+    required this.repoCount,
+    this.basis = MetricBasis.seed,
+  });
 
   final String name;
   final double percent;
@@ -72,7 +79,12 @@ class TechHeatPoint {
 *AI 雷达页需要的一组本地情报数据。
 */
 class TechHotspotDigest {
-  const TechHotspotDigest({required this.languages, required this.topics, required this.heatTrend, required this.hotTags});
+  const TechHotspotDigest({
+    required this.languages,
+    required this.topics,
+    required this.heatTrend,
+    required this.hotTags,
+  });
 
   final List<LanguageStat> languages;
   final List<TechTopic> topics;

@@ -21,7 +21,11 @@ class MonitorSettingsPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.tr('monitor.settings.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'))),
-      body: ResponsiveLayout(compact: (_) => const _Body(), medium: (_) => const CenteredContent(child: _Body()), expanded: (_) => const CenteredContent(child: _Body())),
+      body: ResponsiveLayout(
+        compact: (_) => const _Body(),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
+      ),
     );
   }
 }
@@ -33,14 +37,25 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final values = ref.watch(monitorSettingsControllerProvider);
-    return ListView(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl), children: [
-      AppCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SectionHeader(title: l10n.tr('monitor.settings.channel'), subtitle: l10n.tr('monitor.settings.channel_subtitle')),
-        const SizedBox(height: AppSpacing.md),
-        for (var i = 0; i < monitorNotificationCount; i++)
-          MonitorNotificationRow(label: monitorNotificationLabels(l10n)[i], value: values[i], onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value))
-      ]))
-    ]);
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.xl,
+        ),
+        children: [
+          AppCard(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            SectionHeader(title: l10n.tr('monitor.settings.channel'), subtitle: l10n.tr('monitor.settings.channel_subtitle')),
+            const SizedBox(height: AppSpacing.md),
+            for (var i = 0; i < monitorNotificationCount; i++)
+              MonitorNotificationRow(
+                label: monitorNotificationLabels(l10n)[i],
+                value: values[i],
+                onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
+              )
+          ]))
+        ]);
   }
 }

@@ -49,7 +49,14 @@ class ProjectSummaryMetrics extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(child: _MetricBlock(label: l10n.tr('project.metric.total_forks'), value: _compactNumber(forks), delta: '+forks', color: AppColors.warning, icon: Icons.call_split_rounded))
+        Expanded(
+            child: _MetricBlock(
+          label: l10n.tr('project.metric.total_forks'),
+          value: _compactNumber(forks),
+          delta: '+forks',
+          color: AppColors.warning,
+          icon: Icons.call_split_rounded,
+        ))
       ],
     );
   }
@@ -66,7 +73,13 @@ class ProjectSummaryMetrics extends StatelessWidget {
 }
 
 class _MetricBlock extends StatelessWidget {
-  const _MetricBlock({required this.label, required this.value, required this.delta, required this.color, required this.icon});
+  const _MetricBlock({
+    required this.label,
+    required this.value,
+    required this.delta,
+    required this.color,
+    required this.icon,
+  });
 
   final String label;
   final String value;

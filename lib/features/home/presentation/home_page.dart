@@ -44,6 +44,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (Breakpoints.of(context) == FormFactor.expanded) {
       return const DevIntelDesktopPage();
     }
-    return Scaffold(body: ResponsiveLayout(compact: (_) => const HomeMobileBody(), medium: (_) => const HomeTabletBody(), expanded: (_) => const SizedBox.shrink()));
+    return Scaffold(
+        body: ResponsiveLayout(
+      compact: (_) => const HomeMobileBody(),
+      medium: (_) => const HomeTabletBody(),
+      expanded: (_) => const SizedBox.shrink(),
+    ));
   }
 }

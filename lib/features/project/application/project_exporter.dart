@@ -129,7 +129,12 @@ String formatProjectDigestMarkdown(ProjectDigest digest, {required DateTime gene
   return buffer.toString();
 }
 
-Future<File> writeProjectDigestMarkdown({required ProjectDigest digest, required Directory outputDirectory, required DateTime generatedAt, required ProjectReportCopy copy}) async {
+Future<File> writeProjectDigestMarkdown({
+  required ProjectDigest digest,
+  required Directory outputDirectory,
+  required DateTime generatedAt,
+  required ProjectReportCopy copy,
+}) async {
   final reportsDir = Directory('${outputDirectory.path}/GitHubIntelligence/reports');
   await reportsDir.create(recursive: true);
   final file = File('${reportsDir.path}/report_${_stamp(generatedAt)}.md');

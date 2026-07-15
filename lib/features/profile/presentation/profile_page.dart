@@ -38,7 +38,12 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: const [
         ProfileUserCard(),
         SizedBox(height: AppSpacing.lg),
@@ -67,7 +72,12 @@ class _Desktop extends StatelessWidget {
         ProfilePageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+            padding: EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [ProfileUserCard(), SizedBox(height: AppSpacing.lg), ProfileMasterDetail()]),
           ),
         )

@@ -33,7 +33,12 @@ class TrendingDesktopView extends ConsumerWidget {
         const TrendingPageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -71,7 +76,11 @@ class TrendingDesktopView extends ConsumerWidget {
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
-                              TrendingLanguagePanel(value: lang, onChanged: (v) => ref.read(trendingLanguageFilterProvider.notifier).state = v, languages: digest.languages),
+                              TrendingLanguagePanel(
+                                value: lang,
+                                onChanged: (v) => ref.read(trendingLanguageFilterProvider.notifier).state = v,
+                                languages: digest.languages,
+                              ),
                               const SizedBox(height: AppSpacing.lg),
                               const TrendingTopicsPanel()
                             ],

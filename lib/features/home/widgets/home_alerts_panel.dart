@@ -30,7 +30,12 @@ class HomeAlertsPanel extends ConsumerWidget {
         child: Column(children: [
           if (showHeader)
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xs,
+              ),
               child: SectionHeader(
                 title: l10n.tr('home.section.alerts.title'),
                 subtitle: l10n.tr('home.section.alerts.unread').replaceAll('{n}', '${items.length}'),

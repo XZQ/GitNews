@@ -9,12 +9,24 @@ class TechHotspotHistoryDao {
 
   final JsonSnapshotCacheDao _cache;
 
-  Future<void> record({required String id, required int heat, required int mentions, required int relatedRepos, required DateTime capturedAt}) async {
+  Future<void> record({
+    required String id,
+    required int heat,
+    required int mentions,
+    required int relatedRepos,
+    required DateTime capturedAt,
+  }) async {
     final key = _cacheKey(id);
     final payload = await _cache.read(key) ?? const <String, Object?>{};
     final points = _pointsFromPayload(payload);
     final dayKey = GitHubApiSupport.formatDate(capturedAt.toUtc());
-    final nextPoint = TechHotspotHistoryPoint(day: dayKey, heat: heat, mentions: mentions, relatedRepos: relatedRepos, capturedAt: capturedAt.toUtc());
+    final nextPoint = TechHotspotHistoryPoint(
+      day: dayKey,
+      heat: heat,
+      mentions: mentions,
+      relatedRepos: relatedRepos,
+      capturedAt: capturedAt.toUtc(),
+    );
     final byDay = {for (final point in points) point.day: point, dayKey: nextPoint};
     final next = byDay.values.toList()..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
     final bounded = next.length <= techHotspotHistoryMaxPoints ? next : next.sublist(next.length - techHotspotHistoryMaxPoints);
@@ -32,7 +44,11 @@ class TechHotspotHistoryDao {
     }
     final first = points.first;
     final last = points.last;
-    return TechHotspotTrendSnapshot(heatValues: [for (final point in points) point.heat.toDouble()], growth: _growthPercent(first.relatedRepos, last.relatedRepos), basis: MetricBasis.observed);
+    return TechHotspotTrendSnapshot(
+      heatValues: [for (final point in points) point.heat.toDouble()],
+      growth: _growthPercent(first.relatedRepos, last.relatedRepos),
+      basis: MetricBasis.observed,
+    );
   }
 
   List<TechHotspotHistoryPoint> _pointsFromPayload(Map<String, Object?> payload) {
@@ -64,7 +80,13 @@ class TechHotspotTrendSnapshot {
 }
 
 class TechHotspotHistoryPoint {
-  const TechHotspotHistoryPoint({required this.day, required this.heat, required this.mentions, required this.relatedRepos, required this.capturedAt});
+  const TechHotspotHistoryPoint({
+    required this.day,
+    required this.heat,
+    required this.mentions,
+    required this.relatedRepos,
+    required this.capturedAt,
+  });
 
   final String day;
   final int heat;

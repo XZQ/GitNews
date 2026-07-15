@@ -19,7 +19,11 @@ class FollowedDevelopersPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.tr('profile.collection.developers.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile'))),
-      body: ResponsiveLayout(compact: (_) => const _Body(), medium: (_) => const CenteredContent(child: _Body()), expanded: (_) => const CenteredContent(child: _Body())),
+      body: ResponsiveLayout(
+        compact: (_) => const _Body(),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
+      ),
     );
   }
 }
@@ -43,7 +47,12 @@ class _Body extends ConsumerWidget {
           padding: EdgeInsets.zero,
           child: Column(children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xs,
+              ),
               child: SectionHeader(title: l10n.tr('profile.collection.developers.title'), subtitle: l10n.tr('profile.collection.developers.count').replaceAll('{n}', '${devs.length}')),
             ),
             for (var i = 0; i < devs.length; i++) ...[

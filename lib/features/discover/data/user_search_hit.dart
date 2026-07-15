@@ -5,7 +5,12 @@
  *需通过 `/users/{login}` 渐进补全。
  */
 class UserSearchHit {
-  const UserSearchHit({required this.login, required this.avatarUrl, required this.htmlUrl, required this.type});
+  const UserSearchHit({
+    required this.login,
+    required this.avatarUrl,
+    required this.htmlUrl,
+    required this.type,
+  });
 
   final String login;
   final String avatarUrl;

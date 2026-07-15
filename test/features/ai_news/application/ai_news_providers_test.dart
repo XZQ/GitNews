@@ -18,7 +18,13 @@ class _MockAiNewsRepository implements AiNewsRepository {
   int callCount = 0;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({
+    AiNewsCategory? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  }) async {
     callCount++;
     lastCategoryArg = category;
     return DataResult(data: AiNewsDigest(items: _stub, count: _stub.length, hasNext: false), freshness: DataFreshness.live);
@@ -32,7 +38,13 @@ class _PagedAiNewsRepository implements AiNewsRepository {
   final List<String?> cursors = [];
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({
+    AiNewsCategory? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  }) async {
     cursors.add(cursor);
     return DataResult(data: _pages[cursor] ?? const AiNewsDigest(items: [], count: 0, hasNext: false), freshness: DataFreshness.live);
   }
@@ -85,7 +97,13 @@ void main() {
   tearDown(() async => db.close());
 
   ProviderContainer makeContainer(AiNewsRepository repo, {DateTime Function()? clock}) {
-    final clk = clock ?? (() => DateTime.utc(2026, 6, 30, 10));
+    final clk = clock ??
+        (() => DateTime.utc(
+              2026,
+              6,
+              30,
+              10,
+            ));
     final container = ProviderContainer(
       overrides: [appDatabaseProvider.overrideWithValue(db), aiNewsRepositoryProvider.overrideWithValue(repo), aiNewsCacheDaoProvider.overrideWithValue(dao), clockProvider.overrideWithValue(clk)],
     );
@@ -104,7 +122,12 @@ void main() {
   });
 
   test('缓存命中且未过期:不应发远端请求', () async {
-    final now = DateTime.utc(2026, 6, 30, 10);
+    final now = DateTime.utc(
+      2026,
+      6,
+      30,
+      10,
+    );
     // 第一次:预热缓存
     final repo1 = _MockAiNewsRepository([_item('a')]);
     final c1 = makeContainer(repo1, clock: () => now);
@@ -122,7 +145,12 @@ void main() {
   });
 
   test('缓存过期:应在后台静默刷新', () async {
-    final now = DateTime.utc(2026, 6, 30, 10);
+    final now = DateTime.utc(
+      2026,
+      6,
+      30,
+      10,
+    );
     // 预热
     final repo1 = _MockAiNewsRepository([_item('a')]);
     final c1 = makeContainer(repo1, clock: () => now);
@@ -149,7 +177,20 @@ void main() {
   });
 
   test('filterAiNewsItems should match loaded item fields locally', () {
-    final items = [_item('a', title: 'OpenAI 发布新模型', titleEn: 'OpenAI launches model', source: 'OpenAI Blog'), _item('b', category: AiNewsCategory.industry, summary: '融资与行业动态升温', source: '36氪')];
+    final items = [
+      _item(
+        'a',
+        title: 'OpenAI 发布新模型',
+        titleEn: 'OpenAI launches model',
+        source: 'OpenAI Blog',
+      ),
+      _item(
+        'b',
+        category: AiNewsCategory.industry,
+        summary: '融资与行业动态升温',
+        source: '36氪',
+      )
+    ];
 
     expect(filterAiNewsItems(items, '').length, 2);
     expect(filterAiNewsItems(items, 'openai'), [items.first]);
@@ -205,7 +246,12 @@ void main() {
   });
 
   test('缓存命中但远端失败:应保留缓存并标记陈旧缓存', () async {
-    final now = DateTime.utc(2026, 6, 30, 10);
+    final now = DateTime.utc(
+      2026,
+      6,
+      30,
+      10,
+    );
     // 预热
     final repo1 = _MockAiNewsRepository([_item('a')]);
     final c1 = makeContainer(repo1, clock: () => now);
@@ -226,7 +272,13 @@ DataFreshness readFreshness(ProviderContainer container) => container.read(aiNew
 
 class _ThrowingAiNewsRepository implements AiNewsRepository {
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({
+    AiNewsCategory? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  }) async {
     throw Exception('network unavailable');
   }
 }

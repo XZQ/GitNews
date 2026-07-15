@@ -50,7 +50,13 @@ void main() {
     final start = DateTime(2026, 1, 1);
     for (var i = 0; i < 95; i++) {
       final at = start.add(Duration(days: i));
-      await dao.record(MonitorObservation(repoFullName: 'owner/repo', stars: i, forks: i, openIssues: i, observedAt: at));
+      await dao.record(MonitorObservation(
+        repoFullName: 'owner/repo',
+        stars: i,
+        forks: i,
+        openIssues: i,
+        observedAt: at,
+      ));
     }
 
     final points = await dao.read('owner/repo');
@@ -62,5 +68,11 @@ void main() {
 }
 
 MonitorObservation observation({int day = 1, int hour = 12, int stars = 100}) {
-  return MonitorObservation(repoFullName: 'owner/repo', stars: stars, forks: 10, openIssues: 2, observedAt: DateTime(2026, 7, day, hour));
+  return MonitorObservation(
+    repoFullName: 'owner/repo',
+    stars: stars,
+    forks: 10,
+    openIssues: 2,
+    observedAt: DateTime(2026, 7, day, hour),
+  );
 }

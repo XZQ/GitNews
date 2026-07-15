@@ -32,7 +32,11 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
       titleStyle: AppTypography.headlineMedium,
       badges: [
         HeroBadge(label: topic.category, color: heatColor),
-        HeroBadge(label: l10n.tr('tech_hotspot.detail.heat_value').replaceAll('{heat}', topic.heat.toString()), color: heatColor, icon: Icons.local_fire_department_rounded)
+        HeroBadge(
+          label: l10n.tr('tech_hotspot.detail.heat_value').replaceAll('{heat}', topic.heat.toString()),
+          color: heatColor,
+          icon: Icons.local_fire_department_rounded,
+        )
       ],
       trailing: Wrap(
         spacing: AppSpacing.lg,

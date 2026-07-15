@@ -98,18 +98,24 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
 - `analysis_options.yaml` sets `formatter: page_width: 200`. Run
   `rtk dart format .` before commit; do not override the page width in IDE
   or editor config.
-- Short function calls, declarations, list/map/set literals, and
-  constructor invocations MUST fit on a single line when the full line
-  (including indentation) is under 200 chars. Do not wrap them across
-  multiple lines for "readability" — density is the project aesthetic.
-- Do NOT add a trailing comma to a construct that fits on one line. A
-  trailing comma forces `dart format` to expand the construct to
-  multi-line, defeating the single-line preference. The
-  `require_trailing_commas` lint is disabled for this reason.
-- For constructs that genuinely exceed 200 chars on one line, write them
-  across multiple lines WITH a trailing comma before the closing bracket
-  so `dart format` uses 2-space block indent and puts the closing
-  bracket on its own line:
+- **Argument-count rule (overrides the single-line preference below):**
+  - **4 or more arguments**: always multi-line with a trailing comma,
+    even if the whole call fits on one line under 200 chars. Four-plus
+    args on one line are too dense to scan; density does not justify
+    crushing them together.
+  - **3 arguments**: single-line if the full line (with indent) is under
+    160 chars; otherwise multi-line with a trailing comma.
+  - **1-2 arguments**: single-line if the full line is under 200 chars;
+    otherwise multi-line with a trailing comma.
+  - "Argument" counts top-level parameters of a call, declaration, or
+    literal. A single named-parameter block `{a, b, c, d}` counts as 4
+    arguments, not 1.
+- Do NOT add a trailing comma to a single-line construct that should
+  stay single-line. A trailing comma forces `dart format` to expand to
+  multi-line.
+- For multi-line constructs, write them WITH a trailing comma before the
+  closing bracket so `dart format` uses 2-space block indent and puts
+  the closing bracket on its own line:
   ```
   return RepoActivityEvent(
     repoFullName: repoFullName,

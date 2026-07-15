@@ -15,7 +15,11 @@ Future<void> main() async {
               children: [
                 const Icon(Icons.error_outline_outlined, color: Colors.redAccent, size: 48),
                 const SizedBox(height: 16),
-                Text(kDebugMode ? details.exceptionAsString() : '应用遇到意外错误,请重启。', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white70, fontSize: 14))
+                Text(
+                  kDebugMode ? details.exceptionAsString() : '应用遇到意外错误,请重启。',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white70, fontSize: 14),
+                )
               ],
             ),
           ),

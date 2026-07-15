@@ -9,7 +9,12 @@ import '../../../../core/theme/app_typography.dart';
  *发现页分段选择器:仓库 / Skills / 官方组织 / 知名人士。
  */
 class DiscoverSegmented extends StatelessWidget {
-  const DiscoverSegmented({required this.value, required this.onChanged, this.compact = false, super.key});
+  const DiscoverSegmented({
+    required this.value,
+    required this.onChanged,
+    this.compact = false,
+    super.key,
+  });
 
   final String value;
   final ValueChanged<String> onChanged;
@@ -69,7 +74,12 @@ class DiscoverSegmented extends StatelessWidget {
 }
 
 class _SegmentChip extends StatelessWidget {
-  const _SegmentChip({required this.icon, required this.label, required this.selected, required this.onTap});
+  const _SegmentChip({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
 
   final IconData icon;
   final String label;

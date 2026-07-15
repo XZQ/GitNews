@@ -37,7 +37,11 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
             builder: (_, __) => const HomePage(),
             routes: [
               _repoDetailRoute('home_detail'),
-              GoRoute(path: 'tech_hotspot_detail/:id', name: 'home_tech_hotspot_detail', builder: (_, state) => TechHotspotDetailPage(id: state.pathParameters['id']!))
+              GoRoute(
+                path: 'tech_hotspot_detail/:id',
+                name: 'home_tech_hotspot_detail',
+                builder: (_, state) => TechHotspotDetailPage(id: state.pathParameters['id']!),
+              )
             ],
           )
         ],
@@ -50,7 +54,11 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
             builder: (_, __) => const AiNewsPage(),
             routes: [
               GoRoute(path: 'detail/:id', name: 'ai_news_detail', builder: (_, state) => AiNewsDetailPage(id: state.pathParameters['id']!)),
-              GoRoute(path: 'webview', name: 'ai_news_webview', builder: (_, state) => WebViewPage(url: state.uri.queryParameters['url'] ?? '', title: state.uri.queryParameters['title'])),
+              GoRoute(
+                path: 'webview',
+                name: 'ai_news_webview',
+                builder: (_, state) => WebViewPage(url: state.uri.queryParameters['url'] ?? '', title: state.uri.queryParameters['title']),
+              ),
               // 资讯 → 仓库打通:详情页「相关仓库」跳转。
               // 不能复用 `detail/:fullName`,会与上面的资讯详情路由冲突。
               GoRoute(path: 'repo/:fullName', name: 'ai_news_repo_detail', builder: (_, state) => RepoDetailPage(fullName: state.pathParameters['fullName']!))
@@ -85,7 +93,12 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
       ),
       StatefulShellBranch(
         routes: [
-          GoRoute(path: '/discover', name: 'discover', builder: (_, __) => const DiscoverHubPage(), routes: [_repoDetailRoute('discover_detail')])
+          GoRoute(
+            path: '/discover',
+            name: 'discover',
+            builder: (_, __) => const DiscoverHubPage(),
+            routes: [_repoDetailRoute('discover_detail')],
+          )
         ],
       ),
       StatefulShellBranch(
@@ -97,7 +110,11 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
             routes: [
               GoRoute(path: 'alerts', name: 'monitor_alerts', builder: (_, __) => const MonitorAlertsPage()),
               GoRoute(path: 'settings', name: 'monitor_settings', builder: (_, __) => const MonitorSettingsPage()),
-              GoRoute(path: 'detail/:fullName', name: 'monitor_detail', builder: (_, state) => MonitorDetailPage(repoFullName: state.pathParameters['fullName']!))
+              GoRoute(
+                path: 'detail/:fullName',
+                name: 'monitor_detail',
+                builder: (_, state) => MonitorDetailPage(repoFullName: state.pathParameters['fullName']!),
+              )
             ],
           )
         ],

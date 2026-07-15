@@ -27,7 +27,11 @@ class DiscoverPage extends ConsumerWidget {
     final state = ref.watch(projectDigestProvider);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.tr('project.discover.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/project'))),
-      body: ResponsiveLayout(compact: (_) => _Body(state: state), medium: (_) => CenteredContent(child: _Body(state: state)), expanded: (_) => CenteredContent(child: _Body(state: state))),
+      body: ResponsiveLayout(
+        compact: (_) => _Body(state: state),
+        medium: (_) => CenteredContent(child: _Body(state: state)),
+        expanded: (_) => CenteredContent(child: _Body(state: state)),
+      ),
     );
   }
 }
@@ -64,7 +68,12 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: [
         const _HotTopicsCard(),
         const SizedBox(height: AppSpacing.lg),
@@ -106,7 +115,14 @@ class _HotTopicsCard extends ConsumerWidget {
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
-            children: [for (final t in topics) ProjectTopicCard(label: t.label, description: l10n.tr('project.discover.topic_repos').replaceAll('{n}', t.count.toString()), color: t.color)],
+            children: [
+              for (final t in topics)
+                ProjectTopicCard(
+                  label: t.label,
+                  description: l10n.tr('project.discover.topic_repos').replaceAll('{n}', t.count.toString()),
+                  color: t.color,
+                )
+            ],
           )
         ],
       ),

@@ -80,7 +80,12 @@ class AiNewsItem {
 *一次拉取的页面结果。
 */
 class AiNewsDigest {
-  const AiNewsDigest({required this.items, required this.count, required this.hasNext, this.nextCursor});
+  const AiNewsDigest({
+    required this.items,
+    required this.count,
+    required this.hasNext,
+    this.nextCursor,
+  });
 
   final List<AiNewsItem> items;
   final int count;

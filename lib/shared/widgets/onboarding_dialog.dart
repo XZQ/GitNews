@@ -78,7 +78,11 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
                   Text(l10n.tr(_stepKeys[_step * 2]), style: AppTypography.headlineMedium.copyWith(fontWeight: FontWeight.w700), textAlign: TextAlign.center),
                   const SizedBox(height: AppSpacing.sm),
                   // 描述
-                  Text(l10n.tr(_stepKeys[_step * 2 + 1]), style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.5), textAlign: TextAlign.center),
+                  Text(
+                    l10n.tr(_stepKeys[_step * 2 + 1]),
+                    style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.5),
+                    textAlign: TextAlign.center,
+                  ),
                   const SizedBox(height: AppSpacing.xxl),
                   // 按钮
                   Row(children: [

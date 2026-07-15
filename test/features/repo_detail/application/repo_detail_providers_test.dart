@@ -53,13 +53,27 @@ void main() {
       when(() => repo.getDetail(repoA.fullName)).thenAnswer(
         (_) async => DataResult(
           freshness: DataFreshness.live,
-          data: RepoDetailDigest(repo: repoA, contributors: const [], relatedRepos: const [], primaryTrend: const [1.0], compareTrend: const [0.5], activities: const []),
+          data: RepoDetailDigest(
+            repo: repoA,
+            contributors: const [],
+            relatedRepos: const [],
+            primaryTrend: const [1.0],
+            compareTrend: const [0.5],
+            activities: const [],
+          ),
         ),
       );
       when(() => repo.getDetail(repoB.fullName)).thenAnswer(
         (_) async => DataResult(
           freshness: DataFreshness.live,
-          data: RepoDetailDigest(repo: repoB, contributors: const [], relatedRepos: const [], primaryTrend: const [2.0], compareTrend: const [1.0], activities: const []),
+          data: RepoDetailDigest(
+            repo: repoB,
+            contributors: const [],
+            relatedRepos: const [],
+            primaryTrend: const [2.0],
+            compareTrend: const [1.0],
+            activities: const [],
+          ),
         ),
       );
 

@@ -13,7 +13,12 @@ import '../domain/entities.dart';
 *语言分布面板:按分类(all/ai/web/system)筛选热门语言并展示占比。
 */
 class TrendingLanguagePanel extends StatelessWidget {
-  const TrendingLanguagePanel({super.key, required this.value, required this.onChanged, required this.languages});
+  const TrendingLanguagePanel({
+    super.key,
+    required this.value,
+    required this.onChanged,
+    required this.languages,
+  });
 
   final String value;
   final ValueChanged<String> onChanged;
@@ -54,7 +59,15 @@ class TrendingLanguagePanel extends StatelessWidget {
               child: Text(l10n.tr('trending.language.empty'), style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             )
           else
-            for (final l in filtered) ...[_LangRow(name: l.name, percent: l.percent, delta: l.delta, color: Color(l.accentArgb)), const SizedBox(height: AppSpacing.md)]
+            for (final l in filtered) ...[
+              _LangRow(
+                name: l.name,
+                percent: l.percent,
+                delta: l.delta,
+                color: Color(l.accentArgb),
+              ),
+              const SizedBox(height: AppSpacing.md)
+            ]
         ],
       ),
     );
@@ -84,7 +97,12 @@ class TrendingLanguagePanel extends StatelessWidget {
 }
 
 class _LangRow extends StatelessWidget {
-  const _LangRow({required this.name, required this.percent, required this.delta, required this.color});
+  const _LangRow({
+    required this.name,
+    required this.percent,
+    required this.delta,
+    required this.color,
+  });
 
   final String name;
   final double percent;

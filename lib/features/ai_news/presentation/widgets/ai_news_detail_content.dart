@@ -24,7 +24,12 @@ class AiNewsDetailContent extends StatelessWidget {
       children: [
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(_detailHorizontalGutter, AppSpacing.lg, _detailHorizontalGutter, AppSpacing.xxxl),
+            padding: const EdgeInsets.fromLTRB(
+              _detailHorizontalGutter,
+              AppSpacing.lg,
+              _detailHorizontalGutter,
+              AppSpacing.xxxl,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -145,7 +150,11 @@ class _CategoryBadge extends StatelessWidget {
     final color = aiNewsCategoryColor(category);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), border: Border.all(color: color.withValues(alpha: 0.34)), borderRadius: BorderRadius.circular(AppRadius.pill)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.34)),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+      ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -181,7 +190,15 @@ class _MetricChip extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
-      children: [Icon(icon, size: 18, color: colors.primary), const SizedBox(width: AppSpacing.xs), Text('$label $value', style: AppTypography.labelLarge.copyWith(color: colors.onSurfaceVariant))],
+      children: [
+        Icon(
+          icon,
+          size: 18,
+          color: colors.primary,
+        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text('$label $value', style: AppTypography.labelLarge.copyWith(color: colors.onSurfaceVariant))
+      ],
     );
   }
 }

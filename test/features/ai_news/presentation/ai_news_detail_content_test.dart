@@ -31,7 +31,13 @@ AiNewsItem _item() {
     source: 'Source',
     url: 'https://example.com/article',
     permalink: 'https://example.com/article',
-    publishedAt: DateTime(2026, 7, 9, 10, 30),
+    publishedAt: DateTime(
+      2026,
+      7,
+      9,
+      10,
+      30,
+    ),
     score: 88,
     selected: true,
   );

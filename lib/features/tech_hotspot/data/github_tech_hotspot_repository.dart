@@ -112,7 +112,12 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     final results = await _withObservedHistory(fetched, now);
     final languages = buildTechHotspotLanguages(results);
     final tags = buildTechHotspotTags(results);
-    return TechHotspotDigest(languages: languages, topics: results.map((result) => result.topic).toList(growable: false), heatTrend: buildTechHotspotHeatTrend(results), hotTags: tags);
+    return TechHotspotDigest(
+      languages: languages,
+      topics: results.map((result) => result.topic).toList(growable: false),
+      heatTrend: buildTechHotspotHeatTrend(results),
+      hotTags: tags,
+    );
   }
 
   Future<GithubTechHotspotTopicResult> _fetchTopic(TechHotspotTopicQuery query, DateTime now) async {
@@ -182,7 +187,13 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
 
   Future<GithubTechHotspotTopicResult> _withTopicHistory(GithubTechHotspotTopicResult result, TechHotspotHistoryDao history, DateTime now) async {
     final topic = result.topic;
-    await history.record(id: topic.id, heat: topic.heat, mentions: topic.mentions, relatedRepos: topic.relatedRepos, capturedAt: now);
+    await history.record(
+      id: topic.id,
+      heat: topic.heat,
+      mentions: topic.mentions,
+      relatedRepos: topic.relatedRepos,
+      capturedAt: now,
+    );
     final trend = await history.trend(topic.id);
     if (trend == null) {
       return result;

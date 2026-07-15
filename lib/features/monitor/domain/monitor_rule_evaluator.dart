@@ -22,7 +22,13 @@ class MonitorRuleEvaluator {
     final issueRatio = (current.openIssues + 1) / (previous.openIssues + 1);
     final events = <MonitorAlertEvent>[];
 
-    void addIfTriggered({required String ruleId, required String metric, required double value, required double threshold, required AlertSeverity severity}) {
+    void addIfTriggered({
+      required String ruleId,
+      required String metric,
+      required double value,
+      required double threshold,
+      required AlertSeverity severity,
+    }) {
       if (!enabledRuleIds.contains(ruleId) || value < threshold) {
         return;
       }
@@ -40,10 +46,34 @@ class MonitorRuleEvaluator {
       );
     }
 
-    addIfTriggered(ruleId: MonitorRuleIds.starDailyDelta, metric: 'stars', value: starDelta, threshold: MonitorRuleThresholds.starDailyDelta, severity: AlertSeverity.success);
-    addIfTriggered(ruleId: MonitorRuleIds.starDailyRate, metric: 'starRate', value: starRate, threshold: MonitorRuleThresholds.starDailyRate, severity: AlertSeverity.warning);
-    addIfTriggered(ruleId: MonitorRuleIds.forkDailyDelta, metric: 'forks', value: forkDelta, threshold: MonitorRuleThresholds.forkDailyDelta, severity: AlertSeverity.info);
-    addIfTriggered(ruleId: MonitorRuleIds.issueHeatRatio, metric: 'openIssuesRatio', value: issueRatio, threshold: MonitorRuleThresholds.issueHeatRatio, severity: AlertSeverity.danger);
+    addIfTriggered(
+      ruleId: MonitorRuleIds.starDailyDelta,
+      metric: 'stars',
+      value: starDelta,
+      threshold: MonitorRuleThresholds.starDailyDelta,
+      severity: AlertSeverity.success,
+    );
+    addIfTriggered(
+      ruleId: MonitorRuleIds.starDailyRate,
+      metric: 'starRate',
+      value: starRate,
+      threshold: MonitorRuleThresholds.starDailyRate,
+      severity: AlertSeverity.warning,
+    );
+    addIfTriggered(
+      ruleId: MonitorRuleIds.forkDailyDelta,
+      metric: 'forks',
+      value: forkDelta,
+      threshold: MonitorRuleThresholds.forkDailyDelta,
+      severity: AlertSeverity.info,
+    );
+    addIfTriggered(
+      ruleId: MonitorRuleIds.issueHeatRatio,
+      metric: 'openIssuesRatio',
+      value: issueRatio,
+      threshold: MonitorRuleThresholds.issueHeatRatio,
+      severity: AlertSeverity.danger,
+    );
 
     return events;
   }

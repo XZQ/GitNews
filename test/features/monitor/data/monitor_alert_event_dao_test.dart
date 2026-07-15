@@ -27,8 +27,18 @@ void main() {
 
   test('read archive and restore timestamps persist', () async {
     await dao.upsertAll([event(id: 'one')]);
-    final readAt = DateTime.utc(2026, 7, 3, 10);
-    final archivedAt = DateTime.utc(2026, 7, 3, 11);
+    final readAt = DateTime.utc(
+      2026,
+      7,
+      3,
+      10,
+    );
+    final archivedAt = DateTime.utc(
+      2026,
+      7,
+      3,
+      11,
+    );
 
     await dao.markRead('one', readAt);
     await dao.archive('one', archivedAt);
@@ -44,7 +54,14 @@ void main() {
 
   test('markUnread clears only the read timestamp', () async {
     await dao.upsertAll([event(id: 'one')]);
-    await dao.markRead('one', DateTime.utc(2026, 7, 3, 10));
+    await dao.markRead(
+        'one',
+        DateTime.utc(
+          2026,
+          7,
+          3,
+          10,
+        ));
 
     await dao.markUnread('one');
 
@@ -53,7 +70,12 @@ void main() {
 
   test('archiveRead archives only read events', () async {
     await dao.upsertAll([event(id: 'read'), event(id: 'unread', minute: 2)]);
-    final now = DateTime.utc(2026, 7, 3, 12);
+    final now = DateTime.utc(
+      2026,
+      7,
+      3,
+      12,
+    );
     await dao.markRead('read', now);
 
     await dao.archiveRead(now);

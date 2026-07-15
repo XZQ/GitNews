@@ -84,13 +84,30 @@ class _AlertText extends StatelessWidget {
       children: [
         Row(
           children: [
-            if (!isRead) ...[Container(width: 6, height: 6, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(AppRadius.pill))), const SizedBox(width: AppSpacing.xs2)],
+            if (!isRead) ...[
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(AppRadius.pill)),
+              ),
+              const SizedBox(width: AppSpacing.xs2)
+            ],
             Expanded(
-                child: Text(alert.repoFullName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall.copyWith(color: isRead ? colors.onSurfaceVariant : colors.onSurface)))
+                child: Text(
+              alert.repoFullName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.titleSmall.copyWith(color: isRead ? colors.onSurfaceVariant : colors.onSurface),
+            ))
           ],
         ),
         const SizedBox(height: AppSpacing.xxs),
-        Text(monitorAlertMetricLabel(context, alert), maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant))
+        Text(
+          monitorAlertMetricLabel(context, alert),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+        )
       ],
     );
   }

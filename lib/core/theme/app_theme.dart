@@ -60,8 +60,13 @@ class AppTheme {
       required Color textPrimary,
       required Color textSecondary,
       required Color textMuted}) {
-    final colorScheme = ColorScheme.fromSeed(seedColor: seed, brightness: brightness, surface: surface, onSurface: textPrimary, surfaceContainerHighest: surfaceAlt)
-        .copyWith(outline: border, outlineVariant: border, primary: seed);
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: seed,
+      brightness: brightness,
+      surface: surface,
+      onSurface: textPrimary,
+      surfaceContainerHighest: surfaceAlt,
+    ).copyWith(outline: border, outlineVariant: border, primary: seed);
 
     final textTheme = TextTheme(
       displayLarge: AppTypography.displayLarge.copyWith(color: textPrimary),

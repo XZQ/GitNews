@@ -62,7 +62,12 @@ Future<bool> openApplicationDataDirectory() async {
 }
 
 class BootstrapApp extends StatefulWidget {
-  const BootstrapApp({this.initializer, this.openDataDirectory, this.successBuilder, super.key});
+  const BootstrapApp({
+    this.initializer,
+    this.openDataDirectory,
+    this.successBuilder,
+    super.key,
+  });
 
   final Future<BootstrapResult> Function()? initializer;
   final DataDirectoryOpener? openDataDirectory;
@@ -105,7 +110,12 @@ class _BootstrapAppState extends State<BootstrapApp> {
             return const _BootstrapShell(child: _BootstrapLoadingView());
           }
           final failure = result ?? BootstrapResult.failure(snapshot.error ?? StateError('Unknown bootstrap failure'), snapshot.stackTrace ?? StackTrace.empty);
-          return _BootstrapShell(child: _BootstrapFailureView(result: failure, onRetry: _retry, openDataDirectory: widget.openDataDirectory ?? openApplicationDataDirectory));
+          return _BootstrapShell(
+              child: _BootstrapFailureView(
+            result: failure,
+            onRetry: _retry,
+            openDataDirectory: widget.openDataDirectory ?? openApplicationDataDirectory,
+          ));
         });
   }
 }
@@ -166,7 +176,11 @@ class _BootstrapFailureView extends StatelessWidget {
               const SizedBox(height: AppSpacing.xl),
               FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.restart_alt_rounded), label: Text(l10n.tr('bootstrap.retry'))),
               const SizedBox(height: AppSpacing.sm),
-              OutlinedButton.icon(onPressed: () => _openDirectory(context), icon: const Icon(Icons.folder_open_rounded), label: Text(l10n.tr('bootstrap.open_data_directory')))
+              OutlinedButton.icon(
+                onPressed: () => _openDirectory(context),
+                icon: const Icon(Icons.folder_open_rounded),
+                label: Text(l10n.tr('bootstrap.open_data_directory')),
+              )
             ],
           ),
         ),

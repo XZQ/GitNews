@@ -16,7 +16,11 @@ class DeveloperOptionsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text('开发者选项'), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile'))),
-      body: ResponsiveLayout(compact: (_) => const _Body(), medium: (_) => const CenteredContent(child: _Body()), expanded: (_) => const CenteredContent(child: _Body())),
+      body: ResponsiveLayout(
+        compact: (_) => const _Body(),
+        medium: (_) => const CenteredContent(child: _Body()),
+        expanded: (_) => const CenteredContent(child: _Body()),
+      ),
     );
   }
 }

@@ -12,7 +12,14 @@ import '../../../core/utils/app_logger.dart';
 import 'project_cache_keys.dart';
 
 class GithubProjectActivityLoader {
-  const GithubProjectActivityLoader({required this.cache, required this.resources, required this.cacheScope, required this.now, this.isRateLimited, this.onRateLimited});
+  const GithubProjectActivityLoader({
+    required this.cache,
+    required this.resources,
+    required this.cacheScope,
+    required this.now,
+    this.isRateLimited,
+    this.onRateLimited,
+  });
 
   final JsonSnapshotCacheDao cache;
   final GitHubResourceCache resources;

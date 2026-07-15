@@ -30,7 +30,12 @@ class TrendingHeroMetrics extends StatelessWidget {
 }
 
 class TrendingMetric extends StatelessWidget {
-  const TrendingMetric({super.key, required this.value, required this.label, required this.delta});
+  const TrendingMetric({
+    super.key,
+    required this.value,
+    required this.label,
+    required this.delta,
+  });
 
   final String value;
   final String label;
@@ -81,7 +86,13 @@ class TrendingWindowSegmented extends StatelessWidget {
 *通用语言筛选 PopupMenu。
 */
 class TrendingPopupMenu extends StatelessWidget {
-  const TrendingPopupMenu({super.key, required this.value, required this.options, required this.optionLabel, required this.onSelected});
+  const TrendingPopupMenu({
+    super.key,
+    required this.value,
+    required this.options,
+    required this.optionLabel,
+    required this.onSelected,
+  });
 
   final String value;
   final List<String> options;

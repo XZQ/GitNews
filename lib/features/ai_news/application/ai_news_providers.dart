@@ -30,8 +30,11 @@ final aiNewsRssClientProvider = Provider<AiNewsRssClient>((ref) => AiNewsRssClie
 
 // 聚合仓库:主源(精选流)+ 补充 RSS 源,head 页去重合并。
 // 任一源失败都不影响其余源;全部失败才抛错走缓存/种子降级。
-final aiNewsRepositoryProvider =
-    Provider<AiNewsRepository>((ref) => AggregatedAiNewsRepository(RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)), ref.watch(aiNewsRssClientProvider), clock: ref.watch(clockProvider)));
+final aiNewsRepositoryProvider = Provider<AiNewsRepository>((ref) => AggregatedAiNewsRepository(
+      RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)),
+      ref.watch(aiNewsRssClientProvider),
+      clock: ref.watch(clockProvider),
+    ));
 
 // AI 资讯缓存 DAO。共享全局 [appDatabaseProvider] 的 executor。
 final aiNewsCacheDaoProvider = Provider<AiNewsCacheDao>((ref) => AiNewsCacheDao(ref.watch(appDatabaseProvider).executor, ref.watch(cacheMetaDaoProvider)));
@@ -138,7 +141,12 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     }
 
     // Phase B:缓存仍新鲜就不发请求,否则后台静默刷新
-    final fresh = await dao.isFresh(category: _category, cursor: null, ttl: aiNewsCacheTtl, now: now);
+    final fresh = await dao.isFresh(
+      category: _category,
+      cursor: null,
+      ttl: aiNewsCacheTtl,
+      now: now,
+    );
     if (gen != _generation) {
       return const [];
     }

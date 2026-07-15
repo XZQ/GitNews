@@ -23,7 +23,14 @@ List<LanguageStat> buildTechHotspotLanguages(List<GithubTechHotspotTopicResult> 
   }
   final entries = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
   return entries.take(8).map((entry) {
-    return LanguageStat(name: entry.key, percent: entry.value / total * 100, delta: 0, color: GitHubApiSupport.languageColor(entry.key), repoCount: entry.value, basis: MetricBasis.estimated);
+    return LanguageStat(
+      name: entry.key,
+      percent: entry.value / total * 100,
+      delta: 0,
+      color: GitHubApiSupport.languageColor(entry.key),
+      repoCount: entry.value,
+      basis: MetricBasis.estimated,
+    );
   }).toList(growable: false);
 }
 

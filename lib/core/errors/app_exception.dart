@@ -9,7 +9,12 @@ enum AppExceptionKind { network, rateLimit, parse, notFound, unauthorized, serve
 *统一业务异常。所有 Notifier / Widget 只应见到 AppException。
 */
 class AppException implements Exception {
-  const AppException({required this.kind, this.cause, this.stack, this.meta = const {}});
+  const AppException({
+    required this.kind,
+    this.cause,
+    this.stack,
+    this.meta = const {},
+  });
 
   final AppExceptionKind kind;
 

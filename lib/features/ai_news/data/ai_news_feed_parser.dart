@@ -17,7 +17,12 @@ List<AiNewsItem> parseAiNewsFeed(String xmlText, {required AiNewsSourceConfig so
   try {
     doc = XmlDocument.parse(xmlText);
   } on XmlException catch (e, st) {
-    throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st, meta: {'source': source.id});
+    throw AppException(
+      kind: AppExceptionKind.parse,
+      cause: e,
+      stack: st,
+      meta: {'source': source.id},
+    );
   }
   final root = doc.rootElement;
   final fallbackUtc = fallbackTime.toUtc();
@@ -45,7 +50,13 @@ List<AiNewsItem> _parseRss(XmlElement rss, AiNewsSourceConfig source, DateTime f
       continue;
     }
     final publishedAt = _parseFeedDate(_text(node, 'pubDate')) ?? _parseFeedDate(_text(node, 'date')) ?? channelDate;
-    items.add(_buildItem(source: source, title: title, link: link.trim(), summary: _text(node, 'description'), publishedAt: publishedAt));
+    items.add(_buildItem(
+      source: source,
+      title: title,
+      link: link.trim(),
+      summary: _text(node, 'description'),
+      publishedAt: publishedAt,
+    ));
   }
   return items;
 }
@@ -60,12 +71,24 @@ List<AiNewsItem> _parseAtom(XmlElement feed, AiNewsSourceConfig source, DateTime
     }
     final publishedAt = _parseFeedDate(_text(node, 'published')) ?? _parseFeedDate(_text(node, 'updated')) ?? fallback;
     final summary = _text(node, 'summary');
-    items.add(_buildItem(source: source, title: title, link: link, summary: summary.isNotEmpty ? summary : _text(node, 'content'), publishedAt: publishedAt));
+    items.add(_buildItem(
+      source: source,
+      title: title,
+      link: link,
+      summary: summary.isNotEmpty ? summary : _text(node, 'content'),
+      publishedAt: publishedAt,
+    ));
   }
   return items;
 }
 
-AiNewsItem _buildItem({required AiNewsSourceConfig source, required String title, required String link, required String summary, required DateTime publishedAt}) {
+AiNewsItem _buildItem({
+  required AiNewsSourceConfig source,
+  required String title,
+  required String link,
+  required String summary,
+  required DateTime publishedAt,
+}) {
   return AiNewsItem(
     id: 'rss:${source.id}:${fnv1aHex(link)}',
     category: AiNewsCategory.fromCode(source.categoryCode) ?? AiNewsCategory.industry,
@@ -165,7 +188,14 @@ DateTime? parseRfc822Date(String raw) {
   if (year < 100) {
     year += year >= 70 ? 1900 : 2000;
   }
-  final utc = DateTime.utc(year, month, int.parse(match.group(1)!), int.parse(match.group(4)!), int.parse(match.group(5)!), int.parse(match.group(6) ?? '0'));
+  final utc = DateTime.utc(
+    year,
+    month,
+    int.parse(match.group(1)!),
+    int.parse(match.group(4)!),
+    int.parse(match.group(5)!),
+    int.parse(match.group(6) ?? '0'),
+  );
   final zone = match.group(7) ?? '';
   final numeric = RegExp(r'^([+-])(\d{2})(\d{2})$').firstMatch(zone);
   if (numeric == null) {

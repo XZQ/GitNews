@@ -23,10 +23,27 @@ class _FakeMonitorAlertEventsController extends MonitorAlertEventsController {
 }
 
 RepoEntity _repo(String fullName, {String description = 'AI coding project', String language = 'Dart'}) {
-  return RepoEntity(fullName: fullName, description: description, language: language, starCount: 1200, starDelta: 80, forkCount: 30, accentArgb: 0xFF00A389);
+  return RepoEntity(
+    fullName: fullName,
+    description: description,
+    language: language,
+    starCount: 1200,
+    starDelta: 80,
+    forkCount: 30,
+    accentArgb: 0xFF00A389,
+  );
 }
 
-const _stats = MonitorStats(monitoredCount: 2, monitoredDelta: 1, unreadAlertCount: 1, unreadAlertDelta: 1, triggeredTodayCount: 1, triggeredTodayDelta: 0, totalAlertCount: 3, totalAlertDelta: 1);
+const _stats = MonitorStats(
+  monitoredCount: 2,
+  monitoredDelta: 1,
+  unreadAlertCount: 1,
+  unreadAlertDelta: 1,
+  triggeredTodayCount: 1,
+  triggeredTodayDelta: 0,
+  totalAlertCount: 3,
+  totalAlertDelta: 1,
+);
 
 void main() {
   group('monitor repository selection', () {
@@ -107,7 +124,14 @@ void main() {
 
   group('monitor search', () {
     test('filterMonitorRepos should match repo name description and language', () {
-      final repos = [_repo('openai/codex', language: 'TypeScript'), _repo('modelcontextprotocol/servers', description: 'MCP server collection', language: 'Python')];
+      final repos = [
+        _repo('openai/codex', language: 'TypeScript'),
+        _repo(
+          'modelcontextprotocol/servers',
+          description: 'MCP server collection',
+          language: 'Python',
+        )
+      ];
 
       expect(filterMonitorRepos(repos, '').length, 2);
       expect(filterMonitorRepos(repos, 'codex'), [repos.first]);
@@ -118,8 +142,20 @@ void main() {
 
     test('filterMonitorAlerts should match alert fields', () {
       const alerts = [
-        AlertEntity(repoFullName: 'openai/codex', metric: 'Star 增速异常', value: '+240', time: '10 分钟前', severity: AlertSeverity.warning),
-        AlertEntity(repoFullName: 'vercel/next.js', metric: 'Fork 增速', value: '+52', time: '1 小时前', severity: AlertSeverity.info)
+        AlertEntity(
+          repoFullName: 'openai/codex',
+          metric: 'Star 增速异常',
+          value: '+240',
+          time: '10 分钟前',
+          severity: AlertSeverity.warning,
+        ),
+        AlertEntity(
+          repoFullName: 'vercel/next.js',
+          metric: 'Fork 增速',
+          value: '+52',
+          time: '1 小时前',
+          severity: AlertSeverity.info,
+        )
       ];
 
       expect(filterMonitorAlerts(alerts, '').length, 2);
@@ -136,7 +172,15 @@ void main() {
           freshness: DataFreshness.live,
           data: MonitorDigest(
             monitoredRepos: [_repo('openai/codex', language: 'TypeScript'), _repo('vercel/next.js', language: 'JavaScript')],
-            alerts: const [AlertEntity(repoFullName: 'openai/codex', metric: 'Star 增速异常', value: '+240', time: '10 分钟前', severity: AlertSeverity.warning)],
+            alerts: const [
+              AlertEntity(
+                repoFullName: 'openai/codex',
+                metric: 'Star 增速异常',
+                value: '+240',
+                time: '10 分钟前',
+                severity: AlertSeverity.warning,
+              )
+            ],
             stats: _stats,
           ),
         ),
@@ -175,9 +219,20 @@ void main() {
     });
 
     test('visibleMonitorDigestProvider merges durable alert state', () async {
-      final now = DateTime.utc(2026, 7, 3, 12);
+      final now = DateTime.utc(
+        2026,
+        7,
+        3,
+        12,
+      );
       final repo = _MockMonitorRepository();
-      when(repo.getDigest).thenAnswer((_) async => DataResult(freshness: DataFreshness.live, data: MonitorDigest(monitoredRepos: [_repo('openai/codex')], alerts: const [], stats: _stats)));
+      when(repo.getDigest).thenAnswer((_) async => DataResult(
+          freshness: DataFreshness.live,
+          data: MonitorDigest(
+            monitoredRepos: [_repo('openai/codex')],
+            alerts: const [],
+            stats: _stats,
+          )));
       final container = ProviderContainer(
         overrides: [
           monitorRepositoryProvider.overrideWithValue(repo),
@@ -210,7 +265,13 @@ void main() {
 
     test('monitorDigestResultProvider exposes response freshness', () async {
       final repo = _MockMonitorRepository();
-      when(repo.getDigest).thenAnswer((_) async => DataResult(freshness: DataFreshness.staleCache, data: MonitorDigest(monitoredRepos: [_repo('openai/codex')], alerts: const [], stats: _stats)));
+      when(repo.getDigest).thenAnswer((_) async => DataResult(
+          freshness: DataFreshness.staleCache,
+          data: MonitorDigest(
+            monitoredRepos: [_repo('openai/codex')],
+            alerts: const [],
+            stats: _stats,
+          )));
       final container = ProviderContainer(overrides: [monitorRepositoryProvider.overrideWithValue(repo)]);
       addTearDown(container.dispose);
 
@@ -221,7 +282,12 @@ void main() {
     });
 
     test('applyMonitorAlertEvents restores durable visible alert state', () {
-      final now = DateTime.utc(2026, 7, 3, 12);
+      final now = DateTime.utc(
+        2026,
+        7,
+        3,
+        12,
+      );
       final digest = applyMonitorAlertEvents(
         MonitorDigest(monitoredRepos: [_repo('openai/codex')], alerts: const [], stats: _stats),
         [
@@ -274,7 +340,12 @@ void main() {
           time: '刚刚',
           severity: AlertSeverity.info,
           observedAt: DateTime.utc(2026, 7, 3),
-          readAt: DateTime.utc(2026, 7, 3, 1),
+          readAt: DateTime.utc(
+            2026,
+            7,
+            3,
+            1,
+          ),
         )
       ];
 

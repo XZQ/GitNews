@@ -29,63 +29,80 @@ class TrendingMobileView extends ConsumerWidget {
     final window = ref.watch(trendingWindowFilterProvider);
     final lang = ref.watch(trendingLanguageFilterProvider);
     final windowLabel = _windowLabel(l10n, window);
-    return ListView(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl), children: [
-      AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.xl,
+        ),
+        children: [
+          AppCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: Text(l10n.tr('trending.mobile.star_growth_rank'), style: AppTypography.titleLarge)),
-                TrendingPopupMenu(
-                  value: lang,
-                  options: const ['all', 'typescript', 'python', 'rust'],
-                  optionLabel: (v) => _languageLabel(l10n, v),
-                  onSelected: (v) => ref.read(trendingLanguageFilterProvider.notifier).state = v,
+                Row(
+                  children: [
+                    Expanded(child: Text(l10n.tr('trending.mobile.star_growth_rank'), style: AppTypography.titleLarge)),
+                    TrendingPopupMenu(
+                      value: lang,
+                      options: const ['all', 'typescript', 'python', 'rust'],
+                      optionLabel: (v) => _languageLabel(l10n, v),
+                      onSelected: (v) => ref.read(trendingLanguageFilterProvider.notifier).state = v,
+                    )
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(l10n.tr('trending.mobile.tracking_subtitle').replaceAll('{window}', windowLabel), style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                const SizedBox(height: AppSpacing.md),
+                TrendingWindowSegmented(value: window, onChanged: (v) => ref.read(trendingWindowFilterProvider.notifier).state = v),
+                const SizedBox(height: AppSpacing.md),
+                const TrendingHeroMetrics(),
+                const SizedBox(height: AppSpacing.md),
+                StarTrendChart(
+                  series: [ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary), ChartSeries(values: digest.secondaryTrend, color: AppColors.success)],
+                  height: 200,
                 )
               ],
             ),
-            const SizedBox(height: AppSpacing.xs),
-            Text(l10n.tr('trending.mobile.tracking_subtitle').replaceAll('{window}', windowLabel), style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-            const SizedBox(height: AppSpacing.md),
-            TrendingWindowSegmented(value: window, onChanged: (v) => ref.read(trendingWindowFilterProvider.notifier).state = v),
-            const SizedBox(height: AppSpacing.md),
-            const TrendingHeroMetrics(),
-            const SizedBox(height: AppSpacing.md),
-            StarTrendChart(
-              series: [ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary), ChartSeries(values: digest.secondaryTrend, color: AppColors.success)],
-              height: 200,
-            )
-          ],
-        ),
-      ),
-      const SizedBox(height: AppSpacing.lg),
-      AppCard(
-          padding: EdgeInsets.zero,
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
-              child: SectionHeader(
-                title: l10n.tr('trending.page.repos'),
-                subtitle: l10n.tr('trending.mobile.repos_count').replaceAll('{window}', windowLabel).replaceAll('{count}', '${digest.trendingRepos.length}'),
-                trailing: TextButton(onPressed: () => _showFilterSheet(context, ref), child: Text(l10n.tr('trending.action.filter'))),
-              ),
-            ),
-            Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
-                child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: digest.trendingRepos.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, i) {
-                      final repo = digest.trendingRepos[i];
-                      return RepoTile(repo: repo, rank: i + 1, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repo.fullName)}'));
-                    }))
-          ])),
-      const SizedBox(height: AppSpacing.lg),
-      const TrendingTopicsPanel()
-    ]);
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          AppCard(
+              padding: EdgeInsets.zero,
+              child: Column(children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                    AppSpacing.lg,
+                    AppSpacing.xs,
+                  ),
+                  child: SectionHeader(
+                    title: l10n.tr('trending.page.repos'),
+                    subtitle: l10n.tr('trending.mobile.repos_count').replaceAll('{window}', windowLabel).replaceAll('{count}', '${digest.trendingRepos.length}'),
+                    trailing: TextButton(onPressed: () => _showFilterSheet(context, ref), child: Text(l10n.tr('trending.action.filter'))),
+                  ),
+                ),
+                Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.xs,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                    ),
+                    child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: digest.trendingRepos.length,
+                        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                        itemBuilder: (context, i) {
+                          final repo = digest.trendingRepos[i];
+                          return RepoTile(repo: repo, rank: i + 1, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repo.fullName)}'));
+                        }))
+              ])),
+          const SizedBox(height: AppSpacing.lg),
+          const TrendingTopicsPanel()
+        ]);
   }
 }
 

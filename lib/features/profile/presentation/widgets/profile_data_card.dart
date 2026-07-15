@@ -136,10 +136,18 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
           Row(
             children: [
               Expanded(
-                  child: OutlinedButton.icon(onPressed: _exporting || _importing ? null : _onExport, icon: const Icon(Icons.upload_outlined, size: 16), label: Text(l10n.tr('config.export_button')))),
+                  child: OutlinedButton.icon(
+                onPressed: _exporting || _importing ? null : _onExport,
+                icon: const Icon(Icons.upload_outlined, size: 16),
+                label: Text(l10n.tr('config.export_button')),
+              )),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                  child: OutlinedButton.icon(onPressed: _exporting || _importing ? null : _onImport, icon: const Icon(Icons.download_outlined, size: 16), label: Text(l10n.tr('config.import_button'))))
+                  child: OutlinedButton.icon(
+                onPressed: _exporting || _importing ? null : _onImport,
+                icon: const Icon(Icons.download_outlined, size: 16),
+                label: Text(l10n.tr('config.import_button')),
+              ))
             ],
           )
         ],

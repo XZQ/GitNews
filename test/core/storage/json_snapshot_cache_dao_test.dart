@@ -26,7 +26,12 @@ void main() {
           'items': ['openai/codex'],
           'count': 1
         },
-        now: DateTime.utc(2026, 7, 4, 10),
+        now: DateTime.utc(
+          2026,
+          7,
+          4,
+          10,
+        ),
       );
 
       expect(await dao.read('digest'), {
@@ -36,19 +41,69 @@ void main() {
     });
 
     test('isFresh should respect ttl', () async {
-      await dao.upsert(key: 'digest', payload: const {'ok': true}, now: DateTime.utc(2026, 7, 4, 10));
+      await dao.upsert(
+          key: 'digest',
+          payload: const {'ok': true},
+          now: DateTime.utc(
+            2026,
+            7,
+            4,
+            10,
+          ));
 
-      expect(await dao.isFresh(key: 'digest', ttl: const Duration(minutes: 5), now: DateTime.utc(2026, 7, 4, 10, 4, 59)), isTrue);
-      expect(await dao.isFresh(key: 'digest', ttl: const Duration(minutes: 5), now: DateTime.utc(2026, 7, 4, 10, 5)), isFalse);
+      expect(
+          await dao.isFresh(
+              key: 'digest',
+              ttl: const Duration(minutes: 5),
+              now: DateTime.utc(
+                2026,
+                7,
+                4,
+                10,
+                4,
+                59,
+              )),
+          isTrue);
+      expect(
+          await dao.isFresh(
+              key: 'digest',
+              ttl: const Duration(minutes: 5),
+              now: DateTime.utc(
+                2026,
+                7,
+                4,
+                10,
+                5,
+              )),
+          isFalse);
     });
 
     test('delete should remove payload and freshness marker', () async {
-      await dao.upsert(key: 'digest', payload: const {'ok': true}, now: DateTime.utc(2026, 7, 4, 10));
+      await dao.upsert(
+          key: 'digest',
+          payload: const {'ok': true},
+          now: DateTime.utc(
+            2026,
+            7,
+            4,
+            10,
+          ));
 
       await dao.delete('digest');
 
       expect(await dao.read('digest'), isNull);
-      expect(await dao.isFresh(key: 'digest', ttl: const Duration(minutes: 5), now: DateTime.utc(2026, 7, 4, 10, 1)), isFalse);
+      expect(
+          await dao.isFresh(
+              key: 'digest',
+              ttl: const Duration(minutes: 5),
+              now: DateTime.utc(
+                2026,
+                7,
+                4,
+                10,
+                1,
+              )),
+          isFalse);
     });
   });
 
@@ -70,23 +125,51 @@ void main() {
     });
 
     test('upsertWithEtag stores payload and etag together', () async {
-      await dao.upsertWithEtag(key: 'k1', payload: const {'a': 1}, etag: 'W/"abc"', now: DateTime.utc(2026, 7, 6));
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 1},
+        etag: 'W/"abc"',
+        now: DateTime.utc(2026, 7, 6),
+      );
       final entry = await dao.readWithEtag('k1');
       expect(entry.payload, {'a': 1});
       expect(entry.etag, 'W/"abc"');
     });
 
     test('upsert (without etag) preserves existing etag', () async {
-      await dao.upsertWithEtag(key: 'k1', payload: const {'a': 1}, etag: 'W/"abc"', now: DateTime.utc(2026, 7, 6));
-      await dao.upsert(key: 'k1', payload: const {'a': 2}, now: DateTime.utc(2026, 7, 6, 1));
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 1},
+        etag: 'W/"abc"',
+        now: DateTime.utc(2026, 7, 6),
+      );
+      await dao.upsert(
+          key: 'k1',
+          payload: const {'a': 2},
+          now: DateTime.utc(
+            2026,
+            7,
+            6,
+            1,
+          ));
       final entry = await dao.readWithEtag('k1');
       expect(entry.payload, {'a': 2});
       expect(entry.etag, 'W/"abc"');
     });
 
     test('upsertWithEtag with null etag preserves existing etag', () async {
-      await dao.upsertWithEtag(key: 'k1', payload: const {'a': 1}, etag: 'W/"abc"', now: DateTime.utc(2026, 7, 6));
-      await dao.upsertWithEtag(key: 'k1', payload: const {'a': 2}, etag: null, now: DateTime.utc(2026, 7, 6, 1));
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 1},
+        etag: 'W/"abc"',
+        now: DateTime.utc(2026, 7, 6),
+      );
+      await dao.upsertWithEtag(
+        key: 'k1',
+        payload: const {'a': 2},
+        etag: null,
+        now: DateTime.utc(2026, 7, 6, 1),
+      );
       final entry = await dao.readWithEtag('k1');
       expect(entry.payload, {'a': 2});
       expect(entry.etag, 'W/"abc"');

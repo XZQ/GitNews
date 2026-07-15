@@ -36,7 +36,11 @@ class ProjectPage extends ConsumerWidget {
               if (digest.isEmpty && query.isNotEmpty) {
                 return EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('project.empty_search').replaceAll('{query}', query));
               }
-              return ResponsiveLayout(compact: (_) => _Mobile(digest: digest), medium: (_) => _Desktop(digest: digest), expanded: (_) => _Desktop(digest: digest));
+              return ResponsiveLayout(
+                compact: (_) => _Mobile(digest: digest),
+                medium: (_) => _Desktop(digest: digest),
+                expanded: (_) => _Desktop(digest: digest),
+              );
             },
             loading: () => const ProjectPageSkeleton(),
             error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(projectDigestProvider))));
@@ -51,7 +55,12 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: [
         ProjectSummaryMetrics(digest: digest),
         const SizedBox(height: AppSpacing.lg),
@@ -80,7 +89,12 @@ class _Desktop extends StatelessWidget {
         const ProjectPageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

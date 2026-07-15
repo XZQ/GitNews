@@ -24,7 +24,12 @@ class AiNewsDigestCard extends ConsumerWidget {
     final digest = ref.watch(aiDigestNotifierProvider);
     final colors = Theme.of(context).colorScheme;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, 0),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.xl,
+        0,
+      ),
       child: AppCard(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(

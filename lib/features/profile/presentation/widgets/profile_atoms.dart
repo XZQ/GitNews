@@ -21,7 +21,13 @@ class ProfileDataRow extends StatelessWidget {
 }
 
 class ProfileSettingRow extends StatelessWidget {
-  const ProfileSettingRow({required this.icon, required this.label, required this.trailing, this.onTap, super.key});
+  const ProfileSettingRow({
+    required this.icon,
+    required this.label,
+    required this.trailing,
+    this.onTap,
+    super.key,
+  });
 
   final IconData icon;
   final String label;
@@ -64,7 +70,13 @@ class ProfileAboutRow extends StatelessWidget {
 }
 
 class ProfileDetailRow extends StatelessWidget {
-  const ProfileDetailRow({required this.icon, required this.iconColor, required this.label, required this.value, super.key});
+  const ProfileDetailRow({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+    required this.value,
+    super.key,
+  });
 
   final IconData icon;
   final Color iconColor;

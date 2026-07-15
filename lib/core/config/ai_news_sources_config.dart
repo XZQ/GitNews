@@ -7,7 +7,12 @@
 *全部 feedUrl 于 2026-07-14 核验可用;新增源只需追加一条配置。
 */
 class AiNewsSourceConfig {
-  const AiNewsSourceConfig({required this.id, required this.name, required this.feedUrl, required this.categoryCode});
+  const AiNewsSourceConfig({
+    required this.id,
+    required this.name,
+    required this.feedUrl,
+    required this.categoryCode,
+  });
 
   // 稳定源标识,参与条目 id 生成,改名不要改 id。
   final String id;
@@ -32,9 +37,29 @@ class AiNewsSourcesConfig {
   static const Duration recencyWindow = Duration(days: 30);
 
   static const List<AiNewsSourceConfig> sources = [
-    AiNewsSourceConfig(id: 'openai_news', name: 'OpenAI News', feedUrl: 'https://openai.com/news/rss.xml', categoryCode: 'ai-products'),
-    AiNewsSourceConfig(id: 'huggingface_blog', name: 'Hugging Face Blog', feedUrl: 'https://huggingface.co/blog/feed.xml', categoryCode: 'tip'),
-    AiNewsSourceConfig(id: 'google_ai_blog', name: 'Google AI Blog', feedUrl: 'https://blog.google/technology/ai/rss/', categoryCode: 'industry'),
-    AiNewsSourceConfig(id: 'arxiv_cs_ai', name: 'arXiv cs.AI', feedUrl: 'https://rss.arxiv.org/rss/cs.AI', categoryCode: 'paper')
+    AiNewsSourceConfig(
+      id: 'openai_news',
+      name: 'OpenAI News',
+      feedUrl: 'https://openai.com/news/rss.xml',
+      categoryCode: 'ai-products',
+    ),
+    AiNewsSourceConfig(
+      id: 'huggingface_blog',
+      name: 'Hugging Face Blog',
+      feedUrl: 'https://huggingface.co/blog/feed.xml',
+      categoryCode: 'tip',
+    ),
+    AiNewsSourceConfig(
+      id: 'google_ai_blog',
+      name: 'Google AI Blog',
+      feedUrl: 'https://blog.google/technology/ai/rss/',
+      categoryCode: 'industry',
+    ),
+    AiNewsSourceConfig(
+      id: 'arxiv_cs_ai',
+      name: 'arXiv cs.AI',
+      feedUrl: 'https://rss.arxiv.org/rss/cs.AI',
+      categoryCode: 'paper',
+    )
   ];
 }

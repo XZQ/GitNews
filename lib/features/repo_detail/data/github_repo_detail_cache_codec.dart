@@ -32,5 +32,9 @@ Map<String, Object?> _contributorToJson(ContributorEntity contributor) {
 
 ContributorEntity _contributorFromJson(Object? raw) {
   final json = GitHubJson.map(raw);
-  return ContributorEntity(login: GitHubJson.string(json['login']), contributions: GitHubJson.intValue(json['contributions']), avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']));
+  return ContributorEntity(
+    login: GitHubJson.string(json['login']),
+    contributions: GitHubJson.intValue(json['contributions']),
+    avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
+  );
 }

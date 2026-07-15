@@ -18,7 +18,15 @@ import 'github_api_support.dart';
 enum DeviceFlowStatus { idle, awaiting, polling, success, error, expired, denied }
 
 class DeviceFlowState {
-  const DeviceFlowState({this.status = DeviceFlowStatus.idle, this.userCode, this.verificationUri, this.verificationUriComplete, this.interval = 5, this.expiresIn = 900, this.error});
+  const DeviceFlowState({
+    this.status = DeviceFlowStatus.idle,
+    this.userCode,
+    this.verificationUri,
+    this.verificationUriComplete,
+    this.interval = 5,
+    this.expiresIn = 900,
+    this.error,
+  });
 
   final DeviceFlowStatus status;
   final String? userCode;
@@ -28,7 +36,16 @@ class DeviceFlowState {
   final int expiresIn;
   final String? error;
 
-  DeviceFlowState copyWith({DeviceFlowStatus? status, String? userCode, String? verificationUri, String? verificationUriComplete, int? interval, int? expiresIn, String? error}) => DeviceFlowState(
+  DeviceFlowState copyWith({
+    DeviceFlowStatus? status,
+    String? userCode,
+    String? verificationUri,
+    String? verificationUriComplete,
+    int? interval,
+    int? expiresIn,
+    String? error,
+  }) =>
+      DeviceFlowState(
         status: status ?? this.status,
         userCode: userCode ?? this.userCode,
         verificationUri: verificationUri ?? this.verificationUri,

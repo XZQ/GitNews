@@ -50,7 +50,13 @@ String normalizeAiNewsUrl(String raw) {
   if (path.length > 1 && path.endsWith('/')) {
     path = path.substring(0, path.length - 1);
   }
-  return Uri(scheme: uri.scheme.toLowerCase(), host: uri.host.toLowerCase(), port: uri.hasPort ? uri.port : null, path: path, queryParameters: query.isEmpty ? null : query).toString();
+  return Uri(
+    scheme: uri.scheme.toLowerCase(),
+    host: uri.host.toLowerCase(),
+    port: uri.hasPort ? uri.port : null,
+    path: path,
+    queryParameters: query.isEmpty ? null : query,
+  ).toString();
 }
 
 /*

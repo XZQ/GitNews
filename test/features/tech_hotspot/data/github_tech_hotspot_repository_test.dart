@@ -28,7 +28,12 @@ void main() {
     cache = JsonSnapshotCacheDao(db.executor, CacheMetaDao(db.executor));
     history = TechHotspotHistoryDao(cache);
     dio = _MockDio();
-    repository = GithubTechHotspotRepository(dio: dio, cache: cache, history: history, now: () => DateTime.utc(2026, 7, 4, 12));
+    repository = GithubTechHotspotRepository(
+      dio: dio,
+      cache: cache,
+      history: history,
+      now: () => DateTime.utc(2026, 7, 4, 12),
+    );
   });
 
   tearDown(() async {
@@ -36,7 +41,13 @@ void main() {
   });
 
   test('should prefer observed local topic history for growth and heat trend', () async {
-    await history.record(id: techHotspotTopicQueries.first.id, heat: 40, mentions: 80, relatedRepos: 100, capturedAt: DateTime.utc(2026, 7, 3, 8));
+    await history.record(
+      id: techHotspotTopicQueries.first.id,
+      heat: 40,
+      mentions: 80,
+      relatedRepos: 100,
+      capturedAt: DateTime.utc(2026, 7, 3, 8),
+    );
     var index = 0;
     when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((_) async {
       final query = techHotspotTopicQueries[index++];

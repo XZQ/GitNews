@@ -13,8 +13,15 @@ class ProjectPageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl), children: [
-      for (var i = 0; i < blocks.length; i++) ...[Skeleton(height: blocks[i]), if (i != blocks.length - 1) const SizedBox(height: AppSpacing.lg)]
-    ]);
+    return ListView(
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.xl,
+        ),
+        children: [
+          for (var i = 0; i < blocks.length; i++) ...[Skeleton(height: blocks[i]), if (i != blocks.length - 1) const SizedBox(height: AppSpacing.lg)]
+        ]);
   }
 }

@@ -6,7 +6,13 @@ import '../../../core/domain/repo_entity.dart';
  *复用 [RepoEntity] 承载仓库基础信息,附加 skills 生态元数据。
  */
 class SkillEntity {
-  const SkillEntity({required this.repo, required this.category, required this.source, required this.rank, this.summary});
+  const SkillEntity({
+    required this.repo,
+    required this.category,
+    required this.source,
+    required this.rank,
+    this.summary,
+  });
 
   final RepoEntity repo;
 

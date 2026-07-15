@@ -7,7 +7,12 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
 class SidebarItem extends StatefulWidget {
-  const SidebarItem({required this.tab, required this.selected, required this.onTap, super.key});
+  const SidebarItem({
+    required this.tab,
+    required this.selected,
+    required this.onTap,
+    super.key,
+  });
 
   final TabSpec tab;
   final bool selected;
@@ -57,7 +62,12 @@ class _SidebarItemState extends State<SidebarItem> {
                     Icon(isSelected ? widget.tab.selectedIcon : widget.tab.icon, size: 20, color: fg),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(child: Text(label, style: AppTypography.titleSmall.copyWith(color: fgStrong, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500))),
-                    if (isSelected) Container(width: 4, height: 16, decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(AppRadius.dot)))
+                    if (isSelected)
+                      Container(
+                        width: 4,
+                        height: 16,
+                        decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(AppRadius.dot)),
+                      )
                   ],
                 ),
               ),

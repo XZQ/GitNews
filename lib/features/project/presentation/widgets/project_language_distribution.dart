@@ -26,7 +26,14 @@ class ProjectLanguageDistribution extends StatelessWidget {
         children: [
           SectionHeader(title: l10n.tr('project.section.language.title'), subtitle: l10n.tr('project.section.language.subtitle')),
           const SizedBox(height: AppSpacing.md),
-          if (isBounded) Expanded(child: _LanguageList(languages: visible)) else _LanguageList(languages: visible, physics: const NeverScrollableScrollPhysics(), shrinkWrap: true)
+          if (isBounded)
+            Expanded(child: _LanguageList(languages: visible))
+          else
+            _LanguageList(
+              languages: visible,
+              physics: const NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+            )
         ],
       );
     }));
@@ -43,7 +50,13 @@ class ProjectLanguageDistribution extends StatelessWidget {
     }
     final entries = counts.entries.toList()..sort((a, b) => b.value.count.compareTo(a.value.count));
     return entries.map((entry) {
-      return _LanguageSlice(name: entry.key, percent: entry.value.count / repos.length * 100, count: entry.value.count, delta: 0, accentArgb: entry.value.accentArgb);
+      return _LanguageSlice(
+        name: entry.key,
+        percent: entry.value.count / repos.length * 100,
+        count: entry.value.count,
+        delta: 0,
+        accentArgb: entry.value.accentArgb,
+      );
     }).toList(growable: false);
   }
 }
@@ -70,7 +83,13 @@ class _LanguageList extends StatelessWidget {
               SizedBox(width: 24, child: Text('${index + 1}', style: AppTypography.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
               Container(width: 8, height: 8, decoration: BoxDecoration(color: Color(l.accentArgb), borderRadius: BorderRadius.circular(AppRadius.xs))),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(child: Text(l.name, style: AppTypography.bodyMedium, maxLines: 1, overflow: TextOverflow.ellipsis)),
+              Expanded(
+                  child: Text(
+                l.name,
+                style: AppTypography.bodyMedium,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              )),
               const SizedBox(width: AppSpacing.sm),
               Text('${l.percent.toStringAsFixed(1)}% · ${l.count}', style: AppTypography.labelMedium),
               const SizedBox(width: AppSpacing.xs2),
@@ -92,7 +111,13 @@ class _LanguageCount {
 }
 
 class _LanguageSlice {
-  const _LanguageSlice({required this.name, required this.percent, required this.count, required this.delta, required this.accentArgb});
+  const _LanguageSlice({
+    required this.name,
+    required this.percent,
+    required this.count,
+    required this.delta,
+    required this.accentArgb,
+  });
 
   final String name;
   final double percent;

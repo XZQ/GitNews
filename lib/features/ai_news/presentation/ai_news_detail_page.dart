@@ -46,7 +46,11 @@ class AiNewsDetailPage extends ConsumerWidget {
                 : <Widget>[
                     _ReadLaterButton(item: item),
                     IconButton(tooltip: l10n.tr('webview.copy_link'), onPressed: () => _copyLink(context, item), icon: const Icon(Icons.content_copy_rounded)),
-                    IconButton(tooltip: l10n.tr('webview.open_in_browser'), onPressed: () => _openOriginal(context, item), icon: const Icon(Icons.open_in_new_rounded))
+                    IconButton(
+                      tooltip: l10n.tr('webview.open_in_browser'),
+                      onPressed: () => _openOriginal(context, item),
+                      icon: const Icon(Icons.open_in_new_rounded),
+                    )
                   ],
             orElse: () => <Widget>[],
           )

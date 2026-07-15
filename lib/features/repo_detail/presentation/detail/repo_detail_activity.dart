@@ -66,7 +66,12 @@ class _ActivityTile extends StatelessWidget {
             decoration: BoxDecoration(color: visual.color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.sm)),
             child: Icon(visual.icon, color: visual.color, size: 18),
           ),
-          title: Text(activity.title, style: AppTypography.titleSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
+          title: Text(
+            activity.title,
+            style: AppTypography.titleSmall,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
           subtitle: Text('$actor$time', style: AppTypography.labelSmall),
         ),
       ),

@@ -19,14 +19,32 @@ void main() {
   });
 
   test('trend should require at least two observed days', () async {
-    await dao.record(id: 'github-agent', heat: 60, mentions: 120, relatedRepos: 1000, capturedAt: DateTime.utc(2026, 7, 1, 8));
+    await dao.record(
+      id: 'github-agent',
+      heat: 60,
+      mentions: 120,
+      relatedRepos: 1000,
+      capturedAt: DateTime.utc(2026, 7, 1, 8),
+    );
 
     expect(await dao.trend('github-agent'), isNull);
   });
 
   test('trend should calculate observed heat values and growth', () async {
-    await dao.record(id: 'github-agent', heat: 60, mentions: 120, relatedRepos: 1000, capturedAt: DateTime.utc(2026, 7, 1, 8));
-    await dao.record(id: 'github-agent', heat: 72, mentions: 160, relatedRepos: 1250, capturedAt: DateTime.utc(2026, 7, 2, 8));
+    await dao.record(
+      id: 'github-agent',
+      heat: 60,
+      mentions: 120,
+      relatedRepos: 1000,
+      capturedAt: DateTime.utc(2026, 7, 1, 8),
+    );
+    await dao.record(
+      id: 'github-agent',
+      heat: 72,
+      mentions: 160,
+      relatedRepos: 1250,
+      capturedAt: DateTime.utc(2026, 7, 2, 8),
+    );
 
     final trend = await dao.trend('github-agent');
 
@@ -37,9 +55,21 @@ void main() {
 
   test('record should overwrite same-day snapshot and cap history', () async {
     for (var i = 0; i < techHotspotHistoryMaxPoints + 2; i++) {
-      await dao.record(id: 'github-agent', heat: 40 + i, mentions: 100 + i, relatedRepos: 1000 + i, capturedAt: DateTime.utc(2026, 7, 1).add(Duration(days: i)));
+      await dao.record(
+        id: 'github-agent',
+        heat: 40 + i,
+        mentions: 100 + i,
+        relatedRepos: 1000 + i,
+        capturedAt: DateTime.utc(2026, 7, 1).add(Duration(days: i)),
+      );
     }
-    await dao.record(id: 'github-agent', heat: 99, mentions: 999, relatedRepos: 1999, capturedAt: DateTime.utc(2026, 8, 1, 23));
+    await dao.record(
+      id: 'github-agent',
+      heat: 99,
+      mentions: 999,
+      relatedRepos: 1999,
+      capturedAt: DateTime.utc(2026, 8, 1, 23),
+    );
 
     final trend = await dao.trend('github-agent');
 

@@ -56,7 +56,12 @@ class _Body extends ConsumerWidget {
     final filteredAlerts = filterAlertsByState(alerts, filter);
     final unreadCount = alerts.where((alert) => !alert.isRead).length;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: [
         AppCard(
           padding: EdgeInsets.zero,
@@ -64,14 +69,24 @@ class _Body extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.lg,
+                  AppSpacing.xs,
+                ),
                 child: SectionHeader(
                   title: l10n.tr('monitor.alerts.all'),
                   subtitle: l10n.tr('monitor.alerts.subtitle').replaceAll('{visible}', '${alerts.length}').replaceAll('{unread}', '$unreadCount').replaceAll('{archived}', '$archivedCount'),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.sm),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.xs,
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                ),
                 child: Wrap(
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.sm,
@@ -80,8 +95,16 @@ class _Body extends ConsumerWidget {
                     SegmentedButton<MonitorAlertFilter>(
                       segments: [
                         ButtonSegment(value: MonitorAlertFilter.all, label: Text(l10n.tr('monitor.alerts.filter.all')), icon: const Icon(Icons.inbox_outlined)),
-                        ButtonSegment(value: MonitorAlertFilter.unread, label: Text(l10n.tr('monitor.alerts.filter.unread')), icon: const Icon(Icons.notifications_active_outlined)),
-                        ButtonSegment(value: MonitorAlertFilter.important, label: Text(l10n.tr('monitor.alerts.filter.important')), icon: const Icon(Icons.priority_high_rounded))
+                        ButtonSegment(
+                          value: MonitorAlertFilter.unread,
+                          label: Text(l10n.tr('monitor.alerts.filter.unread')),
+                          icon: const Icon(Icons.notifications_active_outlined),
+                        ),
+                        ButtonSegment(
+                          value: MonitorAlertFilter.important,
+                          label: Text(l10n.tr('monitor.alerts.filter.important')),
+                          icon: const Icon(Icons.priority_high_rounded),
+                        )
                       ],
                       selected: {filter},
                       onSelectionChanged: (values) => ref.read(monitorAlertFilterProvider.notifier).state = values.single,
@@ -106,7 +129,12 @@ class _Body extends ConsumerWidget {
               ),
               if (filteredAlerts.isEmpty)
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xl),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                  ),
                   child: EmptyView(icon: Icons.notifications_off_outlined, message: l10n.tr('monitor.alerts.filtered_empty')),
                 )
               else
@@ -132,7 +160,12 @@ class _AlertsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: const [
         Skeleton(height: 72),
         SizedBox(height: AppSpacing.md),

@@ -55,7 +55,14 @@ enum HomeLegacyTab {
 }
 
 class HomeMetricSpec {
-  const HomeMetricSpec({required this.title, required this.value, required this.delta, required this.subtitle, required this.icon, this.accent});
+  const HomeMetricSpec({
+    required this.title,
+    required this.value,
+    required this.delta,
+    required this.subtitle,
+    required this.icon,
+    this.accent,
+  });
   final String title;
   final String value;
   final String delta;

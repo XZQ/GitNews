@@ -15,7 +15,12 @@ import '../../../repo_detail/domain/entities.dart';
 import '../../application/project_providers.dart';
 
 class ProjectRepoListCard extends StatelessWidget {
-  const ProjectRepoListCard({required this.title, required this.subtitle, required this.repos, super.key});
+  const ProjectRepoListCard({
+    required this.title,
+    required this.subtitle,
+    required this.repos,
+    super.key,
+  });
 
   final String title;
   final String subtitle;
@@ -26,9 +31,21 @@ class ProjectRepoListCard extends StatelessWidget {
     return AppCard(
         padding: EdgeInsets.zero,
         child: Column(children: [
-          Padding(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs), child: SectionHeader(title: title, subtitle: subtitle)),
           Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xs,
+              ),
+              child: SectionHeader(title: title, subtitle: subtitle)),
+          Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.xs,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
               child: Column(children: [
                 for (var i = 0; i < repos.length; i++) ...[
                   if (i != 0) const SizedBox(height: AppSpacing.sm),
@@ -40,7 +57,12 @@ class ProjectRepoListCard extends StatelessWidget {
 }
 
 class ProjectContributorsCard extends ConsumerWidget {
-  const ProjectContributorsCard({required this.title, required this.subtitle, required this.contributors, super.key});
+  const ProjectContributorsCard({
+    required this.title,
+    required this.subtitle,
+    required this.contributors,
+    super.key,
+  });
 
   final String title;
   final String subtitle;
@@ -102,7 +124,12 @@ class ProjectTopicChip extends StatelessWidget {
 }
 
 class ProjectTopicCard extends StatelessWidget {
-  const ProjectTopicCard({required this.label, required this.description, required this.color, super.key});
+  const ProjectTopicCard({
+    required this.label,
+    required this.description,
+    required this.color,
+    super.key,
+  });
 
   final String label;
   final String description;
@@ -121,7 +148,11 @@ class ProjectTopicCard extends StatelessWidget {
           child: Container(
             width: 160,
             padding: const EdgeInsets.all(AppSpacing.md),
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(AppRadius.md), border: Border.all(color: color.withValues(alpha: 0.2))),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(color: color.withValues(alpha: 0.2)),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -12,8 +12,26 @@ class _MockTechHotspotRepository extends Mock implements TechHotspotRepository {
 const _sampleDigest = TechHotspotDigest(
   languages: [],
   topics: [
-    TechTopic(id: 'agent-runtime', name: 'Agent 框架', category: 'Agent', heat: 92, growth: 12.4, mentions: 230, relatedRepos: 42, summary: 'LangGraph、AutoGen、CrewAI 等长任务 Agent 框架升温'),
-    TechTopic(id: 'local-inference', name: '本地推理', category: 'Model', heat: 84, growth: 8.1, mentions: 160, relatedRepos: 28, summary: 'Ollama 与端侧模型部署继续增长')
+    TechTopic(
+      id: 'agent-runtime',
+      name: 'Agent 框架',
+      category: 'Agent',
+      heat: 92,
+      growth: 12.4,
+      mentions: 230,
+      relatedRepos: 42,
+      summary: 'LangGraph、AutoGen、CrewAI 等长任务 Agent 框架升温',
+    ),
+    TechTopic(
+      id: 'local-inference',
+      name: '本地推理',
+      category: 'Model',
+      heat: 84,
+      growth: 8.1,
+      mentions: 160,
+      relatedRepos: 28,
+      summary: 'Ollama 与端侧模型部署继续增长',
+    )
   ],
   heatTrend: [],
   hotTags: ['agent', 'mcp', 'local-llm'],
@@ -56,7 +74,12 @@ void main() {
 
     test('should expose empty digest when repository returns no data', () async {
       final repo = _MockTechHotspotRepository();
-      const empty = TechHotspotDigest(languages: [], topics: [], heatTrend: [], hotTags: []);
+      const empty = TechHotspotDigest(
+        languages: [],
+        topics: [],
+        heatTrend: [],
+        hotTags: [],
+      );
       when(repo.getDigest).thenAnswer((_) async => const DataResult(data: empty, freshness: DataFreshness.live));
       when(repo.allTopics).thenAnswer((_) async => const []);
       when(() => repo.getById(any())).thenAnswer((_) async => null);

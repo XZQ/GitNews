@@ -31,7 +31,13 @@ class TrendingCacheDao {
 
   Future<TrendingDataSnapshot?> readSnapshot(TrendingQuery query, {String scope = 'anonymous'}) async {
     try {
-      final rows = await _db.query(_table, columns: ['payload_json'], where: 'cache_key = ?', whereArgs: [cacheKey(query, scope: scope)], limit: 1);
+      final rows = await _db.query(
+        _table,
+        columns: ['payload_json'],
+        where: 'cache_key = ?',
+        whereArgs: [cacheKey(query, scope: scope)],
+        limit: 1,
+      );
       if (rows.isEmpty) {
         return null;
       }
@@ -39,22 +45,46 @@ class TrendingCacheDao {
       final json = jsonDecode(payload) as Map<String, Object?>;
       return _snapshotFromJson(json);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.readSnapshot'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'trending.readSnapshot'},
+      );
     }
   }
 
-  Future<void> upsertSnapshot({required TrendingQuery query, String scope = 'anonymous', required TrendingDataSnapshot snapshot, required DateTime now}) async {
+  Future<void> upsertSnapshot({
+    required TrendingQuery query,
+    String scope = 'anonymous',
+    required TrendingDataSnapshot snapshot,
+    required DateTime now,
+  }) async {
     final key = cacheKey(query, scope: scope);
     final cachedAt = now.millisecondsSinceEpoch;
     try {
-      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(_snapshotToJson(snapshot)), 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
+      await _db.insert(
+        _table,
+        {'cache_key': key, 'payload_json': jsonEncode(_snapshotToJson(snapshot)), 'cached_at': cachedAt},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
       await _meta.upsert(key, now);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.upsertSnapshot'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'trending.upsertSnapshot'},
+      );
     }
   }
 
-  Future<bool> isFresh({required TrendingQuery query, String scope = 'anonymous', required Duration ttl, required DateTime now}) async {
+  Future<bool> isFresh({
+    required TrendingQuery query,
+    String scope = 'anonymous',
+    required Duration ttl,
+    required DateTime now,
+  }) async {
     final last = await _meta.lastFetched(cacheKey(query, scope: scope));
     if (last == null) {
       return false;
@@ -66,7 +96,12 @@ class TrendingCacheDao {
     try {
       await _db.delete(_table);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.clear'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'trending.clear'},
+      );
     }
   }
 
@@ -76,7 +111,12 @@ class TrendingCacheDao {
       await _db.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
       await _meta.delete(key);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.deleteSnapshot'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'trending.deleteSnapshot'},
+      );
     }
   }
 

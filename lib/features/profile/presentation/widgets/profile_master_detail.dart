@@ -54,7 +54,12 @@ class _SectionList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.sm),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.sm,
+            ),
             child: Text(AppLocalizations.of(context).tr('profile.master.title'), style: AppTypography.titleMedium),
           ),
           const Divider(height: 1),
@@ -67,7 +72,12 @@ class _SectionList extends StatelessWidget {
 }
 
 class ProfileSectionListItem extends StatelessWidget {
-  const ProfileSectionListItem({required this.section, required this.selected, required this.onTap, super.key});
+  const ProfileSectionListItem({
+    required this.section,
+    required this.selected,
+    required this.onTap,
+    super.key,
+  });
 
   final ProfileSection section;
   final bool selected;

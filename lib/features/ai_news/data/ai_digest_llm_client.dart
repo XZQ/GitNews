@@ -16,7 +16,13 @@ class AiDigestLlmClient {
   /*
   *执行一次补全,返回首个 choice 的文本。
   */
-  Future<String> complete({required String baseUrl, required String apiKey, required String model, required String systemPrompt, required String userPrompt}) async {
+  Future<String> complete({
+    required String baseUrl,
+    required String apiKey,
+    required String model,
+    required String systemPrompt,
+    required String userPrompt,
+  }) async {
     final Response<Map<String, Object?>> resp;
     try {
       resp = await _dio.post<Map<String, Object?>>(

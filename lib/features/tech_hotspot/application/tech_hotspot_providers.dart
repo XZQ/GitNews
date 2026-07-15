@@ -67,7 +67,12 @@ TechHotspotDigest filterTechHotspotDigest(TechHotspotDigest digest, String query
             if (topic.category.toLowerCase() == categoryKey) topic
         ];
   if (keyword.isEmpty) {
-    return TechHotspotDigest(languages: digest.languages, topics: categoryTopics, heatTrend: digest.heatTrend, hotTags: digest.hotTags);
+    return TechHotspotDigest(
+      languages: digest.languages,
+      topics: categoryTopics,
+      heatTrend: digest.heatTrend,
+      hotTags: digest.hotTags,
+    );
   }
 
   return TechHotspotDigest(

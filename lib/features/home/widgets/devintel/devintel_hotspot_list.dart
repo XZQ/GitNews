@@ -58,7 +58,12 @@ class _HotspotTile extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(topic.name.toUpperCase(),
-                        style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w700, color: colors.onSurface, letterSpacing: 0.4), overflow: TextOverflow.ellipsis),
+                        style: AppTypography.labelMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: colors.onSurface,
+                          letterSpacing: 0.4,
+                        ),
+                        overflow: TextOverflow.ellipsis),
                   ),
                   _HotspotBadge(text: topic.category, color: color)
                 ],

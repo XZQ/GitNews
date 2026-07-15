@@ -47,7 +47,12 @@ class MonitorAlertEvent {
   bool get isRead => readAt != null;
   bool get isArchived => archivedAt != null;
 
-  MonitorAlertEvent copyWith({DateTime? readAt, DateTime? archivedAt, bool clearReadAt = false, bool clearArchivedAt = false}) {
+  MonitorAlertEvent copyWith({
+    DateTime? readAt,
+    DateTime? archivedAt,
+    bool clearReadAt = false,
+    bool clearArchivedAt = false,
+  }) {
     return MonitorAlertEvent(
       id: id,
       repoFullName: repoFullName,

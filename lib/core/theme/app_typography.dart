@@ -19,5 +19,10 @@ class AppTypography {
   static const TextStyle labelLarge = TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 1.3);
   static const TextStyle labelMedium = TextStyle(fontSize: 12, fontWeight: FontWeight.w600, height: 1.3);
   static const TextStyle labelSmall = TextStyle(fontSize: 11, fontWeight: FontWeight.w500, height: 1.3);
-  static const TextStyle labelMicro = TextStyle(fontSize: 10, fontWeight: FontWeight.w600, height: 1.25, letterSpacing: 0.5);
+  static const TextStyle labelMicro = TextStyle(
+    fontSize: 10,
+    fontWeight: FontWeight.w600,
+    height: 1.25,
+    letterSpacing: 0.5,
+  );
 }

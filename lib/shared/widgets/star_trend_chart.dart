@@ -8,7 +8,13 @@ import '../../core/theme/app_typography.dart';
 *折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。
 */
 class StarTrendChart extends StatelessWidget {
-  const StarTrendChart({required this.series, this.height = 180, this.showArea = true, this.xLabels, super.key});
+  const StarTrendChart({
+    required this.series,
+    this.height = 180,
+    this.showArea = true,
+    this.xLabels,
+    super.key,
+  });
 
   // 每条系列的颜色 + 数据点。
   final List<ChartSeries> series;
@@ -75,7 +81,11 @@ class StarTrendChart extends StatelessWidget {
                     dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: showArea,
-                      gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [s.color.withValues(alpha: 0.35), s.color.withValues(alpha: 0.0)]),
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [s.color.withValues(alpha: 0.35), s.color.withValues(alpha: 0.0)],
+                      ),
                     ))
             ])));
   }
@@ -134,7 +144,13 @@ class MiniBars extends StatelessWidget {
 *极简面积趋势(行内用,无坐标轴)。
 */
 class Sparkline extends StatelessWidget {
-  const Sparkline({required this.values, this.color, this.width = 64, this.height = 20, super.key});
+  const Sparkline({
+    required this.values,
+    this.color,
+    this.width = 64,
+    this.height = 20,
+    super.key,
+  });
 
   final List<double> values;
   final Color? color;

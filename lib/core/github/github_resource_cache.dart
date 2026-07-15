@@ -6,8 +6,13 @@ import '../storage/json_snapshot_cache_dao.dart';
 import 'github_api_support.dart';
 
 class GitHubResourceCache {
-  const GitHubResourceCache({required Dio dio, required JsonSnapshotCacheDao cache, String? token, String cacheScope = 'anonymous', DateTime Function()? now})
-      : _dio = dio,
+  const GitHubResourceCache({
+    required Dio dio,
+    required JsonSnapshotCacheDao cache,
+    String? token,
+    String cacheScope = 'anonymous',
+    DateTime Function()? now,
+  })  : _dio = dio,
         _cache = cache,
         _token = token,
         _cacheScope = cacheScope,
@@ -20,15 +25,32 @@ class GitHubResourceCache {
   final DateTime Function() _now;
 
   Future<DataResult<Map<String, Object?>>> getObject({required String url, Map<String, Object?>? queryParameters, bool force = false}) {
-    return _get<Map<String, Object?>>(url: url, queryParameters: queryParameters, force: force, kind: 'object', decode: (raw) => GitHubJson.map(raw));
+    return _get<Map<String, Object?>>(
+      url: url,
+      queryParameters: queryParameters,
+      force: force,
+      kind: 'object',
+      decode: (raw) => GitHubJson.map(raw),
+    );
   }
 
   Future<DataResult<List<Object?>>> getList({required String url, Map<String, Object?>? queryParameters, bool force = false}) {
-    return _get<List<Object?>>(url: url, queryParameters: queryParameters, force: force, kind: 'list', decode: GitHubJson.list);
+    return _get<List<Object?>>(
+      url: url,
+      queryParameters: queryParameters,
+      force: force,
+      kind: 'list',
+      decode: GitHubJson.list,
+    );
   }
 
   Future<DataResult<T>> _get<T>({required String url, required String kind, required T Function(Object? raw) decode, Map<String, Object?>? queryParameters, bool force = false}) async {
-    final key = cacheKey(scope: _cacheScope, method: 'GET', url: url, queryParameters: queryParameters);
+    final key = cacheKey(
+      scope: _cacheScope,
+      method: 'GET',
+      url: url,
+      queryParameters: queryParameters,
+    );
     if (force) {
       await _cache.delete(key);
     }
@@ -57,14 +79,24 @@ class GitHubResourceCache {
         if (cached == null) {
           throw AppException(kind: AppExceptionKind.cache, meta: {'op': 'githubResource.304WithoutPayload', 'key': key});
         }
-        await _cache.upsertWithEtag(key: key, payload: {'kind': kind, 'data': cached}, etag: entry.etag, now: _now());
+        await _cache.upsertWithEtag(
+          key: key,
+          payload: {'kind': kind, 'data': cached},
+          etag: entry.etag,
+          now: _now(),
+        );
         return DataResult(data: cached, freshness: DataFreshness.freshCache);
       }
       if (response.statusCode != 200) {
         throw AppException(kind: AppExceptionKind.server, meta: {'statusCode': response.statusCode});
       }
       final data = decode(response.data);
-      await _cache.upsertWithEtag(key: key, payload: {'kind': kind, 'data': data}, etag: response.headers.value('etag'), now: _now());
+      await _cache.upsertWithEtag(
+        key: key,
+        payload: {'kind': kind, 'data': data},
+        etag: response.headers.value('etag'),
+        now: _now(),
+      );
       return DataResult(data: data, freshness: DataFreshness.live);
     } on DioException catch (error) {
       throw GitHubApiSupport.toAppException(error, now: _now);

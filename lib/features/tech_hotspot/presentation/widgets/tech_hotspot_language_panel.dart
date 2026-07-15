@@ -41,7 +41,14 @@ class TechHotspotLanguagePanel extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               _LangBar(languages: visible),
               const SizedBox(height: AppSpacing.md),
-              if (isBounded) Expanded(child: _LangList(languages: visible)) else _LangList(languages: visible, physics: const NeverScrollableScrollPhysics(), shrinkWrap: true)
+              if (isBounded)
+                Expanded(child: _LangList(languages: visible))
+              else
+                _LangList(
+                  languages: visible,
+                  physics: const NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                )
             ],
           );
         }));
@@ -57,7 +64,16 @@ class _LangBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.pill),
-      child: Row(children: [for (final s in languages) Expanded(flex: s.percent.round(), child: Container(height: 8, color: Color(s.color), margin: const EdgeInsets.only(right: 1)))]),
+      child: Row(children: [
+        for (final s in languages)
+          Expanded(
+              flex: s.percent.round(),
+              child: Container(
+                height: 8,
+                color: Color(s.color),
+                margin: const EdgeInsets.only(right: 1),
+              ))
+      ]),
     );
   }
 }
@@ -98,9 +114,19 @@ class _LangRow extends StatelessWidget {
         children: [
           SizedBox(width: 18, child: Text('$rank', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))),
           const SizedBox(width: AppSpacing.sm),
-          Container(width: AppSpacing.xs2, height: AppSpacing.xs2, decoration: BoxDecoration(color: Color(stat.color), borderRadius: BorderRadius.circular(AppRadius.dot))),
+          Container(
+            width: AppSpacing.xs2,
+            height: AppSpacing.xs2,
+            decoration: BoxDecoration(color: Color(stat.color), borderRadius: BorderRadius.circular(AppRadius.dot)),
+          ),
           const SizedBox(width: AppSpacing.sm),
-          Expanded(child: Text(stat.name, style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis)),
+          Expanded(
+              child: Text(
+            stat.name,
+            style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )),
           const SizedBox(width: AppSpacing.sm),
           Text('${stat.percent.toStringAsFixed(1)}% · ${stat.repoCount}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
           const SizedBox(width: AppSpacing.sm),

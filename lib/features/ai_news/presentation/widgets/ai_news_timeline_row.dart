@@ -30,21 +30,34 @@ class AiNewsTimelineRow extends StatelessWidget {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                Positioned(right: 5, top: 0, bottom: 0, child: Container(width: 1, color: colors.outlineVariant.withValues(alpha: isLight ? 0.6 : 1))),
+                Positioned(
+                  right: 5,
+                  top: 0,
+                  bottom: 0,
+                  child: Container(width: 1, color: colors.outlineVariant.withValues(alpha: isLight ? 0.6 : 1)),
+                ),
                 Positioned(
                   right: 0,
                   top: AppSpacing.lg,
                   child: Container(
                     width: 11,
                     height: 11,
-                    decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle, boxShadow: [BoxShadow(color: dotColor.withValues(alpha: 0.35), blurRadius: 4)]),
+                    decoration: BoxDecoration(
+                      color: dotColor,
+                      shape: BoxShape.circle,
+                      boxShadow: [BoxShadow(color: dotColor.withValues(alpha: 0.35), blurRadius: 4)],
+                    ),
                   ),
                 ),
                 Positioned(
                   top: AppSpacing.md + 5,
                   left: 0,
                   right: 14,
-                  child: Text(_hhmm(item.publishedAt.toLocal()), textAlign: TextAlign.right, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600)),
+                  child: Text(
+                    _hhmm(item.publishedAt.toLocal()),
+                    textAlign: TextAlign.right,
+                    style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600),
+                  ),
                 )
               ],
             ),

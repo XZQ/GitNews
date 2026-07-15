@@ -29,7 +29,12 @@ class CachedTrendingDataSource implements TrendingDataSource, FreshnessTrendingD
   Future<DataResult<TrendingDataSnapshot>> fetchTrendingResult(TrendingQuery query) async {
     final current = now();
     final cached = await cache.readSnapshot(query, scope: cacheScope);
-    final fresh = await cache.isFresh(query: query, scope: cacheScope, ttl: ttl, now: current);
+    final fresh = await cache.isFresh(
+      query: query,
+      scope: cacheScope,
+      ttl: ttl,
+      now: current,
+    );
     if (cached != null && fresh) {
       return DataResult(data: cached, freshness: DataFreshness.freshCache);
     }
@@ -42,7 +47,12 @@ class CachedTrendingDataSource implements TrendingDataSource, FreshnessTrendingD
 
     try {
       final snapshot = await remote.fetchTrending(query);
-      await cache.upsertSnapshot(query: query, scope: cacheScope, snapshot: snapshot, now: now());
+      await cache.upsertSnapshot(
+        query: query,
+        scope: cacheScope,
+        snapshot: snapshot,
+        now: now(),
+      );
       return DataResult(data: snapshot, freshness: DataFreshness.live);
     } catch (e) {
       if (e is AppException && e.kind == AppExceptionKind.rateLimit && onRateLimited != null) {

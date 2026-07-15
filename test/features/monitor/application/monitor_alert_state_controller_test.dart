@@ -70,7 +70,15 @@ void main() {
 }
 
 ProviderContainer _container(LocalDatabase database) {
-  return ProviderContainer(overrides: [appDatabaseProvider.overrideWithValue(database), monitorAlertClockProvider.overrideWithValue(() => DateTime.utc(2026, 7, 3, 12))]);
+  return ProviderContainer(overrides: [
+    appDatabaseProvider.overrideWithValue(database),
+    monitorAlertClockProvider.overrideWithValue(() => DateTime.utc(
+          2026,
+          7,
+          3,
+          12,
+        ))
+  ]);
 }
 
 MonitorAlertEvent event({required String id}) {

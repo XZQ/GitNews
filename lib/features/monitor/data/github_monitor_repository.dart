@@ -41,7 +41,12 @@ class GithubMonitorRepository implements MonitorRepository {
       this.cacheKey = githubMonitorCacheKey})
       : _dio = dio,
         _cache = cache,
-        _assembler = MonitorDigestAssembler(observationDao: observationDao, alertDao: alertDao, evaluator: evaluator, enabledRuleIds: enabledRuleIds),
+        _assembler = MonitorDigestAssembler(
+          observationDao: observationDao,
+          alertDao: alertDao,
+          evaluator: evaluator,
+          enabledRuleIds: enabledRuleIds,
+        ),
         _snapshotHistory = snapshotHistory,
         _token = token,
         _now = now ?? DateTime.now,
@@ -163,12 +168,22 @@ class GithubMonitorRepository implements MonitorRepository {
     if (history == null) {
       return item;
     }
-    await history.record(fullName: item.repo.fullName, stars: item.repo.starCount, forks: item.repo.forkCount, capturedAt: now);
+    await history.record(
+      fullName: item.repo.fullName,
+      stars: item.repo.starCount,
+      forks: item.repo.forkCount,
+      capturedAt: now,
+    );
     final starTrend = await history.starTrend(item.repo.fullName);
     if (starTrend == null) {
       return item;
     }
-    return item.copyWith(repo: item.repo.copyWith(starDelta: _observedDelta(starTrend.values, fallback: item.repo.starDelta), trend: starTrend.values, trendBasis: starTrend.basis));
+    return item.copyWith(
+        repo: item.repo.copyWith(
+      starDelta: _observedDelta(starTrend.values, fallback: item.repo.starDelta),
+      trend: starTrend.values,
+      trendBasis: starTrend.basis,
+    ));
   }
 
   int _observedDelta(List<double> values, {required int fallback}) {
@@ -191,7 +206,13 @@ class GithubMonitorRepository implements MonitorRepository {
         description: GitHubJson.nullableString(json['description']) ?? 'No description',
         language: language,
         starCount: stars,
-        starDelta: githubMonitorActivityScore(stars: stars, forks: forks, openIssues: openIssues, pushedAt: pushedAt, now: now),
+        starDelta: githubMonitorActivityScore(
+          stars: stars,
+          forks: forks,
+          openIssues: openIssues,
+          pushedAt: pushedAt,
+          now: now,
+        ),
         forkCount: forks,
         accentArgb: GitHubApiSupport.languageColor(language),
         valueBasis: MetricBasis.observed,

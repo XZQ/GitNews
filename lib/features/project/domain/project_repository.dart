@@ -10,7 +10,13 @@ export '../../../core/domain/repo_entity.dart' show RepoEntity;
 *项目深度报告页(探索 / 发现 / 活动)共用的摘要。
 */
 class ProjectDigest {
-  const ProjectDigest({required this.repos, required this.contributors, required this.primaryTrend, required this.secondaryTrend, required this.activities});
+  const ProjectDigest({
+    required this.repos,
+    required this.contributors,
+    required this.primaryTrend,
+    required this.secondaryTrend,
+    required this.activities,
+  });
 
   final List<RepoEntity> repos;
   final List<ContributorEntity> contributors;

@@ -26,7 +26,12 @@ class MonitorMonitoredRepos extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xs,
+              ),
               child: SectionHeader(title: l10n.tr('monitor.monitored_repos.title'), subtitle: l10n.tr('monitor.monitored_repos.subtitle')),
             ),
           ),
@@ -34,9 +39,17 @@ class MonitorMonitoredRepos extends StatelessWidget {
             SliverFillRemaining(hasScrollBody: false, child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('monitor.monitored_repos.empty')))
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
-              sliver:
-                  SliverList.separated(itemCount: repos.length, separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm), itemBuilder: (context, i) => MonitorMonitoredRow(repo: repos[i])),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.md,
+                AppSpacing.xs,
+                AppSpacing.md,
+                AppSpacing.md,
+              ),
+              sliver: SliverList.separated(
+                itemCount: repos.length,
+                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                itemBuilder: (context, i) => MonitorMonitoredRow(repo: repos[i]),
+              ),
             )
         ],
       ),
@@ -55,7 +68,11 @@ class MonitorMonitoredRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return RepoTile(repo: repo, trailing: _StatusPill(text: l10n.tr('monitor.monitored_repos.status_ok')), onTap: () => context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'));
+    return RepoTile(
+      repo: repo,
+      trailing: _StatusPill(text: l10n.tr('monitor.monitored_repos.status_ok')),
+      onTap: () => context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
+    );
   }
 }
 

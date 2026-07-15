@@ -27,7 +27,12 @@ void main() {
   late LocalDatabase database;
   late JsonSnapshotCacheDao cache;
   late _MockDio dio;
-  final now = DateTime.utc(2026, 7, 11, 12);
+  final now = DateTime.utc(
+    2026,
+    7,
+    11,
+    12,
+  );
 
   setUpAll(() {
     registerFallbackValue(Options());
@@ -63,7 +68,12 @@ void main() {
               ],
       );
     });
-    final repository = GithubProjectRepository(repositoryFeed: const _FakeRepositoryFeed([_repoB]), dio: dio, cache: cache, now: () => now);
+    final repository = GithubProjectRepository(
+      repositoryFeed: const _FakeRepositoryFeed([_repoB]),
+      dio: dio,
+      cache: cache,
+      now: () => now,
+    );
 
     final result = await repository.getDigest();
 
@@ -82,7 +92,12 @@ void main() {
               : throw StateError('Unexpected request: $path');
       return Response<Object?>(requestOptions: RequestOptions(path: path), statusCode: 200, data: data);
     });
-    final repository = GithubProjectRepository(repositoryFeed: const _FakeRepositoryFeed([_repoA, _repoB]), dio: dio, cache: cache, now: () => now);
+    final repository = GithubProjectRepository(
+      repositoryFeed: const _FakeRepositoryFeed([_repoA, _repoB]),
+      dio: dio,
+      cache: cache,
+      now: () => now,
+    );
 
     final result = await repository.getDigest();
 
@@ -102,7 +117,13 @@ void main() {
       },
       now: now.subtract(const Duration(hours: 2)),
     );
-    final repository = GithubProjectRepository(repositoryFeed: const _FakeRepositoryFeed([_repoB]), dio: dio, cache: cache, now: () => now, isRateLimited: () => true);
+    final repository = GithubProjectRepository(
+      repositoryFeed: const _FakeRepositoryFeed([_repoB]),
+      dio: dio,
+      cache: cache,
+      now: () => now,
+      isRateLimited: () => true,
+    );
 
     final result = await repository.getDigest();
 
@@ -125,6 +146,22 @@ Map<String, Object?> _activityPayload({required String repo, required int hour})
   };
 }
 
-const _repoA = RepoEntity(fullName: 'a/one', description: 'Repository A', language: 'Dart', starCount: 10, starDelta: 1, forkCount: 2, accentArgb: 0xFF00A389);
+const _repoA = RepoEntity(
+  fullName: 'a/one',
+  description: 'Repository A',
+  language: 'Dart',
+  starCount: 10,
+  starDelta: 1,
+  forkCount: 2,
+  accentArgb: 0xFF00A389,
+);
 
-const _repoB = RepoEntity(fullName: 'b/two', description: 'Repository B', language: 'Dart', starCount: 20, starDelta: 2, forkCount: 3, accentArgb: 0xFF00A389);
+const _repoB = RepoEntity(
+  fullName: 'b/two',
+  description: 'Repository B',
+  language: 'Dart',
+  starCount: 20,
+  starDelta: 2,
+  forkCount: 3,
+  accentArgb: 0xFF00A389,
+);

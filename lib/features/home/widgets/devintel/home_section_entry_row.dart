@@ -102,7 +102,14 @@ class HomeSectionEntryRow extends ConsumerWidget {
 }
 
 class _EntrySpec {
-  const _EntrySpec({required this.label, required this.kpi, required this.delta, required this.icon, required this.color, required this.path});
+  const _EntrySpec({
+    required this.label,
+    required this.kpi,
+    required this.delta,
+    required this.icon,
+    required this.color,
+    required this.path,
+  });
 
   final String label;
   final String kpi;
@@ -141,7 +148,12 @@ class _EntryTile extends StatelessWidget {
               children: [
                 Positioned.fill(child: _AccentStrip(color: spec.color)),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.lg),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

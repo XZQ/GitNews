@@ -41,7 +41,13 @@ class LanguageTrendPage extends ConsumerWidget {
               );
             },
             loading: () => const _PageSkeleton(),
-            error: (error, stackTrace) => ErrorView(error: AppException(kind: AppExceptionKind.unknown, cause: error, stack: stackTrace), onRetry: () => ref.invalidate(trendingDigestProvider))));
+            error: (error, stackTrace) => ErrorView(
+                error: AppException(
+                  kind: AppExceptionKind.unknown,
+                  cause: error,
+                  stack: stackTrace,
+                ),
+                onRetry: () => ref.invalidate(trendingDigestProvider))));
   }
 }
 
@@ -55,7 +61,12 @@ class _Body extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final isLight = Theme.of(context).brightness == Brightness.light;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: [
         AppCard(
           child: Column(
@@ -65,7 +76,15 @@ class _Body extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               LanguageDonutChart(data: digest.languages, holeColor: isLight ? AppColors.surfaceLight : AppColors.surfaceDark),
               const SizedBox(height: AppSpacing.lg),
-              for (final l in digest.languages) ...[LanguageDistributionRow(name: l.name, percent: l.percent, delta: l.delta, color: Color(l.accentArgb)), const SizedBox(height: AppSpacing.sm2)]
+              for (final l in digest.languages) ...[
+                LanguageDistributionRow(
+                  name: l.name,
+                  percent: l.percent,
+                  delta: l.delta,
+                  color: Color(l.accentArgb),
+                ),
+                const SizedBox(height: AppSpacing.sm2)
+              ]
             ],
           ),
         ),

@@ -63,12 +63,54 @@ class DiscoverSeed {
       );
 
   static const List<_SeedExtra> _curatedExtras = [
-    _SeedExtra('flutter/flutter', 'UI toolkit for building natively compiled apps', 'Dart', 165000, 120, 24000),
-    _SeedExtra('microsoft/vscode', 'Visual Studio Code editor', 'TypeScript', 162000, 90, 29000),
-    _SeedExtra('facebook/react', 'The library for web and native user interfaces', 'JavaScript', 228000, 80, 46000),
-    _SeedExtra('tensorflow/tensorflow', 'End-to-end open source ML platform', 'C++', 186000, 70, 87000),
-    _SeedExtra('pytorch/pytorch', 'Tensors and dynamic neural networks', 'Python', 82000, 110, 22000),
-    _SeedExtra('rust-lang/rust', 'Empowering everyone to build reliable software', 'Rust', 97000, 60, 12400)
+    _SeedExtra(
+      'flutter/flutter',
+      'UI toolkit for building natively compiled apps',
+      'Dart',
+      165000,
+      120,
+      24000,
+    ),
+    _SeedExtra(
+      'microsoft/vscode',
+      'Visual Studio Code editor',
+      'TypeScript',
+      162000,
+      90,
+      29000,
+    ),
+    _SeedExtra(
+      'facebook/react',
+      'The library for web and native user interfaces',
+      'JavaScript',
+      228000,
+      80,
+      46000,
+    ),
+    _SeedExtra(
+      'tensorflow/tensorflow',
+      'End-to-end open source ML platform',
+      'C++',
+      186000,
+      70,
+      87000,
+    ),
+    _SeedExtra(
+      'pytorch/pytorch',
+      'Tensors and dynamic neural networks',
+      'Python',
+      82000,
+      110,
+      22000,
+    ),
+    _SeedExtra(
+      'rust-lang/rust',
+      'Empowering everyone to build reliable software',
+      'Rust',
+      97000,
+      60,
+      12400,
+    )
   ];
 
   // (fullName, description, category, starCount, starDelta, forkCount)
@@ -287,7 +329,14 @@ class DiscoverSeed {
 }
 
 class _SeedExtra {
-  const _SeedExtra(this.fullName, this.description, this.language, this.starCount, this.starDelta, this.forkCount);
+  const _SeedExtra(
+    this.fullName,
+    this.description,
+    this.language,
+    this.starCount,
+    this.starDelta,
+    this.forkCount,
+  );
 
   final String fullName;
   final String description;

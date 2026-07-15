@@ -74,7 +74,13 @@ class RepoEntity {
 *编程语言占比实体。
 */
 class LanguageEntity {
-  const LanguageEntity({required this.name, required this.percent, required this.delta, required this.accentArgb, this.basis = MetricBasis.seed});
+  const LanguageEntity({
+    required this.name,
+    required this.percent,
+    required this.delta,
+    required this.accentArgb,
+    this.basis = MetricBasis.seed,
+  });
 
   final String name;
   final double percent;

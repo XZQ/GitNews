@@ -5,7 +5,11 @@ import '../errors/app_exception.dart';
 import 'github_api_support.dart';
 import 'github_resource_cache.dart';
 
-Future<DataResult<List<RepoActivityEvent>>> fetchGitHubRepoActivities({required GitHubResourceCache resources, required String fullName, int perPage = 20}) async {
+Future<DataResult<List<RepoActivityEvent>>> fetchGitHubRepoActivities({
+  required GitHubResourceCache resources,
+  required String fullName,
+  int perPage = 20,
+}) async {
   try {
     final result = await resources.getList(url: ApiEndpointsConfig.githubRepoEventsPath(fullName), queryParameters: {'per_page': perPage});
     return result.map((data) => data.map((raw) => parseGitHubRepoActivity(raw, fallbackRepoFullName: fullName)).toList(growable: false));
@@ -59,18 +63,30 @@ _ParsedActivity _parsePush(Map<String, Object?> payload, String repoFullName) {
 
 _ParsedActivity _parseIssue(Map<String, Object?> payload) {
   final issue = _mapOrEmpty(payload['issue']);
-  return _ParsedActivity(type: RepoActivityType.issues, title: _actionTitle(payload, issue, fallback: 'IssuesEvent'), htmlUrl: _nullableString(issue['html_url']));
+  return _ParsedActivity(
+    type: RepoActivityType.issues,
+    title: _actionTitle(payload, issue, fallback: 'IssuesEvent'),
+    htmlUrl: _nullableString(issue['html_url']),
+  );
 }
 
 _ParsedActivity _parsePullRequest(Map<String, Object?> payload) {
   final pullRequest = _mapOrEmpty(payload['pull_request']);
-  return _ParsedActivity(type: RepoActivityType.pullRequest, title: _actionTitle(payload, pullRequest, fallback: 'PullRequestEvent'), htmlUrl: _nullableString(pullRequest['html_url']));
+  return _ParsedActivity(
+    type: RepoActivityType.pullRequest,
+    title: _actionTitle(payload, pullRequest, fallback: 'PullRequestEvent'),
+    htmlUrl: _nullableString(pullRequest['html_url']),
+  );
 }
 
 _ParsedActivity _parseRelease(Map<String, Object?> payload) {
   final release = _mapOrEmpty(payload['release']);
   final releaseTitle = _nullableString(release['name']) ?? _nullableString(release['tag_name']);
-  return _ParsedActivity(type: RepoActivityType.release, title: _withAction(_nullableString(payload['action']), releaseTitle, fallback: 'ReleaseEvent'), htmlUrl: _nullableString(release['html_url']));
+  return _ParsedActivity(
+    type: RepoActivityType.release,
+    title: _withAction(_nullableString(payload['action']), releaseTitle, fallback: 'ReleaseEvent'),
+    htmlUrl: _nullableString(release['html_url']),
+  );
 }
 
 _ParsedActivity _parseCreate(Map<String, Object?> payload) {

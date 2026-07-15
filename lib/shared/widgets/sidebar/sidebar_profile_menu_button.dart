@@ -34,16 +34,37 @@ class SidebarProfileMenuButton extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     showMenu<void>(
         context: context,
-        position: const RelativeRect.fromLTRB(0, 0, 0, 0),
+        position: const RelativeRect.fromLTRB(
+          0,
+          0,
+          0,
+          0,
+        ),
         color: colors.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md), side: BorderSide(color: colors.outlineVariant)),
         items: [
           PopupMenuItem<void>(
-            child: Row(children: [Icon(Icons.settings_outlined, size: 18, color: colors.onSurfaceVariant), const SizedBox(width: AppSpacing.md), Text(l10n.tr('common.settings'))]),
+            child: Row(children: [
+              Icon(
+                Icons.settings_outlined,
+                size: 18,
+                color: colors.onSurfaceVariant,
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Text(l10n.tr('common.settings'))
+            ]),
             onTap: () => context.go('/profile'),
           ),
           PopupMenuItem<void>(
-              child: Row(children: [const Icon(Icons.logout_rounded, size: 18, color: AppColors.danger), const SizedBox(width: AppSpacing.md), Text(l10n.tr('profile.logout'))]),
+              child: Row(children: [
+                const Icon(
+                  Icons.logout_rounded,
+                  size: 18,
+                  color: AppColors.danger,
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Text(l10n.tr('profile.logout'))
+              ]),
               onTap: () async {
                 final session = ref.read(profileSessionControllerProvider);
                 if (!session.isSignedIn) {

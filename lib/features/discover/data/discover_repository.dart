@@ -35,7 +35,13 @@ class DiscoverRepository {
       : _cache = cache,
         _searchClient = DiscoverSearchClient(dio, token),
         _usersSearchClient = DiscoverUsersSearchClient(dio, token),
-        _profileClient = DiscoverProfileClient(GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now)),
+        _profileClient = DiscoverProfileClient(GitHubResourceCache(
+          dio: dio,
+          cache: cache,
+          token: token,
+          cacheScope: cacheScope,
+          now: now,
+        )),
         _now = now ?? DateTime.now,
         _isRateLimited = isRateLimited,
         _onRateLimited = onRateLimited;
@@ -98,7 +104,13 @@ class DiscoverRepository {
         final offset = (page - 1) * perPage;
         final skills = [
           for (var i = 0; i < repos.length; i++)
-            SkillEntity(repo: repos[i], category: DiscoverQueries.deriveSkillCategory(repos[i]), source: 'github_search', rank: offset + i + 1, summary: repos[i].description)
+            SkillEntity(
+              repo: repos[i],
+              category: DiscoverQueries.deriveSkillCategory(repos[i]),
+              source: 'github_search',
+              rank: offset + i + 1,
+              summary: repos[i].description,
+            )
         ];
         await _cache.upsert(key: key, payload: DiscoverCacheCodec.skillsToJson(skills), now: now);
         return DataResult(data: skills, freshness: DataFreshness.live);
@@ -117,7 +129,12 @@ class DiscoverRepository {
     return DataResult(data: DiscoverQueries.slice(DiscoverSeed.seedAgentSkills, page: page, perPage: perPage), freshness: DataFreshness.seed);
   }
 
-  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({required DiscoverProfileKind kind, bool force = false, int page = 1, int perPage = 20}) async {
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
+    required DiscoverProfileKind kind,
+    bool force = false,
+    int page = 1,
+    int perPage = 20,
+  }) async {
     return fetchProfilesPage(
       profileClient: _profileClient,
       usersSearchClient: _usersSearchClient,

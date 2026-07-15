@@ -47,7 +47,12 @@ class _SignalTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(item.title, style: AppTypography.titleSmall.copyWith(color: colors.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
+              Text(
+                item.title,
+                style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 '${item.source} · ${item.category.label} · ${item.score} ${l10n.tr('devintel.signals.score_suffix')}',

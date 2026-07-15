@@ -28,7 +28,12 @@ class ActivityEventsCard extends StatelessWidget {
         padding: EdgeInsets.zero,
         child: Column(children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.xs,
+            ),
             child: Row(
               children: [
                 Expanded(child: SectionHeader(title: l10n.tr('project.activity.recent_7d'), subtitle: l10n.tr('project.activity.recent_7d.subtitle'))),
@@ -77,8 +82,18 @@ class _EventTile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(activity.repoFullName, style: AppTypography.titleSmall),
-                      Text(activity.title, style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      Text('$actor$time', style: AppTypography.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis)
+                      Text(
+                        activity.title,
+                        style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        '$actor$time',
+                        style: AppTypography.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      )
                     ],
                   ),
                 )

@@ -83,11 +83,23 @@ Future<DataResult<List<DiscoverProfileEntity>>> fetchProfilesPage(
   final bool useRemote = !isBlocked();
   List<DiscoverProfileEntity>? searchHits;
   if (useRemote) {
-    if (!force && await _isFresh(cache, key, CacheTtlConfig.discover, currentTime)) {
+    if (!force &&
+        await _isFresh(
+          cache,
+          key,
+          CacheTtlConfig.discover,
+          currentTime,
+        )) {
       final cached = await cache.read(key);
       if (cached != null) {
         final cachedList = DiscoverCacheCodec.decodeProfiles(cached, kind);
-        return composeProfilesWithWhitelist(profileClient: profileClient, kind: kind, page: page, searchResult: cachedList, fromCache: true);
+        return composeProfilesWithWhitelist(
+          profileClient: profileClient,
+          kind: kind,
+          page: page,
+          searchResult: cachedList,
+          fromCache: true,
+        );
       }
     }
     try {
@@ -134,7 +146,13 @@ Future<DataResult<List<DiscoverProfileEntity>>> fetchProfilesPage(
       searchFreshness = page == 1 ? DataFreshness.seed : DataFreshness.staleCache;
     }
   }
-  return composeProfilesWithWhitelist(profileClient: profileClient, kind: kind, page: page, searchResult: searchResult, searchFreshness: searchFreshness);
+  return composeProfilesWithWhitelist(
+    profileClient: profileClient,
+    kind: kind,
+    page: page,
+    searchResult: searchResult,
+    searchFreshness: searchFreshness,
+  );
 }
 
 Future<void> _safeDelete(JsonSnapshotCacheDao cache, String key) async {
@@ -145,7 +163,12 @@ Future<void> _safeDelete(JsonSnapshotCacheDao cache, String key) async {
   }
 }
 
-Future<bool> _isFresh(JsonSnapshotCacheDao cache, String key, Duration ttl, DateTime now) async {
+Future<bool> _isFresh(
+  JsonSnapshotCacheDao cache,
+  String key,
+  Duration ttl,
+  DateTime now,
+) async {
   try {
     return await cache.isFresh(key: key, ttl: ttl, now: now);
   } catch (_) {

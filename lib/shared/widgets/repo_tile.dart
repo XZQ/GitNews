@@ -18,7 +18,15 @@ import 'star_trend_chart.dart';
 *- `card: false` 保持无边框扁平行,供需要自行包裹容器的场景
 */
 class RepoTile extends StatelessWidget {
-  const RepoTile({required this.repo, this.showTrend = true, this.onTap, this.rank, this.trailing, this.card = true, super.key});
+  const RepoTile({
+    required this.repo,
+    this.showTrend = true,
+    this.onTap,
+    this.rank,
+    this.trailing,
+    this.card = true,
+    super.key,
+  });
 
   final RepoEntity repo;
   final bool showTrend;
@@ -54,9 +62,19 @@ class RepoTile extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(repo.fullName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall.copyWith(color: colors.onSurface)),
+              Text(
+                repo.fullName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
+              ),
               const SizedBox(height: AppSpacing.xxs),
-              Text(repo.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
+              Text(
+                repo.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+              ),
               const SizedBox(height: AppSpacing.xs2),
               Wrap(
                 spacing: AppSpacing.sm,
@@ -124,12 +142,29 @@ class _TrendCell extends StatelessWidget {
     if (!showTrend || trend == null || trend.isEmpty) {
       return SizedBox(
         width: 64,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [deltaText, Icon(delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded, size: 14, color: deltaColor)]),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          deltaText,
+          Icon(
+            delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+            size: 14,
+            color: deltaColor,
+          )
+        ]),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
-      children: [RepaintBoundary(child: Sparkline(values: trend, color: deltaColor, width: 64, height: 24)), const SizedBox(height: AppSpacing.xxs), deltaText],
+      children: [
+        RepaintBoundary(
+            child: Sparkline(
+          values: trend,
+          color: deltaColor,
+          width: 64,
+          height: 24,
+        )),
+        const SizedBox(height: AppSpacing.xxs),
+        deltaText
+      ],
     );
   }
 }

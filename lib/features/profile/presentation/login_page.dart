@@ -97,7 +97,11 @@ class _PatFallback extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(onPressed: () => context.go('/profile/developer'), icon: const Icon(Icons.key_rounded), label: Text(l10n.tr('profile.login.configure_pat'))),
+                child: FilledButton.icon(
+                  onPressed: () => context.go('/profile/developer'),
+                  icon: const Icon(Icons.key_rounded),
+                  label: Text(l10n.tr('profile.login.configure_pat')),
+                ),
               )
             ],
           ),
@@ -129,7 +133,15 @@ class _Bullet extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
-        children: [const Icon(Icons.check_circle_outline, size: 16, color: AppColors.success), const SizedBox(width: AppSpacing.sm), Expanded(child: Text(text, style: AppTypography.bodyMedium))],
+        children: [
+          const Icon(
+            Icons.check_circle_outline,
+            size: 16,
+            color: AppColors.success,
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(child: Text(text, style: AppTypography.bodyMedium))
+        ],
       ),
     );
   }

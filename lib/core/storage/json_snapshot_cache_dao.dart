@@ -19,22 +19,42 @@ class JsonSnapshotCacheDao {
 
   Future<Map<String, Object?>?> read(String key) async {
     try {
-      final rows = await _db.query(_table, columns: ['payload_json'], where: 'cache_key = ?', whereArgs: [key], limit: 1);
+      final rows = await _db.query(
+        _table,
+        columns: ['payload_json'],
+        where: 'cache_key = ?',
+        whereArgs: [key],
+        limit: 1,
+      );
       if (rows.isEmpty) {
         return null;
       }
       return jsonDecode(rows.first['payload_json'] as String) as Map<String, Object?>;
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.read', 'key': key});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'jsonSnapshot.read', 'key': key},
+      );
     }
   }
 
   Future<void> upsert({required String key, required Map<String, Object?> payload, required DateTime now}) async {
     try {
-      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(payload), 'cached_at': now.millisecondsSinceEpoch}, conflictAlgorithm: ConflictAlgorithm.replace);
+      await _db.insert(
+        _table,
+        {'cache_key': key, 'payload_json': jsonEncode(payload), 'cached_at': now.millisecondsSinceEpoch},
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
       await _meta.upsert(key, now);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.upsert', 'key': key});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'jsonSnapshot.upsert', 'key': key},
+      );
     }
   }
 
@@ -51,7 +71,12 @@ class JsonSnapshotCacheDao {
       await _db.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
       await _meta.delete(key);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.delete', 'key': key});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'jsonSnapshot.delete', 'key': key},
+      );
     }
   }
 

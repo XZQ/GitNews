@@ -14,7 +14,12 @@ class _FakeRepo implements DiscoverRepository {
   final Map<String, DiscoverProfileEntity> _detail = {};
 
   @override
-  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({required DiscoverProfileKind kind, bool force = false, int page = 1, int perPage = 20}) async {
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
+    required DiscoverProfileKind kind,
+    bool force = false,
+    int page = 1,
+    int perPage = 20,
+  }) async {
     final List<DiscoverProfileEntity> data;
     if (page == 1) {
       final whitelist = [

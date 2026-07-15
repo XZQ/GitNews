@@ -16,7 +16,14 @@ class SidebarFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(padding: EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.lg), child: SidebarProfileCard());
+    return const Padding(
+        padding: EdgeInsets.fromLTRB(
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.md,
+          AppSpacing.lg,
+        ),
+        child: SidebarProfileCard());
   }
 }
 
@@ -92,8 +99,13 @@ class _SidebarProfileCardState extends ConsumerState<SidebarProfileCard> {
                                   BoxDecoration(color: signedIn ? AppColors.starGold.withValues(alpha: 0.16) : colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(AppRadius.xs)),
                               child: Text(
                                 badge,
-                                style: AppTypography.labelSmall
-                                    .copyWith(color: signedIn ? AppColors.warning : colors.onSurfaceVariant, fontWeight: FontWeight.w700, fontSize: 10, letterSpacing: 0, height: 1.2),
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: signedIn ? AppColors.warning : colors.onSurfaceVariant,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 10,
+                                  letterSpacing: 0,
+                                  height: 1.2,
+                                ),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.xs),
@@ -140,7 +152,11 @@ class SidebarProfileAvatar extends StatelessWidget {
             child: Container(
               width: 10,
               height: 10,
-              decoration: BoxDecoration(color: active ? AppColors.success : colors.outline, shape: BoxShape.circle, border: Border.fromBorderSide(BorderSide(color: colors.surface, width: 2))),
+              decoration: BoxDecoration(
+                color: active ? AppColors.success : colors.outline,
+                shape: BoxShape.circle,
+                border: Border.fromBorderSide(BorderSide(color: colors.surface, width: 2)),
+              ),
             ),
           )
         ],

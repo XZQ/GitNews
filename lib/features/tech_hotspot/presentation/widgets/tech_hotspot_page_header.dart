@@ -42,7 +42,11 @@ class TechHotspotPageHeader extends ConsumerWidget {
           HeaderStatPill(icon: Icons.tag_rounded, label: l10n.tr('tech_hotspot.pill.themes').replaceAll('{n}', '$topicCount'), color: AppColors.brand)
         ],
         actions: [
-          HeaderAction(icon: category == 'all' ? Icons.tune_rounded : Icons.filter_alt_rounded, tooltip: l10n.tr('tech_hotspot.filter'), onPressed: () => _showCategoryFilterSheet(context, ref))
+          HeaderAction(
+            icon: category == 'all' ? Icons.tune_rounded : Icons.filter_alt_rounded,
+            tooltip: l10n.tr('tech_hotspot.filter'),
+            onPressed: () => _showCategoryFilterSheet(context, ref),
+          )
         ]);
   }
 }

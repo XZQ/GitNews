@@ -33,7 +33,13 @@ class GithubProjectRepository implements ProjectRepository {
       void Function(int retryAfterSeconds)? onRateLimited})
       : _repositoryFeed = repositoryFeed,
         _cache = cache,
-        _resources = GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now),
+        _resources = GitHubResourceCache(
+          dio: dio,
+          cache: cache,
+          token: token,
+          cacheScope: cacheScope,
+          now: now,
+        ),
         _cacheScope = cacheScope,
         _now = now ?? DateTime.now,
         _isRateLimited = isRateLimited,
@@ -53,13 +59,25 @@ class GithubProjectRepository implements ProjectRepository {
     final feed = feedResult.data;
     // 并行启动两个异构 Future,避免 Future.wait<dynamic> 与运行时 as 转换。
     final contributorFuture = _contributorsFor(feed);
-    final activityFuture =
-        GithubProjectActivityLoader(cache: _cache, resources: _resources, cacheScope: _cacheScope, now: _now, isRateLimited: _isRateLimited, onRateLimited: _onRateLimited).load(feed);
+    final activityFuture = GithubProjectActivityLoader(
+      cache: _cache,
+      resources: _resources,
+      cacheScope: _cacheScope,
+      now: _now,
+      isRateLimited: _isRateLimited,
+      onRateLimited: _onRateLimited,
+    ).load(feed);
     final contributorResult = await contributorFuture;
     final activities = await activityFuture;
     return DataResult(
       freshness: _leastFresh(feedResult.freshness, contributorResult.freshness),
-      data: ProjectDigest(repos: feed.repos, contributors: contributorResult.data, primaryTrend: feed.primaryTrend, secondaryTrend: feed.secondaryTrend, activities: activities),
+      data: ProjectDigest(
+        repos: feed.repos,
+        contributors: contributorResult.data,
+        primaryTrend: feed.primaryTrend,
+        secondaryTrend: feed.secondaryTrend,
+        activities: activities,
+      ),
     );
   }
 
@@ -104,8 +122,11 @@ class GithubProjectRepository implements ProjectRepository {
     final byLogin = <String, ContributorEntity>{};
     for (final contributor in results.expand((result) => result.data)) {
       final old = byLogin[contributor.login];
-      byLogin[contributor.login] =
-          ContributorEntity(login: contributor.login, contributions: (old?.contributions ?? 0) + contributor.contributions, avatarAccentArgb: old?.avatarAccentArgb ?? contributor.avatarAccentArgb);
+      byLogin[contributor.login] = ContributorEntity(
+        login: contributor.login,
+        contributions: (old?.contributions ?? 0) + contributor.contributions,
+        avatarAccentArgb: old?.avatarAccentArgb ?? contributor.avatarAccentArgb,
+      );
     }
     final contributors = byLogin.values.toList()..sort((a, b) => b.contributions.compareTo(a.contributions));
     return DataResult(
@@ -150,7 +171,11 @@ class GithubProjectRepository implements ProjectRepository {
 
   ContributorEntity _contributorFromJson(Object? raw) {
     final json = GitHubJson.map(raw);
-    return ContributorEntity(login: GitHubJson.string(json['login']), contributions: GitHubJson.intValue(json['contributions']), avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']));
+    return ContributorEntity(
+      login: GitHubJson.string(json['login']),
+      contributions: GitHubJson.intValue(json['contributions']),
+      avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
+    );
   }
 }
 

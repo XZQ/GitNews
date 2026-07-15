@@ -12,7 +12,12 @@ import '../../core/theme/app_colors.dart';
 *- [compact] / [full]: 横排组合,带可选文字
 */
 class AppLogo extends StatelessWidget {
-  const AppLogo({this.size = 32, this.showText = true, this.brightness, super.key});
+  const AppLogo({
+    this.size = 32,
+    this.showText = true,
+    this.brightness,
+    super.key,
+  });
 
   final double size;
   final bool showText;
@@ -32,7 +37,13 @@ class AppLogo extends StatelessWidget {
           SizedBox(width: size * 0.32),
           Text(
             l10n.tr('app.name'),
-            style: TextStyle(fontSize: size * 0.5, fontWeight: FontWeight.w700, letterSpacing: 0.2, color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight, height: 1.0),
+            style: TextStyle(
+              fontSize: size * 0.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.2,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimaryLight,
+              height: 1.0,
+            ),
           )
         ]
       ],
@@ -78,14 +89,34 @@ class _LogoMarkPainter extends CustomPainter {
       ..strokeWidth = size.width * 0.035;
     final radarCenter = Offset(size.width * 0.34, size.height * 0.68);
     for (final scale in const [0.34, 0.56, 0.78]) {
-      canvas.drawArc(Rect.fromCircle(center: radarCenter, radius: size.width * scale), -1.05, 1.55, false, radarPaint);
+      canvas.drawArc(
+        Rect.fromCircle(center: radarCenter, radius: size.width * scale),
+        -1.05,
+        1.55,
+        false,
+        radarPaint,
+      );
     }
 
     // 3) 主趋势轨迹。
     final path = Path()
       ..moveTo(size.width * 0.20, size.height * 0.68)
-      ..cubicTo(size.width * 0.36, size.height * 0.52, size.width * 0.46, size.height * 0.62, size.width * 0.58, size.height * 0.42)
-      ..cubicTo(size.width * 0.66, size.height * 0.28, size.width * 0.78, size.height * 0.33, size.width * 0.84, size.height * 0.22);
+      ..cubicTo(
+        size.width * 0.36,
+        size.height * 0.52,
+        size.width * 0.46,
+        size.height * 0.62,
+        size.width * 0.58,
+        size.height * 0.42,
+      )
+      ..cubicTo(
+        size.width * 0.66,
+        size.height * 0.28,
+        size.width * 0.78,
+        size.height * 0.33,
+        size.width * 0.84,
+        size.height * 0.22,
+      );
     final glowPaint = Paint()
       ..color = AppColors.brandCyan.withValues(alpha: 0.24)
       ..style = PaintingStyle.stroke

@@ -38,7 +38,13 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
         _cache = cache,
         _snapshotHistory = snapshotHistory,
         _token = token,
-        _resources = GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now),
+        _resources = GitHubResourceCache(
+          dio: dio,
+          cache: cache,
+          token: token,
+          cacheScope: cacheScope,
+          now: now,
+        ),
         _now = now ?? DateTime.now,
         _fallback = fallback,
         _isRateLimited = isRateLimited,
@@ -124,7 +130,12 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     if (history == null) {
       return repo;
     }
-    await history.record(fullName: repo.fullName, stars: repo.starCount, forks: repo.forkCount, capturedAt: now);
+    await history.record(
+      fullName: repo.fullName,
+      stars: repo.starCount,
+      forks: repo.forkCount,
+      capturedAt: now,
+    );
     final starTrend = await history.starTrend(repo.fullName);
     if (starTrend == null) {
       return repo;
@@ -200,7 +211,13 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       description: GitHubJson.nullableString(json['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: repoDetailActivityScore(stars: stars, forks: forks, issues: issues, pushedAt: pushedAt, now: now),
+      starDelta: repoDetailActivityScore(
+        stars: stars,
+        forks: forks,
+        issues: issues,
+        pushedAt: pushedAt,
+        now: now,
+      ),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
       valueBasis: MetricBasis.observed,

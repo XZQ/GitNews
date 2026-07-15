@@ -27,7 +27,12 @@ class MonitorRecentAlerts extends ConsumerWidget {
         padding: EdgeInsets.zero,
         child: Column(children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.lg,
+              AppSpacing.xs,
+            ),
             child: SectionHeader(
               title: l10n.tr('monitor.recent_alerts.title'),
               subtitle: unreadCount == 0 ? l10n.tr('monitor.recent_alerts.subtitle_done') : l10n.tr('monitor.recent_alerts.subtitle_unread').replaceAll('{n}', '$unreadCount'),
@@ -41,7 +46,12 @@ class MonitorRecentAlerts extends ConsumerWidget {
           ),
           if (alerts.isEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
               child: EmptyView(icon: Icons.notifications_off_outlined, message: l10n.tr('monitor.recent_alerts.empty')),
             ),
           for (var i = 0; i < alerts.length; i++) ...[if (i != 0) const Divider(height: 1), MonitorAlertRow(alert: alerts[i])]
@@ -113,7 +123,12 @@ class MonitorAlertRow extends ConsumerWidget {
                         )
                       ],
                     ),
-                    Text(monitorAlertMetricLabel(context, alert), maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant))
+                    Text(
+                      monitorAlertMetricLabel(context, alert),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+                    )
                   ],
                 ),
               ),

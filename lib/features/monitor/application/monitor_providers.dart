@@ -169,7 +169,11 @@ MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
     return digest;
   }
 
-  return MonitorDigest(monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword), alerts: filterMonitorAlerts(digest.alerts, keyword), stats: digest.stats);
+  return MonitorDigest(
+    monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword),
+    alerts: filterMonitorAlerts(digest.alerts, keyword),
+    stats: digest.stats,
+  );
 }
 
 List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {

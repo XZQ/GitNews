@@ -184,7 +184,13 @@ void main() {
       });
 
       test('falls back to demo data when primaryTrend is empty (trending tab)', () {
-        final series = homeSeriesForWindow(7, HomeLegacyTab.trending, primary, primaryTrend: [], secondaryTrend: []);
+        final series = homeSeriesForWindow(
+          7,
+          HomeLegacyTab.trending,
+          primary,
+          primaryTrend: [],
+          secondaryTrend: [],
+        );
 
         expect(series.length, 2);
         expect(series[0].values.length, 7);
@@ -195,7 +201,13 @@ void main() {
         final primaryTrend = List<double>.generate(7, (i) => i * 100.0);
         final secondaryTrend = List<double>.generate(7, (i) => i * 50.0);
 
-        final series = homeSeriesForWindow(7, HomeLegacyTab.trending, primary, primaryTrend: primaryTrend, secondaryTrend: secondaryTrend);
+        final series = homeSeriesForWindow(
+          7,
+          HomeLegacyTab.trending,
+          primary,
+          primaryTrend: primaryTrend,
+          secondaryTrend: secondaryTrend,
+        );
 
         expect(series[0].values, primaryTrend);
         expect(series[1].values, secondaryTrend);
@@ -208,7 +220,13 @@ void main() {
           '(trending tab)', () {
         final primaryTrend = List<double>.generate(7, (i) => i * 100.0);
 
-        final series = homeSeriesForWindow(7, HomeLegacyTab.trending, primary, primaryTrend: primaryTrend, secondaryTrend: []);
+        final series = homeSeriesForWindow(
+          7,
+          HomeLegacyTab.trending,
+          primary,
+          primaryTrend: primaryTrend,
+          secondaryTrend: [],
+        );
 
         expect(series[0].values, primaryTrend);
         expect(series[1].values, primaryTrend);
@@ -219,7 +237,12 @@ void main() {
           '(trending tab)', () {
         final primaryTrend = List<double>.generate(7, (i) => i * 100.0);
 
-        final series = homeSeriesForWindow(7, HomeLegacyTab.trending, primary, primaryTrend: primaryTrend);
+        final series = homeSeriesForWindow(
+          7,
+          HomeLegacyTab.trending,
+          primary,
+          primaryTrend: primaryTrend,
+        );
 
         expect(series[0].values, primaryTrend);
         expect(series[1].values, primaryTrend);
@@ -228,7 +251,13 @@ void main() {
       test('windows primaryTrend when it has more values than days', () {
         final fullTrend = List<double>.generate(30, (i) => i * 100.0);
 
-        final series = homeSeriesForWindow(7, HomeLegacyTab.trending, primary, primaryTrend: fullTrend, secondaryTrend: fullTrend);
+        final series = homeSeriesForWindow(
+          7,
+          HomeLegacyTab.trending,
+          primary,
+          primaryTrend: fullTrend,
+          secondaryTrend: fullTrend,
+        );
 
         expect(series[0].values.length, 7);
         expect(series[0].values, fullTrend.sublist(23));
@@ -239,7 +268,12 @@ void main() {
       test('uses full primaryTrend when length equals days', () {
         final trend = List<double>.generate(7, (i) => i * 100.0);
 
-        final series = homeSeriesForWindow(7, HomeLegacyTab.trending, primary, primaryTrend: trend);
+        final series = homeSeriesForWindow(
+          7,
+          HomeLegacyTab.trending,
+          primary,
+          primaryTrend: trend,
+        );
 
         expect(series[0].values, trend);
       });
@@ -247,7 +281,12 @@ void main() {
       test('uses full primaryTrend when length is less than days', () {
         final trend = List<double>.generate(5, (i) => i * 100.0);
 
-        final series = homeSeriesForWindow(7, HomeLegacyTab.trending, primary, primaryTrend: trend);
+        final series = homeSeriesForWindow(
+          7,
+          HomeLegacyTab.trending,
+          primary,
+          primaryTrend: trend,
+        );
 
         expect(series[0].values, trend);
         expect(series[0].values.length, 5);
@@ -258,7 +297,13 @@ void main() {
         final secondaryTrend = List<double>.generate(7, (i) => i * 50.0);
 
         for (final tab in [HomeLegacyTab.growth, HomeLegacyTab.health, HomeLegacyTab.starred]) {
-          final series = homeSeriesForWindow(7, tab, primary, primaryTrend: primaryTrend, secondaryTrend: secondaryTrend);
+          final series = homeSeriesForWindow(
+            7,
+            tab,
+            primary,
+            primaryTrend: primaryTrend,
+            secondaryTrend: secondaryTrend,
+          );
 
           expect(series[0].values, isNot(primaryTrend), reason: 'tab=$tab should not use provided primaryTrend');
           expect(series[1].values, isNot(secondaryTrend), reason: 'tab=$tab should not use provided secondaryTrend');
@@ -305,7 +350,13 @@ void main() {
 
   group('HomeMetricSpec', () {
     test('can be constructed with all required fields', () {
-      const spec = HomeMetricSpec(title: '今日新增 Star', value: '128', delta: '+18.5%', subtitle: '对比昨日', icon: Icons.star_rounded);
+      const spec = HomeMetricSpec(
+        title: '今日新增 Star',
+        value: '128',
+        delta: '+18.5%',
+        subtitle: '对比昨日',
+        icon: Icons.star_rounded,
+      );
 
       expect(spec.title, '今日新增 Star');
       expect(spec.value, '128');
@@ -316,7 +367,14 @@ void main() {
     });
 
     test('can be constructed with optional accent', () {
-      const spec = HomeMetricSpec(title: '告警', value: '12', delta: '-2', subtitle: '对比昨日', icon: Icons.notifications_active_outlined, accent: AppColors.warning);
+      const spec = HomeMetricSpec(
+        title: '告警',
+        value: '12',
+        delta: '-2',
+        subtitle: '对比昨日',
+        icon: Icons.notifications_active_outlined,
+        accent: AppColors.warning,
+      );
 
       expect(spec.accent, AppColors.warning);
     });

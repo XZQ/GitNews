@@ -66,13 +66,22 @@ class MonitorNotificationCard extends ConsumerWidget {
       SectionHeader(title: l10n.tr('monitor.settings_card.title'), subtitle: l10n.tr('monitor.settings_card.subtitle')),
       const SizedBox(height: AppSpacing.md),
       for (var i = 0; i < values.length && i < labels.length; i++)
-        MonitorNotificationRow(label: labels[i], value: values[i], onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value))
+        MonitorNotificationRow(
+          label: labels[i],
+          value: values[i],
+          onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
+        )
     ]));
   }
 }
 
 class MonitorNotificationRow extends StatelessWidget {
-  const MonitorNotificationRow({required this.label, required this.value, required this.onChanged, super.key});
+  const MonitorNotificationRow({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    super.key,
+  });
 
   final String label;
   final bool value;
@@ -107,7 +116,11 @@ class _RuleRow extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
       child: Row(
         children: [
-          Container(width: AppSpacing.sm, height: AppSpacing.sm, decoration: BoxDecoration(color: rule.color, borderRadius: BorderRadius.circular(AppRadius.dot))),
+          Container(
+            width: AppSpacing.sm,
+            height: AppSpacing.sm,
+            decoration: BoxDecoration(color: rule.color, borderRadius: BorderRadius.circular(AppRadius.dot)),
+          ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(rule.label, style: AppTypography.bodyMedium)),
           Switch(value: enabled, onChanged: (value) => ref.read(localContentControllerProvider.notifier).setMonitorRule(rule.index, value))

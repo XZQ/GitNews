@@ -19,7 +19,13 @@ import '../../../../shared/widgets/repo_tile.dart';
  *[badge] 用于 Agent Skills 榜展示「#排名 · 分类」。
  */
 class DiscoverMonitorRow extends ConsumerWidget {
-  const DiscoverMonitorRow({required this.repo, this.badge, this.onTap, this.cardStyle = true, super.key});
+  const DiscoverMonitorRow({
+    required this.repo,
+    this.badge,
+    this.onTap,
+    this.cardStyle = true,
+    super.key,
+  });
 
   final RepoEntity repo;
   final String? badge;
@@ -82,7 +88,12 @@ class DiscoverMonitorRow extends ConsumerWidget {
                       children: [
                         _TopLine(fullName: repo.fullName, badge: badge),
                         const SizedBox(height: AppSpacing.sm),
-                        Text(repo.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55)),
+                        Text(
+                          repo.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55),
+                        ),
                         const SizedBox(height: AppSpacing.md),
                         Wrap(
                           spacing: AppSpacing.sm,
@@ -127,7 +138,13 @@ class _TopLine extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: Text(fullName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: 1.35))),
+        Expanded(
+            child: Text(
+          fullName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: 1.35),
+        )),
         if (badge != null) ...[const SizedBox(width: AppSpacing.sm), _Pill(text: badge!, color: colors.tertiary)]
       ],
     );

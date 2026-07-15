@@ -43,7 +43,15 @@ class _WebViewPageState extends State<WebViewPage> {
     final urlInvalid = widget.url.isEmpty || uri == null || !_isHttpScheme(uri);
     final title = widget.title?.isNotEmpty == true ? widget.title! : _pageTitle;
     return Scaffold(
-      appBar: _WebViewAppBar(title: title, host: _hostFromUrl(widget.url), urlInvalid: urlInvalid, onBack: _onBack, onRefresh: _retry, onOpenInBrowser: _openInBrowser, onCopyLink: _copyLink),
+      appBar: _WebViewAppBar(
+        title: title,
+        host: _hostFromUrl(widget.url),
+        urlInvalid: urlInvalid,
+        onBack: _onBack,
+        onRefresh: _retry,
+        onOpenInBrowser: _openInBrowser,
+        onCopyLink: _copyLink,
+      ),
       body: urlInvalid ? EmptyView(icon: Icons.link_off_rounded, message: l10n.tr('webview.invalid')) : _WebViewBody(state: this),
     );
   }
@@ -137,7 +145,15 @@ class _WebViewPageState extends State<WebViewPage> {
 }
 
 class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _WebViewAppBar({required this.title, required this.host, required this.urlInvalid, required this.onBack, required this.onRefresh, required this.onOpenInBrowser, required this.onCopyLink});
+  const _WebViewAppBar({
+    required this.title,
+    required this.host,
+    required this.urlInvalid,
+    required this.onBack,
+    required this.onRefresh,
+    required this.onOpenInBrowser,
+    required this.onCopyLink,
+  });
 
   final String title;
   final String host;
@@ -161,8 +177,18 @@ class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(title.isNotEmpty ? title : host, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleMedium),
-            Text(host, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+            Text(
+              title.isNotEmpty ? title : host,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.titleMedium,
+            ),
+            Text(
+              host,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
+            )
           ],
         ),
         actions: [
@@ -214,7 +240,12 @@ class _WebViewBody extends StatelessWidget {
             state.onMainFrameError();
           }),
       if (state._progress > 0 && state._progress < 100 && !state._failed)
-        Positioned(top: 0, left: 0, right: 0, child: LinearProgressIndicator(value: state._progress / 100, minHeight: 2, backgroundColor: Colors.transparent)),
+        Positioned(
+          top: 0,
+          left: 0,
+          right: 0,
+          child: LinearProgressIndicator(value: state._progress / 100, minHeight: 2, backgroundColor: Colors.transparent),
+        ),
       if (state._failed) ErrorView(error: const AppException(kind: AppExceptionKind.network), onRetry: state._retry)
     ]);
   }

@@ -37,7 +37,11 @@ class HomeTopicsPanel extends ConsumerWidget {
             ListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,
-              leading: CircleAvatar(radius: 16, backgroundColor: AppColors.brandLight, child: Text(c.login[0].toUpperCase(), style: AppTypography.labelMedium.copyWith(color: AppColors.brandDark))),
+              leading: CircleAvatar(
+                radius: 16,
+                backgroundColor: AppColors.brandLight,
+                child: Text(c.login[0].toUpperCase(), style: AppTypography.labelMedium.copyWith(color: AppColors.brandDark)),
+              ),
               title: Text(c.login, style: AppTypography.titleSmall),
               subtitle: Text('+${c.contributions} ${l10n.tr('home.contrib.week')}'),
               trailing: const Icon(Icons.chevron_right, size: 18),

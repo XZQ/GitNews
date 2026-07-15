@@ -47,7 +47,12 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
                   children: [
                     Text(title, style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
                     const SizedBox(height: AppSpacing.xxs),
-                    Text(subtitle, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis)
+                    Text(
+                      subtitle,
+                      style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
                   ],
                 ),
               ),
@@ -77,7 +82,11 @@ class _MoreChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2, vertical: AppSpacing.xxs),
-          decoration: BoxDecoration(color: accentColor.withValues(alpha: 0.1), border: Border.all(color: accentColor.withValues(alpha: 0.35)), borderRadius: BorderRadius.circular(AppRadius.pill)),
+          decoration: BoxDecoration(
+            color: accentColor.withValues(alpha: 0.1),
+            border: Border.all(color: accentColor.withValues(alpha: 0.35)),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -95,7 +104,15 @@ class _MoreChip extends StatelessWidget {
 *预览行通用样式:rank + 标题 + 副信息。
 */
 class PreviewRow extends StatelessWidget {
-  const PreviewRow({required this.rank, required this.rankColor, required this.title, required this.subtitle, required this.meta, required this.onTap, super.key});
+  const PreviewRow({
+    required this.rank,
+    required this.rankColor,
+    required this.title,
+    required this.subtitle,
+    required this.meta,
+    required this.onTap,
+    super.key,
+  });
 
   final String rank;
   final Color rankColor;
@@ -128,9 +145,19 @@ class PreviewRow extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(
+                      title,
+                      style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     const SizedBox(height: AppSpacing.xxs),
-                    Text(subtitle, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant), maxLines: 1, overflow: TextOverflow.ellipsis)
+                    Text(
+                      subtitle,
+                      style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
                   ],
                 ),
               ),

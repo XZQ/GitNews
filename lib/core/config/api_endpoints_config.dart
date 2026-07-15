@@ -46,7 +46,13 @@ class ApiEndpointsConfig {
 
   // GitHub 仓库搜索(发现页:按 stars 排序的流行仓库 / AI Agent Skills 仓库)。
   // 返回完整 query path,与 [githubBaseUrl] 拼接后直接 GET。
-  static String githubSearchRepositoriesUrl({String q = 'stars:>1000', String sort = 'stars', String order = 'desc', int perPage = 20, int page = 1}) =>
+  static String githubSearchRepositoriesUrl({
+    String q = 'stars:>1000',
+    String sort = 'stars',
+    String order = 'desc',
+    int perPage = 20,
+    int page = 1,
+  }) =>
       '/search/repositories?q=${Uri.encodeQueryComponent(q)}'
       '&sort=$sort&order=$order&per_page=$perPage&page=$page';
 

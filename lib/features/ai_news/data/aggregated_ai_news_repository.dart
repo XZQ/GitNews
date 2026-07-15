@@ -23,11 +23,23 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
   final DateTime Function() clock;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({
+    AiNewsCategory? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  }) async {
     final isHead = cursor == null || cursor.isEmpty;
     final hasQuery = query != null && query.trim().isNotEmpty;
     if (!isHead || hasQuery) {
-      return _primary.fetchItems(category: category, since: since, query: query, cursor: cursor, selectedOnly: selectedOnly);
+      return _primary.fetchItems(
+        category: category,
+        since: since,
+        query: query,
+        cursor: cursor,
+        selectedOnly: selectedOnly,
+      );
     }
 
     final now = clock();

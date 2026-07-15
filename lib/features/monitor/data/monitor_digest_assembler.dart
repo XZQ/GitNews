@@ -41,7 +41,13 @@ class MonitorDigestAssembler {
   Future<void> recordObservationsAndAlerts(List<GithubMonitorRemoteRepoItem> responses, DateTime now) async {
     final events = <MonitorAlertEvent>[];
     for (final item in responses) {
-      final current = MonitorObservation(repoFullName: item.repo.fullName, stars: item.repo.starCount, forks: item.repo.forkCount, openIssues: item.openIssues, observedAt: now);
+      final current = MonitorObservation(
+        repoFullName: item.repo.fullName,
+        stars: item.repo.starCount,
+        forks: item.repo.forkCount,
+        openIssues: item.openIssues,
+        observedAt: now,
+      );
       final previous = await _observationDao.latestBefore(repoFullName: current.repoFullName, observedAt: current.observedAt);
       events.addAll(_evaluator.evaluate(previous: previous, current: current, enabledRuleIds: _enabledRuleIds));
       await _observationDao.record(current);

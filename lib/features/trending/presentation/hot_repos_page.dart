@@ -45,7 +45,13 @@ class HotReposPage extends ConsumerWidget {
               );
             },
             loading: () => const _PageSkeleton(),
-            error: (error, stackTrace) => ErrorView(error: AppException(kind: AppExceptionKind.unknown, cause: error, stack: stackTrace), onRetry: () => ref.invalidate(trendingDigestProvider))));
+            error: (error, stackTrace) => ErrorView(
+                error: AppException(
+                  kind: AppExceptionKind.unknown,
+                  cause: error,
+                  stack: stackTrace,
+                ),
+                onRetry: () => ref.invalidate(trendingDigestProvider))));
   }
 }
 
@@ -59,12 +65,22 @@ class _Body extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final repos = digest.allRepos;
     return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.sm,
+          AppSpacing.lg,
+          AppSpacing.xl,
+        ),
         itemCount: repos.length + 2,
         itemBuilder: (context, index) {
           if (index == 0) {
             return Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xs,
+              ),
               child: SectionHeader(title: l10n.tr('trending.hot_repos.list_title'), subtitle: l10n.tr('trending.hot_repos.list_subtitle').replaceAll('{count}', '${repos.length}')),
             );
           }
@@ -112,7 +128,11 @@ class _Bullet extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.only(top: AppSpacing.xs2, right: AppSpacing.sm),
-            child: Container(width: AppSpacing.xs2, height: AppSpacing.xs2, decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.bar))),
+            child: Container(
+              width: AppSpacing.xs2,
+              height: AppSpacing.xs2,
+              decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.bar)),
+            ),
           ),
           Expanded(child: Text(text, style: AppTypography.bodyMedium))
         ],

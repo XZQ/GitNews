@@ -22,14 +22,27 @@ class LanguageGrowthBars extends StatelessWidget {
     final maxV = languages.fold<double>(0, (m, l) => l.delta.abs() > m ? l.delta.abs() : m).clamp(1.0, double.infinity);
     return Column(
       children: [
-        for (final l in languages) ...[_Bar(name: l.name, value: l.delta, maxValue: maxV, color: Color(l.accentArgb)), const SizedBox(height: AppSpacing.sm2)]
+        for (final l in languages) ...[
+          _Bar(
+            name: l.name,
+            value: l.delta,
+            maxValue: maxV,
+            color: Color(l.accentArgb),
+          ),
+          const SizedBox(height: AppSpacing.sm2)
+        ]
       ],
     );
   }
 }
 
 class _Bar extends StatelessWidget {
-  const _Bar({required this.name, required this.value, required this.maxValue, required this.color});
+  const _Bar({
+    required this.name,
+    required this.value,
+    required this.maxValue,
+    required this.color,
+  });
 
   final String name;
   final double value;
@@ -74,7 +87,13 @@ class _Bar extends StatelessWidget {
 *语言占比单行(色块 + 名称 + 百分比 + delta)。
 */
 class LanguageDistributionRow extends StatelessWidget {
-  const LanguageDistributionRow({required this.name, required this.percent, required this.delta, required this.color, super.key});
+  const LanguageDistributionRow({
+    required this.name,
+    required this.percent,
+    required this.delta,
+    required this.color,
+    super.key,
+  });
 
   final String name;
   final double percent;

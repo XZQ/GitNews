@@ -41,7 +41,12 @@ void _openGlobalSearch(BuildContext context, WidgetRef ref, String rawQuery) {
     projectSetter: (q) => ref.read(projectSearchQueryProvider.notifier).state = q,
     trendingSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q,
   );
-  GlobalSearchRouter.route(rawQuery: rawQuery, entries: entries, fallbackSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q, onRoute: (route) => context.go(route));
+  GlobalSearchRouter.route(
+    rawQuery: rawQuery,
+    entries: entries,
+    fallbackSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q,
+    onRoute: (route) => context.go(route),
+  );
 }
 
 /* 
@@ -61,7 +66,19 @@ class _BellWithDot extends ConsumerWidget {
         onPressed: () => context.go('/monitor'),
         icon: Stack(
           clipBehavior: Clip.none,
-          children: [Icon(Icons.notifications_none_rounded, size: 20, color: colors.onSurfaceVariant), if (hasUnread) const Positioned(right: -2, top: -2, child: _Dot())],
+          children: [
+            Icon(
+              Icons.notifications_none_rounded,
+              size: 20,
+              color: colors.onSurfaceVariant,
+            ),
+            if (hasUnread)
+              const Positioned(
+                right: -2,
+                top: -2,
+                child: _Dot(),
+              )
+          ],
         ),
         tooltip: l10n.tr('home.monitor_center'),
         constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
@@ -75,7 +92,11 @@ class _Dot extends StatelessWidget {
   const _Dot();
 
   @override
-  Widget build(BuildContext context) => const SizedBox(width: 8, height: 8, child: DecoratedBox(decoration: BoxDecoration(color: AppColors.danger, shape: BoxShape.circle)));
+  Widget build(BuildContext context) => const SizedBox(
+        width: 8,
+        height: 8,
+        child: DecoratedBox(decoration: BoxDecoration(color: AppColors.danger, shape: BoxShape.circle)),
+      );
 }
 
 /* 

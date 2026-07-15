@@ -64,7 +64,13 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final digest = ref.watch(trendingDigestProvider).valueOrNull;
-    final series = homeSeriesForWindow(_chartWindow, widget.tab, Theme.of(context).colorScheme.primary, primaryTrend: digest?.primaryTrend, secondaryTrend: digest?.secondaryTrend);
+    final series = homeSeriesForWindow(
+      _chartWindow,
+      widget.tab,
+      Theme.of(context).colorScheme.primary,
+      primaryTrend: digest?.primaryTrend,
+      secondaryTrend: digest?.secondaryTrend,
+    );
     final windowLabel = '近 $_chartWindow 天';
     final title = homeChartTitle(l10n, widget.tab);
     final subtitle = homeChartSubtitle(l10n, widget.tab, windowLabel);

@@ -7,7 +7,12 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 
 class TechHotspotDetailSectionError extends StatelessWidget {
-  const TechHotspotDetailSectionError({required this.title, required this.error, required this.onRetry, super.key});
+  const TechHotspotDetailSectionError({
+    required this.title,
+    required this.error,
+    required this.onRetry,
+    super.key,
+  });
 
   final String title;
   final AppException error;
@@ -19,7 +24,11 @@ class TechHotspotDetailSectionError extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(color: colors.errorContainer.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(AppRadius.sm), border: Border.all(color: colors.error.withValues(alpha: 0.3))),
+      decoration: BoxDecoration(
+        color: colors.errorContainer.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: colors.error.withValues(alpha: 0.3)),
+      ),
       child: Row(
         children: [
           Icon(Icons.error_outline_rounded, color: colors.error, size: 18),
@@ -29,7 +38,12 @@ class TechHotspotDetailSectionError extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: Theme.of(context).textTheme.titleSmall),
-                Text(_messageFor(l10n, error), style: Theme.of(context).textTheme.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis)
+                Text(
+                  _messageFor(l10n, error),
+                  style: Theme.of(context).textTheme.bodySmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                )
               ],
             ),
           ),

@@ -27,7 +27,11 @@ class TrendingOverviewPage extends ConsumerWidget {
     final state = ref.watch(projectDigestProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Star 增长趋势'), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/home'))),
-      body: ResponsiveLayout(compact: (_) => _Body(state: state), medium: (_) => CenteredContent(child: _Body(state: state)), expanded: (_) => CenteredContent(child: _Body(state: state))),
+      body: ResponsiveLayout(
+        compact: (_) => _Body(state: state),
+        medium: (_) => CenteredContent(child: _Body(state: state)),
+        expanded: (_) => CenteredContent(child: _Body(state: state)),
+      ),
     );
   }
 }
@@ -55,7 +59,12 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: [
         AppCard(
           child: Column(
@@ -153,7 +162,12 @@ class _OverviewSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.xl,
+      ),
       children: const [Skeleton(height: 320), SizedBox(height: AppSpacing.lg), Skeleton(height: 200)],
     );
   }

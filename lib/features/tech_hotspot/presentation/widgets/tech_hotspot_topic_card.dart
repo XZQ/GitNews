@@ -38,7 +38,12 @@ class TechHotspotTopicCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.md),
               Text(topic.name, style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
               const SizedBox(height: AppSpacing.sm),
-              Text(topic.summary, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.5), maxLines: 3, overflow: TextOverflow.ellipsis),
+              Text(
+                topic.summary,
+                style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.5),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: AppSpacing.md),
               _TopicStatsBar(topic: topic)
             ],
@@ -71,7 +76,11 @@ class _TopicHeader extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2, vertical: AppSpacing.xs),
-          decoration: BoxDecoration(color: heatColor.withValues(alpha: 0.14), border: Border.all(color: heatColor.withValues(alpha: 0.4)), borderRadius: BorderRadius.circular(AppRadius.xs)),
+          decoration: BoxDecoration(
+            color: heatColor.withValues(alpha: 0.14),
+            border: Border.all(color: heatColor.withValues(alpha: 0.4)),
+            borderRadius: BorderRadius.circular(AppRadius.xs),
+          ),
           child: Text(topic.category, style: AppTypography.labelSmall.copyWith(color: heatColor, fontWeight: FontWeight.w700)),
         ),
         const Spacer(),

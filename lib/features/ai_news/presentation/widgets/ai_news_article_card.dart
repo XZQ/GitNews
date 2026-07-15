@@ -54,7 +54,12 @@ class AiNewsArticleCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(item.summary, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55), maxLines: 2, overflow: TextOverflow.ellipsis),
+              Text(
+                item.summary,
+                style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
               const SizedBox(height: AppSpacing.md),
               _Meta(publishedAt: item.publishedAt)
             ],
@@ -79,13 +84,23 @@ class _CategoryStrip extends StatelessWidget {
       children: [
         Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2, vertical: AppSpacing.xs),
-          decoration: BoxDecoration(color: accent.withValues(alpha: 0.14), border: Border.all(color: accent.withValues(alpha: 0.4)), borderRadius: BorderRadius.circular(AppRadius.xs)),
+          decoration: BoxDecoration(
+            color: accent.withValues(alpha: 0.14),
+            border: Border.all(color: accent.withValues(alpha: 0.4)),
+            borderRadius: BorderRadius.circular(AppRadius.xs),
+          ),
           child: Text(category.label, style: AppTypography.labelSmall.copyWith(color: accent, fontWeight: FontWeight.w700)),
         ),
         const SizedBox(width: AppSpacing.sm),
         Icon(Icons.circle, size: 4, color: colors.onSurfaceVariant),
         const SizedBox(width: AppSpacing.sm),
-        Flexible(child: Text(source, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600), maxLines: 1, overflow: TextOverflow.ellipsis))
+        Flexible(
+            child: Text(
+          source,
+          style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ))
       ],
     );
   }

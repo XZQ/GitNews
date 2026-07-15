@@ -38,9 +38,14 @@ class AppSidebar extends ConsumerWidget {
                   const SidebarHeader(),
                   const SizedBox(height: AppSpacing.md),
                   Expanded(
-                      child: ListView(
-                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-                          children: [for (var i = 0; i < appTabs.length; i++) SidebarItem(tab: appTabs[i], selected: i == currentIndex, onTap: () => onTap(i))])),
+                      child: ListView(padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs), children: [
+                    for (var i = 0; i < appTabs.length; i++)
+                      SidebarItem(
+                        tab: appTabs[i],
+                        selected: i == currentIndex,
+                        onTap: () => onTap(i),
+                      )
+                  ])),
                   Divider(height: 1, thickness: 0.5, color: colors.outlineVariant.withValues(alpha: 0.35)),
                   const SidebarFooter()
                 ]))));

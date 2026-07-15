@@ -26,7 +26,13 @@ String githubMonitorCompactNumber(int value) {
   return value.toString();
 }
 
-int githubMonitorActivityScore({required int stars, required int forks, required int openIssues, required DateTime? pushedAt, required DateTime now}) {
+int githubMonitorActivityScore({
+  required int stars,
+  required int forks,
+  required int openIssues,
+  required DateTime? pushedAt,
+  required DateTime now,
+}) {
   final pushedBoost = pushedAt == null ? 1 : (30 - now.toUtc().difference(pushedAt).inDays).clamp(1, 30);
   return ((stars / 180) + (forks / 40) + (openIssues / 12) + pushedBoost).round().clamp(1, 9999);
 }

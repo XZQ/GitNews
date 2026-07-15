@@ -8,7 +8,14 @@ import '../domain/trending_repository.dart';
 *再由 Repository 转成页面使用的 [TrendingDigest]。
 */
 class TrendingDataSnapshot {
-  const TrendingDataSnapshot({required this.trendingRepos, required this.recentRepos, required this.languages, required this.primaryTrend, required this.secondaryTrend, required this.tertiaryTrend});
+  const TrendingDataSnapshot({
+    required this.trendingRepos,
+    required this.recentRepos,
+    required this.languages,
+    required this.primaryTrend,
+    required this.secondaryTrend,
+    required this.tertiaryTrend,
+  });
 
   final List<RepoEntity> trendingRepos;
   final List<RepoEntity> recentRepos;

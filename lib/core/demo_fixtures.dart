@@ -13,7 +13,13 @@ class DemoRepoFixture {
 }
 
 class DemoAlertFixture {
-  const DemoAlertFixture({required this.repo, required this.metric, required this.value, required this.time, required this.severity});
+  const DemoAlertFixture({
+    required this.repo,
+    required this.metric,
+    required this.value,
+    required this.time,
+    required this.severity,
+  });
 
   final String repo;
   final String metric;
@@ -23,7 +29,12 @@ class DemoAlertFixture {
 }
 
 class DemoLanguageFixture {
-  const DemoLanguageFixture({required this.name, required this.percent, required this.delta, required this.color});
+  const DemoLanguageFixture({
+    required this.name,
+    required this.percent,
+    required this.delta,
+    required this.color,
+  });
 
   final String name;
   final double percent;

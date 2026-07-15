@@ -20,7 +20,12 @@ void main() {
     testWidgets('trust flows fit ${size.width.toInt()}px', (tester) async {
       final semantics = tester.ensureSemantics();
       final prefs = await _preferences();
-      await _pumpAtSize(tester, size, prefs, const CollectPage());
+      await _pumpAtSize(
+        tester,
+        size,
+        prefs,
+        const CollectPage(),
+      );
       expect(find.text('Starred topics'), findsWidgets);
       expect(find.bySemanticsLabel('Remove bookmark'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -46,11 +51,21 @@ void main() {
       expect(find.bySemanticsLabel(RegExp(r'Open owner/a-very-long-repository-name')), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await _pumpAtSize(tester, size, prefs, TechHotspotTagsCloud(tags: const [], onTagSelected: (_) {}));
+      await _pumpAtSize(
+        tester,
+        size,
+        prefs,
+        TechHotspotTagsCloud(tags: const [], onTagSelected: (_) {}),
+      );
       expect(find.text('No matching radar tags'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await _pumpAtSize(tester, size, prefs, const LoginPage());
+      await _pumpAtSize(
+        tester,
+        size,
+        prefs,
+        const LoginPage(),
+      );
       expect(find.text('Configure Personal Access Token'), findsOneWidget);
       expect(tester.takeException(), isNull);
       semantics.dispose();
@@ -59,7 +74,12 @@ void main() {
 
   testWidgets('bookmark removal is keyboard activatable', (tester) async {
     final prefs = await _preferences();
-    await _pumpAtSize(tester, const Size(1024, 768), prefs, const CollectPage());
+    await _pumpAtSize(
+      tester,
+      const Size(1024, 768),
+      prefs,
+      const CollectPage(),
+    );
     final removeIcon = find.byIcon(Icons.bookmark_remove_outlined);
 
     Focus.of(tester.element(removeIcon)).requestFocus();
@@ -94,7 +114,12 @@ Future<SharedPreferences> _preferences() async {
   return SharedPreferences.getInstance();
 }
 
-Future<void> _pumpAtSize(WidgetTester tester, Size size, SharedPreferences preferences, Widget child) async {
+Future<void> _pumpAtSize(
+  WidgetTester tester,
+  Size size,
+  SharedPreferences preferences,
+  Widget child,
+) async {
   tester.view
     ..devicePixelRatio = 1
     ..physicalSize = size;

@@ -8,7 +8,12 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
 class DataFreshnessBadge extends StatelessWidget {
-  const DataFreshnessBadge({required this.freshness, this.compact = true, this.inverse = false, super.key});
+  const DataFreshnessBadge({
+    required this.freshness,
+    this.compact = true,
+    this.inverse = false,
+    super.key,
+  });
 
   final DataFreshness freshness;
   final bool compact;
@@ -29,12 +34,23 @@ class DataFreshnessBadge extends StatelessWidget {
       DataFreshness.staleCache => AppColors.warning,
       DataFreshness.seed => Theme.of(context).colorScheme.outline
     };
-    return _TrustBadge(label: l10n.tr(compact ? keys.$1 : keys.$2), tooltip: l10n.tr(keys.$3), color: color, compact: compact, inverse: inverse);
+    return _TrustBadge(
+      label: l10n.tr(compact ? keys.$1 : keys.$2),
+      tooltip: l10n.tr(keys.$3),
+      color: color,
+      compact: compact,
+      inverse: inverse,
+    );
   }
 }
 
 class MetricBasisBadge extends StatelessWidget {
-  const MetricBasisBadge({required this.basis, this.compact = true, this.inverse = false, super.key});
+  const MetricBasisBadge({
+    required this.basis,
+    this.compact = true,
+    this.inverse = false,
+    super.key,
+  });
 
   final MetricBasis basis;
   final bool compact;
@@ -49,12 +65,24 @@ class MetricBasisBadge extends StatelessWidget {
       MetricBasis.seed => ('provenance.seed', 'provenance.seed.full', 'provenance.seed.tooltip')
     };
     final color = switch (basis) { MetricBasis.observed => AppColors.success, MetricBasis.estimated => AppColors.accentPurple, MetricBasis.seed => Theme.of(context).colorScheme.outline };
-    return _TrustBadge(label: l10n.tr(compact ? keys.$1 : keys.$2), tooltip: l10n.tr(keys.$3), color: color, compact: compact, inverse: inverse);
+    return _TrustBadge(
+      label: l10n.tr(compact ? keys.$1 : keys.$2),
+      tooltip: l10n.tr(keys.$3),
+      color: color,
+      compact: compact,
+      inverse: inverse,
+    );
   }
 }
 
 class _TrustBadge extends StatelessWidget {
-  const _TrustBadge({required this.label, required this.tooltip, required this.color, required this.compact, required this.inverse});
+  const _TrustBadge({
+    required this.label,
+    required this.tooltip,
+    required this.color,
+    required this.compact,
+    required this.inverse,
+  });
 
   final String label;
   final String tooltip;

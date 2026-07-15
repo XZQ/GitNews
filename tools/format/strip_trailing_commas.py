@@ -1,7 +1,7 @@
 """Strip trailing commas before ) ] } in Dart files, skipping strings/comments.
 
-Run: python tool/strip_trailing_commas.py <file1> [file2 ...]
-Or:   python tool/strip_trailing_commas.py --glob 'lib/**/*.dart'
+Run: python tools/format/strip_trailing_commas.py <file1> [file2 ...]
+Or:   python tools/format/strip_trailing_commas.py --glob 'lib/**/*.dart'
 """
 
 import sys

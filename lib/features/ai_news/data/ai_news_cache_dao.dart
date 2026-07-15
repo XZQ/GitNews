@@ -37,10 +37,21 @@ class AiNewsCacheDao {
   */
   Future<List<AiNewsItem>> readAll({AiNewsCategory? category}) async {
     try {
-      final rows = await _db.query(_table, where: category == null ? null : 'category = ?', whereArgs: category == null ? null : [category.code], orderBy: 'published_at DESC', limit: _readLimit);
+      final rows = await _db.query(
+        _table,
+        where: category == null ? null : 'category = ?',
+        whereArgs: category == null ? null : [category.code],
+        orderBy: 'published_at DESC',
+        limit: _readLimit,
+      );
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'readAll'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'readAll'},
+      );
     }
   }
 
@@ -69,10 +80,21 @@ class AiNewsCacheDao {
         where.write(' AND category = ?');
         args.add(category.code);
       }
-      final rows = await _db.query(_table, where: where.toString(), whereArgs: args, orderBy: 'published_at DESC', limit: _searchLimit);
+      final rows = await _db.query(
+        _table,
+        where: where.toString(),
+        whereArgs: args,
+        orderBy: 'published_at DESC',
+        limit: _searchLimit,
+      );
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'searchAll'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'searchAll'},
+      );
     }
   }
 
@@ -81,13 +103,23 @@ class AiNewsCacheDao {
   */
   Future<AiNewsItem?> readById(String id) async {
     try {
-      final rows = await _db.query(_table, where: 'id = ?', whereArgs: [id], limit: 1);
+      final rows = await _db.query(
+        _table,
+        where: 'id = ?',
+        whereArgs: [id],
+        limit: 1,
+      );
       if (rows.isEmpty) {
         return null;
       }
       return _rowToItem(rows.first);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'readById'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'readById'},
+      );
     }
   }
 
@@ -97,7 +129,12 @@ class AiNewsCacheDao {
   *- 使用 INSERT OR REPLACE,使旧条目被新值覆盖
   *- 同条目再次入库时 `cached_at` 会被刷新,延长其容量清理豁免期
   */
-  Future<void> upsertPage({required AiNewsCategory? category, required String? cursor, required AiNewsDigest digest, required DateTime now}) async {
+  Future<void> upsertPage({
+    required AiNewsCategory? category,
+    required String? cursor,
+    required AiNewsDigest digest,
+    required DateTime now,
+  }) async {
     final cachedAt = now.millisecondsSinceEpoch;
     try {
       final batch = _db.batch();
@@ -124,14 +161,24 @@ class AiNewsCacheDao {
       await batch.commit(noResult: true);
       await _meta.upsert(cacheKey(category: category, cursor: cursor), now);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'upsertPage'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'upsertPage'},
+      );
     }
   }
 
   /* 
   *缓存是否还新鲜:`true` = 距上次拉取不足 [ttl]。
   */
-  Future<bool> isFresh({required AiNewsCategory? category, required String? cursor, required Duration ttl, required DateTime now}) async {
+  Future<bool> isFresh({
+    required AiNewsCategory? category,
+    required String? cursor,
+    required Duration ttl,
+    required DateTime now,
+  }) async {
     final last = await _meta.lastFetched(cacheKey(category: category, cursor: cursor));
     if (last == null) {
       return false;
@@ -147,7 +194,12 @@ class AiNewsCacheDao {
     try {
       await _db.delete(_table);
     } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'clear'});
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'clear'},
+      );
     }
   }
 

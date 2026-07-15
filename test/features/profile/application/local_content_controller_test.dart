@@ -83,7 +83,15 @@ void main() {
   });
 }
 
-const _remoteRepo = RepoEntity(fullName: 'remote/new-repo', description: 'Only returned by GitHub', language: 'Rust', starCount: 42, starDelta: 3, forkCount: 7, accentArgb: 0xFFDEA584);
+const _remoteRepo = RepoEntity(
+  fullName: 'remote/new-repo',
+  description: 'Only returned by GitHub',
+  language: 'Rust',
+  starCount: 42,
+  starDelta: 3,
+  forkCount: 7,
+  accentArgb: 0xFFDEA584,
+);
 
 const _remoteDeveloper = ContributorEntity(login: 'remote-dev', contributions: 19, avatarAccentArgb: 0xFF6366F1);
 

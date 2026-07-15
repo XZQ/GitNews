@@ -83,7 +83,12 @@ class ConfigService {
         preferences[key] = value;
       }
     }
-    return const JsonEncoder.withIndent('  ').convert({'app': 'github_news', 'version': 1, 'exported_at': DateTime.now().toIso8601String(), 'preferences': preferences});
+    return const JsonEncoder.withIndent('  ').convert({
+      'app': 'github_news',
+      'version': 1,
+      'exported_at': DateTime.now().toIso8601String(),
+      'preferences': preferences,
+    });
   }
 
   Future<String> exportConfig() async {

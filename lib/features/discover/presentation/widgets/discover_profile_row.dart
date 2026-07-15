@@ -9,7 +9,12 @@ import '../../domain/discover_entities.dart';
 import 'discover_profile_metrics.dart';
 
 class DiscoverProfileRow extends StatelessWidget {
-  const DiscoverProfileRow({required this.profile, this.onTap, this.cardStyle = true, super.key});
+  const DiscoverProfileRow({
+    required this.profile,
+    this.onTap,
+    this.cardStyle = true,
+    super.key,
+  });
 
   final DiscoverProfileEntity profile;
   final VoidCallback? onTap;
@@ -57,7 +62,13 @@ class _CompactProfileRow extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Expanded(child: Text(profile.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall.copyWith(color: colors.onSurface))),
+                      Expanded(
+                          child: Text(
+                        profile.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
+                      )),
                       DiscoverProfileMetricPill(text: label, color: colors.primary)
                     ],
                   ),
@@ -65,7 +76,12 @@ class _CompactProfileRow extends StatelessWidget {
                   Text('@${profile.login}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
                   if (profile.enriched && profile.bio.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xxs),
-                    Text(profile.bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant))
+                    Text(
+                      profile.bio,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+                    )
                   ] else if (!profile.enriched) ...[
                     const SizedBox(height: AppSpacing.xxs),
                     Text('—', style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.5)))
@@ -140,7 +156,12 @@ class _CardProfileRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Text(profile.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
+                          child: Text(
+                            profile.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+                          ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         DiscoverProfileMetricPill(text: label, color: accent)
@@ -150,7 +171,12 @@ class _CardProfileRow extends StatelessWidget {
                     Text('@${profile.login}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
                     if (profile.enriched && profile.bio.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.sm),
-                      Text(profile.bio, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55))
+                      Text(
+                        profile.bio,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55),
+                      )
                     ] else if (!profile.enriched) ...[
                       const SizedBox(height: AppSpacing.sm),
                       Text('—', style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.5), height: 1.55))

@@ -14,5 +14,11 @@ abstract interface class AiNewsRepository {
   *- [cursor]:分页游标(上一页返回的 [AiNewsDigest.nextCursor])
   *- [selectedOnly]:true=仅精选(默认);false=`mode=all`
   */
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true});
+  Future<DataResult<AiNewsDigest>> fetchItems({
+    AiNewsCategory? category,
+    DateTime? since,
+    String? query,
+    String? cursor,
+    bool selectedOnly = true,
+  });
 }

@@ -102,7 +102,11 @@ class _BottomBar extends StatelessWidget {
         },
         destinations: [
           for (final mobileSpec in mobileAppTabs)
-            NavigationDestination(icon: Icon(appTabs[mobileSpec.branchIndex].icon), selectedIcon: Icon(appTabs[mobileSpec.branchIndex].selectedIcon), label: l10n.tr(mobileSpec.labelKey))
+            NavigationDestination(
+              icon: Icon(appTabs[mobileSpec.branchIndex].icon),
+              selectedIcon: Icon(appTabs[mobileSpec.branchIndex].selectedIcon),
+              label: l10n.tr(mobileSpec.labelKey),
+            )
         ]);
   }
 }
@@ -122,7 +126,14 @@ class _SideRail extends StatelessWidget {
       extended: false,
       minExtendedWidth: 80,
       labelType: NavigationRailLabelType.selected,
-      destinations: [for (final spec in appTabs) NavigationRailDestination(icon: Icon(spec.icon), selectedIcon: Icon(spec.selectedIcon), label: Text(l10n.tr(spec.labelKey)))],
+      destinations: [
+        for (final spec in appTabs)
+          NavigationRailDestination(
+            icon: Icon(spec.icon),
+            selectedIcon: Icon(spec.selectedIcon),
+            label: Text(l10n.tr(spec.labelKey)),
+          )
+      ],
     );
   }
 }

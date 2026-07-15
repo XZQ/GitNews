@@ -19,20 +19,49 @@ class RepoDetailStats extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        Expanded(child: _StatCard(label: l10n.tr('repo_detail.metric.total_stars'), value: shortNumber(repo.starCount), icon: Icons.star_rounded, color: AppColors.starGold)),
+        Expanded(
+            child: _StatCard(
+          label: l10n.tr('repo_detail.metric.total_stars'),
+          value: shortNumber(repo.starCount),
+          icon: Icons.star_rounded,
+          color: AppColors.starGold,
+        )),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(child: _StatCard(label: l10n.tr('repo_detail.metric.today_stars'), value: '+${shortNumber(repo.starDelta)}', icon: Icons.trending_up_rounded, color: AppColors.success)),
+        Expanded(
+            child: _StatCard(
+          label: l10n.tr('repo_detail.metric.today_stars'),
+          value: '+${shortNumber(repo.starDelta)}',
+          icon: Icons.trending_up_rounded,
+          color: AppColors.success,
+        )),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(child: _StatCard(label: 'Fork', value: shortNumber(repo.forkCount), icon: Icons.call_split_rounded, color: AppColors.info)),
+        Expanded(
+            child: _StatCard(
+          label: 'Fork',
+          value: shortNumber(repo.forkCount),
+          icon: Icons.call_split_rounded,
+          color: AppColors.info,
+        )),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(child: _StatCard(label: l10n.tr('repo_detail.metric.contributors'), value: '$contributorCount', icon: Icons.people_outline, color: Theme.of(context).colorScheme.primary))
+        Expanded(
+            child: _StatCard(
+          label: l10n.tr('repo_detail.metric.contributors'),
+          value: '$contributorCount',
+          icon: Icons.people_outline,
+          color: Theme.of(context).colorScheme.primary,
+        ))
       ],
     );
   }
 }
 
 class _StatCard extends StatelessWidget {
-  const _StatCard({required this.label, required this.value, required this.icon, required this.color});
+  const _StatCard({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+  });
 
   final String label;
   final String value;

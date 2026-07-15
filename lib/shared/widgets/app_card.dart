@@ -7,7 +7,13 @@ import '../../core/theme/app_spacing.dart';
 *通用容器卡片:外边框 + 圆角 + padding。
 */
 class AppCard extends StatelessWidget {
-  const AppCard({required this.child, this.padding = const EdgeInsets.all(AppSpacing.lg), this.onTap, this.color, super.key});
+  const AppCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
+    this.onTap,
+    this.color,
+    super.key,
+  });
 
   final Widget child;
   final EdgeInsets padding;

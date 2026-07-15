@@ -35,7 +35,12 @@ class ProfileSettingsCard extends ConsumerWidget {
           ProfileSettingRow(icon: Icons.rocket_launch_outlined, label: l10n.tr('profile.settings.launch_theme'), trailing: const StartupTabPreference()),
           ProfileSettingRow(icon: Icons.cloud_outlined, label: l10n.tr('profile.settings.data_source'), trailing: const TrendingDataSourcePreference()),
           ProfileSettingRow(icon: Icons.open_in_new_rounded, label: l10n.tr('profile.link_open_mode'), trailing: const LinkOpenModePreference()),
-          ProfileSettingRow(icon: Icons.code, label: l10n.tr('profile.developer_options'), trailing: const Icon(Icons.chevron_right, size: 18), onTap: () => context.go('/profile/developer'))
+          ProfileSettingRow(
+            icon: Icons.code,
+            label: l10n.tr('profile.developer_options'),
+            trailing: const Icon(Icons.chevron_right, size: 18),
+            onTap: () => context.go('/profile/developer'),
+          )
         ],
       ),
     );

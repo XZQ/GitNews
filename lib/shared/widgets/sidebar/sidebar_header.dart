@@ -12,12 +12,22 @@ class SidebarHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.sm),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
       child: Row(
         children: [
           const LogoMark(size: AppSpacing.xxl),
           const SizedBox(width: AppSpacing.sm2),
-          Flexible(child: Text(l10n.tr('app.name'), style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.2, height: 1.0), overflow: TextOverflow.ellipsis))
+          Flexible(
+              child: Text(
+            l10n.tr('app.name'),
+            style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700, letterSpacing: 0.2, height: 1.0),
+            overflow: TextOverflow.ellipsis,
+          ))
         ],
       ),
     );

@@ -8,7 +8,13 @@ import '../../core/theme/app_typography.dart';
 *顶部栏通用搜索框。
 */
 class HeaderSearchField extends StatefulWidget {
-  const HeaderSearchField({required this.hintText, this.value = '', this.onChanged, this.onSubmitted, super.key});
+  const HeaderSearchField({
+    required this.hintText,
+    this.value = '',
+    this.onChanged,
+    this.onSubmitted,
+    super.key,
+  });
 
   final String hintText;
   final String value;
@@ -73,7 +79,11 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
                           if (_controller.text.isEmpty) {
                             return const SizedBox.shrink();
                           }
-                          return IconButton(tooltip: l10n.tr('a11y.clear_search'), onPressed: _clear, icon: Icon(Icons.close_rounded, size: 16, color: colors.onSurfaceVariant));
+                          return IconButton(
+                            tooltip: l10n.tr('a11y.clear_search'),
+                            onPressed: _clear,
+                            icon: Icon(Icons.close_rounded, size: 16, color: colors.onSurfaceVariant),
+                          );
                         }),
                     isDense: true,
                     contentPadding: EdgeInsets.zero,

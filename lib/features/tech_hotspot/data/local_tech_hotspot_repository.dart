@@ -13,7 +13,12 @@ class LocalTechHotspotRepository implements TechHotspotRepository {
   Future<DataResult<TechHotspotDigest>> getDigest() async {
     return const DataResult(
       freshness: DataFreshness.seed,
-      data: TechHotspotDigest(languages: TechHotspotSeedData.languages, topics: TechHotspotSeedData.topics, heatTrend: TechHotspotSeedData.heatTrend, hotTags: TechHotspotSeedData.hotTags),
+      data: TechHotspotDigest(
+        languages: TechHotspotSeedData.languages,
+        topics: TechHotspotSeedData.topics,
+        heatTrend: TechHotspotSeedData.heatTrend,
+        hotTags: TechHotspotSeedData.hotTags,
+      ),
     );
   }
 

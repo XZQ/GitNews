@@ -17,7 +17,12 @@ import 'widgets/discover_profile_row.dart';
 import 'widgets/discover_repo_row.dart';
 
 class DiscoverReposSection extends ConsumerWidget {
-  const DiscoverReposSection({required this.async, required this.scrollController, required this.onRetry, super.key});
+  const DiscoverReposSection({
+    required this.async,
+    required this.scrollController,
+    required this.onRetry,
+    super.key,
+  });
 
   final AsyncValue<List<RepoEntity>> async;
   final ScrollController scrollController;
@@ -38,7 +43,14 @@ class DiscoverReposSection extends ConsumerWidget {
           final hasMore = query.trim().isEmpty && ref.read(trendingReposNotifierProvider.notifier).hasMore;
           return ListView.separated(
               controller: scrollController,
-              padding: useCards ? const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl) : const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              padding: useCards
+                  ? const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.md,
+                      AppSpacing.xl,
+                      AppSpacing.xxxl,
+                    )
+                  : const EdgeInsets.symmetric(vertical: AppSpacing.md),
               itemCount: repos.length + (hasMore ? 1 : 0),
               separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
               itemBuilder: (context, i) {
@@ -52,7 +64,12 @@ class DiscoverReposSection extends ConsumerWidget {
 }
 
 class DiscoverSkillsSection extends ConsumerWidget {
-  const DiscoverSkillsSection({required this.async, required this.scrollController, required this.onRetry, super.key});
+  const DiscoverSkillsSection({
+    required this.async,
+    required this.scrollController,
+    required this.onRetry,
+    super.key,
+  });
 
   final AsyncValue<List<SkillEntity>> async;
   final ScrollController scrollController;
@@ -73,7 +90,14 @@ class DiscoverSkillsSection extends ConsumerWidget {
           final hasMore = query.trim().isEmpty && ref.read(agentSkillsNotifierProvider.notifier).hasMore;
           return ListView.separated(
               controller: scrollController,
-              padding: useCards ? const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl) : const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              padding: useCards
+                  ? const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.md,
+                      AppSpacing.xl,
+                      AppSpacing.xxxl,
+                    )
+                  : const EdgeInsets.symmetric(vertical: AppSpacing.md),
               itemCount: skills.length + (hasMore ? 1 : 0),
               separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
               itemBuilder: (context, i) {
@@ -92,7 +116,15 @@ class DiscoverSkillsSection extends ConsumerWidget {
 }
 
 class DiscoverProfilesSection extends ConsumerWidget {
-  const DiscoverProfilesSection({required this.provider, required this.emptyIcon, required this.emptyMessage, required this.kind, required this.scrollController, required this.onRetry, super.key});
+  const DiscoverProfilesSection({
+    required this.provider,
+    required this.emptyIcon,
+    required this.emptyMessage,
+    required this.kind,
+    required this.scrollController,
+    required this.onRetry,
+    super.key,
+  });
 
   final ProviderListenable<AsyncValue<List<DiscoverProfileEntity>>> provider;
   final IconData emptyIcon;
@@ -118,7 +150,14 @@ class DiscoverProfilesSection extends ConsumerWidget {
           final hasMore = query.trim().isEmpty && ref.read(notifierProvider.notifier).hasMore;
           return ListView.separated(
               controller: scrollController,
-              padding: useCards ? const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl) : const EdgeInsets.symmetric(vertical: AppSpacing.md),
+              padding: useCards
+                  ? const EdgeInsets.fromLTRB(
+                      AppSpacing.lg,
+                      AppSpacing.md,
+                      AppSpacing.xl,
+                      AppSpacing.xxxl,
+                    )
+                  : const EdgeInsets.symmetric(vertical: AppSpacing.md),
               itemCount: profiles.length + (hasMore ? 1 : 0),
               separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
               itemBuilder: (context, i) {

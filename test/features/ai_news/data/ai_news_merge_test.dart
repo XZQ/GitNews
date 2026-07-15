@@ -42,7 +42,18 @@ void main() {
   group('mergeAiNewsItems', () {
     test('primary wins over rss duplicates by url', () {
       final primary = [item('p1', title: '主源标题一二三四', url: 'https://example.com/a?utm_source=feed')];
-      final rss = [item('r1', titleEn: 'Different Title Here', url: 'https://example.com/a/'), item('r2', titleEn: 'Unique RSS Item Here', url: 'https://example.com/b')];
+      final rss = [
+        item(
+          'r1',
+          titleEn: 'Different Title Here',
+          url: 'https://example.com/a/',
+        ),
+        item(
+          'r2',
+          titleEn: 'Unique RSS Item Here',
+          url: 'https://example.com/b',
+        )
+      ];
       final merged = mergeAiNewsItems(primary: primary, extras: [rss]);
       expect(merged.map((e) => e.id), containsAll(['p1', 'r2']));
       expect(merged.map((e) => e.id), isNot(contains('r1')));
@@ -58,9 +69,23 @@ void main() {
 
     test('sorts by publishedAt desc', () {
       final merged = mergeAiNewsItems(
-        primary: [item('old', titleEn: 'Old Item Title Here', url: 'https://a.com/old', publishedAt: DateTime.utc(2026, 7, 10))],
+        primary: [
+          item(
+            'old',
+            titleEn: 'Old Item Title Here',
+            url: 'https://a.com/old',
+            publishedAt: DateTime.utc(2026, 7, 10),
+          )
+        ],
         extras: [
-          [item('new', titleEn: 'New Item Title Here', url: 'https://a.com/new', publishedAt: DateTime.utc(2026, 7, 14))]
+          [
+            item(
+              'new',
+              titleEn: 'New Item Title Here',
+              url: 'https://a.com/new',
+              publishedAt: DateTime.utc(2026, 7, 14),
+            )
+          ]
         ],
       );
       expect(merged.map((e) => e.id).toList(), ['new', 'old']);

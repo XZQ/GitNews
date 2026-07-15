@@ -51,7 +51,14 @@ class TrendingQuery {
 *趋势页需要的一组本地情报数据。
 */
 class TrendingDigest {
-  const TrendingDigest({required this.trendingRepos, required this.recentRepos, required this.languages, required this.primaryTrend, required this.secondaryTrend, required this.tertiaryTrend});
+  const TrendingDigest({
+    required this.trendingRepos,
+    required this.recentRepos,
+    required this.languages,
+    required this.primaryTrend,
+    required this.secondaryTrend,
+    required this.tertiaryTrend,
+  });
 
   final List<RepoEntity> trendingRepos;
   final List<RepoEntity> recentRepos;

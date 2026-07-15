@@ -47,7 +47,12 @@ Future<void> _exportReport(BuildContext context, WidgetRef ref) async {
   try {
     final digest = await ref.read(filteredProjectDigestProvider.future);
     final directory = await getApplicationDocumentsDirectory();
-    final file = await writeProjectDigestMarkdown(digest: digest, outputDirectory: directory, generatedAt: DateTime.now(), copy: copy);
+    final file = await writeProjectDigestMarkdown(
+      digest: digest,
+      outputDirectory: directory,
+      generatedAt: DateTime.now(),
+      copy: copy,
+    );
     messenger.showSnackBar(SnackBar(content: Text(exportedMessage.replaceAll('{path}', file.path))));
   } catch (_) {
     messenger.showSnackBar(SnackBar(content: Text(failedMessage)));
