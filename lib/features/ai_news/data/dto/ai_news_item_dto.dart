@@ -4,19 +4,18 @@ import '../../domain/ai_news_item.dart';
 *`/api/public/items` 单条响应 DTO。
 */
 class AiNewsItemDto {
-  const AiNewsItemDto({
-    required this.id,
-    required this.title,
-    required this.titleEn,
-    required this.url,
-    required this.permalink,
-    required this.source,
-    required this.publishedAt,
-    required this.summary,
-    required this.category,
-    required this.score,
-    required this.selected,
-  });
+  const AiNewsItemDto(
+      {required this.id,
+      required this.title,
+      required this.titleEn,
+      required this.url,
+      required this.permalink,
+      required this.source,
+      required this.publishedAt,
+      required this.summary,
+      required this.category,
+      required this.score,
+      required this.selected});
 
   factory AiNewsItemDto.fromJson(Map<String, Object?> json) {
     return AiNewsItemDto(
@@ -75,12 +74,7 @@ class AiNewsItemDto {
 *`/api/public/items` 顶层响应 DTO。
 */
 class AiNewsListResponseDto {
-  const AiNewsListResponseDto({
-    required this.count,
-    required this.hasNext,
-    required this.items,
-    this.nextCursor,
-  });
+  const AiNewsListResponseDto({required this.count, required this.hasNext, required this.items, this.nextCursor});
 
   factory AiNewsListResponseDto.fromJson(Map<String, Object?> json) {
     final list = json['items'];
@@ -97,10 +91,5 @@ class AiNewsListResponseDto {
   final String? nextCursor;
   final List<AiNewsItemDto> items;
 
-  AiNewsDigest toDomain() => AiNewsDigest(
-        items: items.map((e) => e.toDomain()).toList(growable: false),
-        count: count,
-        hasNext: hasNext,
-        nextCursor: nextCursor,
-      );
+  AiNewsDigest toDomain() => AiNewsDigest(items: items.map((e) => e.toDomain()).toList(growable: false), count: count, hasNext: hasNext, nextCursor: nextCursor);
 }

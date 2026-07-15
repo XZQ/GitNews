@@ -4,22 +4,21 @@ import '../../../core/i18n/app_localizations.dart';
 import '../domain/project_repository.dart';
 
 class ProjectReportCopy {
-  const ProjectReportCopy({
-    required this.title,
-    required this.generatedAt,
-    required this.repositoryCount,
-    required this.contributorCount,
-    required this.popularRepositories,
-    required this.noRepositories,
-    required this.language,
-    required this.stars,
-    required this.newStars,
-    required this.forks,
-    required this.description,
-    required this.contributors,
-    required this.noContributors,
-    required this.contributionUnit,
-  });
+  const ProjectReportCopy(
+      {required this.title,
+      required this.generatedAt,
+      required this.repositoryCount,
+      required this.contributorCount,
+      required this.popularRepositories,
+      required this.noRepositories,
+      required this.language,
+      required this.stars,
+      required this.newStars,
+      required this.forks,
+      required this.description,
+      required this.contributors,
+      required this.noContributors,
+      required this.contributionUnit});
 
   factory ProjectReportCopy.fromLocalizations(AppLocalizations l10n) {
     return ProjectReportCopy(
@@ -90,11 +89,7 @@ class ProjectReportCopy {
   final String contributionUnit;
 }
 
-String formatProjectDigestMarkdown(
-  ProjectDigest digest, {
-  required DateTime generatedAt,
-  required ProjectReportCopy copy,
-}) {
+String formatProjectDigestMarkdown(ProjectDigest digest, {required DateTime generatedAt, required ProjectReportCopy copy}) {
   final buffer = StringBuffer()
     ..writeln('# ${copy.title}')
     ..writeln()
@@ -128,41 +123,20 @@ String formatProjectDigestMarkdown(
     buffer.writeln(copy.noContributors);
   } else {
     for (final contributor in digest.contributors) {
-      buffer.writeln(
-        '- @${contributor.login}: ${contributor.contributions} ${copy.contributionUnit}',
-      );
+      buffer.writeln('- @${contributor.login}: ${contributor.contributions} ${copy.contributionUnit}');
     }
   }
   return buffer.toString();
 }
 
-Future<File> writeProjectDigestMarkdown({
-  required ProjectDigest digest,
-  required Directory outputDirectory,
-  required DateTime generatedAt,
-  required ProjectReportCopy copy,
-}) async {
+Future<File> writeProjectDigestMarkdown({required ProjectDigest digest, required Directory outputDirectory, required DateTime generatedAt, required ProjectReportCopy copy}) async {
   final reportsDir = Directory('${outputDirectory.path}/GitHubIntelligence/reports');
   await reportsDir.create(recursive: true);
   final file = File('${reportsDir.path}/report_${_stamp(generatedAt)}.md');
-  return file.writeAsString(
-    formatProjectDigestMarkdown(
-      digest,
-      generatedAt: generatedAt,
-      copy: copy,
-    ),
-  );
+  return file.writeAsString(formatProjectDigestMarkdown(digest, generatedAt: generatedAt, copy: copy));
 }
 
 String _stamp(DateTime value) {
   String two(int n) => n.toString().padLeft(2, '0');
-  return [
-    value.year.toString(),
-    two(value.month),
-    two(value.day),
-    '_',
-    two(value.hour),
-    two(value.minute),
-    two(value.second),
-  ].join();
+  return [value.year.toString(), two(value.month), two(value.day), '_', two(value.hour), two(value.minute), two(value.second)].join();
 }

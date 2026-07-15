@@ -20,24 +20,12 @@ class ProjectTrendOverview extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('project.section.trend.title'),
-            subtitle: l10n.tr('project.section.trend.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('project.section.trend.title'), subtitle: l10n.tr('project.section.trend.subtitle')),
           const SizedBox(height: AppSpacing.md),
           StarTrendChart(
-            series: [
-              ChartSeries(
-                values: _safeTrend(digest.primaryTrend),
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              ChartSeries(
-                values: _safeTrend(digest.secondaryTrend),
-                color: AppColors.info,
-              ),
-            ],
+            series: [ChartSeries(values: _safeTrend(digest.primaryTrend), color: Theme.of(context).colorScheme.primary), ChartSeries(values: _safeTrend(digest.secondaryTrend), color: AppColors.info)],
             height: 220,
-          ),
+          )
         ],
       ),
     );
@@ -47,13 +35,7 @@ class ProjectTrendOverview extends StatelessWidget {
     if (values.isNotEmpty) {
       return values;
     }
-    final stars = digest.repos.fold<int>(
-      0,
-      (sum, repo) => sum + repo.starDelta,
-    );
-    return List<double>.generate(
-      7,
-      (index) => (stars * (0.7 + index * 0.05)).roundToDouble(),
-    );
+    final stars = digest.repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
+    return List<double>.generate(7, (index) => (stars * (0.7 + index * 0.05)).roundToDouble());
   }
 }

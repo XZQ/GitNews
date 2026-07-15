@@ -31,21 +31,13 @@ class TechHotspotDetailPage extends ConsumerWidget {
     final state = ref.watch(techHotspotDetailProvider(id));
     return Scaffold(
       appBar: AppBar(
-        title: state.maybeWhen(
-          data: (topic) => Text(topic.name),
-          orElse: () => Text(l10n.tr('tech_hotspot.detail_title')),
-        ),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/tech_hotspot'),
-        ),
+        title: state.maybeWhen(data: (topic) => Text(topic.name), orElse: () => Text(l10n.tr('tech_hotspot.detail_title'))),
+        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/tech_hotspot')),
       ),
       body: state.when(
         data: (topic) => _Loaded(id: id, topic: topic),
         loading: () => const TechHotspotDetailSkeleton(),
-        error: (error, stack) => ErrorView(
-          error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(techHotspotDetailProvider(id)),
-        ),
+        error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(techHotspotDetailProvider(id))),
       ),
     );
   }
@@ -69,16 +61,8 @@ class _Loaded extends ConsumerWidget {
     final related = relatedState.valueOrNull ?? const <TechTopic>[];
     final languages = languagesState.valueOrNull?.languages ?? const <LanguageStat>[];
     final formFactor = Breakpoints.of(context);
-    final relatedError = relatedState.hasError
-        ? relatedState.error!.asAppException(
-            relatedState.stackTrace ?? StackTrace.current,
-          )
-        : null;
-    final languagesError = languagesState.hasError
-        ? languagesState.error!.asAppException(
-            languagesState.stackTrace ?? StackTrace.current,
-          )
-        : null;
+    final relatedError = relatedState.hasError ? relatedState.error!.asAppException(relatedState.stackTrace ?? StackTrace.current) : null;
+    final languagesError = languagesState.hasError ? languagesState.error!.asAppException(languagesState.stackTrace ?? StackTrace.current) : null;
     if (formFactor == FormFactor.compact) {
       return _Mobile(
         topic: topic,
@@ -105,15 +89,8 @@ class _Loaded extends ConsumerWidget {
 }
 
 class _Mobile extends StatelessWidget {
-  const _Mobile({
-    required this.topic,
-    required this.related,
-    required this.languages,
-    required this.relatedError,
-    required this.languagesError,
-    required this.onRetryRelated,
-    required this.onRetryLanguages,
-  });
+  const _Mobile(
+      {required this.topic, required this.related, required this.languages, required this.relatedError, required this.languagesError, required this.onRetryRelated, required this.onRetryLanguages});
 
   final TechTopic topic;
   final List<TechTopic> related;
@@ -127,51 +104,31 @@ class _Mobile extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         TechHotspotDetailTopicHeader(topic: topic),
         const SizedBox(height: AppSpacing.lg),
         TechHotspotDetailSummary(topic: topic),
         const SizedBox(height: AppSpacing.lg),
         if (languagesError != null)
-          TechHotspotDetailSectionError(
-            title: l10n.tr('tech_hotspot.error.languages'),
-            error: languagesError!,
-            onRetry: onRetryLanguages,
-          )
+          TechHotspotDetailSectionError(title: l10n.tr('tech_hotspot.error.languages'), error: languagesError!, onRetry: onRetryLanguages)
         else
           TechHotspotDetailLanguages(languages: languages),
         if (relatedError != null) ...[
           const SizedBox(height: AppSpacing.lg),
-          TechHotspotDetailSectionError(
-            title: l10n.tr('tech_hotspot.error.related'),
-            error: relatedError!,
-            onRetry: onRetryRelated,
-          ),
+          TechHotspotDetailSectionError(title: l10n.tr('tech_hotspot.error.related'), error: relatedError!, onRetry: onRetryRelated)
         ] else if (related.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.lg),
-          TechHotspotDetailRelated(items: related),
-        ],
+          TechHotspotDetailRelated(items: related)
+        ]
       ],
     );
   }
 }
 
 class _Desktop extends StatelessWidget {
-  const _Desktop({
-    required this.topic,
-    required this.related,
-    required this.languages,
-    required this.relatedError,
-    required this.languagesError,
-    required this.onRetryRelated,
-    required this.onRetryLanguages,
-  });
+  const _Desktop(
+      {required this.topic, required this.related, required this.languages, required this.relatedError, required this.languagesError, required this.onRetryRelated, required this.onRetryLanguages});
 
   final TechTopic topic;
   final List<TechTopic> related;
@@ -200,13 +157,9 @@ class _Desktop extends StatelessWidget {
                   TechHotspotDetailSummary(topic: topic),
                   const SizedBox(height: AppSpacing.lg),
                   if (languagesError != null)
-                    TechHotspotDetailSectionError(
-                      title: l10n.tr('tech_hotspot.error.languages'),
-                      error: languagesError!,
-                      onRetry: onRetryLanguages,
-                    )
+                    TechHotspotDetailSectionError(title: l10n.tr('tech_hotspot.error.languages'), error: languagesError!, onRetry: onRetryLanguages)
                   else
-                    TechHotspotDetailLanguages(languages: languages),
+                    TechHotspotDetailLanguages(languages: languages)
                 ],
               ),
             ),
@@ -214,17 +167,13 @@ class _Desktop extends StatelessWidget {
             Expanded(
               flex: 4,
               child: relatedError != null
-                  ? TechHotspotDetailSectionError(
-                      title: l10n.tr('tech_hotspot.error.related'),
-                      error: relatedError!,
-                      onRetry: onRetryRelated,
-                    )
+                  ? TechHotspotDetailSectionError(title: l10n.tr('tech_hotspot.error.related'), error: relatedError!, onRetry: onRetryRelated)
                   : related.isEmpty
                       ? const SizedBox.shrink()
                       : TechHotspotDetailRelated(items: related),
-            ),
+            )
           ],
-        ),
+        )
       ],
     );
   }

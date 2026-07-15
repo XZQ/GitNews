@@ -8,12 +8,7 @@ class MonitorRuleIds {
   static const String forkDailyDelta = 'fork_daily_delta';
   static const String issueHeatRatio = 'issue_heat_ratio';
 
-  static const Set<String> all = {
-    starDailyDelta,
-    starDailyRate,
-    forkDailyDelta,
-    issueHeatRatio,
-  };
+  static const Set<String> all = {starDailyDelta, starDailyRate, forkDailyDelta, issueHeatRatio};
 }
 
 class MonitorRuleThresholds {
@@ -26,18 +21,17 @@ class MonitorRuleThresholds {
 }
 
 class MonitorAlertEvent {
-  const MonitorAlertEvent({
-    required this.id,
-    required this.repoFullName,
-    required this.ruleId,
-    required this.metric,
-    required this.value,
-    required this.threshold,
-    required this.severity,
-    required this.observedAt,
-    this.readAt,
-    this.archivedAt,
-  });
+  const MonitorAlertEvent(
+      {required this.id,
+      required this.repoFullName,
+      required this.ruleId,
+      required this.metric,
+      required this.value,
+      required this.threshold,
+      required this.severity,
+      required this.observedAt,
+      this.readAt,
+      this.archivedAt});
 
   final String id;
   final String repoFullName;
@@ -53,12 +47,7 @@ class MonitorAlertEvent {
   bool get isRead => readAt != null;
   bool get isArchived => archivedAt != null;
 
-  MonitorAlertEvent copyWith({
-    DateTime? readAt,
-    DateTime? archivedAt,
-    bool clearReadAt = false,
-    bool clearArchivedAt = false,
-  }) {
+  MonitorAlertEvent copyWith({DateTime? readAt, DateTime? archivedAt, bool clearReadAt = false, bool clearArchivedAt = false}) {
     return MonitorAlertEvent(
       id: id,
       repoFullName: repoFullName,

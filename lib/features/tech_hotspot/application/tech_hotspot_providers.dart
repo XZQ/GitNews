@@ -29,9 +29,7 @@ final techHotspotRepositoryProvider = Provider<TechHotspotRepository>((ref) {
   );
 });
 
-final localTechHotspotRepositoryProvider = Provider<TechHotspotRepository>(
-  (ref) => const LocalTechHotspotRepository(),
-);
+final localTechHotspotRepositoryProvider = Provider<TechHotspotRepository>((ref) => const LocalTechHotspotRepository());
 
 final techHotspotDigestResultProvider = FutureProvider<DataResult<TechHotspotDigest>>((ref) {
   return ref.watch(techHotspotRepositoryProvider).getDigest();
@@ -52,35 +50,24 @@ final techHotspotSearchQueryProvider = StateProvider<String>((ref) => '');
 final techHotspotCategoryFilterProvider = StateProvider<String>((ref) => 'all');
 
 // 应用本地搜索后的 AI 雷达摘要。
-final filteredTechHotspotDigestProvider = FutureProvider<TechHotspotDigest>((
-  ref,
-) async {
+final filteredTechHotspotDigestProvider = FutureProvider<TechHotspotDigest>((ref) async {
   final query = ref.watch(techHotspotSearchQueryProvider);
   final category = ref.watch(techHotspotCategoryFilterProvider);
   final digest = await ref.watch(techHotspotDigestProvider.future);
   return filterTechHotspotDigest(digest, query, category: category);
 });
 
-TechHotspotDigest filterTechHotspotDigest(
-  TechHotspotDigest digest,
-  String query, {
-  String category = 'all',
-}) {
+TechHotspotDigest filterTechHotspotDigest(TechHotspotDigest digest, String query, {String category = 'all'}) {
   final keyword = query.trim().toLowerCase();
   final categoryKey = category.trim().toLowerCase();
   final categoryTopics = categoryKey == 'all'
       ? digest.topics
       : [
           for (final topic in digest.topics)
-            if (topic.category.toLowerCase() == categoryKey) topic,
+            if (topic.category.toLowerCase() == categoryKey) topic
         ];
   if (keyword.isEmpty) {
-    return TechHotspotDigest(
-      languages: digest.languages,
-      topics: categoryTopics,
-      heatTrend: digest.heatTrend,
-      hotTags: digest.hotTags,
-    );
+    return TechHotspotDigest(languages: digest.languages, topics: categoryTopics, heatTrend: digest.heatTrend, hotTags: digest.hotTags);
   }
 
   return TechHotspotDigest(
@@ -89,7 +76,7 @@ TechHotspotDigest filterTechHotspotDigest(
     heatTrend: digest.heatTrend,
     hotTags: [
       for (final tag in digest.hotTags)
-        if (tag.toLowerCase().contains(keyword)) tag,
+        if (tag.toLowerCase().contains(keyword)) tag
     ],
   );
 }
@@ -102,15 +89,10 @@ List<TechTopic> filterTechTopics(List<TechTopic> topics, String query) {
 
   return [
     for (final topic in topics)
-      if (_topicSearchText(topic).contains(keyword)) topic,
+      if (_topicSearchText(topic).contains(keyword)) topic
   ];
 }
 
 String _topicSearchText(TechTopic topic) {
-  return [
-    topic.id,
-    topic.name,
-    topic.category,
-    topic.summary,
-  ].join(' ').toLowerCase();
+  return [topic.id, topic.name, topic.category, topic.summary].join(' ').toLowerCase();
 }

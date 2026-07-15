@@ -23,23 +23,10 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(
-      MaterialApp(
+    await tester.pumpWidget(MaterialApp(
         localizationsDelegates: const [AppLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: Center(
-            child: SizedBox(
-              width: 680,
-              height: 220,
-              child: ProjectLanguageDistribution(
-                repos: [for (var i = 0; i < 12; i++) _repo(i)],
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
+        home: Scaffold(body: Center(child: SizedBox(width: 680, height: 220, child: ProjectLanguageDistribution(repos: [for (var i = 0; i < 12; i++) _repo(i)]))))));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);

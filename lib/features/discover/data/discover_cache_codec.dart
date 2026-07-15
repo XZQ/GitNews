@@ -9,44 +9,25 @@ class DiscoverCacheCodec {
   const DiscoverCacheCodec._();
 
   static Map<String, Object?> repoListToJson(List<RepoEntity> repos) => {
-        'items': [for (final repo in repos) _repoToJson(repo)],
+        'items': [for (final repo in repos) _repoToJson(repo)]
       };
 
-  static List<RepoEntity> decodeRepos(Map<String, Object?> json) => [
-        for (final raw in GitHubJson.list(json['items'])) _repoFromJson(GitHubJson.map(raw)),
-      ];
+  static List<RepoEntity> decodeRepos(Map<String, Object?> json) => [for (final raw in GitHubJson.list(json['items'])) _repoFromJson(GitHubJson.map(raw))];
 
   static Map<String, Object?> skillsToJson(List<SkillEntity> skills) => {
         'items': [
-          for (final skill in skills)
-            {
-              'repo': _repoToJson(skill.repo),
-              'category': skill.category,
-              'source': skill.source,
-              'rank': skill.rank,
-              'summary': skill.summary ?? '',
-            },
-        ],
+          for (final skill in skills) {'repo': _repoToJson(skill.repo), 'category': skill.category, 'source': skill.source, 'rank': skill.rank, 'summary': skill.summary ?? ''}
+        ]
       };
 
-  static List<SkillEntity> decodeSkills(Map<String, Object?> json) => [
-        for (final raw in GitHubJson.list(json['items'])) _skillFromJson(GitHubJson.map(raw)),
-      ];
+  static List<SkillEntity> decodeSkills(Map<String, Object?> json) => [for (final raw in GitHubJson.list(json['items'])) _skillFromJson(GitHubJson.map(raw))];
 
-  static Map<String, Object?> profilesToJson(
-    List<DiscoverProfileEntity> profiles,
-  ) =>
-      {
-        'items': [for (final profile in profiles) _profileToJson(profile)],
+  static Map<String, Object?> profilesToJson(List<DiscoverProfileEntity> profiles) => {
+        'items': [for (final profile in profiles) _profileToJson(profile)]
       };
 
-  static List<DiscoverProfileEntity> decodeProfiles(
-    Map<String, Object?> json,
-    DiscoverProfileKind kind,
-  ) =>
-      [
-        for (final raw in GitHubJson.list(json['items'])) profileFromJson(GitHubJson.map(raw), kind),
-      ];
+  static List<DiscoverProfileEntity> decodeProfiles(Map<String, Object?> json, DiscoverProfileKind kind) =>
+      [for (final raw in GitHubJson.list(json['items'])) profileFromJson(GitHubJson.map(raw), kind)];
 
   static RepoEntity repoFromGitHubSearch(Map<String, Object?> json) {
     final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
@@ -63,10 +44,7 @@ class DiscoverCacheCodec {
     );
   }
 
-  static DiscoverProfileEntity profileFromJson(
-    Map<String, Object?> json,
-    DiscoverProfileKind kind,
-  ) {
+  static DiscoverProfileEntity profileFromJson(Map<String, Object?> json, DiscoverProfileKind kind) {
     final login = GitHubJson.string(json['login']);
     final name = GitHubJson.nullableString(json['name']);
     return DiscoverProfileEntity(
@@ -94,7 +72,7 @@ class DiscoverCacheCodec {
         'forkCount': repo.forkCount,
         'accentArgb': repo.accentArgb,
         'valueBasis': repo.valueBasis.name,
-        'trendBasis': repo.trendBasis.name,
+        'trendBasis': repo.trendBasis.name
       };
 
   static RepoEntity _repoFromJson(Map<String, Object?> json) => RepoEntity(
@@ -119,23 +97,12 @@ class DiscoverCacheCodec {
     );
   }
 
-  static MetricBasis _basisFromJson(
-    Map<String, Object?> json,
-    String key,
-    String legacyKey,
-  ) {
+  static MetricBasis _basisFromJson(Map<String, Object?> json, String key, String legacyKey) {
     final name = GitHubJson.nullableString(json[key]);
-    return name == null
-        ? MetricBasis.fromLegacyName(
-            GitHubJson.nullableString(json[legacyKey]),
-          )
-        : MetricBasis.fromName(name);
+    return name == null ? MetricBasis.fromLegacyName(GitHubJson.nullableString(json[legacyKey])) : MetricBasis.fromName(name);
   }
 
-  static Map<String, Object?> _profileToJson(
-    DiscoverProfileEntity profile,
-  ) =>
-      {
+  static Map<String, Object?> _profileToJson(DiscoverProfileEntity profile) => {
         'login': profile.login,
         'name': profile.name,
         'type': profile.type,
@@ -146,6 +113,6 @@ class DiscoverCacheCodec {
         'htmlUrl': profile.htmlUrl,
         'featuredRepoFullName': profile.featuredRepoFullName,
         'enriched': profile.enriched,
-        'enrichFailed': profile.enrichFailed,
+        'enrichFailed': profile.enrichFailed
       };
 }

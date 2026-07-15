@@ -62,9 +62,7 @@ void main() {
   });
 
   test('pruning keeps the newest 500 events', () async {
-    await dao.upsertAll([
-      for (var i = 0; i < 505; i++) event(id: 'event-$i', minute: i),
-    ]);
+    await dao.upsertAll([for (var i = 0; i < 505; i++) event(id: 'event-$i', minute: i)]);
 
     final events = await dao.list(includeArchived: true);
 
@@ -82,10 +80,7 @@ void main() {
   });
 }
 
-MonitorAlertEvent event({
-  required String id,
-  int minute = 0,
-}) {
+MonitorAlertEvent event({required String id, int minute = 0}) {
   return MonitorAlertEvent(
     id: id,
     repoFullName: 'owner/repo',

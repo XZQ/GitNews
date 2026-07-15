@@ -22,31 +22,19 @@ class ActivityContributorsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('project.activity.developers'),
-            subtitle: l10n.tr('project.activity.developers.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('project.activity.developers'), subtitle: l10n.tr('project.activity.developers.subtitle')),
           const SizedBox(height: AppSpacing.md),
           for (final c in contributors)
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: CircleAvatar(
                 radius: 16,
-                backgroundColor: Color(
-                  c.avatarAccentArgb,
-                ).withValues(alpha: 0.16),
-                child: Text(
-                  c.login[0].toUpperCase(),
-                  style: AppTypography.titleSmall.copyWith(
-                    color: Color(c.avatarAccentArgb),
-                  ),
-                ),
+                backgroundColor: Color(c.avatarAccentArgb).withValues(alpha: 0.16),
+                child: Text(c.login[0].toUpperCase(), style: AppTypography.titleSmall.copyWith(color: Color(c.avatarAccentArgb))),
               ),
               title: Text(c.login, style: AppTypography.titleSmall),
-              subtitle: Text(
-                l10n.tr('project.activity.contrib').replaceAll('{n}', c.contributions.toString()),
-              ),
-            ),
+              subtitle: Text(l10n.tr('project.activity.contrib').replaceAll('{n}', c.contributions.toString())),
+            )
         ],
       ),
     );

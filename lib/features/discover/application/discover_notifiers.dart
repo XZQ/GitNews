@@ -103,12 +103,7 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
     _hasMore = true;
     _enrichingLogins.clear();
     _enrichFailedLogins.clear();
-    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(
-          kind: kind,
-          force: force,
-          page: _page,
-          perPage: discoverProfilesPageSize,
-        );
+    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, force: force, page: _page, perPage: discoverProfilesPageSize);
     final list = result.data;
     _updateFreshness(result.freshness);
     _updateHasMore(list, page: _page);
@@ -122,11 +117,7 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
     _loadingMore = true;
     try {
       final nextPage = _page + 1;
-      final result = await ref.read(discoverRepositoryProvider).fetchProfiles(
-            kind: kind,
-            page: nextPage,
-            perPage: discoverProfilesPageSize,
-          );
+      final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, page: nextPage, perPage: discoverProfilesPageSize);
       final next = result.data;
       _updateFreshness(result.freshness);
       _page = nextPage;
@@ -147,25 +138,26 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
     }
     _enrichingLogins.add(login);
     try {
-      final result = await ref.read(discoverRepositoryProvider).fetchProfileDetail(
-            login: login,
-            kind: kind,
-          );
+      final result = await ref.read(discoverRepositoryProvider).fetchProfileDetail(login: login, kind: kind);
       final enriched = result.data;
       final current = state.valueOrNull;
       if (current == null) return;
-      state = AsyncData([
-        for (final p in current)
-          if (p.login == login) enriched else p,
-      ]);
+      state = AsyncData(
+        [
+          for (final p in current)
+            if (p.login == login) enriched else p
+        ],
+      );
     } catch (_) {
       _enrichFailedLogins.add(login);
       final current = state.valueOrNull;
       if (current == null) return;
-      state = AsyncData([
-        for (final p in current)
-          if (p.login == login) p.copyWith(enrichFailed: true) else p,
-      ]);
+      state = AsyncData(
+        [
+          for (final p in current)
+            if (p.login == login) p.copyWith(enrichFailed: true) else p
+        ],
+      );
     } finally {
       _enrichingLogins.remove(login);
     }
@@ -183,10 +175,7 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
 
   bool get hasMore => _hasMore;
 
-  void _updateHasMore(
-    List<DiscoverProfileEntity> pageData, {
-    required int page,
-  }) {
+  void _updateHasMore(List<DiscoverProfileEntity> pageData, {required int page}) {
     // page==1:whitelist 为 enriched、搜索结果为 !enriched,用 !enriched 计数。
     // page>=2:全部为 !enriched,直接用长度。
     final searchPart = page == 1 ? pageData.where((p) => !p.enriched).length : pageData.length;

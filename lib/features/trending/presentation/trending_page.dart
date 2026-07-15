@@ -24,41 +24,24 @@ class TrendingPage extends ConsumerWidget {
     // 切换 board/window/language 等触发 rebuild 时,保留旧数据;顶部细条进度提示。
     final isReloading = state.isLoading && state.hasValue;
     return Scaffold(
-      appBar: isCompact ? AppBar(title: Text(l10n.tr('trending.title'))) : null,
-      body: Column(
-        children: [
+        appBar: isCompact ? AppBar(title: Text(l10n.tr('trending.title'))) : null,
+        body: Column(children: [
           if (isReloading) const LinearProgressIndicator(minHeight: 2),
           Expanded(
-            child: state.when(
-              skipLoadingOnReload: true,
-              data: (digest) {
-                if (digest.isEmpty && searchQuery.isEmpty) {
-                  return EmptyView(
-                    icon: Icons.local_fire_department_outlined,
-                    message: l10n.tr('trending.empty'),
-                  );
-                }
-                return ResponsiveLayout(
-                  compact: (_) => TrendingMobileView(digest: digest),
-                  medium: (_) => TrendingDesktopView(
-                    digest: digest,
-                    isReloading: isReloading,
-                  ),
-                  expanded: (_) => TrendingDesktopView(
-                    digest: digest,
-                    isReloading: isReloading,
-                  ),
-                );
-              },
-              loading: () => const TrendingSkeleton(),
-              error: (error, stackTrace) => ErrorView(
-                error: error.asAppException(stackTrace),
-                onRetry: () => ref.invalidate(trendingDigestProvider),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+              child: state.when(
+                  skipLoadingOnReload: true,
+                  data: (digest) {
+                    if (digest.isEmpty && searchQuery.isEmpty) {
+                      return EmptyView(icon: Icons.local_fire_department_outlined, message: l10n.tr('trending.empty'));
+                    }
+                    return ResponsiveLayout(
+                      compact: (_) => TrendingMobileView(digest: digest),
+                      medium: (_) => TrendingDesktopView(digest: digest, isReloading: isReloading),
+                      expanded: (_) => TrendingDesktopView(digest: digest, isReloading: isReloading),
+                    );
+                  },
+                  loading: () => const TrendingSkeleton(),
+                  error: (error, stackTrace) => ErrorView(error: error.asAppException(stackTrace), onRetry: () => ref.invalidate(trendingDigestProvider))))
+        ]));
   }
 }

@@ -114,41 +114,28 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
             onRefresh: _refresh,
             isRefreshing: _refreshing,
           ),
-          DiscoverSegmented(
-            value: segment,
-            compact: isCompact,
-            onChanged: (v) => ref.read(discoverSegmentProvider.notifier).state = v,
-          ),
+          DiscoverSegmented(value: segment, compact: isCompact, onChanged: (v) => ref.read(discoverSegmentProvider.notifier).state = v),
           Expanded(
-            child: switch (segment) {
-              'skills' => DiscoverSkillsSection(
-                  async: ref.watch(filteredAgentSkillsProvider),
-                  scrollController: _scrollController,
-                  onRetry: _refresh,
-                ),
-              'official' => DiscoverProfilesSection(
-                  provider: filteredOfficialProfilesProvider,
-                  emptyIcon: Icons.verified_outlined,
-                  emptyMessage: l10n.tr('discover.empty.official'),
-                  kind: DiscoverProfileKind.official,
-                  scrollController: _scrollController,
-                  onRetry: _refresh,
-                ),
-              'people' => DiscoverProfilesSection(
-                  provider: filteredPeopleProfilesProvider,
-                  emptyIcon: Icons.person_search_outlined,
-                  emptyMessage: l10n.tr('discover.empty.people'),
-                  kind: DiscoverProfileKind.people,
-                  scrollController: _scrollController,
-                  onRetry: _refresh,
-                ),
-              _ => DiscoverReposSection(
-                  async: ref.watch(filteredTrendingReposProvider),
-                  scrollController: _scrollController,
-                  onRetry: _refresh,
-                ),
-            },
-          ),
+              child: switch (segment) {
+            'skills' => DiscoverSkillsSection(async: ref.watch(filteredAgentSkillsProvider), scrollController: _scrollController, onRetry: _refresh),
+            'official' => DiscoverProfilesSection(
+                provider: filteredOfficialProfilesProvider,
+                emptyIcon: Icons.verified_outlined,
+                emptyMessage: l10n.tr('discover.empty.official'),
+                kind: DiscoverProfileKind.official,
+                scrollController: _scrollController,
+                onRetry: _refresh,
+              ),
+            'people' => DiscoverProfilesSection(
+                provider: filteredPeopleProfilesProvider,
+                emptyIcon: Icons.person_search_outlined,
+                emptyMessage: l10n.tr('discover.empty.people'),
+                kind: DiscoverProfileKind.people,
+                scrollController: _scrollController,
+                onRetry: _refresh,
+              ),
+            _ => DiscoverReposSection(async: ref.watch(filteredTrendingReposProvider), scrollController: _scrollController, onRetry: _refresh)
+          })
         ],
       ),
     );

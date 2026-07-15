@@ -11,9 +11,7 @@ import 'ai_news_providers.dart';
 *与 ai_news_providers.dart 的「远端流 + 分页缓存」职责分离。
 */
 
-final aiNewsStateDaoProvider = Provider<AiNewsStateDao>(
-  (ref) => AiNewsStateDao(ref.watch(appDatabaseProvider).executor),
-);
+final aiNewsStateDaoProvider = Provider<AiNewsStateDao>((ref) => AiNewsStateDao(ref.watch(appDatabaseProvider).executor));
 
 // 只看稍后读开关(列表页)。
 final aiNewsReadLaterOnlyProvider = StateProvider<bool>((ref) => false);
@@ -26,18 +24,12 @@ final aiNewsLibrarySearchProvider = FutureProvider.autoDispose.family<List<AiNew
 });
 
 // 稍后读列表(实体快照重建,清缓存不受影响)。
-final aiNewsReadLaterItemsProvider = FutureProvider.autoDispose<List<AiNewsItem>>(
-  (ref) => ref.watch(aiNewsStateDaoProvider).readLaterItems(),
-);
+final aiNewsReadLaterItemsProvider = FutureProvider.autoDispose<List<AiNewsItem>>((ref) => ref.watch(aiNewsStateDaoProvider).readLaterItems());
 
 // 单条已读/稍后读状态(详情页动作按钮)。
-final aiNewsItemStateProvider = FutureProvider.autoDispose.family<AiNewsItemState, String>(
-  (ref, id) => ref.watch(aiNewsStateDaoProvider).stateOf(id),
-);
+final aiNewsItemStateProvider = FutureProvider.autoDispose.family<AiNewsItemState, String>((ref, id) => ref.watch(aiNewsStateDaoProvider).stateOf(id));
 
-final aiNewsLibraryControllerProvider = Provider<AiNewsLibraryController>(
-  AiNewsLibraryController.new,
-);
+final aiNewsLibraryControllerProvider = Provider<AiNewsLibraryController>(AiNewsLibraryController.new);
 
 /*
 *资讯库写操作入口:落库后精确失效相关读 provider。

@@ -9,12 +9,7 @@ class AiNewsListSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.xl,
-        AppSpacing.xxxl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl),
       children: const [
         Skeleton(height: 24, width: 120),
         SizedBox(height: AppSpacing.md),
@@ -24,7 +19,7 @@ class AiNewsListSkeleton extends StatelessWidget {
         SizedBox(height: AppSpacing.md),
         Skeleton(height: 96),
         SizedBox(height: AppSpacing.md),
-        Skeleton(height: 96),
+        Skeleton(height: 96)
       ],
     );
   }
@@ -35,15 +30,6 @@ class AiNewsLoadMoreIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
-      child: Center(
-        child: SizedBox(
-          width: 24,
-          height: 24,
-          child: CircularProgressIndicator(strokeWidth: 2.4),
-        ),
-      ),
-    );
+    return const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.lg), child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2.4))));
   }
 }

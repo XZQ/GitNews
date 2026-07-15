@@ -1,10 +1,6 @@
 import 'app_localizations.dart';
 
-String formatRelativeTime(
-  AppLocalizations l10n,
-  DateTime occurredAt, {
-  DateTime? now,
-}) {
+String formatRelativeTime(AppLocalizations l10n, DateTime occurredAt, {DateTime? now}) {
   final localTime = occurredAt.toLocal();
   final current = (now ?? DateTime.now()).toLocal();
   final difference = current.difference(localTime);

@@ -19,58 +19,26 @@ class JsonSnapshotCacheDao {
 
   Future<Map<String, Object?>?> read(String key) async {
     try {
-      final rows = await _db.query(
-        _table,
-        columns: ['payload_json'],
-        where: 'cache_key = ?',
-        whereArgs: [key],
-        limit: 1,
-      );
+      final rows = await _db.query(_table, columns: ['payload_json'], where: 'cache_key = ?', whereArgs: [key], limit: 1);
       if (rows.isEmpty) {
         return null;
       }
       return jsonDecode(rows.first['payload_json'] as String) as Map<String, Object?>;
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'jsonSnapshot.read', 'key': key},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.read', 'key': key});
     }
   }
 
-  Future<void> upsert({
-    required String key,
-    required Map<String, Object?> payload,
-    required DateTime now,
-  }) async {
+  Future<void> upsert({required String key, required Map<String, Object?> payload, required DateTime now}) async {
     try {
-      await _db.insert(
-        _table,
-        {
-          'cache_key': key,
-          'payload_json': jsonEncode(payload),
-          'cached_at': now.millisecondsSinceEpoch,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(payload), 'cached_at': now.millisecondsSinceEpoch}, conflictAlgorithm: ConflictAlgorithm.replace);
       await _meta.upsert(key, now);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'jsonSnapshot.upsert', 'key': key},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.upsert', 'key': key});
     }
   }
 
-  Future<bool> isFresh({
-    required String key,
-    required Duration ttl,
-    required DateTime now,
-  }) async {
+  Future<bool> isFresh({required String key, required Duration ttl, required DateTime now}) async {
     final last = await _meta.lastFetched(key);
     if (last == null) {
       return false;
@@ -83,12 +51,7 @@ class JsonSnapshotCacheDao {
       await _db.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
       await _meta.delete(key);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'jsonSnapshot.delete', 'key': key},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.delete', 'key': key});
     }
   }
 
@@ -104,12 +67,7 @@ class JsonSnapshotCacheDao {
   /* 
   *同时写 payload 与 ETag。etag 为 null 时保留既有 etag 不变。
   */
-  Future<void> upsertWithEtag({
-    required String key,
-    required Map<String, Object?> payload,
-    required DateTime now,
-    String? etag,
-  }) async {
+  Future<void> upsertWithEtag({required String key, required Map<String, Object?> payload, required DateTime now, String? etag}) async {
     await upsert(key: key, payload: payload, now: now);
     if (etag != null) {
       await _meta.writeEtag(key, etag);

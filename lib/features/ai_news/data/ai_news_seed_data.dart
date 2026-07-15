@@ -100,7 +100,7 @@ class AiNewsSeedData {
       publishedAt: _now,
       score: 73,
       selected: false,
-    ),
+    )
   ];
 
   static final DateTime _now = DateTime.now();

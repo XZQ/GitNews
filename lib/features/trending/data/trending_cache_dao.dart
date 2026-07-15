@@ -29,18 +29,9 @@ class TrendingCacheDao {
     return 'trending:github:$scope:window=${query.window.name}:board=${query.board.value}:language=$language';
   }
 
-  Future<TrendingDataSnapshot?> readSnapshot(
-    TrendingQuery query, {
-    String scope = 'anonymous',
-  }) async {
+  Future<TrendingDataSnapshot?> readSnapshot(TrendingQuery query, {String scope = 'anonymous'}) async {
     try {
-      final rows = await _db.query(
-        _table,
-        columns: ['payload_json'],
-        where: 'cache_key = ?',
-        whereArgs: [cacheKey(query, scope: scope)],
-        limit: 1,
-      );
+      final rows = await _db.query(_table, columns: ['payload_json'], where: 'cache_key = ?', whereArgs: [cacheKey(query, scope: scope)], limit: 1);
       if (rows.isEmpty) {
         return null;
       }
@@ -48,50 +39,22 @@ class TrendingCacheDao {
       final json = jsonDecode(payload) as Map<String, Object?>;
       return _snapshotFromJson(json);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.readSnapshot'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.readSnapshot'});
     }
   }
 
-  Future<void> upsertSnapshot({
-    required TrendingQuery query,
-    String scope = 'anonymous',
-    required TrendingDataSnapshot snapshot,
-    required DateTime now,
-  }) async {
+  Future<void> upsertSnapshot({required TrendingQuery query, String scope = 'anonymous', required TrendingDataSnapshot snapshot, required DateTime now}) async {
     final key = cacheKey(query, scope: scope);
     final cachedAt = now.millisecondsSinceEpoch;
     try {
-      await _db.insert(
-        _table,
-        {
-          'cache_key': key,
-          'payload_json': jsonEncode(_snapshotToJson(snapshot)),
-          'cached_at': cachedAt,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(_snapshotToJson(snapshot)), 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
       await _meta.upsert(key, now);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.upsertSnapshot'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.upsertSnapshot'});
     }
   }
 
-  Future<bool> isFresh({
-    required TrendingQuery query,
-    String scope = 'anonymous',
-    required Duration ttl,
-    required DateTime now,
-  }) async {
+  Future<bool> isFresh({required TrendingQuery query, String scope = 'anonymous', required Duration ttl, required DateTime now}) async {
     final last = await _meta.lastFetched(cacheKey(query, scope: scope));
     if (last == null) {
       return false;
@@ -103,30 +66,17 @@ class TrendingCacheDao {
     try {
       await _db.delete(_table);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.clear'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.clear'});
     }
   }
 
-  Future<void> deleteSnapshot(
-    TrendingQuery query, {
-    String scope = 'anonymous',
-  }) async {
+  Future<void> deleteSnapshot(TrendingQuery query, {String scope = 'anonymous'}) async {
     final key = cacheKey(query, scope: scope);
     try {
       await _db.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
       await _meta.delete(key);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.deleteSnapshot'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.deleteSnapshot'});
     }
   }
 
@@ -137,7 +87,7 @@ class TrendingCacheDao {
       'languages': snapshot.languages.map(_languageToJson).toList(),
       'primaryTrend': snapshot.primaryTrend,
       'secondaryTrend': snapshot.secondaryTrend,
-      'tertiaryTrend': snapshot.tertiaryTrend,
+      'tertiaryTrend': snapshot.tertiaryTrend
     };
   }
 
@@ -163,7 +113,7 @@ class TrendingCacheDao {
       'accentArgb': repo.accentArgb,
       'valueBasis': repo.valueBasis.name,
       'trendBasis': repo.trendBasis.name,
-      'trend': repo.trend,
+      'trend': repo.trend
     };
   }
 
@@ -184,13 +134,7 @@ class TrendingCacheDao {
   }
 
   Map<String, Object?> _languageToJson(LanguageEntity language) {
-    return {
-      'name': language.name,
-      'percent': language.percent,
-      'delta': language.delta,
-      'accentArgb': language.accentArgb,
-      'basis': language.basis.name,
-    };
+    return {'name': language.name, 'percent': language.percent, 'delta': language.delta, 'accentArgb': language.accentArgb, 'basis': language.basis.name};
   }
 
   LanguageEntity _languageFromJson(Object? raw) {
@@ -246,11 +190,7 @@ class TrendingCacheDao {
     throw const FormatException('Expected double');
   }
 
-  MetricBasis _basisFromJson(
-    Map<String, Object?> json,
-    String key,
-    String legacyKey,
-  ) {
+  MetricBasis _basisFromJson(Map<String, Object?> json, String key, String legacyKey) {
     final name = json[key] as String?;
     return name == null ? MetricBasis.fromLegacyName(json[legacyKey] as String?) : MetricBasis.fromName(name);
   }

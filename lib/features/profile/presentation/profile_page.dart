@@ -27,11 +27,7 @@ class ProfilePage extends ConsumerWidget {
     final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
       appBar: isCompact ? AppBar(title: Text(l10n.tr('profile.title'))) : null,
-      body: ResponsiveLayout(
-        compact: (_) => const _Mobile(),
-        medium: (_) => const _Desktop(),
-        expanded: (_) => const _Desktop(),
-      ),
+      body: ResponsiveLayout(compact: (_) => const _Mobile(), medium: (_) => const _Desktop(), expanded: (_) => const _Desktop()),
     );
   }
 }
@@ -42,12 +38,7 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: const [
         ProfileUserCard(),
         SizedBox(height: AppSpacing.lg),
@@ -59,7 +50,7 @@ class _Mobile extends StatelessWidget {
         SizedBox(height: AppSpacing.lg),
         ProfileSettingsCard(),
         SizedBox(height: AppSpacing.lg),
-        ProfileAboutCard(),
+        ProfileAboutCard()
       ],
     );
   }
@@ -76,22 +67,10 @@ class _Desktop extends StatelessWidget {
         ProfilePageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.xl,
-              AppSpacing.lg,
-              AppSpacing.xl,
-              AppSpacing.xxxl,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                ProfileUserCard(),
-                SizedBox(height: AppSpacing.lg),
-                ProfileMasterDetail(),
-              ],
-            ),
+            padding: EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [ProfileUserCard(), SizedBox(height: AppSpacing.lg), ProfileMasterDetail()]),
           ),
-        ),
+        )
       ],
     );
   }

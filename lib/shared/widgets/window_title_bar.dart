@@ -68,29 +68,15 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
             const SizedBox(width: AppSpacing.md),
             const LogoMark(size: 18),
             const SizedBox(width: AppSpacing.sm),
-            Text(
-              l10n.tr('app.name'),
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-            ),
+            Text(l10n.tr('app.name'), style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
             const Spacer(),
-            _WindowButton(
-              icon: Icons.remove_rounded,
-              onPressed: _onMinimize,
-              tooltip: l10n.tr('window.minimize'),
-            ),
+            _WindowButton(icon: Icons.remove_rounded, onPressed: _onMinimize, tooltip: l10n.tr('window.minimize')),
             _WindowButton(
               icon: _isMaximized ? Icons.filter_drama_rounded : Icons.crop_square_rounded,
               onPressed: _onToggleMaximize,
               tooltip: _isMaximized ? l10n.tr('window.restore') : l10n.tr('window.maximize'),
             ),
-            _WindowButton(
-              icon: Icons.close_rounded,
-              onPressed: _onClose,
-              tooltip: l10n.tr('window.close'),
-              isClose: true,
-            ),
+            _WindowButton(icon: Icons.close_rounded, onPressed: _onClose, tooltip: l10n.tr('window.close'), isClose: true)
           ],
         ),
       ),
@@ -99,12 +85,7 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
 }
 
 class _WindowButton extends StatefulWidget {
-  const _WindowButton({
-    required this.icon,
-    required this.onPressed,
-    required this.tooltip,
-    this.isClose = false,
-  });
+  const _WindowButton({required this.icon, required this.onPressed, required this.tooltip, this.isClose = false});
 
   final IconData icon;
   final VoidCallback onPressed;
@@ -134,13 +115,7 @@ class _WindowButtonState extends State<_WindowButton> {
         child: GestureDetector(
           onTap: widget.onPressed,
           behavior: HitTestBehavior.opaque,
-          child: Container(
-            width: 46,
-            height: 32,
-            color: _hover ? hoverColor : Colors.transparent,
-            alignment: Alignment.center,
-            child: Icon(widget.icon, size: 16, color: iconColor),
-          ),
+          child: Container(width: 46, height: 32, color: _hover ? hoverColor : Colors.transparent, alignment: Alignment.center, child: Icon(widget.icon, size: 16, color: iconColor)),
         ),
       ),
     );

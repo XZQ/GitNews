@@ -32,7 +32,7 @@ enum ProfileSection {
       ProfileSection.collect || ProfileSection.data => AppColors.info,
       ProfileSection.developers => AppColors.success,
       ProfileSection.monitorRules => AppColors.warning,
-      ProfileSection.about => colors.onSurfaceVariant,
+      ProfileSection.about => colors.onSurfaceVariant
     };
   }
 }

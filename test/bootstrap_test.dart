@@ -5,36 +5,23 @@ import 'package:github_news/core/storage/local_database.dart';
 
 void main() {
   test('initializer converts dependency failures into a recovery result', () async {
-    final result = await initializeApplication(
-      sharedPreferencesLoader: () async => throw StateError('prefs failed'),
-      databaseOpener: LocalDatabase.openInMemory,
-    );
+    final result = await initializeApplication(sharedPreferencesLoader: () async => throw StateError('prefs failed'), databaseOpener: LocalDatabase.openInMemory);
 
     expect(result.isSuccess, isFalse);
     expect(result.error, isA<StateError>());
   });
 
-  testWidgets('bootstrap failure retries without automatically opening data', (
-    tester,
-  ) async {
+  testWidgets('bootstrap failure retries without automatically opening data', (tester) async {
     var attempts = 0;
     var openDataCalls = 0;
 
-    await tester.pumpWidget(
-      BootstrapApp(
-        initializer: () async {
-          attempts++;
-          return BootstrapResult.failure(
-            StateError('database locked'),
-            StackTrace.empty,
-          );
-        },
-        openDataDirectory: () async {
-          openDataCalls++;
-          return true;
-        },
-      ),
-    );
+    await tester.pumpWidget(BootstrapApp(initializer: () async {
+      attempts++;
+      return BootstrapResult.failure(StateError('database locked'), StackTrace.empty);
+    }, openDataDirectory: () async {
+      openDataCalls++;
+      return true;
+    }));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 

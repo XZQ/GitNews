@@ -16,11 +16,7 @@ import 'package:github_news/features/tech_hotspot/presentation/widgets/tech_hots
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  for (final size in const [
-    Size(1366, 768),
-    Size(1024, 768),
-    Size(390, 844),
-  ]) {
+  for (final size in const [Size(1366, 768), Size(1024, 768), Size(390, 844)]) {
     testWidgets('trust flows fit ${size.width.toInt()}px', (tester) async {
       final semantics = tester.ensureSemantics();
       final prefs = await _preferences();
@@ -43,22 +39,14 @@ void main() {
               occurredAt: DateTime.now().subtract(const Duration(hours: 2)),
               htmlUrl: null,
               basis: MetricBasis.observed,
-            ),
+            )
           ],
         ),
       );
-      expect(
-        find.bySemanticsLabel(RegExp(r'Open owner/a-very-long-repository-name')),
-        findsOneWidget,
-      );
+      expect(find.bySemanticsLabel(RegExp(r'Open owner/a-very-long-repository-name')), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await _pumpAtSize(
-        tester,
-        size,
-        prefs,
-        TechHotspotTagsCloud(tags: const [], onTagSelected: (_) {}),
-      );
+      await _pumpAtSize(tester, size, prefs, TechHotspotTagsCloud(tags: const [], onTagSelected: (_) {}));
       expect(find.text('No matching radar tags'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
@@ -89,27 +77,24 @@ Future<SharedPreferences> _preferences() async {
     'local_content_bookmarked_repos': ['remote/new-repo'],
     'local_content_monitored_repos': <String>[],
     'local_content_followed_developers': <String>[],
-    'local_content_repo_snapshots_v1': jsonEncode([
-      {
-        'fullName': 'remote/new-repo',
-        'description': 'Only returned by GitHub',
-        'language': 'Rust',
-        'starCount': 42,
-        'forkCount': 7,
-        'accentArgb': 0xFFDEA584,
-        'updatedAt': '2026-07-11T00:00:00.000Z',
-      },
-    ]),
+    'local_content_repo_snapshots_v1': jsonEncode(
+      [
+        {
+          'fullName': 'remote/new-repo',
+          'description': 'Only returned by GitHub',
+          'language': 'Rust',
+          'starCount': 42,
+          'forkCount': 7,
+          'accentArgb': 0xFFDEA584,
+          'updatedAt': '2026-07-11T00:00:00.000Z'
+        }
+      ],
+    )
   });
   return SharedPreferences.getInstance();
 }
 
-Future<void> _pumpAtSize(
-  WidgetTester tester,
-  Size size,
-  SharedPreferences preferences,
-  Widget child,
-) async {
+Future<void> _pumpAtSize(WidgetTester tester, Size size, SharedPreferences preferences, Widget child) async {
   tester.view
     ..devicePixelRatio = 1
     ..physicalSize = size;
@@ -120,12 +105,7 @@ Future<void> _pumpAtSize(
       overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
       child: MaterialApp(
         locale: const Locale('en', 'US'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: child),
       ),

@@ -18,11 +18,7 @@ import 'trending_topics_panel.dart';
 *桌面:左 8 列(趋势图 + 表格)/ 右 4 列(语言分布 + 主题)。
 */
 class TrendingDesktopView extends ConsumerWidget {
-  const TrendingDesktopView({
-    required this.digest,
-    this.isReloading = false,
-    super.key,
-  });
+  const TrendingDesktopView({required this.digest, this.isReloading = false, super.key});
 
   final TrendingDigest digest;
   final bool isReloading;
@@ -37,12 +33,7 @@ class TrendingDesktopView extends ConsumerWidget {
         const TrendingPageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
-              AppSpacing.lg,
-              AppSpacing.xl,
-              AppSpacing.xxxl,
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -50,82 +41,50 @@ class TrendingDesktopView extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TrendingBoardSelector(
-                        value: board,
-                        onChanged: (value) => ref.read(trendingBoardFilterProvider.notifier).state = value,
-                      ),
+                      TrendingBoardSelector(value: board, onChanged: (value) => ref.read(trendingBoardFilterProvider.notifier).state = value),
                       const SizedBox(height: AppSpacing.lg),
-                      const SectionHeader(
-                        title: 'Star 增长趋势',
-                        subtitle: '追踪时间窗内的新增 Star 总量 · 包含所有语言',
-                      ),
+                      const SectionHeader(title: 'Star 增长趋势', subtitle: '追踪时间窗内的新增 Star 总量 · 包含所有语言'),
                       const SizedBox(height: AppSpacing.md),
                       RepaintBoundary(
                         child: StarTrendChart(
                           series: [
-                            ChartSeries(
-                              values: digest.primaryTrend,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            ChartSeries(
-                              values: digest.secondaryTrend,
-                              color: AppColors.info,
-                            ),
-                            ChartSeries(
-                              values: digest.tertiaryTrend,
-                              color: AppColors.success,
-                            ),
+                            ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary),
+                            ChartSeries(values: digest.secondaryTrend, color: AppColors.info),
+                            ChartSeries(values: digest.tertiaryTrend, color: AppColors.success)
                           ],
                           height: 280,
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 SizedBox(
-                  height: (MediaQuery.sizeOf(context).height - 320).clamp(
-                    220.0,
-                    900.0,
-                  ),
+                  height: (MediaQuery.sizeOf(context).height - 320).clamp(220.0, 900.0),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        flex: 8,
-                        child: TrendingList(
-                          repos: digest.trendingRepos,
-                          isLoading: isReloading,
-                        ),
-                      ),
+                      Expanded(flex: 8, child: TrendingList(repos: digest.trendingRepos, isLoading: isReloading)),
                       const SizedBox(width: AppSpacing.lg),
                       Expanded(
                         flex: 4,
                         child: SingleChildScrollView(
                           child: Column(
                             children: [
-                              TrendingLanguagePanel(
-                                value: lang,
-                                onChanged: (v) => ref
-                                    .read(
-                                      trendingLanguageFilterProvider.notifier,
-                                    )
-                                    .state = v,
-                                languages: digest.languages,
-                              ),
+                              TrendingLanguagePanel(value: lang, onChanged: (v) => ref.read(trendingLanguageFilterProvider.notifier).state = v, languages: digest.languages),
                               const SizedBox(height: AppSpacing.lg),
-                              const TrendingTopicsPanel(),
+                              const TrendingTopicsPanel()
                             ],
                           ),
                         ),
-                      ),
+                      )
                     ],
                   ),
-                ),
+                )
               ],
             ),
           ),
-        ),
+        )
       ],
     );
   }

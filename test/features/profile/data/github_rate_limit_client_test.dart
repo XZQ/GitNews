@@ -22,12 +22,7 @@ void main() {
 
   group('GitHubRateLimitClient.fetch', () {
     test('should parse core and search rate limit buckets', () async {
-      when(
-        () => dio.get<Map<String, Object?>>(
-          any(),
-          options: any(named: 'options'),
-        ),
-      ).thenAnswer((_) async => _okResponse(_body()));
+      when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => _okResponse(_body()));
 
       final snapshot = await client.fetch();
 
@@ -39,84 +34,40 @@ void main() {
 
     test('should send bearer token when token is configured', () async {
       Options? capturedOptions;
-      when(
-        () => dio.get<Map<String, Object?>>(
-          any(),
-          options: any(named: 'options'),
-        ),
-      ).thenAnswer((invocation) async {
+      when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((invocation) async {
         capturedOptions = invocation.namedArguments[#options] as Options;
         return _okResponse(_body());
       });
 
       await client.fetch(token: 'github_pat_test');
 
-      expect(
-        capturedOptions?.headers?['Authorization'],
-        'Bearer github_pat_test',
-      );
+      expect(capturedOptions?.headers?['Authorization'], 'Bearer github_pat_test');
     });
 
     test('should throw parse AppException when response is malformed', () async {
-      when(
-        () => dio.get<Map<String, Object?>>(
-          any(),
-          options: any(named: 'options'),
-        ),
-      ).thenAnswer((_) async => _okResponse(<String, Object?>{}));
+      when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => _okResponse(<String, Object?>{}));
 
-      await expectLater(
-        client.fetch(),
-        throwsA(
-          predicate<AppException>((e) => e.kind == AppExceptionKind.parse),
-        ),
-      );
+      await expectLater(client.fetch(), throwsA(predicate<AppException>((e) => e.kind == AppExceptionKind.parse)));
     });
 
     test('should map DioException to AppException', () async {
-      when(
-        () => dio.get<Map<String, Object?>>(
-          any(),
-          options: any(named: 'options'),
-        ),
-      ).thenThrow(
-        DioException(
-          type: DioExceptionType.connectionError,
-          requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
-        ),
-      );
+      when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options')))
+          .thenThrow(DioException(type: DioExceptionType.connectionError, requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath)));
 
-      await expectLater(
-        client.fetch(),
-        throwsA(
-          predicate<AppException>((e) => e.kind == AppExceptionKind.network),
-        ),
-      );
+      await expectLater(client.fetch(), throwsA(predicate<AppException>((e) => e.kind == AppExceptionKind.network)));
     });
   });
 }
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
-  return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
-    statusCode: 200,
-    data: body,
-  );
+  return Response<Map<String, Object?>>(requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath), statusCode: 200, data: body);
 }
 
 Map<String, Object?> _body() {
   return <String, Object?>{
     'resources': <String, Object?>{
-      'core': <String, Object?>{
-        'limit': 60,
-        'remaining': 58,
-        'reset': 1783168200,
-      },
-      'search': <String, Object?>{
-        'limit': 10,
-        'remaining': 9,
-        'reset': 1783168200,
-      },
-    },
+      'core': <String, Object?>{'limit': 60, 'remaining': 58, 'reset': 1783168200},
+      'search': <String, Object?>{'limit': 10, 'remaining': 9, 'reset': 1783168200}
+    }
   };
 }

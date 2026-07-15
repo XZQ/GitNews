@@ -59,10 +59,7 @@ class RateLimitGateController extends Notifier<RateLimitGateStatus> {
   void trigger(int retryAfterSeconds) {
     final seconds = retryAfterSeconds.clamp(1, 3600);
     final until = DateTime.now().add(Duration(seconds: seconds));
-    state = RateLimitGateStatus(
-      blockedUntil: until,
-      lastRetryAfterSeconds: seconds,
-    );
+    state = RateLimitGateStatus(blockedUntil: until, lastRetryAfterSeconds: seconds);
     _timer?.cancel();
     _timer = Timer(Duration(seconds: seconds), () {
       state = const RateLimitGateStatus();
@@ -78,6 +75,4 @@ class RateLimitGateController extends Notifier<RateLimitGateStatus> {
   }
 }
 
-final rateLimitGateProvider = NotifierProvider<RateLimitGateController, RateLimitGateStatus>(
-  RateLimitGateController.new,
-);
+final rateLimitGateProvider = NotifierProvider<RateLimitGateController, RateLimitGateStatus>(RateLimitGateController.new);

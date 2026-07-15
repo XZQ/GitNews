@@ -16,44 +16,29 @@ class AiNewsRssClient {
 
   final Dio _dio;
 
-  static const Map<String, Object?> _headers = {
-    'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml',
-    'User-Agent': GitHubApiSupport.userAgent,
-  };
+  static const Map<String, Object?> _headers = {'Accept': 'application/rss+xml, application/atom+xml, application/xml, text/xml', 'User-Agent': GitHubApiSupport.userAgent};
 
   /*
   *拉取并解析单个源,返回按发布时间倒序、截断到
   *[AiNewsSourcesConfig.maxItemsPerSource]、且在
   *[AiNewsSourcesConfig.recencyWindow] 内的条目。
   */
-  Future<List<AiNewsItem>> fetchSource(
-    AiNewsSourceConfig source, {
-    required DateTime now,
-  }) async {
+  Future<List<AiNewsItem>> fetchSource(AiNewsSourceConfig source, {required DateTime now}) async {
     final String? body;
     try {
-      final resp = await _dio.get<String>(
-        source.feedUrl,
-        options: Options(
-          responseType: ResponseType.plain,
-          headers: _headers,
-        ),
-      );
+      final resp = await _dio.get<String>(source.feedUrl, options: Options(responseType: ResponseType.plain, headers: _headers));
       body = resp.data;
     } on DioException catch (e) {
       throw e.toAppException();
     }
     if (body == null || body.trim().isEmpty) {
-      throw AppException(
-        kind: AppExceptionKind.parse,
-        meta: {'source': source.id, 'reason': 'empty body'},
-      );
+      throw AppException(kind: AppExceptionKind.parse, meta: {'source': source.id, 'reason': 'empty body'});
     }
     final items = parseAiNewsFeed(body, source: source, fallbackTime: now);
     final cutoff = now.toUtc().subtract(AiNewsSourcesConfig.recencyWindow);
     final recent = [
       for (final item in items)
-        if (item.publishedAt.isAfter(cutoff)) item,
+        if (item.publishedAt.isAfter(cutoff)) item
     ]..sort((a, b) => b.publishedAt.compareTo(a.publishedAt));
     if (recent.length <= AiNewsSourcesConfig.maxItemsPerSource) {
       return recent;

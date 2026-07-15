@@ -57,13 +57,8 @@ class LocaleController extends Notifier<Locale> {
   Future<void> setLocale(Locale locale) async {
     state = locale;
     final prefs = ref.read(sharedPreferencesProvider);
-    await prefs.setString(
-      _prefsKey,
-      '${locale.languageCode}_${locale.countryCode ?? ''}',
-    );
+    await prefs.setString(_prefsKey, '${locale.languageCode}_${locale.countryCode ?? ''}');
   }
 }
 
-final localeControllerProvider = NotifierProvider<LocaleController, Locale>(
-  LocaleController.new,
-);
+final localeControllerProvider = NotifierProvider<LocaleController, Locale>(LocaleController.new);

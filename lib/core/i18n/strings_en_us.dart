@@ -797,5 +797,5 @@ const Map<String, String> stringsEnUS = <String, String>{
   'monitor.recent_alerts.title': 'Recent Alerts',
   'monitor.recent_alerts.subtitle_done': 'All visible alerts handled',
   'monitor.recent_alerts.subtitle_unread': '{n} unread, needs attention',
-  'monitor.recent_alerts.empty': 'No matching alerts',
+  'monitor.recent_alerts.empty': 'No matching alerts'
 };

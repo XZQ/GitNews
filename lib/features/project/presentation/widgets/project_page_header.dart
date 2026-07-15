@@ -21,29 +21,20 @@ class ProjectPageHeader extends ConsumerWidget {
     final query = ref.watch(projectSearchQueryProvider);
     final freshness = ref.watch(projectFreshnessProvider).valueOrNull;
     return PageHeader(
-      icon: Icons.insights_rounded,
-      iconAccent: AppColors.warning,
-      title: l10n.tr('project.title'),
-      subtitle: l10n.tr('project.subtitle'),
-      searchHint: l10n.tr('project.search_hint'),
-      searchValue: query,
-      onSearchChanged: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
-      onSearchSubmitted: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
-      onRefresh: () {
-        ref.invalidate(projectDigestResultProvider);
-        ref.invalidate(projectDigestProvider);
-      },
-      pills: [
-        if (freshness != null) DataFreshnessBadge(freshness: freshness),
-      ],
-      actions: [
-        HeaderAction(
-          icon: Icons.download_outlined,
-          tooltip: l10n.tr('project.export'),
-          onPressed: () => _exportReport(context, ref),
-        ),
-      ],
-    );
+        icon: Icons.insights_rounded,
+        iconAccent: AppColors.warning,
+        title: l10n.tr('project.title'),
+        subtitle: l10n.tr('project.subtitle'),
+        searchHint: l10n.tr('project.search_hint'),
+        searchValue: query,
+        onSearchChanged: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
+        onSearchSubmitted: (v) => ref.read(projectSearchQueryProvider.notifier).state = v,
+        onRefresh: () {
+          ref.invalidate(projectDigestResultProvider);
+          ref.invalidate(projectDigestProvider);
+        },
+        pills: [if (freshness != null) DataFreshnessBadge(freshness: freshness)],
+        actions: [HeaderAction(icon: Icons.download_outlined, tooltip: l10n.tr('project.export'), onPressed: () => _exportReport(context, ref))]);
   }
 }
 
@@ -56,20 +47,9 @@ Future<void> _exportReport(BuildContext context, WidgetRef ref) async {
   try {
     final digest = await ref.read(filteredProjectDigestProvider.future);
     final directory = await getApplicationDocumentsDirectory();
-    final file = await writeProjectDigestMarkdown(
-      digest: digest,
-      outputDirectory: directory,
-      generatedAt: DateTime.now(),
-      copy: copy,
-    );
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(exportedMessage.replaceAll('{path}', file.path)),
-      ),
-    );
+    final file = await writeProjectDigestMarkdown(digest: digest, outputDirectory: directory, generatedAt: DateTime.now(), copy: copy);
+    messenger.showSnackBar(SnackBar(content: Text(exportedMessage.replaceAll('{path}', file.path))));
   } catch (_) {
-    messenger.showSnackBar(
-      SnackBar(content: Text(failedMessage)),
-    );
+    messenger.showSnackBar(SnackBar(content: Text(failedMessage)));
   }
 }

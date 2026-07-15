@@ -45,28 +45,17 @@ class AiNewsDetailPage extends ConsumerWidget {
                 ? <Widget>[]
                 : <Widget>[
                     _ReadLaterButton(item: item),
-                    IconButton(
-                      tooltip: l10n.tr('webview.copy_link'),
-                      onPressed: () => _copyLink(context, item),
-                      icon: const Icon(Icons.content_copy_rounded),
-                    ),
-                    IconButton(
-                      tooltip: l10n.tr('webview.open_in_browser'),
-                      onPressed: () => _openOriginal(context, item),
-                      icon: const Icon(Icons.open_in_new_rounded),
-                    ),
+                    IconButton(tooltip: l10n.tr('webview.copy_link'), onPressed: () => _copyLink(context, item), icon: const Icon(Icons.content_copy_rounded)),
+                    IconButton(tooltip: l10n.tr('webview.open_in_browser'), onPressed: () => _openOriginal(context, item), icon: const Icon(Icons.open_in_new_rounded))
                   ],
             orElse: () => <Widget>[],
-          ),
+          )
         ],
       ),
       body: async.when(
         data: (item) => item == null ? const _AiNewsDetailMissing() : AiNewsDetailContent(item: item),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => ErrorView(
-          error: e.asAppException(),
-          onRetry: () => ref.invalidate(aiNewsItemDetailProvider(id)),
-        ),
+        error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemDetailProvider(id))),
       ),
     );
   }
@@ -87,9 +76,7 @@ class AiNewsDetailPage extends ConsumerWidget {
       return;
     }
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.tr('webview.copied'))));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('webview.copied'))));
   }
 
   Future<void> _openOriginal(BuildContext context, AiNewsItem item) async {
@@ -101,9 +88,7 @@ class AiNewsDetailPage extends ConsumerWidget {
     final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!ok && context.mounted) {
       final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
     }
   }
 }
@@ -130,11 +115,7 @@ class _ReadLaterButton extends ConsumerWidget {
       return;
     }
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(l10n.tr(added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed')),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr(added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed'))));
   }
 }
 
@@ -144,9 +125,6 @@ class _AiNewsDetailMissing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return EmptyView(
-      icon: Icons.article_outlined,
-      message: l10n.tr('ai_news.detail_missing'),
-    );
+    return EmptyView(icon: Icons.article_outlined, message: l10n.tr('ai_news.detail_missing'));
   }
 }

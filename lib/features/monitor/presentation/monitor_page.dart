@@ -27,28 +27,16 @@ class MonitorPage extends ConsumerWidget {
     final isCompact = Breakpoints.isCompact(context);
     final state = ref.watch(filteredMonitorDigestProvider);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: Text(l10n.tr('monitor.title'))) : null,
-      body: state.when(
-        data: (digest) {
-          if (digest.isEmpty) {
-            return EmptyView(
-              icon: Icons.visibility_off_outlined,
-              message: l10n.tr('monitor.empty'),
-            );
-          }
-          return ResponsiveLayout(
-            compact: (_) => _Mobile(digest: digest),
-            medium: (_) => _Desktop(digest: digest),
-            expanded: (_) => _Desktop(digest: digest),
-          );
-        },
-        loading: () => const _MonitorSkeleton(),
-        error: (error, stack) => ErrorView(
-          error: error.asAppException(stack),
-          onRetry: () => forceRefreshMonitor(ref),
-        ),
-      ),
-    );
+        appBar: isCompact ? AppBar(title: Text(l10n.tr('monitor.title'))) : null,
+        body: state.when(
+            data: (digest) {
+              if (digest.isEmpty) {
+                return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty'));
+              }
+              return ResponsiveLayout(compact: (_) => _Mobile(digest: digest), medium: (_) => _Desktop(digest: digest), expanded: (_) => _Desktop(digest: digest));
+            },
+            loading: () => const _MonitorSkeleton(),
+            error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => forceRefreshMonitor(ref))));
   }
 }
 
@@ -63,18 +51,13 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         MonitorStatusRow(stats: digest.stats),
         const SizedBox(height: AppSpacing.lg),
         MonitorMonitoredRepos(repos: digest.monitoredRepos),
         const SizedBox(height: AppSpacing.lg),
-        MonitorRecentAlerts(alerts: digest.alerts),
+        MonitorRecentAlerts(alerts: digest.alerts)
       ],
     );
   }
@@ -91,60 +74,31 @@ class _Desktop extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final searchQuery = ref.watch(monitorSearchQueryProvider).trim();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        MonitorPageHeader(stats: digest.stats),
-        Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final available = constraints.maxHeight;
-              return SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.xl,
-                  AppSpacing.lg,
-                  AppSpacing.xl,
-                  AppSpacing.xxxl,
-                ),
-                child: Column(
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      MonitorPageHeader(stats: digest.stats),
+      Expanded(child: LayoutBuilder(builder: (context, constraints) {
+        final available = constraints.maxHeight;
+        return SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              MonitorStatusRow(stats: digest.stats),
+              const SizedBox(height: AppSpacing.lg),
+              // 用可用高度而非全屏高度,窗口变矮时不再溢出;
+              // 外层 SingleChildScrollView 作为极矮窗口的安全兜底。
+              SizedBox(
+                height: (available - _kStatusRowHeight - AppSpacing.lg).clamp(220.0, 900.0),
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    MonitorStatusRow(stats: digest.stats),
-                    const SizedBox(height: AppSpacing.lg),
-                    // 用可用高度而非全屏高度,窗口变矮时不再溢出;
-                    // 外层 SingleChildScrollView 作为极矮窗口的安全兜底。
-                    SizedBox(
-                      height: (available - _kStatusRowHeight - AppSpacing.lg).clamp(220.0, 900.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 8,
-                            child: MonitorMonitoredRepos(
-                              repos: digest.monitoredRepos,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.lg),
-                          Expanded(
-                            flex: 4,
-                            child: SingleChildScrollView(
-                              child: _RightColumn(
-                                alerts: digest.alerts,
-                                searchQuery: searchQuery,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    Expanded(flex: 8, child: MonitorMonitoredRepos(repos: digest.monitoredRepos)),
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(flex: 4, child: SingleChildScrollView(child: _RightColumn(alerts: digest.alerts, searchQuery: searchQuery)))
                   ],
                 ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
+              )
+            ]));
+      }))
+    ]);
   }
 }
 
@@ -166,7 +120,7 @@ class _RightColumn extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         const MonitorNotificationCard(),
         const SizedBox(height: AppSpacing.lg),
-        MonitorRecentAlerts(alerts: alerts),
+        MonitorRecentAlerts(alerts: alerts)
       ],
     );
   }
@@ -178,12 +132,7 @@ class _MonitorSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl,
-        AppSpacing.lg,
-        AppSpacing.xl,
-        AppSpacing.xxxl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
       children: const [
         Row(
           children: [
@@ -193,11 +142,11 @@ class _MonitorSkeleton extends StatelessWidget {
             SizedBox(width: AppSpacing.sm),
             Expanded(child: Skeleton(height: 92)),
             SizedBox(width: AppSpacing.sm),
-            Expanded(child: Skeleton(height: 92)),
+            Expanded(child: Skeleton(height: 92))
           ],
         ),
         SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 360),
+        Skeleton(height: 360)
       ],
     );
   }

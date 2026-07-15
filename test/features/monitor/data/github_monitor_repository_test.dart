@@ -30,10 +30,7 @@ void main() {
 
   setUp(() async {
     database = await LocalDatabase.openInMemory();
-    cache = JsonSnapshotCacheDao(
-      database.executor,
-      CacheMetaDao(database.executor),
-    );
+    cache = JsonSnapshotCacheDao(database.executor, CacheMetaDao(database.executor));
     observations = MonitorObservationDao(cache);
     alerts = MonitorAlertEventDao(database.executor);
     dio = _MockDio();
@@ -56,11 +53,7 @@ void main() {
 
   test('fresh cache never records observations or creates alerts', () async {
     final now = DateTime(2026, 7, 2, 12);
-    await cache.upsert(
-      key: 'monitor:test',
-      payload: monitorDigestToJson(emptyDigest()),
-      now: now,
-    );
+    await cache.upsert(key: 'monitor:test', payload: monitorDigestToJson(emptyDigest()), now: now);
     final repository = buildRepository(now: now);
 
     final result = await repository.getDigest();
@@ -68,31 +61,13 @@ void main() {
     expect(result.freshness, DataFreshness.freshCache);
     expect(await observations.read('owner/repo'), isEmpty);
     expect(await alerts.list(includeArchived: true), isEmpty);
-    verifyNever(
-      () => dio.get<Map<String, Object?>>(
-        any(),
-        options: any(named: 'options'),
-      ),
-    );
+    verifyNever(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options')));
   });
 
   test('remote success records observation and persists rule alerts', () async {
     final now = DateTime(2026, 7, 2, 12);
-    await observations.record(
-      MonitorObservation(
-        repoFullName: 'owner/repo',
-        stars: 2000,
-        forks: 10,
-        openIssues: 1,
-        observedAt: DateTime(2026, 7, 1, 12),
-      ),
-    );
-    when(
-      () => dio.get<Map<String, Object?>>(
-        any(),
-        options: any(named: 'options'),
-      ),
-    ).thenAnswer((_) async => okResponse(stars: 2200, forks: 60, issues: 9));
+    await observations.record(MonitorObservation(repoFullName: 'owner/repo', stars: 2000, forks: 10, openIssues: 1, observedAt: DateTime(2026, 7, 1, 12)));
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => okResponse(stars: 2200, forks: 60, issues: 9));
     final repository = buildRepository(now: now);
 
     final result = await repository.getDigest(force: true);
@@ -106,24 +81,9 @@ void main() {
   test('remote failure returns stale cache without creating alerts', () async {
     final cachedAt = DateTime(2026, 7, 1, 10);
     final now = DateTime(2026, 7, 2, 12);
-    await cache.upsert(
-      key: 'monitor:test',
-      payload: monitorDigestToJson(emptyDigest()),
-      now: cachedAt,
-    );
-    when(
-      () => dio.get<Map<String, Object?>>(
-        any(),
-        options: any(named: 'options'),
-      ),
-    ).thenThrow(
-      DioException(
-        type: DioExceptionType.connectionError,
-        requestOptions: RequestOptions(
-          path: ApiEndpointsConfig.githubRepoPath('owner/repo'),
-        ),
-      ),
-    );
+    await cache.upsert(key: 'monitor:test', payload: monitorDigestToJson(emptyDigest()), now: cachedAt);
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options')))
+        .thenThrow(DioException(type: DioExceptionType.connectionError, requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRepoPath('owner/repo'))));
     final repository = buildRepository(now: now);
 
     final result = await repository.getDigest();
@@ -138,35 +98,18 @@ MonitorDigest emptyDigest() {
   return const MonitorDigest(
     monitoredRepos: [],
     alerts: [],
-    stats: MonitorStats(
-      monitoredCount: 0,
-      monitoredDelta: 0,
-      unreadAlertCount: 0,
-      unreadAlertDelta: 0,
-      triggeredTodayCount: 0,
-      triggeredTodayDelta: 0,
-      totalAlertCount: 0,
-      totalAlertDelta: 0,
-    ),
+    stats: MonitorStats(monitoredCount: 0, monitoredDelta: 0, unreadAlertCount: 0, unreadAlertDelta: 0, triggeredTodayCount: 0, triggeredTodayDelta: 0, totalAlertCount: 0, totalAlertDelta: 0),
   );
 }
 
-Response<Map<String, Object?>> okResponse({
-  required int stars,
-  required int forks,
-  required int issues,
-}) {
-  return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: '/repos/owner/repo'),
-    statusCode: 200,
-    data: {
-      'full_name': 'owner/repo',
-      'description': 'Repository',
-      'language': 'Dart',
-      'stargazers_count': stars,
-      'forks_count': forks,
-      'open_issues_count': issues,
-      'pushed_at': '2026-07-02T08:00:00Z',
-    },
-  );
+Response<Map<String, Object?>> okResponse({required int stars, required int forks, required int issues}) {
+  return Response<Map<String, Object?>>(requestOptions: RequestOptions(path: '/repos/owner/repo'), statusCode: 200, data: {
+    'full_name': 'owner/repo',
+    'description': 'Repository',
+    'language': 'Dart',
+    'stargazers_count': stars,
+    'forks_count': forks,
+    'open_issues_count': issues,
+    'pushed_at': '2026-07-02T08:00:00Z'
+  });
 }

@@ -31,6 +31,4 @@ class ThemePresetController extends Notifier<AppThemePreset> {
   }
 }
 
-final themePresetControllerProvider = NotifierProvider<ThemePresetController, AppThemePreset>(
-  ThemePresetController.new,
-);
+final themePresetControllerProvider = NotifierProvider<ThemePresetController, AppThemePreset>(ThemePresetController.new);

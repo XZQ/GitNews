@@ -50,19 +50,18 @@ enum AiNewsCategory {
 *AI 动态条目。
 */
 class AiNewsItem {
-  const AiNewsItem({
-    required this.id,
-    required this.category,
-    required this.title,
-    required this.titleEn,
-    required this.summary,
-    required this.source,
-    required this.url,
-    required this.permalink,
-    required this.publishedAt,
-    required this.score,
-    required this.selected,
-  });
+  const AiNewsItem(
+      {required this.id,
+      required this.category,
+      required this.title,
+      required this.titleEn,
+      required this.summary,
+      required this.source,
+      required this.url,
+      required this.permalink,
+      required this.publishedAt,
+      required this.score,
+      required this.selected});
 
   final String id;
   final AiNewsCategory category;
@@ -81,12 +80,7 @@ class AiNewsItem {
 *一次拉取的页面结果。
 */
 class AiNewsDigest {
-  const AiNewsDigest({
-    required this.items,
-    required this.count,
-    required this.hasNext,
-    this.nextCursor,
-  });
+  const AiNewsDigest({required this.items, required this.count, required this.hasNext, this.nextCursor});
 
   final List<AiNewsItem> items;
   final int count;

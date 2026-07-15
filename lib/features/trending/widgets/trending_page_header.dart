@@ -22,35 +22,30 @@ class TrendingPageHeader extends ConsumerWidget {
     final freshness = ref.watch(trendingFreshnessProvider).valueOrNull;
     final query = ref.watch(trendingSearchQueryProvider);
     return PageHeader(
-      icon: Icons.trending_up_rounded,
-      iconAccent: AppColors.info,
-      title: l10n.tr('trending.title'),
-      subtitle: l10n.tr('trending.page_header.subtitle'),
-      searchHint: l10n.tr('trending.search_hint'),
-      searchValue: query,
-      onSearchChanged: (v) => ref.read(trendingSearchQueryProvider.notifier).state = v,
-      onSearchSubmitted: (v) {
-        ref.read(trendingSearchQueryProvider.notifier).state = v;
-        if (v.trim().isEmpty) {
-          return;
-        }
-        context.go('/trending/repos');
-      },
-      pills: [
-        if (freshness != null) DataFreshnessBadge(freshness: freshness),
-        HeaderStatPill(
-          icon: sourceStatus.isGithub ? Icons.cloud_outlined : Icons.storage_rounded,
-          label: sourceStatus.label(l10n),
-          color: sourceStatus.mode == TrendingDataSourceMode.github ? AppColors.info : AppColors.brand,
-        ),
-      ],
-      actions: [
-        HeaderAction(
-          icon: Icons.refresh_rounded,
-          tooltip: l10n.tr('common.refresh'),
-          onPressed: () => refreshTrendingDigest(ref),
-        ),
-      ],
-    );
+        icon: Icons.trending_up_rounded,
+        iconAccent: AppColors.info,
+        title: l10n.tr('trending.title'),
+        subtitle: l10n.tr('trending.page_header.subtitle'),
+        searchHint: l10n.tr('trending.search_hint'),
+        searchValue: query,
+        onSearchChanged: (v) => ref.read(trendingSearchQueryProvider.notifier).state = v,
+        onSearchSubmitted: (v) {
+          ref.read(trendingSearchQueryProvider.notifier).state = v;
+          if (v.trim().isEmpty) {
+            return;
+          }
+          context.go('/trending/repos');
+        },
+        pills: [
+          if (freshness != null) DataFreshnessBadge(freshness: freshness),
+          HeaderStatPill(
+            icon: sourceStatus.isGithub ? Icons.cloud_outlined : Icons.storage_rounded,
+            label: sourceStatus.label(l10n),
+            color: sourceStatus.mode == TrendingDataSourceMode.github ? AppColors.info : AppColors.brand,
+          )
+        ],
+        actions: [
+          HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => refreshTrendingDigest(ref))
+        ]);
   }
 }

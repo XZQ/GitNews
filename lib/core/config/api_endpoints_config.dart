@@ -46,13 +46,7 @@ class ApiEndpointsConfig {
 
   // GitHub 仓库搜索(发现页:按 stars 排序的流行仓库 / AI Agent Skills 仓库)。
   // 返回完整 query path,与 [githubBaseUrl] 拼接后直接 GET。
-  static String githubSearchRepositoriesUrl({
-    String q = 'stars:>1000',
-    String sort = 'stars',
-    String order = 'desc',
-    int perPage = 20,
-    int page = 1,
-  }) =>
+  static String githubSearchRepositoriesUrl({String q = 'stars:>1000', String sort = 'stars', String order = 'desc', int perPage = 20, int page = 1}) =>
       '/search/repositories?q=${Uri.encodeQueryComponent(q)}'
       '&sort=$sort&order=$order&per_page=$perPage&page=$page';
 
@@ -61,12 +55,7 @@ class ApiEndpointsConfig {
   static const String githubSearchUsersPath = '/search/users';
 
   // GitHub 用户/组织搜索(发现页:官方账号 / 知名开发者)。
-  static String githubSearchUsersUrl({
-    required String q,
-    int perPage = 20,
-    int page = 1,
-  }) =>
-      '/search/users?q=${Uri.encodeQueryComponent(q)}'
+  static String githubSearchUsersUrl({required String q, int perPage = 20, int page = 1}) => '/search/users?q=${Uri.encodeQueryComponent(q)}'
       '&per_page=$perPage&page=$page';
 
   // GitHub 用户/组织公开资料:`GET /users/{login}`。
@@ -82,9 +71,7 @@ class ApiEndpointsConfig {
   static String githubDeviceTokenPath = '/login/oauth/access_token';
 
   // GitHub OAuth Device Flow 的 client_id，由构建参数注入。
-  static const String githubOAuthClientId = String.fromEnvironment(
-    'GITHUB_OAUTH_CLIENT_ID',
-  );
+  static const String githubOAuthClientId = String.fromEnvironment('GITHUB_OAUTH_CLIENT_ID');
 
   static bool get githubOAuthConfigured => githubOAuthClientId.trim().isNotEmpty;
 

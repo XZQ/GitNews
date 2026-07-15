@@ -110,7 +110,7 @@ const List<String> _kBootstrap = [
   'CREATE INDEX IF NOT EXISTS idx_monitor_alert_archived_at ON monitor_alert_event(archived_at)',
   'CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)',
   _kCreateAiNewsState,
-  'CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)',
+  'CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)'
 ];
 
 // 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
@@ -118,45 +118,28 @@ const List<String> _kBootstrap = [
 // ```dart
 // (db) async => await db.execute('ALTER TABLE ai_news_item ADD COLUMN ext6 TEXT'),
 // ```
-const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
-  _migrateV1ToV2,
-  _migrateV2ToV3,
-  _migrateV3ToV4,
-  _migrateV4ToV5,
-];
+const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [_migrateV1ToV2, _migrateV2ToV3, _migrateV3ToV4, _migrateV4ToV5];
 
 Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
   await db.execute(_kCreateTrendingSnapshotCache);
-  await db.execute(
-    'CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)',
-  );
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_trending_snapshot_cached_at ON trending_snapshot_cache(cached_at)');
 }
 
 Future<void> _migrateV2ToV3(DatabaseExecutor db) async {
   await db.execute(_kCreateJsonSnapshotCache);
-  await db.execute(
-    'CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)',
-  );
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_json_snapshot_cached_at ON json_snapshot_cache(cached_at)');
 }
 
 Future<void> _migrateV3ToV4(DatabaseExecutor db) async {
   await db.execute(_kCreateMonitorAlertEvent);
-  await db.execute(
-    'CREATE INDEX IF NOT EXISTS idx_monitor_alert_observed_at ON monitor_alert_event(observed_at)',
-  );
-  await db.execute(
-    'CREATE INDEX IF NOT EXISTS idx_monitor_alert_archived_at ON monitor_alert_event(archived_at)',
-  );
-  await db.execute(
-    'CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)',
-  );
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_monitor_alert_observed_at ON monitor_alert_event(observed_at)');
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_monitor_alert_archived_at ON monitor_alert_event(archived_at)');
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_monitor_alert_repo_rule ON monitor_alert_event(repo_full_name, rule_id)');
 }
 
 Future<void> _migrateV4ToV5(DatabaseExecutor db) async {
   await db.execute(_kCreateAiNewsState);
-  await db.execute(
-    'CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)',
-  );
+  await db.execute('CREATE INDEX IF NOT EXISTS idx_ai_news_state_read_later ON ai_news_state(read_later_at)');
 }
 
 // 新建库时一次性创建全部业务表。
@@ -167,11 +150,7 @@ Future<void> bootstrapSchema(DatabaseExecutor db, _) async {
 }
 
 // 旧版本库升级:逐版本执行对应迁移,直到目标版本。
-Future<void> onUpgradeSchema(
-  DatabaseExecutor db,
-  int oldVersion,
-  int newVersion,
-) async {
+Future<void> onUpgradeSchema(DatabaseExecutor db, int oldVersion, int newVersion) async {
   for (var v = oldVersion; v < newVersion && v <= _kMigrations.length; v++) {
     await _kMigrations[v - 1](db);
   }

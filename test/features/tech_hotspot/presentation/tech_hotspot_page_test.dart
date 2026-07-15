@@ -30,47 +30,18 @@ class _StubRepo implements TechHotspotRepository {
 }
 
 const _stubDigest = TechHotspotDigest(
-  languages: [
-    LanguageStat(
-      name: 'Rust',
-      percent: 28.0,
-      delta: 1.2,
-      color: 0xFFCE422B,
-      repoCount: 12,
-    ),
-  ],
-  topics: [
-    TechTopic(
-      id: 't1',
-      name: 'Rust 1.80',
-      category: 'language',
-      heat: 88,
-      growth: 4.5,
-      mentions: 100,
-      relatedRepos: 8,
-      summary: 'const generics',
-    ),
-  ],
-  heatTrend: [
-    TechHeatPoint(label: 'Mon', value: 70),
-    TechHeatPoint(label: 'Sun', value: 92),
-  ],
+  languages: [LanguageStat(name: 'Rust', percent: 28.0, delta: 1.2, color: 0xFFCE422B, repoCount: 12)],
+  topics: [TechTopic(id: 't1', name: 'Rust 1.80', category: 'language', heat: 88, growth: 4.5, mentions: 100, relatedRepos: 8, summary: 'const generics')],
+  heatTrend: [TechHeatPoint(label: 'Mon', value: 70), TechHeatPoint(label: 'Sun', value: 92)],
   hotTags: ['rust', 'wasm'],
 );
 
 Widget _harness(TechHotspotRepository repo) {
-  return ProviderScope(
-    overrides: [techHotspotRepositoryProvider.overrideWithValue(repo)],
-    child: const MaterialApp(home: TechHotspotPage()),
-  );
+  return ProviderScope(overrides: [techHotspotRepositoryProvider.overrideWithValue(repo)], child: const MaterialApp(home: TechHotspotPage()));
 }
 
 void main() {
-  Future<void> pumpAtSize(
-    WidgetTester tester,
-    Size size,
-    Widget widget,
-  ) async {
+  Future<void> pumpAtSize(WidgetTester tester, Size size, Widget widget) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = size;
     addTearDown(tester.view.resetPhysicalSize);
@@ -107,41 +78,27 @@ void main() {
   });
 
   testWidgets('dense language panel should not overflow on desktop', (tester) async {
-    final digest = TechHotspotDigest(
-      languages: [
-        for (var i = 0; i < 10; i++)
-          LanguageStat(
-            name: 'LanguageWithLongName$i',
-            percent: 10,
-            delta: i.isEven ? 1.2 : -0.8,
-            color: 0xFF3178C6 + i,
-            repoCount: 12 - i,
-          ),
-      ],
-      topics: [
-        for (var i = 0; i < 6; i++)
-          TechTopic(
-            id: 'topic-$i',
-            name: 'AI Coding Signal $i',
-            category: i.isEven ? 'Agent' : 'DevTools',
-            heat: 70 + i,
-            growth: (10 + i).toDouble(),
-            mentions: 100 + i,
-            relatedRepos: 20 + i,
-            summary: 'A long but bounded summary for layout verification.',
-          ),
-      ],
-      heatTrend: [
-        for (var i = 0; i < 7; i++) TechHeatPoint(label: 'D$i', value: (70 + i).toDouble()),
-      ],
-      hotTags: [for (var i = 0; i < 12; i++) 'tag-$i'],
-    );
+    final digest = TechHotspotDigest(languages: [
+      for (var i = 0; i < 10; i++) LanguageStat(name: 'LanguageWithLongName$i', percent: 10, delta: i.isEven ? 1.2 : -0.8, color: 0xFF3178C6 + i, repoCount: 12 - i)
+    ], topics: [
+      for (var i = 0; i < 6; i++)
+        TechTopic(
+          id: 'topic-$i',
+          name: 'AI Coding Signal $i',
+          category: i.isEven ? 'Agent' : 'DevTools',
+          heat: 70 + i,
+          growth: (10 + i).toDouble(),
+          mentions: 100 + i,
+          relatedRepos: 20 + i,
+          summary: 'A long but bounded summary for layout verification.',
+        )
+    ], heatTrend: [
+      for (var i = 0; i < 7; i++) TechHeatPoint(label: 'D$i', value: (70 + i).toDouble())
+    ], hotTags: [
+      for (var i = 0; i < 12; i++) 'tag-$i'
+    ]);
 
-    await pumpAtSize(
-      tester,
-      const Size(1280, 720),
-      _harness(_StubRepo(digest)),
-    );
+    await pumpAtSize(tester, const Size(1280, 720), _harness(_StubRepo(digest)));
 
     expect(tester.takeException(), isNull);
   });

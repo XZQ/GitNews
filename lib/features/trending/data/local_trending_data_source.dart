@@ -44,36 +44,13 @@ class LocalTrendingDataSource implements TrendingDataSource {
     if (board == TrendingBoard.all) {
       return true;
     }
-    final text = [
-      repo.fullName,
-      repo.description,
-      repo.language,
-    ].join(' ').toLowerCase();
+    final text = [repo.fullName, repo.description, repo.language].join(' ').toLowerCase();
     return switch (board) {
       TrendingBoard.all => true,
-      TrendingBoard.agent => _containsAny(text, const [
-          'agent',
-          'autogen',
-          'langgraph',
-          'crew',
-          'claude',
-          'codex',
-        ]),
-      TrendingBoard.mcp => _containsAny(text, const [
-          'mcp',
-          'modelcontextprotocol',
-          'context protocol',
-        ]),
-      TrendingBoard.aiCoding => _containsAny(text, const [
-          'coding',
-          'code',
-          'developer',
-          'editor',
-          'copilot',
-          'claude-code',
-          'codex',
-        ]),
-      TrendingBoard.newRepos => repo.starCount < 50000 || repo.starDelta > 400,
+      TrendingBoard.agent => _containsAny(text, const ['agent', 'autogen', 'langgraph', 'crew', 'claude', 'codex']),
+      TrendingBoard.mcp => _containsAny(text, const ['mcp', 'modelcontextprotocol', 'context protocol']),
+      TrendingBoard.aiCoding => _containsAny(text, const ['coding', 'code', 'developer', 'editor', 'copilot', 'claude-code', 'codex']),
+      TrendingBoard.newRepos => repo.starCount < 50000 || repo.starDelta > 400
     };
   }
 
@@ -82,14 +59,7 @@ class LocalTrendingDataSource implements TrendingDataSource {
   }
 
   List<double> _trendFor(TrendingWindow window, int base, int variance) {
-    final scale = switch (window) {
-      TrendingWindow.today => 1.0,
-      TrendingWindow.week => 1.18,
-      TrendingWindow.month => 1.36,
-    };
-    return DemoData.generateStarTrend(
-      (base * scale).round(),
-      (variance * scale).round(),
-    );
+    final scale = switch (window) { TrendingWindow.today => 1.0, TrendingWindow.week => 1.18, TrendingWindow.month => 1.36 };
+    return DemoData.generateStarTrend((base * scale).round(), (variance * scale).round());
   }
 }

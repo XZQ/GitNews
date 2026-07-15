@@ -33,11 +33,7 @@ class AiNewsPageHeader extends ConsumerWidget {
           tooltip: l10n.tr(readLaterOnly ? 'ai_news.read_later_show_all' : 'ai_news.read_later_filter'),
           onPressed: () => ref.read(aiNewsReadLaterOnlyProvider.notifier).state = !readLaterOnly,
         ),
-        HeaderAction(
-          icon: Icons.refresh_rounded,
-          tooltip: l10n.tr('common.refresh'),
-          onPressed: () => ref.invalidate(aiNewsItemsNotifierProvider),
-        ),
+        HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => ref.invalidate(aiNewsItemsNotifierProvider))
       ],
     );
   }

@@ -18,7 +18,7 @@ Map<String, Object?> repoActivityToJson(RepoActivityEvent activity) {
     'actorLogin': activity.actorLogin,
     'occurredAt': activity.occurredAt.toUtc().toIso8601String(),
     'htmlUrl': activity.htmlUrl,
-    'basis': activity.basis.name,
+    'basis': activity.basis.name
   };
 }
 
@@ -26,15 +26,10 @@ RepoActivityEvent repoActivityFromJson(Object? raw) {
   final json = GitHubJson.map(raw);
   return RepoActivityEvent(
     repoFullName: GitHubJson.string(json['repoFullName']),
-    type: RepoActivityType.values.firstWhere(
-      (value) => value.name == GitHubJson.string(json['type']),
-      orElse: () => RepoActivityType.other,
-    ),
+    type: RepoActivityType.values.firstWhere((value) => value.name == GitHubJson.string(json['type']), orElse: () => RepoActivityType.other),
     title: GitHubJson.string(json['title']),
     actorLogin: GitHubJson.string(json['actorLogin']),
-    occurredAt: DateTime.parse(
-      GitHubJson.string(json['occurredAt']),
-    ).toUtc(),
+    occurredAt: DateTime.parse(GitHubJson.string(json['occurredAt'])).toUtc(),
     htmlUrl: GitHubJson.nullableString(json['htmlUrl']),
     basis: MetricBasis.fromName(GitHubJson.nullableString(json['basis'])),
   );

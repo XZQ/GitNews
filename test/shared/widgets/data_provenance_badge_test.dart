@@ -4,21 +4,8 @@ import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/shared/widgets/data_provenance_badge.dart';
 
 void main() {
-  testWidgets('freshness and metric badges expose separate meanings', (
-    tester,
-  ) async {
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Column(
-            children: [
-              DataFreshnessBadge(freshness: DataFreshness.freshCache),
-              MetricBasisBadge(basis: MetricBasis.estimated),
-            ],
-          ),
-        ),
-      ),
-    );
+  testWidgets('freshness and metric badges expose separate meanings', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: Scaffold(body: Column(children: [DataFreshnessBadge(freshness: DataFreshness.freshCache), MetricBasisBadge(basis: MetricBasis.estimated)]))));
 
     expect(find.text('Fresh cache'), findsOneWidget);
     expect(find.text('Estimated'), findsOneWidget);

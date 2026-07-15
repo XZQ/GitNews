@@ -18,23 +18,10 @@ class _MockAiNewsRepository implements AiNewsRepository {
   int callCount = 0;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({
-    AiNewsCategory? category,
-    DateTime? since,
-    String? query,
-    String? cursor,
-    bool selectedOnly = true,
-  }) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
     callCount++;
     lastCategoryArg = category;
-    return DataResult(
-      data: AiNewsDigest(
-        items: _stub,
-        count: _stub.length,
-        hasNext: false,
-      ),
-      freshness: DataFreshness.live,
-    );
+    return DataResult(data: AiNewsDigest(items: _stub, count: _stub.length, hasNext: false), freshness: DataFreshness.live);
   }
 }
 
@@ -45,30 +32,13 @@ class _PagedAiNewsRepository implements AiNewsRepository {
   final List<String?> cursors = [];
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({
-    AiNewsCategory? category,
-    DateTime? since,
-    String? query,
-    String? cursor,
-    bool selectedOnly = true,
-  }) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
     cursors.add(cursor);
-    return DataResult(
-      data: _pages[cursor] ?? const AiNewsDigest(items: [], count: 0, hasNext: false),
-      freshness: DataFreshness.live,
-    );
+    return DataResult(data: _pages[cursor] ?? const AiNewsDigest(items: [], count: 0, hasNext: false), freshness: DataFreshness.live);
   }
 }
 
-AiNewsItem _item(
-  String id, {
-  AiNewsCategory category = AiNewsCategory.aiModels,
-  String title = 't',
-  String titleEn = 'te',
-  String summary = '',
-  String source = 's',
-}) =>
-    AiNewsItem(
+AiNewsItem _item(String id, {AiNewsCategory category = AiNewsCategory.aiModels, String title = 't', String titleEn = 'te', String summary = '', String source = 's'}) => AiNewsItem(
       id: id,
       category: category,
       title: title,
@@ -114,18 +84,10 @@ void main() {
 
   tearDown(() async => db.close());
 
-  ProviderContainer makeContainer(
-    AiNewsRepository repo, {
-    DateTime Function()? clock,
-  }) {
+  ProviderContainer makeContainer(AiNewsRepository repo, {DateTime Function()? clock}) {
     final clk = clock ?? (() => DateTime.utc(2026, 6, 30, 10));
     final container = ProviderContainer(
-      overrides: [
-        appDatabaseProvider.overrideWithValue(db),
-        aiNewsRepositoryProvider.overrideWithValue(repo),
-        aiNewsCacheDaoProvider.overrideWithValue(dao),
-        clockProvider.overrideWithValue(clk),
-      ],
+      overrides: [appDatabaseProvider.overrideWithValue(db), aiNewsRepositoryProvider.overrideWithValue(repo), aiNewsCacheDaoProvider.overrideWithValue(dao), clockProvider.overrideWithValue(clk)],
     );
     addTearDown(container.dispose);
     return container;
@@ -187,20 +149,7 @@ void main() {
   });
 
   test('filterAiNewsItems should match loaded item fields locally', () {
-    final items = [
-      _item(
-        'a',
-        title: 'OpenAI 发布新模型',
-        titleEn: 'OpenAI launches model',
-        source: 'OpenAI Blog',
-      ),
-      _item(
-        'b',
-        category: AiNewsCategory.industry,
-        summary: '融资与行业动态升温',
-        source: '36氪',
-      ),
-    ];
+    final items = [_item('a', title: 'OpenAI 发布新模型', titleEn: 'OpenAI launches model', source: 'OpenAI Blog'), _item('b', category: AiNewsCategory.industry, summary: '融资与行业动态升温', source: '36氪')];
 
     expect(filterAiNewsItems(items, '').length, 2);
     expect(filterAiNewsItems(items, 'openai'), [items.first]);
@@ -211,17 +160,8 @@ void main() {
 
   test('触底加载应使用 nextCursor 追加下一页', () async {
     final repo = _PagedAiNewsRepository({
-      null: AiNewsDigest(
-        items: [for (var i = 0; i < aiNewsPageSize; i++) _item('head_$i')],
-        count: aiNewsPageSize,
-        hasNext: true,
-        nextCursor: 'cursor_2',
-      ),
-      'cursor_2': AiNewsDigest(
-        items: [_item('next_1'), _item('next_2')],
-        count: 2,
-        hasNext: false,
-      ),
+      null: AiNewsDigest(items: [for (var i = 0; i < aiNewsPageSize; i++) _item('head_$i')], count: aiNewsPageSize, hasNext: true, nextCursor: 'cursor_2'),
+      'cursor_2': AiNewsDigest(items: [_item('next_1'), _item('next_2')], count: 2, hasNext: false)
     });
     final container = makeContainer(repo);
     final sub = container.listen(aiNewsItemsNotifierProvider, (prev, next) {});
@@ -233,22 +173,14 @@ void main() {
     await container.read(aiNewsItemsNotifierProvider.notifier).loadMore();
 
     final loaded = container.read(aiNewsItemsNotifierProvider).valueOrNull!;
-    expect(loaded.map((e) => e.id).toList(), [
-      for (var i = 0; i < aiNewsPageSize; i++) 'head_$i',
-      'next_1',
-      'next_2',
-    ]);
+    expect(loaded.map((e) => e.id).toList(), [for (var i = 0; i < aiNewsPageSize; i++) 'head_$i', 'next_1', 'next_2']);
     expect(repo.cursors, [null, 'cursor_2']);
     expect(container.read(aiNewsItemsNotifierProvider.notifier).hasMore, isFalse);
   });
 
   test('远端缺少 nextCursor 时不应无限显示底部加载', () async {
     final repo = _PagedAiNewsRepository({
-      null: AiNewsDigest(
-        items: [for (var i = 0; i < aiNewsPageSize; i++) _item('head_$i')],
-        count: aiNewsPageSize,
-        hasNext: true,
-      ),
+      null: AiNewsDigest(items: [for (var i = 0; i < aiNewsPageSize; i++) _item('head_$i')], count: aiNewsPageSize, hasNext: true)
     });
     final container = makeContainer(repo);
     final sub = container.listen(aiNewsItemsNotifierProvider, (prev, next) {});
@@ -268,10 +200,7 @@ void main() {
     final items = await container.read(aiNewsItemsNotifierProvider.future);
 
     expect(items, isNotEmpty);
-    expect(
-      items.map((e) => e.id).toList(),
-      AiNewsSeedData.items.map((e) => e.id).toList(),
-    );
+    expect(items.map((e) => e.id).toList(), AiNewsSeedData.items.map((e) => e.id).toList());
     expect(container.read(aiNewsFreshnessProvider), DataFreshness.seed);
   });
 
@@ -297,13 +226,7 @@ DataFreshness readFreshness(ProviderContainer container) => container.read(aiNew
 
 class _ThrowingAiNewsRepository implements AiNewsRepository {
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({
-    AiNewsCategory? category,
-    DateTime? since,
-    String? query,
-    String? cursor,
-    bool selectedOnly = true,
-  }) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
     throw Exception('network unavailable');
   }
 }

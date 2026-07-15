@@ -53,21 +53,13 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
       }
       setState(() => _bytes = reporter.currentBytes());
       final freed = before - (_bytes ?? 0);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            l10n.tr('profile.data.cleared').replaceAll('{size}', freed.toHumanReadableSize()),
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.data.cleared').replaceAll('{size}', freed.toHumanReadableSize()))));
     } catch (e) {
       AppLogger.warn('clearAll', meta: {'error': e.runtimeType.toString()});
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.tr('profile.data.clear_failed'))),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.data.clear_failed'))));
     } finally {
       if (mounted) {
         setState(() => _clearing = false);
@@ -83,17 +75,13 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.tr('config.exported'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('config.exported'))));
     } catch (e) {
       AppLogger.warn('exportConfig', meta: {'error': e.runtimeType.toString()});
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
     } finally {
       if (mounted) {
         setState(() => _exporting = false);
@@ -109,17 +97,13 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.tr('config.imported')} ($count)')),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${l10n.tr('config.imported')} ($count)')));
     } catch (e) {
       AppLogger.warn('importConfig', meta: {'error': e.runtimeType.toString()});
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
     } finally {
       if (mounted) {
         setState(() => _importing = false);
@@ -135,50 +119,29 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('profile.data.title'),
-            subtitle: l10n.tr('profile.data.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('profile.data.title'), subtitle: l10n.tr('profile.data.subtitle')),
           const SizedBox(height: AppSpacing.md),
-          ProfileDataRow(
-            label: l10n.tr('profile.data.db_size'),
-            value: sizeText,
-          ),
-          ProfileDataRow(
-            label: l10n.tr('profile.data.cap'),
-            value: l10n.tr('profile.data.cap.value'),
-          ),
+          ProfileDataRow(label: l10n.tr('profile.data.db_size'), value: sizeText),
+          ProfileDataRow(label: l10n.tr('profile.data.cap'), value: l10n.tr('profile.data.cap.value')),
           const SizedBox(height: AppSpacing.md),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: _clearing ? null : _onClear,
               icon: const Icon(Icons.cleaning_services_outlined, size: 16),
-              label: Text(
-                _clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear'),
-              ),
+              label: Text(_clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear')),
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _exporting || _importing ? null : _onExport,
-                  icon: const Icon(Icons.upload_outlined, size: 16),
-                  label: Text(l10n.tr('config.export_button')),
-                ),
-              ),
+                  child: OutlinedButton.icon(onPressed: _exporting || _importing ? null : _onExport, icon: const Icon(Icons.upload_outlined, size: 16), label: Text(l10n.tr('config.export_button')))),
               const SizedBox(width: AppSpacing.sm),
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: _exporting || _importing ? null : _onImport,
-                  icon: const Icon(Icons.download_outlined, size: 16),
-                  label: Text(l10n.tr('config.import_button')),
-                ),
-              ),
+                  child: OutlinedButton.icon(onPressed: _exporting || _importing ? null : _onImport, icon: const Icon(Icons.download_outlined, size: 16), label: Text(l10n.tr('config.import_button'))))
             ],
-          ),
+          )
         ],
       ),
     );

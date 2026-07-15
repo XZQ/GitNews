@@ -9,11 +9,7 @@ import '../../../core/theme/app_typography.dart';
 *7 / 14 / 30 天窗口切换。
 */
 class ChartWindowSegmented extends StatelessWidget {
-  const ChartWindowSegmented({
-    required this.value,
-    required this.onChanged,
-    super.key,
-  });
+  const ChartWindowSegmented({required this.value, required this.onChanged, super.key});
 
   final int value;
   final ValueChanged<int> onChanged;
@@ -25,7 +21,7 @@ class ChartWindowSegmented extends StatelessWidget {
       segments: [
         ButtonSegment(value: 7, label: Text(l10n.tr('home.chart.window.7d'))),
         ButtonSegment(value: 14, label: Text(l10n.tr('home.chart.window.14d'))),
-        ButtonSegment(value: 30, label: Text(l10n.tr('home.chart.window.30d'))),
+        ButtonSegment(value: 30, label: Text(l10n.tr('home.chart.window.30d')))
       ],
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
@@ -45,16 +41,9 @@ class HomeLegendDot extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: AppSpacing.sm,
-          height: AppSpacing.sm,
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(AppRadius.dot),
-          ),
-        ),
+        Container(width: AppSpacing.sm, height: AppSpacing.sm, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(AppRadius.dot))),
         const SizedBox(width: AppSpacing.xs2),
-        Text(label, style: AppTypography.labelSmall),
+        Text(label, style: AppTypography.labelSmall)
       ],
     );
   }

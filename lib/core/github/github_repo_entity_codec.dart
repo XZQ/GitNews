@@ -13,7 +13,7 @@ Map<String, Object?> githubRepoEntityToJson(RepoEntity repo) {
     'accentArgb': repo.accentArgb,
     'valueBasis': repo.valueBasis.name,
     'trendBasis': repo.trendBasis.name,
-    'trend': repo.trend,
+    'trend': repo.trend
   };
 }
 
@@ -33,15 +33,7 @@ RepoEntity githubRepoEntityFromJson(Object? raw) {
   );
 }
 
-MetricBasis _basisFromJson(
-  Map<String, Object?> json,
-  String key,
-  String legacyKey,
-) {
+MetricBasis _basisFromJson(Map<String, Object?> json, String key, String legacyKey) {
   final name = GitHubJson.nullableString(json[key]);
-  return name == null
-      ? MetricBasis.fromLegacyName(
-          GitHubJson.nullableString(json[legacyKey]),
-        )
-      : MetricBasis.fromName(name);
+  return name == null ? MetricBasis.fromLegacyName(GitHubJson.nullableString(json[legacyKey])) : MetricBasis.fromName(name);
 }

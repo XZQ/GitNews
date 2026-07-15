@@ -19,28 +19,19 @@ class AppLocalizations {
   final Locale locale;
 
   static AppLocalizations of(BuildContext context) {
-    final instance = Localizations.of<AppLocalizations>(
-      context,
-      AppLocalizations,
-    );
+    final instance = Localizations.of<AppLocalizations>(context, AppLocalizations);
     return instance ?? AppLocalizations(fallbackLocale);
   }
 
   static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   // 默认支持的 locale 列表。zh-CN 为主翻译,en-US 为兜底。
-  static const supportedLocales = <Locale>[
-    Locale('zh', 'CN'),
-    Locale('en', 'US'),
-  ];
+  static const supportedLocales = <Locale>[Locale('zh', 'CN'), Locale('en', 'US')];
 
   // 默认 locale:找不到匹配时回落到 en-US。
   static const fallbackLocale = Locale('en', 'US');
 
-  static const Map<String, Map<String, String>> _localizedStrings = {
-    'zh': stringsZhCN,
-    'en': stringsEnUS,
-  };
+  static const Map<String, Map<String, String>> _localizedStrings = {'zh': stringsZhCN, 'en': stringsEnUS};
 
   String tr(String key) {
     final map = _localizedStrings[locale.languageCode] ?? stringsEnUS;

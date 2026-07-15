@@ -23,36 +23,12 @@ class ResponsiveScaffold extends ConsumerWidget {
     final location = navigationShell.currentIndex == 0 ? '/home' : GoRouterState.of(context).matchedLocation;
     final index = appTabs.indexOfLocation(location);
     final formFactor = Breakpoints.of(context);
-    void onTap(int i) => navigationShell.goBranch(
-          i,
-          initialLocation: i == navigationShell.currentIndex,
-        );
+    void onTap(int i) => navigationShell.goBranch(i, initialLocation: i == navigationShell.currentIndex);
 
     return switch (formFactor) {
-      FormFactor.compact => Scaffold(
-          body: SafeArea(child: navigationShell),
-          bottomNavigationBar: _BottomBar(
-            currentBranchIndex: index,
-            onTap: onTap,
-          ),
-        ),
-      FormFactor.medium => Scaffold(
-          body: Row(
-            children: [
-              _SideRail(currentIndex: index, onTap: onTap),
-              Expanded(child: SafeArea(child: navigationShell)),
-            ],
-          ),
-        ),
-      FormFactor.expanded => Scaffold(
-          body: Row(
-            children: [
-              AppSidebar(currentIndex: index, onTap: onTap),
-              const _SidebarDragHandle(),
-              Expanded(child: SafeArea(child: navigationShell)),
-            ],
-          ),
-        ),
+      FormFactor.compact => Scaffold(body: SafeArea(child: navigationShell), bottomNavigationBar: _BottomBar(currentBranchIndex: index, onTap: onTap)),
+      FormFactor.medium => Scaffold(body: Row(children: [_SideRail(currentIndex: index, onTap: onTap), Expanded(child: SafeArea(child: navigationShell))])),
+      FormFactor.expanded => Scaffold(body: Row(children: [AppSidebar(currentIndex: index, onTap: onTap), const _SidebarDragHandle(), Expanded(child: SafeArea(child: navigationShell))]))
     };
   }
 }
@@ -111,10 +87,7 @@ class _SidebarDragHandleState extends ConsumerState<_SidebarDragHandle> {
 }
 
 class _BottomBar extends StatelessWidget {
-  const _BottomBar({
-    required this.currentBranchIndex,
-    required this.onTap,
-  });
+  const _BottomBar({required this.currentBranchIndex, required this.onTap});
 
   final int currentBranchIndex;
   final void Function(int) onTap;
@@ -123,21 +96,14 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return NavigationBar(
-      selectedIndex: mobileDestinationIndex(currentBranchIndex),
-      onDestinationSelected: (index) {
-        onTap(mobileAppTabs[index].branchIndex);
-      },
-      destinations: [
-        for (final mobileSpec in mobileAppTabs)
-          NavigationDestination(
-            icon: Icon(appTabs[mobileSpec.branchIndex].icon),
-            selectedIcon: Icon(
-              appTabs[mobileSpec.branchIndex].selectedIcon,
-            ),
-            label: l10n.tr(mobileSpec.labelKey),
-          ),
-      ],
-    );
+        selectedIndex: mobileDestinationIndex(currentBranchIndex),
+        onDestinationSelected: (index) {
+          onTap(mobileAppTabs[index].branchIndex);
+        },
+        destinations: [
+          for (final mobileSpec in mobileAppTabs)
+            NavigationDestination(icon: Icon(appTabs[mobileSpec.branchIndex].icon), selectedIcon: Icon(appTabs[mobileSpec.branchIndex].selectedIcon), label: l10n.tr(mobileSpec.labelKey))
+        ]);
   }
 }
 
@@ -156,14 +122,7 @@ class _SideRail extends StatelessWidget {
       extended: false,
       minExtendedWidth: 80,
       labelType: NavigationRailLabelType.selected,
-      destinations: [
-        for (final spec in appTabs)
-          NavigationRailDestination(
-            icon: Icon(spec.icon),
-            selectedIcon: Icon(spec.selectedIcon),
-            label: Text(l10n.tr(spec.labelKey)),
-          ),
-      ],
+      destinations: [for (final spec in appTabs) NavigationRailDestination(icon: Icon(spec.icon), selectedIcon: Icon(spec.selectedIcon), label: Text(l10n.tr(spec.labelKey)))],
     );
   }
 }

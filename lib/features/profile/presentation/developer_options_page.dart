@@ -15,17 +15,8 @@ class DeveloperOptionsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('开发者选项'),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
-        ),
-      ),
-      body: ResponsiveLayout(
-        compact: (_) => const _Body(),
-        medium: (_) => const CenteredContent(child: _Body()),
-        expanded: (_) => const CenteredContent(child: _Body()),
-      ),
+      appBar: AppBar(title: const Text('开发者选项'), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile'))),
+      body: ResponsiveLayout(compact: (_) => const _Body(), medium: (_) => const CenteredContent(child: _Body()), expanded: (_) => const CenteredContent(child: _Body())),
     );
   }
 }
@@ -47,7 +38,7 @@ class _Body extends StatelessWidget {
               _Row(label: 'GitHub API 端点', value: 'api.github.com'),
               _Row(label: '请求超时', value: '10s'),
               _Row(label: '重试次数', value: '2'),
-              _Row(label: '当前主题', value: '浅色'),
+              _Row(label: '当前主题', value: '浅色')
             ],
           ),
         ),
@@ -62,10 +53,10 @@ class _Body extends StatelessWidget {
               SizedBox(height: AppSpacing.md),
               _Row(label: '新缓存策略', value: 'OFF'),
               _Row(label: '实时趋势', value: 'OFF'),
-              _Row(label: 'AI 总结', value: 'BETA'),
+              _Row(label: 'AI 总结', value: 'BETA')
             ],
           ),
-        ),
+        )
       ],
     );
   }
@@ -81,17 +72,7 @@ class _Row extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              label,
-              style: AppTypography.bodyMedium.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          Text(value, style: AppTypography.labelMedium),
-        ],
+        children: [Expanded(child: Text(label, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))), Text(value, style: AppTypography.labelMedium)],
       ),
     );
   }

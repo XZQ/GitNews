@@ -19,11 +19,7 @@ class AppLogger {
     debugPrint('[warn] ${parts.join(" ")}');
   }
 
-  static void error(
-    String tag, {
-    Object? kind,
-    Map<String, Object?> meta = const {},
-  }) {
+  static void error(String tag, {Object? kind, Map<String, Object?> meta = const {}}) {
     if (kReleaseMode) {
       return;
     }

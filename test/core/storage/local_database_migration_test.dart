@@ -20,12 +20,10 @@ void main() {
   });
 
   Future<Database> openRawV1Db() async {
-    final db = await databaseFactoryFfi.openDatabase(
-      ':memory:',
-      options: OpenDatabaseOptions(version: 1),
-    );
+    final db = await databaseFactoryFfi.openDatabase(':memory:', options: OpenDatabaseOptions(version: 1));
     // v1 原始 schema:cache_meta + ai_news_item + 索引。
-    await db.execute('''
+    await db.execute(
+      '''
       CREATE TABLE cache_meta (
         cache_key        TEXT PRIMARY KEY,
         last_fetched_at  INTEGER NOT NULL,
@@ -34,8 +32,10 @@ void main() {
         ext2             INTEGER,
         ext3             REAL
       )
-    ''');
-    await db.execute('''
+    ''',
+    );
+    await db.execute(
+      '''
       CREATE TABLE ai_news_item (
         id            TEXT PRIMARY KEY,
         category      TEXT NOT NULL,
@@ -50,15 +50,13 @@ void main() {
         selected      INTEGER NOT NULL,
         cached_at     INTEGER NOT NULL
       )
-    ''');
+    ''',
+    );
     return db;
   }
 
   Future<void> seedV1Data(DatabaseExecutor db) async {
-    await db.insert('cache_meta', {
-      'cache_key': 'legacy-key',
-      'last_fetched_at': 100,
-    });
+    await db.insert('cache_meta', {'cache_key': 'legacy-key', 'last_fetched_at': 100});
     await db.insert('ai_news_item', {
       'id': 'legacy-news',
       'category': 'aiModels',
@@ -71,14 +69,12 @@ void main() {
       'published_at': 0,
       'score': 1,
       'selected': 0,
-      'cached_at': 0,
+      'cached_at': 0
     });
   }
 
   Future<Set<String>> tableNames(DatabaseExecutor db) async {
-    final rows = await db.rawQuery(
-      "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
-    );
+    final rows = await db.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
     return rows.map((r) => r['name'] as String).toSet();
   }
 
@@ -91,20 +87,9 @@ void main() {
       await onUpgradeSchema(db, 1, 5);
 
       final names = await tableNames(db);
-      const expected = [
-        'cache_meta',
-        'ai_news_item',
-        'trending_snapshot_cache',
-        'json_snapshot_cache',
-        'monitor_alert_event',
-        'ai_news_state',
-      ];
+      const expected = ['cache_meta', 'ai_news_item', 'trending_snapshot_cache', 'json_snapshot_cache', 'monitor_alert_event', 'ai_news_state'];
       for (final table in expected) {
-        expect(
-          names,
-          contains(table),
-          reason: '$table 必须在 v1→v5 升级后存在',
-        );
+        expect(names, contains(table), reason: '$table 必须在 v1→v5 升级后存在');
       }
     });
 
@@ -143,7 +128,7 @@ void main() {
         'published_at': 0,
         'score': 1,
         'selected': 0,
-        'updated_at': 0,
+        'updated_at': 0
       });
       final rows = await db.query('ai_news_state');
       expect(rows, hasLength(1), reason: '升级后 ai_news_state 必须可读写');

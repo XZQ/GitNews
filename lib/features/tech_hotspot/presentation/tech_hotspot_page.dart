@@ -37,10 +37,7 @@ class TechHotspotPage extends ConsumerWidget {
       body: state.when(
         data: (digest) => _Body(digest: digest),
         loading: () => const _TechHotspotSkeleton(),
-        error: (error, stack) => ErrorView(
-          error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(techHotspotDigestProvider),
-        ),
+        error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(techHotspotDigestProvider)),
       ),
     );
   }
@@ -60,29 +57,21 @@ class _Body extends ConsumerWidget {
         const TechHotspotPageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              isCompact ? AppSpacing.lg : AppSpacing.xl,
-              AppSpacing.lg,
-              isCompact ? AppSpacing.lg : AppSpacing.xl,
-              AppSpacing.xxxl,
-            ),
+            padding: EdgeInsets.fromLTRB(isCompact ? AppSpacing.lg : AppSpacing.xl, AppSpacing.lg, isCompact ? AppSpacing.lg : AppSpacing.xl, AppSpacing.xxxl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TechHotspotTagsCloud(
-                  tags: digest.hotTags,
-                  onTagSelected: (tag) => ref.read(techHotspotSearchQueryProvider.notifier).state = tag,
-                ),
+                TechHotspotTagsCloud(tags: digest.hotTags, onTagSelected: (tag) => ref.read(techHotspotSearchQueryProvider.notifier).state = tag),
                 const SizedBox(height: AppSpacing.lg),
                 TechHotspotAgentSignalBoard(topics: digest.topics),
                 const SizedBox(height: AppSpacing.lg),
                 _TopRow(digest: digest),
                 const SizedBox(height: AppSpacing.lg),
-                _TopicGrid(topics: digest.topics),
+                _TopicGrid(topics: digest.topics)
               ],
             ),
           ),
-        ),
+        )
       ],
     );
   }
@@ -102,29 +91,16 @@ class _TopRow extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              flex: 8,
-              child: TechHotspotHeatChart(values: digest.heatTrend),
-            ),
+            Expanded(flex: 8, child: TechHotspotHeatChart(values: digest.heatTrend)),
             const SizedBox(width: AppSpacing.lg),
-            Expanded(
-              flex: 4,
-              child: TechHotspotLanguagePanel(languages: digest.languages),
-            ),
+            Expanded(flex: 4, child: TechHotspotLanguagePanel(languages: digest.languages))
           ],
         ),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SizedBox(
-          height: 260,
-          child: TechHotspotHeatChart(values: digest.heatTrend),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        TechHotspotLanguagePanel(languages: digest.languages),
-      ],
+      children: [SizedBox(height: 260, child: TechHotspotHeatChart(values: digest.heatTrend)), const SizedBox(height: AppSpacing.lg), TechHotspotLanguagePanel(languages: digest.languages)],
     );
   }
 }
@@ -137,45 +113,22 @@ class _TopicGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (topics.isEmpty) {
-      return EmptyView(
-        icon: Icons.search_off_rounded,
-        message: AppLocalizations.of(context).tr(
-          'tech_hotspot.empty.topics',
-        ),
-      );
+      return EmptyView(icon: Icons.search_off_rounded, message: AppLocalizations.of(context).tr('tech_hotspot.empty.topics'));
     }
 
     final formFactor = Breakpoints.of(context);
     final crossAxisCount = formFactor == FormFactor.expanded ? 2 : 1;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var i = 0; i < topics.length; i += crossAxisCount)
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: i + crossAxisCount < topics.length ? AppSpacing.lg : 0,
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                for (var j = 0; j < crossAxisCount; j++) ...[
-                  if (j > 0) const SizedBox(width: AppSpacing.lg),
-                  Expanded(
-                    child: i + j < topics.length
-                        ? TechHotspotTopicCard(
-                            topic: topics[i + j],
-                            onTap: () => context.go(
-                              '/tech_hotspot/detail/${topics[i + j].id}',
-                            ),
-                          )
-                        : const SizedBox(),
-                  ),
-                ],
-              ],
-            ),
-          ),
-      ],
-    );
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      for (var i = 0; i < topics.length; i += crossAxisCount)
+        Padding(
+            padding: EdgeInsets.only(bottom: i + crossAxisCount < topics.length ? AppSpacing.lg : 0),
+            child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              for (var j = 0; j < crossAxisCount; j++) ...[
+                if (j > 0) const SizedBox(width: AppSpacing.lg),
+                Expanded(child: i + j < topics.length ? TechHotspotTopicCard(topic: topics[i + j], onTap: () => context.go('/tech_hotspot/detail/${topics[i + j].id}')) : const SizedBox())
+              ]
+            ]))
+    ]);
   }
 }
 
@@ -185,19 +138,8 @@ class _TechHotspotSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xl,
-        AppSpacing.lg,
-        AppSpacing.xl,
-        AppSpacing.xxxl,
-      ),
-      children: const [
-        Skeleton(height: 92),
-        SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 280),
-        SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 320),
-      ],
+      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+      children: const [Skeleton(height: 92), SizedBox(height: AppSpacing.lg), Skeleton(height: 280), SizedBox(height: AppSpacing.lg), Skeleton(height: 320)],
     );
   }
 }

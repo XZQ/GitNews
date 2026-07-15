@@ -34,12 +34,9 @@ class AiNewsPage extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const AiNewsPageHeader(),
-          AiNewsCategoryNav(
-            selected: category,
-            onSelected: (v) => ref.read(aiNewsCategoryFilterProvider.notifier).state = v,
-          ),
+          AiNewsCategoryNav(selected: category, onSelected: (v) => ref.read(aiNewsCategoryFilterProvider.notifier).state = v),
           const AiNewsDigestCard(),
-          Expanded(child: _Body(category: category)),
+          Expanded(child: _Body(category: category))
         ],
       ),
     );
@@ -61,16 +58,10 @@ class _Body extends ConsumerWidget {
       final async = ref.watch(aiNewsReadLaterItemsProvider);
       return async.when(
         data: (items) => items.isEmpty
-            ? EmptyView(
-                icon: Icons.bookmark_border_rounded,
-                message: AppLocalizations.of(context).tr('ai_news.read_later_empty'),
-              )
+            ? EmptyView(icon: Icons.bookmark_border_rounded, message: AppLocalizations.of(context).tr('ai_news.read_later_empty'))
             : _ItemList(items: items, category: category, query: '', staticList: true),
         loading: () => const AiNewsListSkeleton(),
-        error: (e, _) => ErrorView(
-          error: e.asAppException(),
-          onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider),
-        ),
+        error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider)),
       );
     }
 
@@ -78,43 +69,23 @@ class _Body extends ConsumerWidget {
     if (query.isNotEmpty) {
       final async = ref.watch(aiNewsLibrarySearchProvider(query));
       return async.when(
-        data: (items) => _ItemList(
-          items: items,
-          category: category,
-          query: query,
-          staticList: true,
-        ),
+        data: (items) => _ItemList(items: items, category: category, query: query, staticList: true),
         loading: () => const AiNewsListSkeleton(),
-        error: (e, _) => ErrorView(
-          error: e.asAppException(),
-          onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query)),
-        ),
+        error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query))),
       );
     }
 
     final async = ref.watch(aiNewsItemsNotifierProvider);
     return async.when(
-      data: (items) => _ItemList(
-        items: items,
-        category: category,
-        query: '',
-      ),
+      data: (items) => _ItemList(items: items, category: category, query: ''),
       loading: () => const AiNewsListSkeleton(),
-      error: (e, _) => ErrorView(
-        error: e.asAppException(),
-        onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider),
-      ),
+      error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider)),
     );
   }
 }
 
 class _ItemList extends ConsumerStatefulWidget {
-  const _ItemList({
-    required this.items,
-    required this.category,
-    required this.query,
-    this.staticList = false,
-  });
+  const _ItemList({required this.items, required this.category, required this.query, this.staticList = false});
 
   final List<AiNewsItem> items;
   final AiNewsCategory? category;
@@ -190,43 +161,20 @@ class _ItemListState extends ConsumerState<_ItemList> {
     final groups = groupAiNewsByDay(widget.items);
     // 扁平化分组为 (header / row) 序列,SliverList 按 index lazy build。
     final flat = <_FlatEntry>[
-      for (final g in groups) ...[
-        _FlatEntry.header(g.key, g.value.length),
-        for (final item in g.value) _FlatEntry.item(item),
-      ],
+      for (final g in groups) ...[_FlatEntry.header(g.key, g.value.length), for (final item in g.value) _FlatEntry.item(item)]
     ];
-    return CustomScrollView(
-      controller: _controller,
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.md,
-            AppSpacing.xl,
-            AppSpacing.xxxl,
-          ),
+    return CustomScrollView(controller: _controller, slivers: [
+      SliverPadding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                if (index < flat.length) {
-                  final e = flat[index];
-                  return RepaintBoundary(
-                    child: e.isHeader
-                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
-                        : AiNewsTimelineRow(
-                            item: e.item!,
-                            onTap: () => _openDetail(context, e.item!),
-                          ),
-                  );
-                }
-                return const AiNewsLoadMoreIndicator();
-              },
-              childCount: flat.length + (hasMore ? 1 : 0),
-            ),
-          ),
-        ),
-      ],
-    );
+              delegate: SliverChildBuilderDelegate((context, index) {
+            if (index < flat.length) {
+              final e = flat[index];
+              return RepaintBoundary(child: e.isHeader ? AiNewsDayHeader(date: e.date!, itemCount: e.count!) : AiNewsTimelineRow(item: e.item!, onTap: () => _openDetail(context, e.item!)));
+            }
+            return const AiNewsLoadMoreIndicator();
+          }, childCount: flat.length + (hasMore ? 1 : 0))))
+    ]);
   }
 
   void _openDetail(BuildContext context, AiNewsItem item) {

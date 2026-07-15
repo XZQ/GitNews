@@ -24,27 +24,21 @@ const Duration repoDetailRemoteCacheTtl = CacheTtlConfig.repoDetail;
 *基于 GitHub REST API 的仓库详情仓库。
 */
 class GithubRepoDetailRepository implements RepoDetailRepository {
-  GithubRepoDetailRepository({
-    required Dio dio,
-    required JsonSnapshotCacheDao cache,
-    RepoSnapshotHistoryDao? snapshotHistory,
-    String? token,
-    String cacheScope = 'anonymous',
-    DateTime Function()? now,
-    RepoDetailRepository fallback = const LocalRepoDetailRepository(),
-    bool Function()? isRateLimited,
-    void Function(int retryAfterSeconds)? onRateLimited,
-  })  : _dio = dio,
+  GithubRepoDetailRepository(
+      {required Dio dio,
+      required JsonSnapshotCacheDao cache,
+      RepoSnapshotHistoryDao? snapshotHistory,
+      String? token,
+      String cacheScope = 'anonymous',
+      DateTime Function()? now,
+      RepoDetailRepository fallback = const LocalRepoDetailRepository(),
+      bool Function()? isRateLimited,
+      void Function(int retryAfterSeconds)? onRateLimited})
+      : _dio = dio,
         _cache = cache,
         _snapshotHistory = snapshotHistory,
         _token = token,
-        _resources = GitHubResourceCache(
-          dio: dio,
-          cache: cache,
-          token: token,
-          cacheScope: cacheScope,
-          now: now,
-        ),
+        _resources = GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now),
         _now = now ?? DateTime.now,
         _fallback = fallback,
         _isRateLimited = isRateLimited,
@@ -66,46 +60,25 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final cacheKey = repoDetailCacheKey(decoded);
     final now = _now();
     final cached = await _readCached(cacheKey);
-    if (cached != null &&
-        await _cache.isFresh(
-          key: cacheKey,
-          ttl: repoDetailRemoteCacheTtl,
-          now: now,
-        )) {
-      return DataResult(
-        data: cached,
-        freshness: DataFreshness.freshCache,
-      );
+    if (cached != null && await _cache.isFresh(key: cacheKey, ttl: repoDetailRemoteCacheTtl, now: now)) {
+      return DataResult(data: cached, freshness: DataFreshness.freshCache);
     }
     if (_isRateLimited?.call() ?? false) {
       if (cached != null) {
-        return DataResult(
-          data: cached,
-          freshness: DataFreshness.staleCache,
-        );
+        return DataResult(data: cached, freshness: DataFreshness.staleCache);
       }
       return _fallback.getDetail(decoded);
     }
 
     try {
       final digest = await _fetchDetail(decoded, now);
-      await _cache.upsert(
-        key: cacheKey,
-        payload: repoDetailDigestToJson(digest),
-        now: now,
-      );
+      await _cache.upsert(key: cacheKey, payload: repoDetailDigestToJson(digest), now: now);
       return DataResult(data: digest, freshness: DataFreshness.live);
     } catch (e) {
       _maybeReportRateLimit(e);
-      AppLogger.warn(
-        'githubRepoDetailFallback',
-        meta: {'repo': decoded, 'error': e.runtimeType.toString()},
-      );
+      AppLogger.warn('githubRepoDetailFallback', meta: {'repo': decoded, 'error': e.runtimeType.toString()});
       if (cached != null) {
-        return DataResult(
-          data: cached,
-          freshness: DataFreshness.staleCache,
-        );
+        return DataResult(data: cached, freshness: DataFreshness.staleCache);
       }
       return _fallback.getDetail(decoded);
     }
@@ -125,21 +98,14 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     try {
       return repoDetailDigestFromJson(json);
     } catch (e) {
-      AppLogger.warn(
-        'githubRepoDetailCacheParse',
-        meta: {'error': e.runtimeType.toString()},
-      );
+      AppLogger.warn('githubRepoDetailCacheParse', meta: {'error': e.runtimeType.toString()});
       return null;
     }
   }
 
   Future<RepoDetailDigest> _fetchDetail(String fullName, DateTime now) async {
     final repo = await _withHistoryTrend(await _fetchRepo(fullName, now), now);
-    final results = await Future.wait([
-      _fetchContributors(fullName),
-      _fetchRelatedRepos(repo),
-      _fetchActivities(fullName),
-    ]);
+    final results = await Future.wait([_fetchContributors(fullName), _fetchRelatedRepos(repo), _fetchActivities(fullName)]);
     final contributors = results[0] as List<ContributorEntity>;
     final relatedRepos = results[1] as List<RepoEntity>;
     final activities = results[2] as List<RepoActivityEvent>;
@@ -158,21 +124,12 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     if (history == null) {
       return repo;
     }
-    await history.record(
-      fullName: repo.fullName,
-      stars: repo.starCount,
-      forks: repo.forkCount,
-      capturedAt: now,
-    );
+    await history.record(fullName: repo.fullName, stars: repo.starCount, forks: repo.forkCount, capturedAt: now);
     final starTrend = await history.starTrend(repo.fullName);
     if (starTrend == null) {
       return repo;
     }
-    return repo.copyWith(
-      starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta),
-      trend: starTrend.values,
-      trendBasis: starTrend.basis,
-    );
+    return repo.copyWith(starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta), trend: starTrend.values, trendBasis: starTrend.basis);
   }
 
   int _observedDelta(List<double> values, {required int fallback}) {
@@ -185,9 +142,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
 
   Future<RepoEntity> _fetchRepo(String fullName, DateTime now) async {
     try {
-      final result = await _resources.getObject(
-        url: ApiEndpointsConfig.githubRepoPath(fullName),
-      );
+      final result = await _resources.getObject(url: ApiEndpointsConfig.githubRepoPath(fullName));
       return _parseRepo(result.data, now);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
@@ -198,10 +153,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
 
   Future<List<ContributorEntity>> _fetchContributors(String fullName) async {
     try {
-      final result = await _resources.getList(
-        url: ApiEndpointsConfig.githubRepoContributorsPath(fullName),
-        queryParameters: const {'per_page': 12},
-      );
+      final result = await _resources.getList(url: ApiEndpointsConfig.githubRepoContributorsPath(fullName), queryParameters: const {'per_page': 12});
       return result.data.map(_parseContributor).toList(growable: false);
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
@@ -211,11 +163,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   }
 
   Future<List<RepoActivityEvent>> _fetchActivities(String fullName) async {
-    return (await fetchGitHubRepoActivities(
-      resources: _resources,
-      fullName: fullName,
-    ))
-        .data;
+    return (await fetchGitHubRepoActivities(resources: _resources, fullName: fullName)).data;
   }
 
   Future<List<RepoEntity>> _fetchRelatedRepos(RepoEntity repo) async {
@@ -223,23 +171,14 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       final language = repo.language == 'Unknown' ? '' : ' language:${GitHubApiSupport.quoteSearchValue(repo.language)}';
       final response = await _dio.get<Map<String, Object?>>(
         ApiEndpointsConfig.githubSearchRepositoriesPath,
-        queryParameters: {
-          'q': '${repo.fullName.split('/').last} in:name,description stars:>30 archived:false$language',
-          'sort': 'stars',
-          'order': 'desc',
-          'per_page': 6,
-        },
+        queryParameters: {'q': '${repo.fullName.split('/').last} in:name,description stars:>30 archived:false$language', 'sort': 'stars', 'order': 'desc', 'per_page': 6},
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
       if (data == null) {
         throw const AppException(kind: AppExceptionKind.parse);
       }
-      return GitHubJson.list(data['items'])
-          .map((raw) => _parseRepo(GitHubJson.map(raw), _now()))
-          .where((item) => item.fullName != repo.fullName)
-          .take(4)
-          .toList(growable: false);
+      return GitHubJson.list(data['items']).map((raw) => _parseRepo(GitHubJson.map(raw), _now())).where((item) => item.fullName != repo.fullName).take(4).toList(growable: false);
     } on DioException catch (e) {
       throw GitHubApiSupport.toAppException(e, now: _now);
     } on FormatException catch (e, st) {
@@ -255,21 +194,13 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final stars = GitHubJson.intValue(json['stargazers_count']);
     final forks = GitHubJson.intValue(json['forks_count']);
     final issues = GitHubJson.intValue(json['open_issues_count']);
-    final pushedAt = DateTime.tryParse(
-      GitHubJson.string(json['pushed_at']),
-    )?.toUtc();
+    final pushedAt = DateTime.tryParse(GitHubJson.string(json['pushed_at']))?.toUtc();
     return RepoEntity(
       fullName: fullName,
       description: GitHubJson.nullableString(json['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: repoDetailActivityScore(
-        stars: stars,
-        forks: forks,
-        issues: issues,
-        pushedAt: pushedAt,
-        now: now,
-      ),
+      starDelta: repoDetailActivityScore(stars: stars, forks: forks, issues: issues, pushedAt: pushedAt, now: now),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
       valueBasis: MetricBasis.observed,
@@ -281,10 +212,6 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
   ContributorEntity _parseContributor(Object? raw) {
     final json = GitHubJson.map(raw);
     final login = GitHubJson.string(json['login']);
-    return ContributorEntity(
-      login: login,
-      contributions: GitHubJson.intValue(json['contributions']),
-      avatarAccentArgb: GitHubApiSupport.avatarColor(login),
-    );
+    return ContributorEntity(login: login, contributions: GitHubJson.intValue(json['contributions']), avatarAccentArgb: GitHubApiSupport.avatarColor(login));
   }
 }

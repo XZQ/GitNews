@@ -24,26 +24,18 @@ import 'discover_users_search_client.dart';
  *与监控/热榜一致的离线路优先策略。
  */
 class DiscoverRepository {
-  DiscoverRepository({
-    required Dio dio,
-    required JsonSnapshotCacheDao cache,
-    String? token,
-    String cacheScope = 'anonymous',
-    DateTime Function()? now,
-    bool Function()? isRateLimited,
-    void Function(int retryAfterSeconds)? onRateLimited,
-  })  : _cache = cache,
+  DiscoverRepository(
+      {required Dio dio,
+      required JsonSnapshotCacheDao cache,
+      String? token,
+      String cacheScope = 'anonymous',
+      DateTime Function()? now,
+      bool Function()? isRateLimited,
+      void Function(int retryAfterSeconds)? onRateLimited})
+      : _cache = cache,
         _searchClient = DiscoverSearchClient(dio, token),
         _usersSearchClient = DiscoverUsersSearchClient(dio, token),
-        _profileClient = DiscoverProfileClient(
-          GitHubResourceCache(
-            dio: dio,
-            cache: cache,
-            token: token,
-            cacheScope: cacheScope,
-            now: now,
-          ),
-        ),
+        _profileClient = DiscoverProfileClient(GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now)),
         _now = now ?? DateTime.now,
         _isRateLimited = isRateLimited,
         _onRateLimited = onRateLimited;
@@ -56,17 +48,9 @@ class DiscoverRepository {
   final bool Function()? _isRateLimited;
   final void Function(int retryAfterSeconds)? _onRateLimited;
 
-  Future<DataResult<List<RepoEntity>>> fetchTrendingRepos({
-    bool force = false,
-    int page = 1,
-    int perPage = 20,
-  }) async {
+  Future<DataResult<List<RepoEntity>>> fetchTrendingRepos({bool force = false, int page = 1, int perPage = 20}) async {
     final now = _now();
-    final key = DiscoverQueries.pageKey(
-      DiscoverQueries.trendingCache,
-      page,
-      perPage,
-    );
+    final key = DiscoverQueries.pageKey(DiscoverQueries.trendingCache, page, perPage);
     if (force) {
       await _safeDelete(key);
     }
@@ -74,63 +58,31 @@ class DiscoverRepository {
       if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
         final cached = await _cache.read(key);
         if (cached != null) {
-          return DataResult(
-            data: DiscoverCacheCodec.decodeRepos(cached),
-            freshness: DataFreshness.freshCache,
-          );
+          return DataResult(data: DiscoverCacheCodec.decodeRepos(cached), freshness: DataFreshness.freshCache);
         }
       }
       try {
-        final repos = await _searchClient.search(
-          DiscoverQueries.trending,
-          page: page,
-          perPage: perPage,
-        );
-        await _cache.upsert(
-          key: key,
-          payload: DiscoverCacheCodec.repoListToJson(repos),
-          now: now,
-        );
+        final repos = await _searchClient.search(DiscoverQueries.trending, page: page, perPage: perPage);
+        await _cache.upsert(key: key, payload: DiscoverCacheCodec.repoListToJson(repos), now: now);
         return DataResult(data: repos, freshness: DataFreshness.live);
       } on DioException catch (e) {
         _report(GitHubApiSupport.toAppException(e, now: _now));
       } on AppException catch (e) {
         _report(e);
       } catch (e) {
-        AppLogger.warn(
-          'discoverTrending',
-          meta: {'error': e.runtimeType.toString()},
-        );
+        AppLogger.warn('discoverTrending', meta: {'error': e.runtimeType.toString()});
       }
     }
     final cached = await _cache.read(key);
     if (cached != null) {
-      return DataResult(
-        data: DiscoverCacheCodec.decodeRepos(cached),
-        freshness: DataFreshness.staleCache,
-      );
+      return DataResult(data: DiscoverCacheCodec.decodeRepos(cached), freshness: DataFreshness.staleCache);
     }
-    return DataResult(
-      data: DiscoverQueries.slice(
-        DiscoverSeed.seedPopularRepos,
-        page: page,
-        perPage: perPage,
-      ),
-      freshness: DataFreshness.seed,
-    );
+    return DataResult(data: DiscoverQueries.slice(DiscoverSeed.seedPopularRepos, page: page, perPage: perPage), freshness: DataFreshness.seed);
   }
 
-  Future<DataResult<List<SkillEntity>>> fetchAgentSkills({
-    bool force = false,
-    int page = 1,
-    int perPage = 20,
-  }) async {
+  Future<DataResult<List<SkillEntity>>> fetchAgentSkills({bool force = false, int page = 1, int perPage = 20}) async {
     final now = _now();
-    final key = DiscoverQueries.pageKey(
-      DiscoverQueries.skillsCache,
-      page,
-      perPage,
-    );
+    final key = DiscoverQueries.pageKey(DiscoverQueries.skillsCache, page, perPage);
     if (force) {
       await _safeDelete(key);
     }
@@ -138,69 +90,34 @@ class DiscoverRepository {
       if (!force && await _isFresh(key, CacheTtlConfig.skills, now)) {
         final cached = await _cache.read(key);
         if (cached != null) {
-          return DataResult(
-            data: DiscoverCacheCodec.decodeSkills(cached),
-            freshness: DataFreshness.freshCache,
-          );
+          return DataResult(data: DiscoverCacheCodec.decodeSkills(cached), freshness: DataFreshness.freshCache);
         }
       }
       try {
-        final repos = await _searchClient.search(
-          DiscoverQueries.skills,
-          page: page,
-          perPage: perPage,
-        );
+        final repos = await _searchClient.search(DiscoverQueries.skills, page: page, perPage: perPage);
         final offset = (page - 1) * perPage;
         final skills = [
           for (var i = 0; i < repos.length; i++)
-            SkillEntity(
-              repo: repos[i],
-              category: DiscoverQueries.deriveSkillCategory(repos[i]),
-              source: 'github_search',
-              rank: offset + i + 1,
-              summary: repos[i].description,
-            ),
+            SkillEntity(repo: repos[i], category: DiscoverQueries.deriveSkillCategory(repos[i]), source: 'github_search', rank: offset + i + 1, summary: repos[i].description)
         ];
-        await _cache.upsert(
-          key: key,
-          payload: DiscoverCacheCodec.skillsToJson(skills),
-          now: now,
-        );
+        await _cache.upsert(key: key, payload: DiscoverCacheCodec.skillsToJson(skills), now: now);
         return DataResult(data: skills, freshness: DataFreshness.live);
       } on DioException catch (e) {
         _report(GitHubApiSupport.toAppException(e, now: _now));
       } on AppException catch (e) {
         _report(e);
       } catch (e) {
-        AppLogger.warn(
-          'discoverSkills',
-          meta: {'error': e.runtimeType.toString()},
-        );
+        AppLogger.warn('discoverSkills', meta: {'error': e.runtimeType.toString()});
       }
     }
     final cached = await _cache.read(key);
     if (cached != null) {
-      return DataResult(
-        data: DiscoverCacheCodec.decodeSkills(cached),
-        freshness: DataFreshness.staleCache,
-      );
+      return DataResult(data: DiscoverCacheCodec.decodeSkills(cached), freshness: DataFreshness.staleCache);
     }
-    return DataResult(
-      data: DiscoverQueries.slice(
-        DiscoverSeed.seedAgentSkills,
-        page: page,
-        perPage: perPage,
-      ),
-      freshness: DataFreshness.seed,
-    );
+    return DataResult(data: DiscoverQueries.slice(DiscoverSeed.seedAgentSkills, page: page, perPage: perPage), freshness: DataFreshness.seed);
   }
 
-  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
-    required DiscoverProfileKind kind,
-    bool force = false,
-    int page = 1,
-    int perPage = 20,
-  }) async {
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({required DiscoverProfileKind kind, bool force = false, int page = 1, int perPage = 20}) async {
     return fetchProfilesPage(
       profileClient: _profileClient,
       usersSearchClient: _usersSearchClient,
@@ -215,10 +132,7 @@ class DiscoverRepository {
     );
   }
 
-  Future<DataResult<DiscoverProfileEntity>> fetchProfileDetail({
-    required String login,
-    required DiscoverProfileKind kind,
-  }) async {
+  Future<DataResult<DiscoverProfileEntity>> fetchProfileDetail({required String login, required DiscoverProfileKind kind}) async {
     final result = await _profileClient.fetch(login, kind);
     return result.map((p) => p.copyWith());
   }

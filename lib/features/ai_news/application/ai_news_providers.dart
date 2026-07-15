@@ -20,55 +20,27 @@ import '../domain/ai_news_repository.dart';
 // 例如测试可通过
 // `aiNewsDioProvider(AiNewsApiClient.baseUrl).overrideWithValue(mockDio)`
 // 注入带 mock adapter 的 Dio。
-final aiNewsDioProvider = Provider.family<Dio, String>(
-  (ref, baseUrl) => DioClient.create(
-    baseUrl: baseUrl,
-    headers: const {
-      'Accept': 'application/json',
-      'User-Agent': GitHubApiSupport.userAgent,
-    },
-  ),
-);
+final aiNewsDioProvider = Provider.family<Dio, String>((ref, baseUrl) => DioClient.create(baseUrl: baseUrl, headers: const {'Accept': 'application/json', 'User-Agent': GitHubApiSupport.userAgent}));
 
-final aiNewsApiClientProvider = Provider<AiNewsApiClient>(
-  (ref) => AiNewsApiClient.create(
-    ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl)),
-  ),
-);
+final aiNewsApiClientProvider = Provider<AiNewsApiClient>((ref) => AiNewsApiClient.create(ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl))));
 
 // 补充 RSS/Atom 源共享一个 Dio:feed URL 是绝对地址,baseUrl 不参与拼接;
 // 走同一 keyed 工厂便于测试按 URL override。
-final aiNewsRssClientProvider = Provider<AiNewsRssClient>(
-  (ref) => AiNewsRssClient(
-    ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl)),
-  ),
-);
+final aiNewsRssClientProvider = Provider<AiNewsRssClient>((ref) => AiNewsRssClient(ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl))));
 
 // 聚合仓库:主源(精选流)+ 补充 RSS 源,head 页去重合并。
 // 任一源失败都不影响其余源;全部失败才抛错走缓存/种子降级。
-final aiNewsRepositoryProvider = Provider<AiNewsRepository>(
-  (ref) => AggregatedAiNewsRepository(
-    RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)),
-    ref.watch(aiNewsRssClientProvider),
-    clock: ref.watch(clockProvider),
-  ),
-);
+final aiNewsRepositoryProvider =
+    Provider<AiNewsRepository>((ref) => AggregatedAiNewsRepository(RemoteAiNewsRepository(ref.watch(aiNewsApiClientProvider)), ref.watch(aiNewsRssClientProvider), clock: ref.watch(clockProvider)));
 
 // AI 资讯缓存 DAO。共享全局 [appDatabaseProvider] 的 executor。
-final aiNewsCacheDaoProvider = Provider<AiNewsCacheDao>(
-  (ref) => AiNewsCacheDao(
-    ref.watch(appDatabaseProvider).executor,
-    ref.watch(cacheMetaDaoProvider),
-  ),
-);
+final aiNewsCacheDaoProvider = Provider<AiNewsCacheDao>((ref) => AiNewsCacheDao(ref.watch(appDatabaseProvider).executor, ref.watch(cacheMetaDaoProvider)));
 
 // 时钟抽象,便于测试注入固定时刻。
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 // 分类筛选:`null` 表示全部分类。
-final aiNewsCategoryFilterProvider = StateProvider<AiNewsCategory?>(
-  (ref) => null,
-);
+final aiNewsCategoryFilterProvider = StateProvider<AiNewsCategory?>((ref) => null);
 
 // 顶部搜索框关键词。空字符串表示不过滤当前列表。
 final aiNewsSearchQueryProvider = StateProvider<String>((ref) => '');
@@ -86,19 +58,12 @@ List<AiNewsItem> filterAiNewsItems(List<AiNewsItem> items, String query) {
 
   return [
     for (final item in items)
-      if (_aiNewsSearchText(item).contains(keyword)) item,
+      if (_aiNewsSearchText(item).contains(keyword)) item
   ];
 }
 
 String _aiNewsSearchText(AiNewsItem item) {
-  return [
-    item.title,
-    item.titleEn,
-    item.summary,
-    item.source,
-    item.category.label,
-    item.category.code,
-  ].join(' ').toLowerCase();
+  return [item.title, item.titleEn, item.summary, item.source, item.category.label, item.category.code].join(' ').toLowerCase();
 }
 
 // 单次向用户暴露的条目数(分页步长)。
@@ -118,9 +83,7 @@ const Duration aiNewsCacheTtl = CacheTtlConfig.aiNews;
 // 2. **Phase B(后台静默)**:若 cache_meta 判定已过期(或从未拉取),
 // 静默发起远端请求;成功后刷新 buffer + state + DB;失败保持现状
 // 切换分类会触发 [ref.watch] 重建 → 状态自动重置。
-final aiNewsItemsNotifierProvider = AsyncNotifierProvider.autoDispose<AiNewsItemsNotifier, List<AiNewsItem>>(
-  AiNewsItemsNotifier.new,
-);
+final aiNewsItemsNotifierProvider = AsyncNotifierProvider.autoDispose<AiNewsItemsNotifier, List<AiNewsItem>>(AiNewsItemsNotifier.new);
 
 // 资讯详情读取:详情页只依赖本地数据,避免再次请求远端或打开不稳定外站。
 // 优先条目缓存;缓存被清理后回退稍后读的实体快照(ai_news_state)。
@@ -135,9 +98,7 @@ final aiNewsItemDetailProvider = FutureProvider.autoDispose.family<AiNewsItem?, 
 // 当前资讯流的数据来源口径(live/freshCache/staleCache/seed)。
 // 由 [AiNewsItemsNotifier] 在关键决策点写入,供页头与首页预览展示 badge,
 // 让用户清楚当前看到的是实时、缓存还是种子兜底数据。
-final aiNewsFreshnessProvider = StateProvider<DataFreshness>(
-  (ref) => DataFreshness.live,
-);
+final aiNewsFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.live);
 
 class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
   List<AiNewsItem> _buffer = const [];
@@ -177,12 +138,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     }
 
     // Phase B:缓存仍新鲜就不发请求,否则后台静默刷新
-    final fresh = await dao.isFresh(
-      category: _category,
-      cursor: null,
-      ttl: aiNewsCacheTtl,
-      now: now,
-    );
+    final fresh = await dao.isFresh(category: _category, cursor: null, ttl: aiNewsCacheTtl, now: now);
     if (gen != _generation) {
       return const [];
     }

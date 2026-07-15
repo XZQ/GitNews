@@ -48,16 +48,10 @@ void main() {
 
     final archived = container.read(monitorAlertEventsProvider).requireValue;
     expect(archived.firstWhere((item) => item.id == 'read').isArchived, isTrue);
-    expect(
-      archived.firstWhere((item) => item.id == 'unread').isArchived,
-      isFalse,
-    );
+    expect(archived.firstWhere((item) => item.id == 'unread').isArchived, isFalse);
 
     await controller.restoreAll();
-    expect(
-      container.read(monitorAlertEventsProvider).requireValue.any((item) => item.isArchived),
-      isFalse,
-    );
+    expect(container.read(monitorAlertEventsProvider).requireValue.any((item) => item.isArchived), isFalse);
   });
 
   test('toggleRead switches the durable read timestamp', () async {
@@ -68,28 +62,15 @@ void main() {
     await controller.upsertAll([event(id: 'one')]);
 
     await controller.toggleRead('one');
-    expect(
-      container.read(monitorAlertEventsProvider).requireValue.single.isRead,
-      isTrue,
-    );
+    expect(container.read(monitorAlertEventsProvider).requireValue.single.isRead, isTrue);
 
     await controller.toggleRead('one');
-    expect(
-      container.read(monitorAlertEventsProvider).requireValue.single.isRead,
-      isFalse,
-    );
+    expect(container.read(monitorAlertEventsProvider).requireValue.single.isRead, isFalse);
   });
 }
 
 ProviderContainer _container(LocalDatabase database) {
-  return ProviderContainer(
-    overrides: [
-      appDatabaseProvider.overrideWithValue(database),
-      monitorAlertClockProvider.overrideWithValue(
-        () => DateTime.utc(2026, 7, 3, 12),
-      ),
-    ],
-  );
+  return ProviderContainer(overrides: [appDatabaseProvider.overrideWithValue(database), monitorAlertClockProvider.overrideWithValue(() => DateTime.utc(2026, 7, 3, 12))]);
 }
 
 MonitorAlertEvent event({required String id}) {

@@ -15,16 +15,11 @@ class DioClient {
   static Dio create({String? baseUrl, Map<String, Object?>? headers}) {
     final dio = Dio(
       BaseOptions(
-        baseUrl: baseUrl ?? ApiEndpointsConfig.githubBaseUrl,
-        connectTimeout: const Duration(seconds: 10),
-        receiveTimeout: const Duration(seconds: 10),
-        sendTimeout: const Duration(seconds: 10),
-        headers: headers ??
-            const {
-              'Accept': GitHubApiSupport.githubAccept,
-              'X-GitHub-Api-Version': GitHubApiSupport.apiVersion,
-            },
-      ),
+          baseUrl: baseUrl ?? ApiEndpointsConfig.githubBaseUrl,
+          connectTimeout: const Duration(seconds: 10),
+          receiveTimeout: const Duration(seconds: 10),
+          sendTimeout: const Duration(seconds: 10),
+          headers: headers ?? const {'Accept': GitHubApiSupport.githubAccept, 'X-GitHub-Api-Version': GitHubApiSupport.apiVersion}),
     );
     dio.interceptors.add(_RetryInterceptor(dio: dio));
     return dio;
@@ -39,10 +34,7 @@ class _RetryInterceptor extends Interceptor {
   static const Duration baseDelay = Duration(milliseconds: 500);
 
   @override
-  Future<void> onError(
-    DioException err,
-    ErrorInterceptorHandler handler,
-  ) async {
+  Future<void> onError(DioException err, ErrorInterceptorHandler handler) async {
     final attempt = (err.requestOptions.extra['retryAttempt'] as int?) ?? 0;
     if (!_shouldRetry(err) || attempt >= maxRetries) {
       return handler.next(err);

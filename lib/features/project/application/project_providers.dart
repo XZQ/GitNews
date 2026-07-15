@@ -29,9 +29,7 @@ final projectFreshnessProvider = Provider<AsyncValue<DataFreshness>>((ref) {
 });
 
 // 应用本地搜索后的深度报告摘要。
-final filteredProjectDigestProvider = FutureProvider<ProjectDigest>((
-  ref,
-) async {
+final filteredProjectDigestProvider = FutureProvider<ProjectDigest>((ref) async {
   final query = ref.watch(projectSearchQueryProvider);
   final digest = await ref.watch(projectDigestProvider.future);
   return filterProjectDigest(digest, query);
@@ -60,14 +58,11 @@ List<RepoEntity> filterProjectRepos(List<RepoEntity> repos, String query) {
 
   return [
     for (final repo in repos)
-      if (_repoSearchText(repo).contains(keyword)) repo,
+      if (_repoSearchText(repo).contains(keyword)) repo
   ];
 }
 
-List<ContributorEntity> filterProjectContributors(
-  List<ContributorEntity> contributors,
-  String query,
-) {
+List<ContributorEntity> filterProjectContributors(List<ContributorEntity> contributors, String query) {
   final keyword = query.trim().toLowerCase();
   if (keyword.isEmpty) {
     return contributors;
@@ -75,21 +70,14 @@ List<ContributorEntity> filterProjectContributors(
 
   return [
     for (final contributor in contributors)
-      if (_contributorSearchText(contributor).contains(keyword)) contributor,
+      if (_contributorSearchText(contributor).contains(keyword)) contributor
   ];
 }
 
 String _repoSearchText(RepoEntity repo) {
-  return [
-    repo.fullName,
-    repo.description,
-    repo.language,
-  ].join(' ').toLowerCase();
+  return [repo.fullName, repo.description, repo.language].join(' ').toLowerCase();
 }
 
 String _contributorSearchText(ContributorEntity contributor) {
-  return [
-    contributor.login,
-    contributor.contributions.toString(),
-  ].join(' ').toLowerCase();
+  return [contributor.login, contributor.contributions.toString()].join(' ').toLowerCase();
 }

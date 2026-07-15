@@ -6,17 +6,13 @@ import '../domain/monitor_rule.dart';
 
 enum MonitorAlertFilter { all, unread, important }
 
-final monitorAlertFilterProvider = StateProvider<MonitorAlertFilter>(
-  (ref) => MonitorAlertFilter.all,
-);
+final monitorAlertFilterProvider = StateProvider<MonitorAlertFilter>((ref) => MonitorAlertFilter.all);
 
 final monitorAlertEventDaoProvider = Provider<MonitorAlertEventDao>((ref) {
   return MonitorAlertEventDao(ref.watch(appDatabaseProvider).executor);
 });
 
-final monitorAlertClockProvider = Provider<DateTime Function()>(
-  (ref) => DateTime.now,
-);
+final monitorAlertClockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 class MonitorAlertEventsController extends AsyncNotifier<List<MonitorAlertEvent>> {
   MonitorAlertEventDao get _dao => ref.read(monitorAlertEventDaoProvider);
@@ -77,6 +73,4 @@ class MonitorAlertEventsController extends AsyncNotifier<List<MonitorAlertEvent>
   }
 }
 
-final monitorAlertEventsProvider = AsyncNotifierProvider<MonitorAlertEventsController, List<MonitorAlertEvent>>(
-  MonitorAlertEventsController.new,
-);
+final monitorAlertEventsProvider = AsyncNotifierProvider<MonitorAlertEventsController, List<MonitorAlertEvent>>(MonitorAlertEventsController.new);

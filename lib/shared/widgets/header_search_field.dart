@@ -8,13 +8,7 @@ import '../../core/theme/app_typography.dart';
 *顶部栏通用搜索框。
 */
 class HeaderSearchField extends StatefulWidget {
-  const HeaderSearchField({
-    required this.hintText,
-    this.value = '',
-    this.onChanged,
-    this.onSubmitted,
-    super.key,
-  });
+  const HeaderSearchField({required this.hintText, this.value = '', this.onChanged, this.onSubmitted, super.key});
 
   final String hintText;
   final String value;
@@ -38,10 +32,7 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
   void didUpdateWidget(covariant HeaderSearchField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != _controller.text) {
-      _controller.value = TextEditingValue(
-        text: widget.value,
-        selection: TextSelection.collapsed(offset: widget.value.length),
-      );
+      _controller.value = TextEditingValue(text: widget.value, selection: TextSelection.collapsed(offset: widget.value.length));
     }
   }
 
@@ -61,63 +52,35 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Semantics(
-      label: l10n.tr('a11y.search'),
-      hint: widget.hintText,
-      textField: true,
-      child: SizedBox(
-        height: 40,
-        child: TextField(
-          controller: _controller,
-          onChanged: widget.onChanged,
-          onSubmitted: widget.onSubmitted,
-          textInputAction: TextInputAction.search,
-          style: AppTypography.bodyMedium.copyWith(color: colors.onSurface),
-          decoration: InputDecoration(
-            prefixIcon: Icon(
-              Icons.search_rounded,
-              size: 18,
-              color: colors.onSurfaceVariant,
-            ),
-            hintText: widget.hintText,
-            hintStyle: AppTypography.bodySmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-            suffixIcon: ListenableBuilder(
-              listenable: _controller,
-              builder: (context, _) {
-                if (_controller.text.isEmpty) {
-                  return const SizedBox.shrink();
-                }
-                return IconButton(
-                  tooltip: l10n.tr('a11y.clear_search'),
-                  onPressed: _clear,
-                  icon: Icon(
-                    Icons.close_rounded,
-                    size: 16,
-                    color: colors.onSurfaceVariant,
-                  ),
-                );
-              },
-            ),
-            isDense: true,
-            contentPadding: EdgeInsets.zero,
-            filled: true,
-            fillColor: colors.surfaceContainerHighest,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: BorderSide.none,
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: BorderSide.none,
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(AppRadius.sm),
-              borderSide: BorderSide(color: colors.primary, width: 1.4),
-            ),
-          ),
-        ),
-      ),
-    );
+        label: l10n.tr('a11y.search'),
+        hint: widget.hintText,
+        textField: true,
+        child: SizedBox(
+            height: 40,
+            child: TextField(
+                controller: _controller,
+                onChanged: widget.onChanged,
+                onSubmitted: widget.onSubmitted,
+                textInputAction: TextInputAction.search,
+                style: AppTypography.bodyMedium.copyWith(color: colors.onSurface),
+                decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search_rounded, size: 18, color: colors.onSurfaceVariant),
+                    hintText: widget.hintText,
+                    hintStyle: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+                    suffixIcon: ListenableBuilder(
+                        listenable: _controller,
+                        builder: (context, _) {
+                          if (_controller.text.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return IconButton(tooltip: l10n.tr('a11y.clear_search'), onPressed: _clear, icon: Icon(Icons.close_rounded, size: 16, color: colors.onSurfaceVariant));
+                        }),
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                    filled: true,
+                    fillColor: colors.surfaceContainerHighest,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm), borderSide: BorderSide.none),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm), borderSide: BorderSide.none),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm), borderSide: BorderSide(color: colors.primary, width: 1.4))))));
   }
 }

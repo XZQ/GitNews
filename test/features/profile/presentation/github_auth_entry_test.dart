@@ -10,19 +10,12 @@ import 'package:github_news/features/profile/presentation/widgets/profile_user_c
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('unconfigured build offers PAT instead of broken OAuth login', (
-    tester,
-  ) async {
+  testWidgets('unconfigured build offers PAT instead of broken OAuth login', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(
         child: MaterialApp(
           locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: LoginPage(),
         ),
@@ -35,9 +28,7 @@ void main() {
     expect(find.textContaining('跨设备'), findsNothing);
   });
 
-  testWidgets('profile user card routes anonymous users toward PAT setup', (
-    tester,
-  ) async {
+  testWidgets('profile user card routes anonymous users toward PAT setup', (tester) async {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
@@ -47,12 +38,7 @@ void main() {
         overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
         child: const MaterialApp(
           locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(body: ProfileUserCard()),
         ),

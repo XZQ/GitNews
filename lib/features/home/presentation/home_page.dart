@@ -35,11 +35,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   void _maybeShowOnboarding() {
     final shouldShow = ref.read(shouldShowOnboardingProvider).valueOrNull;
     if (shouldShow == true && mounted) {
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const OnboardingDialog(),
-      );
+      showDialog(context: context, barrierDismissible: false, builder: (_) => const OnboardingDialog());
     }
   }
 
@@ -48,12 +44,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     if (Breakpoints.of(context) == FormFactor.expanded) {
       return const DevIntelDesktopPage();
     }
-    return Scaffold(
-      body: ResponsiveLayout(
-        compact: (_) => const HomeMobileBody(),
-        medium: (_) => const HomeTabletBody(),
-        expanded: (_) => const SizedBox.shrink(),
-      ),
-    );
+    return Scaffold(body: ResponsiveLayout(compact: (_) => const HomeMobileBody(), medium: (_) => const HomeTabletBody(), expanded: (_) => const SizedBox.shrink()));
   }
 }

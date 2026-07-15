@@ -12,21 +12,12 @@ import '../domain/ai_news_item.dart';
 *- summary:剥离 HTML 标签并截断
 *- publishedAt:统一转 UTC;缺失时用 [fallbackTime]
 */
-List<AiNewsItem> parseAiNewsFeed(
-  String xmlText, {
-  required AiNewsSourceConfig source,
-  required DateTime fallbackTime,
-}) {
+List<AiNewsItem> parseAiNewsFeed(String xmlText, {required AiNewsSourceConfig source, required DateTime fallbackTime}) {
   final XmlDocument doc;
   try {
     doc = XmlDocument.parse(xmlText);
   } on XmlException catch (e, st) {
-    throw AppException(
-      kind: AppExceptionKind.parse,
-      cause: e,
-      stack: st,
-      meta: {'source': source.id},
-    );
+    throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st, meta: {'source': source.id});
   }
   final root = doc.rootElement;
   final fallbackUtc = fallbackTime.toUtc();
@@ -36,17 +27,10 @@ List<AiNewsItem> parseAiNewsFeed(
   if (root.name.local == 'feed') {
     return _parseAtom(root, source, fallbackUtc);
   }
-  throw AppException(
-    kind: AppExceptionKind.parse,
-    meta: {'source': source.id, 'root': root.name.local},
-  );
+  throw AppException(kind: AppExceptionKind.parse, meta: {'source': source.id, 'root': root.name.local});
 }
 
-List<AiNewsItem> _parseRss(
-  XmlElement rss,
-  AiNewsSourceConfig source,
-  DateTime fallback,
-) {
+List<AiNewsItem> _parseRss(XmlElement rss, AiNewsSourceConfig source, DateTime fallback) {
   final channel = rss.getElement('channel');
   if (channel == null) {
     return const [];
@@ -61,24 +45,12 @@ List<AiNewsItem> _parseRss(
       continue;
     }
     final publishedAt = _parseFeedDate(_text(node, 'pubDate')) ?? _parseFeedDate(_text(node, 'date')) ?? channelDate;
-    items.add(
-      _buildItem(
-        source: source,
-        title: title,
-        link: link.trim(),
-        summary: _text(node, 'description'),
-        publishedAt: publishedAt,
-      ),
-    );
+    items.add(_buildItem(source: source, title: title, link: link.trim(), summary: _text(node, 'description'), publishedAt: publishedAt));
   }
   return items;
 }
 
-List<AiNewsItem> _parseAtom(
-  XmlElement feed,
-  AiNewsSourceConfig source,
-  DateTime fallback,
-) {
+List<AiNewsItem> _parseAtom(XmlElement feed, AiNewsSourceConfig source, DateTime fallback) {
   final items = <AiNewsItem>[];
   for (final node in feed.findElements('entry')) {
     final link = _atomLink(node);
@@ -88,26 +60,12 @@ List<AiNewsItem> _parseAtom(
     }
     final publishedAt = _parseFeedDate(_text(node, 'published')) ?? _parseFeedDate(_text(node, 'updated')) ?? fallback;
     final summary = _text(node, 'summary');
-    items.add(
-      _buildItem(
-        source: source,
-        title: title,
-        link: link,
-        summary: summary.isNotEmpty ? summary : _text(node, 'content'),
-        publishedAt: publishedAt,
-      ),
-    );
+    items.add(_buildItem(source: source, title: title, link: link, summary: summary.isNotEmpty ? summary : _text(node, 'content'), publishedAt: publishedAt));
   }
   return items;
 }
 
-AiNewsItem _buildItem({
-  required AiNewsSourceConfig source,
-  required String title,
-  required String link,
-  required String summary,
-  required DateTime publishedAt,
-}) {
+AiNewsItem _buildItem({required AiNewsSourceConfig source, required String title, required String link, required String summary, required DateTime publishedAt}) {
   return AiNewsItem(
     id: 'rss:${source.id}:${fnv1aHex(link)}',
     category: AiNewsCategory.fromCode(source.categoryCode) ?? AiNewsCategory.industry,
@@ -156,15 +114,7 @@ String _text(XmlElement parent, String localName) {
 // 剥掉 HTML 标签、解码常见实体、折叠空白。
 String _cleanText(String raw) {
   var s = raw.replaceAll(RegExp(r'<[^>]*>'), ' ');
-  const entities = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#39;': "'",
-    '&apos;': "'",
-    '&nbsp;': ' ',
-  };
+  const entities = {'&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#39;': "'", '&apos;': "'", '&nbsp;': ' '};
   entities.forEach((k, v) => s = s.replaceAll(k, v));
   return s.replaceAll(RegExp(r'\s+'), ' ').trim();
 }
@@ -194,7 +144,7 @@ DateTime? _parseFeedDate(String raw) {
 
 const Map<String, int> _kMonths = {
   'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6, // -
-  'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
+  'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12
 };
 
 /*
@@ -203,9 +153,7 @@ const Map<String, int> _kMonths = {
 *资讯按天分组展示)。无法解析返回 null。
 */
 DateTime? parseRfc822Date(String raw) {
-  final match = RegExp(
-    r'(\d{1,2})\s+([A-Za-z]{3})\w*\s+(\d{2,4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([+-]\d{4}|[A-Za-z]{1,4})?',
-  ).firstMatch(raw);
+  final match = RegExp(r'(\d{1,2})\s+([A-Za-z]{3})\w*\s+(\d{2,4})\s+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([+-]\d{4}|[A-Za-z]{1,4})?').firstMatch(raw);
   if (match == null) {
     return null;
   }
@@ -217,14 +165,7 @@ DateTime? parseRfc822Date(String raw) {
   if (year < 100) {
     year += year >= 70 ? 1900 : 2000;
   }
-  final utc = DateTime.utc(
-    year,
-    month,
-    int.parse(match.group(1)!),
-    int.parse(match.group(4)!),
-    int.parse(match.group(5)!),
-    int.parse(match.group(6) ?? '0'),
-  );
+  final utc = DateTime.utc(year, month, int.parse(match.group(1)!), int.parse(match.group(4)!), int.parse(match.group(5)!), int.parse(match.group(6) ?? '0'));
   final zone = match.group(7) ?? '';
   final numeric = RegExp(r'^([+-])(\d{2})(\d{2})$').firstMatch(zone);
   if (numeric == null) {
@@ -232,10 +173,7 @@ DateTime? parseRfc822Date(String raw) {
     return utc;
   }
   final sign = numeric.group(1) == '-' ? -1 : 1;
-  final offset = Duration(
-    hours: int.parse(numeric.group(2)!),
-    minutes: int.parse(numeric.group(3)!),
-  );
+  final offset = Duration(hours: int.parse(numeric.group(2)!), minutes: int.parse(numeric.group(3)!));
   return utc.subtract(offset * sign);
 }
 

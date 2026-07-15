@@ -11,15 +11,9 @@ class LocalRepoDetailRepository implements RepoDetailRepository {
 
   @override
   Future<DataResult<RepoDetailDigest>> getDetail(String fullName) async {
-    final all = [
-      ...DemoData.trending,
-      ...DemoData.recent,
-    ].map((e) => e.toEntity()).toList();
+    final all = [...DemoData.trending, ...DemoData.recent].map((e) => e.toEntity()).toList();
     final decoded = Uri.decodeComponent(fullName);
-    final repo = all.firstWhere(
-      (item) => item.fullName == decoded,
-      orElse: () => all.first,
-    );
+    final repo = all.firstWhere((item) => item.fullName == decoded, orElse: () => all.first);
     final relatedRepos = all.where((item) => item.fullName != repo.fullName).take(4).toList(growable: false);
     return DataResult(
       freshness: DataFreshness.seed,

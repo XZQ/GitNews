@@ -10,10 +10,7 @@ enum TrendingDataSourceMode {
   github;
 
   static TrendingDataSourceMode fromName(String? value) {
-    return TrendingDataSourceMode.values.firstWhere(
-      (mode) => mode.name == value,
-      orElse: () => TrendingDataSourceMode.local,
-    );
+    return TrendingDataSourceMode.values.firstWhere((mode) => mode.name == value, orElse: () => TrendingDataSourceMode.local);
   }
 }
 
@@ -40,6 +37,4 @@ class TrendingDataSourceModeController extends Notifier<TrendingDataSourceMode> 
   }
 }
 
-final trendingDataSourceModeControllerProvider = NotifierProvider<TrendingDataSourceModeController, TrendingDataSourceMode>(
-  TrendingDataSourceModeController.new,
-);
+final trendingDataSourceModeControllerProvider = NotifierProvider<TrendingDataSourceModeController, TrendingDataSourceMode>(TrendingDataSourceModeController.new);

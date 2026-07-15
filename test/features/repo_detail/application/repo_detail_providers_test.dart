@@ -13,36 +13,20 @@ class _MockRepoDetailRepository extends Mock implements RepoDetailRepository {}
 void main() {
   group('repoDetailDigestProvider', () {
     test('local detail result is explicitly marked as seed data', () async {
-      final container = ProviderContainer(
-        overrides: [
-          repoDetailRepositoryProvider.overrideWithValue(
-            const LocalRepoDetailRepository(),
-          ),
-        ],
-      );
+      final container = ProviderContainer(overrides: [repoDetailRepositoryProvider.overrideWithValue(const LocalRepoDetailRepository())]);
       addTearDown(container.dispose);
 
-      final result = await container.read(
-        repoDetailResultProvider('denoland/deno').future,
-      );
+      final result = await container.read(repoDetailResultProvider('denoland/deno').future);
 
       expect(result.freshness, DataFreshness.seed);
       expect(result.data.repo.fullName, 'denoland/deno');
     });
 
     test('should expose local digest for known repo', () async {
-      final container = ProviderContainer(
-        overrides: [
-          repoDetailRepositoryProvider.overrideWithValue(
-            const LocalRepoDetailRepository(),
-          ),
-        ],
-      );
+      final container = ProviderContainer(overrides: [repoDetailRepositoryProvider.overrideWithValue(const LocalRepoDetailRepository())]);
       addTearDown(container.dispose);
 
-      final digest = await container.read(
-        repoDetailDigestProvider('denoland/deno').future,
-      );
+      final digest = await container.read(repoDetailDigestProvider('denoland/deno').future);
 
       expect(digest.repo.fullName, 'denoland/deno');
       expect(digest.contributors, isNotEmpty);
@@ -55,17 +39,10 @@ void main() {
       final repo = _MockRepoDetailRepository();
       when(() => repo.getDetail(any())).thenThrow(StateError('not found'));
 
-      final container = ProviderContainer(
-        overrides: [
-          repoDetailRepositoryProvider.overrideWithValue(repo),
-        ],
-      );
+      final container = ProviderContainer(overrides: [repoDetailRepositoryProvider.overrideWithValue(repo)]);
       addTearDown(container.dispose);
 
-      expect(
-        () => container.read(repoDetailDigestProvider('foo/bar').future),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => container.read(repoDetailDigestProvider('foo/bar').future), throwsA(isA<StateError>()));
     });
 
     test('family should return distinct digests per argument', () async {
@@ -76,43 +53,21 @@ void main() {
       when(() => repo.getDetail(repoA.fullName)).thenAnswer(
         (_) async => DataResult(
           freshness: DataFreshness.live,
-          data: RepoDetailDigest(
-            repo: repoA,
-            contributors: const [],
-            relatedRepos: const [],
-            primaryTrend: const [1.0],
-            compareTrend: const [0.5],
-            activities: const [],
-          ),
+          data: RepoDetailDigest(repo: repoA, contributors: const [], relatedRepos: const [], primaryTrend: const [1.0], compareTrend: const [0.5], activities: const []),
         ),
       );
       when(() => repo.getDetail(repoB.fullName)).thenAnswer(
         (_) async => DataResult(
           freshness: DataFreshness.live,
-          data: RepoDetailDigest(
-            repo: repoB,
-            contributors: const [],
-            relatedRepos: const [],
-            primaryTrend: const [2.0],
-            compareTrend: const [1.0],
-            activities: const [],
-          ),
+          data: RepoDetailDigest(repo: repoB, contributors: const [], relatedRepos: const [], primaryTrend: const [2.0], compareTrend: const [1.0], activities: const []),
         ),
       );
 
-      final container = ProviderContainer(
-        overrides: [
-          repoDetailRepositoryProvider.overrideWithValue(repo),
-        ],
-      );
+      final container = ProviderContainer(overrides: [repoDetailRepositoryProvider.overrideWithValue(repo)]);
       addTearDown(container.dispose);
 
-      final a = await container.read(
-        repoDetailDigestProvider(repoA.fullName).future,
-      );
-      final b = await container.read(
-        repoDetailDigestProvider(repoB.fullName).future,
-      );
+      final a = await container.read(repoDetailDigestProvider(repoA.fullName).future);
+      final b = await container.read(repoDetailDigestProvider(repoB.fullName).future);
 
       expect(a.repo.fullName, repoA.fullName);
       expect(b.repo.fullName, repoB.fullName);

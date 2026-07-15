@@ -1,30 +1,12 @@
-String projectContributorsCacheKey({
-  required Iterable<String> repos,
-  required String cacheScope,
-}) {
-  return _projectCacheKey(
-    namespace: 'contributors:v2',
-    repos: repos,
-    cacheScope: cacheScope,
-  );
+String projectContributorsCacheKey({required Iterable<String> repos, required String cacheScope}) {
+  return _projectCacheKey(namespace: 'contributors:v2', repos: repos, cacheScope: cacheScope);
 }
 
-String projectActivitiesCacheKey({
-  required Iterable<String> repos,
-  required String cacheScope,
-}) {
-  return _projectCacheKey(
-    namespace: 'activities:v1',
-    repos: repos,
-    cacheScope: cacheScope,
-  );
+String projectActivitiesCacheKey({required Iterable<String> repos, required String cacheScope}) {
+  return _projectCacheKey(namespace: 'activities:v1', repos: repos, cacheScope: cacheScope);
 }
 
-String _projectCacheKey({
-  required String namespace,
-  required Iterable<String> repos,
-  required String cacheScope,
-}) {
+String _projectCacheKey({required String namespace, required Iterable<String> repos, required String cacheScope}) {
   final sorted = repos.toSet().toList()..sort();
   return 'project:github:$namespace:${_stableHash('$cacheScope|${sorted.join('|')}')}';
 }

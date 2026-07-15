@@ -27,7 +27,7 @@ class MonitorRulesCard extends ConsumerWidget {
       MonitorRuleItem(ruleLabels[0], AppColors.success, 0),
       MonitorRuleItem(ruleLabels[1], colors.primary, 1),
       MonitorRuleItem(ruleLabels[2], AppColors.info, 2),
-      MonitorRuleItem(ruleLabels[3], AppColors.warning, 3),
+      MonitorRuleItem(ruleLabels[3], AppColors.warning, 3)
     ];
     final keyword = query.trim().toLowerCase();
     final rulesTitle = l10n.tr('monitor.rules.title');
@@ -35,24 +35,18 @@ class MonitorRulesCard extends ConsumerWidget {
         ? allRules
         : [
             for (final rule in allRules)
-              if (rule.label.toLowerCase().contains(keyword) || rulesTitle.contains(keyword)) rule,
+              if (rule.label.toLowerCase().contains(keyword) || rulesTitle.contains(keyword)) rule
           ];
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('monitor.rules.title'),
-            subtitle: l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}'),
-          ),
+          SectionHeader(title: l10n.tr('monitor.rules.title'), subtitle: l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}')),
           const SizedBox(height: AppSpacing.md),
           if (rules.isEmpty)
-            EmptyView(
-              icon: Icons.rule_folder_outlined,
-              message: l10n.tr('monitor.rules.empty'),
-            )
+            EmptyView(icon: Icons.rule_folder_outlined, message: l10n.tr('monitor.rules.empty'))
           else
-            for (final rule in rules) _RuleRow(rule: rule),
+            for (final rule in rules) _RuleRow(rule: rule)
         ],
       ),
     );
@@ -68,33 +62,17 @@ class MonitorNotificationCard extends ConsumerWidget {
     final values = ref.watch(monitorSettingsControllerProvider);
     final labels = monitorNotificationLabels(l10n);
     return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SectionHeader(
-            title: l10n.tr('monitor.settings_card.title'),
-            subtitle: l10n.tr('monitor.settings_card.subtitle'),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          for (var i = 0; i < values.length && i < labels.length; i++)
-            MonitorNotificationRow(
-              label: labels[i],
-              value: values[i],
-              onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value),
-            ),
-        ],
-      ),
-    );
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SectionHeader(title: l10n.tr('monitor.settings_card.title'), subtitle: l10n.tr('monitor.settings_card.subtitle')),
+      const SizedBox(height: AppSpacing.md),
+      for (var i = 0; i < values.length && i < labels.length; i++)
+        MonitorNotificationRow(label: labels[i], value: values[i], onChanged: (value) => ref.read(monitorSettingsControllerProvider.notifier).setEnabled(i, value))
+    ]));
   }
 }
 
 class MonitorNotificationRow extends StatelessWidget {
-  const MonitorNotificationRow({
-    required this.label,
-    required this.value,
-    required this.onChanged,
-    super.key,
-  });
+  const MonitorNotificationRow({required this.label, required this.value, required this.onChanged, super.key});
 
   final String label;
   final bool value;
@@ -104,12 +82,7 @@ class MonitorNotificationRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-      child: Row(
-        children: [
-          Expanded(child: Text(label, style: AppTypography.bodyMedium)),
-          Switch(value: value, onChanged: onChanged),
-        ],
-      ),
+      child: Row(children: [Expanded(child: Text(label, style: AppTypography.bodyMedium)), Switch(value: value, onChanged: onChanged)]),
     );
   }
 }
@@ -134,20 +107,10 @@ class _RuleRow extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
       child: Row(
         children: [
-          Container(
-            width: AppSpacing.sm,
-            height: AppSpacing.sm,
-            decoration: BoxDecoration(
-              color: rule.color,
-              borderRadius: BorderRadius.circular(AppRadius.dot),
-            ),
-          ),
+          Container(width: AppSpacing.sm, height: AppSpacing.sm, decoration: BoxDecoration(color: rule.color, borderRadius: BorderRadius.circular(AppRadius.dot))),
           const SizedBox(width: AppSpacing.sm),
           Expanded(child: Text(rule.label, style: AppTypography.bodyMedium)),
-          Switch(
-            value: enabled,
-            onChanged: (value) => ref.read(localContentControllerProvider.notifier).setMonitorRule(rule.index, value),
-          ),
+          Switch(value: enabled, onChanged: (value) => ref.read(localContentControllerProvider.notifier).setMonitorRule(rule.index, value))
         ],
       ),
     );

@@ -1,11 +1,5 @@
 class MonitorObservation {
-  const MonitorObservation({
-    required this.repoFullName,
-    required this.stars,
-    required this.forks,
-    required this.openIssues,
-    required this.observedAt,
-  });
+  const MonitorObservation({required this.repoFullName, required this.stars, required this.forks, required this.openIssues, required this.observedAt});
 
   final String repoFullName;
   final int stars;

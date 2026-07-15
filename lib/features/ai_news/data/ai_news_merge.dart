@@ -5,10 +5,7 @@ import '../domain/ai_news_item.dart';
 *去重键:规范化 URL 或规范化标题命中任一即视为同一事件;
 *主源(精选流,含中文标题与热度分)优先于补充 RSS 源保留。
 */
-List<AiNewsItem> mergeAiNewsItems({
-  required List<AiNewsItem> primary,
-  required List<List<AiNewsItem>> extras,
-}) {
+List<AiNewsItem> mergeAiNewsItems({required List<AiNewsItem> primary, required List<List<AiNewsItem>> extras}) {
   final seenUrls = <String>{};
   final seenTitles = <String>{};
   final merged = <AiNewsItem>[];
@@ -47,19 +44,13 @@ String normalizeAiNewsUrl(String raw) {
   }
   final query = <String, String>{
     for (final entry in uri.queryParameters.entries)
-      if (!entry.key.startsWith('utm_') && entry.key != 'ref' && entry.key != 'source') entry.key: entry.value,
+      if (!entry.key.startsWith('utm_') && entry.key != 'ref' && entry.key != 'source') entry.key: entry.value
   };
   var path = uri.path;
   if (path.length > 1 && path.endsWith('/')) {
     path = path.substring(0, path.length - 1);
   }
-  return Uri(
-    scheme: uri.scheme.toLowerCase(),
-    host: uri.host.toLowerCase(),
-    port: uri.hasPort ? uri.port : null,
-    path: path,
-    queryParameters: query.isEmpty ? null : query,
-  ).toString();
+  return Uri(scheme: uri.scheme.toLowerCase(), host: uri.host.toLowerCase(), port: uri.hasPort ? uri.port : null, path: path, queryParameters: query.isEmpty ? null : query).toString();
 }
 
 /*

@@ -16,20 +16,13 @@ class GitHubRateLimitClient {
 
   Future<GitHubRateLimitSnapshot> fetch({String? token}) async {
     try {
-      final response = await _dio.get<Map<String, Object?>>(
-        ApiEndpointsConfig.githubRateLimitPath,
-        options: Options(headers: GitHubApiSupport.headers(token: token)),
-      );
+      final response = await _dio.get<Map<String, Object?>>(ApiEndpointsConfig.githubRateLimitPath, options: Options(headers: GitHubApiSupport.headers(token: token)));
       final data = response.data;
       if (data == null) {
         throw const AppException(kind: AppExceptionKind.parse);
       }
       final resources = _map(data['resources']);
-      return GitHubRateLimitSnapshot(
-        core: _bucket(resources['core']),
-        search: _bucket(resources['search']),
-        checkedAt: DateTime.now(),
-      );
+      return GitHubRateLimitSnapshot(core: _bucket(resources['core']), search: _bucket(resources['search']), checkedAt: DateTime.now());
     } on DioException catch (e) {
       throw e.toAppException();
     } on FormatException catch (e, st) {
@@ -41,14 +34,7 @@ class GitHubRateLimitClient {
 
   GitHubRateLimitBucket _bucket(Object? raw) {
     final json = _map(raw);
-    return GitHubRateLimitBucket(
-      limit: _int(json['limit']),
-      remaining: _int(json['remaining']),
-      resetAt: DateTime.fromMillisecondsSinceEpoch(
-        _int(json['reset']) * 1000,
-        isUtc: true,
-      ).toLocal(),
-    );
+    return GitHubRateLimitBucket(limit: _int(json['limit']), remaining: _int(json['remaining']), resetAt: DateTime.fromMillisecondsSinceEpoch(_int(json['reset']) * 1000, isUtc: true).toLocal());
   }
 
   Map<String, Object?> _map(Object? raw) {

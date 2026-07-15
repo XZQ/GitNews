@@ -24,10 +24,7 @@ class DiscoverSeed {
 
   // 流行仓库种子(约 20 个):DemoData 流行 + 最近 + 精选补充。
   static List<RepoEntity> get seedPopularRepos {
-    final base = [
-      for (final f in DemoData.trending) _fromFixture(f),
-      for (final f in DemoData.recent) _fromFixture(f),
-    ];
+    final base = [for (final f in DemoData.trending) _fromFixture(f), for (final f in DemoData.recent) _fromFixture(f)];
     return [...base, ..._curatedExtras.map(_extraToEntity)];
   }
 
@@ -49,7 +46,7 @@ class DiscoverSeed {
           source: 'seed',
           rank: i + 1,
           summary: _skillDefs[i].$2,
-        ),
+        )
     ];
   }
 
@@ -66,140 +63,28 @@ class DiscoverSeed {
       );
 
   static const List<_SeedExtra> _curatedExtras = [
-    _SeedExtra(
-      'flutter/flutter',
-      'UI toolkit for building natively compiled apps',
-      'Dart',
-      165000,
-      120,
-      24000,
-    ),
-    _SeedExtra(
-      'microsoft/vscode',
-      'Visual Studio Code editor',
-      'TypeScript',
-      162000,
-      90,
-      29000,
-    ),
-    _SeedExtra(
-      'facebook/react',
-      'The library for web and native user interfaces',
-      'JavaScript',
-      228000,
-      80,
-      46000,
-    ),
-    _SeedExtra(
-      'tensorflow/tensorflow',
-      'End-to-end open source ML platform',
-      'C++',
-      186000,
-      70,
-      87000,
-    ),
-    _SeedExtra(
-      'pytorch/pytorch',
-      'Tensors and dynamic neural networks',
-      'Python',
-      82000,
-      110,
-      22000,
-    ),
-    _SeedExtra(
-      'rust-lang/rust',
-      'Empowering everyone to build reliable software',
-      'Rust',
-      97000,
-      60,
-      12400,
-    ),
+    _SeedExtra('flutter/flutter', 'UI toolkit for building natively compiled apps', 'Dart', 165000, 120, 24000),
+    _SeedExtra('microsoft/vscode', 'Visual Studio Code editor', 'TypeScript', 162000, 90, 29000),
+    _SeedExtra('facebook/react', 'The library for web and native user interfaces', 'JavaScript', 228000, 80, 46000),
+    _SeedExtra('tensorflow/tensorflow', 'End-to-end open source ML platform', 'C++', 186000, 70, 87000),
+    _SeedExtra('pytorch/pytorch', 'Tensors and dynamic neural networks', 'Python', 82000, 110, 22000),
+    _SeedExtra('rust-lang/rust', 'Empowering everyone to build reliable software', 'Rust', 97000, 60, 12400)
   ];
 
   // (fullName, description, category, starCount, starDelta, forkCount)
   static const List<(String, String, String, int, int, int)> _skillDefs = [
-    (
-      'anthropics/skills',
-      'Official Anthropic agent skills',
-      'claude',
-      38000,
-      210,
-      4200,
-    ),
-    (
-      'modelcontextprotocol/servers',
-      'Reference MCP servers for the Model Context Protocol',
-      'mcp',
-      21640,
-      684,
-      1960,
-    ),
-    (
-      'openai/codex',
-      'Cloud and local coding agent for software engineering',
-      'agent',
-      26840,
-      738,
-      1840,
-    ),
-    (
-      'anthropics/claude-code',
-      "Anthropic's official CLI for Claude",
-      'claude',
-      18020,
-      612,
-      1240,
-    ),
-    (
-      'langchain-ai/langgraph',
-      'Build resilient language agents as graphs',
-      'agent',
-      39280,
-      548,
-      6420,
-    ),
-    (
-      'punkpeye/awesome-mcp-servers',
-      'A curated list of MCP servers',
-      'mcp',
-      12400,
-      130,
-      980,
-    ),
+    ('anthropics/skills', 'Official Anthropic agent skills', 'claude', 38000, 210, 4200),
+    ('modelcontextprotocol/servers', 'Reference MCP servers for the Model Context Protocol', 'mcp', 21640, 684, 1960),
+    ('openai/codex', 'Cloud and local coding agent for software engineering', 'agent', 26840, 738, 1840),
+    ('anthropics/claude-code', "Anthropic's official CLI for Claude", 'claude', 18020, 612, 1240),
+    ('langchain-ai/langgraph', 'Build resilient language agents as graphs', 'agent', 39280, 548, 6420),
+    ('punkpeye/awesome-mcp-servers', 'A curated list of MCP servers', 'mcp', 12400, 130, 980),
     ('wong2/mcp-cli', 'CLI for MCP servers', 'mcp', 3200, 80, 210),
-    (
-      'harishsg993010/awesome-claude-skills',
-      'A curated list of Claude skills',
-      'claude',
-      2100,
-      60,
-      320,
-    ),
+    ('harishsg993010/awesome-claude-skills', 'A curated list of Claude skills', 'claude', 2100, 60, 320),
     ('dotcoin/mcp-skills', 'A collection of MCP skills', 'mcp', 980, 40, 120),
-    (
-      'e2b-dev/claude-code-skills',
-      'Claude code skills by E2B',
-      'claude',
-      1500,
-      50,
-      180,
-    ),
-    (
-      'VoltAgent/awesome-agent-skills',
-      'Curated agent skills for Claude/Codex/Cursor/Copilot',
-      'agent',
-      4200,
-      180,
-      360,
-    ),
-    (
-      'JackyST0/awesome-agent-skills',
-      'Curated index of agent skills with SKILL.md',
-      'agent',
-      2600,
-      120,
-      240,
-    ),
+    ('e2b-dev/claude-code-skills', 'Claude code skills by E2B', 'claude', 1500, 50, 180),
+    ('VoltAgent/awesome-agent-skills', 'Curated agent skills for Claude/Codex/Cursor/Copilot', 'agent', 4200, 180, 360),
+    ('JackyST0/awesome-agent-skills', 'Curated index of agent skills with SKILL.md', 'agent', 2600, 120, 240)
   ];
 
   static const List<DiscoverProfileEntity> _officialProfiles = [
@@ -298,7 +183,7 @@ class DiscoverSeed {
       htmlUrl: 'https://github.com/huggingface',
       featuredRepoFullName: 'huggingface/transformers',
       kind: DiscoverProfileKind.official,
-    ),
+    )
   ];
 
   static const List<DiscoverProfileEntity> _peopleProfiles = [
@@ -397,19 +282,12 @@ class DiscoverSeed {
       htmlUrl: 'https://github.com/shreyashankar',
       featuredRepoFullName: 'lotus-data/lotus',
       kind: DiscoverProfileKind.people,
-    ),
+    )
   ];
 }
 
 class _SeedExtra {
-  const _SeedExtra(
-    this.fullName,
-    this.description,
-    this.language,
-    this.starCount,
-    this.starDelta,
-    this.forkCount,
-  );
+  const _SeedExtra(this.fullName, this.description, this.language, this.starCount, this.starDelta, this.forkCount);
 
   final String fullName;
   final String description;

@@ -26,9 +26,7 @@ void main() {
     });
 
     test('should migrate token from legacy preferences', () async {
-      final container = await _container({
-        'github_personal_access_token': 'github_pat_1234567890',
-      });
+      final container = await _container({'github_personal_access_token': 'github_pat_1234567890'});
       container.read(githubTokenControllerProvider);
       await _drainAsyncInit();
 
@@ -40,28 +38,20 @@ void main() {
       expect(state.maskedToken, 'gith...7890');
       expect(state.cacheScope, isNot('anonymous'));
       expect(prefs.getString('github_personal_access_token'), isNull);
-      expect(
-        await secure.read(key: 'github_personal_access_token'),
-        'github_pat_1234567890',
-      );
+      expect(await secure.read(key: 'github_personal_access_token'), 'github_pat_1234567890');
     });
 
     test('should persist and clear token', () async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
       const secure = FlutterSecureStorage();
-      final container = ProviderContainer(
-        overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-      );
+      final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)]);
       addTearDown(container.dispose);
 
       await container.read(githubTokenControllerProvider.notifier).setToken('  ghp_abcdef  ');
 
       expect(prefs.getString('github_personal_access_token'), isNull);
-      expect(
-        await secure.read(key: 'github_personal_access_token'),
-        'ghp_abcdef',
-      );
+      expect(await secure.read(key: 'github_personal_access_token'), 'ghp_abcdef');
       expect(container.read(githubTokenControllerProvider).hasToken, isTrue);
 
       await container.read(githubTokenControllerProvider.notifier).clear();
@@ -73,14 +63,10 @@ void main() {
   });
 }
 
-Future<ProviderContainer> _container([
-  Map<String, Object> prefs = const {},
-]) async {
+Future<ProviderContainer> _container([Map<String, Object> prefs = const {}]) async {
   SharedPreferences.setMockInitialValues(prefs);
   final sharedPreferences = await SharedPreferences.getInstance();
-  final container = ProviderContainer(
-    overrides: [sharedPreferencesProvider.overrideWithValue(sharedPreferences)],
-  );
+  final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(sharedPreferences)]);
   addTearDown(container.dispose);
   return container;
 }

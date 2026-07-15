@@ -795,5 +795,5 @@ const Map<String, String> stringsZhCN = <String, String>{
   'monitor.recent_alerts.title': '最近告警',
   'monitor.recent_alerts.subtitle_done': '当前可见告警均已处理',
   'monitor.recent_alerts.subtitle_unread': '{n} 条未读，需要关注',
-  'monitor.recent_alerts.empty': '没有匹配的告警',
+  'monitor.recent_alerts.empty': '没有匹配的告警'
 };

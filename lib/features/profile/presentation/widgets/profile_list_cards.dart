@@ -21,10 +21,7 @@ class ProfileCollectListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bookmark_outline, color: AppColors.info),
-            title: Text(
-              l10n.tr('profile.section.collect'),
-              style: AppTypography.titleMedium,
-            ),
+            title: Text(l10n.tr('profile.section.collect'), style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/collect'),
           ),
@@ -32,13 +29,10 @@ class ProfileCollectListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.people_outline, color: AppColors.success),
-            title: Text(
-              l10n.tr('profile.section.developers'),
-              style: AppTypography.titleMedium,
-            ),
+            title: Text(l10n.tr('profile.section.developers'), style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/developers'),
-          ),
+          )
         ],
       ),
     );
@@ -59,14 +53,8 @@ class ProfileMonitorListCard extends StatelessWidget {
         children: [
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: Icon(
-              Icons.visibility_outlined,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            title: Text(
-              l10n.tr('profile.section.monitor_topics'),
-              style: AppTypography.titleMedium,
-            ),
+            leading: Icon(Icons.visibility_outlined, color: Theme.of(context).colorScheme.primary),
+            title: Text(l10n.tr('profile.section.monitor_topics'), style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/monitor'),
           ),
@@ -74,13 +62,10 @@ class ProfileMonitorListCard extends StatelessWidget {
           ListTile(
             contentPadding: EdgeInsets.zero,
             leading: const Icon(Icons.bolt_rounded, color: AppColors.warning),
-            title: Text(
-              l10n.tr('profile.section.monitor_rules'),
-              style: AppTypography.titleMedium,
-            ),
+            title: Text(l10n.tr('profile.section.monitor_rules'), style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/rules'),
-          ),
+          )
         ],
       ),
     );

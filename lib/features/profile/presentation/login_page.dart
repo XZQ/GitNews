@@ -21,14 +21,8 @@ class LoginPage extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          l10n.tr(
-            ApiEndpointsConfig.githubOAuthConfigured ? 'device_flow.title' : 'profile.token.title',
-          ),
-        ),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
-        ),
+        title: Text(l10n.tr(ApiEndpointsConfig.githubOAuthConfigured ? 'device_flow.title' : 'profile.token.title')),
+        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile')),
       ),
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
@@ -62,14 +56,7 @@ class _Body extends ConsumerWidget {
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SectionHeader(
-                title: l10n.tr('device_flow.title'),
-                subtitle: l10n.tr('device_flow.subtitle'),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              DeviceFlowContent(state: state),
-            ],
+            children: [SectionHeader(title: l10n.tr('device_flow.title'), subtitle: l10n.tr('device_flow.subtitle')), const SizedBox(height: AppSpacing.lg), DeviceFlowContent(state: state)],
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -77,17 +64,14 @@ class _Body extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: l10n.tr('profile.login.why_login'),
-                subtitle: l10n.tr('profile.login.why_login.subtitle'),
-              ),
+              SectionHeader(title: l10n.tr('profile.login.why_login'), subtitle: l10n.tr('profile.login.why_login.subtitle')),
               const SizedBox(height: AppSpacing.md),
               _Bullet(l10n.tr('profile.login.bullet.sync')),
               _Bullet(l10n.tr('profile.login.bullet.cross_device')),
-              _Bullet(l10n.tr('profile.login.bullet.api_quota')),
+              _Bullet(l10n.tr('profile.login.bullet.api_quota'))
             ],
           ),
-        ),
+        )
       ],
     );
   }
@@ -107,24 +91,14 @@ class _PatFallback extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: l10n.tr('profile.token.title'),
-                subtitle: l10n.tr('profile.token.subtitle'),
-              ),
+              SectionHeader(title: l10n.tr('profile.token.title'), subtitle: l10n.tr('profile.token.subtitle')),
               const SizedBox(height: AppSpacing.md),
-              Text(
-                l10n.tr('profile.token.security_notice'),
-                style: AppTypography.bodyMedium,
-              ),
+              Text(l10n.tr('profile.token.security_notice'), style: AppTypography.bodyMedium),
               const SizedBox(height: AppSpacing.lg),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () => context.go('/profile/developer'),
-                  icon: const Icon(Icons.key_rounded),
-                  label: Text(l10n.tr('profile.login.configure_pat')),
-                ),
-              ),
+                child: FilledButton.icon(onPressed: () => context.go('/profile/developer'), icon: const Icon(Icons.key_rounded), label: Text(l10n.tr('profile.login.configure_pat'))),
+              )
             ],
           ),
         ),
@@ -133,16 +107,13 @@ class _PatFallback extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: l10n.tr('profile.login.why_login'),
-                subtitle: l10n.tr('profile.login.why_login.subtitle'),
-              ),
+              SectionHeader(title: l10n.tr('profile.login.why_login'), subtitle: l10n.tr('profile.login.why_login.subtitle')),
               const SizedBox(height: AppSpacing.md),
               _Bullet(l10n.tr('profile.login.bullet.sync')),
-              _Bullet(l10n.tr('profile.login.bullet.api_quota')),
+              _Bullet(l10n.tr('profile.login.bullet.api_quota'))
             ],
           ),
-        ),
+        )
       ],
     );
   }
@@ -158,15 +129,7 @@ class _Bullet extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
-        children: [
-          const Icon(
-            Icons.check_circle_outline,
-            size: 16,
-            color: AppColors.success,
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Expanded(child: Text(text, style: AppTypography.bodyMedium)),
-        ],
+        children: [const Icon(Icons.check_circle_outline, size: 16, color: AppColors.success), const SizedBox(width: AppSpacing.sm), Expanded(child: Text(text, style: AppTypography.bodyMedium))],
       ),
     );
   }

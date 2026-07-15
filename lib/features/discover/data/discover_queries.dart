@@ -19,31 +19,9 @@ class DiscoverQueries {
   static const String skillsCache = 'discover_agent_skills';
   static const String profilesCache = 'discover_profiles';
 
-  static const List<String> officialLogins = [
-    'openai',
-    'anthropics',
-    'microsoft',
-    'langchain-ai',
-    'crewAIInc',
-    'modelcontextprotocol',
-    'vercel',
-    'google',
-    'meta-llama',
-    'huggingface',
-  ];
+  static const List<String> officialLogins = ['openai', 'anthropics', 'microsoft', 'langchain-ai', 'crewAIInc', 'modelcontextprotocol', 'vercel', 'google', 'meta-llama', 'huggingface'];
 
-  static const List<String> peopleLogins = [
-    'karpathy',
-    'simonw',
-    'swyxio',
-    'hwchase17',
-    'jerryjliu',
-    'gdb',
-    'fchollet',
-    'soumith',
-    'TimDettmers',
-    'shreyashankar',
-  ];
+  static const List<String> peopleLogins = ['karpathy', 'simonw', 'swyxio', 'hwchase17', 'jerryjliu', 'gdb', 'fchollet', 'soumith', 'TimDettmers', 'shreyashankar'];
 
   static const Map<String, String> featuredReposByLogin = {
     'openai': 'openai/openai-agents-python',
@@ -65,7 +43,7 @@ class DiscoverQueries {
     'fchollet': 'keras-team/keras',
     'soumith': 'pytorch/pytorch',
     'TimDettmers': 'bitsandbytes-foundation/bitsandbytes',
-    'shreyashankar': 'lotus-data/lotus',
+    'shreyashankar': 'lotus-data/lotus'
   };
 
   static List<String> profileLogins(DiscoverProfileKind kind) {
@@ -92,18 +70,9 @@ class DiscoverQueries {
     return '$base:p$page:n$perPage';
   }
 
-  static String profilesPageKey(
-    DiscoverProfileKind kind,
-    int page,
-    int perPage,
-  ) =>
-      '${DiscoverQueries.profilesCache}:${kind.name}:p$page:n$perPage';
+  static String profilesPageKey(DiscoverProfileKind kind, int page, int perPage) => '${DiscoverQueries.profilesCache}:${kind.name}:p$page:n$perPage';
 
-  static List<T> slice<T>(
-    List<T> items, {
-    required int page,
-    required int perPage,
-  }) {
+  static List<T> slice<T>(List<T> items, {required int page, required int perPage}) {
     final start = (page - 1) * perPage;
     if (start >= items.length) return const [];
     final end = (start + perPage).clamp(0, items.length);

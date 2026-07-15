@@ -8,24 +8,16 @@ import 'trending_data_source.dart';
 *替换 [TrendingDataSource],页面与其它 feature 不需要感知。
 */
 class TrendingRepositoryImpl implements TrendingRepository {
-  const TrendingRepositoryImpl({
-    required this.dataSource,
-    this.fallbackFreshness = DataFreshness.seed,
-  });
+  const TrendingRepositoryImpl({required this.dataSource, this.fallbackFreshness = DataFreshness.seed});
 
   final TrendingDataSource dataSource;
   final DataFreshness fallbackFreshness;
 
   @override
-  Future<DataResult<TrendingDigest>> getDigest({
-    TrendingQuery query = const TrendingQuery(),
-  }) async {
+  Future<DataResult<TrendingDigest>> getDigest({TrendingQuery query = const TrendingQuery()}) async {
     final result = dataSource is FreshnessTrendingDataSource
         ? await (dataSource as FreshnessTrendingDataSource).fetchTrendingResult(query)
-        : DataResult(
-            data: await dataSource.fetchTrending(query),
-            freshness: fallbackFreshness,
-          );
+        : DataResult(data: await dataSource.fetchTrending(query), freshness: fallbackFreshness);
     return result.map(
       (snapshot) => TrendingDigest(
         trendingRepos: snapshot.trendingRepos,

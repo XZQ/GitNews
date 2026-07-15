@@ -22,31 +22,12 @@ class _FakeTrendingDataSource implements TrendingDataSource {
 
   @override
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
-    return const TrendingDataSnapshot(
-      trendingRepos: [],
-      recentRepos: [],
-      languages: [],
-      primaryTrend: [],
-      secondaryTrend: [],
-      tertiaryTrend: [],
-    );
+    return const TrendingDataSnapshot(trendingRepos: [], recentRepos: [], languages: [], primaryTrend: [], secondaryTrend: [], tertiaryTrend: []);
   }
 }
 
-RepoEntity _repo(
-  String fullName, {
-  String description = 'A useful project',
-  String language = 'Dart',
-}) {
-  return RepoEntity(
-    fullName: fullName,
-    description: description,
-    language: language,
-    starCount: 1000,
-    starDelta: 120,
-    forkCount: 40,
-    accentArgb: 0xFF00A389,
-  );
+RepoEntity _repo(String fullName, {String description = 'A useful project', String language = 'Dart'}) {
+  return RepoEntity(fullName: fullName, description: description, language: language, starCount: 1000, starDelta: 120, forkCount: 40, accentArgb: 0xFF00A389);
 }
 
 void main() {
@@ -82,46 +63,21 @@ void main() {
 
     test('should propagate error when repository throws', () async {
       final repo = _MockTrendingRepository();
-      when(
-        () => repo.getDigest(query: any(named: 'query')),
-      ).thenThrow(StateError('network down'));
+      when(() => repo.getDigest(query: any(named: 'query'))).thenThrow(StateError('network down'));
 
-      final container = ProviderContainer(
-        overrides: [
-          trendingRepositoryProvider.overrideWithValue(repo),
-        ],
-      );
+      final container = ProviderContainer(overrides: [trendingRepositoryProvider.overrideWithValue(repo)]);
       addTearDown(container.dispose);
 
-      expect(
-        () => container.read(trendingDigestProvider.future),
-        throwsA(isA<StateError>()),
-      );
+      expect(() => container.read(trendingDigestProvider.future), throwsA(isA<StateError>()));
     });
 
     test('should expose empty digest when repository returns no data', () async {
       final repo = _MockTrendingRepository();
-      when(
-        () => repo.getDigest(query: any(named: 'query')),
-      ).thenAnswer(
-        (_) async => const DataResult(
-          freshness: DataFreshness.live,
-          data: TrendingDigest(
-            trendingRepos: [],
-            recentRepos: [],
-            languages: [],
-            primaryTrend: [],
-            secondaryTrend: [],
-            tertiaryTrend: [],
-          ),
-        ),
+      when(() => repo.getDigest(query: any(named: 'query'))).thenAnswer(
+        (_) async => const DataResult(freshness: DataFreshness.live, data: TrendingDigest(trendingRepos: [], recentRepos: [], languages: [], primaryTrend: [], secondaryTrend: [], tertiaryTrend: [])),
       );
 
-      final container = ProviderContainer(
-        overrides: [
-          trendingRepositoryProvider.overrideWithValue(repo),
-        ],
-      );
+      final container = ProviderContainer(overrides: [trendingRepositoryProvider.overrideWithValue(repo)]);
       addTearDown(container.dispose);
 
       final digest = await container.read(trendingDigestProvider.future);
@@ -133,28 +89,12 @@ void main() {
     test('should pass filter state into repository query', () async {
       final repo = _MockTrendingRepository();
       TrendingQuery? capturedQuery;
-      when(
-        () => repo.getDigest(query: any(named: 'query')),
-      ).thenAnswer((invocation) async {
+      when(() => repo.getDigest(query: any(named: 'query'))).thenAnswer((invocation) async {
         capturedQuery = invocation.namedArguments[#query] as TrendingQuery;
-        return const DataResult(
-          freshness: DataFreshness.live,
-          data: TrendingDigest(
-            trendingRepos: [],
-            recentRepos: [],
-            languages: [],
-            primaryTrend: [],
-            secondaryTrend: [],
-            tertiaryTrend: [],
-          ),
-        );
+        return const DataResult(freshness: DataFreshness.live, data: TrendingDigest(trendingRepos: [], recentRepos: [], languages: [], primaryTrend: [], secondaryTrend: [], tertiaryTrend: []));
       });
 
-      final container = ProviderContainer(
-        overrides: [
-          trendingRepositoryProvider.overrideWithValue(repo),
-        ],
-      );
+      final container = ProviderContainer(overrides: [trendingRepositoryProvider.overrideWithValue(repo)]);
       addTearDown(container.dispose);
 
       container.read(trendingWindowFilterProvider.notifier).state = 'week';
@@ -192,18 +132,7 @@ void main() {
     });
 
     test('filterTrendingRepos should match repo name description and language', () {
-      final repos = [
-        _repo(
-          'openai/codex',
-          description: 'AI coding agent',
-          language: 'TypeScript',
-        ),
-        _repo(
-          'modelcontextprotocol/servers',
-          description: 'MCP reference servers',
-          language: 'Python',
-        ),
-      ];
+      final repos = [_repo('openai/codex', description: 'AI coding agent', language: 'TypeScript'), _repo('modelcontextprotocol/servers', description: 'MCP reference servers', language: 'Python')];
 
       expect(filterTrendingRepos(repos, '').length, 2);
       expect(filterTrendingRepos(repos, 'codex'), [repos.first]);
@@ -214,19 +143,12 @@ void main() {
 
     test('filteredTrendingDigestProvider should filter current digest locally', () async {
       final repo = _MockTrendingRepository();
-      when(
-        () => repo.getDigest(query: any(named: 'query')),
-      ).thenAnswer(
+      when(() => repo.getDigest(query: any(named: 'query'))).thenAnswer(
         (_) async => DataResult(
           freshness: DataFreshness.live,
           data: TrendingDigest(
-            trendingRepos: [
-              _repo('openai/codex', language: 'TypeScript'),
-              _repo('google/gemini-cli', language: 'Go'),
-            ],
-            recentRepos: [
-              _repo('modelcontextprotocol/servers', language: 'Python'),
-            ],
+            trendingRepos: [_repo('openai/codex', language: 'TypeScript'), _repo('google/gemini-cli', language: 'Go')],
+            recentRepos: [_repo('modelcontextprotocol/servers', language: 'Python')],
             languages: const [],
             primaryTrend: const [],
             secondaryTrend: const [],
@@ -235,23 +157,14 @@ void main() {
         ),
       );
 
-      final container = ProviderContainer(
-        overrides: [
-          trendingRepositoryProvider.overrideWithValue(repo),
-        ],
-      );
+      final container = ProviderContainer(overrides: [trendingRepositoryProvider.overrideWithValue(repo)]);
       addTearDown(container.dispose);
 
       container.read(trendingSearchQueryProvider.notifier).state = 'python';
-      final digest = await container.read(
-        filteredTrendingDigestProvider.future,
-      );
+      final digest = await container.read(filteredTrendingDigestProvider.future);
 
       expect(digest.trendingRepos, isEmpty);
-      expect(
-        digest.recentRepos.single.fullName,
-        'modelcontextprotocol/servers',
-      );
+      expect(digest.recentRepos.single.fullName, 'modelcontextprotocol/servers');
       verify(() => repo.getDigest(query: any(named: 'query'))).called(1);
     });
   });
@@ -260,43 +173,22 @@ void main() {
     test('should default to local data source', () async {
       final container = await _createContainer();
 
-      expect(
-        container.read(trendingDataSourceModeControllerProvider),
-        TrendingDataSourceMode.local,
-      );
-      expect(
-        container.read(trendingDataSourceProvider),
-        isA<LocalTrendingDataSource>(),
-      );
+      expect(container.read(trendingDataSourceModeControllerProvider), TrendingDataSourceMode.local);
+      expect(container.read(trendingDataSourceProvider), isA<LocalTrendingDataSource>());
     });
 
     test('should use GitHub data source when persisted mode is github', () async {
       const fake = _FakeTrendingDataSource();
-      final container = await _createContainer(
-        prefs: {'trending_data_source_mode': 'github'},
-        overrides: [
-          githubTrendingDataSourceProvider.overrideWithValue(fake),
-        ],
-      );
+      final container = await _createContainer(prefs: {'trending_data_source_mode': 'github'}, overrides: [githubTrendingDataSourceProvider.overrideWithValue(fake)]);
 
-      expect(
-        container.read(trendingDataSourceModeControllerProvider),
-        TrendingDataSourceMode.github,
-      );
-      expect(
-        identical(container.read(trendingDataSourceProvider), fake),
-        isTrue,
-      );
+      expect(container.read(trendingDataSourceModeControllerProvider), TrendingDataSourceMode.github);
+      expect(identical(container.read(trendingDataSourceProvider), fake), isTrue);
     });
 
     test('should persist selected mode', () async {
       SharedPreferences.setMockInitialValues({});
       final prefs = await SharedPreferences.getInstance();
-      final container = ProviderContainer(
-        overrides: [
-          sharedPreferencesProvider.overrideWithValue(prefs),
-        ],
-      );
+      final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)]);
       addTearDown(container.dispose);
 
       await container.read(trendingDataSourceModeControllerProvider.notifier).setMode(TrendingDataSourceMode.github);
@@ -315,9 +207,7 @@ void main() {
     });
 
     test('status should describe anonymous GitHub mode', () async {
-      final container = await _createContainer(
-        prefs: {'trending_data_source_mode': 'github'},
-      );
+      final container = await _createContainer(prefs: {'trending_data_source_mode': 'github'});
       final l10n = AppLocalizations(const Locale('zh', 'CN'));
       container.read(githubTokenControllerProvider);
       await _drainAsyncInit();
@@ -330,14 +220,7 @@ void main() {
     });
 
     test('status should describe token GitHub mode', () async {
-      final container = await _createContainer(
-        prefs: {
-          'trending_data_source_mode': 'github',
-        },
-        secureValues: {
-          'github_personal_access_token': 'github_pat_test',
-        },
-      );
+      final container = await _createContainer(prefs: {'trending_data_source_mode': 'github'}, secureValues: {'github_personal_access_token': 'github_pat_test'});
       final l10n = AppLocalizations(const Locale('zh', 'CN'));
       container.read(githubTokenControllerProvider);
       await _drainAsyncInit();
@@ -354,15 +237,10 @@ void main() {
     test('should filter repos by language when query has language', () async {
       const dataSource = LocalTrendingDataSource();
 
-      final snapshot = await dataSource.fetchTrending(
-        const TrendingQuery(language: 'Rust'),
-      );
+      final snapshot = await dataSource.fetchTrending(const TrendingQuery(language: 'Rust'));
 
       expect(snapshot.trendingRepos, isNotEmpty);
-      expect(
-        snapshot.trendingRepos.every((repo) => repo.language == 'Rust'),
-        isTrue,
-      );
+      expect(snapshot.trendingRepos.every((repo) => repo.language == 'Rust'), isTrue);
     });
 
     test('should keep all repos when language is all', () async {
@@ -377,37 +255,19 @@ void main() {
     test('should filter repos by board type', () async {
       const dataSource = LocalTrendingDataSource();
 
-      final snapshot = await dataSource.fetchTrending(
-        const TrendingQuery(board: TrendingBoard.mcp),
-      );
+      final snapshot = await dataSource.fetchTrending(const TrendingQuery(board: TrendingBoard.mcp));
 
       expect(snapshot.trendingRepos, isNotEmpty);
-      expect(
-        snapshot.trendingRepos.every(
-          (repo) => '${repo.fullName} ${repo.description}'.toLowerCase().contains(
-                'mcp',
-              ),
-        ),
-        isTrue,
-      );
+      expect(snapshot.trendingRepos.every((repo) => '${repo.fullName} ${repo.description}'.toLowerCase().contains('mcp')), isTrue);
     });
   });
 }
 
-Future<ProviderContainer> _createContainer({
-  Map<String, Object> prefs = const {},
-  Map<String, String> secureValues = const {},
-  List<Override> overrides = const [],
-}) async {
+Future<ProviderContainer> _createContainer({Map<String, Object> prefs = const {}, Map<String, String> secureValues = const {}, List<Override> overrides = const []}) async {
   SharedPreferences.setMockInitialValues(prefs);
   FlutterSecureStorage.setMockInitialValues(secureValues);
   final sharedPreferences = await SharedPreferences.getInstance();
-  final container = ProviderContainer(
-    overrides: [
-      sharedPreferencesProvider.overrideWithValue(sharedPreferences),
-      ...overrides,
-    ],
-  );
+  final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(sharedPreferences), ...overrides]);
   addTearDown(container.dispose);
   return container;
 }

@@ -29,38 +29,23 @@ class HotReposPage extends ConsumerWidget {
     final state = ref.watch(filteredTrendingDigestProvider);
     final searchQuery = ref.watch(trendingSearchQueryProvider).trim();
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('trending.hot_repos.title')),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/trending'),
-        ),
-      ),
-      body: state.when(
-        data: (digest) {
-          if (digest.allRepos.isEmpty) {
-            return EmptyView(
-              icon: searchQuery.isEmpty ? Icons.local_fire_department_outlined : Icons.search_off_rounded,
-              message:
-                  searchQuery.isEmpty ? l10n.tr('trending.hot_repos.empty') : l10n.tr('trending.hot_repos.empty_search').replaceAll('{query}', searchQuery),
-            );
-          }
-          return ResponsiveLayout(
-            compact: (_) => _Body(digest: digest),
-            medium: (_) => CenteredContent(child: _Body(digest: digest)),
-            expanded: (_) => CenteredContent(child: _Body(digest: digest)),
-          );
-        },
-        loading: () => const _PageSkeleton(),
-        error: (error, stackTrace) => ErrorView(
-          error: AppException(
-            kind: AppExceptionKind.unknown,
-            cause: error,
-            stack: stackTrace,
-          ),
-          onRetry: () => ref.invalidate(trendingDigestProvider),
-        ),
-      ),
-    );
+        appBar: AppBar(title: Text(l10n.tr('trending.hot_repos.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/trending'))),
+        body: state.when(
+            data: (digest) {
+              if (digest.allRepos.isEmpty) {
+                return EmptyView(
+                  icon: searchQuery.isEmpty ? Icons.local_fire_department_outlined : Icons.search_off_rounded,
+                  message: searchQuery.isEmpty ? l10n.tr('trending.hot_repos.empty') : l10n.tr('trending.hot_repos.empty_search').replaceAll('{query}', searchQuery),
+                );
+              }
+              return ResponsiveLayout(
+                compact: (_) => _Body(digest: digest),
+                medium: (_) => CenteredContent(child: _Body(digest: digest)),
+                expanded: (_) => CenteredContent(child: _Body(digest: digest)),
+              );
+            },
+            loading: () => const _PageSkeleton(),
+            error: (error, stackTrace) => ErrorView(error: AppException(kind: AppExceptionKind.unknown, cause: error, stack: stackTrace), onRetry: () => ref.invalidate(trendingDigestProvider))));
   }
 }
 
@@ -74,62 +59,42 @@ class _Body extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final repos = digest.allRepos;
     return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
-      itemCount: repos.length + 2,
-      itemBuilder: (context, index) {
-        if (index == 0) {
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+        itemCount: repos.length + 2,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+              child: SectionHeader(title: l10n.tr('trending.hot_repos.list_title'), subtitle: l10n.tr('trending.hot_repos.list_subtitle').replaceAll('{count}', '${repos.length}')),
+            );
+          }
+          if (index == repos.length + 1) {
+            return Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.lg),
+              child: AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SectionHeader(title: l10n.tr('trending.hot_repos.notes_title'), subtitle: l10n.tr('trending.hot_repos.notes_subtitle')),
+                    const SizedBox(height: AppSpacing.sm),
+                    _Bullet(l10n.tr('trending.hot_repos.note1')),
+                    _Bullet(l10n.tr('trending.hot_repos.note2')),
+                    _Bullet(l10n.tr('trending.hot_repos.note3'))
+                  ],
+                ),
+              ),
+            );
+          }
+          final i = index - 1;
+          final repo = repos[i];
           return Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
-            child: SectionHeader(
-              title: l10n.tr('trending.hot_repos.list_title'),
-              subtitle: l10n.tr('trending.hot_repos.list_subtitle').replaceAll('{count}', '${repos.length}'),
+            padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+            child: RepaintBoundary(
+              // RepoTile 自带统一卡片样式,这里不再叠一层 AppCard。
+              child: RepoTile(repo: repo, rank: i + 1, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repo.fullName)}')),
             ),
           );
-        }
-        if (index == repos.length + 1) {
-          return Padding(
-            padding: const EdgeInsets.only(top: AppSpacing.lg),
-            child: AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SectionHeader(title: l10n.tr('trending.hot_repos.notes_title'), subtitle: l10n.tr('trending.hot_repos.notes_subtitle')),
-                  const SizedBox(height: AppSpacing.sm),
-                  _Bullet(l10n.tr('trending.hot_repos.note1')),
-                  _Bullet(l10n.tr('trending.hot_repos.note2')),
-                  _Bullet(l10n.tr('trending.hot_repos.note3')),
-                ],
-              ),
-            ),
-          );
-        }
-        final i = index - 1;
-        final repo = repos[i];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-          child: RepaintBoundary(
-            // RepoTile 自带统一卡片样式,这里不再叠一层 AppCard。
-            child: RepoTile(
-              repo: repo,
-              rank: i + 1,
-              onTap: () => context.go(
-                '/trending/detail/${Uri.encodeComponent(repo.fullName)}',
-              ),
-            ),
-          ),
-        );
-      },
-    );
+        });
   }
 }
 
@@ -146,20 +111,10 @@ class _Bullet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(
-              top: AppSpacing.xs2,
-              right: AppSpacing.sm,
-            ),
-            child: Container(
-              width: AppSpacing.xs2,
-              height: AppSpacing.xs2,
-              decoration: BoxDecoration(
-                color: colors.primary,
-                borderRadius: BorderRadius.circular(AppRadius.bar),
-              ),
-            ),
+            padding: const EdgeInsets.only(top: AppSpacing.xs2, right: AppSpacing.sm),
+            child: Container(width: AppSpacing.xs2, height: AppSpacing.xs2, decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.bar))),
           ),
-          Expanded(child: Text(text, style: AppTypography.bodyMedium)),
+          Expanded(child: Text(text, style: AppTypography.bodyMedium))
         ],
       ),
     );
@@ -171,15 +126,6 @@ class _PageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        children: [
-          Skeleton(height: 280),
-          SizedBox(height: AppSpacing.lg),
-          Skeleton(height: 120),
-        ],
-      ),
-    );
+    return const Padding(padding: EdgeInsets.all(AppSpacing.lg), child: Column(children: [Skeleton(height: 280), SizedBox(height: AppSpacing.lg), Skeleton(height: 120)]));
   }
 }

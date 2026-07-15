@@ -21,7 +21,7 @@ void main() {
             occurredAt: DateTime.now().toUtc(),
             htmlUrl: 'https://github.com/owner/repo/commit/abc',
             basis: MetricBasis.observed,
-          ),
+          )
         ],
       ),
     );
@@ -31,9 +31,7 @@ void main() {
     expect(find.text('fix: cache invalidation race'), findsNothing);
   });
 
-  testWidgets('renders an empty state when GitHub returns no activity', (
-    tester,
-  ) async {
+  testWidgets('renders an empty state when GitHub returns no activity', (tester) async {
     await _pump(tester, const RepoDetailActivity(activities: []));
 
     expect(find.byType(EmptyView), findsOneWidget);
@@ -45,12 +43,7 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpWidget(
     MaterialApp(
       locale: const Locale('zh', 'CN'),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: child),
     ),

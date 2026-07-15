@@ -9,12 +9,7 @@ class RepoDetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: const [
         Skeleton(height: 180),
         SizedBox(height: AppSpacing.lg),
@@ -22,7 +17,7 @@ class RepoDetailSkeleton extends StatelessWidget {
         SizedBox(height: AppSpacing.lg),
         Skeleton(height: 300),
         SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 260),
+        Skeleton(height: 260)
       ],
     );
   }

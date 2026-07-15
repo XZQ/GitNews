@@ -26,9 +26,7 @@ final monitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   return GithubMonitorRepository(
     dio: ref.watch(dioProvider),
     cache: ref.watch(jsonSnapshotCacheDaoProvider),
-    observationDao: MonitorObservationDao(
-      ref.watch(jsonSnapshotCacheDaoProvider),
-    ),
+    observationDao: MonitorObservationDao(ref.watch(jsonSnapshotCacheDaoProvider)),
     alertDao: ref.watch(monitorAlertEventDaoProvider),
     enabledRuleIds: _enabledRuleIds(ruleToggles),
     snapshotHistory: ref.watch(repoSnapshotHistoryDaoProvider),
@@ -66,9 +64,7 @@ final localMonitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   return const LocalMonitorRepository();
 });
 
-final monitorDigestResultProvider = FutureProvider<DataResult<MonitorDigest>>((
-  ref,
-) {
+final monitorDigestResultProvider = FutureProvider<DataResult<MonitorDigest>>((ref) {
   return ref.watch(monitorRepositoryProvider).getDigest();
 });
 
@@ -80,41 +76,28 @@ final monitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
 final visibleMonitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
   final digest = await ref.watch(monitorDigestProvider.future);
   final events = await ref.watch(monitorAlertEventsProvider.future);
-  return applyMonitorAlertEvents(
-    digest,
-    events,
-    ref.watch(monitorAlertClockProvider)(),
-  );
+  return applyMonitorAlertEvents(digest, events, ref.watch(monitorAlertClockProvider)());
 });
 
 final monitorFreshnessProvider = Provider<AsyncValue<DataFreshness>>((ref) {
-  return ref.watch(monitorDigestResultProvider).whenData(
-        (result) => result.freshness,
-      );
+  return ref.watch(monitorDigestResultProvider).whenData((result) => result.freshness);
 });
 
 // 仓库监控顶部搜索关键词。空字符串表示不过滤当前监控数据。
 final monitorSearchQueryProvider = StateProvider<String>((ref) => '');
 
 // 应用本地搜索后的监控摘要。
-final filteredMonitorDigestProvider = FutureProvider<MonitorDigest>((
-  ref,
-) async {
+final filteredMonitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
   final query = ref.watch(monitorSearchQueryProvider);
   final digest = await ref.watch(visibleMonitorDigestProvider.future);
   return filterMonitorDigest(digest, query);
 });
 
 Set<String> _enabledRuleIds(List<bool> toggles) {
-  const ids = [
-    MonitorRuleIds.starDailyDelta,
-    MonitorRuleIds.starDailyRate,
-    MonitorRuleIds.forkDailyDelta,
-    MonitorRuleIds.issueHeatRatio,
-  ];
+  const ids = [MonitorRuleIds.starDailyDelta, MonitorRuleIds.starDailyRate, MonitorRuleIds.forkDailyDelta, MonitorRuleIds.issueHeatRatio];
   return {
     for (var index = 0; index < ids.length; index++)
-      if (index < toggles.length && toggles[index]) ids[index],
+      if (index < toggles.length && toggles[index]) ids[index]
   };
 }
 
@@ -126,11 +109,7 @@ Future<void> forceRefreshMonitor(WidgetRef ref) async {
   ref.invalidate(visibleMonitorDigestProvider);
 }
 
-MonitorDigest applyMonitorAlertEvents(
-  MonitorDigest digest,
-  Iterable<MonitorAlertEvent> events,
-  DateTime now,
-) {
+MonitorDigest applyMonitorAlertEvents(MonitorDigest digest, Iterable<MonitorAlertEvent> events, DateTime now) {
   final visibleEvents = events.where((event) => !event.isArchived).toList()..sort((left, right) => right.observedAt.compareTo(left.observedAt));
   final alerts = [
     for (final event in visibleEvents)
@@ -145,7 +124,7 @@ MonitorDigest applyMonitorAlertEvents(
         observedAt: event.observedAt,
         readAt: event.readAt,
         archivedAt: event.archivedAt,
-      ),
+      )
   ];
   final todayCount = visibleEvents.where((event) => _isSameLocalDay(event.observedAt, now)).length;
 
@@ -190,11 +169,7 @@ MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
     return digest;
   }
 
-  return MonitorDigest(
-    monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword),
-    alerts: filterMonitorAlerts(digest.alerts, keyword),
-    stats: digest.stats,
-  );
+  return MonitorDigest(monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword), alerts: filterMonitorAlerts(digest.alerts, keyword), stats: digest.stats);
 }
 
 List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {
@@ -205,7 +180,7 @@ List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {
 
   return [
     for (final repo in repos)
-      if (_repoSearchText(repo).contains(keyword)) repo,
+      if (_repoSearchText(repo).contains(keyword)) repo
   ];
 }
 
@@ -217,24 +192,14 @@ List<AlertEntity> filterMonitorAlerts(List<AlertEntity> alerts, String query) {
 
   return [
     for (final alert in alerts)
-      if (_alertSearchText(alert).contains(keyword)) alert,
+      if (_alertSearchText(alert).contains(keyword)) alert
   ];
 }
 
 String _repoSearchText(RepoEntity repo) {
-  return [
-    repo.fullName,
-    repo.description,
-    repo.language,
-  ].join(' ').toLowerCase();
+  return [repo.fullName, repo.description, repo.language].join(' ').toLowerCase();
 }
 
 String _alertSearchText(AlertEntity alert) {
-  return [
-    alert.repoFullName,
-    alert.metric,
-    alert.value,
-    alert.time,
-    alert.severity.name,
-  ].join(' ').toLowerCase();
+  return [alert.repoFullName, alert.metric, alert.value, alert.time, alert.severity.name].join(' ').toLowerCase();
 }

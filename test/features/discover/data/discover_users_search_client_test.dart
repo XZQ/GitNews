@@ -12,11 +12,7 @@ void main() {
     dio.httpClientAdapter = adapter;
 
     final client = DiscoverUsersSearchClient(dio, 'fake-token');
-    final hits = await client.searchUsers(
-      query: 'type:org followers:>5000',
-      page: 2,
-      perPage: 30,
-    );
+    final hits = await client.searchUsers(query: 'type:org followers:>5000', page: 2, perPage: 30);
 
     // 客户端通过 `ApiEndpointsConfig.githubSearchUsersUrl` 预拼 query string,
     // Dio 把整串塞进 path,queryParameters 为空。这里用 Uri 解出 path/query。
@@ -42,37 +38,19 @@ class _RecordingAdapter implements HttpClientAdapter {
   void close({bool force = false}) {}
 
   @override
-  Future<ResponseBody> fetch(
-    RequestOptions options,
-    Stream<Uint8List>? requestStream,
-    Future<void>? cancelFuture,
-  ) async {
+  Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
     lastPath = options.path;
     // Dio 把 githubSearchUsersUrl 预拼的整串放进 path,queryParameters 为空,
     // 故查询参数从 lastPath 用 Uri.parse 解出。
     lastHeaders = options.headers;
     final payload = jsonEncode({
       'items': [
-        {
-          'login': 'openai',
-          'avatar_url': 'https://github.com/openai.png',
-          'html_url': 'https://github.com/openai',
-          'type': 'Organization',
-        },
-        {
-          'login': 'karpathy',
-          'avatar_url': 'https://github.com/karpathy.png',
-          'html_url': 'https://github.com/karpathy',
-          'type': 'User',
-        },
-      ],
+        {'login': 'openai', 'avatar_url': 'https://github.com/openai.png', 'html_url': 'https://github.com/openai', 'type': 'Organization'},
+        {'login': 'karpathy', 'avatar_url': 'https://github.com/karpathy.png', 'html_url': 'https://github.com/karpathy', 'type': 'User'}
+      ]
     });
-    return ResponseBody.fromString(
-      payload,
-      200,
-      headers: {
-        Headers.contentTypeHeader: ['application/json'],
-      },
-    );
+    return ResponseBody.fromString(payload, 200, headers: {
+      Headers.contentTypeHeader: ['application/json']
+    });
   }
 }

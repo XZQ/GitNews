@@ -11,19 +11,9 @@ class DiscoverUsersSearchClient {
   final Dio _dio;
   final String? _token;
 
-  Future<List<UserSearchHit>> searchUsers({
-    required String query,
-    required int page,
-    required int perPage,
-  }) async {
-    final response = await _dio.get<Map<String, Object?>>(
-      ApiEndpointsConfig.githubSearchUsersUrl(
-        q: query,
-        perPage: perPage,
-        page: page,
-      ),
-      options: Options(headers: GitHubApiSupport.headers(token: _token)),
-    );
+  Future<List<UserSearchHit>> searchUsers({required String query, required int page, required int perPage}) async {
+    final response =
+        await _dio.get<Map<String, Object?>>(ApiEndpointsConfig.githubSearchUsersUrl(q: query, perPage: perPage, page: page), options: Options(headers: GitHubApiSupport.headers(token: _token)));
     final data = response.data;
     if (data == null) {
       throw const AppException(kind: AppExceptionKind.parse);
@@ -32,9 +22,7 @@ class DiscoverUsersSearchClient {
     if (items is! List<Object?>) {
       throw const AppException(kind: AppExceptionKind.parse);
     }
-    return [
-      for (final raw in items) _hitFromJson(GitHubJson.map(raw)),
-    ];
+    return [for (final raw in items) _hitFromJson(GitHubJson.map(raw))];
   }
 
   UserSearchHit _hitFromJson(Map<String, Object?> json) {

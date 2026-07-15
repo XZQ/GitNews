@@ -25,14 +25,7 @@ class RouteErrorView extends StatelessWidget {
     }
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: l10n.tr('a11y.home'),
-          icon: const Icon(Icons.home_rounded),
-          onPressed: () => context.go('/home'),
-        ),
-        title: Text(l10n.tr('route_error.title')),
-      ),
+      appBar: AppBar(leading: IconButton(tooltip: l10n.tr('a11y.home'), icon: const Icon(Icons.home_rounded), onPressed: () => context.go('/home')), title: Text(l10n.tr('route_error.title'))),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -41,21 +34,11 @@ class RouteErrorView extends StatelessWidget {
             children: [
               const Icon(Icons.search_off_rounded, size: 56),
               const SizedBox(height: AppSpacing.md),
-              Text(
-                l10n.tr('route_error.unable_to_open'),
-                style: theme.textTheme.titleMedium,
-              ),
+              Text(l10n.tr('route_error.unable_to_open'), style: theme.textTheme.titleMedium),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                l10n.tr('route_error.hint'),
-                textAlign: TextAlign.center,
-                style: AppTypography.bodySmall,
-              ),
+              Text(l10n.tr('route_error.hint'), textAlign: TextAlign.center, style: AppTypography.bodySmall),
               const SizedBox(height: AppSpacing.lg),
-              FilledButton(
-                onPressed: () => context.go('/home'),
-                child: Text(l10n.tr('route_error.back_home')),
-              ),
+              FilledButton(onPressed: () => context.go('/home'), child: Text(l10n.tr('route_error.back_home')))
             ],
           ),
         ),

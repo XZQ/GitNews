@@ -30,7 +30,5 @@ final projectRepositoryProvider = Provider<ProjectRepository>((ref) {
 });
 
 final localProjectRepositoryProvider = Provider<ProjectRepository>((ref) {
-  return LocalProjectRepository(
-    repositoryFeed: ref.watch(projectRepositoryFeedProvider),
-  );
+  return LocalProjectRepository(repositoryFeed: ref.watch(projectRepositoryFeedProvider));
 });

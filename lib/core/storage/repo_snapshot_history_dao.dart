@@ -9,36 +9,16 @@ class RepoSnapshotHistoryDao {
 
   final JsonSnapshotCacheDao _cache;
 
-  Future<void> record({
-    required String fullName,
-    required int stars,
-    required int forks,
-    required DateTime capturedAt,
-  }) async {
+  Future<void> record({required String fullName, required int stars, required int forks, required DateTime capturedAt}) async {
     final key = _cacheKey(fullName);
     final payload = await _cache.read(key) ?? const <String, Object?>{};
     final points = _pointsFromPayload(payload);
     final dayKey = GitHubApiSupport.formatDate(capturedAt.toUtc());
-    final nextPoint = RepoSnapshotPoint(
-      day: dayKey,
-      stars: stars,
-      forks: forks,
-      capturedAt: capturedAt.toUtc(),
-    );
-    final byDay = {
-      for (final point in points) point.day: point,
-      dayKey: nextPoint,
-    };
+    final nextPoint = RepoSnapshotPoint(day: dayKey, stars: stars, forks: forks, capturedAt: capturedAt.toUtc());
+    final byDay = {for (final point in points) point.day: point, dayKey: nextPoint};
     final next = byDay.values.toList()..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
     final bounded = next.length <= repoSnapshotHistoryMaxPoints ? next : next.sublist(next.length - repoSnapshotHistoryMaxPoints);
-    await _cache.upsert(
-      key: key,
-      payload: {
-        'fullName': fullName,
-        'points': bounded.map((point) => point.toJson()).toList(),
-      },
-      now: capturedAt,
-    );
+    await _cache.upsert(key: key, payload: {'fullName': fullName, 'points': bounded.map((point) => point.toJson()).toList()}, now: capturedAt);
   }
 
   Future<RepoTrendSnapshot?> starTrend(String fullName) async {
@@ -46,10 +26,7 @@ class RepoSnapshotHistoryDao {
     if (points.length < 2) {
       return null;
     }
-    return RepoTrendSnapshot(
-      values: [for (final point in points) point.stars.toDouble()],
-      basis: MetricBasis.observed,
-    );
+    return RepoTrendSnapshot(values: [for (final point in points) point.stars.toDouble()], basis: MetricBasis.observed);
   }
 
   Future<RepoTrendSnapshot?> forkTrend(String fullName) async {
@@ -57,10 +34,7 @@ class RepoSnapshotHistoryDao {
     if (points.length < 2) {
       return null;
     }
-    return RepoTrendSnapshot(
-      values: [for (final point in points) point.forks.toDouble()],
-      basis: MetricBasis.observed,
-    );
+    return RepoTrendSnapshot(values: [for (final point in points) point.forks.toDouble()], basis: MetricBasis.observed);
   }
 
   Future<List<RepoSnapshotPoint>> _pointsFor(String fullName) async {
@@ -76,10 +50,7 @@ class RepoSnapshotHistoryDao {
     if (raw == null) {
       return const [];
     }
-    return GitHubJson.list(
-      raw,
-    ).map(RepoSnapshotPoint.fromJson).toList(growable: false)
-      ..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
+    return GitHubJson.list(raw).map(RepoSnapshotPoint.fromJson).toList(growable: false)..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
   }
 
   String _cacheKey(String fullName) {
@@ -95,12 +66,7 @@ class RepoTrendSnapshot {
 }
 
 class RepoSnapshotPoint {
-  const RepoSnapshotPoint({
-    required this.day,
-    required this.stars,
-    required this.forks,
-    required this.capturedAt,
-  });
+  const RepoSnapshotPoint({required this.day, required this.stars, required this.forks, required this.capturedAt});
 
   final String day;
   final int stars;
@@ -108,12 +74,7 @@ class RepoSnapshotPoint {
   final DateTime capturedAt;
 
   Map<String, Object?> toJson() {
-    return {
-      'day': day,
-      'stars': stars,
-      'forks': forks,
-      'capturedAt': capturedAt.toIso8601String(),
-    };
+    return {'day': day, 'stars': stars, 'forks': forks, 'capturedAt': capturedAt.toIso8601String()};
   }
 
   static RepoSnapshotPoint fromJson(Object? raw) {

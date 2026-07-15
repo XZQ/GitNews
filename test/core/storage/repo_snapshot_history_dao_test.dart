@@ -20,29 +20,14 @@ void main() {
   });
 
   test('starTrend should require at least two observed days', () async {
-    await dao.record(
-      fullName: 'openai/codex',
-      stars: 100,
-      forks: 10,
-      capturedAt: DateTime.utc(2026, 7, 1, 8),
-    );
+    await dao.record(fullName: 'openai/codex', stars: 100, forks: 10, capturedAt: DateTime.utc(2026, 7, 1, 8));
 
     expect(await dao.starTrend('openai/codex'), isNull);
   });
 
   test('starTrend should return ordered observed values across days', () async {
-    await dao.record(
-      fullName: 'openai/codex',
-      stars: 120,
-      forks: 12,
-      capturedAt: DateTime.utc(2026, 7, 2, 8),
-    );
-    await dao.record(
-      fullName: 'openai/codex',
-      stars: 100,
-      forks: 10,
-      capturedAt: DateTime.utc(2026, 7, 1, 8),
-    );
+    await dao.record(fullName: 'openai/codex', stars: 120, forks: 12, capturedAt: DateTime.utc(2026, 7, 2, 8));
+    await dao.record(fullName: 'openai/codex', stars: 100, forks: 10, capturedAt: DateTime.utc(2026, 7, 1, 8));
 
     final trend = await dao.starTrend('openai/codex');
 
@@ -52,19 +37,9 @@ void main() {
 
   test('record should overwrite same-day snapshot and cap history', () async {
     for (var i = 0; i < repoSnapshotHistoryMaxPoints + 2; i++) {
-      await dao.record(
-        fullName: 'openai/codex',
-        stars: 100 + i,
-        forks: 10 + i,
-        capturedAt: DateTime.utc(2026, 7, 1).add(Duration(days: i)),
-      );
+      await dao.record(fullName: 'openai/codex', stars: 100 + i, forks: 10 + i, capturedAt: DateTime.utc(2026, 7, 1).add(Duration(days: i)));
     }
-    await dao.record(
-      fullName: 'openai/codex',
-      stars: 999,
-      forks: 99,
-      capturedAt: DateTime.utc(2026, 8, 1, 23),
-    );
+    await dao.record(fullName: 'openai/codex', stars: 999, forks: 99, capturedAt: DateTime.utc(2026, 8, 1, 23));
 
     final trend = await dao.starTrend('openai/codex');
     final forkTrend = await dao.forkTrend('openai/codex');

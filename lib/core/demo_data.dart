@@ -21,15 +21,7 @@ class DemoData {
       forkCount: 8120,
       color: AppColors.langPythonValue,
     ),
-    DemoRepoFixture(
-      fullName: 'ggerganov/llama.cpp',
-      description: 'LLM inference in C/C++',
-      language: 'C++',
-      starCount: 64120,
-      starDelta: 964,
-      forkCount: 8930,
-      color: AppColors.langCppValue,
-    ),
+    DemoRepoFixture(fullName: 'ggerganov/llama.cpp', description: 'LLM inference in C/C++', language: 'C++', starCount: 64120, starDelta: 964, forkCount: 8930, color: AppColors.langCppValue),
     DemoRepoFixture(
       fullName: 'openai/openai-python',
       description: 'The official Python library for the OpenAI API',
@@ -110,7 +102,7 @@ class DemoData {
       starDelta: 156,
       forkCount: 1120,
       color: AppColors.langRustValue,
-    ),
+    )
   ];
 
   static const List<DemoRepoFixture> recent = [
@@ -140,130 +132,35 @@ class DemoData {
       starDelta: 64,
       forkCount: 2410,
       color: AppColors.langRustValue,
-    ),
+    )
   ];
 
   static const List<DemoAlertFixture> alerts = [
-    DemoAlertFixture(
-      repo: 'openai/whisper',
-      metric: '今日新增 Star',
-      value: '+1,280',
-      time: '2 分钟前',
-      severity: alertSeveritySuccess,
-    ),
-    DemoAlertFixture(
-      repo: 'anthropics/claude-code',
-      metric: '单日 Star 增长',
-      value: '+18.5%',
-      time: '12 分钟前',
-      severity: alertSeveritySuccess,
-    ),
-    DemoAlertFixture(
-      repo: 'denoland/deno',
-      metric: '监控告警 · Star 增速回落',
-      value: '-2.1%',
-      time: '28 分钟前',
-      severity: alertSeverityWarning,
-    ),
-    DemoAlertFixture(
-      repo: 'mrdoob/three.js',
-      metric: '讨论热度上升',
-      value: '+322%',
-      time: '1 小时前',
-      severity: alertSeverityInfo,
-    ),
-    DemoAlertFixture(
-      repo: 'lapce/lapce',
-      metric: '监控告警 · 阈值触发',
-      value: '> 200/天',
-      time: '2 小时前',
-      severity: alertSeverityDanger,
-    ),
+    DemoAlertFixture(repo: 'openai/whisper', metric: '今日新增 Star', value: '+1,280', time: '2 分钟前', severity: alertSeveritySuccess),
+    DemoAlertFixture(repo: 'anthropics/claude-code', metric: '单日 Star 增长', value: '+18.5%', time: '12 分钟前', severity: alertSeveritySuccess),
+    DemoAlertFixture(repo: 'denoland/deno', metric: '监控告警 · Star 增速回落', value: '-2.1%', time: '28 分钟前', severity: alertSeverityWarning),
+    DemoAlertFixture(repo: 'mrdoob/three.js', metric: '讨论热度上升', value: '+322%', time: '1 小时前', severity: alertSeverityInfo),
+    DemoAlertFixture(repo: 'lapce/lapce', metric: '监控告警 · 阈值触发', value: '> 200/天', time: '2 小时前', severity: alertSeverityDanger)
   ];
 
   static const List<DemoLanguageFixture> languages = [
-    DemoLanguageFixture(
-      name: 'TypeScript',
-      percent: 28.5,
-      delta: 18.7,
-      color: AppColors.langTypeScriptValue,
-    ),
-    DemoLanguageFixture(
-      name: 'Python',
-      percent: 22.1,
-      delta: 12.3,
-      color: AppColors.langPythonValue,
-    ),
-    DemoLanguageFixture(
-      name: 'Rust',
-      percent: 14.8,
-      delta: 9.8,
-      color: AppColors.langRustValue,
-    ),
-    DemoLanguageFixture(
-      name: 'Go',
-      percent: 9.2,
-      delta: 4.2,
-      color: AppColors.langGoValue,
-    ),
-    DemoLanguageFixture(
-      name: 'Java',
-      percent: 7.1,
-      delta: 1.5,
-      color: AppColors.langJavaValue,
-    ),
-    DemoLanguageFixture(
-      name: 'C++',
-      percent: 5.6,
-      delta: 2.8,
-      color: AppColors.langCppValue,
-    ),
-    DemoLanguageFixture(
-      name: 'Swift',
-      percent: 3.8,
-      delta: 6.4,
-      color: AppColors.langSwiftValue,
-    ),
-    DemoLanguageFixture(
-      name: 'Kotlin',
-      percent: 2.9,
-      delta: 1.1,
-      color: AppColors.langKotlinValue,
-    ),
-    DemoLanguageFixture(
-      name: 'Other',
-      percent: 6.0,
-      delta: 0.4,
-      color: AppColors.langOtherValue,
-    ),
+    DemoLanguageFixture(name: 'TypeScript', percent: 28.5, delta: 18.7, color: AppColors.langTypeScriptValue),
+    DemoLanguageFixture(name: 'Python', percent: 22.1, delta: 12.3, color: AppColors.langPythonValue),
+    DemoLanguageFixture(name: 'Rust', percent: 14.8, delta: 9.8, color: AppColors.langRustValue),
+    DemoLanguageFixture(name: 'Go', percent: 9.2, delta: 4.2, color: AppColors.langGoValue),
+    DemoLanguageFixture(name: 'Java', percent: 7.1, delta: 1.5, color: AppColors.langJavaValue),
+    DemoLanguageFixture(name: 'C++', percent: 5.6, delta: 2.8, color: AppColors.langCppValue),
+    DemoLanguageFixture(name: 'Swift', percent: 3.8, delta: 6.4, color: AppColors.langSwiftValue),
+    DemoLanguageFixture(name: 'Kotlin', percent: 2.9, delta: 1.1, color: AppColors.langKotlinValue),
+    DemoLanguageFixture(name: 'Other', percent: 6.0, delta: 0.4, color: AppColors.langOtherValue)
   ];
 
   static const List<DemoContributorFixture> contributors = [
-    DemoContributorFixture(
-      login: 'ggerganov',
-      contributions: 1284,
-      avatarColor: AppColors.brandValue,
-    ),
-    DemoContributorFixture(
-      login: 'sama',
-      contributions: 982,
-      avatarColor: AppColors.warningValue,
-    ),
-    DemoContributorFixture(
-      login: 'yyx990803',
-      contributions: 712,
-      avatarColor: AppColors.successValue,
-    ),
-    DemoContributorFixture(
-      login: 'tj',
-      contributions: 645,
-      avatarColor: AppColors.dangerValue,
-    ),
-    DemoContributorFixture(
-      login: 'yyx990803',
-      contributions: 521,
-      avatarColor: AppColors.infoValue,
-    ),
+    DemoContributorFixture(login: 'ggerganov', contributions: 1284, avatarColor: AppColors.brandValue),
+    DemoContributorFixture(login: 'sama', contributions: 982, avatarColor: AppColors.warningValue),
+    DemoContributorFixture(login: 'yyx990803', contributions: 712, avatarColor: AppColors.successValue),
+    DemoContributorFixture(login: 'tj', contributions: 645, avatarColor: AppColors.dangerValue),
+    DemoContributorFixture(login: 'yyx990803', contributions: 521, avatarColor: AppColors.infoValue)
   ];
 
   /* 

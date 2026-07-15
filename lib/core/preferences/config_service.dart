@@ -49,7 +49,7 @@ class SharedPreferencesConfigStore implements ConfigPreferenceStore {
       final double value => _preferences.setDouble(key, value),
       final bool value => _preferences.setBool(key, value),
       final List<String> value => _preferences.setStringList(key, value),
-      _ => throw ArgumentError.value(value, key, 'Unsupported preference type'),
+      _ => throw ArgumentError.value(value, key, 'Unsupported preference type')
     };
   }
 }
@@ -69,7 +69,7 @@ class ConfigService {
     'trending_data_source_mode',
     'link_open_mode',
     'local_content_monitor_rules',
-    'monitor_notification_settings',
+    'monitor_notification_settings'
   };
 
   final Ref _ref;
@@ -83,12 +83,7 @@ class ConfigService {
         preferences[key] = value;
       }
     }
-    return const JsonEncoder.withIndent('  ').convert({
-      'app': 'github_news',
-      'version': 1,
-      'exported_at': DateTime.now().toIso8601String(),
-      'preferences': preferences,
-    });
+    return const JsonEncoder.withIndent('  ').convert({'app': 'github_news', 'version': 1, 'exported_at': DateTime.now().toIso8601String(), 'preferences': preferences});
   }
 
   Future<String> exportConfig() async {
@@ -109,9 +104,7 @@ class ConfigService {
   Future<int> importText(String text) async {
     final preferences = _decodeAndValidate(text);
     final store = _ref.read(configPreferenceStoreProvider);
-    final oldValues = <String, Object?>{
-      for (final key in preferences.keys) key: store.get(key),
-    };
+    final oldValues = <String, Object?>{for (final key in preferences.keys) key: store.get(key)};
 
     try {
       for (final entry in preferences.entries) {
@@ -164,7 +157,7 @@ class ConfigService {
       'startup_tab_segment' => appTabs.map((tab) => tab.pathSegment).toSet(),
       'trending_data_source_mode' => TrendingDataSourceMode.values.map((mode) => mode.name).toSet(),
       'link_open_mode' => LinkOpenMode.values.map((mode) => mode.name).toSet(),
-      _ => null,
+      _ => null
     };
     if (validStringValues != null) {
       if (value is! String || !validStringValues.contains(value)) {
@@ -173,11 +166,8 @@ class ConfigService {
       return value;
     }
 
-    final expectedLength = switch (key) {
-      'local_content_monitor_rules' => monitorRuleCount,
-      'monitor_notification_settings' => monitorNotificationCount,
-      _ => throw FormatException('Unsupported preference key: $key'),
-    };
+    final expectedLength =
+        switch (key) { 'local_content_monitor_rules' => monitorRuleCount, 'monitor_notification_settings' => monitorNotificationCount, _ => throw FormatException('Unsupported preference key: $key') };
     if (value is! List || value.length != expectedLength) {
       throw FormatException('Invalid value for $key');
     }
@@ -192,10 +182,7 @@ class ConfigService {
     return normalized;
   }
 
-  Future<void> _rollback(
-    ConfigPreferenceStore store,
-    Map<String, Object?> oldValues,
-  ) async {
+  Future<void> _rollback(ConfigPreferenceStore store, Map<String, Object?> oldValues) async {
     for (final entry in oldValues.entries) {
       try {
         final oldValue = entry.value;

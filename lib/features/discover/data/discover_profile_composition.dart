@@ -17,19 +17,15 @@ typedef DiscoverProfileReport = void Function(Object error);
 /*
  *仅 page==1 时,在搜索结果前置白名单(enriched),并对与白名单重复的 login 去重。
  */
-Future<DataResult<List<DiscoverProfileEntity>>> composeProfilesWithWhitelist({
-  required DiscoverProfileClient profileClient,
-  required DiscoverProfileKind kind,
-  required int page,
-  required List<DiscoverProfileEntity> searchResult,
-  DataFreshness? searchFreshness,
-  bool fromCache = false,
-}) async {
+Future<DataResult<List<DiscoverProfileEntity>>> composeProfilesWithWhitelist(
+    {required DiscoverProfileClient profileClient,
+    required DiscoverProfileKind kind,
+    required int page,
+    required List<DiscoverProfileEntity> searchResult,
+    DataFreshness? searchFreshness,
+    bool fromCache = false}) async {
   if (page != 1) {
-    return DataResult(
-      data: searchResult,
-      freshness: searchFreshness ?? DataFreshness.live,
-    );
+    return DataResult(data: searchResult, freshness: searchFreshness ?? DataFreshness.live);
   }
   final whitelist = await fetchProfileWhitelist(profileClient, kind);
   final whitelistLogins = whitelist.map((p) => p.login).toSet();
@@ -42,16 +38,10 @@ Future<DataResult<List<DiscoverProfileEntity>>> composeProfilesWithWhitelist({
   } else {
     freshness = searchFreshness ?? DataFreshness.live;
   }
-  return DataResult(
-    data: [...whitelist, ...dedupedSearch],
-    freshness: freshness,
-  );
+  return DataResult(data: [...whitelist, ...dedupedSearch], freshness: freshness);
 }
 
-Future<List<DiscoverProfileEntity>> fetchProfileWhitelist(
-  DiscoverProfileClient profileClient,
-  DiscoverProfileKind kind,
-) async {
+Future<List<DiscoverProfileEntity>> fetchProfileWhitelist(DiscoverProfileClient profileClient, DiscoverProfileKind kind) async {
   final logins = DiscoverQueries.profileLogins(kind);
   final results = <DiscoverProfileEntity>[];
   for (final login in logins) {
@@ -71,18 +61,17 @@ Future<List<DiscoverProfileEntity>> fetchProfileWhitelist(
  *把 profile 的搜索 + 缓存 + 白名单合成链路从主仓库中分离,
  *让 `DiscoverRepository` 仅做依赖装配与委托。
  */
-Future<DataResult<List<DiscoverProfileEntity>>> fetchProfilesPage({
-  required DiscoverProfileClient profileClient,
-  required DiscoverUsersSearchClient usersSearchClient,
-  required JsonSnapshotCacheDao cache,
-  required DateTime Function() now,
-  required bool Function() isBlocked,
-  required DiscoverProfileReport report,
-  required DiscoverProfileKind kind,
-  bool force = false,
-  int page = 1,
-  int perPage = 20,
-}) async {
+Future<DataResult<List<DiscoverProfileEntity>>> fetchProfilesPage(
+    {required DiscoverProfileClient profileClient,
+    required DiscoverUsersSearchClient usersSearchClient,
+    required JsonSnapshotCacheDao cache,
+    required DateTime Function() now,
+    required bool Function() isBlocked,
+    required DiscoverProfileReport report,
+    required DiscoverProfileKind kind,
+    bool force = false,
+    int page = 1,
+    int perPage = 20}) async {
   final currentTime = now();
   final searchQuery = kind == DiscoverProfileKind.official ? DiscoverQueries.officialSearchQuery : DiscoverQueries.peopleSearchQuery;
   final key = DiscoverQueries.profilesPageKey(kind, page, perPage);
@@ -98,21 +87,11 @@ Future<DataResult<List<DiscoverProfileEntity>>> fetchProfilesPage({
       final cached = await cache.read(key);
       if (cached != null) {
         final cachedList = DiscoverCacheCodec.decodeProfiles(cached, kind);
-        return composeProfilesWithWhitelist(
-          profileClient: profileClient,
-          kind: kind,
-          page: page,
-          searchResult: cachedList,
-          fromCache: true,
-        );
+        return composeProfilesWithWhitelist(profileClient: profileClient, kind: kind, page: page, searchResult: cachedList, fromCache: true);
       }
     }
     try {
-      final hits = await usersSearchClient.searchUsers(
-        query: searchQuery,
-        page: page,
-        perPage: perPage,
-      );
+      final hits = await usersSearchClient.searchUsers(query: searchQuery, page: page, perPage: perPage);
       searchHits = [
         for (final hit in hits)
           DiscoverProfileEntity(
@@ -128,22 +107,15 @@ Future<DataResult<List<DiscoverProfileEntity>>> fetchProfilesPage({
             kind: kind,
             enriched: false,
             enrichFailed: false,
-          ),
+          )
       ];
-      await cache.upsert(
-        key: key,
-        payload: DiscoverCacheCodec.profilesToJson(searchHits),
-        now: currentTime,
-      );
+      await cache.upsert(key: key, payload: DiscoverCacheCodec.profilesToJson(searchHits), now: currentTime);
     } on DioException catch (e) {
       report(GitHubApiSupport.toAppException(e, now: now));
     } on AppException catch (e) {
       report(e);
     } catch (e) {
-      AppLogger.warn(
-        'discoverProfilesSearch',
-        meta: {'error': e.runtimeType.toString()},
-      );
+      AppLogger.warn('discoverProfilesSearch', meta: {'error': e.runtimeType.toString()});
     }
   }
 
@@ -162,13 +134,7 @@ Future<DataResult<List<DiscoverProfileEntity>>> fetchProfilesPage({
       searchFreshness = page == 1 ? DataFreshness.seed : DataFreshness.staleCache;
     }
   }
-  return composeProfilesWithWhitelist(
-    profileClient: profileClient,
-    kind: kind,
-    page: page,
-    searchResult: searchResult,
-    searchFreshness: searchFreshness,
-  );
+  return composeProfilesWithWhitelist(profileClient: profileClient, kind: kind, page: page, searchResult: searchResult, searchFreshness: searchFreshness);
 }
 
 Future<void> _safeDelete(JsonSnapshotCacheDao cache, String key) async {

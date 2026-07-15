@@ -23,11 +23,7 @@ void main() {
   });
 
   test('profilesPageKey 按 kind 与分页维度生成', () {
-    final key = DiscoverQueries.profilesPageKey(
-      DiscoverProfileKind.official,
-      2,
-      20,
-    );
+    final key = DiscoverQueries.profilesPageKey(DiscoverProfileKind.official, 2, 20);
     expect(key, 'discover_profiles:official:p2:n20');
   });
 

@@ -47,39 +47,24 @@ void main() {
     addTearDown(restored.dispose);
     final state = restored.read(localContentControllerProvider);
 
-    expect(
-      state.bookmarkedRepoSnapshots[_remoteRepo.fullName]?.description,
-      _remoteRepo.description,
-    );
-    expect(
-      state.monitoredRepoSnapshots[_remoteRepo.fullName]?.language,
-      _remoteRepo.language,
-    );
-    expect(
-      state.followedDeveloperSnapshots[_remoteDeveloper.login]?.contributions,
-      _remoteDeveloper.contributions,
-    );
+    expect(state.bookmarkedRepoSnapshots[_remoteRepo.fullName]?.description, _remoteRepo.description);
+    expect(state.monitoredRepoSnapshots[_remoteRepo.fullName]?.language, _remoteRepo.language);
+    expect(state.followedDeveloperSnapshots[_remoteDeveloper.login]?.contributions, _remoteDeveloper.contributions);
   });
 
   test('legacy ids without snapshots remain visible as minimal entities', () async {
     SharedPreferences.setMockInitialValues({
       'local_content_bookmarked_repos': ['legacy/unknown'],
       'local_content_monitored_repos': <String>[],
-      'local_content_followed_developers': ['legacy-dev'],
+      'local_content_followed_developers': ['legacy-dev']
     });
     final container = await _container();
     addTearDown(container.dispose);
 
     final state = container.read(localContentControllerProvider);
 
-    expect(
-      state.bookmarkedRepoSnapshots['legacy/unknown']?.fullName,
-      'legacy/unknown',
-    );
-    expect(
-      state.followedDeveloperSnapshots['legacy-dev']?.login,
-      'legacy-dev',
-    );
+    expect(state.bookmarkedRepoSnapshots['legacy/unknown']?.fullName, 'legacy/unknown');
+    expect(state.followedDeveloperSnapshots['legacy-dev']?.login, 'legacy-dev');
   });
 
   test('shared repo snapshot is deleted only after both collections remove it', () async {
@@ -91,38 +76,18 @@ void main() {
     await notifier.toggleBookmark(_remoteRepo);
     await notifier.addMonitor(_remoteRepo);
     await notifier.removeBookmark(_remoteRepo.fullName);
-    expect(
-      container.read(localContentControllerProvider).repoSnapshots,
-      contains(_remoteRepo.fullName),
-    );
+    expect(container.read(localContentControllerProvider).repoSnapshots, contains(_remoteRepo.fullName));
 
     await notifier.removeMonitor(_remoteRepo.fullName);
-    expect(
-      container.read(localContentControllerProvider).repoSnapshots,
-      isNot(contains(_remoteRepo.fullName)),
-    );
+    expect(container.read(localContentControllerProvider).repoSnapshots, isNot(contains(_remoteRepo.fullName)));
   });
 }
 
-const _remoteRepo = RepoEntity(
-  fullName: 'remote/new-repo',
-  description: 'Only returned by GitHub',
-  language: 'Rust',
-  starCount: 42,
-  starDelta: 3,
-  forkCount: 7,
-  accentArgb: 0xFFDEA584,
-);
+const _remoteRepo = RepoEntity(fullName: 'remote/new-repo', description: 'Only returned by GitHub', language: 'Rust', starCount: 42, starDelta: 3, forkCount: 7, accentArgb: 0xFFDEA584);
 
-const _remoteDeveloper = ContributorEntity(
-  login: 'remote-dev',
-  contributions: 19,
-  avatarAccentArgb: 0xFF6366F1,
-);
+const _remoteDeveloper = ContributorEntity(login: 'remote-dev', contributions: 19, avatarAccentArgb: 0xFF6366F1);
 
 Future<ProviderContainer> _container() async {
   final prefs = await SharedPreferences.getInstance();
-  return ProviderContainer(
-    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-  );
+  return ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)]);
 }

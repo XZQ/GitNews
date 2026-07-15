@@ -12,14 +12,7 @@ import '../../../core/utils/app_logger.dart';
 import 'project_cache_keys.dart';
 
 class GithubProjectActivityLoader {
-  const GithubProjectActivityLoader({
-    required this.cache,
-    required this.resources,
-    required this.cacheScope,
-    required this.now,
-    this.isRateLimited,
-    this.onRateLimited,
-  });
+  const GithubProjectActivityLoader({required this.cache, required this.resources, required this.cacheScope, required this.now, this.isRateLimited, this.onRateLimited});
 
   final JsonSnapshotCacheDao cache;
   final GitHubResourceCache resources;
@@ -33,47 +26,23 @@ class GithubProjectActivityLoader {
     if (repos.isEmpty) {
       return const [];
     }
-    final cacheKey = projectActivitiesCacheKey(
-      repos: repos,
-      cacheScope: cacheScope,
-    );
+    final cacheKey = projectActivitiesCacheKey(repos: repos, cacheScope: cacheScope);
     final cached = await _read(cacheKey);
-    if (cached != null &&
-        await cache.isFresh(
-          key: cacheKey,
-          ttl: CacheTtlConfig.project,
-          now: now(),
-        )) {
+    if (cached != null && await cache.isFresh(key: cacheKey, ttl: CacheTtlConfig.project, now: now())) {
       return cached;
     }
     if (isRateLimited?.call() ?? false) {
       return cached ?? const [];
     }
     try {
-      final results = await gatherAll<DataResult<List<RepoActivityEvent>>>(
-        [
-          for (final repo in repos)
-            fetchGitHubRepoActivities(
-              resources: resources,
-              fullName: repo,
-            ),
-        ],
-        tag: 'githubProjectActivities',
-      );
+      final results = await gatherAll<DataResult<List<RepoActivityEvent>>>([for (final repo in repos) fetchGitHubRepoActivities(resources: resources, fullName: repo)], tag: 'githubProjectActivities');
       final activities = results.expand((result) => result.data).toList()..sort((left, right) => right.occurredAt.compareTo(left.occurredAt));
       final visible = activities.take(30).toList(growable: false);
-      await cache.upsert(
-        key: cacheKey,
-        payload: {'activities': repoActivitiesToJson(visible)},
-        now: now(),
-      );
+      await cache.upsert(key: cacheKey, payload: {'activities': repoActivitiesToJson(visible)}, now: now());
       return visible;
     } catch (error) {
       _reportRateLimit(error);
-      AppLogger.warn(
-        'githubProjectActivitiesFallback',
-        meta: {'error': error.runtimeType.toString()},
-      );
+      AppLogger.warn('githubProjectActivitiesFallback', meta: {'error': error.runtimeType.toString()});
       return cached ?? const [];
     }
   }
@@ -86,10 +55,7 @@ class GithubProjectActivityLoader {
     try {
       return repoActivitiesFromJson(json['activities']);
     } catch (error) {
-      AppLogger.warn(
-        'githubProjectActivitiesCacheParse',
-        meta: {'error': error.runtimeType.toString()},
-      );
+      AppLogger.warn('githubProjectActivitiesCacheParse', meta: {'error': error.runtimeType.toString()});
       return null;
     }
   }

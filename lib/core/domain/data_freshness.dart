@@ -5,10 +5,7 @@ enum DataFreshness {
   seed;
 
   static DataFreshness fromName(String? name) {
-    return DataFreshness.values.firstWhere(
-      (value) => value.name == name,
-      orElse: () => DataFreshness.seed,
-    );
+    return DataFreshness.values.firstWhere((value) => value.name == name, orElse: () => DataFreshness.seed);
   }
 }
 
@@ -18,25 +15,14 @@ enum MetricBasis {
   seed;
 
   static MetricBasis fromName(String? name) {
-    return MetricBasis.values.firstWhere(
-      (value) => value.name == name,
-      orElse: () => MetricBasis.seed,
-    );
+    return MetricBasis.values.firstWhere((value) => value.name == name, orElse: () => MetricBasis.seed);
   }
 
   static MetricBasis fromLegacyName(String? name) {
-    return switch (name) {
-      'live' || 'freshCache' || 'staleCache' || 'observed' => MetricBasis.observed,
-      'estimated' => MetricBasis.estimated,
-      _ => MetricBasis.seed,
-    };
+    return switch (name) { 'live' || 'freshCache' || 'staleCache' || 'observed' => MetricBasis.observed, 'estimated' => MetricBasis.estimated, _ => MetricBasis.seed };
   }
 
-  String get labelKey => switch (this) {
-        MetricBasis.observed => 'basis.observed.full',
-        MetricBasis.estimated => 'provenance.estimated.full',
-        MetricBasis.seed => 'provenance.seed.full',
-      };
+  String get labelKey => switch (this) { MetricBasis.observed => 'basis.observed.full', MetricBasis.estimated => 'provenance.estimated.full', MetricBasis.seed => 'provenance.seed.full' };
 }
 
 class DataResult<T> {
@@ -46,9 +32,6 @@ class DataResult<T> {
   final DataFreshness freshness;
 
   DataResult<R> map<R>(R Function(T value) convert) {
-    return DataResult<R>(
-      data: convert(data),
-      freshness: freshness,
-    );
+    return DataResult<R>(data: convert(data), freshness: freshness);
   }
 }

@@ -26,17 +26,8 @@ class DiscoverPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(projectDigestProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('project.discover.title')),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/project'),
-        ),
-      ),
-      body: ResponsiveLayout(
-        compact: (_) => _Body(state: state),
-        medium: (_) => CenteredContent(child: _Body(state: state)),
-        expanded: (_) => CenteredContent(child: _Body(state: state)),
-      ),
+      appBar: AppBar(title: Text(l10n.tr('project.discover.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/project'))),
+      body: ResponsiveLayout(compact: (_) => _Body(state: state), medium: (_) => CenteredContent(child: _Body(state: state)), expanded: (_) => CenteredContent(child: _Body(state: state))),
     );
   }
 }
@@ -50,27 +41,15 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return state.when(
-      data: (digest) => digest.isEmpty
-          ? EmptyView(
-              icon: Icons.lightbulb_outline_rounded,
-              message: l10n.tr('project.discover.empty'),
-            )
-          : _DigestView(digest: digest),
+      data: (digest) => digest.isEmpty ? EmptyView(icon: Icons.lightbulb_outline_rounded, message: l10n.tr('project.discover.empty')) : _DigestView(digest: digest),
       loading: () => const ProjectPageSkeleton(),
-      error: (error, stack) => ErrorView(
-        error: error.asAppException(stack),
-        onRetry: () => ref.invalidate(projectDigestProvider),
-      ),
+      error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(projectDigestProvider)),
     );
   }
 }
 
 class _TopicSpec {
-  const _TopicSpec({
-    required this.label,
-    required this.count,
-    required this.color,
-  });
+  const _TopicSpec({required this.label, required this.count, required this.color});
 
   final String label;
   final int count;
@@ -85,34 +64,21 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         const _HotTopicsCard(),
         const SizedBox(height: AppSpacing.lg),
         ProjectRepoListCard(
-          title: AppLocalizations.of(
-            context,
-          ).tr('project.discover.recommended_repos'),
-          subtitle: AppLocalizations.of(
-            context,
-          ).tr('project.discover.recommended_repos.subtitle'),
+          title: AppLocalizations.of(context).tr('project.discover.recommended_repos'),
+          subtitle: AppLocalizations.of(context).tr('project.discover.recommended_repos.subtitle'),
           repos: digest.repos,
         ),
         const SizedBox(height: AppSpacing.lg),
         ProjectContributorsCard(
-          title: AppLocalizations.of(
-            context,
-          ).tr('project.discover.recommended_devs'),
-          subtitle: AppLocalizations.of(
-            context,
-          ).tr('project.discover.recommended_devs.subtitle'),
+          title: AppLocalizations.of(context).tr('project.discover.recommended_devs'),
+          subtitle: AppLocalizations.of(context).tr('project.discover.recommended_devs.subtitle'),
           contributors: digest.contributors,
-        ),
+        )
       ],
     );
   }
@@ -126,48 +92,22 @@ class _HotTopicsCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final topics = <_TopicSpec>[
-      _TopicSpec(
-        label: l10n.tr('project.topic.ai_agent'),
-        count: 32,
-        color: colors.primary,
-      ),
-      _TopicSpec(
-        label: l10n.tr('project.topic.llm'),
-        count: 128,
-        color: AppColors.info,
-      ),
-      _TopicSpec(
-        label: l10n.tr('project.topic.devtools'),
-        count: 64,
-        color: AppColors.success,
-      ),
-      _TopicSpec(
-        label: l10n.tr('project.topic.rag'),
-        count: 24,
-        color: AppColors.warning,
-      ),
+      _TopicSpec(label: l10n.tr('project.topic.ai_agent'), count: 32, color: colors.primary),
+      _TopicSpec(label: l10n.tr('project.topic.llm'), count: 128, color: AppColors.info),
+      _TopicSpec(label: l10n.tr('project.topic.devtools'), count: 64, color: AppColors.success),
+      _TopicSpec(label: l10n.tr('project.topic.rag'), count: 24, color: AppColors.warning)
     ];
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('project.discover.topic_popular'),
-            subtitle: l10n.tr('project.discover.topic_popular.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('project.discover.topic_popular'), subtitle: l10n.tr('project.discover.topic_popular.subtitle')),
           const SizedBox(height: AppSpacing.md),
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
-            children: [
-              for (final t in topics)
-                ProjectTopicCard(
-                  label: t.label,
-                  description: l10n.tr('project.discover.topic_repos').replaceAll('{n}', t.count.toString()),
-                  color: t.color,
-                ),
-            ],
-          ),
+            children: [for (final t in topics) ProjectTopicCard(label: t.label, description: l10n.tr('project.discover.topic_repos').replaceAll('{n}', t.count.toString()), color: t.color)],
+          )
         ],
       ),
     );

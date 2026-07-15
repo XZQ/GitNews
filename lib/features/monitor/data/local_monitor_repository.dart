@@ -15,10 +15,7 @@ class LocalMonitorRepository implements MonitorRepository {
     return DataResult(
       freshness: DataFreshness.seed,
       data: MonitorDigest(
-        monitoredRepos: [
-          ...DemoData.trending,
-          ...DemoData.recent,
-        ].map((e) => e.toEntity()).toList(),
+        monitoredRepos: [...DemoData.trending, ...DemoData.recent].map((e) => e.toEntity()).toList(),
         alerts: const [],
         stats: const MonitorStats(
           monitoredCount: 28,

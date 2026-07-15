@@ -26,61 +26,33 @@ class TrendingList extends StatelessWidget {
     if (repos.isEmpty) {
       return Stack(
         children: [
-          AppCard(
-            child: EmptyView(
-              icon: Icons.search_off_rounded,
-              message: l10n.tr('trending.list.empty'),
-            ),
-          ),
-          if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating')),
+          AppCard(child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('trending.list.empty'))),
+          if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating'))
         ],
       );
     }
 
-    return Stack(
-      children: [
-        AppCard(
+    return Stack(children: [
+      AppCard(
           padding: EdgeInsets.zero,
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                    AppSpacing.lg,
-                    AppSpacing.xs,
-                  ),
-                  child: SectionHeader(title: l10n.tr('trending.page.repos'), subtitle: l10n.tr('trending.list.subtitle.short')),
-                ),
+          child: CustomScrollView(slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+                child: SectionHeader(title: l10n.tr('trending.page.repos'), subtitle: l10n.tr('trending.list.subtitle.short')),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.xs,
-                  AppSpacing.md,
-                  AppSpacing.md,
-                ),
+            ),
+            SliverPadding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
                 sliver: SliverList.separated(
-                  itemCount: repos.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                  itemBuilder: (context, i) {
-                    return RepoTile(
-                      repo: repos[i],
-                      rank: i + 1,
-                      onTap: () => context.go(
-                        '/trending/detail/${Uri.encodeComponent(repos[i].fullName)}',
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-        if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating')),
-      ],
-    );
+                    itemCount: repos.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, i) {
+                      return RepoTile(repo: repos[i], rank: i + 1, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repos[i].fullName)}'));
+                    }))
+          ])),
+      if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating'))
+    ]);
   }
 }
 
@@ -95,41 +67,20 @@ class _TrendingListLoadingOverlay extends StatelessWidget {
     return Positioned.fill(
       child: IgnorePointer(
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: colors.surface.withValues(alpha: 0.72),
-          ),
+          decoration: BoxDecoration(color: colors.surface.withValues(alpha: 0.72)),
           child: Center(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 color: colors.surface,
                 borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(
-                  color: colors.outlineVariant.withValues(alpha: 0.8),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: colors.shadow.withValues(alpha: 0.06),
-                    blurRadius: 18,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.8)),
+                boxShadow: [BoxShadow(color: colors.shadow.withValues(alpha: 0.06), blurRadius: 18, offset: const Offset(0, 8))],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.lg,
-                  vertical: AppSpacing.md,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Text(message),
-                  ],
+                  children: [const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)), const SizedBox(width: AppSpacing.sm), Text(message)],
                 ),
               ),
             ),

@@ -27,59 +27,28 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
     final primary = _windowed(widget.digest.primaryTrend);
     final compare = _windowed(widget.digest.compareTrend);
     return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: SectionHeader(
-                  title: l10n.tr('repo_detail.section.star_trend'),
-                  subtitle: l10n.tr('repo_detail.section.star_trend.subtitle'),
-                ),
-              ),
-              MetricBasisBadge(
-                basis: widget.digest.repo.trendBasis,
-                compact: false,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              SegmentedButton<int>(
-                segments: [
-                  ButtonSegment(
-                    value: 7,
-                    label: Text(l10n.tr('repo_detail.window.7d')),
-                  ),
-                  ButtonSegment(
-                    value: 30,
-                    label: Text(l10n.tr('repo_detail.window.30d')),
-                  ),
-                  ButtonSegment(
-                    value: 90,
-                    label: Text(l10n.tr('repo_detail.window.90d')),
-                  ),
-                ],
-                selected: {_window},
-                onSelectionChanged: (values) {
-                  setState(() => _window = values.first);
-                },
-                showSelectedIcon: false,
-              ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(children: [
+        Expanded(child: SectionHeader(title: l10n.tr('repo_detail.section.star_trend'), subtitle: l10n.tr('repo_detail.section.star_trend.subtitle'))),
+        MetricBasisBadge(basis: widget.digest.repo.trendBasis, compact: false),
+        const SizedBox(width: AppSpacing.md),
+        SegmentedButton<int>(
+            segments: [
+              ButtonSegment(value: 7, label: Text(l10n.tr('repo_detail.window.7d'))),
+              ButtonSegment(value: 30, label: Text(l10n.tr('repo_detail.window.30d'))),
+              ButtonSegment(value: 90, label: Text(l10n.tr('repo_detail.window.90d')))
             ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-          StarTrendChart(
-            series: [
-              ChartSeries(
-                values: primary,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-              ChartSeries(values: compare, color: AppColors.info),
-            ],
-            height: 220,
-          ),
-        ],
-      ),
-    );
+            selected: {
+              _window
+            },
+            onSelectionChanged: (values) {
+              setState(() => _window = values.first);
+            },
+            showSelectedIcon: false)
+      ]),
+      const SizedBox(height: AppSpacing.md),
+      StarTrendChart(series: [ChartSeries(values: primary, color: Theme.of(context).colorScheme.primary), ChartSeries(values: compare, color: AppColors.info)], height: 220)
+    ]));
   }
 
   List<double> _windowed(List<double> values) {

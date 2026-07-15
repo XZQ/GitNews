@@ -28,12 +28,7 @@ void main() {
     cache = JsonSnapshotCacheDao(db.executor, CacheMetaDao(db.executor));
     history = TechHotspotHistoryDao(cache);
     dio = _MockDio();
-    repository = GithubTechHotspotRepository(
-      dio: dio,
-      cache: cache,
-      history: history,
-      now: () => DateTime.utc(2026, 7, 4, 12),
-    );
+    repository = GithubTechHotspotRepository(dio: dio, cache: cache, history: history, now: () => DateTime.utc(2026, 7, 4, 12));
   });
 
   tearDown(() async {
@@ -41,28 +36,11 @@ void main() {
   });
 
   test('should prefer observed local topic history for growth and heat trend', () async {
-    await history.record(
-      id: techHotspotTopicQueries.first.id,
-      heat: 40,
-      mentions: 80,
-      relatedRepos: 100,
-      capturedAt: DateTime.utc(2026, 7, 3, 8),
-    );
+    await history.record(id: techHotspotTopicQueries.first.id, heat: 40, mentions: 80, relatedRepos: 100, capturedAt: DateTime.utc(2026, 7, 3, 8));
     var index = 0;
-    when(
-      () => dio.get<Map<String, Object?>>(
-        any(),
-        queryParameters: any(named: 'queryParameters'),
-        options: any(named: 'options'),
-      ),
-    ).thenAnswer((_) async {
+    when(() => dio.get<Map<String, Object?>>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((_) async {
       final query = techHotspotTopicQueries[index++];
-      return _okResponse(
-        _searchBody(
-          query.id,
-          total: query == techHotspotTopicQueries.first ? 130 : 80,
-        ),
-      );
+      return _okResponse(_searchBody(query.id, total: query == techHotspotTopicQueries.first ? 130 : 80));
     });
 
     final result = await repository.getDigest();
@@ -72,33 +50,19 @@ void main() {
     expect(firstTopic.growth, 30);
     expect(firstTopic.growthBasis, MetricBasis.observed);
     expect(result.freshness, DataFreshness.live);
-    expect(
-      digest.heatTrend.map((point) => point.value).toList(),
-      [40, firstTopic.heat],
-    );
+    expect(digest.heatTrend.map((point) => point.value).toList(), [40, firstTopic.heat]);
   });
 }
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
-  return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: ApiEndpointsConfig.githubSearchRepositoriesPath),
-    statusCode: 200,
-    data: body,
-  );
+  return Response<Map<String, Object?>>(requestOptions: RequestOptions(path: ApiEndpointsConfig.githubSearchRepositoriesPath), statusCode: 200, data: body);
 }
 
 Map<String, Object?> _searchBody(String id, {required int total}) {
   return <String, Object?>{
     'total_count': total,
     'items': <Object?>[
-      <String, Object?>{
-        'full_name': 'example/$id',
-        'description': 'AI repository',
-        'language': 'Python',
-        'stargazers_count': 24000,
-        'forks_count': 1200,
-        'score': 20.0,
-      },
-    ],
+      <String, Object?>{'full_name': 'example/$id', 'description': 'AI repository', 'language': 'Python', 'stargazers_count': 24000, 'forks_count': 1200, 'score': 20.0}
+    ]
   };
 }

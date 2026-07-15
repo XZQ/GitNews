@@ -22,10 +22,7 @@ class AiNewsApiClient {
 
   static const String baseUrl = ApiEndpointsConfig.aiNewsBaseUrl;
 
-  static const Map<String, Object?> _headers = {
-    'Accept': 'application/json',
-    'User-Agent': GitHubApiSupport.userAgent,
-  };
+  static const Map<String, Object?> _headers = {'Accept': 'application/json', 'User-Agent': GitHubApiSupport.userAgent};
 
   final Dio _dio;
 
@@ -33,27 +30,17 @@ class AiNewsApiClient {
   *`GET /api/public/items`。
   *参数语义见 [AiNewsRepository.fetchItems]。
   */
-  Future<AiNewsListResponseDto> fetchItems({
-    String? category,
-    DateTime? since,
-    String? query,
-    String? cursor,
-    bool selectedOnly = true,
-  }) async {
+  Future<AiNewsListResponseDto> fetchItems({String? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
     final qp = <String, Object?>{
       'mode': selectedOnly ? 'selected' : 'all',
       if (category != null) 'category': category,
       if (since != null) 'since': since.toUtc().toIso8601String(),
       if (query != null && query.isNotEmpty) 'q': query,
-      if (cursor != null && cursor.isNotEmpty) 'cursor': cursor,
+      if (cursor != null && cursor.isNotEmpty) 'cursor': cursor
     };
     try {
       // 复用全局拦截器链;每次请求覆盖 UA(部分上游靠 UA 鉴权)。
-      final resp = await _dio.get<Map<String, Object?>>(
-        ApiEndpointsConfig.aiNewsItemsPath,
-        queryParameters: qp,
-        options: Options(headers: _headers),
-      );
+      final resp = await _dio.get<Map<String, Object?>>(ApiEndpointsConfig.aiNewsItemsPath, queryParameters: qp, options: Options(headers: _headers));
       final data = resp.data;
       if (data == null) {
         throw const AppException(kind: AppExceptionKind.parse);

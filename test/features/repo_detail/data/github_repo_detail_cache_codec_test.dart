@@ -22,7 +22,7 @@ void main() {
           occurredAt: DateTime.utc(2026, 7, 11, 10),
           htmlUrl: 'https://github.com/owner/repo/releases/v1.3.0',
           basis: MetricBasis.observed,
-        ),
+        )
       ],
     );
 
@@ -34,27 +34,10 @@ void main() {
   });
 
   test('legacy repo detail cache without activities decodes as empty', () {
-    final json = repoDetailDigestToJson(
-      const RepoDetailDigest(
-        repo: _repo,
-        contributors: [],
-        relatedRepos: [],
-        primaryTrend: [1],
-        compareTrend: [0.5],
-        activities: [],
-      ),
-    )..remove('activities');
+    final json = repoDetailDigestToJson(const RepoDetailDigest(repo: _repo, contributors: [], relatedRepos: [], primaryTrend: [1], compareTrend: [0.5], activities: []))..remove('activities');
 
     expect(repoDetailDigestFromJson(json).activities, isEmpty);
   });
 }
 
-const _repo = RepoEntity(
-  fullName: 'owner/repo',
-  description: 'Repository',
-  language: 'Dart',
-  starCount: 10,
-  starDelta: 1,
-  forkCount: 2,
-  accentArgb: 0xFF00A389,
-);
+const _repo = RepoEntity(fullName: 'owner/repo', description: 'Repository', language: 'Dart', starCount: 10, starDelta: 1, forkCount: 2, accentArgb: 0xFF00A389);

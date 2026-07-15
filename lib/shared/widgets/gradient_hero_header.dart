@@ -11,14 +11,7 @@ import '../../core/theme/app_typography.dart';
 *保证所有二级/三级详情页视觉统一。
 */
 class GradientHeroHeader extends StatelessWidget {
-  const GradientHeroHeader({
-    required this.accent,
-    required this.title,
-    this.badges = const [],
-    this.trailing,
-    this.titleStyle,
-    super.key,
-  });
+  const GradientHeroHeader({required this.accent, required this.title, this.badges = const [], this.trailing, this.titleStyle, super.key});
 
   final Color accent;
   final String title;
@@ -31,38 +24,15 @@ class GradientHeroHeader extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            Color.lerp(accent, AppColors.brand, 0.18)!,
-            Color.lerp(accent, Colors.black, 0.46)!,
-          ],
-        ),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color.lerp(accent, AppColors.brand, 0.18)!, Color.lerp(accent, Colors.black, 0.46)!]),
       ),
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (badges.isNotEmpty) ...[
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.xs,
-              children: badges,
-            ),
-            const SizedBox(height: AppSpacing.lg),
-          ],
-          Text(
-            title,
-            style: (titleStyle ?? AppTypography.headlineLarge).copyWith(
-              color: Colors.white,
-              height: 1.25,
-            ),
-          ),
-          if (trailing != null) ...[
-            const SizedBox(height: AppSpacing.lg),
-            trailing!,
-          ],
+          if (badges.isNotEmpty) ...[Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.xs, children: badges), const SizedBox(height: AppSpacing.lg)],
+          Text(title, style: (titleStyle ?? AppTypography.headlineLarge).copyWith(color: Colors.white, height: 1.25)),
+          if (trailing != null) ...[const SizedBox(height: AppSpacing.lg), trailing!]
         ],
       ),
     );
@@ -83,29 +53,13 @@ class HeroBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final tinted = color ?? Colors.white;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs2,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs2),
+      decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.18), border: Border.all(color: Colors.white.withValues(alpha: 0.3)), borderRadius: BorderRadius.circular(AppRadius.pill)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
-            Icon(icon, size: 12, color: tinted),
-            const SizedBox(width: AppSpacing.xs),
-          ],
-          Text(
-            label,
-            style: AppTypography.labelSmall.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          if (icon != null) ...[Icon(icon, size: 12, color: tinted), const SizedBox(width: AppSpacing.xs)],
+          Text(label, style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700))
         ],
       ),
     );

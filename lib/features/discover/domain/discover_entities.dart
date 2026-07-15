@@ -6,13 +6,7 @@ import '../../../core/domain/repo_entity.dart';
  *复用 [RepoEntity] 承载仓库基础信息,附加 skills 生态元数据。
  */
 class SkillEntity {
-  const SkillEntity({
-    required this.repo,
-    required this.category,
-    required this.source,
-    required this.rank,
-    this.summary,
-  });
+  const SkillEntity({required this.repo, required this.category, required this.source, required this.rank, this.summary});
 
   final RepoEntity repo;
 
@@ -34,20 +28,19 @@ enum DiscoverProfileKind { official, people }
  *发现页 GitHub 账号实体:用于官方组织与知名开发者推荐。
  */
 class DiscoverProfileEntity {
-  const DiscoverProfileEntity({
-    required this.login,
-    required this.name,
-    required this.type,
-    required this.bio,
-    required this.publicRepos,
-    required this.followers,
-    required this.avatarUrl,
-    required this.htmlUrl,
-    required this.featuredRepoFullName,
-    required this.kind,
-    this.enriched = true,
-    this.enrichFailed = false,
-  });
+  const DiscoverProfileEntity(
+      {required this.login,
+      required this.name,
+      required this.type,
+      required this.bio,
+      required this.publicRepos,
+      required this.followers,
+      required this.avatarUrl,
+      required this.htmlUrl,
+      required this.featuredRepoFullName,
+      required this.kind,
+      this.enriched = true,
+      this.enrichFailed = false});
 
   final String login;
   final String name;
@@ -66,18 +59,8 @@ class DiscoverProfileEntity {
   // 补全失败标记,避免无限重试。
   final bool enrichFailed;
 
-  DiscoverProfileEntity copyWith({
-    String? bio,
-    int? publicRepos,
-    int? followers,
-    String? name,
-    String? type,
-    String? avatarUrl,
-    String? htmlUrl,
-    String? featuredRepoFullName,
-    bool? enriched,
-    bool? enrichFailed,
-  }) =>
+  DiscoverProfileEntity copyWith(
+          {String? bio, int? publicRepos, int? followers, String? name, String? type, String? avatarUrl, String? htmlUrl, String? featuredRepoFullName, bool? enriched, bool? enrichFailed}) =>
       DiscoverProfileEntity(
         login: login,
         name: name ?? this.name,

@@ -12,27 +12,15 @@ class DiscoverSearchClient {
   final Dio _dio;
   final String? _token;
 
-  Future<List<RepoEntity>> search(
-    String query, {
-    required int page,
-    required int perPage,
-  }) async {
+  Future<List<RepoEntity>> search(String query, {required int page, required int perPage}) async {
     final response = await _dio.get<Map<String, Object?>>(
-      ApiEndpointsConfig.githubSearchRepositoriesUrl(
-        q: query,
-        sort: 'stars',
-        order: 'desc',
-        perPage: perPage,
-        page: page,
-      ),
+      ApiEndpointsConfig.githubSearchRepositoriesUrl(q: query, sort: 'stars', order: 'desc', perPage: perPage, page: page),
       options: Options(headers: GitHubApiSupport.headers(token: _token)),
     );
     final data = response.data;
     if (data == null) {
       throw const AppException(kind: AppExceptionKind.parse);
     }
-    return [
-      for (final raw in GitHubJson.list(data['items'])) DiscoverCacheCodec.repoFromGitHubSearch(GitHubJson.map(raw)),
-    ];
+    return [for (final raw in GitHubJson.list(data['items'])) DiscoverCacheCodec.repoFromGitHubSearch(GitHubJson.map(raw))];
   }
 }

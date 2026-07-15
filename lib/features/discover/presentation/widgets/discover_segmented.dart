@@ -9,12 +9,7 @@ import '../../../../core/theme/app_typography.dart';
  *发现页分段选择器:仓库 / Skills / 官方组织 / 知名人士。
  */
 class DiscoverSegmented extends StatelessWidget {
-  const DiscoverSegmented({
-    required this.value,
-    required this.onChanged,
-    this.compact = false,
-    super.key,
-  });
+  const DiscoverSegmented({required this.value, required this.onChanged, this.compact = false, super.key});
 
   final String value;
   final ValueChanged<String> onChanged;
@@ -24,7 +19,7 @@ class DiscoverSegmented extends StatelessWidget {
     _Seg('repos', 'discover.tab.repos', Icons.local_fire_department_rounded),
     _Seg('skills', 'discover.tab.skills', Icons.extension_rounded),
     _Seg('official', 'discover.tab.official', Icons.verified_rounded),
-    _Seg('people', 'discover.tab.people', Icons.person_search_rounded),
+    _Seg('people', 'discover.tab.people', Icons.person_search_rounded)
   ];
 
   @override
@@ -33,76 +28,48 @@ class DiscoverSegmented extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     if (compact) {
       return Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xl,
-          vertical: AppSpacing.md,
-        ),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              for (final item in _items)
-                ChoiceChip(
-                  selected: value == item.value,
-                  showCheckmark: false,
-                  avatar: Icon(item.icon, size: 16),
-                  label: Text(l10n.tr(item.labelKey)),
-                  onSelected: (_) {
-                    if (value != item.value) {
-                      onChanged(item.value);
-                    }
-                  },
-                ),
-            ],
-          ),
-        ),
-      );
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+          child: Align(
+              alignment: Alignment.centerLeft,
+              child: Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
+                for (final item in _items)
+                  ChoiceChip(
+                      selected: value == item.value,
+                      showCheckmark: false,
+                      avatar: Icon(item.icon, size: 16),
+                      label: Text(l10n.tr(item.labelKey)),
+                      onSelected: (_) {
+                        if (value != item.value) {
+                          onChanged(item.value);
+                        }
+                      })
+              ])));
     }
     return Container(
-      height: 52,
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          bottom: BorderSide(color: colors.outlineVariant),
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.xs,
-      ),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: [
-            for (var i = 0; i < _items.length; i++) ...[
-              if (i > 0) const SizedBox(width: AppSpacing.sm),
-              _SegmentChip(
-                icon: _items[i].icon,
-                label: l10n.tr(_items[i].labelKey),
-                selected: value == _items[i].value,
-                onTap: () {
-                  if (value != _items[i].value) {
-                    onChanged(_items[i].value);
-                  }
-                },
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
+        height: 52,
+        decoration: BoxDecoration(color: colors.surface, border: Border(bottom: BorderSide(color: colors.outlineVariant))),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+        child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(children: [
+              for (var i = 0; i < _items.length; i++) ...[
+                if (i > 0) const SizedBox(width: AppSpacing.sm),
+                _SegmentChip(
+                    icon: _items[i].icon,
+                    label: l10n.tr(_items[i].labelKey),
+                    selected: value == _items[i].value,
+                    onTap: () {
+                      if (value != _items[i].value) {
+                        onChanged(_items[i].value);
+                      }
+                    })
+              ]
+            ])));
   }
 }
 
 class _SegmentChip extends StatelessWidget {
-  const _SegmentChip({
-    required this.icon,
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
+  const _SegmentChip({required this.icon, required this.label, required this.selected, required this.onTap});
 
   final IconData icon;
   final String label;
@@ -119,15 +86,10 @@ class _SegmentChip extends StatelessWidget {
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadius.pill),
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.xs2,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs2),
           decoration: BoxDecoration(
             color: selected ? colors.primary.withValues(alpha: 0.12) : Colors.transparent,
-            border: Border.all(
-              color: selected ? colors.primary.withValues(alpha: 0.42) : colors.outlineVariant,
-            ),
+            border: Border.all(color: selected ? colors.primary.withValues(alpha: 0.42) : colors.outlineVariant),
             borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           child: Row(
@@ -135,13 +97,7 @@ class _SegmentChip extends StatelessWidget {
             children: [
               Icon(icon, size: 14, color: fg),
               const SizedBox(width: AppSpacing.xs2),
-              Text(
-                label,
-                style: AppTypography.labelMedium.copyWith(
-                  color: fg,
-                  fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-                ),
-              ),
+              Text(label, style: AppTypography.labelMedium.copyWith(color: fg, fontWeight: selected ? FontWeight.w700 : FontWeight.w600))
             ],
           ),
         ),

@@ -6,11 +6,7 @@ import 'entities.dart';
 *监控模块需要的本地情报数据。
 */
 class MonitorDigest {
-  const MonitorDigest({
-    required this.monitoredRepos,
-    required this.alerts,
-    required this.stats,
-  });
+  const MonitorDigest({required this.monitoredRepos, required this.alerts, required this.stats});
 
   final List<RepoEntity> monitoredRepos;
   final List<AlertEntity> alerts;

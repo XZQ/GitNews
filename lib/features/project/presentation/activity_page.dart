@@ -24,17 +24,8 @@ class ActivityPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(projectDigestProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('project.activity.title')),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/project'),
-        ),
-      ),
-      body: ResponsiveLayout(
-        compact: (_) => _Body(state: state),
-        medium: (_) => CenteredContent(child: _Body(state: state)),
-        expanded: (_) => CenteredContent(child: _Body(state: state)),
-      ),
+      appBar: AppBar(title: Text(l10n.tr('project.activity.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/project'))),
+      body: ResponsiveLayout(compact: (_) => _Body(state: state), medium: (_) => CenteredContent(child: _Body(state: state)), expanded: (_) => CenteredContent(child: _Body(state: state))),
     );
   }
 }
@@ -48,17 +39,9 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return state.when(
-      data: (digest) => digest.isEmpty
-          ? EmptyView(
-              icon: Icons.history_toggle_off_rounded,
-              message: l10n.tr('project.activity.empty'),
-            )
-          : _DigestView(digest: digest),
+      data: (digest) => digest.isEmpty ? EmptyView(icon: Icons.history_toggle_off_rounded, message: l10n.tr('project.activity.empty')) : _DigestView(digest: digest),
       loading: () => const ProjectPageSkeleton(blocks: [320, 220]),
-      error: (error, stack) => ErrorView(
-        error: error.asAppException(stack),
-        onRetry: () => ref.invalidate(projectDigestProvider),
-      ),
+      error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(projectDigestProvider)),
     );
   }
 }
@@ -71,17 +54,8 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
-      children: [
-        ActivityEventsCard(activities: digest.activities),
-        const SizedBox(height: AppSpacing.lg),
-        ActivityContributorsCard(contributors: digest.contributors),
-      ],
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      children: [ActivityEventsCard(activities: digest.activities), const SizedBox(height: AppSpacing.lg), ActivityContributorsCard(contributors: digest.contributors)],
     );
   }
 }

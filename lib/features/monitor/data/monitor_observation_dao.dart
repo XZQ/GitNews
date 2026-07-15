@@ -30,26 +30,17 @@ class MonitorObservationDao {
 
   Future<void> record(MonitorObservation observation) async {
     final points = await read(observation.repoFullName);
-    final byDay = {
-      for (final point in points) point.localDayKey: point,
-      observation.localDayKey: observation,
-    };
+    final byDay = {for (final point in points) point.localDayKey: point, observation.localDayKey: observation};
     final sorted = byDay.values.toList()..sort((a, b) => a.observedAt.compareTo(b.observedAt));
     final bounded = sorted.length <= monitorObservationMaxPoints ? sorted : sorted.sublist(sorted.length - monitorObservationMaxPoints);
     await _cache.upsert(
       key: _cacheKey(observation.repoFullName),
-      payload: {
-        'repoFullName': observation.repoFullName,
-        'points': bounded.map(_toJson).toList(growable: false),
-      },
+      payload: {'repoFullName': observation.repoFullName, 'points': bounded.map(_toJson).toList(growable: false)},
       now: observation.observedAt,
     );
   }
 
-  Future<MonitorObservation?> latestBefore({
-    required String repoFullName,
-    required DateTime observedAt,
-  }) async {
+  Future<MonitorObservation?> latestBefore({required String repoFullName, required DateTime observedAt}) async {
     final targetDay = _localDayKey(observedAt);
     final points = await read(repoFullName);
     for (final point in points.reversed) {
@@ -70,7 +61,7 @@ class MonitorObservationDao {
       'stars': observation.stars,
       'forks': observation.forks,
       'openIssues': observation.openIssues,
-      'observedAt': observation.observedAt.toUtc().toIso8601String(),
+      'observedAt': observation.observedAt.toUtc().toIso8601String()
     };
   }
 
@@ -81,9 +72,7 @@ class MonitorObservationDao {
       stars: GitHubJson.intValue(json['stars']),
       forks: GitHubJson.intValue(json['forks']),
       openIssues: GitHubJson.intValue(json['openIssues']),
-      observedAt: DateTime.parse(
-        GitHubJson.string(json['observedAt']),
-      ).toLocal(),
+      observedAt: DateTime.parse(GitHubJson.string(json['observedAt'])).toLocal(),
     );
   }
 

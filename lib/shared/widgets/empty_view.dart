@@ -4,12 +4,7 @@ import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
 class EmptyView extends StatelessWidget {
-  const EmptyView({
-    required this.icon,
-    required this.message,
-    this.action,
-    super.key,
-  });
+  const EmptyView({required this.icon, required this.message, this.action, super.key});
 
   final IconData icon;
   final String message;
@@ -23,17 +18,10 @@ class EmptyView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: AppSpacing.xxxl,
-              color: Theme.of(context).colorScheme.outline,
-            ),
+            Icon(icon, size: AppSpacing.xxxl, color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: AppSpacing.md),
             Text(message, style: AppTypography.bodyMedium),
-            if (action != null) ...[
-              const SizedBox(height: AppSpacing.lg),
-              action!,
-            ],
+            if (action != null) ...[const SizedBox(height: AppSpacing.lg), action!]
           ],
         ),
       ),

@@ -24,16 +24,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('zh', 'CN'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: DiscoverProfileRow(profile: _profile(enriched: false)),
-        ),
+        home: Scaffold(body: DiscoverProfileRow(profile: _profile(enriched: false))),
       ),
     );
     await tester.pumpAndSettle();
@@ -44,16 +37,9 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('zh', 'CN'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: DiscoverProfileRow(profile: _profile(enriched: true)),
-        ),
+        home: Scaffold(body: DiscoverProfileRow(profile: _profile(enriched: true))),
       ),
     );
     await tester.pumpAndSettle();

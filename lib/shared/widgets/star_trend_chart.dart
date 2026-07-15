@@ -8,13 +8,7 @@ import '../../core/theme/app_typography.dart';
 *折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。
 */
 class StarTrendChart extends StatelessWidget {
-  const StarTrendChart({
-    required this.series,
-    this.height = 180,
-    this.showArea = true,
-    this.xLabels,
-    super.key,
-  });
+  const StarTrendChart({required this.series, this.height = 180, this.showArea = true, this.xLabels, super.key});
 
   // 每条系列的颜色 + 数据点。
   final List<ChartSeries> series;
@@ -35,93 +29,55 @@ class StarTrendChart extends StatelessWidget {
     final maxY = (allValues.reduce((a, b) => a > b ? a : b)) + 50;
 
     return SizedBox(
-      height: height,
-      child: LineChart(
-        LineChartData(
-          minY: minY,
-          maxY: maxY,
-          minX: 0,
-          maxX: (series.first.values.length - 1).toDouble(),
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: (maxY - minY) / 4,
-            getDrawingHorizontalLine: (_) => FlLine(
-              color: colors.outlineVariant.withValues(alpha: 0.35),
-              strokeWidth: 1,
-              dashArray: [4, 4],
+        height: height,
+        child: LineChart(LineChartData(
+            minY: minY,
+            maxY: maxY,
+            minX: 0,
+            maxX: (series.first.values.length - 1).toDouble(),
+            gridData: FlGridData(
+              show: true,
+              drawVerticalLine: false,
+              horizontalInterval: (maxY - minY) / 4,
+              getDrawingHorizontalLine: (_) => FlLine(color: colors.outlineVariant.withValues(alpha: 0.35), strokeWidth: 1, dashArray: [4, 4]),
             ),
-          ),
-          borderData: FlBorderData(show: false),
-          titlesData: FlTitlesData(
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 36,
-                getTitlesWidget: (value, _) => Text(
-                  _shortNumber(value),
-                  style: AppTypography.labelSmall.copyWith(
-                    color: colors.onSurfaceVariant,
+            borderData: FlBorderData(show: false),
+            titlesData: FlTitlesData(
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 36,
+                    getTitlesWidget: (value, _) => Text(_shortNumber(value), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
                   ),
                 ),
-              ),
-            ),
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 22,
-                interval: (series.first.values.length / 5).clamp(1, 30),
-                getTitlesWidget: (value, _) {
-                  final i = value.toInt();
-                  final label = (xLabels != null && i < xLabels!.length) ? xLabels![i] : '${i}d';
-                  return Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.xs2),
-                    child: Text(
-                      label,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-          lineTouchData: const LineTouchData(enabled: false),
-          lineBarsData: [
-            for (final s in series)
-              LineChartBarData(
-                spots: [
-                  for (var i = 0; i < s.values.length; i++) FlSpot(i.toDouble(), s.values[i]),
-                ],
-                isCurved: true,
-                curveSmoothness: 0.25,
-                color: s.color,
-                barWidth: 2.2,
-                isStrokeCapRound: true,
-                dotData: const FlDotData(show: false),
-                belowBarData: BarAreaData(
-                  show: showArea,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      s.color.withValues(alpha: 0.35),
-                      s.color.withValues(alpha: 0.0),
-                    ],
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
+                bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 22,
+                        interval: (series.first.values.length / 5).clamp(1, 30),
+                        getTitlesWidget: (value, _) {
+                          final i = value.toInt();
+                          final label = (xLabels != null && i < xLabels!.length) ? xLabels![i] : '${i}d';
+                          return Padding(padding: const EdgeInsets.only(top: AppSpacing.xs2), child: Text(label, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)));
+                        }))),
+            lineTouchData: const LineTouchData(enabled: false),
+            lineBarsData: [
+              for (final s in series)
+                LineChartBarData(
+                    spots: [for (var i = 0; i < s.values.length; i++) FlSpot(i.toDouble(), s.values[i])],
+                    isCurved: true,
+                    curveSmoothness: 0.25,
+                    color: s.color,
+                    barWidth: 2.2,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: showArea,
+                      gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [s.color.withValues(alpha: 0.35), s.color.withValues(alpha: 0.0)]),
+                    ))
+            ])));
   }
 
   String _shortNumber(double v) {
@@ -164,17 +120,10 @@ class MiniBars extends StatelessWidget {
                 child: FractionallySizedBox(
                   heightFactor: (v / maxV).clamp(0.05, 1.0),
                   widthFactor: 1,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.6),
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(2),
-                      ),
-                    ),
-                  ),
+                  child: Container(decoration: BoxDecoration(color: color.withValues(alpha: 0.6), borderRadius: const BorderRadius.vertical(top: Radius.circular(2)))),
                 ),
               ),
-            ),
+            )
         ],
       ),
     );
@@ -185,13 +134,7 @@ class MiniBars extends StatelessWidget {
 *极简面积趋势(行内用,无坐标轴)。
 */
 class Sparkline extends StatelessWidget {
-  const Sparkline({
-    required this.values,
-    this.color,
-    this.width = 64,
-    this.height = 20,
-    super.key,
-  });
+  const Sparkline({required this.values, this.color, this.width = 64, this.height = 20, super.key});
 
   final List<double> values;
   final Color? color;
@@ -204,10 +147,7 @@ class Sparkline extends StatelessWidget {
     if (values.isEmpty) {
       return SizedBox(width: width, height: height);
     }
-    return CustomPaint(
-      size: Size(width, height),
-      painter: _SparklinePainter(values: values, color: resolved),
-    );
+    return CustomPaint(size: Size(width, height), painter: _SparklinePainter(values: values, color: resolved));
   }
 }
 

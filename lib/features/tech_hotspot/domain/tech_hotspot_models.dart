@@ -6,30 +6,13 @@ import '../../../core/domain/data_freshness.dart';
 /* 
 *AI/技术栈分类:用于 [TechHotspotPage] 的趋势筛选。
 */
-enum TechStack {
-  all,
-  ai,
-  frontend,
-  backend,
-  cloud,
-  data,
-  mobile,
-  rust,
-  security,
-}
+enum TechStack { all, ai, frontend, backend, cloud, data, mobile, rust, security }
 
 /* 
 *编程语言排行条目。
 */
 class LanguageStat {
-  const LanguageStat({
-    required this.name,
-    required this.percent,
-    required this.delta,
-    required this.color,
-    required this.repoCount,
-    this.basis = MetricBasis.seed,
-  });
+  const LanguageStat({required this.name, required this.percent, required this.delta, required this.color, required this.repoCount, this.basis = MetricBasis.seed});
 
   final String name;
   final double percent;
@@ -43,18 +26,17 @@ class LanguageStat {
 *AI 雷达主题(雷达型卡片)。
 */
 class TechTopic {
-  const TechTopic({
-    required this.id,
-    required this.name,
-    required this.category,
-    required this.heat,
-    required this.growth,
-    required this.mentions,
-    required this.relatedRepos,
-    required this.summary,
-    this.valueBasis = MetricBasis.seed,
-    this.growthBasis = MetricBasis.seed,
-  });
+  const TechTopic(
+      {required this.id,
+      required this.name,
+      required this.category,
+      required this.heat,
+      required this.growth,
+      required this.mentions,
+      required this.relatedRepos,
+      required this.summary,
+      this.valueBasis = MetricBasis.seed,
+      this.growthBasis = MetricBasis.seed});
 
   final String id;
   final String name;
@@ -90,12 +72,7 @@ class TechHeatPoint {
 *AI 雷达页需要的一组本地情报数据。
 */
 class TechHotspotDigest {
-  const TechHotspotDigest({
-    required this.languages,
-    required this.topics,
-    required this.heatTrend,
-    required this.hotTags,
-  });
+  const TechHotspotDigest({required this.languages, required this.topics, required this.heatTrend, required this.hotTags});
 
   final List<LanguageStat> languages;
   final List<TechTopic> topics;

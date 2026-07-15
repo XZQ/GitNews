@@ -20,11 +20,7 @@ const double kSidebarMaxWidth = 800;
 *- 底部:头像 + 设置 图标按钮
 */
 class AppSidebar extends ConsumerWidget {
-  const AppSidebar({
-    required this.currentIndex,
-    required this.onTap,
-    super.key,
-  });
+  const AppSidebar({required this.currentIndex, required this.onTap, super.key});
 
   final int currentIndex;
   final ValueChanged<int> onTap;
@@ -34,40 +30,19 @@ class AppSidebar extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final width = ref.watch(sidebarWidthProvider);
     return FocusTraversalGroup(
-      child: Material(
-        color: colors.surface,
-        child: SizedBox(
-          width: width,
-          child: Column(
-            children: [
-              const SidebarHeader(),
-              const SizedBox(height: AppSpacing.md),
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  children: [
-                    for (var i = 0; i < appTabs.length; i++)
-                      SidebarItem(
-                        tab: appTabs[i],
-                        selected: i == currentIndex,
-                        onTap: () => onTap(i),
-                      ),
-                  ],
-                ),
-              ),
-              Divider(
-                height: 1,
-                thickness: 0.5,
-                color: colors.outlineVariant.withValues(alpha: 0.35),
-              ),
-              const SidebarFooter(),
-            ],
-          ),
-        ),
-      ),
-    );
+        child: Material(
+            color: colors.surface,
+            child: SizedBox(
+                width: width,
+                child: Column(children: [
+                  const SidebarHeader(),
+                  const SizedBox(height: AppSpacing.md),
+                  Expanded(
+                      child: ListView(
+                          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                          children: [for (var i = 0; i < appTabs.length; i++) SidebarItem(tab: appTabs[i], selected: i == currentIndex, onTap: () => onTap(i))])),
+                  Divider(height: 1, thickness: 0.5, color: colors.outlineVariant.withValues(alpha: 0.35)),
+                  const SidebarFooter()
+                ]))));
   }
 }

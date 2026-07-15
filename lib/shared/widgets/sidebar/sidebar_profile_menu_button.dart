@@ -23,14 +23,7 @@ class SidebarProfileMenuButton extends ConsumerWidget {
         child: InkWell(
           onTap: () => _showMenu(context, ref),
           borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.sm2),
-            child: Icon(
-              Icons.more_horiz_rounded,
-              size: 18,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
+          child: Padding(padding: const EdgeInsets.all(AppSpacing.sm2), child: Icon(Icons.more_horiz_rounded, size: 18, color: colors.onSurfaceVariant)),
         ),
       ),
     );
@@ -40,58 +33,29 @@ class SidebarProfileMenuButton extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     showMenu<void>(
-      context: context,
-      position: const RelativeRect.fromLTRB(0, 0, 0, 0),
-      color: colors.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppRadius.md),
-        side: BorderSide(color: colors.outlineVariant),
-      ),
-      items: [
-        PopupMenuItem<void>(
-          child: Row(
-            children: [
-              Icon(
-                Icons.settings_outlined,
-                size: 18,
-                color: colors.onSurfaceVariant,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Text(l10n.tr('common.settings')),
-            ],
+        context: context,
+        position: const RelativeRect.fromLTRB(0, 0, 0, 0),
+        color: colors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md), side: BorderSide(color: colors.outlineVariant)),
+        items: [
+          PopupMenuItem<void>(
+            child: Row(children: [Icon(Icons.settings_outlined, size: 18, color: colors.onSurfaceVariant), const SizedBox(width: AppSpacing.md), Text(l10n.tr('common.settings'))]),
+            onTap: () => context.go('/profile'),
           ),
-          onTap: () => context.go('/profile'),
-        ),
-        PopupMenuItem<void>(
-          child: Row(
-            children: [
-              const Icon(
-                Icons.logout_rounded,
-                size: 18,
-                color: AppColors.danger,
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Text(l10n.tr('profile.logout')),
-            ],
-          ),
-          onTap: () async {
-            final session = ref.read(profileSessionControllerProvider);
-            if (!session.isSignedIn) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.tr('profile.anonymous_hint'))),
-              );
-              return;
-            }
-            await ref.read(profileSessionControllerProvider.notifier).signOut();
-            if (!context.mounted) {
-              return;
-            }
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(l10n.tr('profile.logout'))));
-          },
-        ),
-      ],
-    );
+          PopupMenuItem<void>(
+              child: Row(children: [const Icon(Icons.logout_rounded, size: 18, color: AppColors.danger), const SizedBox(width: AppSpacing.md), Text(l10n.tr('profile.logout'))]),
+              onTap: () async {
+                final session = ref.read(profileSessionControllerProvider);
+                if (!session.isSignedIn) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.anonymous_hint'))));
+                  return;
+                }
+                await ref.read(profileSessionControllerProvider.notifier).signOut();
+                if (!context.mounted) {
+                  return;
+                }
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.logout'))));
+              })
+        ]);
   }
 }

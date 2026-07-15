@@ -18,59 +18,26 @@ class ProjectPopularRepos extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return AppCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
+        padding: EdgeInsets.zero,
+        child: Column(children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
-            child: SectionHeader(
-              title: l10n.tr('project.section.popular.title'),
-              subtitle: l10n.tr('project.section.popular.subtitle'),
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            child: SectionHeader(title: l10n.tr('project.section.popular.title'), subtitle: l10n.tr('project.section.popular.subtitle')),
           ),
           if (repos.isEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.lg,
-              ),
-              child: EmptyView(
-                icon: Icons.search_off_rounded,
-                message: l10n.tr('project.repos.popular_empty'),
-              ),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+              child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('project.repos.popular_empty')),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.xs,
-              AppSpacing.md,
-              AppSpacing.md,
-            ),
-            child: Column(
-              children: [
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
+              child: Column(children: [
                 for (var i = 0; i < repos.length; i++) ...[
                   if (i != 0) const SizedBox(height: AppSpacing.sm),
-                  RepoTile(
-                    repo: repos[i],
-                    rank: i + 1,
-                    onTap: () => context.go(
-                      '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+                  RepoTile(repo: repos[i], rank: i + 1, onTap: () => context.go('/project/detail/${Uri.encodeComponent(repos[i].fullName)}'))
+                ]
+              ]))
+        ]));
   }
 }
 
@@ -83,57 +50,25 @@ class ProjectRecentlyUpdated extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return AppCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
+        padding: EdgeInsets.zero,
+        child: Column(children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
-            child: SectionHeader(
-              title: l10n.tr('project.section.recent.title'),
-              subtitle: l10n.tr('project.section.recent.subtitle'),
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            child: SectionHeader(title: l10n.tr('project.section.recent.title'), subtitle: l10n.tr('project.section.recent.subtitle')),
           ),
           if (repos.isEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.lg,
-              ),
-              child: EmptyView(
-                icon: Icons.search_off_rounded,
-                message: l10n.tr('project.repos.active_empty'),
-              ),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+              child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('project.repos.active_empty')),
             ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.md,
-              AppSpacing.xs,
-              AppSpacing.md,
-              AppSpacing.md,
-            ),
-            child: Column(
-              children: [
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
+              child: Column(children: [
                 for (var i = 0; i < repos.length; i++) ...[
                   if (i != 0) const SizedBox(height: AppSpacing.sm),
-                  RepoTile(
-                    repo: repos[i],
-                    onTap: () => context.go(
-                      '/project/detail/${Uri.encodeComponent(repos[i].fullName)}',
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+                  RepoTile(repo: repos[i], onTap: () => context.go('/project/detail/${Uri.encodeComponent(repos[i].fullName)}'))
+                ]
+              ]))
+        ]));
   }
 }

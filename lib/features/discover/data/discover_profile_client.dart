@@ -9,15 +9,8 @@ class DiscoverProfileClient {
 
   final GitHubResourceCache _resources;
 
-  Future<DataResult<DiscoverProfileEntity>> fetch(
-    String login,
-    DiscoverProfileKind kind,
-  ) async {
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.githubPublicUserPath(login),
-    );
-    return result.map(
-      (data) => DiscoverCacheCodec.profileFromJson(data, kind),
-    );
+  Future<DataResult<DiscoverProfileEntity>> fetch(String login, DiscoverProfileKind kind) async {
+    final result = await _resources.getObject(url: ApiEndpointsConfig.githubPublicUserPath(login));
+    return result.map((data) => DiscoverCacheCodec.profileFromJson(data, kind));
   }
 }

@@ -4,12 +4,7 @@ import 'package:github_news/features/ai_news/data/ai_news_feed_parser.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 
 void main() {
-  const source = AiNewsSourceConfig(
-    id: 'test_src',
-    name: 'Test Source',
-    feedUrl: 'https://example.com/feed.xml',
-    categoryCode: 'paper',
-  );
+  const source = AiNewsSourceConfig(id: 'test_src', name: 'Test Source', feedUrl: 'https://example.com/feed.xml', categoryCode: 'paper');
   final fallback = DateTime.utc(2026, 7, 14, 12);
 
   group('parseAiNewsFeed / RSS 2.0', () {
@@ -89,25 +84,16 @@ void main() {
 
   group('parseRfc822Date', () {
     test('parses numeric offset', () {
-      expect(
-        parseRfc822Date('Sat, 18 Apr 2026 00:00:00 -0400'),
-        DateTime.utc(2026, 4, 18, 4),
-      );
+      expect(parseRfc822Date('Sat, 18 Apr 2026 00:00:00 -0400'), DateTime.utc(2026, 4, 18, 4));
     });
 
     test('treats GMT as UTC and returns null on garbage', () {
-      expect(
-        parseRfc822Date('Mon, 13 Jul 2026 08:00:00 GMT'),
-        DateTime.utc(2026, 7, 13, 8),
-      );
+      expect(parseRfc822Date('Mon, 13 Jul 2026 08:00:00 GMT'), DateTime.utc(2026, 7, 13, 8));
       expect(parseRfc822Date('not a date'), isNull);
     });
   });
 
   test('invalid xml throws AppException(parse)', () {
-    expect(
-      () => parseAiNewsFeed('<not-xml', source: source, fallbackTime: fallback),
-      throwsA(isA<Exception>()),
-    );
+    expect(() => parseAiNewsFeed('<not-xml', source: source, fallbackTime: fallback), throwsA(isA<Exception>()));
   });
 }

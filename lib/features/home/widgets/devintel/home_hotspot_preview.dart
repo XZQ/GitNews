@@ -18,10 +18,7 @@ class HomeHotspotPreview extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(techHotspotDigestProvider);
-    final items = state.maybeWhen(
-      data: (digest) => digest.topics.take(4).toList(),
-      orElse: () => const <TechTopic>[],
-    );
+    final items = state.maybeWhen(data: (digest) => digest.topics.take(4).toList(), orElse: () => const <TechTopic>[]);
     return HomeSectionPreviewCard<TechTopic>(
       title: l10n.tr('home.section.hotspot.title'),
       subtitle: l10n.tr('home.section.hotspot.subtitle'),

@@ -93,6 +93,44 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
   over the one-line `if (x) { return y; }`. This matches `dart format`'s
   default line-break style and keeps diffs reviewer-friendly.
 
+## 2b. Line Width And Trailing Commas
+
+- `analysis_options.yaml` sets `formatter: page_width: 200`. Run
+  `rtk dart format .` before commit; do not override the page width in IDE
+  or editor config.
+- Short function calls, declarations, list/map/set literals, and
+  constructor invocations MUST fit on a single line when the full line
+  (including indentation) is under 200 chars. Do not wrap them across
+  multiple lines for "readability" — density is the project aesthetic.
+- Do NOT add a trailing comma to a construct that fits on one line. A
+  trailing comma forces `dart format` to expand the construct to
+  multi-line, defeating the single-line preference. The
+  `require_trailing_commas` lint is disabled for this reason.
+- For constructs that genuinely exceed 200 chars on one line, write them
+  across multiple lines WITH a trailing comma before the closing bracket
+  so `dart format` uses 2-space block indent and puts the closing
+  bracket on its own line:
+  ```
+  return RepoActivityEvent(
+    repoFullName: repoFullName,
+    type: parsed.type,
+    basis: MetricBasis.observed,
+  );
+  ```
+  Avoid the trailing-comma-less multi-line form, which makes `dart format`
+  use 4-space continuation indent and glues the closing bracket to the
+  last argument:
+  ```
+  // AVOID — dart format produces this when the trailing comma is missing:
+  return RepoActivityEvent(
+      repoFullName: repoFullName,
+      type: parsed.type,
+      basis: MetricBasis.observed);
+  ```
+- When adding a new argument to a multi-line construct, you may need to
+  add a comma to the previously-last argument. This is the accepted
+  trade-off for keeping short code on one line.
+
 ## 3. Types And Immutability
 
 - Declare return types, parameter types, and field types explicitly.

@@ -8,9 +8,7 @@ import 'package:github_news/features/monitor/widgets/monitor_settings_cards.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  testWidgets('notification card renders only the supported in-app switch', (
-    tester,
-  ) async {
+  testWidgets('notification card renders only the supported in-app switch', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
 
@@ -19,12 +17,7 @@ void main() {
         overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
         child: const MaterialApp(
           locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(body: MonitorNotificationCard()),
         ),

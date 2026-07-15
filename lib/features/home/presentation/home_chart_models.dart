@@ -55,14 +55,7 @@ enum HomeLegacyTab {
 }
 
 class HomeMetricSpec {
-  const HomeMetricSpec({
-    required this.title,
-    required this.value,
-    required this.delta,
-    required this.subtitle,
-    required this.icon,
-    this.accent,
-  });
+  const HomeMetricSpec({required this.title, required this.value, required this.delta, required this.subtitle, required this.icon, this.accent});
   final String title;
   final String value;
   final String delta;
@@ -90,11 +83,7 @@ String homeChartTitle(AppLocalizations l10n, HomeLegacyTab tab) {
   }
 }
 
-String homeChartSubtitle(
-  AppLocalizations l10n,
-  HomeLegacyTab tab,
-  String window,
-) {
+String homeChartSubtitle(AppLocalizations l10n, HomeLegacyTab tab, String window) {
   switch (tab) {
     case HomeLegacyTab.trending:
       return l10n.tr('home.chart.subtitle.trending').replaceAll('{window}', window);
@@ -107,76 +96,24 @@ String homeChartSubtitle(
   }
 }
 
-List<HomeLegendItem> homeChartLegends(
-  AppLocalizations l10n,
-  HomeLegacyTab tab,
-  Color primary,
-) {
+List<HomeLegendItem> homeChartLegends(AppLocalizations l10n, HomeLegacyTab tab, Color primary) {
   switch (tab) {
     case HomeLegacyTab.trending:
-      return [
-        HomeLegendItem(
-          color: primary,
-          label: l10n.tr('home.chart.legend.this_week'),
-        ),
-        HomeLegendItem(
-          color: AppColors.info,
-          label: l10n.tr('home.chart.legend.last_week'),
-        ),
-      ];
+      return [HomeLegendItem(color: primary, label: l10n.tr('home.chart.legend.this_week')), HomeLegendItem(color: AppColors.info, label: l10n.tr('home.chart.legend.last_week'))];
     case HomeLegacyTab.growth:
-      return [
-        HomeLegendItem(
-          color: AppColors.success,
-          label: l10n.tr('home.chart.legend.growth_rate'),
-        ),
-        HomeLegendItem(
-          color: AppColors.warning,
-          label: l10n.tr('home.chart.legend.baseline'),
-        ),
-      ];
+      return [HomeLegendItem(color: AppColors.success, label: l10n.tr('home.chart.legend.growth_rate')), HomeLegendItem(color: AppColors.warning, label: l10n.tr('home.chart.legend.baseline'))];
     case HomeLegacyTab.health:
-      return [
-        HomeLegendItem(
-          color: primary,
-          label: l10n.tr('home.chart.legend.commits'),
-        ),
-        HomeLegendItem(
-          color: AppColors.success,
-          label: l10n.tr('home.chart.legend.contributors'),
-        ),
-      ];
+      return [HomeLegendItem(color: primary, label: l10n.tr('home.chart.legend.commits')), HomeLegendItem(color: AppColors.success, label: l10n.tr('home.chart.legend.contributors'))];
     case HomeLegacyTab.starred:
-      return [
-        HomeLegendItem(
-          color: AppColors.starGold,
-          label: l10n.tr('home.chart.legend.starred'),
-        ),
-        HomeLegendItem(
-          color: AppColors.info,
-          label: l10n.tr('home.chart.legend.avg'),
-        ),
-      ];
+      return [HomeLegendItem(color: AppColors.starGold, label: l10n.tr('home.chart.legend.starred')), HomeLegendItem(color: AppColors.info, label: l10n.tr('home.chart.legend.avg'))];
   }
 }
 
-List<ChartSeries> homeSeriesForWindow(
-  int days,
-  HomeLegacyTab tab,
-  Color primary, {
-  List<double>? primaryTrend,
-  List<double>? secondaryTrend,
-}) {
+List<ChartSeries> homeSeriesForWindow(int days, HomeLegacyTab tab, Color primary, {List<double>? primaryTrend, List<double>? secondaryTrend}) {
   final dynamicPrimary = _windowedTrend(primaryTrend, days);
   final dynamicSecondary = _windowedTrend(secondaryTrend, days);
   if (tab == HomeLegacyTab.trending && dynamicPrimary.isNotEmpty) {
-    return [
-      ChartSeries(values: dynamicPrimary, color: primary),
-      ChartSeries(
-        values: dynamicSecondary.isEmpty ? dynamicPrimary : dynamicSecondary,
-        color: AppColors.info,
-      ),
-    ];
+    return [ChartSeries(values: dynamicPrimary, color: primary), ChartSeries(values: dynamicSecondary.isEmpty ? dynamicPrimary : dynamicSecondary, color: AppColors.info)];
   }
 
   final baseA = 38000 + days * 110;
@@ -186,47 +123,23 @@ List<ChartSeries> homeSeriesForWindow(
   switch (tab) {
     case HomeLegacyTab.trending:
       return [
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseA, deltaA, count: days),
-          color: primary,
-        ),
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseB, deltaB, count: days),
-          color: AppColors.info,
-        ),
+        ChartSeries(values: DemoData.generateStarTrend(baseA, deltaA, count: days), color: primary),
+        ChartSeries(values: DemoData.generateStarTrend(baseB, deltaB, count: days), color: AppColors.info)
       ];
     case HomeLegacyTab.growth:
       return [
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseA, deltaA ~/ 2, count: days),
-          color: AppColors.success,
-        ),
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseB, deltaB, count: days),
-          color: AppColors.warning,
-        ),
+        ChartSeries(values: DemoData.generateStarTrend(baseA, deltaA ~/ 2, count: days), color: AppColors.success),
+        ChartSeries(values: DemoData.generateStarTrend(baseB, deltaB, count: days), color: AppColors.warning)
       ];
     case HomeLegacyTab.health:
       return [
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseA, deltaA, count: days),
-          color: primary,
-        ),
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseB, deltaB ~/ 2, count: days),
-          color: AppColors.success,
-        ),
+        ChartSeries(values: DemoData.generateStarTrend(baseA, deltaA, count: days), color: primary),
+        ChartSeries(values: DemoData.generateStarTrend(baseB, deltaB ~/ 2, count: days), color: AppColors.success)
       ];
     case HomeLegacyTab.starred:
       return [
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseA + 8000, deltaA, count: days),
-          color: AppColors.starGold,
-        ),
-        ChartSeries(
-          values: DemoData.generateStarTrend(baseB + 6000, deltaB, count: days),
-          color: AppColors.info,
-        ),
+        ChartSeries(values: DemoData.generateStarTrend(baseA + 8000, deltaA, count: days), color: AppColors.starGold),
+        ChartSeries(values: DemoData.generateStarTrend(baseB + 6000, deltaB, count: days), color: AppColors.info)
       ];
   }
 }

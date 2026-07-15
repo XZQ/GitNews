@@ -18,21 +18,12 @@ import 'ai_news_providers.dart';
 *- 失败明确报错,不伪造摘要
 */
 
-final aiDigestDioProvider = Provider<Dio>(
-  (ref) => DioClient.create(
-    baseUrl: ApiEndpointsConfig.aiDigestDefaultBaseUrl,
-    headers: const {'Accept': 'application/json'},
-  ),
-);
+final aiDigestDioProvider = Provider<Dio>((ref) => DioClient.create(baseUrl: ApiEndpointsConfig.aiDigestDefaultBaseUrl, headers: const {'Accept': 'application/json'}));
 
-final aiDigestLlmClientProvider = Provider<AiDigestLlmClient>(
-  (ref) => AiDigestLlmClient(ref.watch(aiDigestDioProvider)),
-);
+final aiDigestLlmClientProvider = Provider<AiDigestLlmClient>((ref) => AiDigestLlmClient(ref.watch(aiDigestDioProvider)));
 
 // 今日日报文本;null = 尚未生成。
-final aiDigestNotifierProvider = AsyncNotifierProvider<AiDigestNotifier, String?>(
-  AiDigestNotifier.new,
-);
+final aiDigestNotifierProvider = AsyncNotifierProvider<AiDigestNotifier, String?>(AiDigestNotifier.new);
 
 class AiDigestNotifier extends AsyncNotifier<String?> {
   static const int _maxItems = 30;
@@ -63,13 +54,9 @@ class AiDigestNotifier extends AsyncNotifier<String?> {
     state = const AsyncLoading();
     try {
       final items = await _todayItems(now);
-      final text = await ref.read(aiDigestLlmClientProvider).complete(
-            baseUrl: config.baseUrl,
-            apiKey: config.apiKey!,
-            model: config.model,
-            systemPrompt: _systemPrompt,
-            userPrompt: _buildUserPrompt(items, now),
-          );
+      final text = await ref
+          .read(aiDigestLlmClientProvider)
+          .complete(baseUrl: config.baseUrl, apiKey: config.apiKey!, model: config.model, systemPrompt: _systemPrompt, userPrompt: _buildUserPrompt(items, now));
       await prefs.setString(_cacheKey(now), text);
       state = AsyncData(text);
     } catch (e, st) {
@@ -82,7 +69,7 @@ class AiDigestNotifier extends AsyncNotifier<String?> {
     final today = DateTime(now.year, now.month, now.day);
     final items = [
       for (final item in all)
-        if (!item.publishedAt.toLocal().isBefore(today)) item,
+        if (!item.publishedAt.toLocal().isBefore(today)) item
     ];
     // 今天还没有条目时(如清晨),退回最近条目,日报仍然可用。
     final picked = items.isNotEmpty ? items : all;

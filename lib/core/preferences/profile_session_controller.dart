@@ -49,6 +49,4 @@ class ProfileSessionController extends Notifier<ProfileSessionState> {
   }
 }
 
-final profileSessionControllerProvider = NotifierProvider<ProfileSessionController, ProfileSessionState>(
-  ProfileSessionController.new,
-);
+final profileSessionControllerProvider = NotifierProvider<ProfileSessionController, ProfileSessionState>(ProfileSessionController.new);

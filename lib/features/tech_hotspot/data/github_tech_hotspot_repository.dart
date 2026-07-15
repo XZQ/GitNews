@@ -22,16 +22,16 @@ const Duration techHotspotRemoteCacheTtl = CacheTtlConfig.techHotspot;
 *基于 GitHub Search 的 AI 雷达远端仓库。
 */
 class GithubTechHotspotRepository implements TechHotspotRepository {
-  const GithubTechHotspotRepository({
-    required Dio dio,
-    required JsonSnapshotCacheDao cache,
-    String? token,
-    DateTime Function()? now,
-    TechHotspotHistoryDao? history,
-    TechHotspotRepository fallback = const LocalTechHotspotRepository(),
-    bool Function()? isRateLimited,
-    void Function(int retryAfterSeconds)? onRateLimited,
-  })  : _dio = dio,
+  const GithubTechHotspotRepository(
+      {required Dio dio,
+      required JsonSnapshotCacheDao cache,
+      String? token,
+      DateTime Function()? now,
+      TechHotspotHistoryDao? history,
+      TechHotspotRepository fallback = const LocalTechHotspotRepository(),
+      bool Function()? isRateLimited,
+      void Function(int retryAfterSeconds)? onRateLimited})
+      : _dio = dio,
         _cache = cache,
         _token = token,
         _now = now ?? DateTime.now,
@@ -55,46 +55,25 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
   Future<DataResult<TechHotspotDigest>> getDigest() async {
     final now = _now();
     final cached = await _readCached();
-    if (cached != null &&
-        await _cache.isFresh(
-          key: _cacheKey,
-          ttl: techHotspotRemoteCacheTtl,
-          now: now,
-        )) {
-      return DataResult(
-        data: cached,
-        freshness: DataFreshness.freshCache,
-      );
+    if (cached != null && await _cache.isFresh(key: _cacheKey, ttl: techHotspotRemoteCacheTtl, now: now)) {
+      return DataResult(data: cached, freshness: DataFreshness.freshCache);
     }
     if (_isRateLimited?.call() ?? false) {
       if (cached != null) {
-        return DataResult(
-          data: cached,
-          freshness: DataFreshness.staleCache,
-        );
+        return DataResult(data: cached, freshness: DataFreshness.staleCache);
       }
       return _fallback.getDigest();
     }
 
     try {
       final digest = await _fetchDigest(now);
-      await _cache.upsert(
-        key: _cacheKey,
-        payload: techHotspotDigestToJson(digest),
-        now: now,
-      );
+      await _cache.upsert(key: _cacheKey, payload: techHotspotDigestToJson(digest), now: now);
       return DataResult(data: digest, freshness: DataFreshness.live);
     } catch (e) {
       _maybeReportRateLimit(e);
-      AppLogger.warn(
-        'githubTechHotspotFallback',
-        meta: {'error': e.runtimeType.toString()},
-      );
+      AppLogger.warn('githubTechHotspotFallback', meta: {'error': e.runtimeType.toString()});
       if (cached != null) {
-        return DataResult(
-          data: cached,
-          freshness: DataFreshness.staleCache,
-        );
+        return DataResult(data: cached, freshness: DataFreshness.staleCache);
       }
       return _fallback.getDigest();
     }
@@ -123,36 +102,20 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     try {
       return techHotspotDigestFromJson(json);
     } catch (e) {
-      AppLogger.warn(
-        'githubTechHotspotCacheParse',
-        meta: {'error': e.runtimeType.toString()},
-      );
+      AppLogger.warn('githubTechHotspotCacheParse', meta: {'error': e.runtimeType.toString()});
       return null;
     }
   }
 
   Future<TechHotspotDigest> _fetchDigest(DateTime now) async {
-    final fetched = await gatherAll<GithubTechHotspotTopicResult>(
-      [
-        for (final query in techHotspotTopicQueries) _fetchTopic(query, now),
-      ],
-      tag: 'githubTechHotspotFetch',
-    );
+    final fetched = await gatherAll<GithubTechHotspotTopicResult>([for (final query in techHotspotTopicQueries) _fetchTopic(query, now)], tag: 'githubTechHotspotFetch');
     final results = await _withObservedHistory(fetched, now);
     final languages = buildTechHotspotLanguages(results);
     final tags = buildTechHotspotTags(results);
-    return TechHotspotDigest(
-      languages: languages,
-      topics: results.map((result) => result.topic).toList(growable: false),
-      heatTrend: buildTechHotspotHeatTrend(results),
-      hotTags: tags,
-    );
+    return TechHotspotDigest(languages: languages, topics: results.map((result) => result.topic).toList(growable: false), heatTrend: buildTechHotspotHeatTrend(results), hotTags: tags);
   }
 
-  Future<GithubTechHotspotTopicResult> _fetchTopic(
-    TechHotspotTopicQuery query,
-    DateTime now,
-  ) async {
+  Future<GithubTechHotspotTopicResult> _fetchTopic(TechHotspotTopicQuery query, DateTime now) async {
     try {
       // 限定最近 30 天内有 push 的仓库,排除长期归档项目。
       final cutoff = now.toUtc().subtract(const Duration(days: 30));
@@ -162,7 +125,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
           'q': '(${query.query}) in:name,description,readme stars:>30 pushed:>=${GitHubApiSupport.formatDate(cutoff)} archived:false',
           'sort': 'stars',
           'order': 'desc',
-          'per_page': 10,
+          'per_page': 10
         },
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
@@ -180,18 +143,10 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     }
   }
 
-  GithubTechHotspotTopicResult _parseTopic(
-    TechHotspotTopicQuery query,
-    Map<String, Object?> data,
-  ) {
+  GithubTechHotspotTopicResult _parseTopic(TechHotspotTopicQuery query, Map<String, Object?> data) {
     final total = GitHubJson.intValue(data['total_count']);
-    final items = GitHubJson.list(
-      data['items'],
-    ).map(GitHubJson.map).toList(growable: false);
-    final stars = items.fold<int>(
-      0,
-      (sum, item) => sum + GitHubJson.intValue(item['stargazers_count']),
-    );
+    final items = GitHubJson.list(data['items']).map(GitHubJson.map).toList(growable: false);
+    final stars = items.fold<int>(0, (sum, item) => sum + GitHubJson.intValue(item['stargazers_count']));
     final languages = <String, int>{};
     for (final item in items) {
       final language = GitHubJson.nullableString(item['language']) ?? 'Unknown';
@@ -217,42 +172,23 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     );
   }
 
-  Future<List<GithubTechHotspotTopicResult>> _withObservedHistory(
-    List<GithubTechHotspotTopicResult> results,
-    DateTime now,
-  ) async {
+  Future<List<GithubTechHotspotTopicResult>> _withObservedHistory(List<GithubTechHotspotTopicResult> results, DateTime now) async {
     final history = _history;
     if (history == null || results.isEmpty) {
       return results;
     }
-    return Future.wait([
-      for (final result in results) _withTopicHistory(result, history, now),
-    ]);
+    return Future.wait([for (final result in results) _withTopicHistory(result, history, now)]);
   }
 
-  Future<GithubTechHotspotTopicResult> _withTopicHistory(
-    GithubTechHotspotTopicResult result,
-    TechHotspotHistoryDao history,
-    DateTime now,
-  ) async {
+  Future<GithubTechHotspotTopicResult> _withTopicHistory(GithubTechHotspotTopicResult result, TechHotspotHistoryDao history, DateTime now) async {
     final topic = result.topic;
-    await history.record(
-      id: topic.id,
-      heat: topic.heat,
-      mentions: topic.mentions,
-      relatedRepos: topic.relatedRepos,
-      capturedAt: now,
-    );
+    await history.record(id: topic.id, heat: topic.heat, mentions: topic.mentions, relatedRepos: topic.relatedRepos, capturedAt: now);
     final trend = await history.trend(topic.id);
     if (trend == null) {
       return result;
     }
     return GithubTechHotspotTopicResult(
-      topic: copyTechHotspotTopic(
-        topic,
-        growth: trend.growth,
-        growthBasis: trend.basis,
-      ),
+      topic: copyTechHotspotTopic(topic, growth: trend.growth, growthBasis: trend.basis),
       languages: result.languages,
       heatTrend: recentTechHotspotHeatValues(trend.heatValues),
     );

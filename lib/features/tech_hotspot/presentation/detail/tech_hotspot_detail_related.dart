@@ -24,46 +24,20 @@ class TechHotspotDetailRelated extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
-            child: SectionHeader(
-              title: l10n.tr('tech_hotspot.detail.related'),
-              subtitle: l10n.tr('tech_hotspot.detail.related.subtitle'),
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+            child: SectionHeader(title: l10n.tr('tech_hotspot.detail.related'), subtitle: l10n.tr('tech_hotspot.detail.related.subtitle')),
           ),
           for (final e in items) ...[
             const Divider(height: 1),
             ListTile(
               dense: true,
               onTap: () => context.push('/tech_hotspot/detail/${e.id}'),
-              leading: Icon(
-                Icons.whatshot_rounded,
-                size: 20,
-                color: techHeatColor(e.heat),
-              ),
-              title: Text(
-                e.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.titleSmall,
-              ),
-              subtitle: Text(
-                '${e.category} · ${l10n.tr('tech_hotspot.detail.related_suffix').replaceAll('{heat}', e.heat.toString())}',
-                style: AppTypography.labelSmall,
-              ),
-              trailing: Text(
-                '+${e.growth.toStringAsFixed(1)}%',
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.trendUp,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
+              leading: Icon(Icons.whatshot_rounded, size: 20, color: techHeatColor(e.heat)),
+              title: Text(e.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall),
+              subtitle: Text('${e.category} · ${l10n.tr('tech_hotspot.detail.related_suffix').replaceAll('{heat}', e.heat.toString())}', style: AppTypography.labelSmall),
+              trailing: Text('+${e.growth.toStringAsFixed(1)}%', style: AppTypography.labelSmall.copyWith(color: AppColors.trendUp, fontWeight: FontWeight.w600)),
+            )
+          ]
         ],
       ),
     );

@@ -18,10 +18,7 @@ class ThemeModeController extends Notifier<ThemeMode> {
     if (raw == null) {
       return ThemeMode.light;
     }
-    return ThemeMode.values.firstWhere(
-      (m) => m.name == raw,
-      orElse: () => ThemeMode.light,
-    );
+    return ThemeMode.values.firstWhere((m) => m.name == raw, orElse: () => ThemeMode.light);
   }
 
   Future<void> setMode(ThemeMode mode) async {

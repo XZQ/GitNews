@@ -45,14 +45,7 @@ class LocalDatabase {
     sqfliteFfiInit();
     final dir = await getApplicationSupportDirectory();
     final dbPath = p.join(dir.path, kDatabaseFileName);
-    final db = await databaseFactoryFfi.openDatabase(
-      dbPath,
-      options: OpenDatabaseOptions(
-        version: _kCurrentVersion,
-        onCreate: bootstrapSchema,
-        onUpgrade: onUpgradeSchema,
-      ),
-    );
+    final db = await databaseFactoryFfi.openDatabase(dbPath, options: OpenDatabaseOptions(version: _kCurrentVersion, onCreate: bootstrapSchema, onUpgrade: onUpgradeSchema));
     return LocalDatabase._(db, dbPath);
   }
 
@@ -63,14 +56,7 @@ class LocalDatabase {
   static Future<LocalDatabase> openInMemory() async {
     sqfliteFfiInit();
     const name = ':memory:';
-    final db = await databaseFactoryFfi.openDatabase(
-      name,
-      options: OpenDatabaseOptions(
-        version: _kCurrentVersion,
-        onCreate: bootstrapSchema,
-        onUpgrade: onUpgradeSchema,
-      ),
-    );
+    final db = await databaseFactoryFfi.openDatabase(name, options: OpenDatabaseOptions(version: _kCurrentVersion, onCreate: bootstrapSchema, onUpgrade: onUpgradeSchema));
     return LocalDatabase._(db, name);
   }
 
@@ -90,12 +76,7 @@ class LocalDatabase {
   }
 
   // 所有业务表名清单。新增表只需在此列表追加一行,`clearAll` 自动覆盖。
-  static const List<String> _kBusinessTables = [
-    'ai_news_item',
-    'trending_snapshot_cache',
-    'json_snapshot_cache',
-    'cache_meta',
-  ];
+  static const List<String> _kBusinessTables = ['ai_news_item', 'trending_snapshot_cache', 'json_snapshot_cache', 'cache_meta'];
 
   /* 
   *清空所有业务表 + VACUUM。
@@ -110,12 +91,7 @@ class LocalDatabase {
       }
       await _db.execute('VACUUM');
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'clearAll'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'clearAll'});
     }
   }
 

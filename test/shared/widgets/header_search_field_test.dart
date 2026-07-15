@@ -6,17 +6,7 @@ void main() {
   testWidgets('HeaderSearchField shows controlled value and clears it', (tester) async {
     var changed = 'unchanged';
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: HeaderSearchField(
-            hintText: '搜索',
-            value: 'codex',
-            onChanged: (value) => changed = value,
-          ),
-        ),
-      ),
-    );
+    await tester.pumpWidget(MaterialApp(home: Scaffold(body: HeaderSearchField(hintText: '搜索', value: 'codex', onChanged: (value) => changed = value))));
 
     expect(find.text('codex'), findsOneWidget);
     expect(find.byTooltip('Clear search'), findsOneWidget);

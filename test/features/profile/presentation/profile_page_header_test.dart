@@ -5,18 +5,11 @@ import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/features/profile/presentation/widgets/profile_page_header.dart';
 
 void main() {
-  testWidgets('profile header does not advertise an unavailable PRO tier', (
-    tester,
-  ) async {
+  testWidgets('profile header does not advertise an unavailable PRO tier', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
         locale: Locale('zh', 'CN'),
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
+        localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(body: ProfilePageHeader()),
       ),

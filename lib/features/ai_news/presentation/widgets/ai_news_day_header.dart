@@ -9,11 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 *一天分组头:`今天 / 昨天 / M月d日` + 条目数。
 */
 class AiNewsDayHeader extends StatelessWidget {
-  const AiNewsDayHeader({
-    required this.date,
-    required this.itemCount,
-    super.key,
-  });
+  const AiNewsDayHeader({required this.date, required this.itemCount, super.key});
 
   final DateTime date;
   final int itemCount;
@@ -39,29 +35,11 @@ class AiNewsDayHeader extends StatelessWidget {
       padding: const EdgeInsets.only(top: AppSpacing.lg, bottom: AppSpacing.sm),
       child: Row(
         children: [
-          Container(
-            width: AppRadius.bar,
-            height: 14,
-            decoration: BoxDecoration(
-              color: colors.primary,
-              borderRadius: BorderRadius.circular(AppRadius.xs),
-            ),
-          ),
+          Container(width: AppRadius.bar, height: 14, decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.xs))),
           const SizedBox(width: AppSpacing.sm),
-          Text(
-            label,
-            style: AppTypography.titleSmall.copyWith(
-              color: colors.onSurface,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
+          Text(label, style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
           const SizedBox(width: AppSpacing.xs2),
-          Text(
-            '$itemCount ${l10n.tr('ai_news.day_count_suffix')}',
-            style: AppTypography.labelSmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
+          Text('$itemCount ${l10n.tr('ai_news.day_count_suffix')}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
         ],
       ),
     );

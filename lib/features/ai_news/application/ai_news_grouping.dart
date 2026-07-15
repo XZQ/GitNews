@@ -5,9 +5,7 @@ import '../domain/ai_news_item.dart';
 *publishedAt 以 UTC 存储,转本地时区后再按天聚合,
 *否则凌晨前后的 UTC 日期会与用户感知的「今天」错位。
 */
-List<MapEntry<DateTime, List<AiNewsItem>>> groupAiNewsByDay(
-  List<AiNewsItem> items,
-) {
+List<MapEntry<DateTime, List<AiNewsItem>>> groupAiNewsByDay(List<AiNewsItem> items) {
   final map = <String, List<AiNewsItem>>{};
   for (final item in items) {
     final d = item.publishedAt.toLocal();
@@ -16,9 +14,6 @@ List<MapEntry<DateTime, List<AiNewsItem>>> groupAiNewsByDay(
   }
   return map.entries.map((e) {
     final parts = e.key.split('-');
-    return MapEntry(
-      DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2])),
-      e.value,
-    );
+    return MapEntry(DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2])), e.value);
   }).toList();
 }

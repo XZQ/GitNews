@@ -15,14 +15,8 @@ class ProjectSummaryMetrics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final weeklyStars = digest.repos.fold<int>(
-      0,
-      (sum, repo) => sum + repo.starDelta,
-    );
-    final forks = digest.repos.fold<int>(
-      0,
-      (sum, repo) => sum + repo.forkCount,
-    );
+    final weeklyStars = digest.repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
+    final forks = digest.repos.fold<int>(0, (sum, repo) => sum + repo.forkCount);
     return Row(
       children: [
         Expanded(
@@ -55,15 +49,7 @@ class ProjectSummaryMetrics extends StatelessWidget {
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: _MetricBlock(
-            label: l10n.tr('project.metric.total_forks'),
-            value: _compactNumber(forks),
-            delta: '+forks',
-            color: AppColors.warning,
-            icon: Icons.call_split_rounded,
-          ),
-        ),
+        Expanded(child: _MetricBlock(label: l10n.tr('project.metric.total_forks'), value: _compactNumber(forks), delta: '+forks', color: AppColors.warning, icon: Icons.call_split_rounded))
       ],
     );
   }
@@ -80,13 +66,7 @@ class ProjectSummaryMetrics extends StatelessWidget {
 }
 
 class _MetricBlock extends StatelessWidget {
-  const _MetricBlock({
-    required this.label,
-    required this.value,
-    required this.delta,
-    required this.color,
-    required this.icon,
-  });
+  const _MetricBlock({required this.label, required this.value, required this.delta, required this.color, required this.icon});
 
   final String label;
   final String value;
@@ -101,35 +81,15 @@ class _MetricBlock extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(icon, color: color, size: 16),
-              const SizedBox(width: AppSpacing.xs),
-              Expanded(
-                child: Text(
-                  label,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          Row(children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(child: Text(label, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)))
+          ]),
           const SizedBox(height: AppSpacing.sm2),
-          Text(
-            value,
-            style: AppTypography.headlineMedium.copyWith(
-              color: colors.onSurface,
-            ),
-          ),
+          Text(value, style: AppTypography.headlineMedium.copyWith(color: colors.onSurface)),
           const SizedBox(height: AppSpacing.xxs),
-          Text(
-            delta,
-            style: AppTypography.labelSmall.copyWith(
-              color: AppColors.success,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          Text(delta, style: AppTypography.labelSmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600))
         ],
       ),
     );

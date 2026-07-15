@@ -12,13 +12,7 @@ class TrendingSkeleton extends StatelessWidget {
       padding: EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Skeleton(height: 64),
-          SizedBox(height: AppSpacing.lg),
-          Skeleton(height: 280),
-          SizedBox(height: AppSpacing.lg),
-          Skeleton(height: 320),
-        ],
+        children: [Skeleton(height: 64), SizedBox(height: AppSpacing.lg), Skeleton(height: 280), SizedBox(height: AppSpacing.lg), Skeleton(height: 320)],
       ),
     );
   }

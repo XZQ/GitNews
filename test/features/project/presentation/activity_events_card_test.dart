@@ -8,9 +8,7 @@ import 'package:github_news/features/project/presentation/widgets/activity_event
 import 'package:github_news/shared/widgets/empty_view.dart';
 
 void main() {
-  testWidgets('project activity card renders supplied observed events only', (
-    tester,
-  ) async {
+  testWidgets('project activity card renders supplied observed events only', (tester) async {
     await _pump(
       tester,
       ActivityEventsCard(
@@ -23,7 +21,7 @@ void main() {
             occurredAt: DateTime.now().toUtc(),
             htmlUrl: 'https://github.com/owner/repo/releases/v1.3.0',
             basis: MetricBasis.observed,
-          ),
+          )
         ],
       ),
     );
@@ -34,9 +32,7 @@ void main() {
     expect(find.text('feat: support streaming response'), findsNothing);
   });
 
-  testWidgets('project activity card shows an empty state without events', (
-    tester,
-  ) async {
+  testWidgets('project activity card shows an empty state without events', (tester) async {
     await _pump(tester, const ActivityEventsCard(activities: []));
 
     expect(find.byType(EmptyView), findsOneWidget);
@@ -47,12 +43,7 @@ Future<void> _pump(WidgetTester tester, Widget child) async {
   await tester.pumpWidget(
     MaterialApp(
       locale: const Locale('zh', 'CN'),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
       supportedLocales: AppLocalizations.supportedLocales,
       home: Scaffold(body: child),
     ),

@@ -16,12 +16,8 @@ import 'trending_data_source.dart';
 *或 GH Archive 后再替换为真实增量。
 */
 class GithubTrendingDataSource implements TrendingDataSource {
-  GithubTrendingDataSource({
-    required Dio dio,
-    String? token,
-    DateTime Function()? now,
-    RepoSnapshotHistoryDao? snapshotHistory,
-  })  : _dio = dio,
+  GithubTrendingDataSource({required Dio dio, String? token, DateTime Function()? now, RepoSnapshotHistoryDao? snapshotHistory})
+      : _dio = dio,
         _token = token?.trim(),
         _now = now ?? DateTime.now,
         _snapshotHistory = snapshotHistory;
@@ -38,12 +34,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         ApiEndpointsConfig.githubSearchRepositoriesPath,
-        queryParameters: <String, Object?>{
-          'q': _buildSearchQuery(query),
-          'sort': 'stars',
-          'order': 'desc',
-          'per_page': _perPage,
-        },
+        queryParameters: <String, Object?>{'q': _buildSearchQuery(query), 'sort': 'stars', 'order': 'desc', 'per_page': _perPage},
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
@@ -75,7 +66,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
       if (query.board == TrendingBoard.newRepos) 'created:>=${GitHubApiSupport.formatDate(cutoff)}' else 'pushed:>=${GitHubApiSupport.formatDate(cutoff)}',
       'archived:false',
       ..._boardSearchParts(query.board),
-      if (query.hasLanguageFilter) 'language:${GitHubApiSupport.quoteSearchValue(query.language)}',
+      if (query.hasLanguageFilter) 'language:${GitHubApiSupport.quoteSearchValue(query.language)}'
     ];
     return parts.join(' ');
   }
@@ -85,22 +76,14 @@ class GithubTrendingDataSource implements TrendingDataSource {
       TrendingBoard.all => const [],
       TrendingBoard.agent => const ['agent', 'in:name,description,readme'],
       TrendingBoard.mcp => const ['mcp', 'in:name,description,readme'],
-      TrendingBoard.aiCoding => const [
-          'coding',
-          'agent',
-          'in:name,description,readme',
-        ],
-      TrendingBoard.newRepos => const [],
+      TrendingBoard.aiCoding => const ['coding', 'agent', 'in:name,description,readme'],
+      TrendingBoard.newRepos => const []
     };
   }
 
   // 窗口对应天数:today=1 天,week=7 天,month=30 天。
   Duration _windowDuration(TrendingWindow window) {
-    return switch (window) {
-      TrendingWindow.today => const Duration(days: 1),
-      TrendingWindow.week => const Duration(days: 7),
-      TrendingWindow.month => const Duration(days: 30),
-    };
+    return switch (window) { TrendingWindow.today => const Duration(days: 1), TrendingWindow.week => const Duration(days: 7), TrendingWindow.month => const Duration(days: 30) };
   }
 
   List<RepoEntity> _parseRepos(Map<String, Object?> data, TrendingQuery query) {
@@ -125,12 +108,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
       description: GitHubJson.nullableString(raw['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: _momentumScore(
-        stars: stars,
-        forks: forks,
-        score: score,
-        window: query.window,
-      ),
+      starDelta: _momentumScore(stars: stars, forks: forks, score: score, window: query.window),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
       valueBasis: MetricBasis.observed,
@@ -139,55 +117,29 @@ class GithubTrendingDataSource implements TrendingDataSource {
     );
   }
 
-  Future<List<RepoEntity>> _withObservedHistory(
-    List<RepoEntity> repos,
-    TrendingQuery query,
-  ) async {
+  Future<List<RepoEntity>> _withObservedHistory(List<RepoEntity> repos, TrendingQuery query) async {
     final history = _snapshotHistory;
     if (history == null || repos.isEmpty) {
       return repos;
     }
 
     final capturedAt = _now();
-    return Future.wait([
-      for (final repo in repos) _withRepoHistory(repo, query.window, history, capturedAt),
-    ]);
+    return Future.wait([for (final repo in repos) _withRepoHistory(repo, query.window, history, capturedAt)]);
   }
 
-  Future<RepoEntity> _withRepoHistory(
-    RepoEntity repo,
-    TrendingWindow window,
-    RepoSnapshotHistoryDao history,
-    DateTime capturedAt,
-  ) async {
-    await history.record(
-      fullName: repo.fullName,
-      stars: repo.starCount,
-      forks: repo.forkCount,
-      capturedAt: capturedAt,
-    );
+  Future<RepoEntity> _withRepoHistory(RepoEntity repo, TrendingWindow window, RepoSnapshotHistoryDao history, DateTime capturedAt) async {
+    await history.record(fullName: repo.fullName, stars: repo.starCount, forks: repo.forkCount, capturedAt: capturedAt);
     final trend = await history.starTrend(repo.fullName);
     if (trend == null) {
       return repo;
     }
 
     final values = _recentObservedValues(trend.values, window);
-    return repo.copyWith(
-      starDelta: _observedDelta(values, fallback: repo.starDelta),
-      trend: values,
-      trendBasis: trend.basis,
-    );
+    return repo.copyWith(starDelta: _observedDelta(values, fallback: repo.starDelta), trend: values, trendBasis: trend.basis);
   }
 
-  List<double> _recentObservedValues(
-    List<double> values,
-    TrendingWindow window,
-  ) {
-    final maxPoints = switch (window) {
-      TrendingWindow.today => 2,
-      TrendingWindow.week => 7,
-      TrendingWindow.month => 30,
-    };
+  List<double> _recentObservedValues(List<double> values, TrendingWindow window) {
+    final maxPoints = switch (window) { TrendingWindow.today => 2, TrendingWindow.week => 7, TrendingWindow.month => 30 };
     if (values.length <= maxPoints) {
       return values;
     }
@@ -202,28 +154,15 @@ class GithubTrendingDataSource implements TrendingDataSource {
     return delta.round().clamp(0, 999999);
   }
 
-  int _momentumScore({
-    required int stars,
-    required int forks,
-    required double score,
-    required TrendingWindow window,
-  }) {
-    final divisor = switch (window) {
-      TrendingWindow.today => 160,
-      TrendingWindow.week => 90,
-      TrendingWindow.month => 52,
-    };
+  int _momentumScore({required int stars, required int forks, required double score, required TrendingWindow window}) {
+    final divisor = switch (window) { TrendingWindow.today => 160, TrendingWindow.week => 90, TrendingWindow.month => 52 };
     final value = (stars / divisor) + (forks / 24) + score;
     return value.clamp(1, 9999).round();
   }
 
   List<double> _repoTrend(int stars, TrendingWindow window) {
     final base = stars / 120;
-    final scale = switch (window) {
-      TrendingWindow.today => 0.8,
-      TrendingWindow.week => 1.0,
-      TrendingWindow.month => 1.22,
-    };
+    final scale = switch (window) { TrendingWindow.today => 0.8, TrendingWindow.week => 1.0, TrendingWindow.month => 1.22 };
     return List<double>.generate(7, (index) {
       return (base * scale * (0.74 + index * 0.055)).roundToDouble();
     });
@@ -241,13 +180,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     final entries = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     return entries.map((entry) {
       final percent = entry.value / total * 100;
-      return LanguageEntity(
-        name: entry.key,
-        percent: percent,
-        delta: 0,
-        accentArgb: GitHubApiSupport.languageColor(entry.key),
-        basis: MetricBasis.estimated,
-      );
+      return LanguageEntity(name: entry.key, percent: percent, delta: 0, accentArgb: GitHubApiSupport.languageColor(entry.key), basis: MetricBasis.estimated);
     }).toList(growable: false);
   }
 
@@ -257,13 +190,10 @@ class GithubTrendingDataSource implements TrendingDataSource {
     }
     final observed = [
       for (final repo in repos)
-        if (repo.trendBasis == MetricBasis.observed && repo.trend != null && repo.trend!.length >= 2) repo.trend!,
+        if (repo.trendBasis == MetricBasis.observed && repo.trend != null && repo.trend!.length >= 2) repo.trend!
     ];
     if (observed.isNotEmpty) {
-      final pointCount = observed.fold<int>(
-        observed.first.length,
-        (count, trend) => trend.length < count ? trend.length : count,
-      );
+      final pointCount = observed.fold<int>(observed.first.length, (count, trend) => trend.length < count ? trend.length : count);
       return List<double>.generate(pointCount, (index) {
         final sum = observed.fold<double>(0, (total, trend) {
           return total + trend[trend.length - pointCount + index];

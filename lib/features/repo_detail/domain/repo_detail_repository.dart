@@ -7,14 +7,7 @@ import 'entities.dart';
 *仓库详情页需要的一组本地情报数据。
 */
 class RepoDetailDigest {
-  const RepoDetailDigest({
-    required this.repo,
-    required this.contributors,
-    required this.relatedRepos,
-    required this.primaryTrend,
-    required this.compareTrend,
-    required this.activities,
-  });
+  const RepoDetailDigest({required this.repo, required this.contributors, required this.relatedRepos, required this.primaryTrend, required this.compareTrend, required this.activities});
 
   final RepoEntity repo;
   final List<ContributorEntity> contributors;

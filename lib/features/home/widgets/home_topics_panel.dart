@@ -21,54 +21,27 @@ class HomeTopicsPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final topics = ref.watch(techHotspotDigestProvider).maybeWhen(
-          data: (digest) => digest.hotTags.take(10).toList(),
-          orElse: () => _fallbackTopics(l10n),
-        );
-    final contributors = ref.watch(projectDigestProvider).maybeWhen(
-          data: (digest) => digest.contributors.take(5).toList(),
-          orElse: () => const <ContributorEntity>[],
-        );
+    final topics = ref.watch(techHotspotDigestProvider).maybeWhen(data: (digest) => digest.hotTags.take(10).toList(), orElse: () => _fallbackTopics(l10n));
+    final contributors = ref.watch(projectDigestProvider).maybeWhen(data: (digest) => digest.contributors.take(5).toList(), orElse: () => const <ContributorEntity>[]);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('home.section.topics.title'),
-            subtitle: l10n.tr('home.section.topics.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('home.section.topics.title'), subtitle: l10n.tr('home.section.topics.subtitle')),
           const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [for (final topic in topics) _TopicChip(label: topic)],
-          ),
+          Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [for (final topic in topics) _TopicChip(label: topic)]),
           const SizedBox(height: AppSpacing.lg),
-          SectionHeader(
-            title: l10n.tr('home.section.devs.title'),
-            subtitle: l10n.tr('home.section.devs.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('home.section.devs.title'), subtitle: l10n.tr('home.section.devs.subtitle')),
           const SizedBox(height: AppSpacing.md),
           for (final c in contributors)
             ListTile(
               contentPadding: EdgeInsets.zero,
               dense: true,
-              leading: CircleAvatar(
-                radius: 16,
-                backgroundColor: AppColors.brandLight,
-                child: Text(
-                  c.login[0].toUpperCase(),
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.brandDark,
-                  ),
-                ),
-              ),
+              leading: CircleAvatar(radius: 16, backgroundColor: AppColors.brandLight, child: Text(c.login[0].toUpperCase(), style: AppTypography.labelMedium.copyWith(color: AppColors.brandDark))),
               title: Text(c.login, style: AppTypography.titleSmall),
-              subtitle: Text(
-                '+${c.contributions} ${l10n.tr('home.contrib.week')}',
-              ),
+              subtitle: Text('+${c.contributions} ${l10n.tr('home.contrib.week')}'),
               trailing: const Icon(Icons.chevron_right, size: 18),
-            ),
+            )
         ],
       ),
     );
@@ -83,7 +56,7 @@ class HomeTopicsPanel extends ConsumerWidget {
       l10n.tr('home.topic.web3'),
       l10n.tr('home.topic.security'),
       l10n.tr('home.topic.cloud_native'),
-      l10n.tr('home.topic.data_infra'),
+      l10n.tr('home.topic.data_infra')
     ];
   }
 }
@@ -96,21 +69,9 @@ class _TopicChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Text(
-        label,
-        style: AppTypography.labelMedium.copyWith(
-          color: colors.primary,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(AppRadius.pill)),
+      child: Text(label, style: AppTypography.labelMedium.copyWith(color: colors.primary, fontWeight: FontWeight.w600)),
     );
   }
 }

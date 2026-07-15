@@ -9,38 +9,16 @@ class TechHotspotHistoryDao {
 
   final JsonSnapshotCacheDao _cache;
 
-  Future<void> record({
-    required String id,
-    required int heat,
-    required int mentions,
-    required int relatedRepos,
-    required DateTime capturedAt,
-  }) async {
+  Future<void> record({required String id, required int heat, required int mentions, required int relatedRepos, required DateTime capturedAt}) async {
     final key = _cacheKey(id);
     final payload = await _cache.read(key) ?? const <String, Object?>{};
     final points = _pointsFromPayload(payload);
     final dayKey = GitHubApiSupport.formatDate(capturedAt.toUtc());
-    final nextPoint = TechHotspotHistoryPoint(
-      day: dayKey,
-      heat: heat,
-      mentions: mentions,
-      relatedRepos: relatedRepos,
-      capturedAt: capturedAt.toUtc(),
-    );
-    final byDay = {
-      for (final point in points) point.day: point,
-      dayKey: nextPoint,
-    };
+    final nextPoint = TechHotspotHistoryPoint(day: dayKey, heat: heat, mentions: mentions, relatedRepos: relatedRepos, capturedAt: capturedAt.toUtc());
+    final byDay = {for (final point in points) point.day: point, dayKey: nextPoint};
     final next = byDay.values.toList()..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
     final bounded = next.length <= techHotspotHistoryMaxPoints ? next : next.sublist(next.length - techHotspotHistoryMaxPoints);
-    await _cache.upsert(
-      key: key,
-      payload: {
-        'id': id,
-        'points': bounded.map((point) => point.toJson()).toList(),
-      },
-      now: capturedAt,
-    );
+    await _cache.upsert(key: key, payload: {'id': id, 'points': bounded.map((point) => point.toJson()).toList()}, now: capturedAt);
   }
 
   Future<TechHotspotTrendSnapshot?> trend(String id) async {
@@ -54,24 +32,15 @@ class TechHotspotHistoryDao {
     }
     final first = points.first;
     final last = points.last;
-    return TechHotspotTrendSnapshot(
-      heatValues: [for (final point in points) point.heat.toDouble()],
-      growth: _growthPercent(first.relatedRepos, last.relatedRepos),
-      basis: MetricBasis.observed,
-    );
+    return TechHotspotTrendSnapshot(heatValues: [for (final point in points) point.heat.toDouble()], growth: _growthPercent(first.relatedRepos, last.relatedRepos), basis: MetricBasis.observed);
   }
 
-  List<TechHotspotHistoryPoint> _pointsFromPayload(
-    Map<String, Object?> payload,
-  ) {
+  List<TechHotspotHistoryPoint> _pointsFromPayload(Map<String, Object?> payload) {
     final raw = payload['points'];
     if (raw == null) {
       return const [];
     }
-    return GitHubJson.list(
-      raw,
-    ).map(TechHotspotHistoryPoint.fromJson).toList(growable: false)
-      ..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
+    return GitHubJson.list(raw).map(TechHotspotHistoryPoint.fromJson).toList(growable: false)..sort((a, b) => a.capturedAt.compareTo(b.capturedAt));
   }
 
   double _growthPercent(int first, int last) {
@@ -87,11 +56,7 @@ class TechHotspotHistoryDao {
 }
 
 class TechHotspotTrendSnapshot {
-  const TechHotspotTrendSnapshot({
-    required this.heatValues,
-    required this.growth,
-    required this.basis,
-  });
+  const TechHotspotTrendSnapshot({required this.heatValues, required this.growth, required this.basis});
 
   final List<double> heatValues;
   final double growth;
@@ -99,13 +64,7 @@ class TechHotspotTrendSnapshot {
 }
 
 class TechHotspotHistoryPoint {
-  const TechHotspotHistoryPoint({
-    required this.day,
-    required this.heat,
-    required this.mentions,
-    required this.relatedRepos,
-    required this.capturedAt,
-  });
+  const TechHotspotHistoryPoint({required this.day, required this.heat, required this.mentions, required this.relatedRepos, required this.capturedAt});
 
   final String day;
   final int heat;
@@ -114,13 +73,7 @@ class TechHotspotHistoryPoint {
   final DateTime capturedAt;
 
   Map<String, Object?> toJson() {
-    return {
-      'day': day,
-      'heat': heat,
-      'mentions': mentions,
-      'relatedRepos': relatedRepos,
-      'capturedAt': capturedAt.toIso8601String(),
-    };
+    return {'day': day, 'heat': heat, 'mentions': mentions, 'relatedRepos': relatedRepos, 'capturedAt': capturedAt.toIso8601String()};
   }
 
   static TechHotspotHistoryPoint fromJson(Object? raw) {

@@ -21,19 +21,8 @@ class HomeMobileBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
-      children: const [
-        _MobileHero(),
-        SizedBox(height: AppSpacing.lg),
-        HomeAlertsPanel(showHeader: true, maxItems: 5),
-        SizedBox(height: AppSpacing.lg),
-        HomeTopicsPanel(),
-      ],
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      children: const [_MobileHero(), SizedBox(height: AppSpacing.lg), HomeAlertsPanel(showHeader: true, maxItems: 5), SizedBox(height: AppSpacing.lg), HomeTopicsPanel()],
     );
   }
 }
@@ -52,40 +41,16 @@ class _MobileHeroState extends ConsumerState<_MobileHero> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final digest = ref.watch(trendingDigestProvider).valueOrNull;
-    final series = homeSeriesForWindow(
-      _window,
-      HomeLegacyTab.trending,
-      Theme.of(context).colorScheme.primary,
-      primaryTrend: digest?.primaryTrend,
-      secondaryTrend: digest?.secondaryTrend,
-    );
+    final series = homeSeriesForWindow(_window, HomeLegacyTab.trending, Theme.of(context).colorScheme.primary, primaryTrend: digest?.primaryTrend, secondaryTrend: digest?.secondaryTrend);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  l10n.tr('home.chart.title'),
-                  style: AppTypography.titleLarge,
-                ),
-              ),
-              ChartWindowSegmented(
-                value: _window,
-                onChanged: (v) => setState(() => _window = v),
-              ),
-            ],
-          ),
+          Row(children: [Expanded(child: Text(l10n.tr('home.chart.title'), style: AppTypography.titleLarge)), ChartWindowSegmented(value: _window, onChanged: (v) => setState(() => _window = v))]),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            '$_window ${l10n.tr('common.day')}',
-            style: AppTypography.bodySmall.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
+          Text('$_window ${l10n.tr('common.day')}', style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: AppSpacing.md),
-          StarTrendChart(series: series, height: 200),
+          StarTrendChart(series: series, height: 200)
         ],
       ),
     );

@@ -29,12 +29,7 @@ class DevIntelDesktopPage extends StatelessWidget {
           DevIntelTopHeader(),
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.xl,
-                AppSpacing.lg,
-                AppSpacing.xl,
-                AppSpacing.xxxl,
-              ),
+              padding: EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -44,11 +39,11 @@ class DevIntelDesktopPage extends StatelessWidget {
                   SizedBox(height: AppSpacing.lg),
                   DevIntelChartCard(),
                   SizedBox(height: AppSpacing.lg),
-                  DevIntelBottomGrid(),
+                  DevIntelBottomGrid()
                 ],
               ),
             ),
-          ),
+          )
         ],
       ),
     );
@@ -60,13 +55,6 @@ class _PreviewRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const BorderedRow(
-      flexValues: [4, 4, 4],
-      children: [
-        HomeAiNewsPreview(),
-        HomeTrendingPreview(),
-        HomeHotspotPreview(),
-      ],
-    );
+    return const BorderedRow(flexValues: [4, 4, 4], children: [HomeAiNewsPreview(), HomeTrendingPreview(), HomeHotspotPreview()]);
   }
 }

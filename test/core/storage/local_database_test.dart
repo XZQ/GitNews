@@ -16,49 +16,29 @@ void main() {
     test('openInMemory creates all business tables at current version', () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
-      final rows = await db.executor.rawQuery(
-        "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
-      );
+      final rows = await db.executor.rawQuery("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name");
       final names = rows.map((r) => r['name'] as String).toSet();
-      const expected = [
-        'cache_meta',
-        'ai_news_item',
-        'trending_snapshot_cache',
-        'json_snapshot_cache',
-        'monitor_alert_event',
-      ];
+      const expected = ['cache_meta', 'ai_news_item', 'trending_snapshot_cache', 'json_snapshot_cache', 'monitor_alert_event'];
       for (final table in expected) {
-        expect(
-          names,
-          contains(table),
-          reason: '$table 必须存在,否则对应 DAO 会运行时报错',
-        );
+        expect(names, contains(table), reason: '$table 必须存在,否则对应 DAO 会运行时报错');
       }
     });
 
     test('clearAll empties business tables but keeps schema', () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
-      await db.executor.insert(
-        'cache_meta',
-        {'cache_key': 'k1', 'last_fetched_at': 1},
-      );
+      await db.executor.insert('cache_meta', {'cache_key': 'k1', 'last_fetched_at': 1});
       await db.clearAll();
       final rows = await db.executor.query('cache_meta');
       expect(rows, isEmpty);
-      final meta = await db.executor.rawQuery(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='cache_meta'",
-      );
+      final meta = await db.executor.rawQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='cache_meta'");
       expect(meta, isNotEmpty, reason: 'schema 应保留,清理后可立即重写');
     });
 
     test('enforceCap keeps data because automatic capacity limit is disabled', () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
-      await db.executor.insert(
-        'cache_meta',
-        {'cache_key': 'k1', 'last_fetched_at': 1},
-      );
+      await db.executor.insert('cache_meta', {'cache_key': 'k1', 'last_fetched_at': 1});
       await db.enforceCap();
       final rows = await db.executor.query('cache_meta');
       expect(rows.length, 1, reason: '项目不再设置自动容量上限');
@@ -67,37 +47,23 @@ void main() {
     test('cache clear excludes durable user alert events', () async {
       final db = await LocalDatabase.openInMemory();
       addTearDown(db.close);
-      await db.executor.insert(
-        'cache_meta',
-        {'cache_key': 'k1', 'last_fetched_at': 1},
-      );
-      await db.executor.insert(
-        'ai_news_item',
-        {
-          'id': 'a',
-          'category': 'aiModels',
-          'title': 't',
-          'title_en': 'te',
-          'summary': 's',
-          'source': 'src',
-          'url': 'u',
-          'permalink': 'p',
-          'published_at': 0,
-          'score': 1,
-          'selected': 0,
-          'cached_at': 0,
-        },
-      );
-      await db.executor.insert('monitor_alert_event', {
-        'id': 'alert-1',
-        'repo_full_name': 'owner/repo',
-        'rule_id': 'star_daily_delta',
-        'metric': 'stars',
-        'value': 200,
-        'threshold': 200,
-        'severity': 'success',
-        'observed_at': 1,
+      await db.executor.insert('cache_meta', {'cache_key': 'k1', 'last_fetched_at': 1});
+      await db.executor.insert('ai_news_item', {
+        'id': 'a',
+        'category': 'aiModels',
+        'title': 't',
+        'title_en': 'te',
+        'summary': 's',
+        'source': 'src',
+        'url': 'u',
+        'permalink': 'p',
+        'published_at': 0,
+        'score': 1,
+        'selected': 0,
+        'cached_at': 0
       });
+      await db.executor.insert('monitor_alert_event',
+          {'id': 'alert-1', 'repo_full_name': 'owner/repo', 'rule_id': 'star_daily_delta', 'metric': 'stars', 'value': 200, 'threshold': 200, 'severity': 'success', 'observed_at': 1});
       await db.clearAll();
       expect(await db.executor.query('cache_meta'), isEmpty);
       expect(await db.executor.query('ai_news_item'), isEmpty);

@@ -14,12 +14,7 @@ class _FakeRepo implements DiscoverRepository {
   final Map<String, DiscoverProfileEntity> _detail = {};
 
   @override
-  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
-    required DiscoverProfileKind kind,
-    bool force = false,
-    int page = 1,
-    int perPage = 20,
-  }) async {
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({required DiscoverProfileKind kind, bool force = false, int page = 1, int perPage = 20}) async {
     final List<DiscoverProfileEntity> data;
     if (page == 1) {
       final whitelist = [
@@ -36,7 +31,7 @@ class _FakeRepo implements DiscoverRepository {
             featuredRepoFullName: 'wl-$i/repo',
             kind: kind,
             enriched: true,
-          ),
+          )
       ];
       final search = [
         for (var i = 0; i < searchPageSize; i++)
@@ -52,7 +47,7 @@ class _FakeRepo implements DiscoverRepository {
             featuredRepoFullName: 'search-${page}_$i/repo',
             kind: kind,
             enriched: false,
-          ),
+          )
       ];
       data = [...whitelist, ...search];
     } else {
@@ -70,17 +65,14 @@ class _FakeRepo implements DiscoverRepository {
             featuredRepoFullName: 'search-${page}_$i/repo',
             kind: kind,
             enriched: false,
-          ),
+          )
       ];
     }
     return DataResult(data: data, freshness: DataFreshness.live);
   }
 
   @override
-  Future<DataResult<DiscoverProfileEntity>> fetchProfileDetail({
-    required String login,
-    required DiscoverProfileKind kind,
-  }) async {
+  Future<DataResult<DiscoverProfileEntity>> fetchProfileDetail({required String login, required DiscoverProfileKind kind}) async {
     final e = _detail.putIfAbsent(
       login,
       () => DiscoverProfileEntity(
@@ -101,20 +93,12 @@ class _FakeRepo implements DiscoverRepository {
   }
 
   @override
-  Future<DataResult<List<RepoEntity>>> fetchTrendingRepos({
-    bool force = false,
-    int page = 1,
-    int perPage = discoverPageSize,
-  }) async {
+  Future<DataResult<List<RepoEntity>>> fetchTrendingRepos({bool force = false, int page = 1, int perPage = discoverPageSize}) async {
     throw UnimplementedError();
   }
 
   @override
-  Future<DataResult<List<SkillEntity>>> fetchAgentSkills({
-    bool force = false,
-    int page = 1,
-    int perPage = discoverPageSize,
-  }) async {
+  Future<DataResult<List<SkillEntity>>> fetchAgentSkills({bool force = false, int page = 1, int perPage = discoverPageSize}) async {
     throw UnimplementedError();
   }
 }
@@ -122,28 +106,19 @@ class _FakeRepo implements DiscoverRepository {
 void main() {
   test('build 后白名单 enriched、搜索结果占位,hasMore=true', () async {
     final repo = _FakeRepo();
-    final container = ProviderContainer(
-      overrides: [discoverRepositoryProvider.overrideWithValue(repo)],
-    );
+    final container = ProviderContainer(overrides: [discoverRepositoryProvider.overrideWithValue(repo)]);
     addTearDown(container.dispose);
 
-    final first = await container.read(
-      officialProfilesNotifierProvider.future,
-    );
+    final first = await container.read(officialProfilesNotifierProvider.future);
     expect(first.length, 8 + 20);
     expect(first.take(8).every((p) => p.enriched), isTrue);
     expect(first.skip(8).every((p) => !p.enriched), isTrue);
-    expect(
-      container.read(officialProfilesNotifierProvider.notifier).hasMore,
-      isTrue,
-    );
+    expect(container.read(officialProfilesNotifierProvider.notifier).hasMore, isTrue);
   });
 
   test('loadMore 追加搜索结果', () async {
     final repo = _FakeRepo(searchPageSize: 20);
-    final container = ProviderContainer(
-      overrides: [discoverRepositoryProvider.overrideWithValue(repo)],
-    );
+    final container = ProviderContainer(overrides: [discoverRepositoryProvider.overrideWithValue(repo)]);
     addTearDown(container.dispose);
 
     await container.read(officialProfilesNotifierProvider.future);
@@ -155,9 +130,7 @@ void main() {
 
   test('enrichOne 把占位 entity 替换为 enriched', () async {
     final repo = _FakeRepo();
-    final container = ProviderContainer(
-      overrides: [discoverRepositoryProvider.overrideWithValue(repo)],
-    );
+    final container = ProviderContainer(overrides: [discoverRepositoryProvider.overrideWithValue(repo)]);
     addTearDown(container.dispose);
 
     await container.read(officialProfilesNotifierProvider.future);

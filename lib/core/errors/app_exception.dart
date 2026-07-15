@@ -3,27 +3,13 @@ import 'package:dio/dio.dart';
 /* 
 *业务异常分类。Repository 在边界将 DataSourceException 转换为 AppException 后再抛出。
 */
-enum AppExceptionKind {
-  network,
-  rateLimit,
-  parse,
-  notFound,
-  unauthorized,
-  server,
-  cache,
-  unknown,
-}
+enum AppExceptionKind { network, rateLimit, parse, notFound, unauthorized, server, cache, unknown }
 
 /* 
 *统一业务异常。所有 Notifier / Widget 只应见到 AppException。
 */
 class AppException implements Exception {
-  const AppException({
-    required this.kind,
-    this.cause,
-    this.stack,
-    this.meta = const {},
-  });
+  const AppException({required this.kind, this.cause, this.stack, this.meta = const {}});
 
   final AppExceptionKind kind;
 
@@ -78,24 +64,12 @@ extension DioExceptionToApp on DioException {
         if (code == 429) {
           final ra = response?.headers.value('retry-after');
           final secs = ra == null ? null : int.tryParse(ra);
-          return AppException(
-            kind: AppExceptionKind.rateLimit,
-            cause: this,
-            meta: {'retryAfter': secs},
-          );
+          return AppException(kind: AppExceptionKind.rateLimit, cause: this, meta: {'retryAfter': secs});
         }
         if (code >= 500) {
-          return AppException(
-            kind: AppExceptionKind.server,
-            cause: this,
-            meta: {'statusCode': code},
-          );
+          return AppException(kind: AppExceptionKind.server, cause: this, meta: {'statusCode': code});
         }
-        return AppException(
-          kind: AppExceptionKind.unknown,
-          cause: this,
-          meta: {'statusCode': code},
-        );
+        return AppException(kind: AppExceptionKind.unknown, cause: this, meta: {'statusCode': code});
       case DioExceptionType.cancel:
       case DioExceptionType.badCertificate:
       case DioExceptionType.unknown:
@@ -114,10 +88,6 @@ extension ObjectAsAppException on Object {
     if (this is AppException) {
       return this as AppException;
     }
-    return AppException(
-      kind: AppExceptionKind.unknown,
-      cause: this,
-      stack: stack,
-    );
+    return AppException(kind: AppExceptionKind.unknown, cause: this, stack: stack);
   }
 }

@@ -6,15 +6,8 @@ import '../domain/repo_entity.dart';
 const int _fallbackAccentArgb = 0xFF64748B;
 
 class SavedRepoSnapshot {
-  const SavedRepoSnapshot({
-    required this.fullName,
-    required this.description,
-    required this.language,
-    required this.starCount,
-    required this.forkCount,
-    required this.accentArgb,
-    required this.updatedAt,
-  });
+  const SavedRepoSnapshot(
+      {required this.fullName, required this.description, required this.language, required this.starCount, required this.forkCount, required this.accentArgb, required this.updatedAt});
 
   factory SavedRepoSnapshot.fromEntity(RepoEntity repo, DateTime now) {
     return SavedRepoSnapshot(
@@ -29,15 +22,7 @@ class SavedRepoSnapshot {
   }
 
   factory SavedRepoSnapshot.minimal(String fullName, DateTime now) {
-    return SavedRepoSnapshot(
-      fullName: fullName,
-      description: '',
-      language: 'Unknown',
-      starCount: 0,
-      forkCount: 0,
-      accentArgb: _fallbackAccentArgb,
-      updatedAt: now.toUtc(),
-    );
+    return SavedRepoSnapshot(fullName: fullName, description: '', language: 'Unknown', starCount: 0, forkCount: 0, accentArgb: _fallbackAccentArgb, updatedAt: now.toUtc());
   }
 
   factory SavedRepoSnapshot.fromJson(Map<String, Object?> json) {
@@ -61,15 +46,7 @@ class SavedRepoSnapshot {
   final DateTime updatedAt;
 
   RepoEntity toEntity() {
-    return RepoEntity(
-      fullName: fullName,
-      description: description,
-      language: language,
-      starCount: starCount,
-      starDelta: 0,
-      forkCount: forkCount,
-      accentArgb: accentArgb,
-    );
+    return RepoEntity(fullName: fullName, description: description, language: language, starCount: starCount, starDelta: 0, forkCount: forkCount, accentArgb: accentArgb);
   }
 
   Map<String, Object?> toJson() {
@@ -80,38 +57,20 @@ class SavedRepoSnapshot {
       'starCount': starCount,
       'forkCount': forkCount,
       'accentArgb': accentArgb,
-      'updatedAt': updatedAt.toUtc().toIso8601String(),
+      'updatedAt': updatedAt.toUtc().toIso8601String()
     };
   }
 }
 
 class SavedDeveloperSnapshot {
-  const SavedDeveloperSnapshot({
-    required this.login,
-    required this.contributions,
-    required this.avatarAccentArgb,
-    required this.updatedAt,
-  });
+  const SavedDeveloperSnapshot({required this.login, required this.contributions, required this.avatarAccentArgb, required this.updatedAt});
 
-  factory SavedDeveloperSnapshot.fromEntity(
-    ContributorEntity developer,
-    DateTime now,
-  ) {
-    return SavedDeveloperSnapshot(
-      login: developer.login,
-      contributions: developer.contributions,
-      avatarAccentArgb: developer.avatarAccentArgb,
-      updatedAt: now.toUtc(),
-    );
+  factory SavedDeveloperSnapshot.fromEntity(ContributorEntity developer, DateTime now) {
+    return SavedDeveloperSnapshot(login: developer.login, contributions: developer.contributions, avatarAccentArgb: developer.avatarAccentArgb, updatedAt: now.toUtc());
   }
 
   factory SavedDeveloperSnapshot.minimal(String login, DateTime now) {
-    return SavedDeveloperSnapshot(
-      login: login,
-      contributions: 0,
-      avatarAccentArgb: _fallbackAccentArgb,
-      updatedAt: now.toUtc(),
-    );
+    return SavedDeveloperSnapshot(login: login, contributions: 0, avatarAccentArgb: _fallbackAccentArgb, updatedAt: now.toUtc());
   }
 
   factory SavedDeveloperSnapshot.fromJson(Map<String, Object?> json) {
@@ -129,20 +88,11 @@ class SavedDeveloperSnapshot {
   final DateTime updatedAt;
 
   ContributorEntity toEntity() {
-    return ContributorEntity(
-      login: login,
-      contributions: contributions,
-      avatarAccentArgb: avatarAccentArgb,
-    );
+    return ContributorEntity(login: login, contributions: contributions, avatarAccentArgb: avatarAccentArgb);
   }
 
   Map<String, Object?> toJson() {
-    return {
-      'login': login,
-      'contributions': contributions,
-      'avatarAccentArgb': avatarAccentArgb,
-      'updatedAt': updatedAt.toUtc().toIso8601String(),
-    };
+    return {'login': login, 'contributions': contributions, 'avatarAccentArgb': avatarAccentArgb, 'updatedAt': updatedAt.toUtc().toIso8601String()};
   }
 }
 
@@ -151,28 +101,18 @@ Map<String, SavedRepoSnapshot> decodeRepoSnapshots(String? raw) {
 }
 
 Map<String, SavedDeveloperSnapshot> decodeDeveloperSnapshots(String? raw) {
-  return _decodeSnapshots(
-    raw,
-    SavedDeveloperSnapshot.fromJson,
-    (item) => item.login,
-  );
+  return _decodeSnapshots(raw, SavedDeveloperSnapshot.fromJson, (item) => item.login);
 }
 
 String encodeRepoSnapshots(Map<String, SavedRepoSnapshot> snapshots) {
   return _encodeSnapshots(snapshots, (item) => item.toJson());
 }
 
-String encodeDeveloperSnapshots(
-  Map<String, SavedDeveloperSnapshot> snapshots,
-) {
+String encodeDeveloperSnapshots(Map<String, SavedDeveloperSnapshot> snapshots) {
   return _encodeSnapshots(snapshots, (item) => item.toJson());
 }
 
-Map<String, T> _decodeSnapshots<T>(
-  String? raw,
-  T Function(Map<String, Object?>) decode,
-  String Function(T) idOf,
-) {
+Map<String, T> _decodeSnapshots<T>(String? raw, T Function(Map<String, Object?>) decode, String Function(T) idOf) {
   if (raw == null || raw.trim().isEmpty) {
     return <String, T>{};
   }
@@ -202,10 +142,7 @@ Map<String, T> _decodeSnapshots<T>(
   }
 }
 
-String _encodeSnapshots<T>(
-  Map<String, T> snapshots,
-  Map<String, Object?> Function(T) encode,
-) {
+String _encodeSnapshots<T>(Map<String, T> snapshots, Map<String, Object?> Function(T) encode) {
   final keys = snapshots.keys.toList()..sort();
   return jsonEncode([for (final key in keys) encode(snapshots[key] as T)]);
 }

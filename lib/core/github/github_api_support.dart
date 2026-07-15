@@ -21,7 +21,7 @@ class GitHubApiSupport {
       'X-GitHub-Api-Version': apiVersion,
       'User-Agent': userAgent,
       if (trimmed != null && trimmed.isNotEmpty) 'Authorization': 'Bearer $trimmed',
-      if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
+      if (etag != null && etag.isNotEmpty) 'If-None-Match': etag
     };
   }
 
@@ -39,10 +39,7 @@ class GitHubApiSupport {
     return '"$trimmed"';
   }
 
-  static AppException toAppException(
-    DioException e, {
-    DateTime Function()? now,
-  }) {
+  static AppException toAppException(DioException e, {DateTime Function()? now}) {
     final response = e.response;
     final statusCode = response?.statusCode ?? 0;
     final isGitHubRateLimit = statusCode == 403 && response?.headers.value('x-ratelimit-remaining') == '0';
@@ -50,19 +47,9 @@ class GitHubApiSupport {
       return e.toAppException();
     }
 
-    final reset = int.tryParse(
-      response?.headers.value('x-ratelimit-reset') ?? '',
-    );
-    final retryAfter = reset == null
-        ? null
-        : DateTime.fromMillisecondsSinceEpoch(
-            reset * 1000,
-          ).difference((now ?? DateTime.now)()).inSeconds.clamp(0, 3600);
-    return AppException(
-      kind: AppExceptionKind.rateLimit,
-      cause: e,
-      meta: {'retryAfter': retryAfter},
-    );
+    final reset = int.tryParse(response?.headers.value('x-ratelimit-reset') ?? '');
+    final retryAfter = reset == null ? null : DateTime.fromMillisecondsSinceEpoch(reset * 1000).difference((now ?? DateTime.now)()).inSeconds.clamp(0, 3600);
+    return AppException(kind: AppExceptionKind.rateLimit, cause: e, meta: {'retryAfter': retryAfter});
   }
 
   static int languageColor(String language) {
@@ -78,19 +65,12 @@ class GitHubApiSupport {
       'java' => 0xFFB07219,
       'c++' => 0xFFF34B7D,
       'c#' => 0xFF178600,
-      _ => 0xFF64748B,
+      _ => 0xFF64748B
     };
   }
 
   static int avatarColor(String login) {
-    const colors = [
-      0xFF0D9488,
-      0xFFE5A150,
-      0xFF30A46C,
-      0xFFE5464D,
-      0xFF4CB5FF,
-      0xFFA97BFF,
-    ];
+    const colors = [0xFF0D9488, 0xFFE5A150, 0xFF30A46C, 0xFFE5464D, 0xFF4CB5FF, 0xFFA97BFF];
     final index = login.codeUnits.fold<int>(0, (sum, code) => sum + code);
     return colors[index % colors.length];
   }

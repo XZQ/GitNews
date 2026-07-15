@@ -14,9 +14,7 @@ void main() {
 
   test('unconfigured OAuth fails locally without making a network request', () async {
     final dio = _MockDio();
-    final container = ProviderContainer(
-      overrides: [githubDeviceFlowDioProvider.overrideWithValue(dio)],
-    );
+    final container = ProviderContainer(overrides: [githubDeviceFlowDioProvider.overrideWithValue(dio)]);
     addTearDown(container.dispose);
 
     expect(ApiEndpointsConfig.githubOAuthConfigured, isFalse);
@@ -24,12 +22,6 @@ void main() {
 
     expect(container.read(githubDeviceFlowProvider).status, DeviceFlowStatus.error);
     expect(container.read(githubDeviceFlowProvider).error, 'not_configured');
-    verifyNever(
-      () => dio.post<Map<String, Object?>>(
-        any(),
-        data: any(named: 'data'),
-        options: any(named: 'options'),
-      ),
-    );
+    verifyNever(() => dio.post<Map<String, Object?>>(any(), data: any(named: 'data'), options: any(named: 'options')));
   });
 }

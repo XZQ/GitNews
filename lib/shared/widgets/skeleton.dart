@@ -13,10 +13,7 @@ class Skeleton extends StatelessWidget {
     return Container(
       width: width ?? double.infinity,
       height: height,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surfaceContainerHighest, borderRadius: BorderRadius.circular(AppRadius.sm)),
     );
   }
 }

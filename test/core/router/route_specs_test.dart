@@ -13,9 +13,6 @@ void main() {
   });
 
   test('compact IA uses distinct localized labels', () {
-    expect(
-      mobileAppTabs.map((tab) => tab.labelKey).toSet(),
-      {'mobile.today', 'mobile.ai', 'mobile.project', 'mobile.settings'},
-    );
+    expect(mobileAppTabs.map((tab) => tab.labelKey).toSet(), {'mobile.today', 'mobile.ai', 'mobile.project', 'mobile.settings'});
   });
 }

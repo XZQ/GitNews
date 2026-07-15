@@ -8,17 +8,7 @@ import '../../core/theme/app_typography.dart';
 *通用指标卡(可显示 Star 增速 / 监控数 / 告警数 / 语言分布等)。
 */
 class MetricCard extends StatelessWidget {
-  const MetricCard({
-    required this.title,
-    required this.value,
-    this.delta,
-    this.deltaPositive = true,
-    this.subtitle,
-    this.icon,
-    this.accent,
-    this.onTap,
-    super.key,
-  });
+  const MetricCard({required this.title, required this.value, this.delta, this.deltaPositive = true, this.subtitle, this.icon, this.accent, this.onTap, super.key});
 
   final String title;
   final String value;
@@ -50,69 +40,30 @@ class MetricCard extends StatelessWidget {
                     Container(
                       width: 28,
                       height: 28,
-                      decoration: BoxDecoration(
-                        color: (accent ?? colors.primary).withValues(
-                          alpha: 0.12,
-                        ),
-                        borderRadius: BorderRadius.circular(AppRadius.sm),
-                      ),
-                      child: Icon(
-                        icon,
-                        size: 16,
-                        color: accent ?? colors.primary,
-                      ),
+                      decoration: BoxDecoration(color: (accent ?? colors.primary).withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.sm)),
+                      child: Icon(icon, size: 16, color: accent ?? colors.primary),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.sm)
                   ],
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: text.bodySmall?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
+                  Expanded(child: Text(title, style: text.bodySmall?.copyWith(color: colors.onSurfaceVariant)))
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                value,
-                style: AppTypography.headlineLarge.copyWith(
-                  color: colors.onSurface,
-                ),
-              ),
+              Text(value, style: AppTypography.headlineLarge.copyWith(color: colors.onSurface)),
               if (delta != null) ...[
                 const SizedBox(height: AppSpacing.xxs),
                 Row(
                   children: [
-                    Icon(
-                      deltaPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
-                      size: 12,
-                      color: deltaColor,
-                    ),
+                    Icon(deltaPositive ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded, size: 12, color: deltaColor),
                     const SizedBox(width: AppSpacing.xxs),
-                    Text(
-                      delta!,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: deltaColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    Text(delta!, style: AppTypography.labelSmall.copyWith(color: deltaColor, fontWeight: FontWeight.w600)),
                     if (subtitle != null) ...[
                       const SizedBox(width: AppSpacing.xs2),
-                      Flexible(
-                        child: Text(
-                          subtitle!,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
+                      Flexible(child: Text(subtitle!, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant), overflow: TextOverflow.ellipsis))
+                    ]
                   ],
-                ),
-              ],
+                )
+              ]
             ],
           ),
         ),

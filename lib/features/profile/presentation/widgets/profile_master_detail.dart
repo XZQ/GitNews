@@ -31,15 +31,9 @@ class _ProfileMasterDetailState extends State<ProfileMasterDetail> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded(
-            flex: 45,
-            child: _SectionList(
-              selected: _selected,
-              onSelected: (s) => setState(() => _selected = s),
-            ),
-          ),
+          Expanded(flex: 45, child: _SectionList(selected: _selected, onSelected: (s) => setState(() => _selected = s))),
           const SizedBox(width: AppSpacing.lg),
-          Expanded(flex: 55, child: ProfileSectionDetail(section: _selected)),
+          Expanded(flex: 55, child: ProfileSectionDetail(section: _selected))
         ],
       ),
     );
@@ -60,25 +54,12 @@ class _SectionList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.sm,
-            ),
-            child: Text(
-              AppLocalizations.of(context).tr('profile.master.title'),
-              style: AppTypography.titleMedium,
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.sm),
+            child: Text(AppLocalizations.of(context).tr('profile.master.title'), style: AppTypography.titleMedium),
           ),
           const Divider(height: 1),
-          for (final s in ProfileSection.values)
-            ProfileSectionListItem(
-              section: s,
-              selected: s == selected,
-              onTap: () => onSelected(s),
-            ),
-          const SizedBox(height: AppSpacing.sm),
+          for (final s in ProfileSection.values) ProfileSectionListItem(section: s, selected: s == selected, onTap: () => onSelected(s)),
+          const SizedBox(height: AppSpacing.sm)
         ],
       ),
     );
@@ -86,12 +67,7 @@ class _SectionList extends StatelessWidget {
 }
 
 class ProfileSectionListItem extends StatelessWidget {
-  const ProfileSectionListItem({
-    required this.section,
-    required this.selected,
-    required this.onTap,
-    super.key,
-  });
+  const ProfileSectionListItem({required this.section, required this.selected, required this.onTap, super.key});
 
   final ProfileSection section;
   final bool selected;
@@ -107,24 +83,15 @@ class ProfileSectionListItem extends StatelessWidget {
       onTap: onTap,
       child: Container(
         color: bg,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
-        ),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
         child: Row(
           children: [
             Icon(section.icon, size: 18, color: fg),
             const SizedBox(width: AppSpacing.md),
             Expanded(
-              child: Text(
-                section.label(context),
-                style: AppTypography.bodyMedium.copyWith(
-                  color: selected ? colors.onSurface : null,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                ),
-              ),
+              child: Text(section.label(context), style: AppTypography.bodyMedium.copyWith(color: selected ? colors.onSurface : null, fontWeight: selected ? FontWeight.w600 : FontWeight.w400)),
             ),
-            if (selected) Icon(Icons.chevron_right, size: 16, color: accent),
+            if (selected) Icon(Icons.chevron_right, size: 16, color: accent)
           ],
         ),
       ),
@@ -146,11 +113,8 @@ class ProfileSectionDetail extends StatelessWidget {
       ProfileSection.monitorRules => const ProfileMonitorRulesDetailCard(),
       ProfileSection.data => const ProfileDataCard(),
       ProfileSection.settings => const ProfileSettingsCard(),
-      ProfileSection.about => const ProfileAboutCard(),
+      ProfileSection.about => const ProfileAboutCard()
     };
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 180),
-      child: KeyedSubtree(key: ValueKey<ProfileSection>(section), child: body),
-    );
+    return AnimatedSwitcher(duration: const Duration(milliseconds: 180), child: KeyedSubtree(key: ValueKey<ProfileSection>(section), child: body));
   }
 }

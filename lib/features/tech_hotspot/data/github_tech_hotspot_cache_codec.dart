@@ -7,31 +7,21 @@ Map<String, Object?> techHotspotDigestToJson(TechHotspotDigest digest) {
     'languages': digest.languages.map(_languageToJson).toList(),
     'topics': digest.topics.map(_topicToJson).toList(),
     'heatTrend': digest.heatTrend.map(_heatToJson).toList(),
-    'hotTags': digest.hotTags,
+    'hotTags': digest.hotTags
   };
 }
 
 TechHotspotDigest techHotspotDigestFromJson(Map<String, Object?> json) {
   return TechHotspotDigest(
-    languages: GitHubJson.list(
-      json['languages'],
-    ).map(_languageFromJson).toList(),
+    languages: GitHubJson.list(json['languages']).map(_languageFromJson).toList(),
     topics: GitHubJson.list(json['topics']).map(_topicFromJson).toList(),
     heatTrend: GitHubJson.list(json['heatTrend']).map(_heatFromJson).toList(),
-    hotTags: GitHubJson.list(
-      json['hotTags'],
-    ).map(GitHubJson.string).toList(growable: false),
+    hotTags: GitHubJson.list(json['hotTags']).map(GitHubJson.string).toList(growable: false),
   );
 }
 
 Map<String, Object?> _languageToJson(LanguageStat language) {
-  return {
-    'name': language.name,
-    'percent': language.percent,
-    'delta': language.delta,
-    'color': language.color,
-    'repoCount': language.repoCount,
-  };
+  return {'name': language.name, 'percent': language.percent, 'delta': language.delta, 'color': language.color, 'repoCount': language.repoCount};
 }
 
 LanguageStat _languageFromJson(Object? raw) {
@@ -57,7 +47,7 @@ Map<String, Object?> _topicToJson(TechTopic topic) {
     'relatedRepos': topic.relatedRepos,
     'summary': topic.summary,
     'valueBasis': topic.valueBasis.name,
-    'growthBasis': topic.growthBasis.name,
+    'growthBasis': topic.growthBasis.name
   };
 }
 
@@ -72,16 +62,8 @@ TechTopic _topicFromJson(Object? raw) {
     mentions: GitHubJson.intValue(json['mentions']),
     relatedRepos: GitHubJson.intValue(json['relatedRepos']),
     summary: GitHubJson.string(json['summary']),
-    valueBasis: _basisFromJson(
-      json['valueBasis'],
-      legacy: json['provenance'],
-      fallback: MetricBasis.observed,
-    ),
-    growthBasis: _basisFromJson(
-      json['growthBasis'],
-      legacy: json['growthProvenance'],
-      fallback: MetricBasis.estimated,
-    ),
+    valueBasis: _basisFromJson(json['valueBasis'], legacy: json['provenance'], fallback: MetricBasis.observed),
+    growthBasis: _basisFromJson(json['growthBasis'], legacy: json['growthProvenance'], fallback: MetricBasis.estimated),
   );
 }
 
@@ -91,17 +73,10 @@ Map<String, Object?> _heatToJson(TechHeatPoint point) {
 
 TechHeatPoint _heatFromJson(Object? raw) {
   final json = GitHubJson.map(raw);
-  return TechHeatPoint(
-    label: GitHubJson.string(json['label']),
-    value: GitHubJson.doubleValue(json['value']),
-  );
+  return TechHeatPoint(label: GitHubJson.string(json['label']), value: GitHubJson.doubleValue(json['value']));
 }
 
-MetricBasis _basisFromJson(
-  Object? raw, {
-  Object? legacy,
-  required MetricBasis fallback,
-}) {
+MetricBasis _basisFromJson(Object? raw, {Object? legacy, required MetricBasis fallback}) {
   final name = GitHubJson.nullableString(raw);
   if (name == null) {
     final legacyName = GitHubJson.nullableString(legacy);

@@ -30,10 +30,7 @@ void main() {
   });
 
   test('pixel golden suites are pinned to the Windows baseline platform', () {
-    for (final path in [
-      'test/shared/widgets/golden_test.dart',
-      'test/shared/widgets/main_screens_golden_test.dart',
-    ]) {
+    for (final path in ['test/shared/widgets/golden_test.dart', 'test/shared/widgets/main_screens_golden_test.dart']) {
       final source = File(path).readAsStringSync();
       expect(source, contains("import 'dart:io';"), reason: path);
       expect(source, contains('skip: !Platform.isWindows'), reason: path);

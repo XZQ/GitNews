@@ -8,11 +8,7 @@ import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/empty_view.dart';
 
 class TechHotspotTagsCloud extends StatelessWidget {
-  const TechHotspotTagsCloud({
-    required this.tags,
-    required this.onTagSelected,
-    super.key,
-  });
+  const TechHotspotTagsCloud({required this.tags, required this.onTagSelected, super.key});
 
   final List<String> tags;
   final ValueChanged<String> onTagSelected;
@@ -29,29 +25,14 @@ class TechHotspotTagsCloud extends StatelessWidget {
             children: [
               Icon(Icons.tag_rounded, size: 16, color: colors.primary),
               const SizedBox(width: AppSpacing.sm),
-              Text(
-                l10n.tr('tech_hotspot.tag_cloud'),
-                style: AppTypography.titleSmall.copyWith(
-                  color: colors.onSurface,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
+              Text(l10n.tr('tech_hotspot.tag_cloud'), style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700))
             ],
           ),
           const SizedBox(height: AppSpacing.md),
           if (tags.isEmpty)
-            EmptyView(
-              icon: Icons.sell_outlined,
-              message: l10n.tr('tech_hotspot.empty.tags'),
-            )
+            EmptyView(icon: Icons.sell_outlined, message: l10n.tr('tech_hotspot.empty.tags'))
           else
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.sm,
-              children: [
-                for (final tag in tags) _Tag(label: tag, onSelected: () => onTagSelected(tag)),
-              ],
-            ),
+            Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [for (final tag in tags) _Tag(label: tag, onSelected: () => onTagSelected(tag))])
         ],
       ),
     );
@@ -73,21 +54,9 @@ class _Tag extends StatelessWidget {
         onTap: onSelected,
         borderRadius: BorderRadius.circular(AppRadius.pill),
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.sm,
-          ),
-          decoration: BoxDecoration(
-            color: colors.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(AppRadius.pill),
-          ),
-          child: Text(
-            '# $label',
-            style: AppTypography.labelMedium.copyWith(
-              color: colors.onSurface,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+          decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(AppRadius.pill)),
+          child: Text('# $label', style: AppTypography.labelMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w500)),
         ),
       ),
     );

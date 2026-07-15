@@ -5,9 +5,7 @@ import '../../../core/i18n/app_localizations.dart';
 
 const int monitorNotificationCount = 1;
 
-List<String> monitorNotificationLabels(AppLocalizations l10n) => [
-      l10n.tr('monitor.notify.app'),
-    ];
+List<String> monitorNotificationLabels(AppLocalizations l10n) => [l10n.tr('monitor.notify.app')];
 
 class MonitorSettingsController extends Notifier<List<bool>> {
   static const _key = 'monitor_notification_settings';
@@ -27,12 +25,8 @@ class MonitorSettingsController extends Notifier<List<bool>> {
     }
     final next = [...state]..[index] = enabled;
     state = next;
-    await ref.read(sharedPreferencesProvider).setStringList(_key, [
-      for (final value in next) value ? '1' : '0',
-    ]);
+    await ref.read(sharedPreferencesProvider).setStringList(_key, [for (final value in next) value ? '1' : '0']);
   }
 }
 
-final monitorSettingsControllerProvider = NotifierProvider<MonitorSettingsController, List<bool>>(
-  MonitorSettingsController.new,
-);
+final monitorSettingsControllerProvider = NotifierProvider<MonitorSettingsController, List<bool>>(MonitorSettingsController.new);

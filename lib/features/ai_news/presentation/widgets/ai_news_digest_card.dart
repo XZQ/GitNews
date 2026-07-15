@@ -34,12 +34,7 @@ class AiNewsDigestCard extends ConsumerWidget {
               children: [
                 Icon(Icons.auto_awesome_rounded, size: 18, color: colors.primary),
                 const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: Text(
-                    l10n.tr('ai_news.digest_title'),
-                    style: AppTypography.titleMedium.copyWith(color: colors.onSurface),
-                  ),
-                ),
+                Expanded(child: Text(l10n.tr('ai_news.digest_title'), style: AppTypography.titleMedium.copyWith(color: colors.onSurface))),
                 if (config.configured && digest.valueOrNull != null)
                   IconButton(
                     tooltip: l10n.tr('ai_news.digest_regenerate'),
@@ -50,16 +45,13 @@ class AiNewsDigestCard extends ConsumerWidget {
                 IconButton(
                   tooltip: l10n.tr('ai_news.digest_settings'),
                   iconSize: 18,
-                  onPressed: () => showDialog<void>(
-                    context: context,
-                    builder: (_) => const AiDigestSettingsDialog(),
-                  ),
+                  onPressed: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
                   icon: const Icon(Icons.settings_outlined),
-                ),
+                )
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            _DigestBody(config: config, digest: digest),
+            _DigestBody(config: config, digest: digest)
           ],
         ),
       ),
@@ -78,31 +70,17 @@ class _DigestBody extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     if (!config.configured) {
-      return Text(
-        l10n.tr('ai_news.digest_unconfigured'),
-        style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
-      );
+      return Text(l10n.tr('ai_news.digest_unconfigured'), style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant));
     }
     if (digest.isLoading) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-        child: Center(child: CircularProgressIndicator()),
-      );
+      return const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.md), child: Center(child: CircularProgressIndicator()));
     }
     if (digest.hasError) {
       final kind = digest.error!.asAppException().kind.name;
       return Row(
         children: [
-          Expanded(
-            child: Text(
-              '${l10n.tr('ai_news.digest_failed')} ($kind)',
-              style: AppTypography.bodyMedium.copyWith(color: colors.error),
-            ),
-          ),
-          TextButton(
-            onPressed: () => ref.read(aiDigestNotifierProvider.notifier).generate(force: true),
-            child: Text(l10n.tr('common.retry')),
-          ),
+          Expanded(child: Text('${l10n.tr('ai_news.digest_failed')} ($kind)', style: AppTypography.bodyMedium.copyWith(color: colors.error))),
+          TextButton(onPressed: () => ref.read(aiDigestNotifierProvider.notifier).generate(force: true), child: Text(l10n.tr('common.retry')))
         ],
       );
     }
@@ -117,10 +95,7 @@ class _DigestBody extends ConsumerWidget {
         ),
       );
     }
-    return SelectableText(
-      text,
-      style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, height: 1.6),
-    );
+    return SelectableText(text, style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, height: 1.6));
   }
 }
 
@@ -171,38 +146,16 @@ class _AiDigestSettingsDialogState extends ConsumerState<AiDigestSettingsDialog>
             TextField(
               controller: _keyController,
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.tr('ai_news.digest_api_key'),
-                hintText: config.configured ? config.maskedKey : 'sk-...',
-              ),
+              decoration: InputDecoration(labelText: l10n.tr('ai_news.digest_api_key'), hintText: config.configured ? config.maskedKey : 'sk-...'),
             ),
             const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _baseUrlController,
-              decoration: InputDecoration(
-                labelText: l10n.tr('ai_news.digest_base_url'),
-              ),
-            ),
+            TextField(controller: _baseUrlController, decoration: InputDecoration(labelText: l10n.tr('ai_news.digest_base_url'))),
             const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: _modelController,
-              decoration: InputDecoration(
-                labelText: l10n.tr('ai_news.digest_model'),
-              ),
-            ),
+            TextField(controller: _modelController, decoration: InputDecoration(labelText: l10n.tr('ai_news.digest_model')))
           ],
         ),
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.tr('common.cancel')),
-        ),
-        FilledButton(
-          onPressed: _save,
-          child: Text(l10n.tr('common.confirm')),
-        ),
-      ],
+      actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.tr('common.cancel'))), FilledButton(onPressed: _save, child: Text(l10n.tr('common.confirm')))],
     );
   }
 
@@ -211,11 +164,7 @@ class _AiDigestSettingsDialogState extends ConsumerState<AiDigestSettingsDialog>
     final input = _keyController.text.trim();
     // 输入框留空且此前已配置:视为保留原 Key(避免每次都要重输)。
     final key = input.isEmpty && config.configured ? config.apiKey! : input;
-    await ref.read(aiDigestConfigControllerProvider.notifier).save(
-          apiKey: key,
-          baseUrl: _baseUrlController.text,
-          model: _modelController.text,
-        );
+    await ref.read(aiDigestConfigControllerProvider.notifier).save(apiKey: key, baseUrl: _baseUrlController.text, model: _modelController.text);
     if (mounted) {
       Navigator.of(context).pop();
     }

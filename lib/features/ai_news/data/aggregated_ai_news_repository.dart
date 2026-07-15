@@ -15,12 +15,7 @@ import 'ai_news_rss_client.dart';
 *  模块仍返回 live 数据(这正是引入多源要消除的单点);全军覆没才抛错
 */
 class AggregatedAiNewsRepository implements AiNewsRepository {
-  const AggregatedAiNewsRepository(
-    this._primary,
-    this._rssClient, {
-    this.sources = AiNewsSourcesConfig.sources,
-    this.clock = DateTime.now,
-  });
+  const AggregatedAiNewsRepository(this._primary, this._rssClient, {this.sources = AiNewsSourcesConfig.sources, this.clock = DateTime.now});
 
   final AiNewsRepository _primary;
   final AiNewsRssClient _rssClient;
@@ -28,49 +23,29 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
   final DateTime Function() clock;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({
-    AiNewsCategory? category,
-    DateTime? since,
-    String? query,
-    String? cursor,
-    bool selectedOnly = true,
-  }) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
     final isHead = cursor == null || cursor.isEmpty;
     final hasQuery = query != null && query.trim().isNotEmpty;
     if (!isHead || hasQuery) {
-      return _primary.fetchItems(
-        category: category,
-        since: since,
-        query: query,
-        cursor: cursor,
-        selectedOnly: selectedOnly,
-      );
+      return _primary.fetchItems(category: category, since: since, query: query, cursor: cursor, selectedOnly: selectedOnly);
     }
 
     final now = clock();
     // 分类筛选时只请求默认分类匹配的源,省掉必然被过滤的流量。
     final applicable = [
       for (final s in sources)
-        if (category == null || s.categoryCode == category.code) s,
+        if (category == null || s.categoryCode == category.code) s
     ];
 
-    final primaryFuture = _guard(
-      () => _primary.fetchItems(
-        category: category,
-        since: since,
-        selectedOnly: selectedOnly,
-      ),
-    );
-    final rssFutures = [
-      for (final s in applicable) _guard(() => _rssClient.fetchSource(s, now: now)),
-    ];
+    final primaryFuture = _guard(() => _primary.fetchItems(category: category, since: since, selectedOnly: selectedOnly));
+    final rssFutures = [for (final s in applicable) _guard(() => _rssClient.fetchSource(s, now: now))];
 
     final primaryOutcome = await primaryFuture;
     final rssOutcomes = await Future.wait(rssFutures);
 
     final extras = [
       for (final o in rssOutcomes)
-        if (o.value != null) o.value!,
+        if (o.value != null) o.value!
     ];
     final primaryDigest = primaryOutcome.value?.data;
     if (primaryDigest == null && extras.isEmpty) {
@@ -78,20 +53,15 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
       throw primaryOutcome.error ?? StateError('all ai news sources failed');
     }
 
-    final merged = mergeAiNewsItems(
-      primary: primaryDigest?.items ?? const [],
-      extras: extras,
-    );
+    final merged = mergeAiNewsItems(primary: primaryDigest?.items ?? const [], extras: extras);
     return DataResult(
-      data: AiNewsDigest(
-        items: merged,
-        count: merged.length,
-        // 分页能力完全由主源提供;主源失败时本页即为全部。
-        hasNext: primaryDigest?.hasNext ?? false,
-        nextCursor: primaryDigest?.nextCursor,
-      ),
-      freshness: DataFreshness.live,
-    );
+        data: AiNewsDigest(
+            items: merged,
+            count: merged.length,
+            // 分页能力完全由主源提供;主源失败时本页即为全部。
+            hasNext: primaryDigest?.hasNext ?? false,
+            nextCursor: primaryDigest?.nextCursor),
+        freshness: DataFreshness.live);
   }
 
   static Future<_Outcome<T>> _guard<T>(Future<T> Function() run) async {

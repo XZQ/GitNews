@@ -16,13 +16,7 @@ class AiDigestLlmClient {
   /*
   *执行一次补全,返回首个 choice 的文本。
   */
-  Future<String> complete({
-    required String baseUrl,
-    required String apiKey,
-    required String model,
-    required String systemPrompt,
-    required String userPrompt,
-  }) async {
+  Future<String> complete({required String baseUrl, required String apiKey, required String model, required String systemPrompt, required String userPrompt}) async {
     final Response<Map<String, Object?>> resp;
     try {
       resp = await _dio.post<Map<String, Object?>>(
@@ -32,14 +26,11 @@ class AiDigestLlmClient {
           'temperature': 0.3,
           'messages': [
             {'role': 'system', 'content': systemPrompt},
-            {'role': 'user', 'content': userPrompt},
-          ],
+            {'role': 'user', 'content': userPrompt}
+          ]
         },
         options: Options(
-          headers: {
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
+          headers: {'Authorization': 'Bearer $apiKey', 'Content-Type': 'application/json'},
           // LLM 生成耗时远超普通 API,单独放宽接收超时。
           receiveTimeout: const Duration(seconds: 90),
         ),

@@ -41,11 +41,8 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
   static const _steps = [
     _OnboardingStep(icon: Icons.insights_rounded, color: AppColors.brand),
     _OnboardingStep(icon: Icons.auto_awesome_rounded, color: AppColors.brand),
-    _OnboardingStep(
-      icon: Icons.local_fire_department_rounded,
-      color: AppColors.warning,
-    ),
-    _OnboardingStep(icon: Icons.notifications_rounded, color: AppColors.info),
+    _OnboardingStep(icon: Icons.local_fire_department_rounded, color: AppColors.warning),
+    _OnboardingStep(icon: Icons.notifications_rounded, color: AppColors.info)
   ];
 
   @override
@@ -56,91 +53,48 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
     final isLast = _step == _steps.length - 1;
 
     return Dialog(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 440),
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xxl),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // 进度指示器
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  for (var i = 0; i < _steps.length; i++) ...[
-                    if (i > 0) const SizedBox(width: AppSpacing.xs),
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: i <= _step ? step.color : colors.outlineVariant,
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              // 图标
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: step.color.withValues(alpha: 0.14),
-                  borderRadius: BorderRadius.circular(AppRadius.xl),
-                ),
-                child: Icon(step.icon, size: 36, color: step.color),
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              // 标题
-              Text(
-                l10n.tr(_stepKeys[_step * 2]),
-                style: AppTypography.headlineMedium.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              // 描述
-              Text(
-                l10n.tr(_stepKeys[_step * 2 + 1]),
-                style: AppTypography.bodyMedium.copyWith(
-                  color: colors.onSurfaceVariant,
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: AppSpacing.xxl),
-              // 按钮
-              Row(
-                children: [
-                  if (!isLast)
-                    TextButton(
-                      onPressed: () => _finish(context),
-                      child: Text(l10n.tr('onboarding.skip')),
-                    )
-                  else
-                    const Spacer(),
-                  const Spacer(),
-                  FilledButton(
-                    onPressed: () {
-                      if (isLast) {
-                        _finish(context);
-                      } else {
-                        setState(() => _step++);
-                      }
-                    },
-                    child: Text(
-                      isLast ? l10n.tr('onboarding.done') : l10n.tr('onboarding.next'),
-                    ),
+        child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.xxl),
+                child: Column(mainAxisSize: MainAxisSize.min, children: [
+                  // 进度指示器
+                  Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    for (var i = 0; i < _steps.length; i++) ...[
+                      if (i > 0) const SizedBox(width: AppSpacing.xs),
+                      Container(width: 8, height: 8, decoration: BoxDecoration(color: i <= _step ? step.color : colors.outlineVariant, shape: BoxShape.circle))
+                    ]
+                  ]),
+                  const SizedBox(height: AppSpacing.xxl),
+                  // 图标
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(color: step.color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(AppRadius.xl)),
+                    child: Icon(step.icon, size: 36, color: step.color),
                   ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+                  const SizedBox(height: AppSpacing.xl),
+                  // 标题
+                  Text(l10n.tr(_stepKeys[_step * 2]), style: AppTypography.headlineMedium.copyWith(fontWeight: FontWeight.w700), textAlign: TextAlign.center),
+                  const SizedBox(height: AppSpacing.sm),
+                  // 描述
+                  Text(l10n.tr(_stepKeys[_step * 2 + 1]), style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.5), textAlign: TextAlign.center),
+                  const SizedBox(height: AppSpacing.xxl),
+                  // 按钮
+                  Row(children: [
+                    if (!isLast) TextButton(onPressed: () => _finish(context), child: Text(l10n.tr('onboarding.skip'))) else const Spacer(),
+                    const Spacer(),
+                    FilledButton(
+                        onPressed: () {
+                          if (isLast) {
+                            _finish(context);
+                          } else {
+                            setState(() => _step++);
+                          }
+                        },
+                        child: Text(isLast ? l10n.tr('onboarding.done') : l10n.tr('onboarding.next')))
+                  ])
+                ]))));
   }
 
   static const _stepKeys = [
@@ -151,7 +105,7 @@ class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
     'onboarding.step2_title',
     'onboarding.step2_desc',
     'onboarding.step3_title',
-    'onboarding.step3_desc',
+    'onboarding.step3_desc'
   ];
 
   Future<void> _finish(BuildContext context) async {

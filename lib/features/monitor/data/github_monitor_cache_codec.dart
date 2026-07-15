@@ -4,31 +4,19 @@ import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
 
 Map<String, Object?> monitorDigestToJson(MonitorDigest digest) {
-  return {
-    'repos': digest.monitoredRepos.map(githubRepoEntityToJson).toList(),
-    'alerts': digest.alerts.map(_alertToJson).toList(),
-    'stats': _statsToJson(digest.stats),
-  };
+  return {'repos': digest.monitoredRepos.map(githubRepoEntityToJson).toList(), 'alerts': digest.alerts.map(_alertToJson).toList(), 'stats': _statsToJson(digest.stats)};
 }
 
 MonitorDigest monitorDigestFromJson(Map<String, Object?> json) {
   return MonitorDigest(
-    monitoredRepos: GitHubJson.list(
-      json['repos'],
-    ).map(githubRepoEntityFromJson).toList(),
+    monitoredRepos: GitHubJson.list(json['repos']).map(githubRepoEntityFromJson).toList(),
     alerts: GitHubJson.list(json['alerts']).map(_alertFromJson).toList(),
     stats: _statsFromJson(GitHubJson.map(json['stats'])),
   );
 }
 
 Map<String, Object?> _alertToJson(AlertEntity alert) {
-  return {
-    'repoFullName': alert.repoFullName,
-    'metric': alert.metric,
-    'value': alert.value,
-    'time': alert.time,
-    'severity': alert.severity.name,
-  };
+  return {'repoFullName': alert.repoFullName, 'metric': alert.metric, 'value': alert.value, 'time': alert.time, 'severity': alert.severity.name};
 }
 
 AlertEntity _alertFromJson(Object? raw) {
@@ -38,10 +26,7 @@ AlertEntity _alertFromJson(Object? raw) {
     metric: GitHubJson.string(json['metric']),
     value: GitHubJson.string(json['value']),
     time: GitHubJson.string(json['time']),
-    severity: AlertSeverity.values.firstWhere(
-      (severity) => severity.name == GitHubJson.string(json['severity']),
-      orElse: () => AlertSeverity.info,
-    ),
+    severity: AlertSeverity.values.firstWhere((severity) => severity.name == GitHubJson.string(json['severity']), orElse: () => AlertSeverity.info),
   );
 }
 
@@ -54,7 +39,7 @@ Map<String, Object?> _statsToJson(MonitorStats stats) {
     'triggeredTodayCount': stats.triggeredTodayCount,
     'triggeredTodayDelta': stats.triggeredTodayDelta,
     'totalAlertCount': stats.totalAlertCount,
-    'totalAlertDelta': stats.totalAlertDelta,
+    'totalAlertDelta': stats.totalAlertDelta
   };
 }
 

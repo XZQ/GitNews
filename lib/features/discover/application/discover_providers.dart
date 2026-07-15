@@ -43,71 +43,47 @@ final discoverSearchQueryProvider = StateProvider<String>((ref) => '');
 // 刷新计数器:自增即触发强制刷新(绕过缓存 TTL)。
 final discoverRefreshTickProvider = StateProvider<int>((ref) => 0);
 
-final discoverReposFreshnessProvider = StateProvider<DataFreshness>(
-  (ref) => DataFreshness.seed,
-);
-final discoverSkillsFreshnessProvider = StateProvider<DataFreshness>(
-  (ref) => DataFreshness.seed,
-);
-final discoverOfficialFreshnessProvider = StateProvider<DataFreshness>(
-  (ref) => DataFreshness.seed,
-);
-final discoverPeopleFreshnessProvider = StateProvider<DataFreshness>(
-  (ref) => DataFreshness.seed,
-);
+final discoverReposFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.seed);
+final discoverSkillsFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.seed);
+final discoverOfficialFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.seed);
+final discoverPeopleFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.seed);
 
 final discoverFreshnessProvider = Provider<DataFreshness>((ref) {
   return switch (ref.watch(discoverSegmentProvider)) {
     'skills' => ref.watch(discoverSkillsFreshnessProvider),
     'official' => ref.watch(discoverOfficialFreshnessProvider),
     'people' => ref.watch(discoverPeopleFreshnessProvider),
-    _ => ref.watch(discoverReposFreshnessProvider),
+    _ => ref.watch(discoverReposFreshnessProvider)
   };
 });
 
-final trendingReposNotifierProvider = AsyncNotifierProvider.autoDispose<TrendingReposNotifier, List<RepoEntity>>(
-  TrendingReposNotifier.new,
-);
+final trendingReposNotifierProvider = AsyncNotifierProvider.autoDispose<TrendingReposNotifier, List<RepoEntity>>(TrendingReposNotifier.new);
 
-final agentSkillsNotifierProvider = AsyncNotifierProvider.autoDispose<AgentSkillsNotifier, List<SkillEntity>>(
-  AgentSkillsNotifier.new,
-);
+final agentSkillsNotifierProvider = AsyncNotifierProvider.autoDispose<AgentSkillsNotifier, List<SkillEntity>>(AgentSkillsNotifier.new);
 
-final officialProfilesNotifierProvider = AsyncNotifierProvider.autoDispose<ProfilesNotifier, List<DiscoverProfileEntity>>(
-  () => ProfilesNotifier(DiscoverProfileKind.official),
-);
+final officialProfilesNotifierProvider = AsyncNotifierProvider.autoDispose<ProfilesNotifier, List<DiscoverProfileEntity>>(() => ProfilesNotifier(DiscoverProfileKind.official));
 
-final peopleProfilesNotifierProvider = AsyncNotifierProvider.autoDispose<ProfilesNotifier, List<DiscoverProfileEntity>>(
-  () => ProfilesNotifier(DiscoverProfileKind.people),
-);
+final peopleProfilesNotifierProvider = AsyncNotifierProvider.autoDispose<ProfilesNotifier, List<DiscoverProfileEntity>>(() => ProfilesNotifier(DiscoverProfileKind.people));
 
 // 应用本地搜索后的流行仓库。
-final filteredTrendingReposProvider = Provider<AsyncValue<List<RepoEntity>>>(
-  (ref) {
-    final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
-    final repos = ref.watch(trendingReposNotifierProvider);
-    if (query.isEmpty) {
-      return repos;
-    }
-    return repos.whenData(
-      (items) => items.where((r) => _repoText(r).contains(query)).toList(),
-    );
-  },
-);
+final filteredTrendingReposProvider = Provider<AsyncValue<List<RepoEntity>>>((ref) {
+  final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
+  final repos = ref.watch(trendingReposNotifierProvider);
+  if (query.isEmpty) {
+    return repos;
+  }
+  return repos.whenData((items) => items.where((r) => _repoText(r).contains(query)).toList());
+});
 
 // 应用本地搜索后的 Agent Skills。
-final filteredAgentSkillsProvider = Provider<AsyncValue<List<SkillEntity>>>(
-  (ref) {
-    final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
-    final skills = ref.watch(agentSkillsNotifierProvider);
-    if (query.isEmpty) {
-      return skills;
-    }
-    return skills.whenData(
-      (items) => items.where((s) => _skillText(s).contains(query)).toList(),
-    );
-  },
-);
+final filteredAgentSkillsProvider = Provider<AsyncValue<List<SkillEntity>>>((ref) {
+  final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();
+  final skills = ref.watch(agentSkillsNotifierProvider);
+  if (query.isEmpty) {
+    return skills;
+  }
+  return skills.whenData((items) => items.where((s) => _skillText(s).contains(query)).toList());
+});
 
 final filteredOfficialProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
   final query = ref.watch(discoverSearchQueryProvider).trim().toLowerCase();

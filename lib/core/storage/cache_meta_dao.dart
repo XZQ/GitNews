@@ -21,13 +21,7 @@ class CacheMetaDao {
   */
   Future<DateTime?> lastFetched(String cacheKey) async {
     try {
-      final rows = await _db.query(
-        _table,
-        columns: ['last_fetched_at'],
-        where: 'cache_key = ?',
-        whereArgs: [cacheKey],
-        limit: 1,
-      );
+      final rows = await _db.query(_table, columns: ['last_fetched_at'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
       if (rows.isEmpty) {
         return null;
       }
@@ -37,12 +31,7 @@ class CacheMetaDao {
       }
       return DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'lastFetched', 'cacheKey': cacheKey},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'lastFetched', 'cacheKey': cacheKey});
     }
   }
 
@@ -52,33 +41,14 @@ class CacheMetaDao {
   */
   Future<void> upsert(String cacheKey, DateTime at) async {
     try {
-      final existing = await _db.query(
-        _table,
-        columns: ['cache_key'],
-        where: 'cache_key = ?',
-        whereArgs: [cacheKey],
-        limit: 1,
-      );
+      final existing = await _db.query(_table, columns: ['cache_key'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
       if (existing.isEmpty) {
-        await _db.insert(_table, {
-          'cache_key': cacheKey,
-          'last_fetched_at': at.millisecondsSinceEpoch,
-        });
+        await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': at.millisecondsSinceEpoch});
       } else {
-        await _db.update(
-          _table,
-          {'last_fetched_at': at.millisecondsSinceEpoch},
-          where: 'cache_key = ?',
-          whereArgs: [cacheKey],
-        );
+        await _db.update(_table, {'last_fetched_at': at.millisecondsSinceEpoch}, where: 'cache_key = ?', whereArgs: [cacheKey]);
       }
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'upsert', 'cacheKey': cacheKey},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'upsert', 'cacheKey': cacheKey});
     }
   }
 
@@ -89,12 +59,7 @@ class CacheMetaDao {
     try {
       await _db.delete(_table, where: 'cache_key = ?', whereArgs: [cacheKey]);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'delete', 'cacheKey': cacheKey},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'delete', 'cacheKey': cacheKey});
     }
   }
 
@@ -103,24 +68,13 @@ class CacheMetaDao {
   */
   Future<String?> readEtag(String cacheKey) async {
     try {
-      final rows = await _db.query(
-        _table,
-        columns: ['payload_hash'],
-        where: 'cache_key = ?',
-        whereArgs: [cacheKey],
-        limit: 1,
-      );
+      final rows = await _db.query(_table, columns: ['payload_hash'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
       if (rows.isEmpty) {
         return null;
       }
       return rows.first['payload_hash'] as String?;
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'readEtag', 'cacheKey': cacheKey},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'readEtag', 'cacheKey': cacheKey});
     }
   }
 
@@ -130,30 +84,11 @@ class CacheMetaDao {
   */
   Future<void> writeEtag(String cacheKey, String etag) async {
     try {
-      final existing = await _db.query(
-        _table,
-        columns: ['last_fetched_at'],
-        where: 'cache_key = ?',
-        whereArgs: [cacheKey],
-        limit: 1,
-      );
+      final existing = await _db.query(_table, columns: ['last_fetched_at'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
       final lastFetched = existing.isEmpty ? 0 : (existing.first['last_fetched_at'] as int? ?? 0);
-      await _db.insert(
-        _table,
-        {
-          'cache_key': cacheKey,
-          'last_fetched_at': lastFetched,
-          'payload_hash': etag,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': lastFetched, 'payload_hash': etag}, conflictAlgorithm: ConflictAlgorithm.replace);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'writeEtag', 'cacheKey': cacheKey},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'writeEtag', 'cacheKey': cacheKey});
     }
   }
 
@@ -161,22 +96,12 @@ class CacheMetaDao {
   *批量清理超过 [retainFor] 未刷新的 cache_meta 行(最佳努力,失败不抛)。
   *用于启动时收敛无限增长的 cache_key 元数据;被清理的 key 下次拉取时会重建。
   */
-  Future<int> pruneStale({
-    required DateTime now,
-    required Duration retainFor,
-  }) async {
+  Future<int> pruneStale({required DateTime now, required Duration retainFor}) async {
     try {
       final threshold = now.toUtc().millisecondsSinceEpoch - retainFor.inMilliseconds;
-      return _db.delete(
-        _table,
-        where: 'last_fetched_at < ?',
-        whereArgs: [threshold],
-      );
+      return _db.delete(_table, where: 'last_fetched_at < ?', whereArgs: [threshold]);
     } catch (e) {
-      AppLogger.warn(
-        'cacheMetaPrune',
-        meta: {'error': e.runtimeType.toString()},
-      );
+      AppLogger.warn('cacheMetaPrune', meta: {'error': e.runtimeType.toString()});
       return 0;
     }
   }

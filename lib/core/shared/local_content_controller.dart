@@ -9,25 +9,20 @@ import 'local_content_snapshots.dart';
 
 const int monitorRuleCount = 4;
 
-List<String> monitorRuleLabels(AppLocalizations l10n) => [
-      l10n.tr('monitor.rule.star_growth'),
-      l10n.tr('monitor.rule.daily_growth'),
-      l10n.tr('monitor.rule.fork_growth'),
-      l10n.tr('monitor.rule.discuss_heat'),
-    ];
+List<String> monitorRuleLabels(AppLocalizations l10n) =>
+    [l10n.tr('monitor.rule.star_growth'), l10n.tr('monitor.rule.daily_growth'), l10n.tr('monitor.rule.fork_growth'), l10n.tr('monitor.rule.discuss_heat')];
 
 class LocalContentState {
-  const LocalContentState({
-    required this.bookmarkedRepos,
-    required this.monitoredRepos,
-    required this.monitoredSkills,
-    required this.followedDevelopers,
-    required this.monitorRules,
-    required this.repoSnapshots,
-    required this.developerSnapshots,
-    this.cachedUserName,
-    this.cachedAvatarUrl,
-  });
+  const LocalContentState(
+      {required this.bookmarkedRepos,
+      required this.monitoredRepos,
+      required this.monitoredSkills,
+      required this.followedDevelopers,
+      required this.monitorRules,
+      required this.repoSnapshots,
+      required this.developerSnapshots,
+      this.cachedUserName,
+      this.cachedAvatarUrl});
 
   final Set<String> bookmarkedRepos;
   final Set<String> monitoredRepos;
@@ -51,31 +46,30 @@ class LocalContentState {
 
   Map<String, SavedRepoSnapshot> get bookmarkedRepoSnapshots => {
         for (final id in bookmarkedRepos)
-          if (repoSnapshots[id] case final snapshot?) id: snapshot,
+          if (repoSnapshots[id] case final snapshot?) id: snapshot
       };
 
   Map<String, SavedRepoSnapshot> get monitoredRepoSnapshots => {
         for (final id in monitoredRepos)
-          if (repoSnapshots[id] case final snapshot?) id: snapshot,
+          if (repoSnapshots[id] case final snapshot?) id: snapshot
       };
 
   Map<String, SavedDeveloperSnapshot> get followedDeveloperSnapshots => {
         for (final id in followedDevelopers)
-          if (developerSnapshots[id] case final snapshot?) id: snapshot,
+          if (developerSnapshots[id] case final snapshot?) id: snapshot
       };
 
-  LocalContentState copyWith({
-    Set<String>? bookmarkedRepos,
-    Set<String>? monitoredRepos,
-    Set<String>? monitoredSkills,
-    Set<String>? followedDevelopers,
-    List<bool>? monitorRules,
-    Map<String, SavedRepoSnapshot>? repoSnapshots,
-    Map<String, SavedDeveloperSnapshot>? developerSnapshots,
-    String? cachedUserName,
-    String? cachedAvatarUrl,
-    bool clearCachedUser = false,
-  }) {
+  LocalContentState copyWith(
+      {Set<String>? bookmarkedRepos,
+      Set<String>? monitoredRepos,
+      Set<String>? monitoredSkills,
+      Set<String>? followedDevelopers,
+      List<bool>? monitorRules,
+      Map<String, SavedRepoSnapshot>? repoSnapshots,
+      Map<String, SavedDeveloperSnapshot>? developerSnapshots,
+      String? cachedUserName,
+      String? cachedAvatarUrl,
+      bool clearCachedUser = false}) {
     return LocalContentState(
       bookmarkedRepos: bookmarkedRepos ?? this.bookmarkedRepos,
       monitoredRepos: monitoredRepos ?? this.monitoredRepos,
@@ -104,32 +98,17 @@ class LocalContentController extends Notifier<LocalContentState> {
   @override
   LocalContentState build() {
     final prefs = ref.read(sharedPreferencesProvider);
-    final bookmarks = _readSet(
-      prefs.getStringList(_bookmarksKey),
-      defaultBookmarkedRepos,
-    );
-    final monitors = _readSet(
-      prefs.getStringList(_monitorsKey),
-      defaultMonitoredRepos,
-    );
-    final developers = _readSet(
-      prefs.getStringList(_developersKey),
-      defaultFollowedDevelopers,
-    );
+    final bookmarks = _readSet(prefs.getStringList(_bookmarksKey), defaultBookmarkedRepos);
+    final monitors = _readSet(prefs.getStringList(_monitorsKey), defaultMonitoredRepos);
+    final developers = _readSet(prefs.getStringList(_developersKey), defaultFollowedDevelopers);
     return LocalContentState(
       bookmarkedRepos: bookmarks,
       monitoredRepos: monitors,
       monitoredSkills: _readSet(prefs.getStringList(_skillsKey), const []),
       followedDevelopers: developers,
       monitorRules: _readRules(prefs.getStringList(_rulesKey)),
-      repoSnapshots: hydrateRepoSnapshots(
-        {...bookmarks, ...monitors},
-        decodeRepoSnapshots(prefs.getString(_repoSnapshotsKey)),
-      ),
-      developerSnapshots: hydrateDeveloperSnapshots(
-        developers,
-        decodeDeveloperSnapshots(prefs.getString(_developerSnapshotsKey)),
-      ),
+      repoSnapshots: hydrateRepoSnapshots({...bookmarks, ...monitors}, decodeRepoSnapshots(prefs.getString(_repoSnapshotsKey))),
+      developerSnapshots: hydrateDeveloperSnapshots(developers, decodeDeveloperSnapshots(prefs.getString(_developerSnapshotsKey))),
       cachedUserName: prefs.getString(_userNameKey),
       cachedAvatarUrl: prefs.getString(_userAvatarKey),
     );
@@ -209,18 +188,12 @@ class LocalContentController extends Notifier<LocalContentState> {
     final next = {...state.followedDevelopers};
     final snapshots = {...state.developerSnapshots};
     if (next.add(login)) {
-      snapshots[login] = SavedDeveloperSnapshot.fromEntity(
-        developer,
-        DateTime.now(),
-      );
+      snapshots[login] = SavedDeveloperSnapshot.fromEntity(developer, DateTime.now());
     } else {
       next.remove(login);
       snapshots.remove(login);
     }
-    state = state.copyWith(
-      followedDevelopers: next,
-      developerSnapshots: snapshots,
-    );
+    state = state.copyWith(followedDevelopers: next, developerSnapshots: snapshots);
     await _persistSet(_developersKey, next);
     await _persistDeveloperSnapshots(snapshots);
   }
@@ -231,9 +204,7 @@ class LocalContentController extends Notifier<LocalContentState> {
     }
     final next = [...state.monitorRules]..[index] = enabled;
     state = state.copyWith(monitorRules: next);
-    await ref.read(sharedPreferencesProvider).setStringList(_rulesKey, [
-      for (final value in next) value ? '1' : '0',
-    ]);
+    await ref.read(sharedPreferencesProvider).setStringList(_rulesKey, [for (final value in next) value ? '1' : '0']);
   }
 
   Future<void> setCachedUser({String? name, String? avatarUrl}) async {
@@ -271,22 +242,13 @@ class LocalContentController extends Notifier<LocalContentState> {
     return ref.read(sharedPreferencesProvider).setStringList(key, sorted);
   }
 
-  Future<void> _persistRepoSnapshots(
-    Map<String, SavedRepoSnapshot> snapshots,
-  ) {
+  Future<void> _persistRepoSnapshots(Map<String, SavedRepoSnapshot> snapshots) {
     return ref.read(sharedPreferencesProvider).setString(_repoSnapshotsKey, encodeRepoSnapshots(snapshots));
   }
 
-  Future<void> _persistDeveloperSnapshots(
-    Map<String, SavedDeveloperSnapshot> snapshots,
-  ) {
-    return ref.read(sharedPreferencesProvider).setString(
-          _developerSnapshotsKey,
-          encodeDeveloperSnapshots(snapshots),
-        );
+  Future<void> _persistDeveloperSnapshots(Map<String, SavedDeveloperSnapshot> snapshots) {
+    return ref.read(sharedPreferencesProvider).setString(_developerSnapshotsKey, encodeDeveloperSnapshots(snapshots));
   }
 }
 
-final localContentControllerProvider = NotifierProvider<LocalContentController, LocalContentState>(
-  LocalContentController.new,
-);
+final localContentControllerProvider = NotifierProvider<LocalContentController, LocalContentState>(LocalContentController.new);

@@ -34,19 +34,9 @@ class MonitorPageHeader extends ConsumerWidget {
       onRefresh: () => forceRefreshMonitor(ref),
       pills: [
         if (freshness != null) DataFreshnessBadge(freshness: freshness),
-        HeaderStatPill(
-          icon: Icons.circle,
-          label: l10n.tr('monitor.unread_count').replaceAll('{n}', stats.unreadAlertCount.toString()),
-          color: AppColors.success,
-        ),
+        HeaderStatPill(icon: Icons.circle, label: l10n.tr('monitor.unread_count').replaceAll('{n}', stats.unreadAlertCount.toString()), color: AppColors.success)
       ],
-      actions: [
-        HeaderAction(
-          icon: Icons.add_circle_outline_rounded,
-          tooltip: l10n.tr('a11y.add_monitor'),
-          onPressed: () => context.go('/profile/monitor'),
-        ),
-      ],
+      actions: [HeaderAction(icon: Icons.add_circle_outline_rounded, tooltip: l10n.tr('a11y.add_monitor'), onPressed: () => context.go('/profile/monitor'))],
     );
   }
 }

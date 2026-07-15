@@ -48,29 +48,20 @@ class AppTheme {
   /* 
   *通用工厂。
   */
-  static ThemeData fromSeed(Brightness brightness, Color seed) => switch (brightness) {
-        Brightness.light => light(seed),
-        Brightness.dark => dark(seed),
-      };
+  static ThemeData fromSeed(Brightness brightness, Color seed) => switch (brightness) { Brightness.light => light(seed), Brightness.dark => dark(seed) };
 
-  static ThemeData _build({
-    required Brightness brightness,
-    required Color seed,
-    required Color background,
-    required Color surface,
-    required Color surfaceAlt,
-    required Color border,
-    required Color textPrimary,
-    required Color textSecondary,
-    required Color textMuted,
-  }) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: seed,
-      brightness: brightness,
-      surface: surface,
-      onSurface: textPrimary,
-      surfaceContainerHighest: surfaceAlt,
-    ).copyWith(outline: border, outlineVariant: border, primary: seed);
+  static ThemeData _build(
+      {required Brightness brightness,
+      required Color seed,
+      required Color background,
+      required Color surface,
+      required Color surfaceAlt,
+      required Color border,
+      required Color textPrimary,
+      required Color textSecondary,
+      required Color textMuted}) {
+    final colorScheme = ColorScheme.fromSeed(seedColor: seed, brightness: brightness, surface: surface, onSurface: textPrimary, surfaceContainerHighest: surfaceAlt)
+        .copyWith(outline: border, outlineVariant: border, primary: seed);
 
     final textTheme = TextTheme(
       displayLarge: AppTypography.displayLarge.copyWith(color: textPrimary),
@@ -105,13 +96,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shadowColor: Colors.black.withValues(alpha: isLight ? 0.03 : 0),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          side: BorderSide(
-            color: border.withValues(alpha: isLight ? 0.54 : 0.9),
-            width: 1,
-          ),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg), side: BorderSide(color: border.withValues(alpha: isLight ? 0.54 : 0.9), width: 1)),
         margin: EdgeInsets.zero,
       ),
       appBarTheme: AppBarTheme(
@@ -126,17 +111,8 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
         indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
-        labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => AppTypography.labelSmall.copyWith(
-            color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary,
-          ),
-        ),
-        iconTheme: WidgetStateProperty.resolveWith(
-          (states) => IconThemeData(
-            color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary,
-            size: 22,
-          ),
-        ),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => AppTypography.labelSmall.copyWith(color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary)),
+        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary, size: 22)),
         height: 64,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
@@ -146,57 +122,29 @@ class AppTheme {
         indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
         selectedIconTheme: IconThemeData(color: colorScheme.primary, size: 22),
         unselectedIconTheme: IconThemeData(color: textSecondary, size: 22),
-        selectedLabelTextStyle: AppTypography.labelMedium.copyWith(
-          color: colorScheme.primary,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelTextStyle: AppTypography.labelMedium.copyWith(
-          color: textSecondary,
-        ),
+        selectedLabelTextStyle: AppTypography.labelMedium.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600),
+        unselectedLabelTextStyle: AppTypography.labelMedium.copyWith(color: textSecondary),
         labelType: NavigationRailLabelType.none,
         useIndicator: true,
-        indicatorShape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppRadius.md)),
-        ),
+        indicatorShape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
         elevation: 0,
       ),
-      dividerTheme: DividerThemeData(
-        color: border.withValues(alpha: isLight ? 0.68 : 1),
-        thickness: isLight ? 0.6 : 1,
-        space: 1,
-      ),
+      dividerTheme: DividerThemeData(color: border.withValues(alpha: isLight ? 0.68 : 1), thickness: isLight ? 0.6 : 1, space: 1),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isLight ? surface : surfaceAlt,
         hintStyle: AppTypography.bodyMedium.copyWith(color: textMuted),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.md,
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide(color: border)),
+        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide(color: border)),
+        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide(color: colorScheme.primary, width: 1.5)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xl,
-            vertical: AppSpacing.md,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
           textStyle: AppTypography.labelLarge,
         ),
       ),
@@ -204,43 +152,22 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: textPrimary,
           side: BorderSide(color: border),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
         ),
       ),
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: colorScheme.primary,
-          textStyle: AppTypography.labelLarge,
-        ),
-      ),
+      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: colorScheme.primary, textStyle: AppTypography.labelLarge)),
       chipTheme: ChipThemeData(
         backgroundColor: isLight ? surface : surfaceAlt,
         side: BorderSide(color: border),
         labelStyle: AppTypography.labelSmall.copyWith(color: textPrimary),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-        ),
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
       ),
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? colorScheme.primary : textMuted,
-        ),
-        trackColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? colorScheme.primary.withValues(alpha: 0.42) : border,
-        ),
-        trackOutlineColor: WidgetStateProperty.resolveWith(
-          (s) => s.contains(WidgetState.selected) ? colorScheme.primary.withValues(alpha: 0.48) : border,
-        ),
+        thumbColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? colorScheme.primary : textMuted),
+        trackColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? colorScheme.primary.withValues(alpha: 0.42) : border),
+        trackOutlineColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? colorScheme.primary.withValues(alpha: 0.48) : border),
       ),
     );
   }

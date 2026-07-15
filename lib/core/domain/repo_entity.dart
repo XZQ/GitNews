@@ -11,18 +11,17 @@ import 'data_freshness.dart';
 *形成反向依赖。
 */
 class RepoEntity {
-  const RepoEntity({
-    required this.fullName,
-    required this.description,
-    required this.language,
-    required this.starCount,
-    required this.starDelta,
-    required this.forkCount,
-    required this.accentArgb,
-    this.valueBasis = MetricBasis.seed,
-    this.trendBasis = MetricBasis.seed,
-    this.trend,
-  });
+  const RepoEntity(
+      {required this.fullName,
+      required this.description,
+      required this.language,
+      required this.starCount,
+      required this.starDelta,
+      required this.forkCount,
+      required this.accentArgb,
+      this.valueBasis = MetricBasis.seed,
+      this.trendBasis = MetricBasis.seed,
+      this.trend});
 
   // `owner/name` 形式。
   final String fullName;
@@ -45,18 +44,17 @@ class RepoEntity {
 
   final List<double>? trend;
 
-  RepoEntity copyWith({
-    String? fullName,
-    String? description,
-    String? language,
-    int? starCount,
-    int? starDelta,
-    int? forkCount,
-    int? accentArgb,
-    MetricBasis? valueBasis,
-    MetricBasis? trendBasis,
-    List<double>? trend,
-  }) {
+  RepoEntity copyWith(
+      {String? fullName,
+      String? description,
+      String? language,
+      int? starCount,
+      int? starDelta,
+      int? forkCount,
+      int? accentArgb,
+      MetricBasis? valueBasis,
+      MetricBasis? trendBasis,
+      List<double>? trend}) {
     return RepoEntity(
       fullName: fullName ?? this.fullName,
       description: description ?? this.description,
@@ -76,13 +74,7 @@ class RepoEntity {
 *编程语言占比实体。
 */
 class LanguageEntity {
-  const LanguageEntity({
-    required this.name,
-    required this.percent,
-    required this.delta,
-    required this.accentArgb,
-    this.basis = MetricBasis.seed,
-  });
+  const LanguageEntity({required this.name, required this.percent, required this.delta, required this.accentArgb, this.basis = MetricBasis.seed});
 
   final String name;
   final double percent;

@@ -30,28 +30,16 @@ class ProjectPage extends ConsumerWidget {
     final state = ref.watch(filteredProjectDigestProvider);
     final query = ref.watch(projectSearchQueryProvider).trim();
     return Scaffold(
-      appBar: isCompact ? AppBar(title: Text(l10n.tr('project.title'))) : null,
-      body: state.when(
-        data: (digest) {
-          if (digest.isEmpty && query.isNotEmpty) {
-            return EmptyView(
-              icon: Icons.search_off_rounded,
-              message: l10n.tr('project.empty_search').replaceAll('{query}', query),
-            );
-          }
-          return ResponsiveLayout(
-            compact: (_) => _Mobile(digest: digest),
-            medium: (_) => _Desktop(digest: digest),
-            expanded: (_) => _Desktop(digest: digest),
-          );
-        },
-        loading: () => const ProjectPageSkeleton(),
-        error: (error, stack) => ErrorView(
-          error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(projectDigestProvider),
-        ),
-      ),
-    );
+        appBar: isCompact ? AppBar(title: Text(l10n.tr('project.title'))) : null,
+        body: state.when(
+            data: (digest) {
+              if (digest.isEmpty && query.isNotEmpty) {
+                return EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('project.empty_search').replaceAll('{query}', query));
+              }
+              return ResponsiveLayout(compact: (_) => _Mobile(digest: digest), medium: (_) => _Desktop(digest: digest), expanded: (_) => _Desktop(digest: digest));
+            },
+            loading: () => const ProjectPageSkeleton(),
+            error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(projectDigestProvider))));
   }
 }
 
@@ -63,12 +51,7 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         ProjectSummaryMetrics(digest: digest),
         const SizedBox(height: AppSpacing.lg),
@@ -78,7 +61,7 @@ class _Mobile extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         ProjectPopularRepos(repos: digest.repos),
         const SizedBox(height: AppSpacing.lg),
-        ProjectRecentlyUpdated(repos: _recentRepos(digest.repos)),
+        ProjectRecentlyUpdated(repos: _recentRepos(digest.repos))
       ],
     );
   }
@@ -97,12 +80,7 @@ class _Desktop extends StatelessWidget {
         const ProjectPageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
-              AppSpacing.lg,
-              AppSpacing.xl,
-              AppSpacing.xxxl,
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -113,26 +91,20 @@ class _Desktop extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        flex: 6,
-                        child: ProjectTrendOverview(digest: digest),
-                      ),
+                      Expanded(flex: 6, child: ProjectTrendOverview(digest: digest)),
                       const SizedBox(width: AppSpacing.lg),
-                      Expanded(
-                        flex: 4,
-                        child: ProjectLanguageDistribution(repos: digest.repos),
-                      ),
+                      Expanded(flex: 4, child: ProjectLanguageDistribution(repos: digest.repos))
                     ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 ProjectPopularRepos(repos: digest.repos),
                 const SizedBox(height: AppSpacing.lg),
-                ProjectRecentlyUpdated(repos: _recentRepos(digest.repos)),
+                ProjectRecentlyUpdated(repos: _recentRepos(digest.repos))
               ],
             ),
           ),
-        ),
+        )
       ],
     );
   }

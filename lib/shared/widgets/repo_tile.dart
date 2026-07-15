@@ -18,15 +18,7 @@ import 'star_trend_chart.dart';
 *- `card: false` 保持无边框扁平行,供需要自行包裹容器的场景
 */
 class RepoTile extends StatelessWidget {
-  const RepoTile({
-    required this.repo,
-    this.showTrend = true,
-    this.onTap,
-    this.rank,
-    this.trailing,
-    this.card = true,
-    super.key,
-  });
+  const RepoTile({required this.repo, this.showTrend = true, this.onTap, this.rank, this.trailing, this.card = true, super.key});
 
   final RepoEntity repo;
   final bool showTrend;
@@ -49,45 +41,22 @@ class RepoTile extends StatelessWidget {
     final row = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        if (rank != null) ...[
-          _RankBadge(rank: rank!, accent: accent),
-          const SizedBox(width: AppSpacing.sm),
-        ],
+        if (rank != null) ...[_RankBadge(rank: rank!, accent: accent), const SizedBox(width: AppSpacing.sm)],
         Container(
           width: AppSpacing.xxl,
           height: AppSpacing.xxl,
-          decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.16),
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-          ),
+          decoration: BoxDecoration(color: accent.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(AppRadius.sm)),
           alignment: Alignment.center,
-          child: Text(
-            repo.language.isNotEmpty ? repo.language[0] : '?',
-            style: AppTypography.titleSmall.copyWith(color: accent),
-          ),
+          child: Text(repo.language.isNotEmpty ? repo.language[0] : '?', style: AppTypography.titleSmall.copyWith(color: accent)),
         ),
         const SizedBox(width: AppSpacing.md),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                repo.fullName,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.titleSmall.copyWith(
-                  color: colors.onSurface,
-                ),
-              ),
+              Text(repo.fullName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall.copyWith(color: colors.onSurface)),
               const SizedBox(height: AppSpacing.xxs),
-              Text(
-                repo.description,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: AppTypography.bodySmall.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
+              Text(repo.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
               const SizedBox(height: AppSpacing.xs2),
               Wrap(
                 spacing: AppSpacing.sm,
@@ -98,46 +67,25 @@ class RepoTile extends StatelessWidget {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
-                        Icons.star_rounded,
-                        size: 12,
-                        color: AppColors.starGold,
-                      ),
+                      const Icon(Icons.star_rounded, size: 12, color: AppColors.starGold),
                       const SizedBox(width: AppSpacing.xxs),
-                      Text(
-                        _shortNumber(repo.starCount),
-                        style: AppTypography.labelSmall.copyWith(
-                          color: colors.onSurface,
-                        ),
-                      ),
+                      Text(_shortNumber(repo.starCount), style: AppTypography.labelSmall.copyWith(color: colors.onSurface))
                     ],
                   ),
-                  MetricBasisBadge(basis: repo.trendBasis),
+                  MetricBasisBadge(basis: repo.trendBasis)
                 ],
-              ),
+              )
             ],
           ),
         ),
         const SizedBox(width: AppSpacing.md),
         _TrendCell(repo: repo, showTrend: showTrend),
-        if (trailing != null) ...[
-          const SizedBox(width: AppSpacing.sm),
-          trailing!,
-        ],
+        if (trailing != null) ...[const SizedBox(width: AppSpacing.sm), trailing!]
       ],
     );
 
     if (!card) {
-      return InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
-          child: row,
-        ),
-      );
+      return InkWell(onTap: onTap, child: Padding(padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md), child: row));
     }
 
     final radius = BorderRadius.circular(AppRadius.md);
@@ -148,18 +96,8 @@ class RepoTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: radius,
         child: Container(
-          decoration: BoxDecoration(
-            borderRadius: radius,
-            border: Border.all(
-              color: colors.outlineVariant.withValues(
-                alpha: isLight ? 0.45 : 0.6,
-              ),
-            ),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.md,
-          ),
+          decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.45 : 0.6))),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.md),
           child: row,
         ),
       ),
@@ -181,44 +119,17 @@ class _TrendCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final delta = repo.starDelta;
     final deltaColor = delta >= 0 ? AppColors.trendUp : AppColors.trendDown;
-    final deltaText = Text(
-      '${delta >= 0 ? '+' : ''}${_shortNumber(delta.abs())}',
-      style: AppTypography.titleSmall.copyWith(
-        color: deltaColor,
-        fontWeight: FontWeight.w700,
-      ),
-    );
+    final deltaText = Text('${delta >= 0 ? '+' : ''}${_shortNumber(delta.abs())}', style: AppTypography.titleSmall.copyWith(color: deltaColor, fontWeight: FontWeight.w700));
     final trend = repo.trend;
     if (!showTrend || trend == null || trend.isEmpty) {
       return SizedBox(
         width: 64,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            deltaText,
-            Icon(
-              delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-              size: 14,
-              color: deltaColor,
-            ),
-          ],
-        ),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [deltaText, Icon(delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded, size: 14, color: deltaColor)]),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        RepaintBoundary(
-          child: Sparkline(
-            values: trend,
-            color: deltaColor,
-            width: 64,
-            height: 24,
-          ),
-        ),
-        const SizedBox(height: AppSpacing.xxs),
-        deltaText,
-      ],
+      children: [RepaintBoundary(child: Sparkline(values: trend, color: deltaColor, width: 64, height: 24)), const SizedBox(height: AppSpacing.xxs), deltaText],
     );
   }
 }
@@ -238,18 +149,9 @@ class _RankBadge extends StatelessWidget {
     return Container(
       width: 22,
       height: 22,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: highlighted ? 0.14 : 0.08),
-        borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
+      decoration: BoxDecoration(color: color.withValues(alpha: highlighted ? 0.14 : 0.08), borderRadius: BorderRadius.circular(AppRadius.xs)),
       alignment: Alignment.center,
-      child: Text(
-        '$rank',
-        style: AppTypography.labelSmall.copyWith(
-          color: color,
-          fontWeight: FontWeight.w700,
-        ),
-      ),
+      child: Text('$rank', style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
     );
   }
 }
@@ -263,21 +165,9 @@ class _Pill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xxs,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
-      child: Text(
-        text,
-        style: AppTypography.labelSmall.copyWith(
-          color: color,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.xs)),
+      child: Text(text, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600)),
     );
   }
 }

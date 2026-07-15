@@ -25,47 +25,26 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: AppSpacing.xxxl,
-              color: Theme.of(context).colorScheme.outline,
-            ),
+            Icon(icon, size: AppSpacing.xxxl, color: Theme.of(context).colorScheme.outline),
             const SizedBox(height: AppSpacing.md),
             Text(text, style: AppTypography.bodyMedium),
-            if (action != null) ...[
-              const SizedBox(height: AppSpacing.lg),
-              FilledButton(
-                onPressed: action,
-                child: Text(l10n.tr('common.retry')),
-              ),
-            ],
+            if (action != null) ...[const SizedBox(height: AppSpacing.lg), FilledButton(onPressed: action, child: Text(l10n.tr('common.retry')))]
           ],
         ),
       ),
     );
   }
 
-  (IconData, String, VoidCallback?) _resolve(
-    BuildContext context,
-    AppLocalizations l10n,
-  ) {
+  (IconData, String, VoidCallback?) _resolve(BuildContext context, AppLocalizations l10n) {
     switch (error.kind) {
       case AppExceptionKind.network:
         return (Icons.wifi_off, l10n.tr('error_view.network'), onRetry);
       case AppExceptionKind.rateLimit:
         final secs = error.retryAfterSeconds ?? 60;
         final unit = l10n.tr('error_view.retry_after_seconds').replaceAll('{seconds}', secs.toString());
-        return (
-          Icons.hourglass_bottom,
-          '${l10n.tr('error_view.rate_limit')} ($unit)',
-          onRetry,
-        );
+        return (Icons.hourglass_bottom, '${l10n.tr('error_view.rate_limit')} ($unit)', onRetry);
       case AppExceptionKind.unauthorized:
-        return (
-          Icons.lock_outline,
-          l10n.tr('error_view.unauthorized'),
-          onLogin ?? onRetry,
-        );
+        return (Icons.lock_outline, l10n.tr('error_view.unauthorized'), onLogin ?? onRetry);
       case AppExceptionKind.notFound:
         return (Icons.search_off, l10n.tr('error_view.not_found'), onRetry);
       case AppExceptionKind.parse:

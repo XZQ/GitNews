@@ -10,11 +10,7 @@ enum TrendingWindow {
   month;
 
   static TrendingWindow fromValue(String value) {
-    return switch (value) {
-      'week' => TrendingWindow.week,
-      'month' => TrendingWindow.month,
-      _ => TrendingWindow.today,
-    };
+    return switch (value) { 'week' => TrendingWindow.week, 'month' => TrendingWindow.month, _ => TrendingWindow.today };
   }
 }
 
@@ -29,23 +25,11 @@ enum TrendingBoard {
   newRepos;
 
   static TrendingBoard fromValue(String value) {
-    return switch (value) {
-      'agent' => TrendingBoard.agent,
-      'mcp' => TrendingBoard.mcp,
-      'ai_coding' => TrendingBoard.aiCoding,
-      'new_repos' => TrendingBoard.newRepos,
-      _ => TrendingBoard.all,
-    };
+    return switch (value) { 'agent' => TrendingBoard.agent, 'mcp' => TrendingBoard.mcp, 'ai_coding' => TrendingBoard.aiCoding, 'new_repos' => TrendingBoard.newRepos, _ => TrendingBoard.all };
   }
 
   String get value {
-    return switch (this) {
-      TrendingBoard.all => 'all',
-      TrendingBoard.agent => 'agent',
-      TrendingBoard.mcp => 'mcp',
-      TrendingBoard.aiCoding => 'ai_coding',
-      TrendingBoard.newRepos => 'new_repos',
-    };
+    return switch (this) { TrendingBoard.all => 'all', TrendingBoard.agent => 'agent', TrendingBoard.mcp => 'mcp', TrendingBoard.aiCoding => 'ai_coding', TrendingBoard.newRepos => 'new_repos' };
   }
 }
 
@@ -53,11 +37,7 @@ enum TrendingBoard {
 *GitHub 热榜查询条件。
 */
 class TrendingQuery {
-  const TrendingQuery({
-    this.window = TrendingWindow.today,
-    this.language = 'all',
-    this.board = TrendingBoard.all,
-  });
+  const TrendingQuery({this.window = TrendingWindow.today, this.language = 'all', this.board = TrendingBoard.all});
 
   final TrendingWindow window;
   final String language;
@@ -71,14 +51,7 @@ class TrendingQuery {
 *趋势页需要的一组本地情报数据。
 */
 class TrendingDigest {
-  const TrendingDigest({
-    required this.trendingRepos,
-    required this.recentRepos,
-    required this.languages,
-    required this.primaryTrend,
-    required this.secondaryTrend,
-    required this.tertiaryTrend,
-  });
+  const TrendingDigest({required this.trendingRepos, required this.recentRepos, required this.languages, required this.primaryTrend, required this.secondaryTrend, required this.tertiaryTrend});
 
   final List<RepoEntity> trendingRepos;
   final List<RepoEntity> recentRepos;
@@ -98,7 +71,5 @@ class TrendingDigest {
 *Star 增量,远端实现里的增长值是动量代理值;真实历史趋势需要本地快照累积。
 */
 abstract interface class TrendingRepository {
-  Future<DataResult<TrendingDigest>> getDigest({
-    TrendingQuery query = const TrendingQuery(),
-  });
+  Future<DataResult<TrendingDigest>> getDigest({TrendingQuery query = const TrendingQuery()});
 }

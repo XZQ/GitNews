@@ -17,11 +17,7 @@ class MonitorAlertEventDao {
     return _guard('monitorAlert.upsertAll', () async {
       final batch = _db.batch();
       for (final event in events) {
-        batch.insert(
-          _table,
-          _toRow(event),
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+        batch.insert(_table, _toRow(event), conflictAlgorithm: ConflictAlgorithm.ignore);
       }
       await batch.commit(noResult: true);
       await _prune();
@@ -30,34 +26,20 @@ class MonitorAlertEventDao {
 
   Future<List<MonitorAlertEvent>> list({bool includeArchived = false}) {
     return _guard('monitorAlert.list', () async {
-      final rows = await _db.query(
-        _table,
-        where: includeArchived ? null : 'archived_at IS NULL',
-        orderBy: 'observed_at DESC, id DESC',
-      );
+      final rows = await _db.query(_table, where: includeArchived ? null : 'archived_at IS NULL', orderBy: 'observed_at DESC, id DESC');
       return rows.map(_fromRow).toList(growable: false);
     });
   }
 
   Future<void> markRead(String id, DateTime at) {
     return _guard('monitorAlert.markRead', () async {
-      await _db.update(
-        _table,
-        {'read_at': at.toUtc().millisecondsSinceEpoch},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await _db.update(_table, {'read_at': at.toUtc().millisecondsSinceEpoch}, where: 'id = ?', whereArgs: [id]);
     });
   }
 
   Future<void> markUnread(String id) {
     return _guard('monitorAlert.markUnread', () async {
-      await _db.update(
-        _table,
-        {'read_at': null},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await _db.update(_table, {'read_at': null}, where: 'id = ?', whereArgs: [id]);
     });
   }
 
@@ -65,12 +47,7 @@ class MonitorAlertEventDao {
     return _guard('monitorAlert.markAllRead', () async {
       final batch = _db.batch();
       for (final id in ids) {
-        batch.update(
-          _table,
-          {'read_at': at.toUtc().millisecondsSinceEpoch},
-          where: 'id = ?',
-          whereArgs: [id],
-        );
+        batch.update(_table, {'read_at': at.toUtc().millisecondsSinceEpoch}, where: 'id = ?', whereArgs: [id]);
       }
       await batch.commit(noResult: true);
     });
@@ -90,41 +67,24 @@ class MonitorAlertEventDao {
 
   Future<void> archiveRead(DateTime at) {
     return _guard('monitorAlert.archiveRead', () async {
-      await _db.update(
-        _table,
-        {'archived_at': at.toUtc().millisecondsSinceEpoch},
-        where: 'read_at IS NOT NULL AND archived_at IS NULL',
-      );
+      await _db.update(_table, {'archived_at': at.toUtc().millisecondsSinceEpoch}, where: 'read_at IS NOT NULL AND archived_at IS NULL');
     });
   }
 
   Future<void> restoreAll() {
     return _guard('monitorAlert.restoreAll', () async {
-      await _db.update(
-        _table,
-        {'archived_at': null},
-        where: 'archived_at IS NOT NULL',
-      );
+      await _db.update(_table, {'archived_at': null}, where: 'archived_at IS NOT NULL');
     });
   }
 
   Future<void> _prune() async {
-    final overflow = await _db.query(
-      _table,
-      columns: ['id'],
-      orderBy: 'observed_at DESC, id DESC',
-      offset: monitorAlertEventMaxRows,
-    );
+    final overflow = await _db.query(_table, columns: ['id'], orderBy: 'observed_at DESC, id DESC', offset: monitorAlertEventMaxRows);
     if (overflow.isEmpty) {
       return;
     }
     final ids = [for (final row in overflow) row['id'] as String];
     final placeholders = List.filled(ids.length, '?').join(',');
-    await _db.delete(
-      _table,
-      where: 'id IN ($placeholders)',
-      whereArgs: ids,
-    );
+    await _db.delete(_table, where: 'id IN ($placeholders)', whereArgs: ids);
   }
 
   Map<String, Object?> _toRow(MonitorAlertEvent event) {
@@ -138,7 +98,7 @@ class MonitorAlertEventDao {
       'severity': event.severity.name,
       'observed_at': event.observedAt.toUtc().millisecondsSinceEpoch,
       'read_at': event.readAt?.toUtc().millisecondsSinceEpoch,
-      'archived_at': event.archivedAt?.toUtc().millisecondsSinceEpoch,
+      'archived_at': event.archivedAt?.toUtc().millisecondsSinceEpoch
     };
   }
 
@@ -150,14 +110,8 @@ class MonitorAlertEventDao {
       metric: row['metric'] as String,
       value: (row['value'] as num).toDouble(),
       threshold: (row['threshold'] as num).toDouble(),
-      severity: AlertSeverity.values.firstWhere(
-        (value) => value.name == row['severity'],
-        orElse: () => AlertSeverity.info,
-      ),
-      observedAt: DateTime.fromMillisecondsSinceEpoch(
-        row['observed_at'] as int,
-        isUtc: true,
-      ),
+      severity: AlertSeverity.values.firstWhere((value) => value.name == row['severity'], orElse: () => AlertSeverity.info),
+      observedAt: DateTime.fromMillisecondsSinceEpoch(row['observed_at'] as int, isUtc: true),
       readAt: _date(row['read_at']),
       archivedAt: _date(row['archived_at']),
     );
@@ -174,12 +128,7 @@ class MonitorAlertEventDao {
     try {
       return await action();
     } catch (error, stack) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: error,
-        stack: stack,
-        meta: {'op': operation},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: error, stack: stack, meta: {'op': operation});
     }
   }
 }

@@ -33,44 +33,24 @@ class MonitorDetailPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(visibleMonitorDigestProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('monitor.detail_title')),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'),
-        ),
-      ),
-      body: state.when(
-        data: (digest) {
-          if (digest.monitoredRepos.isEmpty) {
-            return EmptyView(
-              icon: Icons.visibility_off_outlined,
-              message: l10n.tr('monitor.empty'),
-            );
-          }
-          final repo = digest.repoByFullName(repoFullName);
-          if (repo == null) {
-            return EmptyView(
-              icon: Icons.visibility_off_outlined,
-              message: l10n.tr('monitor.empty.not_in_list'),
-            );
-          }
-          return ResponsiveLayout(
-            compact: (_) => _Body(repo: repo, alerts: digest.alerts),
-            medium: (_) => CenteredContent(
-              child: _Body(repo: repo, alerts: digest.alerts),
-            ),
-            expanded: (_) => CenteredContent(
-              child: _Body(repo: repo, alerts: digest.alerts),
-            ),
-          );
-        },
-        loading: () => const _DetailSkeleton(),
-        error: (error, stack) => ErrorView(
-          error: error.asAppException(stack),
-          onRetry: () => forceRefreshMonitor(ref),
-        ),
-      ),
-    );
+        appBar: AppBar(title: Text(l10n.tr('monitor.detail_title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'))),
+        body: state.when(
+            data: (digest) {
+              if (digest.monitoredRepos.isEmpty) {
+                return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty'));
+              }
+              final repo = digest.repoByFullName(repoFullName);
+              if (repo == null) {
+                return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty.not_in_list'));
+              }
+              return ResponsiveLayout(
+                compact: (_) => _Body(repo: repo, alerts: digest.alerts),
+                medium: (_) => CenteredContent(child: _Body(repo: repo, alerts: digest.alerts)),
+                expanded: (_) => CenteredContent(child: _Body(repo: repo, alerts: digest.alerts)),
+              );
+            },
+            loading: () => const _DetailSkeleton(),
+            error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => forceRefreshMonitor(ref))));
   }
 }
 
@@ -85,57 +65,32 @@ class _Body extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final repoAlerts = alerts.where((alert) => alert.repoFullName == repo.fullName).take(5);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         GradientHeroHeader(
           accent: Color(repo.accentArgb),
           title: repo.fullName,
           badges: [
             HeroBadge(label: repo.language, icon: Icons.bolt_rounded),
-            HeroBadge(
-              label: '★ ${_shortNumber(repo.starCount)}',
-              icon: Icons.star_rounded,
-            ),
-            HeroBadge(
-              label: '⑂ ${_shortNumber(repo.forkCount)}',
-              icon: Icons.call_split_rounded,
-            ),
+            HeroBadge(label: '★ ${_shortNumber(repo.starCount)}', icon: Icons.star_rounded),
+            HeroBadge(label: '⑂ ${_shortNumber(repo.forkCount)}', icon: Icons.call_split_rounded)
           ],
-          trailing: Text(
-            repo.description,
-            style: AppTypography.bodyMedium.copyWith(
-              color: Colors.white.withValues(alpha: 0.92),
-            ),
-          ),
+          trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92))),
         ),
         const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: l10n.tr('monitor.section.realtime_trend'),
-                subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendBasis.labelKey)}',
-              ),
+              SectionHeader(title: l10n.tr('monitor.section.realtime_trend'), subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendBasis.labelKey)}'),
               const SizedBox(height: AppSpacing.md),
               StarTrendChart(
                 series: [
-                  ChartSeries(
-                    values: repo.trend ?? _estimatedTrend(repo.starCount - 5000, 5000),
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  ChartSeries(
-                    values: _estimatedTrend(repo.forkCount, 800),
-                    color: AppColors.info,
-                  ),
+                  ChartSeries(values: repo.trend ?? _estimatedTrend(repo.starCount - 5000, 5000), color: Theme.of(context).colorScheme.primary),
+                  ChartSeries(values: _estimatedTrend(repo.forkCount, 800), color: AppColors.info)
                 ],
                 height: 220,
-              ),
+              )
             ],
           ),
         ),
@@ -144,38 +99,21 @@ class _Body extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(
-                title: l10n.tr('monitor.section.alert_history'),
-                subtitle: l10n.tr('monitor.section.alert_history.subtitle'),
-              ),
+              SectionHeader(title: l10n.tr('monitor.section.alert_history'), subtitle: l10n.tr('monitor.section.alert_history.subtitle')),
               const SizedBox(height: AppSpacing.md),
               for (final alert in repoAlerts) ...[
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  leading: Icon(
-                    Icons.history_rounded,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  title: Text(
-                    alert.repoFullName,
-                    style: AppTypography.titleSmall,
-                  ),
-                  subtitle: Text(
-                    '${monitorAlertMetricLabel(context, alert)} · ${alert.time}',
-                  ),
-                  trailing: Text(
-                    alert.value,
-                    style: AppTypography.labelMedium.copyWith(
-                      color: AppColors.success,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  leading: Icon(Icons.history_rounded, color: Theme.of(context).colorScheme.primary),
+                  title: Text(alert.repoFullName, style: AppTypography.titleSmall),
+                  subtitle: Text('${monitorAlertMetricLabel(context, alert)} · ${alert.time}'),
+                  trailing: Text(alert.value, style: AppTypography.labelMedium.copyWith(color: AppColors.success, fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-              ],
+                const SizedBox(height: AppSpacing.xs)
+              ]
             ],
           ),
-        ),
+        )
       ],
     );
   }
@@ -187,19 +125,8 @@ class _DetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
-      children: const [
-        Skeleton(height: 180),
-        SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 300),
-        SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 260),
-      ],
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      children: const [Skeleton(height: 180), SizedBox(height: AppSpacing.lg), Skeleton(height: 300), SizedBox(height: AppSpacing.lg), Skeleton(height: 260)],
     );
   }
 }

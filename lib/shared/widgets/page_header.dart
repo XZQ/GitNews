@@ -15,21 +15,20 @@ import 'page_header_icon.dart';
 *避免每个 feature 各自重画。
 */
 class PageHeader extends StatelessWidget {
-  const PageHeader({
-    required this.title,
-    required this.subtitle,
-    this.icon,
-    this.iconAccent = AppColors.brand,
-    this.searchHint,
-    this.searchValue = '',
-    this.onSearchChanged,
-    this.onSearchSubmitted,
-    this.pills = const [],
-    this.actions = const [],
-    this.onRefresh,
-    this.isRefreshing = false,
-    super.key,
-  });
+  const PageHeader(
+      {required this.title,
+      required this.subtitle,
+      this.icon,
+      this.iconAccent = AppColors.brand,
+      this.searchHint,
+      this.searchValue = '',
+      this.onSearchChanged,
+      this.onSearchSubmitted,
+      this.pills = const [],
+      this.actions = const [],
+      this.onRefresh,
+      this.isRefreshing = false,
+      super.key});
 
   final IconData? icon;
   final Color iconAccent;
@@ -58,90 +57,40 @@ class PageHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          title,
-          style: AppTypography.titleLarge.copyWith(
-            color: colors.onSurface,
-            height: 1.0,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
+        Text(title, style: AppTypography.titleLarge.copyWith(color: colors.onSurface, height: 1.0), overflow: TextOverflow.ellipsis),
         const SizedBox(height: AppSpacing.xs),
-        Text(
-          subtitle,
-          style: AppTypography.bodySmall.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-          overflow: TextOverflow.ellipsis,
-        ),
+        Text(subtitle, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant), overflow: TextOverflow.ellipsis)
       ],
     );
-    final titleSlot = hasSearch
-        ? ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 150),
-            child: titleContent,
-          )
-        : Expanded(child: titleContent);
+    final titleSlot = hasSearch ? ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: titleContent) : Expanded(child: titleContent);
 
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      decoration: BoxDecoration(
-        color: colors.surface,
-        border: Border(
-          bottom: BorderSide(color: colors.outlineVariant, width: 1),
-        ),
-      ),
+      decoration: BoxDecoration(color: colors.surface, border: Border(bottom: BorderSide(color: colors.outlineVariant, width: 1))),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          if (icon != null) ...[
-            PageHeaderIcon(icon: icon!, accent: iconAccent),
-            const SizedBox(width: AppSpacing.md),
-          ],
+          if (icon != null) ...[PageHeaderIcon(icon: icon!, accent: iconAccent), const SizedBox(width: AppSpacing.md)],
           titleSlot,
           if (hasSearch) ...[
             const SizedBox(width: AppSpacing.xl),
-            Expanded(
-              child: HeaderSearchField(
-                hintText: searchHint!,
-                value: searchValue,
-                onChanged: onSearchChanged,
-                onSubmitted: onSearchSubmitted,
-              ),
-            ),
+            Expanded(child: HeaderSearchField(hintText: searchHint!, value: searchValue, onChanged: onSearchChanged, onSubmitted: onSearchSubmitted))
           ],
-          for (final pill in pills) ...[
-            const SizedBox(width: AppSpacing.md),
-            pill,
-          ],
-          for (final action in actions) ...[
-            const SizedBox(width: AppSpacing.md),
-            action,
-          ],
+          for (final pill in pills) ...[const SizedBox(width: AppSpacing.md), pill],
+          for (final action in actions) ...[const SizedBox(width: AppSpacing.md), action],
           if (onRefresh != null) ...[
             const SizedBox(width: AppSpacing.sm),
             IconButton(
               tooltip: l10n.tr('a11y.refresh'),
               icon: isRefreshing
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colors.onSurfaceVariant,
-                      ),
-                    )
-                  : Icon(
-                      Icons.refresh_rounded,
-                      size: 20,
-                      color: colors.onSurfaceVariant,
-                    ),
+                  ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: colors.onSurfaceVariant))
+                  : Icon(Icons.refresh_rounded, size: 20, color: colors.onSurfaceVariant),
               onPressed: isRefreshing ? null : onRefresh,
               constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
               padding: EdgeInsets.zero,
-            ),
-          ],
+            )
+          ]
         ],
       ),
     );
@@ -152,12 +101,7 @@ class PageHeader extends StatelessWidget {
 *Header 用的状态/统计胶囊:图标 + 文案 + 强调色。
 */
 class HeaderStatPill extends StatelessWidget {
-  const HeaderStatPill({
-    required this.icon,
-    required this.label,
-    required this.color,
-    super.key,
-  });
+  const HeaderStatPill({required this.icon, required this.label, required this.color, super.key});
 
   final IconData icon;
   final String label;
@@ -166,28 +110,11 @@ class HeaderStatPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs2,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs2),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.14), border: Border.all(color: color.withValues(alpha: 0.4)), borderRadius: BorderRadius.circular(AppRadius.pill)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: AppSpacing.xs),
-          Text(
-            label,
-            style: AppTypography.labelSmall.copyWith(
-              color: color,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
+        children: [Icon(icon, size: 12, color: color), const SizedBox(width: AppSpacing.xs), Text(label, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700))],
       ),
     );
   }
@@ -198,13 +125,7 @@ class HeaderStatPill extends StatelessWidget {
 *IconButton 样板(constraints: minWidth:44 / padding:零 等)。
 */
 class HeaderAction extends StatelessWidget {
-  const HeaderAction({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
-    this.iconSize = 20,
-    super.key,
-  });
+  const HeaderAction({required this.icon, required this.tooltip, required this.onPressed, this.iconSize = 20, super.key});
 
   final IconData icon;
   final String tooltip;
@@ -213,12 +134,6 @@ class HeaderAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: tooltip,
-      onPressed: onPressed,
-      icon: Icon(icon, size: iconSize),
-      constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-      padding: EdgeInsets.zero,
-    );
+    return IconButton(tooltip: tooltip, onPressed: onPressed, icon: Icon(icon, size: iconSize), constraints: const BoxConstraints(minWidth: 44, minHeight: 44), padding: EdgeInsets.zero);
   }
 }

@@ -4,10 +4,7 @@ import 'package:github_news/core/domain/repo_entity.dart';
 
 void main() {
   test('DataResult maps data without losing freshness', () {
-    const source = DataResult<int>(
-      data: 2,
-      freshness: DataFreshness.staleCache,
-    );
+    const source = DataResult<int>(data: 2, freshness: DataFreshness.staleCache);
 
     final mapped = source.map((value) => '$value');
 

@@ -9,11 +9,7 @@ import '../di/providers.dart';
 *不进日志、导出配置和源码;baseUrl / model 是非敏感偏好,走 prefs。
 */
 class AiDigestConfigState {
-  const AiDigestConfigState({
-    this.apiKey,
-    this.baseUrl = ApiEndpointsConfig.aiDigestDefaultBaseUrl,
-    this.model = ApiEndpointsConfig.aiDigestDefaultModel,
-  });
+  const AiDigestConfigState({this.apiKey, this.baseUrl = ApiEndpointsConfig.aiDigestDefaultBaseUrl, this.model = ApiEndpointsConfig.aiDigestDefaultModel});
 
   final String? apiKey;
   final String baseUrl;
@@ -58,11 +54,7 @@ class AiDigestConfigController extends Notifier<AiDigestConfigState> {
     );
   }
 
-  Future<void> save({
-    required String apiKey,
-    required String baseUrl,
-    required String model,
-  }) async {
+  Future<void> save({required String apiKey, required String baseUrl, required String model}) async {
     final prefs = ref.read(sharedPreferencesProvider);
     final secure = ref.read(secureStorageProvider);
     final trimmedKey = apiKey.trim();
@@ -75,11 +67,7 @@ class AiDigestConfigController extends Notifier<AiDigestConfigState> {
     }
     await prefs.setString(_kBaseUrlKey, trimmedBase);
     await prefs.setString(_kModelKey, trimmedModel);
-    state = AiDigestConfigState(
-      apiKey: trimmedKey.isEmpty ? null : trimmedKey,
-      baseUrl: trimmedBase,
-      model: trimmedModel,
-    );
+    state = AiDigestConfigState(apiKey: trimmedKey.isEmpty ? null : trimmedKey, baseUrl: trimmedBase, model: trimmedModel);
   }
 
   static String _normalizeBaseUrl(String raw) {
@@ -94,6 +82,4 @@ class AiDigestConfigController extends Notifier<AiDigestConfigState> {
   }
 }
 
-final aiDigestConfigControllerProvider = NotifierProvider<AiDigestConfigController, AiDigestConfigState>(
-  AiDigestConfigController.new,
-);
+final aiDigestConfigControllerProvider = NotifierProvider<AiDigestConfigController, AiDigestConfigState>(AiDigestConfigController.new);

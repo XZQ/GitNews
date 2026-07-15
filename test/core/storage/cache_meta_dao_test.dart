@@ -75,10 +75,7 @@ void main() {
     test('writeEtag on missing key inserts row with zero timestamp', () async {
       await dao.writeEtag('k', 'W/"def"');
       expect(await dao.readEtag('k'), 'W/"def"');
-      expect(
-        await dao.lastFetched('k'),
-        DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
-      );
+      expect(await dao.lastFetched('k'), DateTime.fromMillisecondsSinceEpoch(0, isUtc: true));
     });
 
     test('delete should clear etag too', () async {

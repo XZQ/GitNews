@@ -10,12 +10,6 @@ class TrendingRepositoryFeed implements RepositoryFeed {
   @override
   Future<DataResult<RepositoryFeedDigest>> load() async {
     final result = await _repository.getDigest();
-    return result.map(
-      (digest) => RepositoryFeedDigest(
-        repos: digest.allRepos,
-        primaryTrend: digest.primaryTrend,
-        secondaryTrend: digest.secondaryTrend,
-      ),
-    );
+    return result.map((digest) => RepositoryFeedDigest(repos: digest.allRepos, primaryTrend: digest.primaryTrend, secondaryTrend: digest.secondaryTrend));
   }
 }

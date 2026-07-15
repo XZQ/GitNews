@@ -43,21 +43,8 @@ class _WebViewPageState extends State<WebViewPage> {
     final urlInvalid = widget.url.isEmpty || uri == null || !_isHttpScheme(uri);
     final title = widget.title?.isNotEmpty == true ? widget.title! : _pageTitle;
     return Scaffold(
-      appBar: _WebViewAppBar(
-        title: title,
-        host: _hostFromUrl(widget.url),
-        urlInvalid: urlInvalid,
-        onBack: _onBack,
-        onRefresh: _retry,
-        onOpenInBrowser: _openInBrowser,
-        onCopyLink: _copyLink,
-      ),
-      body: urlInvalid
-          ? EmptyView(
-              icon: Icons.link_off_rounded,
-              message: l10n.tr('webview.invalid'),
-            )
-          : _WebViewBody(state: this),
+      appBar: _WebViewAppBar(title: title, host: _hostFromUrl(widget.url), urlInvalid: urlInvalid, onBack: _onBack, onRefresh: _retry, onOpenInBrowser: _openInBrowser, onCopyLink: _copyLink),
+      body: urlInvalid ? EmptyView(icon: Icons.link_off_rounded, message: l10n.tr('webview.invalid')) : _WebViewBody(state: this),
     );
   }
 
@@ -86,9 +73,7 @@ class _WebViewPageState extends State<WebViewPage> {
       return;
     }
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.tr('webview.copied'))));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('webview.copied'))));
   }
 
   void _retry() {
@@ -152,15 +137,7 @@ class _WebViewPageState extends State<WebViewPage> {
 }
 
 class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const _WebViewAppBar({
-    required this.title,
-    required this.host,
-    required this.urlInvalid,
-    required this.onBack,
-    required this.onRefresh,
-    required this.onOpenInBrowser,
-    required this.onCopyLink,
-  });
+  const _WebViewAppBar({required this.title, required this.host, required this.urlInvalid, required this.onBack, required this.onRefresh, required this.onOpenInBrowser, required this.onCopyLink});
 
   final String title;
   final String host;
@@ -178,56 +155,29 @@ class _WebViewAppBar extends StatelessWidget implements PreferredSizeWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return AppBar(
-      leading: BackButton(onPressed: onBack),
-      titleSpacing: 0,
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title.isNotEmpty ? title : host,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.titleMedium,
-          ),
-          Text(
-            host,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.labelSmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        IconButton(
-          tooltip: l10n.tr('webview.refresh'),
-          icon: const Icon(Icons.refresh_rounded),
-          onPressed: urlInvalid ? null : onRefresh,
-        ),
-        IconButton(
-          tooltip: l10n.tr('webview.open_in_browser'),
-          icon: const Icon(Icons.open_in_new_rounded),
-          onPressed: onOpenInBrowser,
-        ),
-        PopupMenuButton<String>(
-          tooltip: l10n.tr('webview.more'),
-          icon: const Icon(Icons.more_vert_rounded),
-          onSelected: (v) {
-            if (v == 'copy') {
-              onCopyLink();
-            }
-          },
-          itemBuilder: (_) => [
-            PopupMenuItem(
-              value: 'copy',
-              child: Text(l10n.tr('webview.copy_link')),
-            ),
+        leading: BackButton(onPressed: onBack),
+        titleSpacing: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title.isNotEmpty ? title : host, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleMedium),
+            Text(host, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
           ],
         ),
-      ],
-    );
+        actions: [
+          IconButton(tooltip: l10n.tr('webview.refresh'), icon: const Icon(Icons.refresh_rounded), onPressed: urlInvalid ? null : onRefresh),
+          IconButton(tooltip: l10n.tr('webview.open_in_browser'), icon: const Icon(Icons.open_in_new_rounded), onPressed: onOpenInBrowser),
+          PopupMenuButton<String>(
+              tooltip: l10n.tr('webview.more'),
+              icon: const Icon(Icons.more_vert_rounded),
+              onSelected: (v) {
+                if (v == 'copy') {
+                  onCopyLink();
+                }
+              },
+              itemBuilder: (_) => [PopupMenuItem(value: 'copy', child: Text(l10n.tr('webview.copy_link')))])
+        ]);
   }
 }
 
@@ -239,9 +189,8 @@ class _WebViewBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final widget = state.widget;
-    return Stack(
-      children: [
-        InAppWebView(
+    return Stack(children: [
+      InAppWebView(
           initialUrlRequest: URLRequest(url: WebUri(widget.url)),
           initialSettings: InAppWebViewSettings(
             useShouldOverrideUrlLoading: true,
@@ -263,25 +212,10 @@ class _WebViewBody extends StatelessWidget {
               return;
             }
             state.onMainFrameError();
-          },
-        ),
-        if (state._progress > 0 && state._progress < 100 && !state._failed)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: LinearProgressIndicator(
-              value: state._progress / 100,
-              minHeight: 2,
-              backgroundColor: Colors.transparent,
-            ),
-          ),
-        if (state._failed)
-          ErrorView(
-            error: const AppException(kind: AppExceptionKind.network),
-            onRetry: state._retry,
-          ),
-      ],
-    );
+          }),
+      if (state._progress > 0 && state._progress < 100 && !state._failed)
+        Positioned(top: 0, left: 0, right: 0, child: LinearProgressIndicator(value: state._progress / 100, minHeight: 2, backgroundColor: Colors.transparent)),
+      if (state._failed) ErrorView(error: const AppException(kind: AppExceptionKind.network), onRetry: state._retry)
+    ]);
   }
 }

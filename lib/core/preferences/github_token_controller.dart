@@ -91,6 +91,4 @@ class GitHubTokenController extends Notifier<GitHubTokenState> {
   }
 }
 
-final githubTokenControllerProvider = NotifierProvider<GitHubTokenController, GitHubTokenState>(
-  GitHubTokenController.new,
-);
+final githubTokenControllerProvider = NotifierProvider<GitHubTokenController, GitHubTokenState>(GitHubTokenController.new);

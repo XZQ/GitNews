@@ -12,10 +12,7 @@ void main() {
 
   setUp(() async {
     database = await LocalDatabase.openInMemory();
-    cache = JsonSnapshotCacheDao(
-      database.executor,
-      CacheMetaDao(database.executor),
-    );
+    cache = JsonSnapshotCacheDao(database.executor, CacheMetaDao(database.executor));
     dao = MonitorObservationDao(cache);
   });
 
@@ -37,41 +34,23 @@ void main() {
     await dao.record(observation(day: 2, stars: 200));
     final current = observation(day: 3, stars: 300);
 
-    final previous = await dao.latestBefore(
-      repoFullName: current.repoFullName,
-      observedAt: current.observedAt,
-    );
+    final previous = await dao.latestBefore(repoFullName: current.repoFullName, observedAt: current.observedAt);
 
     expect(previous?.stars, 200);
   });
 
   test('malformed payload is removed and treated as empty history', () async {
-    await cache.upsert(
-      key: 'monitor_observation:v1:owner/repo',
-      payload: {'points': 'not-a-list'},
-      now: DateTime(2026, 7, 1),
-    );
+    await cache.upsert(key: 'monitor_observation:v1:owner/repo', payload: {'points': 'not-a-list'}, now: DateTime(2026, 7, 1));
 
     expect(await dao.read('owner/repo'), isEmpty);
-    expect(
-      await cache.read('monitor_observation:v1:owner/repo'),
-      isNull,
-    );
+    expect(await cache.read('monitor_observation:v1:owner/repo'), isNull);
   });
 
   test('history keeps only the latest 90 local days', () async {
     final start = DateTime(2026, 1, 1);
     for (var i = 0; i < 95; i++) {
       final at = start.add(Duration(days: i));
-      await dao.record(
-        MonitorObservation(
-          repoFullName: 'owner/repo',
-          stars: i,
-          forks: i,
-          openIssues: i,
-          observedAt: at,
-        ),
-      );
+      await dao.record(MonitorObservation(repoFullName: 'owner/repo', stars: i, forks: i, openIssues: i, observedAt: at));
     }
 
     final points = await dao.read('owner/repo');
@@ -82,16 +61,6 @@ void main() {
   });
 }
 
-MonitorObservation observation({
-  int day = 1,
-  int hour = 12,
-  int stars = 100,
-}) {
-  return MonitorObservation(
-    repoFullName: 'owner/repo',
-    stars: stars,
-    forks: 10,
-    openIssues: 2,
-    observedAt: DateTime(2026, 7, day, hour),
-  );
+MonitorObservation observation({int day = 1, int hour = 12, int stars = 100}) {
+  return MonitorObservation(repoFullName: 'owner/repo', stars: stars, forks: 10, openIssues: 2, observedAt: DateTime(2026, 7, day, hour));
 }

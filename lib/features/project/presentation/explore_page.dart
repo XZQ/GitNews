@@ -26,17 +26,8 @@ class ExplorePage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(projectDigestProvider);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('project.explore.title')),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/project'),
-        ),
-      ),
-      body: ResponsiveLayout(
-        compact: (_) => _Body(state: state),
-        medium: (_) => CenteredContent(child: _Body(state: state)),
-        expanded: (_) => CenteredContent(child: _Body(state: state)),
-      ),
+      appBar: AppBar(title: Text(l10n.tr('project.explore.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/project'))),
+      body: ResponsiveLayout(compact: (_) => _Body(state: state), medium: (_) => CenteredContent(child: _Body(state: state)), expanded: (_) => CenteredContent(child: _Body(state: state))),
     );
   }
 }
@@ -56,17 +47,9 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return state.when(
-      data: (digest) => digest.isEmpty
-          ? EmptyView(
-              icon: Icons.explore_outlined,
-              message: l10n.tr('project.explore.empty'),
-            )
-          : _DigestView(digest: digest),
+      data: (digest) => digest.isEmpty ? EmptyView(icon: Icons.explore_outlined, message: l10n.tr('project.explore.empty')) : _DigestView(digest: digest),
       loading: () => const ProjectPageSkeleton(),
-      error: (error, stack) => ErrorView(
-        error: error.asAppException(stack),
-        onRetry: () => ref.invalidate(projectDigestProvider),
-      ),
+      error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(projectDigestProvider)),
     );
   }
 }
@@ -79,32 +62,21 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         const _HotChipsCard(),
         const SizedBox(height: AppSpacing.lg),
         ProjectRepoListCard(
-          title: AppLocalizations.of(
-            context,
-          ).tr('project.explore.recommended_repos'),
+          title: AppLocalizations.of(context).tr('project.explore.recommended_repos'),
           subtitle: AppLocalizations.of(context).tr('project.explore.recommended_repos.subtitle').replaceAll('{n}', digest.repos.length.toString()),
           repos: digest.repos,
         ),
         const SizedBox(height: AppSpacing.lg),
         ProjectContributorsCard(
-          title: AppLocalizations.of(
-            context,
-          ).tr('project.explore.followable_devs'),
-          subtitle: AppLocalizations.of(
-            context,
-          ).tr('project.explore.followable_devs.subtitle'),
+          title: AppLocalizations.of(context).tr('project.explore.followable_devs'),
+          subtitle: AppLocalizations.of(context).tr('project.explore.followable_devs.subtitle'),
           contributors: digest.contributors,
-        ),
+        )
       ],
     );
   }
@@ -118,52 +90,22 @@ class _HotChipsCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final chips = <_TopicChipSpec>[
-      _TopicChipSpec(
-        label: l10n.tr('project.topic.ai_agent'),
-        color: colors.primary,
-      ),
-      _TopicChipSpec(
-        label: l10n.tr('project.topic.llm'),
-        color: AppColors.info,
-      ),
-      _TopicChipSpec(
-        label: l10n.tr('project.topic.devtools'),
-        color: AppColors.success,
-      ),
-      _TopicChipSpec(
-        label: l10n.tr('project.topic.rag'),
-        color: AppColors.warning,
-      ),
+      _TopicChipSpec(label: l10n.tr('project.topic.ai_agent'), color: colors.primary),
+      _TopicChipSpec(label: l10n.tr('project.topic.llm'), color: AppColors.info),
+      _TopicChipSpec(label: l10n.tr('project.topic.devtools'), color: AppColors.success),
+      _TopicChipSpec(label: l10n.tr('project.topic.rag'), color: AppColors.warning),
       const _TopicChipSpec(label: 'Web3', color: AppColors.danger),
-      _TopicChipSpec(
-        label: l10n.tr('project.topic.cloud_native'),
-        color: colors.primary,
-      ),
-      _TopicChipSpec(
-        label: l10n.tr('project.topic.data_infra'),
-        color: AppColors.info,
-      ),
-      _TopicChipSpec(
-        label: l10n.tr('project.topic.security'),
-        color: AppColors.success,
-      ),
+      _TopicChipSpec(label: l10n.tr('project.topic.cloud_native'), color: colors.primary),
+      _TopicChipSpec(label: l10n.tr('project.topic.data_infra'), color: AppColors.info),
+      _TopicChipSpec(label: l10n.tr('project.topic.security'), color: AppColors.success)
     ];
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('project.explore.hot_topics'),
-            subtitle: l10n.tr('project.explore.hot_topics.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('project.explore.hot_topics'), subtitle: l10n.tr('project.explore.hot_topics.subtitle')),
           const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.sm,
-            children: [
-              for (final c in chips) ProjectTopicChip(label: c.label, color: c.color),
-            ],
-          ),
+          Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [for (final c in chips) ProjectTopicChip(label: c.label, color: c.color)])
         ],
       ),
     );

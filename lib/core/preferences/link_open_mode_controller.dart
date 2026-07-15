@@ -41,10 +41,7 @@ class LinkOpenModeController extends Notifier<LinkOpenMode> {
     if (raw == null) {
       return LinkOpenMode.external;
     }
-    return LinkOpenMode.values.firstWhere(
-      (m) => m.name == raw,
-      orElse: () => LinkOpenMode.external,
-    );
+    return LinkOpenMode.values.firstWhere((m) => m.name == raw, orElse: () => LinkOpenMode.external);
   }
 
   Future<void> setMode(LinkOpenMode mode) async {
@@ -57,6 +54,4 @@ class LinkOpenModeController extends Notifier<LinkOpenMode> {
   }
 }
 
-final linkOpenModeControllerProvider = NotifierProvider<LinkOpenModeController, LinkOpenMode>(
-  LinkOpenModeController.new,
-);
+final linkOpenModeControllerProvider = NotifierProvider<LinkOpenModeController, LinkOpenMode>(LinkOpenModeController.new);
