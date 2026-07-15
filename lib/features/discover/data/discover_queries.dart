@@ -9,10 +9,10 @@ class DiscoverQueries {
       'OR topic:ai-agent OR topic:llm-agent OR topic:mcp-server '
       'stars:>10';
 
-  /// /search/users:官方组织(AI 相关)。
+  // /search/users:官方组织(AI 相关)。
   static const String officialSearchQuery = 'type:org followers:>5000 ai in:name,bio';
 
-  /// /search/users:知名开发者(AI 相关)。
+  // /search/users:知名开发者(AI 相关)。
   static const String peopleSearchQuery = 'type:user followers:>1000 ai in:bio';
 
   static const String trendingCache = 'discover_trending_repos';

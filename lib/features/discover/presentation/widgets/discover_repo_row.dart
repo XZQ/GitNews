@@ -11,11 +11,13 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/repo_tile.dart';
 
-/// 发现页仓库卡片:仓库信息 + 行尾监控开关。
-///
-/// 监控开关直接读写 [localContentControllerProvider](core/shared),
-/// 与 monitor feature 共用 `monitoredRepos`,形成 discover→监控 闭环。
-/// [badge] 用于 Agent Skills 榜展示「#排名 · 分类」。
+/*
+ *发现页仓库卡片:仓库信息 + 行尾监控开关。
+ *
+ *监控开关直接读写 [localContentControllerProvider](core/shared),
+ *与 monitor feature 共用 `monitoredRepos`,形成 discover→监控 闭环。
+ *[badge] 用于 Agent Skills 榜展示「#排名 · 分类」。
+ */
 class DiscoverMonitorRow extends ConsumerWidget {
   const DiscoverMonitorRow({
     required this.repo,

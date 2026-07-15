@@ -12,7 +12,9 @@ import '../preferences/profile_session_controller.dart';
 import '../shared/local_content_controller.dart';
 import 'github_api_support.dart';
 
-/// GitHub Device Flow 登录状态机。
+/*
+ *GitHub Device Flow 登录状态机。
+ */
 enum DeviceFlowStatus {
   idle,
   awaiting,
@@ -62,14 +64,16 @@ class DeviceFlowState {
       );
 }
 
-/// GitHub Device Flow OAuth 控制器。
-///
-/// 桌面端无回调 URL,采用 Device Flow:
-/// 1. [start] 向 `/login/device/code` 申请 `device_code` + `user_code`;
-/// 2. 自动打开浏览器到授权页,用户粘贴 `user_code` 完成授权;
-/// 3. 后台轮询 `/login/oauth/access_token`,拿到 `access_token` 后写入
-///    [githubTokenControllerProvider](安全存储)并拉取真实用户信息回填
-///    [localContentControllerProvider]。
+/*
+ *GitHub Device Flow OAuth 控制器。
+ *
+ *桌面端无回调 URL,采用 Device Flow:
+ *1. [start] 向 `/login/device/code` 申请 `device_code` + `user_code`;
+ *2. 自动打开浏览器到授权页,用户粘贴 `user_code` 完成授权;
+ *3. 后台轮询 `/login/oauth/access_token`,拿到 `access_token` 后写入
+ *   [githubTokenControllerProvider](安全存储)并拉取真实用户信息回填
+ *   [localContentControllerProvider]。
+ */
 class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
   static const String _scope = 'read:user';
 

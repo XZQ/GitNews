@@ -1,4 +1,6 @@
-/// GitHub rate limit 分桶。
+/*
+ *GitHub rate limit 分桶。
+ */
 class GitHubRateLimitBucket {
   const GitHubRateLimitBucket({
     required this.limit,
@@ -11,7 +13,9 @@ class GitHubRateLimitBucket {
   final DateTime resetAt;
 }
 
-/// GitHub rate limit 状态。
+/*
+ *GitHub rate limit 状态。
+ */
 class GitHubRateLimitSnapshot {
   const GitHubRateLimitSnapshot({
     required this.core,

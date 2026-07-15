@@ -3,9 +3,12 @@ import '../../../core/domain/repo_entity.dart';
 import '../../../core/github/github_api_support.dart';
 import '../domain/discover_entities.dart';
 
-/// 发现页离线种子数据。
-/// 网络与本地缓存均不可用时兜底展示,确保首启即可见内容;
-/// 联网后由 GitHub Search 实时数据覆盖。
+/*
+ *发现页离线种子数据。
+ *
+ *网络与本地缓存均不可用时兜底展示,确保首启即可见内容;
+ *联网后由 GitHub Search 实时数据覆盖。
+ */
 class DiscoverSeed {
   const DiscoverSeed._();
 
@@ -19,7 +22,7 @@ class DiscoverSeed {
         accentArgb: GitHubApiSupport.languageColor(f.language),
       );
 
-  /// 流行仓库种子(约 20 个):DemoData 流行 + 最近 + 精选补充。
+  // 流行仓库种子(约 20 个):DemoData 流行 + 最近 + 精选补充。
   static List<RepoEntity> get seedPopularRepos {
     final base = [
       for (final f in DemoData.trending) _fromFixture(f),
@@ -28,7 +31,7 @@ class DiscoverSeed {
     return [...base, ..._curatedExtras.map(_extraToEntity)];
   }
 
-  /// Agent Skills 种子(离线兜底)。
+  // Agent Skills 种子(离线兜底)。
   static List<SkillEntity> get seedAgentSkills {
     return [
       for (var i = 0; i < _skillDefs.length; i++)

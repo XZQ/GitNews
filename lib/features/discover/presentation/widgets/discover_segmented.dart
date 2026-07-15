@@ -5,7 +5,9 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 
-/// 发现页分段选择器:仓库 / Skills / 官方组织 / 知名人士。
+/*
+ *发现页分段选择器:仓库 / Skills / 官方组织 / 知名人士。
+ */
 class DiscoverSegmented extends StatelessWidget {
   const DiscoverSegmented({
     required this.value,

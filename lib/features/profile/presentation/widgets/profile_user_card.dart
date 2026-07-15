@@ -12,8 +12,10 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 
-/// 个人中心顶部用户卡:展示真实 GitHub 身份(Device Flow 登录后回填),
-/// 未登录时回退到本地匿名会话。
+/*
+ *个人中心顶部用户卡:展示真实 GitHub 身份(Device Flow 登录后回填),
+ *未登录时回退到本地匿名会话。
+ */
 class ProfileUserCard extends ConsumerWidget {
   const ProfileUserCard({super.key});
 

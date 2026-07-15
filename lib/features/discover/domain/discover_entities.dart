@@ -1,7 +1,10 @@
 import '../../../core/domain/repo_entity.dart';
 
-/// AI Agent Skills 仓库的展示实体。
-/// 复用 [RepoEntity] 承载仓库基础信息,附加 skills 生态元数据。
+/*
+ *AI Agent Skills 仓库的展示实体。
+ *
+ *复用 [RepoEntity] 承载仓库基础信息,附加 skills 生态元数据。
+ */
 class SkillEntity {
   const SkillEntity({
     required this.repo,
@@ -13,13 +16,13 @@ class SkillEntity {
 
   final RepoEntity repo;
 
-  /// 分类,如 claude / cursor / copilot / other。
+  // 分类,如 claude / cursor / copilot / other。
   final String category;
 
-  /// 数据来源,如 agent-skills.cc / github leaderboard / search。
+  // 数据来源,如 agent-skills.cc / github leaderboard / search。
   final String source;
 
-  /// 排行榜名次(1 起)。
+  // 排行榜名次(1 起)。
   final int rank;
 
   final String? summary;
@@ -27,7 +30,9 @@ class SkillEntity {
 
 enum DiscoverProfileKind { official, people }
 
-/// 发现页 GitHub 账号实体:用于官方组织与知名开发者推荐。
+/*
+ *发现页 GitHub 账号实体:用于官方组织与知名开发者推荐。
+ */
 class DiscoverProfileEntity {
   const DiscoverProfileEntity({
     required this.login,
@@ -55,11 +60,10 @@ class DiscoverProfileEntity {
   final String featuredRepoFullName;
   final DiscoverProfileKind kind;
 
-  /// 是否已通过 /users/{login} 补全完整字段。
-  /// `/search/users` 返回的占位 entity 此字段为 false。
+  // 是否已通过 /users/{login} 补全完整字段;/search/users 返回的占位 entity 此字段为 false。
   final bool enriched;
 
-  /// 补全失败标记,避免无限重试。
+  // 补全失败标记,避免无限重试。
   final bool enrichFailed;
 
   DiscoverProfileEntity copyWith({

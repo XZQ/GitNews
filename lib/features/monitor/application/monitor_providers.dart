@@ -44,8 +44,8 @@ List<String> monitorReposFor(Set<String> monitored) {
   return monitored.toList()..sort();
 }
 
-/// 监控缓存 key:默认仓库集合沿用历史 key,用户自定义集合按内容哈希隔离,
-/// 避免不同监控列表互相覆盖缓存。
+// 监控缓存 key:默认仓库集合沿用历史 key,用户自定义集合按内容哈希隔离,
+// 避免不同监控列表互相覆盖缓存。
 String _monitorCacheKey(List<String> repos) {
   if (repos.length == githubMonitorDefaultRepos.length) {
     final set = repos.toSet();
@@ -76,7 +76,7 @@ final monitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
   return (await ref.watch(monitorDigestResultProvider.future)).data;
 });
 
-/// 将仓库数据与独立持久化的告警状态合并为界面唯一读取的监控摘要。
+// 将仓库数据与独立持久化的告警状态合并为界面唯一读取的监控摘要。
 final visibleMonitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
   final digest = await ref.watch(monitorDigestProvider.future);
   final events = await ref.watch(monitorAlertEventsProvider.future);
