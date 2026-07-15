@@ -28,20 +28,26 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
 - Do not use `///` doc comments; this project intentionally opts out of
   dartdoc-style comments.
 - Every class and method must have a `/* ... */` block comment explaining its
-  purpose. Always use the multi-line form, even for one-liners — the `/*` is
-  followed by a space and a newline, each continuation line begins with `*`
-  glued to the content (no separating space), and the block ends with `*/` on
-  its own line:
+  purpose. The form depends on the declaration kind:
+  - **Class, enum, mixin, extension, and typedef declarations** always use the
+    multi-line form below, even when the comment is short. Type declarations
+    are structural; their header comment should never collapse to one line.
+  - **Methods and top-level functions** prefer the single-line form
+    `/* 用途说明。 */` when the comment fits on one line (rough under ~200
+    chars). Only expand to the multi-line form when the content genuinely
+    needs multiple paragraphs or exceeds ~200 chars.
+  The multi-line form is:
   ```
-  /* 
+  /*
   *第一行:用途。
   *
   *第二段:细节、约束、注意事项。
   *  跨行续行用 2 空格缩进,保持视觉对齐。
   */
   ```
-  Do not write single-line `/* xxx */` block comments; expand them to the
-  multi-line form. Do not split a logical comment into multiple adjacent
+  The `/*` is followed by a space and a newline, each continuation line begins
+  with `*` glued to the content (no separating space), and the block ends with
+  `*/` on its own line. Do not split a logical comment into multiple adjacent
   `/* ... */` blocks.
 - Member variables (fields) must carry a `//` line comment that explains
   intent, units, ownership, or constraints. Use `//`, not `/* ... */`:
