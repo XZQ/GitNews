@@ -116,7 +116,13 @@ List<HomeLegendItem> homeChartLegends(AppLocalizations l10n, HomeLegacyTab tab, 
   }
 }
 
-List<ChartSeries> homeSeriesForWindow(int days, HomeLegacyTab tab, Color primary, {List<double>? primaryTrend, List<double>? secondaryTrend}) {
+List<ChartSeries> homeSeriesForWindow(
+  int days,
+  HomeLegacyTab tab,
+  Color primary, {
+  List<double>? primaryTrend,
+  List<double>? secondaryTrend,
+}) {
   final dynamicPrimary = _windowedTrend(primaryTrend, days);
   final dynamicSecondary = _windowedTrend(secondaryTrend, days);
   if (tab == HomeLegacyTab.trending && dynamicPrimary.isNotEmpty) {

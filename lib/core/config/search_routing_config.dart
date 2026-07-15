@@ -57,7 +57,12 @@ class GlobalSearchRouter {
   /* 
   *执行搜索路由。
   */
-  static void route({required String rawQuery, required List<SearchRouteEntry> entries, required void Function(String) fallbackSetter, required void Function(String route) onRoute}) {
+  static void route({
+    required String rawQuery,
+    required List<SearchRouteEntry> entries,
+    required void Function(String) fallbackSetter,
+    required void Function(String route) onRoute,
+  }) {
     final query = rawQuery.trim();
     if (query.isEmpty) {
       return;

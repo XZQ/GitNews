@@ -116,7 +116,12 @@ class GitHubResourceCache {
     }
   }
 
-  static String cacheKey({required String scope, required String method, required String url, Map<String, Object?>? queryParameters}) {
+  static String cacheKey({
+    required String scope,
+    required String method,
+    required String url,
+    Map<String, Object?>? queryParameters,
+  }) {
     final query = queryParameters == null || queryParameters.isEmpty ? '' : _canonicalQuery(queryParameters);
     return 'github_resource:v1:$scope:${method.toUpperCase()}:$url$query';
   }

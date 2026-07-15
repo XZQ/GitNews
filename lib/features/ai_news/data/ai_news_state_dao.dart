@@ -127,7 +127,12 @@ class AiNewsStateDao {
     return rows.isEmpty ? null : rows.first;
   }
 
-  Future<void> _upsert(AiNewsItem item, {required int? readAt, required int? readLaterAt, required DateTime now}) {
+  Future<void> _upsert(
+    AiNewsItem item, {
+    required int? readAt,
+    required int? readLaterAt,
+    required DateTime now,
+  }) {
     return _db.insert(
       _table,
       {

@@ -92,7 +92,12 @@ class JsonSnapshotCacheDao {
   /* 
   *同时写 payload 与 ETag。etag 为 null 时保留既有 etag 不变。
   */
-  Future<void> upsertWithEtag({required String key, required Map<String, Object?> payload, required DateTime now, String? etag}) async {
+  Future<void> upsertWithEtag({
+    required String key,
+    required Map<String, Object?> payload,
+    required DateTime now,
+    String? etag,
+  }) async {
     await upsert(key: key, payload: payload, now: now);
     if (etag != null) {
       await _meta.writeEtag(key, etag);

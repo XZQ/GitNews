@@ -15,7 +15,12 @@ import 'ai_news_rss_client.dart';
 *  模块仍返回 live 数据(这正是引入多源要消除的单点);全军覆没才抛错
 */
 class AggregatedAiNewsRepository implements AiNewsRepository {
-  const AggregatedAiNewsRepository(this._primary, this._rssClient, {this.sources = AiNewsSourcesConfig.sources, this.clock = DateTime.now});
+  const AggregatedAiNewsRepository(
+    this._primary,
+    this._rssClient, {
+    this.sources = AiNewsSourcesConfig.sources,
+    this.clock = DateTime.now,
+  });
 
   final AiNewsRepository _primary;
   final AiNewsRssClient _rssClient;

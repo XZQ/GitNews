@@ -39,7 +39,13 @@ class DeviceFlowContent extends ConsumerWidget {
     };
   }
 
-  _ResultView _retryResult(WidgetRef ref, AppLocalizations l10n, {required IconData icon, required Color color, required String messageKey}) {
+  _ResultView _retryResult(
+    WidgetRef ref,
+    AppLocalizations l10n, {
+    required IconData icon,
+    required Color color,
+    required String messageKey,
+  }) {
     return _ResultView(
       icon: icon,
       color: color,

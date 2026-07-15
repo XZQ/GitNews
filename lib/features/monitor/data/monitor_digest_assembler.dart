@@ -9,8 +9,12 @@ import 'monitor_alert_event_dao.dart';
 import 'monitor_observation_dao.dart';
 
 class MonitorDigestAssembler {
-  const MonitorDigestAssembler({required MonitorObservationDao observationDao, required MonitorAlertEventDao alertDao, required MonitorRuleEvaluator evaluator, required Set<String> enabledRuleIds})
-      : _observationDao = observationDao,
+  const MonitorDigestAssembler({
+    required MonitorObservationDao observationDao,
+    required MonitorAlertEventDao alertDao,
+    required MonitorRuleEvaluator evaluator,
+    required Set<String> enabledRuleIds,
+  })  : _observationDao = observationDao,
         _alertDao = alertDao,
         _evaluator = evaluator,
         _enabledRuleIds = enabledRuleIds;
