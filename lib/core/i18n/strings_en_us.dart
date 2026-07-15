@@ -11,7 +11,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'bootstrap.open_failed': 'Could not open the data directory',
 
   // app
-  'app.name': 'GitHub News',
+  'app.name': 'Ai News',
   'app.language': 'Language',
   'app.language.zh_cn': '简体中文',
   'app.language.en_us': 'English',
@@ -59,6 +59,8 @@ const Map<String, String> stringsEnUS = <String, String>{
   'mobile.today': 'Today',
   'mobile.ai': 'AI',
   'mobile.project': 'Project',
+  'mobile.discover': 'Discover',
+  'mobile.monitor': 'Alerts',
   'mobile.settings': 'Settings',
   'tab.monitor': 'Monitor',
   'tab.project': 'Reports',
@@ -364,7 +366,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'project.export': 'Export',
   'project.exported': 'Report exported: {path}',
   'project.export_failed': 'Export failed, please retry',
-  'project.report.title': 'GitHub Intelligence Report',
+  'project.report.title': 'Ai News Report',
   'project.report.generated_at': 'Generated at',
   'project.report.repo_count': 'Repository count',
   'project.report.contributor_count': 'Contributor count',
@@ -661,7 +663,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'config.import_button': 'Import',
 
   // common.onboarding
-  'onboarding.welcome_title': 'Welcome to GitHub Intelligence',
+  'onboarding.welcome_title': 'Welcome to Ai News',
   'onboarding.welcome_desc': 'AI + GitHub intelligence workbench, track open-source ecosystem',
   'onboarding.step1_title': 'AI News',
   'onboarding.step1_desc': 'Daily curated AI industry updates, browse by category',

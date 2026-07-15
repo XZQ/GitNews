@@ -16,6 +16,55 @@ import 'widgets/discover_load_more_indicator.dart';
 import 'widgets/discover_profile_row.dart';
 import 'widgets/discover_repo_row.dart';
 
+/*
+ *发现页列表容器:桌面端(≥1024)一行 2 项,其余沿用单列。
+ *
+ *桌面端两列通过把相邻两项包进同一 `Row` 实现,行高由较高的项决定,
+ *避免 GridView 强制 aspectRatio 带来的描述文字裁切。
+ */
+Widget _buildDiscoverList({
+  required BuildContext context,
+  required ScrollController scrollController,
+  required int itemCount,
+  required bool hasMore,
+  required Widget Function(BuildContext, int) itemBuilder,
+}) {
+  final useCards = !Breakpoints.isCompact(context);
+  final twoColumn = Breakpoints.isExpanded(context);
+  final cardPadding = const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl);
+  if (twoColumn) {
+    final rowCount = (itemCount + 1) ~/ 2;
+    return ListView.separated(
+        controller: scrollController,
+        padding: cardPadding,
+        itemCount: rowCount + (hasMore ? 1 : 0),
+        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+        itemBuilder: (context, row) {
+          if (row >= rowCount) {
+            return const DiscoverLoadMoreIndicator();
+          }
+          final i1 = row * 2;
+          final i2 = i1 + 1;
+          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Expanded(child: itemBuilder(context, i1)),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: i2 < itemCount ? itemBuilder(context, i2) : const SizedBox()),
+          ]);
+        });
+  }
+  return ListView.separated(
+      controller: scrollController,
+      padding: useCards ? cardPadding : const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      itemCount: itemCount + (hasMore ? 1 : 0),
+      separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
+      itemBuilder: (context, i) {
+        if (i >= itemCount) {
+          return const DiscoverLoadMoreIndicator();
+        }
+        return itemBuilder(context, i);
+      });
+}
+
 class DiscoverReposSection extends ConsumerWidget {
   const DiscoverReposSection({
     required this.async,
@@ -41,24 +90,13 @@ class DiscoverReposSection extends ConsumerWidget {
             return EmptyView(icon: Icons.explore_off_outlined, message: query.trim().isEmpty ? l10n.tr('discover.empty.repos') : l10n.tr('discover.empty_filter').replaceAll('{query}', query));
           }
           final hasMore = query.trim().isEmpty && ref.read(trendingReposNotifierProvider.notifier).hasMore;
-          return ListView.separated(
-              controller: scrollController,
-              padding: useCards
-                  ? const EdgeInsets.fromLTRB(
-                      AppSpacing.lg,
-                      AppSpacing.md,
-                      AppSpacing.xl,
-                      AppSpacing.xxxl,
-                    )
-                  : const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              itemCount: repos.length + (hasMore ? 1 : 0),
-              separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
-              itemBuilder: (context, i) {
-                if (i >= repos.length) {
-                  return const DiscoverLoadMoreIndicator();
-                }
-                return DiscoverMonitorRow(repo: repos[i], cardStyle: useCards, onTap: () => context.go(discoverRepoDetailLocation(repos[i].fullName)));
-              });
+          return _buildDiscoverList(
+            context: context,
+            scrollController: scrollController,
+            itemCount: repos.length,
+            hasMore: hasMore,
+            itemBuilder: (context, i) => DiscoverMonitorRow(repo: repos[i], cardStyle: useCards, onTap: () => context.go(discoverRepoDetailLocation(repos[i].fullName))),
+          );
         });
   }
 }
@@ -88,29 +126,18 @@ class DiscoverSkillsSection extends ConsumerWidget {
             return EmptyView(icon: Icons.extension_off_outlined, message: query.trim().isEmpty ? l10n.tr('discover.empty.skills') : l10n.tr('discover.empty_filter').replaceAll('{query}', query));
           }
           final hasMore = query.trim().isEmpty && ref.read(agentSkillsNotifierProvider.notifier).hasMore;
-          return ListView.separated(
-              controller: scrollController,
-              padding: useCards
-                  ? const EdgeInsets.fromLTRB(
-                      AppSpacing.lg,
-                      AppSpacing.md,
-                      AppSpacing.xl,
-                      AppSpacing.xxxl,
-                    )
-                  : const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              itemCount: skills.length + (hasMore ? 1 : 0),
-              separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
-              itemBuilder: (context, i) {
-                if (i >= skills.length) {
-                  return const DiscoverLoadMoreIndicator();
-                }
-                return DiscoverMonitorRow(
-                  repo: skills[i].repo,
-                  badge: '#${skills[i].rank} · ${skills[i].category}',
-                  cardStyle: useCards,
-                  onTap: () => context.go(discoverRepoDetailLocation(skills[i].repo.fullName)),
-                );
-              });
+          return _buildDiscoverList(
+            context: context,
+            scrollController: scrollController,
+            itemCount: skills.length,
+            hasMore: hasMore,
+            itemBuilder: (context, i) => DiscoverMonitorRow(
+              repo: skills[i].repo,
+              badge: '#${skills[i].rank} · ${skills[i].category}',
+              cardStyle: useCards,
+              onTap: () => context.go(discoverRepoDetailLocation(skills[i].repo.fullName)),
+            ),
+          );
         });
   }
 }
@@ -148,24 +175,13 @@ class DiscoverProfilesSection extends ConsumerWidget {
           }
           final notifierProvider = kind == DiscoverProfileKind.official ? officialProfilesNotifierProvider : peopleProfilesNotifierProvider;
           final hasMore = query.trim().isEmpty && ref.read(notifierProvider.notifier).hasMore;
-          return ListView.separated(
-              controller: scrollController,
-              padding: useCards
-                  ? const EdgeInsets.fromLTRB(
-                      AppSpacing.lg,
-                      AppSpacing.md,
-                      AppSpacing.xl,
-                      AppSpacing.xxxl,
-                    )
-                  : const EdgeInsets.symmetric(vertical: AppSpacing.md),
-              itemCount: profiles.length + (hasMore ? 1 : 0),
-              separatorBuilder: (_, __) => useCards ? const SizedBox(height: AppSpacing.md) : const Divider(height: 1),
-              itemBuilder: (context, i) {
-                if (i >= profiles.length) {
-                  return const DiscoverLoadMoreIndicator();
-                }
-                return DiscoverProfileRow(profile: profiles[i], cardStyle: useCards, onTap: () => context.go(discoverProfileDetailLocation(profiles[i])));
-              });
+          return _buildDiscoverList(
+            context: context,
+            scrollController: scrollController,
+            itemCount: profiles.length,
+            hasMore: hasMore,
+            itemBuilder: (context, i) => DiscoverProfileRow(profile: profiles[i], cardStyle: useCards, onTap: () => context.go(discoverProfileDetailLocation(profiles[i]))),
+          );
         });
   }
 }

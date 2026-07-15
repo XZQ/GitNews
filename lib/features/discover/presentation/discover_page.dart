@@ -72,7 +72,8 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
       return;
     }
     final useCards = !Breakpoints.isCompact(context);
-    final extent = useCards ? discoverItemExtentCards : discoverItemExtentCompact;
+    final twoColumn = Breakpoints.isExpanded(context);
+    final extent = twoColumn ? discoverItemExtentCards / 2 : (useCards ? discoverItemExtentCards : discoverItemExtentCompact);
     final remaining = (_scrollController.position.maxScrollExtent - _scrollController.position.pixels) / extent;
     if (remaining > discoverLoadMoreRemainingItems) {
       return;

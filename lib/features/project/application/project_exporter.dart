@@ -40,7 +40,7 @@ class ProjectReportCopy {
   }
 
   static const zhCN = ProjectReportCopy(
-    title: 'GitHub 情报站深度报告',
+    title: 'AI资讯深度报告',
     generatedAt: '生成时间',
     repositoryCount: '仓库数量',
     contributorCount: '贡献者数量',
@@ -57,7 +57,7 @@ class ProjectReportCopy {
   );
 
   static const enUS = ProjectReportCopy(
-    title: 'GitHub Intelligence Report',
+    title: 'Ai News Report',
     generatedAt: 'Generated at',
     repositoryCount: 'Repository count',
     contributorCount: 'Contributor count',

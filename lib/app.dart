@@ -46,7 +46,7 @@ class GitHubNewsApp extends ConsumerWidget {
               _NoopIntent: CallbackAction<_NoopIntent>(onInvoke: (_) => null)
             },
             child: MaterialApp.router(
-              title: 'GitHub News',
+              title: 'Ai News',
               debugShowCheckedModeBanner: false,
               theme: AppTheme.light(preset.seed),
               darkTheme: AppTheme.dark(preset.seed),

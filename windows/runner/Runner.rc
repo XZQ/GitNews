@@ -91,13 +91,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "GitHub情报站" "\0"
-            VALUE "FileDescription", "GitHub情报站" "\0"
+            VALUE "CompanyName", "AI资讯" "\0"
+            VALUE "FileDescription", "AI资讯" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "github_news" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 GitHub情报站. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 AI资讯. All rights reserved." "\0"
             VALUE "OriginalFilename", "github_news.exe" "\0"
-            VALUE "ProductName", "GitHub情报站" "\0"
+            VALUE "ProductName", "AI资讯" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

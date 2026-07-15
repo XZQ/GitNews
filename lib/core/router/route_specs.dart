@@ -77,15 +77,19 @@ const List<TabSpec> appTabs = <TabSpec>[
   )
 ];
 
+// 移动端底部 IA(5 项):
+// 今日 → AI 动态 → 发现 → 监控 → 我的
+// tech_hotspot / trending / project 由「发现」与「我的」内部承载,不占底部。
 const List<MobileTabSpec> mobileAppTabs = <MobileTabSpec>[
   MobileTabSpec(labelKey: 'mobile.today', branchIndex: 0),
   MobileTabSpec(labelKey: 'mobile.ai', branchIndex: 1),
-  MobileTabSpec(labelKey: 'mobile.project', branchIndex: 2),
+  MobileTabSpec(labelKey: 'mobile.discover', branchIndex: 4),
+  MobileTabSpec(labelKey: 'mobile.monitor', branchIndex: 5),
   MobileTabSpec(labelKey: 'mobile.settings', branchIndex: 7)
 ];
 
 int mobileDestinationIndex(int branchIndex) {
-  return switch (branchIndex) { 0 => 0, 1 => 1, 7 => 3, _ => 2 };
+  return switch (branchIndex) { 0 => 0, 1 => 1, 4 => 2, 5 => 3, 7 => 4, _ => 2 };
 }
 
 extension TabIndexLookup on List<TabSpec> {

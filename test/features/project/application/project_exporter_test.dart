@@ -39,7 +39,7 @@ void main() {
       copy: ProjectReportCopy.zhCN,
     );
 
-    expect(markdown, contains('# GitHub 情报站深度报告'));
+    expect(markdown, contains('# AI资讯深度报告'));
     expect(markdown, contains('openai/codex'));
     expect(markdown, contains('@maintainer'));
   });
@@ -62,7 +62,7 @@ void main() {
       copy: ProjectReportCopy.enUS,
     );
 
-    expect(markdown, contains('# GitHub Intelligence Report'));
+    expect(markdown, contains('# Ai News Report'));
     expect(markdown, contains('## Popular repositories'));
     expect(markdown, isNot(matches(RegExp(r'[\u4e00-\u9fff]'))));
   });

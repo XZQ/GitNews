@@ -10,7 +10,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'bootstrap.open_failed': '无法打开数据目录',
 
   // app
-  'app.name': 'GitHub 情报站',
+  'app.name': 'AI资讯',
   'app.language': '语言',
   'app.language.zh_cn': '简体中文',
   'app.language.en_us': 'English',
@@ -58,7 +58,9 @@ const Map<String, String> stringsZhCN = <String, String>{
   'mobile.today': '今日',
   'mobile.ai': 'AI',
   'mobile.project': '项目',
-  'mobile.settings': '设置',
+  'mobile.discover': '发现',
+  'mobile.monitor': '监控',
+  'mobile.settings': '我的',
   'tab.monitor': '仓库监控',
   'tab.project': '深度报告',
   'tab.profile': '设置',
@@ -362,7 +364,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'project.export': '导出',
   'project.exported': '报告已导出: {path}',
   'project.export_failed': '报告导出失败,请稍后重试',
-  'project.report.title': 'GitHub 情报站深度报告',
+  'project.report.title': 'AI资讯深度报告',
   'project.report.generated_at': '生成时间',
   'project.report.repo_count': '仓库数量',
   'project.report.contributor_count': '贡献者数量',
@@ -659,7 +661,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'config.import_button': '导入配置',
 
   // common.onboarding
-  'onboarding.welcome_title': '欢迎使用 GitHub 情报站',
+  'onboarding.welcome_title': '欢迎使用 AI资讯',
   'onboarding.welcome_desc': 'AI + GitHub 情报工作台,一站式追踪开源生态',
   'onboarding.step1_title': 'AI 动态',
   'onboarding.step1_desc': '每日精选 AI 行业资讯,分类浏览',
