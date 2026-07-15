@@ -26,6 +26,9 @@ class ApiEndpointsConfig {
   // GitHub REST API 默认 baseUrl。
   static const String githubBaseUrl = 'https://api.github.com';
 
+  // GitHub Web 前端 baseUrl(用户/仓库/commit 页面,非 API)。
+  static const String githubWebBaseUrl = 'https://github.com';
+
   // GitHub Search 仓库搜索接口:`GET /search/repositories`。
   static const String githubSearchRepositoriesPath = '/search/repositories';
 

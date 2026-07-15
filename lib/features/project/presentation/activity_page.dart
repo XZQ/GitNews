@@ -13,7 +13,9 @@ import 'widgets/activity_contributors_card.dart';
 import 'widgets/activity_events_card.dart';
 import 'widgets/project_page_skeleton.dart';
 
-/* 二级：活动速览（Commit / Issue / Release 流）。 */
+/*
+*二级:活动速览(Commit / Issue / Release 流)。
+*/
 class ActivityPage extends ConsumerWidget {
   const ActivityPage({super.key});
 

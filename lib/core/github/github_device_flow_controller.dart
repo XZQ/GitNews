@@ -229,5 +229,5 @@ final githubDeviceFlowProvider = NotifierProvider<GithubDeviceFlowController, De
 );
 
 final githubDeviceFlowDioProvider = Provider<Dio>(
-  (ref) => DioClient.create(baseUrl: 'https://github.com'),
+  (ref) => DioClient.create(baseUrl: ApiEndpointsConfig.githubWebBaseUrl),
 );

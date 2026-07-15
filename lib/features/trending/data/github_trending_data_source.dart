@@ -94,6 +94,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
     };
   }
 
+  // 窗口对应天数:today=1 天,week=7 天,month=30 天。
   Duration _windowDuration(TrendingWindow window) {
     return switch (window) {
       TrendingWindow.today => const Duration(days: 1),

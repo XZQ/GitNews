@@ -5,7 +5,6 @@ import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/demo_data.dart';
 import '../../../core/demo_data_mappers.dart';
 import '../../../core/domain/data_freshness.dart';
-import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/domain/repository_feed.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -58,19 +57,18 @@ class GithubProjectRepository implements ProjectRepository {
   Future<DataResult<ProjectDigest>> getDigest() async {
     final feedResult = await _repositoryFeed.load();
     final feed = feedResult.data;
-    final parts = await Future.wait<dynamic>([
-      _contributorsFor(feed),
-      GithubProjectActivityLoader(
-        cache: _cache,
-        resources: _resources,
-        cacheScope: _cacheScope,
-        now: _now,
-        isRateLimited: _isRateLimited,
-        onRateLimited: _onRateLimited,
-      ).load(feed),
-    ]);
-    final contributorResult = parts[0] as DataResult<List<ContributorEntity>>;
-    final activities = parts[1] as List<RepoActivityEvent>;
+    // 并行启动两个异构 Future,避免 Future.wait<dynamic> 与运行时 as 转换。
+    final contributorFuture = _contributorsFor(feed);
+    final activityFuture = GithubProjectActivityLoader(
+      cache: _cache,
+      resources: _resources,
+      cacheScope: _cacheScope,
+      now: _now,
+      isRateLimited: _isRateLimited,
+      onRateLimited: _onRateLimited,
+    ).load(feed);
+    final contributorResult = await contributorFuture;
+    final activities = await activityFuture;
     return DataResult(
       freshness: _leastFresh(
         feedResult.freshness,

@@ -78,7 +78,7 @@ _ParsedActivity _parsePayload(
     _ => _ParsedActivity(
         type: RepoActivityType.other,
         title: rawType,
-        htmlUrl: 'https://github.com/$repoFullName',
+        htmlUrl: '${ApiEndpointsConfig.githubWebBaseUrl}/$repoFullName',
       ),
   };
 }
@@ -93,7 +93,7 @@ _ParsedActivity _parsePush(
   return _ParsedActivity(
     type: RepoActivityType.push,
     title: _nullableString(firstCommit['message']) ?? 'PushEvent',
-    htmlUrl: sha == null ? 'https://github.com/$repoFullName' : 'https://github.com/$repoFullName/commit/$sha',
+    htmlUrl: sha == null ? '${ApiEndpointsConfig.githubWebBaseUrl}/$repoFullName' : '${ApiEndpointsConfig.githubWebBaseUrl}/$repoFullName/commit/$sha',
   );
 }
 

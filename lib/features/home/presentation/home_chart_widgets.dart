@@ -5,7 +5,9 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 
-/* 7 / 14 / 30 天窗口切换。 */
+/*
+*7 / 14 / 30 天窗口切换。
+*/
 class ChartWindowSegmented extends StatelessWidget {
   const ChartWindowSegmented({
     required this.value,

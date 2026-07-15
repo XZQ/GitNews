@@ -5,7 +5,9 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 
-/* Home 旧版 mobile / tablet 共用的页内分类（归档实现）。 */
+/*
+*Home 旧版 mobile / tablet 共用的页内分类(归档实现)。
+*/
 enum HomeLegacyTab {
   trending,
   growth,

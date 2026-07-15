@@ -7,7 +7,9 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
 
-/* 贡献者卡片：展示项目核心开发者及其贡献数。 */
+/*
+*贡献者卡片:展示项目核心开发者及其贡献数。
+*/
 class ActivityContributorsCard extends StatelessWidget {
   const ActivityContributorsCard({super.key, required this.contributors});
 

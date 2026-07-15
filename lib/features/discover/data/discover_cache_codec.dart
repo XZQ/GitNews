@@ -1,3 +1,4 @@
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/github/github_api_support.dart';
@@ -76,7 +77,7 @@ class DiscoverCacheCodec {
       publicRepos: GitHubJson.intValue(json['public_repos'] ?? json['publicRepos']),
       followers: GitHubJson.intValue(json['followers']),
       avatarUrl: GitHubJson.nullableString(json['avatar_url']) ?? GitHubJson.nullableString(json['avatarUrl']) ?? '',
-      htmlUrl: GitHubJson.nullableString(json['html_url']) ?? GitHubJson.nullableString(json['htmlUrl']) ?? 'https://github.com/$login',
+      htmlUrl: GitHubJson.nullableString(json['html_url']) ?? GitHubJson.nullableString(json['htmlUrl']) ?? '${ApiEndpointsConfig.githubWebBaseUrl}/$login',
       featuredRepoFullName: GitHubJson.nullableString(json['featuredRepoFullName']) ?? DiscoverQueries.featuredRepoForLogin(login),
       kind: kind,
       enriched: true,

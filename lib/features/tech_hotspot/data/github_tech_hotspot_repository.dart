@@ -154,6 +154,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
     DateTime now,
   ) async {
     try {
+      // 限定最近 30 天内有 push 的仓库,排除长期归档项目。
       final cutoff = now.toUtc().subtract(const Duration(days: 30));
       final response = await _dio.get<Map<String, Object?>>(
         ApiEndpointsConfig.githubSearchRepositoriesPath,
