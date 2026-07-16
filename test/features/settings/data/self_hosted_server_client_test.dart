@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/errors/app_exception.dart';
 import 'package:github_news/core/preferences/server_connection_controller.dart';
 import 'package:github_news/features/settings/data/self_hosted_server_client.dart';
 import 'package:mocktail/mocktail.dart';
@@ -55,7 +56,9 @@ void main() {
 
     expect(
       () => client.pushConfig(connection, const {}, version: 1),
-      throwsA(isA<StateError>()),
+      throwsA(
+        isA<AppException>().having((error) => error.kind, 'kind', AppExceptionKind.unknown).having((error) => error.meta['reason'], 'reason', 'conflict'),
+      ),
     );
   });
 

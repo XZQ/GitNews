@@ -5,28 +5,42 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/preferences/ai_digest_config_controller.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/app_card.dart';
 import '../../application/ai_news_enrichment_providers.dart';
 import '../../domain/ai_news_enrichment.dart';
 import '../../domain/ai_news_item.dart';
 
+/*
+*资讯详情的 AI 深度解读卡片。
+*
+*保留本地生成与重新生成能力,并把结构化增强结果映射为参考稿里的
+*核心观点、值得关注和关联线索三段信息。
+*/
 class AiNewsEnrichmentCard extends ConsumerStatefulWidget {
   const AiNewsEnrichmentCard({required this.item, super.key});
 
+  // 当前资讯。
   final AiNewsItem item;
 
   @override
+  /* 创建局部生成状态。 */
   ConsumerState<AiNewsEnrichmentCard> createState() => _AiNewsEnrichmentCardState();
 }
 
+/*
+*管理增强内容生成中的短暂交互状态。
+*/
 class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
+  // 防止重复生成。
   bool _working = false;
   bool _generationFailed = false;
   String? _autoRequestedItemId;
 
   @override
+  /* 构建增强数据的加载、错误、空和内容状态。 */
   Widget build(BuildContext context) {
     final enrichment = ref.watch(aiNewsEnrichmentProvider(widget.item.id));
     final configured = ref.watch(aiDigestConfigControllerProvider).configured;
@@ -39,20 +53,25 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
       configured: configured,
       missingEnrichment: missingEnrichment,
     );
-    return AppCard(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+    return _EnrichmentSurface(
       child: enrichment.when(
         data: (value) => value == null
             ? _generationFailed
-                ? _EnrichmentFailure(onRetry: _generate)
-                : _EmptyEnrichment(configured: configured)
+                ? _EnrichmentError(onRetry: _generate)
+                : _EmptyEnrichment(
+                    configured: configured,
+                    working: _working,
+                  )
             : _EnrichmentContent(
                 enrichment: value,
                 working: _working,
                 onRegenerate: () => _generate(force: true),
               ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => _EnrichmentFailure(onRetry: _generate),
+        loading: () => const SizedBox(
+          height: 220,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => _EnrichmentError(onRetry: _generate),
       ),
     );
   }
@@ -72,6 +91,7 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
     });
   }
 
+  /* 生成或强制刷新当前资讯的本地增强内容。 */
   Future<void> _generate({bool force = false}) async {
     if (_working) {
       return;
@@ -104,22 +124,62 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
   }
 }
 
-class _EmptyEnrichment extends StatelessWidget {
-  const _EmptyEnrichment({required this.configured});
+/*
+*深度解读的浅青色外层容器。
+*/
+class _EnrichmentSurface extends StatelessWidget {
+  const _EnrichmentSurface({required this.child});
 
-  final bool configured;
+  // 容器内容。
+  final Widget child;
 
   @override
+  /* 构建品牌色背景与边框。 */
+  Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: AppColors.brandLight.withValues(alpha: isLight ? 0.22 : 0.06),
+        border: Border.all(color: AppColors.brand.withValues(alpha: 0.2)),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+      ),
+      child: child,
+    );
+  }
+}
+
+/*
+*未生成增强内容时的行动入口。
+*/
+class _EmptyEnrichment extends StatelessWidget {
+  const _EmptyEnrichment({
+    required this.configured,
+    required this.working,
+  });
+
+  // 是否已经配置模型。
+  final bool configured;
+
+  // 是否正在生成。
+  final bool working;
+
+  @override
+  /* 构建增强空态与生成按钮。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(l10n.tr('ai_news.enrichment.title'), style: AppTypography.titleMedium),
-        const SizedBox(height: AppSpacing.sm),
+        _EnrichmentHeader(working: working, onRegenerate: null),
+        const SizedBox(height: AppSpacing.lg),
         Text(
           l10n.tr(
             configured ? 'ai_news.enrichment.description' : 'ai_news.enrichment.configure',
+          ),
+          style: AppTypography.bodyLarge.copyWith(
+            color: colors.onSurfaceVariant,
           ),
         ),
         if (configured) ...[
@@ -141,22 +201,25 @@ class _EmptyEnrichment extends StatelessWidget {
 }
 
 /*
-*自动增强失败状态,保留显式重试入口。
+*增强失败后的重试状态。
 */
-class _EnrichmentFailure extends StatelessWidget {
-  const _EnrichmentFailure({required this.onRetry});
+class _EnrichmentError extends StatelessWidget {
+  const _EnrichmentError({required this.onRetry});
 
-  // 用户主动重试回调。
+  // 重试操作。
   final VoidCallback onRetry;
 
   @override
+  /* 构建错误说明与重试按钮。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const _EnrichmentHeader(working: false, onRegenerate: null),
+        const SizedBox(height: AppSpacing.md),
         Text(l10n.tr('ai_news.enrichment.failed')),
-        const SizedBox(height: AppSpacing.sm),
+        const SizedBox(height: AppSpacing.md),
         OutlinedButton.icon(
           onPressed: onRetry,
           icon: const Icon(Icons.refresh_rounded),
@@ -167,6 +230,9 @@ class _EnrichmentFailure extends StatelessWidget {
   }
 }
 
+/*
+*增强成功后的三段结构化解读。
+*/
 class _EnrichmentContent extends StatelessWidget {
   const _EnrichmentContent({
     required this.enrichment,
@@ -174,59 +240,180 @@ class _EnrichmentContent extends StatelessWidget {
     required this.onRegenerate,
   });
 
+  // 本地增强结果。
   final AiNewsEnrichment enrichment;
+
+  // 是否正在重新生成。
   final bool working;
+
+  // 重新生成操作。
   final VoidCallback onRegenerate;
 
   @override
+  /* 构建深度解读三行卡片。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
+    final signals = enrichment.entities.all;
+    final signalText = signals.isEmpty ? '${enrichment.model} · ${enrichment.importanceScore.round()}/100' : signals.join(' · ');
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                l10n.tr('ai_news.enrichment.title'),
-                style: AppTypography.titleMedium,
-              ),
+        _EnrichmentHeader(working: working, onRegenerate: onRegenerate),
+        const SizedBox(height: AppSpacing.lg),
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            border: Border.all(
+              color: Theme.of(
+                context,
+              ).colorScheme.outlineVariant.withValues(alpha: 0.58),
             ),
-            Chip(
-              avatar: const Icon(Icons.bolt_rounded, size: 16),
-              label: Text('${enrichment.importanceScore.round()}/100'),
-            ),
-            IconButton(
-              tooltip: l10n.tr('ai_news.enrichment.regenerate'),
-              onPressed: working ? null : onRegenerate,
-              icon: const Icon(Icons.refresh_rounded),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          enrichment.generatedSummary,
-          style: AppTypography.bodyLarge.copyWith(color: colors.onSurface),
-        ),
-        const SizedBox(height: AppSpacing.md),
-        Text(enrichment.translatedTitle, style: AppTypography.titleSmall),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          enrichment.translatedSummary,
-          style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
-        ),
-        if (enrichment.entities.all.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.md),
-          Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.xs,
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+          ),
+          child: Column(
             children: [
-              for (final entity in enrichment.entities.all) Chip(label: Text(entity)),
+              _InsightRow(
+                icon: Icons.my_location_rounded,
+                title: l10n.tr('ai_news.detail.core_view'),
+                body: enrichment.generatedSummary,
+              ),
+              const Divider(height: 1),
+              _InsightRow(
+                icon: Icons.visibility_outlined,
+                title: l10n.tr('ai_news.detail.why_it_matters'),
+                body: enrichment.translatedSummary,
+              ),
+              const Divider(height: 1),
+              _InsightRow(
+                icon: Icons.extension_outlined,
+                title: l10n.tr('ai_news.detail.use_cases'),
+                body: signalText,
+              ),
             ],
           ),
-        ],
+        ),
       ],
+    );
+  }
+}
+
+/*
+*深度解读标题与重新生成操作。
+*/
+class _EnrichmentHeader extends StatelessWidget {
+  const _EnrichmentHeader({required this.working, required this.onRegenerate});
+
+  // 是否正在处理。
+  final bool working;
+
+  // 可选重新生成操作。
+  final VoidCallback? onRegenerate;
+
+  @override
+  /* 构建带星光图标的解读标题。 */
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Row(
+      children: [
+        Container(
+          width: 34,
+          height: 34,
+          decoration: const BoxDecoration(
+            color: AppColors.brand,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.auto_awesome_rounded,
+            color: Colors.white,
+            size: 18,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            l10n.tr('ai_news.detail.deep_read'),
+            style: AppTypography.titleLarge,
+          ),
+        ),
+        if (onRegenerate != null)
+          IconButton(
+            tooltip: l10n.tr('ai_news.enrichment.regenerate'),
+            onPressed: working ? null : onRegenerate,
+            icon: working
+                ? const SizedBox.square(
+                    dimension: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.refresh_rounded),
+          ),
+      ],
+    );
+  }
+}
+
+/*
+*深度解读中的单条观点。
+*/
+class _InsightRow extends StatelessWidget {
+  const _InsightRow({
+    required this.icon,
+    required this.title,
+    required this.body,
+  });
+
+  // 观点图标。
+  final IconData icon;
+
+  // 观点标题。
+  final String title;
+
+  // 观点内容。
+  final String body;
+
+  @override
+  /* 构建图标、标题与正文行。 */
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 46,
+            height: 46,
+            decoration: BoxDecoration(
+              color: AppColors.brandLight.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
+            ),
+            child: Icon(icon, color: AppColors.brand, size: 24),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTypography.titleMedium.copyWith(
+                    color: colors.onSurface,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  body,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: colors.onSurfaceVariant,
+                    height: 1.62,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

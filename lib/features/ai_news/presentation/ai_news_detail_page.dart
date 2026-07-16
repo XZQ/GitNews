@@ -8,67 +8,107 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
-import '../application/ai_news_feedback_providers.dart';
 import '../application/ai_news_library_providers.dart';
 import '../application/ai_news_providers.dart';
-import '../domain/ai_news_feedback.dart';
 import '../domain/ai_news_item.dart';
+import 'widgets/ai_news_detail_action_bar.dart';
 import 'widgets/ai_news_detail_content.dart';
 
-/* 
-*AI 资讯详情页。
-*详情页展示已缓存的结构化资讯内容,避免桌面 WebView 直接加载微信 / X 等
-*外站时出现白屏。原文仍通过外部浏览器打开。
-*作为二级页,顶部统一使用 [AppBar] + [BackButton] 提供返回入口。
+/*
+*AI 资讯三页详情阅读器。
+*
+*保持详情在应用壳内,正文只读取本机缓存;原文通过系统浏览器打开。
 */
 class AiNewsDetailPage extends ConsumerWidget {
   const AiNewsDetailPage({required this.id, super.key});
 
+  // 资讯 ID。
   final String id;
 
   @override
+  /* 构建详情加载、空、错误与三页内容状态。 */
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemDetailProvider(id));
-    // 打开详情即标记已读(幂等、失败静默)。
-    ref.listen(aiNewsItemDetailProvider(id), (prev, next) {
+    final relatedItems = ref.watch(aiNewsRelatedItemsProvider(id)).valueOrNull ?? const <AiNewsItem>[];
+    ref.listen(aiNewsItemDetailProvider(id), (previous, next) {
       final item = next.valueOrNull;
-      if (item != null && prev?.valueOrNull?.id != item.id) {
+      if (item != null && previous?.valueOrNull?.id != item.id) {
         ref.read(aiNewsLibraryControllerProvider).markRead(item);
       }
     });
+    final item = async.valueOrNull;
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         leading: BackButton(onPressed: () => _back(context)),
+        centerTitle: true,
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text(l10n.tr('ai_news.detail_title')),
-        actions: <Widget>[
-          ...async.maybeWhen(
-            data: (item) => item == null
-                ? <Widget>[]
-                : <Widget>[
-                    _FeedbackActions(item: item),
-                    _ReadLaterButton(item: item),
-                    IconButton(tooltip: l10n.tr('webview.copy_link'), onPressed: () => _copyLink(context, item), icon: const Icon(Icons.content_copy_rounded)),
-                    IconButton(
-                      tooltip: l10n.tr('webview.open_in_browser'),
-                      onPressed: () => _openOriginal(context, item),
-                      icon: const Icon(Icons.open_in_new_rounded),
-                    )
-                  ],
-            orElse: () => <Widget>[],
-          )
+        actions: [
+          if (item != null) ...[
+            _TopBookmarkButton(item: item),
+            IconButton(
+              tooltip: l10n.tr('webview.open_in_browser'),
+              onPressed: () => _openOriginal(context, item),
+              icon: const Icon(Icons.open_in_new_rounded),
+            ),
+            PopupMenuButton<_DetailMenuAction>(
+              tooltip: l10n.tr('common.more'),
+              onSelected: (action) => _handleMenuAction(context, item, action),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: _DetailMenuAction.copyLink,
+                  child: ListTile(
+                    leading: const Icon(Icons.link_rounded),
+                    title: Text(l10n.tr('webview.copy_link')),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: _DetailMenuAction.openOriginal,
+                  child: ListTile(
+                    leading: const Icon(Icons.open_in_browser_rounded),
+                    title: Text(l10n.tr('webview.open_in_browser')),
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
       body: async.when(
-        data: (item) => item == null ? const _AiNewsDetailMissing() : AiNewsDetailContent(item: item),
+        data: (value) => value == null
+            ? const _AiNewsDetailMissing()
+            : AiNewsDetailContent(
+                item: value,
+                relatedItems: relatedItems,
+                onOpenOriginal: () => _openOriginal(context, value),
+                onOpenRelated: (related) => context.pushNamed(
+                  'ai_news_detail',
+                  pathParameters: {'id': related.id},
+                ),
+                onViewMore: () => context.go('/ai_news'),
+              ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemDetailProvider(id))),
+        error: (error, _) => ErrorView(
+          error: error.asAppException(),
+          onRetry: () => ref.invalidate(aiNewsItemDetailProvider(id)),
+        ),
       ),
+      bottomNavigationBar: item == null
+          ? null
+          : AiNewsDetailActionBar(
+              item: item,
+              onShare: () => _copyLink(context, item, sharing: true),
+            ),
     );
   }
 
+  /* 返回上一页,深链进入时回退到资讯列表。 */
   void _back(BuildContext context) {
-    // 正常从列表 push/go 进入时返回上一页;深链/刷新直接进入则兜底回列表。
     if (context.canPop()) {
       context.pop();
     } else {
@@ -76,106 +116,128 @@ class AiNewsDetailPage extends ConsumerWidget {
     }
   }
 
-  Future<void> _copyLink(BuildContext context, AiNewsItem item) async {
+  /* 处理顶部更多菜单。 */
+  Future<void> _handleMenuAction(
+    BuildContext context,
+    AiNewsItem item,
+    _DetailMenuAction action,
+  ) async {
+    switch (action) {
+      case _DetailMenuAction.copyLink:
+        await _copyLink(context, item);
+        return;
+      case _DetailMenuAction.openOriginal:
+        await _openOriginal(context, item);
+        return;
+    }
+  }
+
+  /* 复制原文链接并显示反馈。 */
+  Future<void> _copyLink(
+    BuildContext context,
+    AiNewsItem item, {
+    bool sharing = false,
+  }) async {
     final link = item.url.isNotEmpty ? item.url : item.permalink;
     await Clipboard.setData(ClipboardData(text: link));
     if (!context.mounted) {
       return;
     }
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('webview.copied'))));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          l10n.tr(sharing ? 'ai_news.detail.link_copied' : 'webview.copied'),
+        ),
+      ),
+    );
   }
 
+  /* 在系统浏览器中打开原文。 */
   Future<void> _openOriginal(BuildContext context, AiNewsItem item) async {
     final target = item.url.isNotEmpty ? item.url : item.permalink;
     final uri = Uri.tryParse(target);
     if (uri == null) {
       return;
     }
-    final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!ok && context.mounted) {
+    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    if (!opened && context.mounted) {
       final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
     }
   }
 }
 
-class _FeedbackActions extends ConsumerWidget {
-  const _FeedbackActions({required this.item});
+/*
+*顶部书签按钮,与底部收藏状态保持同步。
+*/
+class _TopBookmarkButton extends ConsumerWidget {
+  const _TopBookmarkButton({required this.item});
 
+  // 当前资讯。
   final AiNewsItem item;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final signal = ref.watch(aiNewsInterestProfileProvider).valueOrNull?.itemSignals[item.id];
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        IconButton(
-          tooltip: l10n.tr('ai_news.feedback.less'),
-          color: signal == AiNewsFeedbackSignal.less ? Theme.of(context).colorScheme.error : null,
-          onPressed: () => _set(context, ref, AiNewsFeedbackSignal.less),
-          icon: const Icon(Icons.thumb_down_alt_outlined),
-        ),
-        IconButton(
-          tooltip: l10n.tr('ai_news.feedback.more'),
-          color: signal == AiNewsFeedbackSignal.more ? Theme.of(context).colorScheme.primary : null,
-          onPressed: () => _set(context, ref, AiNewsFeedbackSignal.more),
-          icon: const Icon(Icons.thumb_up_alt_outlined),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _set(
-    BuildContext context,
-    WidgetRef ref,
-    AiNewsFeedbackSignal signal,
-  ) async {
-    await ref.read(aiNewsFeedbackControllerProvider).set(item, signal);
-    if (!context.mounted) {
-      return;
-    }
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(l10n.tr('ai_news.feedback.saved'))),
-    );
-  }
-}
-
-class _ReadLaterButton extends ConsumerWidget {
-  const _ReadLaterButton({required this.item});
-
-  final AiNewsItem item;
-
-  @override
+  /* 构建详情顶部收藏按钮。 */
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final saved = ref.watch(aiNewsItemStateProvider(item.id)).valueOrNull?.isReadLater ?? false;
     return IconButton(
-      tooltip: l10n.tr(saved ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
+      tooltip: l10n.tr(
+        saved ? 'ai_news.read_later_remove' : 'ai_news.read_later_add',
+      ),
       onPressed: () => _toggle(context, ref),
-      icon: Icon(saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded),
+      icon: Icon(
+        saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+      ),
     );
   }
 
+  /* 切换稍后读收藏状态。 */
   Future<void> _toggle(BuildContext context, WidgetRef ref) async {
     final added = await ref.read(aiNewsLibraryControllerProvider).toggleReadLater(item);
     if (!context.mounted) {
       return;
     }
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr(added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed'))));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          l10n.tr(
+            added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed',
+          ),
+        ),
+      ),
+    );
   }
 }
 
+/*
+*详情顶部更多菜单动作。
+*/
+enum _DetailMenuAction {
+  // 复制原文链接。
+  copyLink,
+
+  // 打开原文。
+  openOriginal,
+}
+
+/*
+*详情缓存缺失空态。
+*/
 class _AiNewsDetailMissing extends StatelessWidget {
   const _AiNewsDetailMissing();
 
   @override
+  /* 构建缓存缺失说明。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return EmptyView(icon: Icons.article_outlined, message: l10n.tr('ai_news.detail_missing'));
+    return EmptyView(
+      icon: Icons.article_outlined,
+      message: l10n.tr('ai_news.detail_missing'),
+    );
   }
 }

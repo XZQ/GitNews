@@ -106,6 +106,39 @@ final aiNewsItemDetailProvider = FutureProvider.autoDispose.family<AiNewsItem?, 
   return AiNewsStateDao(ref.watch(appDatabaseProvider).executor).snapshotOf(id);
 });
 
+// 详情页相关推荐只读取本机缓存,不因打开详情额外请求远端。
+final aiNewsRelatedItemsProvider = FutureProvider.autoDispose.family<List<AiNewsItem>, String>((ref, id) async {
+  final current = await ref.watch(aiNewsItemDetailProvider(id).future);
+  if (current == null) {
+    return const [];
+  }
+  final items = await ref.watch(aiNewsCacheDaoProvider).readAll();
+  return selectRelatedAiNewsItems(items, current: current);
+});
+
+/* 按同分类、热度和发布时间选择详情页相关推荐。 */
+List<AiNewsItem> selectRelatedAiNewsItems(
+  List<AiNewsItem> items, {
+  required AiNewsItem current,
+  int limit = 3,
+}) {
+  final candidates = items.where((item) => item.id != current.id).toList();
+  candidates.sort((left, right) {
+    final leftCategoryRank = left.category == current.category ? 0 : 1;
+    final rightCategoryRank = right.category == current.category ? 0 : 1;
+    final categoryComparison = leftCategoryRank.compareTo(rightCategoryRank);
+    if (categoryComparison != 0) {
+      return categoryComparison;
+    }
+    final scoreComparison = right.score.compareTo(left.score);
+    if (scoreComparison != 0) {
+      return scoreComparison;
+    }
+    return right.publishedAt.compareTo(left.publishedAt);
+  });
+  return candidates.take(limit).toList(growable: false);
+}
+
 // 当前资讯流的数据来源口径(live/freshCache/staleCache/seed)。
 // 由 [AiNewsItemsNotifier] 在关键决策点写入,供页头与首页预览展示 badge,
 // 让用户清楚当前看到的是实时、缓存还是种子兜底数据。
