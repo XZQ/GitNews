@@ -5,11 +5,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
+import 'package:github_news/core/theme/app_colors.dart';
+import 'package:github_news/core/theme/app_theme.dart';
 import 'package:github_news/features/ai_news/application/ai_news_reminder_providers.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_page_header.dart';
 import 'package:github_news/shared/widgets/data_provenance_badge.dart';
 import 'package:github_news/shared/widgets/header_search_field.dart';
-import 'package:github_news/shared/widgets/mobile_page_header.dart';
 import 'package:github_news/shared/widgets/page_header.dart';
 
 void main() {
@@ -22,23 +23,25 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [aiNewsUnreadReminderCountProvider.overrideWithValue(0)],
-        child: const MaterialApp(
-          locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
+        child: MaterialApp(
+          locale: const Locale('zh', 'CN'),
+          localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
           ],
           supportedLocales: AppLocalizations.supportedLocales,
-          home: Scaffold(body: AiNewsPageHeader()),
+          theme: AppTheme.light(AppColors.brand),
+          home: const Scaffold(appBar: AiNewsCompactAppBar(), body: AiNewsCompactSearchBar()),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.byType(MobilePageHeader), findsOneWidget);
+    expect(find.byType(AiNewsCompactAppBar), findsOneWidget);
+    expect(find.byType(AiNewsCompactSearchBar), findsOneWidget);
     expect(find.byType(PageHeader), findsNothing);
     expect(find.byType(HeaderSearchField), findsOneWidget);
     expect(find.byType(DataFreshnessBadge), findsOneWidget);
@@ -47,7 +50,7 @@ void main() {
     expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
     expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
     if (Platform.isWindows) {
-      await expectLater(find.byType(MobilePageHeader), matchesGoldenFile('goldens/ai_news_page_header_compact.png'));
+      await expectLater(find.byType(Scaffold), matchesGoldenFile('goldens/ai_news_page_header_compact.png'));
     }
   });
 }

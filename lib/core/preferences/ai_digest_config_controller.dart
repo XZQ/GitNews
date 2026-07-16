@@ -22,10 +22,7 @@ class AiDigestConfigState {
     if (raw == null || raw.isEmpty) {
       return '';
     }
-    if (raw.length <= 8) {
-      return '已配置';
-    }
-    return '${raw.substring(0, 4)}...${raw.substring(raw.length - 4)}';
+    return 'xxxxxxxx';
   }
 }
 

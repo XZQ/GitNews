@@ -2,6 +2,16 @@
 
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) 和[语义化版本](https://semver.org/spec/v2.0.0.html)。
 
+## [Unreleased]
+
+### Added
+
+- 新增 BestBlogs.dev 内置资讯源(AI 分类精选 RSS,官方公开端点,2026-07-16 核验);可在设置页停用。
+
+### Changed
+
+- 资讯列表重设计为「标题优先」的安静排版(参照 Apple News / Google News / 少数派范式):标题不再被分类彩标和徽章挤压;来源/分类/相对时间收进底部一行小字,分类改为颜色点;精选与热度合并为行尾小元素;移除左侧时间线槽(占约 15% 行宽且与相对时间重复),改为留白 + 细分隔线;相对时间与「精选」文案接入 i18n,消除组件内硬编码中文。
+
 ## [1.5.0+5] - 2026-07-16
 
 ### Added
@@ -28,6 +38,11 @@
 - 托盘后台提醒的已见集合改为与历史合并而非整表覆盖:此前单源临时失败会把旧条目挤出 head 页,源恢复后被误判为新条目而重复提醒。
 - 自托管配置推送冲突不再被吞成笼统「操作失败」:新增 `settings.server.conflict` 提示引导先拉取;健康检查与冲突异常统一收敛到 `AppException` 边界。
 - `.gitignore` 排除 `server/.venv`、`server/data/` 与 `__pycache__`,防止本地虚拟环境和运行时数据库被意外提交。
+
+### Security
+
+- 服务端 master key 改为 fail-fast:未设置或保留默认值 `change-me` 时拒绝启动(compose 已有 `:?` 强制,本修复覆盖裸 uvicorn 路径);`app.main:app` 入口改为 PEP 562 惰性构造,import 不再隐式读取环境。
+- 推送订阅 upsert 限定在调用方工作区:客户端自报的订阅 id 与他人碰撞时返回 409,不再可能改写其他工作区的 endpoint/secret;新增跨工作区抢占回归测试与 master key 校验测试。
 
 ## [1.4.0+4] - 2026-07-15
 

@@ -56,3 +56,4 @@ flutter:
   uses-material-design: true
   assets:
     - windows/runner/resources/app_icon.ico
+    - assets/ai_news/

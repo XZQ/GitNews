@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
+import 'package:github_news/features/ai_news/application/ai_news_library_providers.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
+import 'package:github_news/features/ai_news/domain/ai_news_item_state.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_timeline_row.dart';
 import 'package:github_news/shared/widgets/app_card.dart';
 
@@ -28,19 +31,22 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        locale: const Locale('zh', 'CN'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        home: Scaffold(
-          body: Padding(
-            padding: const EdgeInsets.all(16),
-            child: AiNewsTimelineRow(item: item, onTap: () {}),
+      ProviderScope(
+        overrides: [aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none)],
+        child: MaterialApp(
+          locale: const Locale('zh', 'CN'),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: AiNewsTimelineRow(item: item, onTap: () {}),
+            ),
           ),
         ),
       ),
@@ -50,6 +56,8 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(AppCard), findsOneWidget);
     expect(find.byType(Divider), findsNothing);
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
     expect(find.text(item.title), findsOneWidget);
     expect(find.text(item.summary), findsOneWidget);
   });

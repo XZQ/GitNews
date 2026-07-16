@@ -29,7 +29,6 @@ class AiDigestLlmClient {
         '$baseUrl${ApiEndpointsConfig.aiDigestChatCompletionsPath}',
         data: {
           'model': model,
-          'temperature': 0.3,
           'messages': [
             {'role': 'system', 'content': systemPrompt},
             {'role': 'user', 'content': userPrompt}
@@ -52,7 +51,7 @@ class AiDigestLlmClient {
       final choices = data['choices'] as List?;
       final first = choices?.first as Map<String, Object?>?;
       final message = first?['message'] as Map<String, Object?>?;
-      final content = message?['content'] as String?;
+      final content = _extractContent(message?['content']);
       if (content == null || content.trim().isEmpty) {
         throw const AppException(kind: AppExceptionKind.parse);
       }
@@ -62,5 +61,26 @@ class AiDigestLlmClient {
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     }
+  }
+
+  /*
+  *兼容字符串正文与部分服务商返回的文本分段数组。
+  */
+  static String? _extractContent(Object? raw) {
+    if (raw is String) {
+      return raw;
+    }
+    if (raw is! List) {
+      return null;
+    }
+    final parts = <String>[];
+    for (final part in raw) {
+      if (part is String) {
+        parts.add(part);
+      } else if (part is Map<String, Object?> && part['text'] is String) {
+        parts.add(part['text']! as String);
+      }
+    }
+    return parts.join();
   }
 }

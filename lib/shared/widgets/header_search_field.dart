@@ -13,6 +13,10 @@ class HeaderSearchField extends StatefulWidget {
     this.value = '',
     this.onChanged,
     this.onSubmitted,
+    this.height = 40,
+    this.outlined = false,
+    this.fillColor,
+    this.borderRadius = AppRadius.sm,
     super.key,
   });
 
@@ -20,6 +24,18 @@ class HeaderSearchField extends StatefulWidget {
   final String value;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
+
+  // 搜索框高度;移动端强调态可使用 48dp。
+  final double height;
+
+  // 是否显示细描边,用于浅色页面上的独立搜索表面。
+  final bool outlined;
+
+  // 可选填充色;为空时沿用共享搜索框默认表面色。
+  final Color? fillColor;
+
+  // 搜索框圆角,默认保持原有紧凑样式。
+  final double borderRadius;
 
   @override
   State<HeaderSearchField> createState() => _HeaderSearchFieldState();
@@ -57,22 +73,25 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
+    final radius = BorderRadius.circular(widget.borderRadius);
+    final borderSide = widget.outlined ? BorderSide(color: colors.outlineVariant.withValues(alpha: 0.82)) : BorderSide.none;
+    final isEmphasized = widget.height >= 46;
     return Semantics(
         label: l10n.tr('a11y.search'),
         hint: widget.hintText,
         textField: true,
         child: SizedBox(
-            height: 40,
+            height: widget.height,
             child: TextField(
                 controller: _controller,
                 onChanged: widget.onChanged,
                 onSubmitted: widget.onSubmitted,
                 textInputAction: TextInputAction.search,
-                style: AppTypography.bodyMedium.copyWith(color: colors.onSurface),
+                style: (isEmphasized ? AppTypography.bodyLarge : AppTypography.bodyMedium).copyWith(color: colors.onSurface),
                 decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search_rounded, size: 18, color: colors.onSurfaceVariant),
+                    prefixIcon: Icon(Icons.search_rounded, size: isEmphasized ? 22 : 18, color: colors.onSurfaceVariant),
                     hintText: widget.hintText,
-                    hintStyle: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+                    hintStyle: (isEmphasized ? AppTypography.bodyMedium : AppTypography.bodySmall).copyWith(color: colors.onSurfaceVariant),
                     suffixIcon: ListenableBuilder(
                         listenable: _controller,
                         builder: (context, _) {
@@ -88,9 +107,9 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
                     isDense: true,
                     contentPadding: EdgeInsets.zero,
                     filled: true,
-                    fillColor: colors.surfaceContainerHighest,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm), borderSide: BorderSide.none),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm), borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.sm), borderSide: BorderSide(color: colors.primary, width: 1.4))))));
+                    fillColor: widget.fillColor ?? (widget.outlined ? colors.surface : colors.surfaceContainerHighest),
+                    border: OutlineInputBorder(borderRadius: radius, borderSide: borderSide),
+                    enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: borderSide),
+                    focusedBorder: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: colors.primary, width: 1.4))))));
   }
 }

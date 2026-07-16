@@ -69,4 +69,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     return app
 
 
-app = create_app()
+# `uvicorn app.main:app` 兼容入口。PEP 562 惰性构造:import 本模块不再
+# 触发 Settings.from_env()(它会在缺少 master key 时 fail-fast),
+# 测试与工具可安全 import create_app 而不要求环境变量就绪。
+_app: FastAPI | None = None
+
+
+def __getattr__(name: str) -> FastAPI:
+    global _app  # noqa: PLW0603 - module-level singleton for the ASGI entrypoint
+    if name == "app":
+        if _app is None:
+            _app = create_app()
+        return _app
+    raise AttributeError(name)

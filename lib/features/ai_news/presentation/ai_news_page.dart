@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/ai_news_event_clustering.dart';
@@ -31,10 +32,12 @@ class AiNewsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final category = ref.watch(aiNewsCategoryFilterProvider);
+    final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
+      appBar: isCompact ? const AiNewsCompactAppBar() : null,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          const SliverToBoxAdapter(child: AiNewsPageHeader()),
+          SliverToBoxAdapter(child: isCompact ? const AiNewsCompactSearchBar() : const AiNewsPageHeader()),
           SliverToBoxAdapter(
             child: AiNewsCategoryNav(selected: category, onSelected: (value) => ref.read(aiNewsCategoryFilterProvider.notifier).state = value),
           ),
@@ -174,6 +177,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
     }
     final hasMore = !widget.staticList && query.isEmpty && ref.read(aiNewsItemsNotifierProvider.notifier).hasMore;
     final profile = ref.watch(aiNewsInterestProfileProvider).valueOrNull ?? AiNewsInterestProfile.empty;
+    final isCompact = Breakpoints.isCompact(context);
     final ranked = rankAiNewsByInterest(widget.items, profile);
     final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
     // 扁平化分组为 (header / row) 序列,SliverList 按 index lazy build。
@@ -186,10 +190,10 @@ class _ItemListState extends ConsumerState<_ItemList> {
         slivers: [
           if (widget.header != null) SliverToBoxAdapter(child: widget.header),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(
+            padding: EdgeInsets.fromLTRB(
               AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.xl,
+              isCompact ? AppSpacing.xs : AppSpacing.md,
+              isCompact ? AppSpacing.lg : AppSpacing.xl,
               AppSpacing.xxxl,
             ),
             sliver: SliverList(

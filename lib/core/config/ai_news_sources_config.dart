@@ -63,6 +63,15 @@ class AiNewsSourcesConfig {
       name: 'arXiv cs.AI',
       feedUrl: 'https://rss.arxiv.org/rss/cs.AI',
       categoryCode: 'paper',
+    ),
+    // BestBlogs.dev:AI 初评 + 编辑精审的中文精选池,官方公开 RSS
+    // (README 明确提供订阅端点与参数,2026-07-16 核验可用)。
+    // 只取 AI 分类的精选内容,避免全站流量淹没时间线。
+    AiNewsSourceConfig(
+      id: 'bestblogs_ai_featured',
+      name: 'BestBlogs 精选',
+      feedUrl: 'https://www.bestblogs.dev/feeds/rss?category=ai&featured=y',
+      categoryCode: 'tip',
     )
   ];
 }
