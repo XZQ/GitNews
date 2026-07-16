@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/domain/data_freshness.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
@@ -23,20 +24,7 @@ class DiscoverHubPage extends ConsumerStatefulWidget {
 }
 
 class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
-  late final ScrollController _scrollController;
   bool _refreshing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController = ScrollController()..addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   Future<void> _refresh() async {
     if (_refreshing) {
@@ -66,18 +54,19 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     }
   }
 
-  void _onScroll() {
+  /* 监听内层列表剩余距离,不占用 [NestedScrollView] 的滚动控制器。 */
+  bool _onScrollNotification(ScrollNotification notification) {
     if (ref.read(discoverSearchQueryProvider).trim().isNotEmpty) {
-      return;
+      return false;
     }
-    if (!_scrollController.hasClients) {
-      return;
+    if (notification.metrics.axis != Axis.vertical) {
+      return false;
     }
     final twoColumn = Breakpoints.isExpanded(context);
     final extent = twoColumn ? discoverItemExtentCards / 2 : discoverItemExtentCards;
-    final remaining = (_scrollController.position.maxScrollExtent - _scrollController.position.pixels) / extent;
+    final remaining = notification.metrics.extentAfter / extent;
     if (remaining > discoverLoadMoreRemainingItems) {
-      return;
+      return false;
     }
     switch (ref.read(discoverSegmentProvider)) {
       case 'skills':
@@ -89,6 +78,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
       case 'people':
         ref.read(peopleProfilesNotifierProvider.notifier).loadMore();
     }
+    return false;
   }
 
   @override
@@ -98,6 +88,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     final isCompact = Breakpoints.isCompact(context);
     final segment = ref.watch(discoverSegmentProvider);
     final freshness = ref.watch(discoverFreshnessProvider);
+    final showFreshness = freshness != DataFreshness.freshCache;
     final query = ref.watch(discoverSearchQueryProvider);
 
     return Scaffold(
@@ -107,7 +98,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
           ? AppBar(
               title: Text(l10n.tr('discover.title')),
               actions: [
-                Center(child: DataFreshnessBadge(freshness: freshness)),
+                if (showFreshness) Center(child: DataFreshnessBadge(freshness: freshness)),
                 IconButton(
                   tooltip: l10n.tr('common.refresh'),
                   onPressed: _refreshing ? null : _refresh,
@@ -118,44 +109,51 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
             )
           : null,
       backgroundColor: colors.surface,
-      body: Column(
-        children: [
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
           if (!isCompact)
-            PageHeader(
-              title: l10n.tr('discover.title'),
-              subtitle: l10n.tr('discover.subtitle'),
-              icon: Icons.explore_rounded,
-              searchHint: l10n.tr('discover.search_hint'),
-              searchValue: query,
-              onSearchChanged: (v) => ref.read(discoverSearchQueryProvider.notifier).state = v,
-              pills: [DataFreshnessBadge(freshness: freshness)],
-              onRefresh: _refresh,
-              isRefreshing: _refreshing,
+            SliverToBoxAdapter(
+              child: PageHeader(
+                title: l10n.tr('discover.title'),
+                subtitle: l10n.tr('discover.subtitle'),
+                icon: Icons.explore_rounded,
+                searchHint: l10n.tr('discover.search_hint'),
+                searchValue: query,
+                onSearchChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
+                pills: [if (showFreshness) DataFreshnessBadge(freshness: freshness)],
+                onRefresh: _refresh,
+                isRefreshing: _refreshing,
+              ),
             )
           else
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.sm,
-                AppSpacing.lg,
-                0,
-              ),
-              child: HeaderSearchField(
-                hintText: l10n.tr('discover.search_hint'),
-                value: query,
-                onChanged: (v) => ref.read(discoverSearchQueryProvider.notifier).state = v,
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.sm,
+                  AppSpacing.lg,
+                  0,
+                ),
+                child: HeaderSearchField(
+                  hintText: l10n.tr('discover.search_hint'),
+                  value: query,
+                  onChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
+                ),
               ),
             ),
-          DiscoverSegmented(value: segment, compact: isCompact, onChanged: (v) => ref.read(discoverSegmentProvider.notifier).state = v),
-          Expanded(
-              child: switch (segment) {
-            'skills' => DiscoverSkillsSection(async: ref.watch(filteredAgentSkillsProvider), scrollController: _scrollController, onRetry: _refresh),
+          SliverToBoxAdapter(
+            child: DiscoverSegmented(value: segment, compact: isCompact, onChanged: (value) => ref.read(discoverSegmentProvider.notifier).state = value),
+          ),
+        ],
+        body: NotificationListener<ScrollNotification>(
+          onNotification: _onScrollNotification,
+          child: switch (segment) {
+            'skills' => DiscoverSkillsSection(async: ref.watch(filteredAgentSkillsProvider), onRetry: _refresh),
             'official' => DiscoverProfilesSection(
                 provider: filteredOfficialProfilesProvider,
                 emptyIcon: Icons.verified_outlined,
                 emptyMessage: l10n.tr('discover.empty.official'),
                 kind: DiscoverProfileKind.official,
-                scrollController: _scrollController,
                 onRetry: _refresh,
               ),
             'people' => DiscoverProfilesSection(
@@ -163,12 +161,11 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
                 emptyIcon: Icons.person_search_outlined,
                 emptyMessage: l10n.tr('discover.empty.people'),
                 kind: DiscoverProfileKind.people,
-                scrollController: _scrollController,
                 onRetry: _refresh,
               ),
-            _ => DiscoverReposSection(async: ref.watch(filteredTrendingReposProvider), scrollController: _scrollController, onRetry: _refresh)
-          })
-        ],
+            _ => DiscoverReposSection(async: ref.watch(filteredTrendingReposProvider), onRetry: _refresh),
+          },
+        ),
       ),
     );
   }

@@ -24,7 +24,6 @@ import 'widgets/discover_repo_row.dart';
  */
 Widget _buildDiscoverList({
   required BuildContext context,
-  required ScrollController scrollController,
   required int itemCount,
   required bool hasMore,
   required Widget Function(BuildContext, int) itemBuilder,
@@ -34,7 +33,6 @@ Widget _buildDiscoverList({
   if (twoColumn) {
     final rowCount = (itemCount + 1) ~/ 2;
     return ListView.separated(
-        controller: scrollController,
         padding: cardPadding,
         itemCount: rowCount + (hasMore ? 1 : 0),
         separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
@@ -53,7 +51,6 @@ Widget _buildDiscoverList({
   }
   // 单列(手机 / 平板):统一卡片式条目,与监控页、趋势页移动端保持一致。
   return ListView.separated(
-      controller: scrollController,
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl),
       itemCount: itemCount + (hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
@@ -68,13 +65,11 @@ Widget _buildDiscoverList({
 class DiscoverReposSection extends ConsumerWidget {
   const DiscoverReposSection({
     required this.async,
-    required this.scrollController,
     required this.onRetry,
     super.key,
   });
 
   final AsyncValue<List<RepoEntity>> async;
-  final ScrollController scrollController;
   final Future<void> Function() onRetry;
 
   @override
@@ -91,7 +86,6 @@ class DiscoverReposSection extends ConsumerWidget {
           final hasMore = query.trim().isEmpty && ref.read(trendingReposNotifierProvider.notifier).hasMore;
           return _buildDiscoverList(
             context: context,
-            scrollController: scrollController,
             itemCount: repos.length,
             hasMore: hasMore,
             itemBuilder: (context, i) => DiscoverMonitorRow(repo: repos[i], onTap: () => context.go(discoverRepoDetailLocation(repos[i].fullName))),
@@ -103,13 +97,11 @@ class DiscoverReposSection extends ConsumerWidget {
 class DiscoverSkillsSection extends ConsumerWidget {
   const DiscoverSkillsSection({
     required this.async,
-    required this.scrollController,
     required this.onRetry,
     super.key,
   });
 
   final AsyncValue<List<SkillEntity>> async;
-  final ScrollController scrollController;
   final Future<void> Function() onRetry;
 
   @override
@@ -126,7 +118,6 @@ class DiscoverSkillsSection extends ConsumerWidget {
           final hasMore = query.trim().isEmpty && ref.read(agentSkillsNotifierProvider.notifier).hasMore;
           return _buildDiscoverList(
             context: context,
-            scrollController: scrollController,
             itemCount: skills.length,
             hasMore: hasMore,
             itemBuilder: (context, i) => DiscoverMonitorRow(
@@ -145,7 +136,6 @@ class DiscoverProfilesSection extends ConsumerWidget {
     required this.emptyIcon,
     required this.emptyMessage,
     required this.kind,
-    required this.scrollController,
     required this.onRetry,
     super.key,
   });
@@ -154,7 +144,6 @@ class DiscoverProfilesSection extends ConsumerWidget {
   final IconData emptyIcon;
   final String emptyMessage;
   final DiscoverProfileKind kind;
-  final ScrollController scrollController;
   final Future<void> Function() onRetry;
 
   @override
@@ -173,7 +162,6 @@ class DiscoverProfilesSection extends ConsumerWidget {
           final hasMore = query.trim().isEmpty && ref.read(notifierProvider.notifier).hasMore;
           return _buildDiscoverList(
             context: context,
-            scrollController: scrollController,
             itemCount: profiles.length,
             hasMore: hasMore,
             itemBuilder: (context, i) => DiscoverProfileRow(profile: profiles[i], onTap: () => context.go(discoverProfileDetailLocation(profiles[i]))),

@@ -55,15 +55,28 @@ class _AiNewsLibraryFiltersDialogState extends ConsumerState<AiNewsLibraryFilter
           children: [
             DropdownButtonFormField<String>(
               initialValue: _source ?? '',
+              isExpanded: true,
               decoration: InputDecoration(
                 labelText: l10n.tr('ai_news.filters.source'),
               ),
               items: [
                 DropdownMenuItem(
                   value: '',
-                  child: Text(l10n.tr('ai_news.filters.all_sources')),
+                  child: Text(
+                    l10n.tr('ai_news.filters.all_sources'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-                for (final source in sources) DropdownMenuItem(value: source, child: Text(source)),
+                for (final source in sources)
+                  DropdownMenuItem(
+                    value: source,
+                    child: Text(
+                      source,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
               ],
               onChanged: (value) => setState(
                 () => _source = value == null || value.isEmpty ? null : value,

@@ -32,13 +32,14 @@ class AiNewsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final category = ref.watch(aiNewsCategoryFilterProvider);
     return Scaffold(
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const AiNewsPageHeader(),
-          AiNewsCategoryNav(selected: category, onSelected: (v) => ref.read(aiNewsCategoryFilterProvider.notifier).state = v),
-          Expanded(child: _Body(category: category))
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          const SliverToBoxAdapter(child: AiNewsPageHeader()),
+          SliverToBoxAdapter(
+            child: AiNewsCategoryNav(selected: category, onSelected: (value) => ref.read(aiNewsCategoryFilterProvider.notifier).state = value),
+          ),
         ],
+        body: _Body(category: category),
       ),
     );
   }
@@ -143,32 +144,18 @@ class _FlatEntry {
 }
 
 class _ItemListState extends ConsumerState<_ItemList> {
-  late final ScrollController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = ScrollController()..addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
+  /* 监听内层列表剩余距离,不抢占 [NestedScrollView] 提供的滚动控制器。 */
+  bool _onScrollNotification(ScrollNotification notification) {
     if (widget.staticList || widget.query.trim().isNotEmpty) {
-      return;
+      return false;
     }
-    if (!_controller.hasClients) {
-      return;
+    if (notification.metrics.axis != Axis.vertical) {
+      return false;
     }
-    final metrics = _controller.position;
-    final distanceToBottom = metrics.maxScrollExtent - metrics.pixels;
-    if (distanceToBottom < aiNewsLoadMoreScrollPixels) {
+    if (notification.metrics.extentAfter < aiNewsLoadMoreScrollPixels) {
       ref.read(aiNewsItemsNotifierProvider.notifier).loadMore();
     }
+    return false;
   }
 
   @override
@@ -193,33 +180,40 @@ class _ItemListState extends ConsumerState<_ItemList> {
     final flat = <_FlatEntry>[
       for (final g in groups) ...[_FlatEntry.header(g.key, g.value.length), for (final item in g.value) _FlatEntry.item(item)]
     ];
-    return CustomScrollView(controller: _controller, slivers: [
-      if (widget.header != null) SliverToBoxAdapter(child: widget.header),
-      SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.md,
-            AppSpacing.xl,
-            AppSpacing.xxxl,
-          ),
-          sliver: SliverList(
+    return NotificationListener<ScrollNotification>(
+      onNotification: _onScrollNotification,
+      child: CustomScrollView(
+        slivers: [
+          if (widget.header != null) SliverToBoxAdapter(child: widget.header),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.lg,
+              AppSpacing.md,
+              AppSpacing.xl,
+              AppSpacing.xxxl,
+            ),
+            sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
-            if (index < flat.length) {
-              final e = flat[index];
-              final cluster = e.cluster;
-              return RepaintBoundary(
-                child: e.isHeader
-                    ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
-                    : AiNewsTimelineRow(
-                        item: cluster!.primary,
-                        eventSources: cluster.sources,
-                        onTap: () => _openDetail(context, cluster.primary),
-                      ),
-              );
-            }
-            return const AiNewsLoadMoreIndicator();
-          }, childCount: flat.length + (hasMore ? 1 : 0))))
-    ]);
+                if (index < flat.length) {
+                  final e = flat[index];
+                  final cluster = e.cluster;
+                  return RepaintBoundary(
+                    child: e.isHeader
+                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
+                        : AiNewsTimelineRow(
+                            item: cluster!.primary,
+                            eventSources: cluster.sources,
+                            onTap: () => _openDetail(context, cluster.primary),
+                          ),
+                  );
+                }
+                return const AiNewsLoadMoreIndicator();
+              }, childCount: flat.length + (hasMore ? 1 : 0)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   List<MapEntry<DateTime, List<AiNewsEventCluster>>> _groupEventsByDay(

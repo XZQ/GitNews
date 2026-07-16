@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../core/i18n/relative_time_formatter.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/app_card.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_category_style.dart';
 
-/* 
-*AI 动态列表卡片。
+/*
+*AI 动态列表条目 — 标题优先的安静排版。
+*参照主流资讯产品(Apple News / Google News / 少数派)的共同范式:
+*- 标题是第一视觉层级,不被徽章挤压、不被彩色标签抢戏
+*- 摘要弱化为第二层级
+*- 来源/分类/时间收进底部一行小字 meta;分类只用颜色点示意,不再用 pill
+*- 精选与热度合并为行尾一个小元素;容器与今日 AI 日报统一使用 [AppCard]
 */
 class AiNewsArticleCard extends StatelessWidget {
   const AiNewsArticleCard({
@@ -26,56 +32,66 @@ class AiNewsArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isLight = Theme.of(context).brightness == Brightness.light;
+    final l10n = AppLocalizations.of(context);
     final accent = aiNewsCategoryColor(item.category);
-    final radius = BorderRadius.circular(AppRadius.lg);
-    return Material(
-      color: colors.surface,
-      borderRadius: radius,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: radius,
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1), width: 1)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return AppCard(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            item.title,
+            style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600, height: 1.35),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          if (item.summary.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs2),
+            Text(
+              item.summary,
+              style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.5),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+          const SizedBox(height: AppSpacing.sm),
+          Row(
             children: [
-              _CategoryStrip(category: item.category, accent: accent, source: item.source),
-              const SizedBox(height: AppSpacing.sm2),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      item.title,
-                      style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: 1.35),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (item.selected) ...[const SizedBox(width: AppSpacing.sm), const _SelectedPill()],
-                  const SizedBox(width: AppSpacing.sm),
-                  _ScorePill(score: item.score)
-                ],
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                item.summary,
-                style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+              const SizedBox(width: AppSpacing.xs2),
+              Flexible(
+                child: Text(
+                  '${item.source} · ${item.category.label} · ${formatRelativeTime(l10n, item.publishedAt)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
+                ),
               ),
-              if (eventSources.length > 1) ...[
-                const SizedBox(height: AppSpacing.sm),
-                _EventSources(sources: eventSources),
+              const Spacer(),
+              if (item.selected) ...[
+                const Icon(Icons.star_rounded, size: 13, color: AppColors.starGold),
+                const SizedBox(width: AppSpacing.xxs),
               ],
-              const SizedBox(height: AppSpacing.md),
-              _Meta(publishedAt: item.publishedAt)
+              if (item.score > 0)
+                Text(
+                  '${item.score}',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: item.selected ? AppColors.starGold : colors.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
             ],
           ),
-        ),
+          if (eventSources.length > 1) ...[
+            const SizedBox(height: AppSpacing.xs2),
+            _EventSources(sources: eventSources),
+          ],
+        ],
       ),
     );
   }
@@ -92,7 +108,7 @@ class _EventSources extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return Row(
       children: [
-        Icon(Icons.hub_rounded, size: 14, color: colors.primary),
+        Icon(Icons.hub_rounded, size: 12, color: colors.primary),
         const SizedBox(width: AppSpacing.xs),
         Expanded(
           child: Text(
@@ -104,112 +120,5 @@ class _EventSources extends StatelessWidget {
         ),
       ],
     );
-  }
-}
-
-class _CategoryStrip extends StatelessWidget {
-  const _CategoryStrip({required this.category, required this.accent, required this.source});
-
-  final AiNewsCategory category;
-  final Color accent;
-  final String source;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2, vertical: AppSpacing.xs),
-          decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.14),
-            border: Border.all(color: accent.withValues(alpha: 0.4)),
-            borderRadius: BorderRadius.circular(AppRadius.xs),
-          ),
-          child: Text(category.label, style: AppTypography.labelSmall.copyWith(color: accent, fontWeight: FontWeight.w700)),
-        ),
-        const SizedBox(width: AppSpacing.sm),
-        Icon(Icons.circle, size: 4, color: colors.onSurfaceVariant),
-        const SizedBox(width: AppSpacing.sm),
-        Flexible(
-            child: Text(
-          source,
-          style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ))
-      ],
-    );
-  }
-}
-
-class _SelectedPill extends StatelessWidget {
-  const _SelectedPill();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
-      decoration: BoxDecoration(color: AppColors.starGold.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(AppRadius.pill)),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.star_rounded, size: 12, color: AppColors.starGold),
-          const SizedBox(width: AppSpacing.xxs),
-          Text('精选', style: AppTypography.labelSmall.copyWith(color: AppColors.starGold, fontWeight: FontWeight.w700))
-        ],
-      ),
-    );
-  }
-}
-
-class _ScorePill extends StatelessWidget {
-  const _ScorePill({required this.score});
-
-  final int score;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
-      decoration: BoxDecoration(color: AppColors.brandCyanLight.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(AppRadius.pill)),
-      child: Text('$score', style: AppTypography.labelSmall.copyWith(color: AppColors.brand, fontWeight: FontWeight.w700)),
-    );
-  }
-}
-
-class _Meta extends StatelessWidget {
-  const _Meta({required this.publishedAt});
-
-  final DateTime publishedAt;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Icon(Icons.schedule_rounded, size: 12, color: colors.onSurfaceVariant),
-        const SizedBox(width: AppSpacing.xs),
-        Text(_relativeTime(publishedAt), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
-      ],
-    );
-  }
-
-  static String _relativeTime(DateTime t) {
-    final now = DateTime.now();
-    final diff = now.difference(t);
-    if (diff.inMinutes < 1) {
-      return '刚刚';
-    }
-    if (diff.inMinutes < 60) {
-      return '${diff.inMinutes} 分钟前';
-    }
-    if (diff.inHours < 24) {
-      return '${diff.inHours} 小时前';
-    }
-    if (diff.inDays < 30) {
-      return '${diff.inDays} 天前';
-    }
-    return '${t.month}/${t.day}';
   }
 }

@@ -25,12 +25,21 @@ class ResponsiveScaffold extends ConsumerWidget {
     final formFactor = Breakpoints.of(context);
     void onTap(int i) => navigationShell.goBranch(i, initialLocation: i == navigationShell.currentIndex);
 
+    if (formFactor == FormFactor.compact && isMobileFullScreenLocation(location)) {
+      return Scaffold(body: SafeArea(child: navigationShell));
+    }
+
     return switch (formFactor) {
       FormFactor.compact => Scaffold(body: SafeArea(child: navigationShell), bottomNavigationBar: _BottomBar(currentBranchIndex: index, onTap: onTap)),
       FormFactor.medium => Scaffold(body: Row(children: [_SideRail(currentIndex: index, onTap: onTap), Expanded(child: SafeArea(child: navigationShell))])),
       FormFactor.expanded => Scaffold(body: Row(children: [AppSidebar(currentIndex: index, onTap: onTap), const _SidebarDragHandle(), Expanded(child: SafeArea(child: navigationShell))]))
     };
   }
+}
+
+/* 移动端需要脱离底部 5 Tab 导航的二级页面。 */
+bool isMobileFullScreenLocation(String location) {
+  return location == '/ai_news/reminders' || location.startsWith('/ai_news/detail/');
 }
 
 /* 
