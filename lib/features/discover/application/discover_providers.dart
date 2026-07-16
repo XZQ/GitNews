@@ -102,6 +102,15 @@ final filteredPeopleProfilesProvider = FutureProvider.autoDispose<List<DiscoverP
   return profiles.where((p) => _profileText(p).contains(query)).toList();
 });
 
+// 移动端「官方内容」把官方组织与知名人士合并成一个发现入口。
+final filteredFeaturedProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
+  final groups = await Future.wait<List<DiscoverProfileEntity>>([
+    ref.watch(filteredOfficialProfilesProvider.future),
+    ref.watch(filteredPeopleProfilesProvider.future),
+  ]);
+  return [...groups[0], ...groups[1]];
+});
+
 String _repoText(RepoEntity r) => '${r.fullName} ${r.description} ${r.language}'.toLowerCase();
 
 String _skillText(SkillEntity s) => '${s.repo.fullName} ${s.repo.description} ${s.category} ${s.source}'.toLowerCase();

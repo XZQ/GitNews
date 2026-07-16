@@ -32,24 +32,34 @@ class DiscoverSegmented extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     if (compact) {
-      // 移动端单行横向滚动:Wrap 会折成两行,吃掉太多首屏。
+      // 移动端按设计稿固定三类入口;「官方内容」汇总官方账号与知名人士。
+      final compactItems = _items.take(3).toList(growable: false);
       return SizedBox(
-          height: 52,
-          child: ListView(scrollDirection: Axis.horizontal, padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm), children: [
-            for (var i = 0; i < _items.length; i++) ...[
-              if (i > 0) const SizedBox(width: AppSpacing.sm),
-              ChoiceChip(
-                  selected: value == _items[i].value,
-                  showCheckmark: false,
-                  avatar: Icon(_items[i].icon, size: 16),
-                  label: Text(l10n.tr(_items[i].labelKey)),
-                  onSelected: (_) {
-                    if (value != _items[i].value) {
-                      onChanged(_items[i].value);
-                    }
-                  })
-            ]
-          ]));
+        height: 52,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+          child: Row(
+            children: [
+              for (var i = 0; i < compactItems.length; i++) ...[
+                if (i > 0) const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  flex: i == 2 ? 3 : 4,
+                  child: _CompactSegmentChip(
+                    selected: value == compactItems[i].value || (compactItems[i].value == 'official' && value == 'people'),
+                    icon: compactItems[i].icon,
+                    label: l10n.tr(compactItems[i].labelKey),
+                    onTap: () {
+                      if (value != compactItems[i].value) {
+                        onChanged(compactItems[i].value);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
     }
     return Container(
         height: 52,
@@ -71,6 +81,56 @@ class DiscoverSegmented extends StatelessWidget {
                     })
               ]
             ])));
+  }
+}
+
+/*
+ *移动端发现分类入口:匹配设计稿的轻描边卡片与选中浅色表面。
+ */
+class _CompactSegmentChip extends StatelessWidget {
+  const _CompactSegmentChip({required this.icon, required this.label, required this.selected, required this.onTap});
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final foreground = selected ? colors.primary : colors.onSurface;
+    final radius = BorderRadius.circular(AppRadius.lg);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Container(
+          height: 36,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2),
+          decoration: BoxDecoration(
+            color: selected ? colors.primary.withValues(alpha: 0.08) : colors.surface,
+            border: Border.all(color: selected ? colors.primary.withValues(alpha: 0.28) : colors.outlineVariant.withValues(alpha: 0.7)),
+            borderRadius: radius,
+            boxShadow: [if (isLight) BoxShadow(color: Colors.black.withValues(alpha: 0.025), blurRadius: 10, offset: const Offset(0, 3))],
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 18, color: colors.primary),
+              const SizedBox(width: AppSpacing.xs2),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(label, maxLines: 1, style: AppTypography.labelMedium.copyWith(color: foreground, fontWeight: FontWeight.w700)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

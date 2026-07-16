@@ -6,7 +6,6 @@ import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/header_search_field.dart';
 import '../../../../shared/widgets/page_header.dart';
 import '../../application/ai_news_library_providers.dart';
@@ -24,7 +23,6 @@ class AiNewsPageHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(aiNewsSearchQueryProvider);
-    final freshness = ref.watch(aiNewsFreshnessProvider);
     final readLaterOnly = ref.watch(aiNewsReadLaterOnlyProvider);
     final libraryFilter = ref.watch(aiNewsLibraryFilterProvider);
     final unreadReminders = ref.watch(aiNewsUnreadReminderCountProvider);
@@ -58,25 +56,25 @@ class AiNewsPageHeader extends ConsumerWidget {
       searchValue: query,
       onSearchChanged: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
-      pills: [DataFreshnessBadge(freshness: freshness)],
       actions: actions,
     );
   }
 }
 
 /*
-*AI 页移动端固定标题栏。
-*
-*标题与高频动作始终可见;搜索框和分类导航由页面滚动区承载。
+*AI 页移动端固定标题栏:仅保留标题与搜索框。
 */
 class AiNewsCompactAppBar extends ConsumerWidget implements PreferredSizeWidget {
   const AiNewsCompactAppBar({super.key});
 
-  // 设计稿对应的紧凑标题栏高度。
+  // 标题行高度。
   static const double _toolbarHeight = 48;
 
+  // 搜索框区域高度。
+  static const double _searchHeight = 56;
+
   @override
-  Size get preferredSize => const Size.fromHeight(_toolbarHeight);
+  Size get preferredSize => const Size.fromHeight(_toolbarHeight + _searchHeight);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -111,69 +109,28 @@ class AiNewsCompactAppBar extends ConsumerWidget implements PreferredSizeWidget 
           tooltip: l10n.tr(readLaterOnly ? 'ai_news.read_later_show_all' : 'ai_news.read_later_filter'),
           onPressed: () => ref.read(aiNewsReadLaterOnlyProvider.notifier).state = !readLaterOnly,
         ),
-        _CompactHeaderAction(
-          icon: Icons.refresh_rounded,
-          tooltip: l10n.tr('common.refresh'),
-          onPressed: () => ref.invalidate(aiNewsItemsNotifierProvider),
-        ),
         const SizedBox(width: AppSpacing.xs),
       ],
-    );
-  }
-}
-
-/*
-*AI 页移动端搜索与数据状态行。
-*/
-class AiNewsCompactSearchBar extends ConsumerWidget {
-  const AiNewsCompactSearchBar({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
-    final query = ref.watch(aiNewsSearchQueryProvider);
-    final freshness = ref.watch(aiNewsFreshnessProvider);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, 0),
-      child: Row(
-        children: [
-          Expanded(
-            child: HeaderSearchField(
-              hintText: l10n.tr('ai_news.search_hint'),
-              value: query,
-              onChanged: (value) => ref.read(aiNewsSearchQueryProvider.notifier).state = value,
-              onSubmitted: (value) => ref.read(aiNewsSearchQueryProvider.notifier).state = value,
-              height: 40,
-              outlined: true,
-              fillColor: colors.surface,
-              borderRadius: AppRadius.lg,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm2),
-          DataFreshnessBadge(freshness: freshness, compact: false),
-        ],
+      bottom: const PreferredSize(
+        preferredSize: Size.fromHeight(_searchHeight),
+        child: AiNewsCompactSearchBar(),
       ),
     );
   }
 }
 
-/*
-*移动端标题栏动作:统一 40dp 热区,可选未读状态点。
-*/
+/* 移动端标题栏动作:通知、筛选与稍后读。 */
 class _CompactHeaderAction extends StatelessWidget {
-  const _CompactHeaderAction({required this.icon, required this.tooltip, required this.onPressed, this.showBadge = false});
+  const _CompactHeaderAction({
+    required this.icon,
+    required this.tooltip,
+    required this.onPressed,
+    this.showBadge = false,
+  });
 
-  // 动作图标。
   final IconData icon;
-
-  // 无障碍提示。
   final String tooltip;
-
-  // 点击回调。
   final VoidCallback onPressed;
-
-  // 是否显示未读状态点。
   final bool showBadge;
 
   @override
@@ -187,9 +144,37 @@ class _CompactHeaderAction extends StatelessWidget {
       child: IconButton(
         tooltip: tooltip,
         onPressed: onPressed,
-        icon: Icon(icon, size: 22, color: colors.onSurface),
-        constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+        icon: Icon(icon, size: 25, color: colors.onSurface),
+        constraints: const BoxConstraints.tightFor(width: 40, height: 40),
         padding: EdgeInsets.zero,
+        visualDensity: VisualDensity.compact,
+      ),
+    );
+  }
+}
+
+/*
+*AI 页移动端搜索框。
+*/
+class AiNewsCompactSearchBar extends ConsumerWidget {
+  const AiNewsCompactSearchBar({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final query = ref.watch(aiNewsSearchQueryProvider);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.sm),
+      child: HeaderSearchField(
+        hintText: l10n.tr('ai_news.search_hint'),
+        value: query,
+        onChanged: (value) => ref.read(aiNewsSearchQueryProvider.notifier).state = value,
+        onSubmitted: (value) => ref.read(aiNewsSearchQueryProvider.notifier).state = value,
+        height: 40,
+        outlined: true,
+        fillColor: colors.surface,
+        borderRadius: AppRadius.lg,
       ),
     );
   }

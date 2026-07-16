@@ -155,10 +155,17 @@ class _CompactArticleCard extends StatelessWidget {
                     child: IconButton(
                       tooltip: l10n.tr(isBookmarked ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
                       onPressed: onBookmarkTap,
-                      icon: Icon(isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, size: 17),
+                      icon: Transform.translate(
+                        offset: const Offset(0, 3),
+                        child: Icon(
+                          isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                          size: 17,
+                        ),
+                      ),
                       color: isBookmarked ? colors.primary : colors.onSurfaceVariant,
                       constraints: const BoxConstraints.tightFor(width: 40, height: 40),
                       padding: EdgeInsets.zero,
+                      alignment: Alignment.bottomCenter,
                       visualDensity: VisualDensity.compact,
                     ),
                   ),

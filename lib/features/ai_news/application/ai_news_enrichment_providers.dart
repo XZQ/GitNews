@@ -22,6 +22,15 @@ final aiNewsEnrichmentControllerProvider = Provider<AiNewsEnrichmentController>(
   AiNewsEnrichmentController.new,
 );
 
+/*
+*单条资讯增强生成函数,供详情页触发并允许测试替换副作用边界。
+*/
+typedef AiNewsEnrichmentGenerator = Future<AiNewsEnrichment?> Function(AiNewsItem item, {bool force});
+
+final aiNewsEnrichmentGeneratorProvider = Provider<AiNewsEnrichmentGenerator>(
+  (ref) => ref.watch(aiNewsEnrichmentControllerProvider).enrich,
+);
+
 class AiNewsEnrichmentController {
   const AiNewsEnrichmentController(this._ref);
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/domain/data_freshness.dart';
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/breakpoint.dart';
-import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/header_search_field.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/discover_providers.dart';
@@ -41,7 +41,11 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
         case 'skills':
           await ref.read(agentSkillsNotifierProvider.future);
         case 'official':
-          await ref.read(filteredOfficialProfilesProvider.future);
+          if (Breakpoints.isCompact(context)) {
+            await ref.read(filteredFeaturedProfilesProvider.future);
+          } else {
+            await ref.read(filteredOfficialProfilesProvider.future);
+          }
         case 'people':
           await ref.read(filteredPeopleProfilesProvider.future);
         default:
@@ -75,6 +79,9 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
         ref.read(trendingReposNotifierProvider.notifier).loadMore();
       case 'official':
         ref.read(officialProfilesNotifierProvider.notifier).loadMore();
+        if (Breakpoints.isCompact(context)) {
+          ref.read(peopleProfilesNotifierProvider.notifier).loadMore();
+        }
       case 'people':
         ref.read(peopleProfilesNotifierProvider.notifier).loadMore();
     }
@@ -87,86 +94,87 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     final colors = Theme.of(context).colorScheme;
     final isCompact = Breakpoints.isCompact(context);
     final segment = ref.watch(discoverSegmentProvider);
-    final freshness = ref.watch(discoverFreshnessProvider);
-    final showFreshness = freshness != DataFreshness.freshCache;
+    final visibleSegment = isCompact && segment == 'people' ? 'official' : segment;
     final query = ref.watch(discoverSearchQueryProvider);
+    final content = NestedScrollView(
+      physics: isCompact ? const AlwaysScrollableScrollPhysics() : null,
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        if (!isCompact)
+          SliverToBoxAdapter(
+            child: PageHeader(
+              title: l10n.tr('discover.title'),
+              subtitle: l10n.tr('discover.subtitle'),
+              icon: Icons.explore_rounded,
+              searchHint: l10n.tr('discover.search_hint'),
+              searchValue: query,
+              onSearchChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
+              onRefresh: _refresh,
+              isRefreshing: _refreshing,
+            ),
+          ),
+        SliverToBoxAdapter(
+          child: DiscoverSegmented(value: visibleSegment, compact: isCompact, onChanged: (value) => ref.read(discoverSegmentProvider.notifier).state = value),
+        ),
+      ],
+      body: NotificationListener<ScrollNotification>(
+        onNotification: _onScrollNotification,
+        child: switch (visibleSegment) {
+          'skills' => DiscoverSkillsSection(async: ref.watch(filteredAgentSkillsProvider), onRetry: _refresh),
+          'official' => DiscoverProfilesSection(
+              provider: isCompact ? filteredFeaturedProfilesProvider : filteredOfficialProfilesProvider,
+              emptyIcon: Icons.verified_outlined,
+              emptyMessage: l10n.tr('discover.empty.official'),
+              kind: isCompact ? null : DiscoverProfileKind.official,
+              onRetry: _refresh,
+            ),
+          'people' => DiscoverProfilesSection(
+              provider: filteredPeopleProfilesProvider,
+              emptyIcon: Icons.person_search_outlined,
+              emptyMessage: l10n.tr('discover.empty.people'),
+              kind: DiscoverProfileKind.people,
+              onRetry: _refresh,
+            ),
+          _ => DiscoverReposSection(async: ref.watch(filteredTrendingReposProvider), onRetry: _refresh),
+        },
+      ),
+    );
 
     return Scaffold(
-      // 移动端只保留系统 AppBar(徽章与刷新并入 actions),
-      // 不再叠一层桌面 PageHeader 造成双头部。
+      // 移动端标题栏只保留标题与搜索框,刷新统一使用下拉手势。
       appBar: isCompact
           ? AppBar(
-              title: Text(l10n.tr('discover.title')),
-              actions: [
-                if (showFreshness) Center(child: DataFreshnessBadge(freshness: freshness)),
-                IconButton(
-                  tooltip: l10n.tr('common.refresh'),
-                  onPressed: _refreshing ? null : _refresh,
-                  icon: const Icon(Icons.refresh_rounded),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-              ],
+              toolbarHeight: 64,
+              titleSpacing: AppSpacing.lg,
+              title: Row(
+                children: [
+                  Text(
+                    l10n.tr('discover.title'),
+                    style: AppTypography.displayMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800, height: 1),
+                  ),
+                  const SizedBox(width: AppSpacing.lg2),
+                  Expanded(
+                    child: HeaderSearchField(
+                      hintText: l10n.tr('discover.search_hint'),
+                      value: query,
+                      onChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
+                      height: 40,
+                      outlined: true,
+                      fillColor: colors.surface,
+                      borderRadius: AppRadius.xl,
+                    ),
+                  ),
+                ],
+              ),
             )
           : null,
-      backgroundColor: colors.surface,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          if (!isCompact)
-            SliverToBoxAdapter(
-              child: PageHeader(
-                title: l10n.tr('discover.title'),
-                subtitle: l10n.tr('discover.subtitle'),
-                icon: Icons.explore_rounded,
-                searchHint: l10n.tr('discover.search_hint'),
-                searchValue: query,
-                onSearchChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
-                pills: [if (showFreshness) DataFreshnessBadge(freshness: freshness)],
-                onRefresh: _refresh,
-                isRefreshing: _refreshing,
-              ),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      body: isCompact
+          ? RefreshIndicator.adaptive(
+              onRefresh: _refresh,
+              notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical,
+              child: content,
             )
-          else
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.sm,
-                  AppSpacing.lg,
-                  0,
-                ),
-                child: HeaderSearchField(
-                  hintText: l10n.tr('discover.search_hint'),
-                  value: query,
-                  onChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
-                ),
-              ),
-            ),
-          SliverToBoxAdapter(
-            child: DiscoverSegmented(value: segment, compact: isCompact, onChanged: (value) => ref.read(discoverSegmentProvider.notifier).state = value),
-          ),
-        ],
-        body: NotificationListener<ScrollNotification>(
-          onNotification: _onScrollNotification,
-          child: switch (segment) {
-            'skills' => DiscoverSkillsSection(async: ref.watch(filteredAgentSkillsProvider), onRetry: _refresh),
-            'official' => DiscoverProfilesSection(
-                provider: filteredOfficialProfilesProvider,
-                emptyIcon: Icons.verified_outlined,
-                emptyMessage: l10n.tr('discover.empty.official'),
-                kind: DiscoverProfileKind.official,
-                onRetry: _refresh,
-              ),
-            'people' => DiscoverProfilesSection(
-                provider: filteredPeopleProfilesProvider,
-                emptyIcon: Icons.person_search_outlined,
-                emptyMessage: l10n.tr('discover.empty.people'),
-                kind: DiscoverProfileKind.people,
-                onRetry: _refresh,
-              ),
-            _ => DiscoverReposSection(async: ref.watch(filteredTrendingReposProvider), onRetry: _refresh),
-          },
-        ),
-      ),
+          : content,
     );
   }
 }

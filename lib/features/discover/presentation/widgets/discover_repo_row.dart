@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/breakpoint.dart';
 import '../../../../shared/widgets/data_provenance_badge.dart';
 
 /*
@@ -31,82 +32,181 @@ class DiscoverMonitorRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
+    final compact = Breakpoints.isCompact(context);
     final accent = Color(repo.accentArgb);
     final monitored = ref.watch(localContentControllerProvider.select((s) => s.isMonitored(repo.fullName)));
     final controller = ref.read(localContentControllerProvider.notifier);
     final radius = BorderRadius.circular(AppRadius.lg);
+    final avatarSize = compact ? 40.0 : AppSpacing.xxl;
+    final avatarAccent = _avatarAccent(repo.language, accent);
+    final metricAccent = _metricAccent(repo.language, accent, colors.onSurfaceVariant);
+    final avatarForeground = compact ? AppColors.surfaceLight : accent;
 
-    return Material(
+    final content = Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: avatarSize,
+          height: avatarSize,
+          decoration: BoxDecoration(color: compact ? avatarAccent : accent.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(compact ? AppRadius.lg : AppRadius.sm)),
+          alignment: Alignment.center,
+          child: Text(
+            repo.language.isNotEmpty ? repo.language.characters.first.toUpperCase() : '?',
+            style: (compact ? AppTypography.headlineMedium : AppTypography.titleSmall).copyWith(color: avatarForeground, fontWeight: FontWeight.w800),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _TopLine(fullName: repo.fullName, badge: badge, compact: compact),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                repo.description,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: compact ? 1.45 : 1.55),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              if (compact)
+                _MobileMetrics(repo: repo, accent: metricAccent)
+              else
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    _Pill(text: repo.language, color: accent),
+                    _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
+                    _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.secondary),
+                    _DeltaPill(value: repo.starDelta),
+                    MetricBasisBadge(basis: repo.trendBasis),
+                  ],
+                ),
+            ],
+          ),
+        ),
+        if (!compact) ...[
+          const SizedBox(width: AppSpacing.sm),
+          _MonitorButton(repo: repo, monitored: monitored, controller: controller, compact: false),
+        ],
+      ],
+    );
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
         color: colors.surface,
+        borderRadius: radius,
+        border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.42 : 1)),
+        boxShadow: [if (compact && isLight) BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 14, offset: const Offset(0, 5))],
+      ),
+      child: Material(
+        color: Colors.transparent,
         borderRadius: radius,
         clipBehavior: Clip.antiAlias,
         child: InkWell(
-            onTap: onTap,
-            borderRadius: radius,
-            child: Container(
-                padding: const EdgeInsets.all(AppSpacing.lg),
-                decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1))),
-                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Container(
-                    width: AppSpacing.xxl,
-                    height: AppSpacing.xxl,
-                    decoration: BoxDecoration(color: accent.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(AppRadius.sm)),
-                    alignment: Alignment.center,
-                    child: Text(repo.language.isNotEmpty ? repo.language.characters.first.toUpperCase() : '?', style: AppTypography.titleSmall.copyWith(color: accent, fontWeight: FontWeight.w800)),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _TopLine(fullName: repo.fullName, badge: badge),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          repo.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Wrap(
-                          spacing: AppSpacing.sm,
-                          runSpacing: AppSpacing.xs,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children: [
-                            _Pill(text: repo.language, color: accent),
-                            _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
-                            _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.secondary),
-                            _DeltaPill(value: repo.starDelta),
-                            MetricBasisBadge(basis: repo.trendBasis)
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  IconButton(
-                      tooltip: monitored ? l10n.tr('discover.monitor_remove') : l10n.tr('discover.monitor_add'),
-                      icon: Icon(monitored ? Icons.notifications_active_rounded : Icons.notifications_none_rounded, color: monitored ? colors.primary : colors.onSurfaceVariant),
-                      onPressed: () async {
-                        if (monitored) {
-                          await controller.removeMonitor(repo.fullName);
-                        } else {
-                          await controller.addMonitor(repo);
-                        }
-                      },
-                      constraints: const BoxConstraints(minWidth: 44, minHeight: 44))
-                ]))));
+          onTap: onTap,
+          borderRadius: radius,
+          child: Padding(
+            padding: compact ? const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md2) : const EdgeInsets.all(AppSpacing.lg),
+            child: compact
+                ? Stack(
+                    children: [
+                      content,
+                      Positioned(
+                        right: -AppSpacing.lg,
+                        bottom: -AppSpacing.md,
+                        child: _MonitorButton(repo: repo, monitored: monitored, controller: controller, compact: true),
+                      ),
+                    ],
+                  )
+                : content,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/*
+ *移动端指标区:主指标占一行,趋势口径与监控入口落在卡片底部。
+ */
+class _MobileMetrics extends StatelessWidget {
+  const _MobileMetrics({required this.repo, required this.accent});
+
+  final RepoEntity repo;
+  final Color accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: AppSpacing.sm2,
+          runSpacing: AppSpacing.xs,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            _Pill(text: repo.language, color: accent),
+            _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
+            _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.primary),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Padding(
+          padding: const EdgeInsets.only(right: AppSpacing.xxxl),
+          child: Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [_DeltaPill(value: repo.starDelta), MetricBasisBadge(basis: repo.trendBasis)],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/*
+ *仓库监控按钮:移动端定位在卡片右下角,桌面端保留行尾操作位。
+ */
+class _MonitorButton extends StatelessWidget {
+  const _MonitorButton({required this.repo, required this.monitored, required this.controller, required this.compact});
+
+  final RepoEntity repo;
+  final bool monitored;
+  final LocalContentController controller;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return IconButton(
+      tooltip: monitored ? l10n.tr('discover.monitor_remove') : l10n.tr('discover.monitor_add'),
+      icon: Icon(monitored ? Icons.notifications_active_rounded : Icons.notifications_none_rounded, size: compact ? 20 : 22, color: monitored ? colors.primary : colors.onSurfaceVariant),
+      onPressed: () async {
+        if (monitored) {
+          await controller.removeMonitor(repo.fullName);
+        } else {
+          await controller.addMonitor(repo);
+        }
+      },
+      constraints: BoxConstraints(minWidth: compact ? 40 : 44, minHeight: compact ? 40 : 44),
+    );
   }
 }
 
 class _TopLine extends StatelessWidget {
-  const _TopLine({required this.fullName, required this.badge});
+  const _TopLine({required this.fullName, required this.badge, required this.compact});
 
   final String fullName;
   final String? badge;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +219,7 @@ class _TopLine extends StatelessWidget {
           fullName,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: 1.35),
+          style: (compact ? AppTypography.bodyLarge : AppTypography.titleMedium).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: compact ? 1.3 : 1.35),
         )),
         if (badge != null) ...[const SizedBox(width: AppSpacing.sm), _Pill(text: badge!, color: colors.tertiary)]
       ],
@@ -187,3 +287,18 @@ String _shortNumber(int v) {
   }
   return v.toString();
 }
+
+Color _avatarAccent(String language, Color fallback) => switch (language.toLowerCase()) {
+      'markdown' => AppColors.brandDark,
+      'typescript' => AppColors.langTypeScript,
+      'python' => AppColors.success,
+      '' || 'unknown' => AppColors.accentPurple,
+      _ => fallback,
+    };
+
+Color _metricAccent(String language, Color fallback, Color unknown) => switch (language.toLowerCase()) {
+      'markdown' || 'typescript' => AppColors.langTypeScript,
+      'python' => AppColors.langPython,
+      '' || 'unknown' => unknown,
+      _ => fallback,
+    };

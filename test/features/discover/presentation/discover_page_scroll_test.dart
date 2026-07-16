@@ -16,14 +16,20 @@ import 'package:github_news/shared/widgets/header_search_field.dart';
 *测试用静态仓库列表,避免滚动行为测试访问 GitHub。
 */
 class _StaticTrendingReposNotifier extends TrendingReposNotifier {
-  _StaticTrendingReposNotifier(this._items);
+  _StaticTrendingReposNotifier(this._items, {this.onBuild});
 
   // 测试仓库快照。
   final List<RepoEntity> _items;
 
+  // 记录下拉刷新触发的重新构建。
+  final VoidCallback? onBuild;
+
   /* 返回足以滚动的静态仓库列表。 */
   @override
-  Future<List<RepoEntity>> build() async => _items;
+  Future<List<RepoEntity>> build() async {
+    onBuild?.call();
+    return _items;
+  }
 
   @override
   bool get hasMore => false;
@@ -53,7 +59,7 @@ class _StaticLocalContentController extends LocalContentController {
 }
 
 void main() {
-  testWidgets('发现页不显示新鲜缓存状态', (tester) async {
+  testWidgets('发现页标题栏不显示数据状态和刷新按钮', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -62,7 +68,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          discoverReposFreshnessProvider.overrideWith((ref) => DataFreshness.freshCache),
+          discoverReposFreshnessProvider.overrideWith((ref) => DataFreshness.live),
           trendingReposNotifierProvider.overrideWith(() => _StaticTrendingReposNotifier(const [])),
           localContentControllerProvider.overrideWith(_StaticLocalContentController.new),
         ],
@@ -81,11 +87,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('新鲜缓存'), findsNothing);
+    expect(find.text('实时数据'), findsNothing);
+    expect(find.byIcon(Icons.refresh_rounded), findsNothing);
+    expect(find.byType(HeaderSearchField), findsOneWidget);
+    expect((tester.getCenter(find.text('发现')).dy - tester.getCenter(find.byType(HeaderSearchField)).dy).abs(), lessThan(4));
+    expect(tester.getRect(find.text('官方内容')).right, lessThanOrEqualTo(390));
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('发现页搜索框与分类横条随列表滚动且标题栏固定', (tester) async {
+  testWidgets('发现页标题和搜索框固定、分类横条滚动且支持下拉刷新', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -103,11 +113,14 @@ void main() {
         accentArgb: 0xFF12B886,
       ),
     );
+    var buildCount = 0;
 
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          trendingReposNotifierProvider.overrideWith(() => _StaticTrendingReposNotifier(repos)),
+          trendingReposNotifierProvider.overrideWith(
+            () => _StaticTrendingReposNotifier(repos, onBuild: () => buildCount++),
+          ),
           localContentControllerProvider.overrideWith(_StaticLocalContentController.new),
         ],
         child: const MaterialApp(
@@ -131,15 +144,23 @@ void main() {
     final appBarTopBefore = tester.getTopLeft(appBarFinder).dy;
     final searchTopBefore = tester.getTopLeft(searchFinder).dy;
     final segmentedTopBefore = tester.getTopLeft(segmentedFinder).dy;
-    final verticalList = tester.widgetList<ListView>(find.byType(ListView)).firstWhere((list) => list.scrollDirection == Axis.vertical);
+    final verticalListFinder = find.byWidgetPredicate(
+      (widget) => widget is ListView && widget.scrollDirection == Axis.vertical,
+    );
 
-    await tester.drag(find.byWidget(verticalList), const Offset(0, -320));
+    expect(find.byType(RefreshIndicator), findsOneWidget);
+    await tester.drag(verticalListFinder, const Offset(0, 300));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(buildCount, greaterThan(1));
+
+    await tester.drag(verticalListFinder, const Offset(0, -320));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.byType(NestedScrollView), findsOneWidget);
     expect(tester.getTopLeft(appBarFinder).dy, appBarTopBefore);
-    expect(tester.getTopLeft(searchFinder).dy, lessThan(searchTopBefore));
+    expect(tester.getTopLeft(searchFinder).dy, searchTopBefore);
     expect(tester.getTopLeft(segmentedFinder).dy, lessThan(segmentedTopBefore));
   });
 }

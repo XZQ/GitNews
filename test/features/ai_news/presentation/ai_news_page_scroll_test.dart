@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/preferences/ai_digest_config_controller.dart';
 import 'package:github_news/core/theme/app_colors.dart';
@@ -24,14 +23,20 @@ import 'package:github_news/features/ai_news/presentation/widgets/ai_news_page_h
 *测试用静态资讯状态,避免滚动行为测试访问网络和本地数据库。
 */
 class _StaticAiNewsItemsNotifier extends AiNewsItemsNotifier {
-  _StaticAiNewsItemsNotifier(this._items);
+  _StaticAiNewsItemsNotifier(this._items, {this.onBuild});
 
   // 测试列表快照。
   final List<AiNewsItem> _items;
 
+  // 记录下拉刷新触发的重新构建。
+  final VoidCallback? onBuild;
+
   /* 返回足以滚动的静态资讯列表。 */
   @override
-  Future<List<AiNewsItem>> build() async => _items;
+  Future<List<AiNewsItem>> build() async {
+    onBuild?.call();
+    return _items;
+  }
 
   @override
   bool get hasMore => false;
@@ -60,13 +65,13 @@ class _StaticAiDigestNotifier extends AiDigestNotifier {
 }
 
 void main() {
-  testWidgets('AI 标题栏固定且搜索框与分类横条随列表滚动', (tester) async {
+  testWidgets('AI 标题和搜索框固定、分类横条滚动且支持下拉刷新', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final now = DateTime(2026, 7, 16, 12);
+    final now = DateTime.now().subtract(const Duration(hours: 5));
     const titles = [
       'Learning Safe Agent Behaviour from Human Preferences',
       'Multi-Agent Collaborative Reasoning for Urban Regions',
@@ -97,6 +102,7 @@ void main() {
         permalink: 'https://example.com/$index',
       ),
     );
+    var buildCount = 0;
 
     if (Platform.isWindows) {
       await tester.runAsync(_loadWindowsCjkFont);
@@ -120,8 +126,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          aiNewsItemsNotifierProvider.overrideWith(() => _StaticAiNewsItemsNotifier(items)),
-          aiNewsFreshnessProvider.overrideWith((ref) => DataFreshness.freshCache),
+          aiNewsItemsNotifierProvider.overrideWith(
+            () => _StaticAiNewsItemsNotifier(items, onBuild: () => buildCount++),
+          ),
           aiNewsUnreadReminderCountProvider.overrideWithValue(0),
           aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none),
           aiDigestConfigControllerProvider.overrideWith(_StaticAiDigestConfigController.new),
@@ -166,13 +173,19 @@ void main() {
       await expectLater(find.byType(AiNewsPage), matchesGoldenFile('goldens/ai_news_page_mobile.png'));
     }
 
+    expect(find.byType(RefreshIndicator), findsOneWidget);
+    await tester.drag(find.byType(CustomScrollView).last, const Offset(0, 300));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(buildCount, greaterThan(1));
+
     await tester.drag(find.byType(CustomScrollView).last, const Offset(0, -320));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
     expect(find.byType(NestedScrollView), findsOneWidget);
     expect(tester.getTopLeft(appBarFinder).dy, appBarTopBefore);
-    expect(tester.getTopLeft(searchFinder).dy, lessThan(searchTopBefore));
+    expect(tester.getTopLeft(searchFinder).dy, searchTopBefore);
     expect(tester.getTopLeft(categoryFinder).dy, lessThan(categoryTopBefore));
   });
 }

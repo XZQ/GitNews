@@ -33,18 +33,43 @@ class AiNewsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final category = ref.watch(aiNewsCategoryFilterProvider);
     final isCompact = Breakpoints.isCompact(context);
+    final content = NestedScrollView(
+      physics: isCompact ? const AlwaysScrollableScrollPhysics() : null,
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        if (!isCompact) const SliverToBoxAdapter(child: AiNewsPageHeader()),
+        SliverToBoxAdapter(
+          child: AiNewsCategoryNav(selected: category, onSelected: (value) => ref.read(aiNewsCategoryFilterProvider.notifier).state = value),
+        ),
+      ],
+      body: _Body(category: category),
+    );
     return Scaffold(
       appBar: isCompact ? const AiNewsCompactAppBar() : null,
-      body: NestedScrollView(
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverToBoxAdapter(child: isCompact ? const AiNewsCompactSearchBar() : const AiNewsPageHeader()),
-          SliverToBoxAdapter(
-            child: AiNewsCategoryNav(selected: category, onSelected: (value) => ref.read(aiNewsCategoryFilterProvider.notifier).state = value),
-          ),
-        ],
-        body: _Body(category: category),
-      ),
+      body: isCompact
+          ? RefreshIndicator.adaptive(
+              onRefresh: () => _refreshAiNews(ref),
+              notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical,
+              child: content,
+            )
+          : content,
     );
+  }
+
+  /* 下拉刷新当前移动端视图,避免刷新与当前搜索/稍后读状态脱节。 */
+  Future<void> _refreshAiNews(WidgetRef ref) async {
+    if (ref.read(aiNewsReadLaterOnlyProvider)) {
+      ref.invalidate(aiNewsReadLaterItemsProvider);
+      await ref.read(aiNewsReadLaterItemsProvider.future);
+      return;
+    }
+    final query = ref.read(aiNewsSearchQueryProvider).trim();
+    if (query.isNotEmpty || ref.read(aiNewsLibraryFilterProvider).isActive) {
+      ref.invalidate(aiNewsLibrarySearchProvider(query));
+      await ref.read(aiNewsLibrarySearchProvider(query).future);
+      return;
+    }
+    ref.invalidate(aiNewsItemsNotifierProvider);
+    await ref.read(aiNewsItemsNotifierProvider.future);
   }
 }
 
@@ -187,6 +212,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
       child: CustomScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
         slivers: [
           if (widget.header != null) SliverToBoxAdapter(child: widget.header),
           SliverPadding(

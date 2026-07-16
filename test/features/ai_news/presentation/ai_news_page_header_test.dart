@@ -9,7 +9,6 @@ import 'package:github_news/core/theme/app_colors.dart';
 import 'package:github_news/core/theme/app_theme.dart';
 import 'package:github_news/features/ai_news/application/ai_news_reminder_providers.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_page_header.dart';
-import 'package:github_news/shared/widgets/data_provenance_badge.dart';
 import 'package:github_news/shared/widgets/header_search_field.dart';
 import 'package:github_news/shared/widgets/page_header.dart';
 
@@ -33,7 +32,7 @@ void main() {
           ],
           supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.light(AppColors.brand),
-          home: const Scaffold(appBar: AiNewsCompactAppBar(), body: AiNewsCompactSearchBar()),
+          home: const Scaffold(appBar: AiNewsCompactAppBar()),
         ),
       ),
     );
@@ -44,11 +43,10 @@ void main() {
     expect(find.byType(AiNewsCompactSearchBar), findsOneWidget);
     expect(find.byType(PageHeader), findsNothing);
     expect(find.byType(HeaderSearchField), findsOneWidget);
-    expect(find.byType(DataFreshnessBadge), findsOneWidget);
+    expect(find.byIcon(Icons.refresh_rounded), findsNothing);
     expect(find.byIcon(Icons.notifications_none_rounded), findsOneWidget);
     expect(find.byIcon(Icons.filter_alt_outlined), findsOneWidget);
     expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
     if (Platform.isWindows) {
       await expectLater(find.byType(Scaffold), matchesGoldenFile('goldens/ai_news_page_header_compact.png'));
     }

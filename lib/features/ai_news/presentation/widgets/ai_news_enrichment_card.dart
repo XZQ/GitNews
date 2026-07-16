@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,50 +23,65 @@ class AiNewsEnrichmentCard extends ConsumerStatefulWidget {
 
 class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
   bool _working = false;
+  bool _generationFailed = false;
+  String? _autoRequestedItemId;
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final enrichment = ref.watch(aiNewsEnrichmentProvider(widget.item.id));
     final configured = ref.watch(aiDigestConfigControllerProvider).configured;
+    final missingEnrichment = enrichment.when(
+      data: (value) => value == null,
+      loading: () => false,
+      error: (_, __) => false,
+    );
+    _scheduleAutomaticGeneration(
+      configured: configured,
+      missingEnrichment: missingEnrichment,
+    );
     return AppCard(
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: enrichment.when(
         data: (value) => value == null
-            ? _EmptyEnrichment(
-                configured: configured,
-                working: _working,
-                onGenerate: _generate,
-              )
+            ? _generationFailed
+                ? _EnrichmentFailure(onRetry: _generate)
+                : _EmptyEnrichment(configured: configured)
             : _EnrichmentContent(
                 enrichment: value,
                 working: _working,
                 onRegenerate: () => _generate(force: true),
               ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (_, __) => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(l10n.tr('ai_news.enrichment.failed')),
-            const SizedBox(height: AppSpacing.sm),
-            OutlinedButton.icon(
-              onPressed: _generate,
-              icon: const Icon(Icons.refresh_rounded),
-              label: Text(l10n.tr('common.retry')),
-            ),
-          ],
-        ),
+        error: (_, __) => _EnrichmentFailure(onRetry: _generate),
       ),
     );
+  }
+
+  /* AI 已配置且没有本地增强缓存时,在当前帧完成后自动发起一次生成。 */
+  void _scheduleAutomaticGeneration({required bool configured, required bool missingEnrichment}) {
+    final itemId = widget.item.id;
+    if (!configured || !missingEnrichment || _working || _autoRequestedItemId == itemId) {
+      return;
+    }
+    _autoRequestedItemId = itemId;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || widget.item.id != itemId || _autoRequestedItemId != itemId) {
+        return;
+      }
+      unawaited(_generate());
+    });
   }
 
   Future<void> _generate({bool force = false}) async {
     if (_working) {
       return;
     }
-    setState(() => _working = true);
+    setState(() {
+      _working = true;
+      _generationFailed = false;
+    });
     try {
-      final result = await ref.read(aiNewsEnrichmentControllerProvider).enrich(widget.item, force: force);
+      final result = await ref.read(aiNewsEnrichmentGeneratorProvider)(widget.item, force: force);
       if (result == null && mounted) {
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -73,6 +90,7 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
       }
     } catch (_) {
       if (mounted) {
+        setState(() => _generationFailed = true);
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.tr('ai_news.enrichment.failed'))),
@@ -87,15 +105,9 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
 }
 
 class _EmptyEnrichment extends StatelessWidget {
-  const _EmptyEnrichment({
-    required this.configured,
-    required this.working,
-    required this.onGenerate,
-  });
+  const _EmptyEnrichment({required this.configured});
 
   final bool configured;
-  final bool working;
-  final VoidCallback onGenerate;
 
   @override
   Widget build(BuildContext context) {
@@ -110,16 +122,45 @@ class _EmptyEnrichment extends StatelessWidget {
             configured ? 'ai_news.enrichment.description' : 'ai_news.enrichment.configure',
           ),
         ),
-        const SizedBox(height: AppSpacing.md),
-        FilledButton.tonalIcon(
-          onPressed: configured && !working ? onGenerate : null,
-          icon: working
-              ? const SizedBox.square(
-                  dimension: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.auto_awesome_rounded),
-          label: Text(l10n.tr('ai_news.enrichment.generate')),
+        if (configured) ...[
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              const SizedBox.square(
+                dimension: 16,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Text(l10n.tr('ai_news.enrichment.generating')),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/*
+*自动增强失败状态,保留显式重试入口。
+*/
+class _EnrichmentFailure extends StatelessWidget {
+  const _EnrichmentFailure({required this.onRetry});
+
+  // 用户主动重试回调。
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.tr('ai_news.enrichment.failed')),
+        const SizedBox(height: AppSpacing.sm),
+        OutlinedButton.icon(
+          onPressed: onRetry,
+          icon: const Icon(Icons.refresh_rounded),
+          label: Text(l10n.tr('common.retry')),
         ),
       ],
     );

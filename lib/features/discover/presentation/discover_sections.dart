@@ -51,7 +51,7 @@ Widget _buildDiscoverList({
   }
   // 单列(手机 / 平板):统一卡片式条目,与监控页、趋势页移动端保持一致。
   return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.xxxl),
       itemCount: itemCount + (hasMore ? 1 : 0),
       separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
       itemBuilder: (context, i) {
@@ -143,7 +143,8 @@ class DiscoverProfilesSection extends ConsumerWidget {
   final ProviderListenable<AsyncValue<List<DiscoverProfileEntity>>> provider;
   final IconData emptyIcon;
   final String emptyMessage;
-  final DiscoverProfileKind kind;
+  // null 表示移动端合并官方组织与知名人士。
+  final DiscoverProfileKind? kind;
   final Future<void> Function() onRetry;
 
   @override
@@ -158,8 +159,12 @@ class DiscoverProfilesSection extends ConsumerWidget {
           if (profiles.isEmpty) {
             return EmptyView(icon: emptyIcon, message: query.trim().isEmpty ? emptyMessage : l10n.tr('discover.empty_filter').replaceAll('{query}', query));
           }
-          final notifierProvider = kind == DiscoverProfileKind.official ? officialProfilesNotifierProvider : peopleProfilesNotifierProvider;
-          final hasMore = query.trim().isEmpty && ref.read(notifierProvider.notifier).hasMore;
+          final hasMore = query.trim().isEmpty &&
+              switch (kind) {
+                DiscoverProfileKind.official => ref.read(officialProfilesNotifierProvider.notifier).hasMore,
+                DiscoverProfileKind.people => ref.read(peopleProfilesNotifierProvider.notifier).hasMore,
+                null => ref.read(officialProfilesNotifierProvider.notifier).hasMore || ref.read(peopleProfilesNotifierProvider.notifier).hasMore,
+              };
           return _buildDiscoverList(
             context: context,
             itemCount: profiles.length,

@@ -22,44 +22,50 @@ class AiNewsRemindersPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final reminders = ref.watch(aiNewsRemindersProvider);
     final unread = ref.watch(aiNewsUnreadReminderCountProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('ai_news.reminders.title')),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/ai_news'),
+    return PopScope<Object?>(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          context.go('/ai_news');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.tr('ai_news.reminders.title')),
+          leading: BackButton(onPressed: () => context.go('/ai_news')),
+          actions: [
+            TextButton.icon(
+              onPressed: unread == 0 ? null : () => ref.read(aiNewsReminderControllerProvider).markAllRead(),
+              icon: const Icon(Icons.done_all_rounded),
+              label: Text(l10n.tr('ai_news.reminders.mark_all_read')),
+            ),
+          ],
         ),
-        actions: [
-          TextButton.icon(
-            onPressed: unread == 0 ? null : () => ref.read(aiNewsReminderControllerProvider).markAllRead(),
-            icon: const Icon(Icons.done_all_rounded),
-            label: Text(l10n.tr('ai_news.reminders.mark_all_read')),
-          ),
-        ],
-      ),
-      body: reminders.when(
-        data: (items) => items.isEmpty
-            ? EmptyView(
-                icon: Icons.notifications_none_rounded,
-                message: l10n.tr('ai_news.reminders.empty'),
-              )
-            : ListView.separated(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.md,
-                  AppSpacing.lg,
-                  AppSpacing.xxxl,
+        body: reminders.when(
+          data: (items) => items.isEmpty
+              ? EmptyView(
+                  icon: Icons.notifications_none_rounded,
+                  message: l10n.tr('ai_news.reminders.empty'),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.md,
+                    AppSpacing.lg,
+                    AppSpacing.xxxl,
+                  ),
+                  itemCount: items.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                  itemBuilder: (context, index) {
+                    final reminder = items[index];
+                    return _ReminderCard(reminder: reminder, onTap: () => _open(context, ref, reminder.itemId));
+                  },
                 ),
-                itemCount: items.length,
-                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                itemBuilder: (context, index) {
-                  final reminder = items[index];
-                  return _ReminderCard(reminder: reminder, onTap: () => _open(context, ref, reminder.itemId));
-                },
-              ),
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => ErrorView(
-          error: error.asAppException(),
-          onRetry: () => ref.invalidate(aiNewsRemindersProvider),
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, _) => ErrorView(
+            error: error.asAppException(),
+            onRetry: () => ref.invalidate(aiNewsRemindersProvider),
+          ),
         ),
       ),
     );

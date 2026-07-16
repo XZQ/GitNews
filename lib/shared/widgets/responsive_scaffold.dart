@@ -6,6 +6,7 @@ import '../../core/i18n/app_localizations.dart';
 import '../../core/router/app_router.dart';
 import '../../core/utils/breakpoint.dart';
 import 'app_sidebar.dart';
+import 'mobile_double_back_exit.dart';
 
 /* 
 *三档响应式根 Scaffold。
@@ -13,33 +14,65 @@ import 'app_sidebar.dart';
 *- medium(600–1024):紧凑 NavigationRail(图标 + 选中标签)
 *- expanded(≥ 1024):宽侧栏(品牌 + 大字号 + hover + 底部主题/登录)
 */
-class ResponsiveScaffold extends ConsumerWidget {
+class ResponsiveScaffold extends StatelessWidget {
   const ResponsiveScaffold({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final location = navigationShell.currentIndex == 0 ? '/home' : GoRouterState.of(context).matchedLocation;
+  Widget build(BuildContext context) {
+    final routerDelegate = GoRouter.of(context).routerDelegate;
+    return ListenableBuilder(
+      listenable: routerDelegate,
+      builder: (context, _) => _buildForLocation(context, routerDelegate.currentConfiguration.uri.path),
+    );
+  }
+
+  /* 根据实时路由位置构建移动底栏或桌面侧栏。 */
+  Widget _buildForLocation(BuildContext context, String location) {
     final index = appTabs.indexOfLocation(location);
     final formFactor = Breakpoints.of(context);
     void onTap(int i) => navigationShell.goBranch(i, initialLocation: i == navigationShell.currentIndex);
 
-    if (formFactor == FormFactor.compact && isMobileFullScreenLocation(location)) {
-      return Scaffold(body: SafeArea(child: navigationShell));
+    if (formFactor == FormFactor.compact) {
+      final body = SafeArea(
+        top: !usesImmersiveStatusBar(location),
+        child: navigationShell,
+      );
+      if (isMobileFullScreenLocation(location)) {
+        return Scaffold(body: body);
+      }
+      final scaffold = Scaffold(
+        body: body,
+        bottomNavigationBar: _BottomBar(
+          currentBranchIndex: index,
+          onTap: onTap,
+        ),
+      );
+      return isMobilePrimaryLocation(location) ? MobileDoubleBackExit(child: scaffold) : scaffold;
     }
 
     return switch (formFactor) {
-      FormFactor.compact => Scaffold(body: SafeArea(child: navigationShell), bottomNavigationBar: _BottomBar(currentBranchIndex: index, onTap: onTap)),
+      FormFactor.compact => throw StateError('compact handled above'),
       FormFactor.medium => Scaffold(body: Row(children: [_SideRail(currentIndex: index, onTap: onTap), Expanded(child: SafeArea(child: navigationShell))])),
       FormFactor.expanded => Scaffold(body: Row(children: [AppSidebar(currentIndex: index, onTap: onTap), const _SidebarDragHandle(), Expanded(child: SafeArea(child: navigationShell))]))
     };
   }
 }
 
-/* 移动端需要脱离底部 5 Tab 导航的二级页面。 */
+/* 移动端除五个一级目的地外,所有壳内页面都作为全屏二级页展示。 */
 bool isMobileFullScreenLocation(String location) {
-  return location == '/ai_news/reminders' || location.startsWith('/ai_news/detail/');
+  return !isMobilePrimaryLocation(location);
+}
+
+/* AI 主页面和所有移动端全屏二级页由内部 AppBar 接管状态栏。 */
+bool usesImmersiveStatusBar(String location) {
+  return location == '/ai_news' || isMobileFullScreenLocation(location);
+}
+
+/* 移动端五个一级目的地;这些页面需要双击返回退出保护。 */
+bool isMobilePrimaryLocation(String location) {
+  return const {'/home', '/ai_news', '/discover', '/monitor', '/profile'}.contains(location);
 }
 
 /* 
