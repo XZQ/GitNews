@@ -14,14 +14,17 @@ class ApiEndpointsConfig {
   // AI 动态列表接口:`GET /api/public/items`。
   static const String aiNewsItemsPath = '/api/public/items';
 
-  // AI 日报 LLM 默认 baseUrl(Agnes OpenAI 兼容端点)。
-  static const String aiDigestDefaultBaseUrl = 'https://apihub.agnes-ai.com/v1';
+  // AI 日报 LLM 默认 baseUrl(美团 LongCat OpenAI 兼容端点)。
+  static const String aiDigestDefaultBaseUrl = 'https://api.longcat.chat/openai';
 
   // OpenAI 兼容 Chat Completions 路径(与用户配置的 baseUrl 拼接)。
   static const String aiDigestChatCompletionsPath = '/chat/completions';
 
-  // AI 日报默认 Agnes 文本模型(用户可切换到其他内置服务商)。
-  static const String aiDigestDefaultModel = 'agnes-2.0-flash';
+  // AI 日报默认美团 LongCat 文本模型(用户可切换到其他内置服务商)。
+  static const String aiDigestDefaultModel = 'LongCat-2.0';
+
+  // 发布构建可注入的 AI 日报默认 Key；首次加载后迁移到系统安全存储。
+  static const String aiDigestDefaultApiKey = String.fromEnvironment('AI_DIGEST_DEFAULT_API_KEY');
 
   // GitHub REST API 默认 baseUrl。
   static const String githubBaseUrl = 'https://api.github.com';

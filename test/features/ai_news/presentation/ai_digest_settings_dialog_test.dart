@@ -39,13 +39,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.text('agnes-2.0-flash'), findsOneWidget);
+    expect(find.text('LongCat-2.0'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey('ai-digest-provider')));
     await tester.pumpAndSettle();
     await tester.tap(find.text('DeepSeek — https://api.deepseek.com').last);
     await tester.pumpAndSettle();
 
     expect(find.text('deepseek-v4-flash'), findsOneWidget);
-    expect(find.text('agnes-2.0-flash'), findsNothing);
+    expect(find.text('LongCat-2.0'), findsNothing);
   });
 }

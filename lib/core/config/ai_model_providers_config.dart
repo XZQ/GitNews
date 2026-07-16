@@ -25,7 +25,7 @@ class AiModelProviderConfig {
 
 /*
 *AI 日报内置服务商目录。
-*保持 Agnes 位于首位,使全新安装默认使用 Agnes。
+*保持 LongCat 位于首位,使全新安装默认使用美团 LongCat。
 */
 class AiModelProvidersConfig {
   const AiModelProvidersConfig._();
@@ -33,14 +33,21 @@ class AiModelProvidersConfig {
   // 自定义 OpenAI 兼容端点的界面选项 ID。
   static const String customProviderId = 'custom';
 
-  // 20 家已核对 OpenAI Chat Completions 兼容性的服务商。
+  // 21 家已核对 OpenAI Chat Completions 兼容性的服务商。
   static const List<AiModelProviderConfig> providers = [
+    AiModelProviderConfig(
+      id: 'longcat',
+      name: 'Meituan LongCat',
+      baseUrl: ApiEndpointsConfig.aiDigestDefaultBaseUrl,
+      models: ['LongCat-2.0'],
+      defaultModel: ApiEndpointsConfig.aiDigestDefaultModel,
+    ),
     AiModelProviderConfig(
       id: 'agnes',
       name: 'Agnes AI',
-      baseUrl: ApiEndpointsConfig.aiDigestDefaultBaseUrl,
+      baseUrl: 'https://apihub.agnes-ai.com/v1',
       models: ['agnes-2.0-flash', 'agnes-1.5-flash'],
-      defaultModel: ApiEndpointsConfig.aiDigestDefaultModel,
+      defaultModel: 'agnes-2.0-flash',
     ),
     AiModelProviderConfig(
       id: 'openai',
@@ -178,7 +185,7 @@ class AiModelProvidersConfig {
   ];
 
   /*
-  *返回新安装使用的默认 Agnes 配置。
+  *返回新安装使用的默认美团 LongCat 配置。
   */
   static AiModelProviderConfig get defaultProvider => providers.first;
 

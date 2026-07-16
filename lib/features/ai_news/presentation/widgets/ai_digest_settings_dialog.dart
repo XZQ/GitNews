@@ -110,7 +110,7 @@ class _AiDigestSettingsDialogState extends ConsumerState<AiDigestSettingsDialog>
   }
 
   /*
-  *构建包含 20 家内置 URL 与自定义选项的服务商下拉框。
+  *构建包含 21 家内置 URL 与自定义选项的服务商下拉框。
   */
   Widget _buildProviderField(AppLocalizations l10n) {
     return DropdownButtonFormField<String>(

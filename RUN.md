@@ -31,6 +31,14 @@ flutter build windows --release --dart-define=GITHUB_OAUTH_CLIENT_ID=your_client
 
 没有该构建配置时，界面会明确引导到 Personal Access Token，不会尝试无效 OAuth 请求。
 
+AI 日报默认使用美团 LongCat。发布方如需预置默认 Key，应只在构建时注入；首次加载后应用会将其迁移到系统安全存储：
+
+```bash
+flutter build windows --release --dart-define=AI_DIGEST_DEFAULT_API_KEY=your_longcat_key
+```
+
+不要把真实 Key 写入源码、文档、脚本或提交记录。用户在设置中保存的 Key 始终优先于构建默认值。
+
 ## 3. 质量检查
 
 ```bash

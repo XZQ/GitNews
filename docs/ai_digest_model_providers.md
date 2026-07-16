@@ -9,6 +9,7 @@
 | DeepSeek | `https://api.deepseek.com` | `deepseek-v4-flash`, `deepseek-v4-pro` | `/models` + 对话实测 200 |
 | MiniMax | `https://api.minimaxi.com/v1` | `MiniMax-M3`, `MiniMax-M2.7`, `MiniMax-M2.7-highspeed` | `/models` + M3 对话实测 200 |
 | Z.AI Coding Plan | `https://api.z.ai/api/coding/paas/v4` | `glm-5.2`, `glm-5.1`, `glm-5-turbo` | `/models` + GLM-5.2 对话实测 200 |
+| Meituan LongCat（默认） | `https://api.longcat.chat/openai` | `LongCat-2.0` | [官方模型文档](https://longcat.chat/platform/docs/zh/api/models.html) + `/models` + 对话实测 200 |
 | Google Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-3.5-flash`, `gemini-3.1-pro-preview`, `gemini-3.1-flash-lite` | [官方模型文档](https://ai.google.dev/gemini-api/docs/models) |
 | Alibaba Cloud Qwen | `https://dashscope.aliyuncs.com/compatible-mode/v1` | `qwen3.7-max`, `qwen3.7-plus`, `qwen3.6-flash` | [官方模型文档](https://help.aliyun.com/en/model-studio/text-generation-model/) |
 | Moonshot AI / Kimi | `https://api.moonshot.ai/v1` | `kimi-k2.6`, `kimi-k2-thinking` | [官方配置文档](https://moonshotai.github.io/kimi-code/en/configuration/providers.html) |
@@ -25,4 +26,6 @@
 | Hugging Face Inference Providers | `https://router.huggingface.co/v1` | `deepseek-ai/DeepSeek-V4-Pro`, `openai/gpt-oss-120b:fastest` | [官方兼容接口文档](https://huggingface.co/docs/inference-providers/en/index) |
 | Cohere | `https://api.cohere.ai/compatibility/v1` | `command-a-plus-05-2026`, `command-a-reasoning-08-2025` | [官方兼容接口文档](https://docs.cohere.com/docs/compatibility-api) |
 
-只有用户已提供 Key 的 Agnes、DeepSeek、MiniMax、Z.AI 能完成鉴权后的真实生成验证；其余服务商已按官方接口与模型目录核对，仍需各自有效 Key 才能做最终账户级验证。模型目录会变化，更新时应同时修改 `lib/core/config/ai_model_providers_config.dart` 和本文档。
+只有用户已提供 Key 的 Agnes、DeepSeek、MiniMax、Z.AI、Meituan LongCat 能完成鉴权后的真实生成验证；其余服务商已按官方接口与模型目录核对，仍需各自有效 Key 才能做最终账户级验证。模型目录会变化，更新时应同时修改 `lib/core/config/ai_model_providers_config.dart` 和本文档。
+
+发布构建可通过 `--dart-define=AI_DIGEST_DEFAULT_API_KEY=...` 注入 LongCat 默认 Key。应用首次加载后会将其写入系统安全存储；Key 不应写入源码、文档或提交记录。

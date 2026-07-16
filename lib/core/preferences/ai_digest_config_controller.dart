@@ -37,13 +37,17 @@ class AiDigestConfigController extends Notifier<AiDigestConfigState> {
   @override
   AiDigestConfigState build() {
     _load();
-    return const AiDigestConfigState();
+    return AiDigestConfigState(apiKey: _defaultApiKey);
   }
 
   Future<void> _load() async {
     final prefs = ref.read(sharedPreferencesProvider);
     final secure = ref.read(secureStorageProvider);
-    final key = await secure.read(key: _kSecureKey);
+    final storedKey = await secure.read(key: _kSecureKey);
+    final key = storedKey ?? _defaultApiKey;
+    if (storedKey == null && key != null) {
+      await secure.write(key: _kSecureKey, value: key);
+    }
     state = AiDigestConfigState(
       apiKey: key,
       baseUrl: prefs.getString(_kBaseUrlKey) ?? ApiEndpointsConfig.aiDigestDefaultBaseUrl,
@@ -76,6 +80,11 @@ class AiDigestConfigController extends Notifier<AiDigestConfigState> {
       s = s.substring(0, s.length - 1);
     }
     return s;
+  }
+
+  static String? get _defaultApiKey {
+    final value = ApiEndpointsConfig.aiDigestDefaultApiKey.trim();
+    return value.isEmpty ? null : value;
   }
 }
 
