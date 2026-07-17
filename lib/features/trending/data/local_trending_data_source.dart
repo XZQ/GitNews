@@ -24,6 +24,28 @@ class LocalTrendingDataSource implements TrendingDataSource {
       primaryTrend: _trendFor(query.window, 38000, 4200),
       secondaryTrend: _trendFor(query.window, 35200, 3100),
       tertiaryTrend: _trendFor(query.window, 32000, 2800),
+      topics: const [
+        TrendingTopicEntity(
+          name: 'ai-agents',
+          repoCount: 4,
+          starCount: 128000,
+        ),
+        TrendingTopicEntity(
+          name: 'developer-tools',
+          repoCount: 3,
+          starCount: 96000,
+        ),
+        TrendingTopicEntity(
+          name: 'rag',
+          repoCount: 2,
+          starCount: 64000,
+        ),
+        TrendingTopicEntity(
+          name: 'llm',
+          repoCount: 2,
+          starCount: 58000,
+        ),
+      ],
     );
   }
 

@@ -39,7 +39,7 @@ The structure is reusable across projects:
 - Flutter desktop-first app for AI and GitHub intelligence.
 - Windows desktop is the current implementation priority.
 - Compact windows and mobile use the implemented 5-tab information
-  architecture: Today, AI, Discover, Monitor, and Profile. Do not expand
+  architecture: Overview, AI, Discover, Monitor, and Profile. Do not expand
   mobile scope beyond those destinations unless requested.
 - The Flutter client remains local-first and fully usable without a server.
   `server/` is an optional self-hosted boundary for scheduled ingestion, sync,

@@ -118,6 +118,7 @@ TrendingDigest filterTrendingDigest(TrendingDigest digest, String query) {
     primaryTrend: digest.primaryTrend,
     secondaryTrend: digest.secondaryTrend,
     tertiaryTrend: digest.tertiaryTrend,
+    topics: digest.topics,
   );
 }
 

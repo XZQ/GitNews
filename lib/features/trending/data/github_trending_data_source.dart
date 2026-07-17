@@ -53,6 +53,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
         primaryTrend: _buildTrend(repos, 1.0),
         secondaryTrend: _buildTrend(repos, 0.78),
         tertiaryTrend: _buildTrend(repos, 0.56),
+        topics: _buildTopics(data),
       );
     } on DioException catch (e) {
       throw GitHubApiSupport.toAppException(e, now: _now);
@@ -220,6 +221,59 @@ class GithubTrendingDataSource implements TrendingDataSource {
         basis: MetricBasis.estimated,
       );
     }).toList(growable: false);
+  }
+
+  /* 聚合 GitHub Search 返回仓库的 repository topics。 */
+  List<TrendingTopicEntity> _buildTopics(Map<String, Object?> data) {
+    final rawItems = data['items'];
+    if (rawItems is! List<Object?>) {
+      return const [];
+    }
+    final counts = <String, int>{};
+    final stars = <String, int>{};
+    for (final raw in rawItems) {
+      if (raw is! Map<String, Object?>) {
+        continue;
+      }
+      final repoStars = GitHubJson.intValue(raw['stargazers_count']);
+      final rawTopics = raw['topics'];
+      if (rawTopics is! List<Object?>) {
+        continue;
+      }
+      for (final rawTopic in rawTopics) {
+        if (rawTopic is! String) {
+          continue;
+        }
+        final topic = rawTopic.trim().toLowerCase();
+        if (topic.isEmpty) {
+          continue;
+        }
+        counts.update(topic, (value) => value + 1, ifAbsent: () => 1);
+        stars.update(
+          topic,
+          (value) => value + repoStars,
+          ifAbsent: () => repoStars,
+        );
+      }
+    }
+    final names = counts.keys.toList()
+      ..sort((left, right) {
+        final countOrder = counts[right]!.compareTo(counts[left]!);
+        if (countOrder != 0) {
+          return countOrder;
+        }
+        final starOrder = stars[right]!.compareTo(stars[left]!);
+        return starOrder != 0 ? starOrder : left.compareTo(right);
+      });
+    return [
+      for (final name in names.take(10))
+        TrendingTopicEntity(
+          name: name,
+          repoCount: counts[name]!,
+          starCount: stars[name]!,
+          basis: MetricBasis.observed,
+        ),
+    ];
   }
 
   List<double> _buildTrend(List<RepoEntity> repos, double scale) {

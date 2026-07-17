@@ -15,6 +15,7 @@ class TrendingDataSnapshot {
     required this.primaryTrend,
     required this.secondaryTrend,
     required this.tertiaryTrend,
+    this.topics = const [],
   });
 
   final List<RepoEntity> trendingRepos;
@@ -23,6 +24,9 @@ class TrendingDataSnapshot {
   final List<double> primaryTrend;
   final List<double> secondaryTrend;
   final List<double> tertiaryTrend;
+
+  // 当前搜索结果中聚合的高频 GitHub topics。
+  final List<TrendingTopicEntity> topics;
 }
 
 /* 

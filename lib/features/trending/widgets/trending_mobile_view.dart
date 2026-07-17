@@ -102,14 +102,16 @@ class TrendingMobileView extends ConsumerWidget {
           },
         ),
       ),
-      const SliverPadding(
-        padding: EdgeInsets.fromLTRB(
+      SliverPadding(
+        padding: const EdgeInsets.fromLTRB(
           AppSpacing.lg,
           AppSpacing.lg,
           AppSpacing.lg,
           AppSpacing.xl,
         ),
-        sliver: SliverToBoxAdapter(child: TrendingTopicsPanel()),
+        sliver: SliverToBoxAdapter(
+          child: TrendingTopicsPanel(topics: digest.topics),
+        ),
       ),
     ]);
   }

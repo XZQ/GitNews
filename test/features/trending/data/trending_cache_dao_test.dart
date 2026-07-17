@@ -55,6 +55,8 @@ void main() {
 
       expect(cached, isNotNull);
       expect(cached?.trendingRepos.first.fullName, 'rust-lang/rust');
+      expect(cached?.topics.single.name, 'ai-agents');
+      expect(cached?.topics.single.basis, MetricBasis.observed);
       expect(
           await dao.isFresh(
             query: const TrendingQuery(language: 'Rust'),
@@ -293,5 +295,13 @@ TrendingDataSnapshot _snapshot(String fullName) {
     primaryTrend: const [1, 2, 3],
     secondaryTrend: const [1, 2, 3],
     tertiaryTrend: const [1, 2, 3],
+    topics: const [
+      TrendingTopicEntity(
+        name: 'ai-agents',
+        repoCount: 2,
+        starCount: 18000,
+        basis: MetricBasis.observed,
+      ),
+    ],
   );
 }

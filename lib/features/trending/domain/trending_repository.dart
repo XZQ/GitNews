@@ -47,6 +47,30 @@ class TrendingQuery {
   bool get hasBoardFilter => board != TrendingBoard.all;
 }
 
+/*
+* GitHub 热榜中的高频仓库主题统计。
+*/
+class TrendingTopicEntity {
+  const TrendingTopicEntity({
+    required this.name,
+    required this.repoCount,
+    required this.starCount,
+    this.basis = MetricBasis.seed,
+  });
+
+  // GitHub repository topic 名称。
+  final String name;
+
+  // 当前搜索结果中包含该 topic 的仓库数量。
+  final int repoCount;
+
+  // 包含该 topic 的仓库当前 Star 总量。
+  final int starCount;
+
+  // 统计值来源：GitHub 观测值或本地种子。
+  final MetricBasis basis;
+}
+
 /* 
 *趋势页需要的一组本地情报数据。
 */
@@ -58,6 +82,7 @@ class TrendingDigest {
     required this.primaryTrend,
     required this.secondaryTrend,
     required this.tertiaryTrend,
+    this.topics = const [],
   });
 
   final List<RepoEntity> trendingRepos;
@@ -66,6 +91,9 @@ class TrendingDigest {
   final List<double> primaryTrend;
   final List<double> secondaryTrend;
   final List<double> tertiaryTrend;
+
+  // GitHub 搜索结果中聚合的高频 repository topics。
+  final List<TrendingTopicEntity> topics;
 
   List<RepoEntity> get allRepos => [...trendingRepos, ...recentRepos];
 

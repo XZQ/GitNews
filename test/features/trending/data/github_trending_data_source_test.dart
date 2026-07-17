@@ -140,6 +140,9 @@ void main() {
       expect(snapshot.trendingRepos.first.starDelta, greaterThan(0));
       expect(snapshot.languages.first.name, 'Python');
       expect(snapshot.primaryTrend, hasLength(7));
+      expect(snapshot.topics.first.name, 'ai-agents');
+      expect(snapshot.topics.first.repoCount, 2);
+      expect(snapshot.topics.first.basis, MetricBasis.observed);
     });
 
     test('should prefer observed local snapshot history for repo trend', () async {
@@ -200,8 +203,24 @@ Map<String, Object?> _searchBody() {
   return <String, Object?>{
     'total_count': 2,
     'items': <Object?>[
-      <String, Object?>{'full_name': 'openai/codex', 'description': 'Coding agent', 'language': 'Python', 'stargazers_count': 12000, 'forks_count': 800, 'score': 24.5},
-      <String, Object?>{'full_name': 'modelcontextprotocol/servers', 'description': null, 'language': 'Python', 'stargazers_count': 6400, 'forks_count': 520, 'score': 18.2}
+      <String, Object?>{
+        'full_name': 'openai/codex',
+        'description': 'Coding agent',
+        'language': 'Python',
+        'stargazers_count': 12000,
+        'forks_count': 800,
+        'score': 24.5,
+        'topics': <Object?>['ai-agents', 'developer-tools'],
+      },
+      <String, Object?>{
+        'full_name': 'modelcontextprotocol/servers',
+        'description': null,
+        'language': 'Python',
+        'stargazers_count': 6400,
+        'forks_count': 520,
+        'score': 18.2,
+        'topics': <Object?>['ai-agents', 'mcp'],
+      }
     ]
   };
 }

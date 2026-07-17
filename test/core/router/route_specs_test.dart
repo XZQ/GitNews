@@ -11,13 +11,18 @@ void main() {
     expect(mobileDestinationIndex(7), 4);
   });
 
-  test('compact IA collapses non-pinned branches into discover tab', () {
-    for (final branch in [2, 3, 6]) {
-      expect(mobileDestinationIndex(branch), 2);
+  test('compact IA maps AI Radar branch into overview tab', () {
+    for (final branch in [0, 3]) {
+      expect(mobileDestinationIndex(branch), 0);
     }
   });
 
+  test('compact IA keeps pending secondary branches under current owners', () {
+    expect(mobileDestinationIndex(2), 2);
+    expect(mobileDestinationIndex(6), 4);
+  });
+
   test('compact IA uses distinct localized labels', () {
-    expect(mobileAppTabs.map((tab) => tab.labelKey).toSet(), {'mobile.today', 'mobile.ai', 'mobile.discover', 'mobile.monitor', 'mobile.settings'});
+    expect(mobileAppTabs.map((tab) => tab.labelKey).toSet(), {'tab.home', 'mobile.ai', 'mobile.discover', 'mobile.monitor', 'mobile.settings'});
   });
 }

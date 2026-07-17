@@ -26,6 +26,7 @@ class TrendingRepositoryImpl implements TrendingRepository {
         primaryTrend: snapshot.primaryTrend,
         secondaryTrend: snapshot.secondaryTrend,
         tertiaryTrend: snapshot.tertiaryTrend,
+        topics: snapshot.topics,
       ),
     );
   }

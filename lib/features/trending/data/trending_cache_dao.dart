@@ -127,7 +127,8 @@ class TrendingCacheDao {
       'languages': snapshot.languages.map(_languageToJson).toList(),
       'primaryTrend': snapshot.primaryTrend,
       'secondaryTrend': snapshot.secondaryTrend,
-      'tertiaryTrend': snapshot.tertiaryTrend
+      'tertiaryTrend': snapshot.tertiaryTrend,
+      'topics': snapshot.topics.map(_topicToJson).toList(),
     };
   }
 
@@ -139,6 +140,28 @@ class TrendingCacheDao {
       primaryTrend: _doubleList(json['primaryTrend']),
       secondaryTrend: _doubleList(json['secondaryTrend']),
       tertiaryTrend: _doubleList(json['tertiaryTrend']),
+      topics: json['topics'] == null ? const [] : _list(json['topics']).map(_topicFromJson).toList(),
+    );
+  }
+
+  /* 把热榜主题统计编码为缓存 JSON。 */
+  Map<String, Object?> _topicToJson(TrendingTopicEntity topic) {
+    return {
+      'name': topic.name,
+      'repoCount': topic.repoCount,
+      'starCount': topic.starCount,
+      'basis': topic.basis.name,
+    };
+  }
+
+  /* 从缓存 JSON 恢复热榜主题统计。 */
+  TrendingTopicEntity _topicFromJson(Object? raw) {
+    final json = _map(raw);
+    return TrendingTopicEntity(
+      name: _string(json['name']),
+      repoCount: _int(json['repoCount']),
+      starCount: _int(json['starCount']),
+      basis: _basisFromJson(json, 'basis', 'provenance'),
     );
   }
 
