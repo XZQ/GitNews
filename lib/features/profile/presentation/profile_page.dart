@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
-import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import 'widgets/profile_about_card.dart';
 import 'widgets/profile_data_card.dart';
@@ -24,7 +23,6 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
       body: ResponsiveLayout(compact: (_) => const _Mobile(), medium: (_) => const _Desktop(), expanded: (_) => const _Desktop()),
     );

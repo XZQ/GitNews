@@ -143,65 +143,65 @@ class _StarGrowthSection extends ConsumerWidget {
     final secondaryTrend = _tail(digest.secondaryTrend, 7);
     return AppCard(
       child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // 标题与时间窗切换同处一行:设计稿把切换器视作标题的一部分,
+          // 而不是占满整行的独立控件,腾出的纵向空间留给折线图。
+          Row(
             children: [
-              // 标题与时间窗切换同处一行:设计稿把切换器视作标题的一部分,
-              // 而不是占满整行的独立控件,腾出的纵向空间留给折线图。
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      l10n.tr('trending.mobile.star_growth_rank'),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  TrendingWindowSegmented(
-                    value: window,
-                    dense: true,
-                    onChanged: (value) => ref.read(trendingWindowFilterProvider.notifier).state = value,
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                l10n.tr('trending.mobile.tracking_subtitle').replaceAll('{window}', windowLabel),
-                style: AppTypography.monoMeta.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+              Expanded(
+                child: Text(
+                  l10n.tr('trending.mobile.star_growth_rank'),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
-              const SizedBox(height: AppSpacing.sm),
-              if (repos.isNotEmpty)
-                Row(
-                  children: [
-                    Expanded(child: _ChartLegend(repo: repos.first, color: Theme.of(context).colorScheme.primary)),
-                    if (repos.length > 1) Expanded(child: _ChartLegend(repo: repos[1], color: AppColors.info, alignEnd: true)),
-                  ],
-                ),
-              const SizedBox(height: AppSpacing.sm),
-              RepaintBoundary(
-                child: StarTrendChart(
-                  series: [
-                    ChartSeries(
-                      values: primaryTrend,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    ChartSeries(
-                      values: secondaryTrend,
-                      color: AppColors.info,
-                    ),
-                  ],
-                  height: 170,
-                  showGrid: false,
-                  showLeftTitles: false,
-                  curveSmoothness: 0,
-                  xLabels: [for (var index = 0; index < primaryTrend.length; index++) '${index}d'],
-                ),
+              const SizedBox(width: AppSpacing.sm),
+              TrendingWindowSegmented(
+                value: window,
+                dense: true,
+                onChanged: (value) => ref.read(trendingWindowFilterProvider.notifier).state = value,
               ),
             ],
           ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            l10n.tr('trending.mobile.tracking_subtitle').replaceAll('{window}', windowLabel),
+            style: AppTypography.monoMeta.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          if (repos.isNotEmpty)
+            Row(
+              children: [
+                Expanded(child: _ChartLegend(repo: repos.first, color: Theme.of(context).colorScheme.primary)),
+                if (repos.length > 1) Expanded(child: _ChartLegend(repo: repos[1], color: AppColors.info, alignEnd: true)),
+              ],
+            ),
+          const SizedBox(height: AppSpacing.sm),
+          RepaintBoundary(
+            child: StarTrendChart(
+              series: [
+                ChartSeries(
+                  values: primaryTrend,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                ChartSeries(
+                  values: secondaryTrend,
+                  color: AppColors.info,
+                ),
+              ],
+              height: 170,
+              showGrid: false,
+              showLeftTitles: false,
+              curveSmoothness: 0,
+              xLabels: [for (var index = 0; index < primaryTrend.length; index++) '${index}d'],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -388,21 +388,4 @@ String _shortNumber(int value) {
     return '$sign${(absolute / 1000).toStringAsFixed(1)}k';
   }
   return '$value';
-}
-
-class _TrendingSkeleton extends StatelessWidget {
-  const _TrendingSkeleton();
-
-  /* 构建热门仓库卡片与 Star 增长榜图表的骨架,高度与实际版面接近。 */
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Skeleton(height: 260),
-        SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 320),
-      ],
-    );
-  }
 }

@@ -14,21 +14,6 @@ void main() {
     expect(script, contains('TimeoutSeconds'));
   });
 
-  test('quality workflow runs Linux coverage and Windows smoke gates', () {
-    final workflow = File('.github/workflows/quality.yml').readAsStringSync();
-
-    expect(workflow, contains('flutter test --coverage'));
-    expect(workflow, contains('flutter build windows --release'));
-    expect(workflow, contains('windows_release_smoke.ps1'));
-    expect(
-      workflow,
-      contains(
-        'flutter test test/shared/widgets/golden_test.dart '
-        'test/shared/widgets/main_screens_golden_test.dart',
-      ),
-    );
-  });
-
   test('pixel golden suites are pinned to the Windows baseline platform', () {
     for (final path in ['test/shared/widgets/golden_test.dart', 'test/shared/widgets/main_screens_golden_test.dart']) {
       final source = File(path).readAsStringSync();

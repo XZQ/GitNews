@@ -250,9 +250,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
                           ),
                   );
                 }
-                return hasMore
-                    ? const AiNewsLoadMoreIndicator()
-                    : AiNewsEndOfListFooter(label: l10n.tr('ai_news.no_more'));
+                return hasMore ? const AiNewsLoadMoreIndicator() : AiNewsEndOfListFooter(label: l10n.tr('ai_news.no_more'));
               }, childCount: flat.length + (showPagingFooter ? 1 : 0)),
             ),
           ),

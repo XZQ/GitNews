@@ -27,9 +27,8 @@ class HomeMobileAgentOverview extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(techHotspotDigestProvider);
     return state.when(
-      data: (digest) => digest.topics.isEmpty
-          ? EmptyView(icon: Icons.radar_rounded, message: l10n.tr('tech_hotspot.empty.agent_signals'))
-          : TechHotspotAgentSignalBoard(topics: digest.topics, compact: true),
+      data: (digest) =>
+          digest.topics.isEmpty ? EmptyView(icon: Icons.radar_rounded, message: l10n.tr('tech_hotspot.empty.agent_signals')) : TechHotspotAgentSignalBoard(topics: digest.topics, compact: true),
       loading: () => const Skeleton(height: 180),
       error: (error, stack) => ErrorView(
         error: error.asAppException(stack),

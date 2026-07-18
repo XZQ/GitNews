@@ -269,10 +269,10 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     final isHead = requestCursor == null;
     try {
       final result = await ref.read(aiNewsRepositoryProvider).fetchItems(
-        category: _category,
-        cursor: requestCursor,
-        selectedOnly: false,
-      );
+            category: _category,
+            cursor: requestCursor,
+            selectedOnly: false,
+          );
       final digest = result.data;
       if (gen != _generation) {
         return;

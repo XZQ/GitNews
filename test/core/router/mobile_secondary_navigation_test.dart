@@ -133,7 +133,7 @@ const _trendingDigest = TrendingDigest(
 );
 
 void main() {
-  testWidgets('总览直接展示 AI 雷达五块内容与五个主题', (tester) async {
+  testWidgets('雷达整合页展示四块摘要与五个主题并支持导航', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 844);
     addTearDown(tester.view.resetPhysicalSize);
@@ -144,7 +144,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('雷达标签'), findsOneWidget);
-    expect(find.text('Agent 榜观察'), findsOneWidget);
     expect(find.text('本周信号热度'), findsOneWidget);
     expect(find.text('语言占比'), findsOneWidget);
     expect(find.byType(TechHotspotTopicCard), findsNWidgets(5));
