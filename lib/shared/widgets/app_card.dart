@@ -25,7 +25,7 @@ class AppCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isLight = theme.brightness == Brightness.light;
-    final radius = BorderRadius.circular(AppRadius.lg);
+    final radius = BorderRadius.circular(AppRadius.card);
     return Material(
       color: color ?? theme.cardTheme.color ?? colors.surface,
       borderRadius: radius,

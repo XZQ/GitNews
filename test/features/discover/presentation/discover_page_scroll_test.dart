@@ -11,6 +11,7 @@ import 'package:github_news/features/discover/application/discover_providers.dar
 import 'package:github_news/features/discover/presentation/discover_page.dart';
 import 'package:github_news/features/discover/presentation/widgets/discover_segmented.dart';
 import 'package:github_news/shared/widgets/header_search_field.dart';
+import 'package:github_news/shared/widgets/mobile_page_header.dart';
 
 /*
 *测试用静态仓库列表,避免滚动行为测试访问 GitHub。
@@ -90,7 +91,7 @@ void main() {
     expect(find.text('实时数据'), findsNothing);
     expect(find.byIcon(Icons.refresh_rounded), findsNothing);
     expect(find.byType(HeaderSearchField), findsOneWidget);
-    expect((tester.getCenter(find.text('发现')).dy - tester.getCenter(find.byType(HeaderSearchField)).dy).abs(), lessThan(4));
+    expect(tester.getTopLeft(find.byType(HeaderSearchField)).dy, greaterThan(tester.getBottomLeft(find.text('发现')).dy));
     expect(tester.getRect(find.text('官方内容')).right, lessThanOrEqualTo(390));
     expect(tester.takeException(), isNull);
   });
@@ -138,10 +139,10 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    final appBarFinder = find.byType(AppBar, skipOffstage: false);
+    final headerFinder = find.byType(MobilePageHeader, skipOffstage: false);
     final searchFinder = find.byType(HeaderSearchField, skipOffstage: false);
     final segmentedFinder = find.byType(DiscoverSegmented, skipOffstage: false);
-    final appBarTopBefore = tester.getTopLeft(appBarFinder).dy;
+    final headerTopBefore = tester.getTopLeft(headerFinder).dy;
     final searchTopBefore = tester.getTopLeft(searchFinder).dy;
     final segmentedTopBefore = tester.getTopLeft(segmentedFinder).dy;
     final verticalListFinder = find.byWidgetPredicate(
@@ -159,7 +160,7 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.byType(NestedScrollView), findsOneWidget);
-    expect(tester.getTopLeft(appBarFinder).dy, appBarTopBefore);
+    expect(tester.getTopLeft(headerFinder).dy, headerTopBefore);
     expect(tester.getTopLeft(searchFinder).dy, searchTopBefore);
     expect(tester.getTopLeft(segmentedFinder).dy, lessThan(segmentedTopBefore));
   });

@@ -111,19 +111,13 @@ class _MonitorStatusCard extends StatelessWidget {
                   child: Text(
                     value,
                     maxLines: 1,
-                    style: AppTypography.headlineMedium.copyWith(color: colors.onSurface),
+                    style: AppTypography.monoDisplay.copyWith(color: value == '0' ? colors.onSurfaceVariant : color),
                   ),
                 ),
               ),
               if (delta != null) ...[
                 const SizedBox(height: AppSpacing.xxs),
-                Text(
-                  delta!,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                Text(delta!, style: AppTypography.monoMeta.copyWith(color: color, fontWeight: FontWeight.w600)),
               ],
             ],
           ),

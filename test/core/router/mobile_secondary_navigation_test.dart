@@ -143,7 +143,7 @@ void main() {
     await tester.pumpWidget(_RouterTestApp(router: router));
     await tester.pumpAndSettle();
 
-    expect(find.text('雷达标签'), findsOneWidget);
+    expect(find.textContaining('雷达标签'), findsOneWidget);
     expect(find.text('Agent 榜观察'), findsOneWidget);
     expect(find.text('本周信号热度'), findsOneWidget);
     expect(find.text('语言占比'), findsOneWidget);
@@ -183,18 +183,9 @@ void main() {
     await tester.pumpWidget(_RouterTestApp(router: router));
     await tester.pumpAndSettle();
 
-    const orderedLabels = [
-      'Star 增长榜',
-      '热门仓库',
-      '话题趋势',
-      '雷达标签',
-      'Agent 榜观察',
-      '本周信号热度',
-      '语言占比',
-      '雷达主题',
-    ];
+    const orderedLabels = ['热门仓库', 'Star 增长榜', 'AI雷达', '雷达标签', 'Agent 榜观察', '话题趋势', '本周信号热度', '语言占比'];
     final verticalPositions = [
-      for (final label in orderedLabels) tester.getTopLeft(find.text(label).first).dy,
+      for (final label in orderedLabels) tester.getTopLeft(find.textContaining(label).first).dy,
     ];
 
     for (var index = 1; index < verticalPositions.length; index++) {

@@ -13,6 +13,7 @@ import '../../../../core/theme/app_theme_preset.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_mode_controller.dart';
 import '../../../../core/theme/theme_preset_controller.dart';
+import '../../../../core/utils/breakpoint.dart';
 
 class TrendingDataSourcePreference extends ConsumerWidget {
   const TrendingDataSourcePreference({super.key});
@@ -21,17 +22,18 @@ class TrendingDataSourcePreference extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final mode = ref.watch(trendingDataSourceModeControllerProvider);
+    final compact = Breakpoints.isCompact(context);
     return SegmentedButton<TrendingDataSourceMode>(
       style: _compactStyle,
       segments: [
         ButtonSegment(
           value: TrendingDataSourceMode.local,
-          icon: const Icon(Icons.storage_rounded, size: 14),
+          icon: compact ? null : const Icon(Icons.storage_rounded, size: 14),
           label: Text(l10n.tr('profile.settings.data_source.local')),
         ),
         ButtonSegment(
           value: TrendingDataSourceMode.github,
-          icon: const Icon(Icons.cloud_outlined, size: 14),
+          icon: compact ? null : const Icon(Icons.cloud_outlined, size: 14),
           label: Text(l10n.tr('profile.settings.data_source.github')),
         )
       ],
@@ -61,13 +63,14 @@ class LanguagePreference extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final current = ref.watch(localeControllerProvider);
+    final compact = Breakpoints.isCompact(context);
     return SegmentedButton<Locale>(
       style: _compactStyle,
       segments: [
         for (final option in _options)
           ButtonSegment(
             value: option,
-            icon: const Icon(Icons.translate_rounded, size: 14),
+            icon: compact ? null : const Icon(Icons.translate_rounded, size: 14),
             label: Text(l10n.tr(_labelKeyFor(option))),
           )
       ],
@@ -89,11 +92,12 @@ class LinkOpenModePreference extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final mode = ref.watch(linkOpenModeControllerProvider);
+    final compact = Breakpoints.isCompact(context);
     return SegmentedButton<LinkOpenMode>(
       style: _compactStyle,
       segments: [
-        ButtonSegment(value: LinkOpenMode.inApp, icon: const Icon(Icons.apps_outlined, size: 14), label: Text(l10n.tr(LinkOpenMode.inApp.label))),
-        ButtonSegment(value: LinkOpenMode.external, icon: const Icon(Icons.open_in_new_rounded, size: 14), label: Text(l10n.tr(LinkOpenMode.external.label)))
+        ButtonSegment(value: LinkOpenMode.inApp, icon: compact ? null : const Icon(Icons.apps_outlined, size: 14), label: Text(l10n.tr(LinkOpenMode.inApp.label))),
+        ButtonSegment(value: LinkOpenMode.external, icon: compact ? null : const Icon(Icons.open_in_new_rounded, size: 14), label: Text(l10n.tr(LinkOpenMode.external.label)))
       ],
       selected: {mode},
       onSelectionChanged: (selection) => ref.read(linkOpenModeControllerProvider.notifier).setMode(selection.first),

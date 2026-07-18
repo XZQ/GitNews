@@ -44,8 +44,7 @@ class TechHotspotHeatChart extends StatelessWidget {
     final maxY = rawMax + padding;
     final labelIndexes = <int>{
       0,
-      if (!compact) ...List.generate(values.length, (index) => index),
-      if (compact) values.length ~/ 2,
+      ...List.generate(values.length, (index) => index),
       values.length - 1,
     }.toList()
       ..sort();
@@ -56,12 +55,10 @@ class TechHotspotHeatChart extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.show_chart_rounded,
-                size: 16,
-                color: AppColors.warning,
-              ),
-              const SizedBox(width: AppSpacing.sm),
+              if (!compact) ...[
+                const Icon(Icons.show_chart_rounded, size: 16, color: AppColors.warning),
+                const SizedBox(width: AppSpacing.sm),
+              ],
               Expanded(
                 child: Text(
                   l10n.tr('tech_hotspot.heat_chart.title'),

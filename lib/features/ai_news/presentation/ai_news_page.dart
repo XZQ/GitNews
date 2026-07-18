@@ -159,14 +159,21 @@ class _ItemList extends ConsumerStatefulWidget {
 *扁平化分组后的列表项(header / row)。
 */
 class _FlatEntry {
-  const _FlatEntry._({this.date, this.count, this.cluster});
+  const _FlatEntry._({this.date, this.count, this.cluster, this.isFirstInGroup = false, this.isLastInGroup = false});
 
   factory _FlatEntry.header(DateTime date, int count) => _FlatEntry._(date: date, count: count);
-  factory _FlatEntry.item(AiNewsEventCluster cluster) => _FlatEntry._(cluster: cluster);
+  factory _FlatEntry.item(AiNewsEventCluster cluster, {required bool isFirstInGroup, required bool isLastInGroup}) =>
+      _FlatEntry._(cluster: cluster, isFirstInGroup: isFirstInGroup, isLastInGroup: isLastInGroup);
 
   final DateTime? date;
   final int? count;
   final AiNewsEventCluster? cluster;
+
+  // 当天分组内的首条,用于让列表卡收出顶部圆角。
+  final bool isFirstInGroup;
+
+  // 当天分组内的末条,用于让列表卡收出底部圆角并省略分隔线。
+  final bool isLastInGroup;
 
   bool get isHeader => date != null;
 }
@@ -207,7 +214,10 @@ class _ItemListState extends ConsumerState<_ItemList> {
     final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
     // 扁平化分组为 (header / row) 序列,SliverList 按 index lazy build。
     final flat = <_FlatEntry>[
-      for (final g in groups) ...[_FlatEntry.header(g.key, g.value.length), for (final item in g.value) _FlatEntry.item(item)]
+      for (final g in groups) ...[
+        _FlatEntry.header(g.key, g.value.length),
+        for (var i = 0; i < g.value.length; i++) _FlatEntry.item(g.value[i], isFirstInGroup: i == 0, isLastInGroup: i == g.value.length - 1)
+      ]
     ];
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
@@ -233,6 +243,8 @@ class _ItemListState extends ConsumerState<_ItemList> {
                         : AiNewsTimelineRow(
                             item: cluster!.primary,
                             eventSources: cluster.sources,
+                            isFirstInGroup: e.isFirstInGroup,
+                            isLastInGroup: e.isLastInGroup,
                             onTap: () => _openDetail(context, cluster.primary),
                           ),
                   );

@@ -57,14 +57,20 @@ class TrendingMetric extends StatelessWidget {
   }
 }
 
-/* 
+/*
 *时间窗切换:today/week/month。
+*
+*[dense] 供移动端与区块标题同行摆放:收紧内边距和最小点击尺寸,
+*  否则默认 M3 尺寸会把同行的标题挤到只剩两三个字。
 */
 class TrendingWindowSegmented extends StatelessWidget {
-  const TrendingWindowSegmented({super.key, required this.value, required this.onChanged});
+  const TrendingWindowSegmented({super.key, required this.value, required this.onChanged, this.dense = false});
 
   final String value;
   final ValueChanged<String> onChanged;
+
+  // 紧凑密度开关,默认关闭以保持桌面端既有尺寸。
+  final bool dense;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +84,14 @@ class TrendingWindowSegmented extends StatelessWidget {
       selected: {value},
       onSelectionChanged: (s) => onChanged(s.first),
       showSelectedIcon: false,
+      style: dense
+          ? SegmentedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2, vertical: AppSpacing.xs),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity.compact,
+              textStyle: AppTypography.labelSmall,
+            )
+          : null,
     );
   }
 }

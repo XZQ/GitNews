@@ -71,7 +71,7 @@ class RepoTile extends StatelessWidget {
                 repo.fullName,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
+                style: AppTypography.monoTitle.copyWith(color: colors.onSurface),
               ),
               const SizedBox(height: AppSpacing.xxs),
               Text(
@@ -86,13 +86,13 @@ class RepoTile extends StatelessWidget {
                 runSpacing: AppSpacing.xs,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  _Pill(text: repo.language, color: accent),
+                  _LanguageLabel(text: repo.language, color: accent),
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Icon(Icons.star_rounded, size: 12, color: AppColors.starGold),
                       const SizedBox(width: AppSpacing.xxs),
-                      Text(_shortNumber(repo.starCount), style: AppTypography.labelSmall.copyWith(color: colors.onSurface))
+                      Text(_shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold))
                     ],
                   ),
                   MetricBasisBadge(basis: repo.trendBasis)
@@ -148,10 +148,7 @@ class _TrendCell extends StatelessWidget {
             : Theme.of(context).colorScheme.onSurfaceVariant;
     final deltaText = Text(
       delta == 0 ? '—' : '${delta > 0 ? '+' : '-'}${_shortNumber(delta.abs())}',
-      style: AppTypography.titleSmall.copyWith(
-        color: deltaColor,
-        fontWeight: FontWeight.w700,
-      ),
+      style: AppTypography.monoMetric.copyWith(color: deltaColor),
     );
     final trend = repo.trend;
     if (!showTrend || trend == null || trend.isEmpty) {
@@ -162,7 +159,7 @@ class _TrendCell extends StatelessWidget {
           child: Text(
             '—',
             textAlign: TextAlign.right,
-            style: AppTypography.titleSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
+            style: AppTypography.monoMetric.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
           ),
         );
       }
@@ -212,23 +209,42 @@ class _RankBadge extends StatelessWidget {
       height: 22,
       decoration: BoxDecoration(color: color.withValues(alpha: highlighted ? 0.14 : 0.08), borderRadius: BorderRadius.circular(AppRadius.xs)),
       alignment: Alignment.center,
-      child: Text('$rank', style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
+      child: Text('$rank', style: AppTypography.monoMeta.copyWith(color: color, fontWeight: FontWeight.w700)),
     );
   }
 }
 
-class _Pill extends StatelessWidget {
-  const _Pill({required this.text, required this.color});
+/*
+*语言标记 — 语言色圆点 + 等宽语言名。
+*
+*比填充药丸更安静:一行指标里同时出现语言、Star、口径徽章时,填充块会
+*  和右侧趋势数字抢注意力,圆点方案把彩色压缩到 6px。
+*/
+class _LanguageLabel extends StatelessWidget {
+  const _LanguageLabel({required this.text, required this.color});
 
+  // 语言名;为空时整个标记不渲染。
   final String text;
+
+  // 语言对应的品牌色,用于圆点填充。
   final Color color;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.xs)),
-      child: Text(text, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600)),
+    if (text.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: AppSpacing.xs2,
+          height: AppSpacing.xs2,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: AppSpacing.xs2),
+        Text(text, style: AppTypography.monoMeta.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+      ],
     );
   }
 }

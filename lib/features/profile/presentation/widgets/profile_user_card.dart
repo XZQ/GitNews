@@ -10,6 +10,7 @@ import '../../../../core/shared/local_content_controller.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/breakpoint.dart';
 import '../../../../shared/widgets/app_card.dart';
 
 /*
@@ -31,6 +32,8 @@ class ProfileUserCard extends ConsumerWidget {
     final displayName = (githubUser != null && githubUser.isNotEmpty) ? githubUser : session.effectiveName;
     final statusKey = connected ? 'profile.github.connected' : session.statusKey;
     final oauthConfigured = ApiEndpointsConfig.githubOAuthConfigured;
+    final compact = Breakpoints.isCompact(context);
+    final initial = displayName.trim().isEmpty ? '?' : displayName.trim().characters.first.toUpperCase();
 
     Future<void> signOut() async {
       if (connected) {
@@ -43,12 +46,26 @@ class ProfileUserCard extends ConsumerWidget {
     return AppCard(
       child: Row(
         children: [
-          CircleAvatar(
-            radius: 32,
-            backgroundColor: colors.primaryContainer,
-            backgroundImage: connected && avatarUrl != null ? NetworkImage(avatarUrl) : null,
-            child: connected && avatarUrl != null ? null : Icon(Icons.person, color: colors.onPrimaryContainer, size: 32),
-          ),
+          if (compact)
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: colors.surfaceContainerHighest,
+                borderRadius: BorderRadius.circular(AppRadius.lg),
+                border: Border.all(color: colors.outlineVariant),
+                image: connected && avatarUrl != null ? DecorationImage(image: NetworkImage(avatarUrl), fit: BoxFit.cover) : null,
+              ),
+              alignment: Alignment.center,
+              child: connected && avatarUrl != null ? null : Text(initial, style: AppTypography.titleMedium.copyWith(color: colors.primary, fontWeight: FontWeight.w800)),
+            )
+          else
+            CircleAvatar(
+              radius: 32,
+              backgroundColor: colors.primaryContainer,
+              backgroundImage: connected && avatarUrl != null ? NetworkImage(avatarUrl) : null,
+              child: connected && avatarUrl != null ? null : Icon(Icons.person, color: colors.onPrimaryContainer, size: 32),
+            ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -66,10 +83,14 @@ class ProfileUserCard extends ConsumerWidget {
                     const SizedBox(width: AppSpacing.xs2),
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: AppSpacing.xxs),
-                      decoration: BoxDecoration(color: connected ? colors.primary : colors.primaryContainer, borderRadius: BorderRadius.circular(AppRadius.xs)),
+                      decoration: BoxDecoration(
+                        color: connected ? colors.primary : Colors.transparent,
+                        borderRadius: BorderRadius.circular(AppRadius.xs),
+                        border: Border.all(color: connected ? colors.primary : colors.outlineVariant),
+                      ),
                       child: Text(
                         connected ? 'GitHub' : l10n.tr('profile.signed_out'),
-                        style: AppTypography.labelSmall.copyWith(color: connected ? colors.onPrimary : colors.onPrimaryContainer, fontWeight: FontWeight.w700),
+                        style: AppTypography.labelSmall.copyWith(color: connected ? colors.onPrimary : colors.onSurfaceVariant, fontWeight: FontWeight.w600),
                       ),
                     )
                   ],

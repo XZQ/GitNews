@@ -13,6 +13,9 @@ import '../../../../shared/widgets/app_card.dart';
 import '../../application/ai_digest_providers.dart';
 import 'ai_digest_settings_dialog.dart';
 
+// 日报卡片的装饰性命令行提示串,对应设计稿的终端观感;不参与任何逻辑。
+const String _digestCommandLine = r'$ ai-daily --today';
+
 /*
 *今日 AI 日报卡片(列表页顶部)。
 *- 未配置 Key:只显示引导与「配置」入口,不发任何请求
@@ -88,63 +91,64 @@ class _CompactDigestBanner extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final radius = BorderRadius.circular(AppRadius.xl);
+    final radius = BorderRadius.circular(AppRadius.card);
+    final now = DateTime.now();
+    final dateLabel = '${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    // 设计稿把日报做成「终端输出」:左侧主色粗边 + 等宽命令行提示串,
+    // 与下方比例字体的正文形成对比。原先的横幅底图和右上角齿轮都会盖过
+    // 这条命令行,窄屏下已移除;日报设置改由长按卡片进入。
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, 0),
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 120),
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          color: colors.surface,
-          image: const DecorationImage(image: AssetImage('assets/ai_news/digest_banner.png'), fit: BoxFit.cover),
-          borderRadius: radius,
-          border: Border.all(color: isLight ? AppColors.borderLight : colors.outlineVariant),
-          boxShadow: [if (isLight) BoxShadow(color: AppColors.brand.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 8))],
-        ),
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, 120, AppSpacing.md),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(Icons.auto_awesome_rounded, size: 20, color: colors.primary),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          l10n.tr('ai_news.digest_title'),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.titleLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xs2),
-                  _CompactDigestBody(config: config, digest: digest),
-                ],
+      child: GestureDetector(
+        onLongPress: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 110),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: radius,
+            border: Border.all(color: isLight ? AppColors.borderLight : colors.outlineVariant),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                left: 0,
+                top: 0,
+                bottom: 0,
+                child: ColoredBox(color: colors.primary, child: const SizedBox(width: AppSpacing.xs)),
               ),
-            ),
-            Positioned(
-              top: AppSpacing.sm,
-              right: AppSpacing.sm,
-              child: Material(
-                color: colors.surface.withValues(alpha: 0.92),
-                shape: const CircleBorder(),
-                elevation: isLight ? 1 : 0,
-                child: IconButton(
-                  tooltip: l10n.tr('ai_news.digest_settings'),
-                  onPressed: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
-                  icon: Icon(Icons.settings_outlined, size: 19, color: colors.onSurfaceVariant),
-                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
-                  padding: EdgeInsets.zero,
-                  style: IconButton.styleFrom(tapTargetSize: MaterialTapTargetSize.shrinkWrap, visualDensity: VisualDensity.compact),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _digestCommandLine,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.monoMeta.copyWith(color: colors.primary, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                        Text(dateLabel, style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.xs2),
+                    Text(
+                      l10n.tr('ai_news.digest_title'),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.titleLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
+                    ),
+                    const SizedBox(height: AppSpacing.xs2),
+                    _CompactDigestBody(config: config, digest: digest),
+                  ],
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

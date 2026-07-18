@@ -11,13 +11,16 @@ import '../domain/trending_repository.dart';
 *话题趋势面板:展示本周高频技术话题的词云。
 */
 class TrendingTopicsPanel extends StatelessWidget {
-  const TrendingTopicsPanel({this.topics = const [], this.onTap, super.key});
+  const TrendingTopicsPanel({this.topics = const [], this.onTap, this.compact = false, super.key});
 
   // GitHub Search 结果中聚合的真实 repository topics。
   final List<TrendingTopicEntity> topics;
 
   // 可选的完整热榜页入口。
   final VoidCallback? onTap;
+
+  // 紧凑端将说明收进标题右侧，桌面端仍保留原有双行标题。
+  final bool compact;
 
   /* 构建真实 topic 词云；无远端数据时保留本地种子兜底。 */
   @override
@@ -29,7 +32,8 @@ class TrendingTopicsPanel extends StatelessWidget {
         children: [
           SectionHeader(
             title: l10n.tr('trending.topics.title'),
-            subtitle: l10n.tr('trending.topics.subtitle'),
+            subtitle: compact ? null : l10n.tr('trending.topics.subtitle'),
+            meta: compact ? l10n.tr('trending.topics.subtitle') : null,
             trailing: topics.isEmpty ? null : MetricBasisBadge(basis: topics.first.basis),
             onTap: onTap,
           ),

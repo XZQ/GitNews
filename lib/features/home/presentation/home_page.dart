@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/mobile_page_header.dart';
 import '../../../shared/widgets/onboarding_dialog.dart';
@@ -50,7 +52,11 @@ class _HomePageState extends ConsumerState<HomePage> {
     return Scaffold(
         body: Column(children: [
       // 移动端统一页头(大标题 + 图标动作),替代默认 AppBar。
-      if (isCompact) MobilePageHeader(title: AppLocalizations.of(context).tr('home.title')),
+      if (isCompact)
+        MobilePageHeader(
+          title: AppLocalizations.of(context).tr('home.title'),
+          actions: const [_HeaderDate()],
+        ),
       Expanded(
         child: ResponsiveLayout(
           compact: (_) => const HomeMobileBody(),
@@ -59,5 +65,34 @@ class _HomePageState extends ConsumerState<HomePage> {
         ),
       ),
     ]));
+  }
+}
+
+/*
+*总览页头右侧的日期标记。
+*
+*设计稿在大标题同行右端放「07-17 FRI」,用等宽体把当天日期钉在视线末端,
+*  提示整页数据的时间口径。星期缩写固定用英文三字母,与设计稿一致,不随
+*  语言切换,避免中文「周五」破坏等宽对齐。
+*/
+class _HeaderDate extends StatelessWidget {
+  const _HeaderDate();
+
+  // 星期缩写查表,索引与 DateTime.weekday(1=周一)对齐。
+  static const List<String> _weekdayAbbreviations = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final month = now.month.toString().padLeft(2, '0');
+    final day = now.day.toString().padLeft(2, '0');
+    final weekday = _weekdayAbbreviations[now.weekday - 1];
+    return Padding(
+      padding: const EdgeInsets.only(right: AppSpacing.xs2),
+      child: Text(
+        '$month-$day $weekday',
+        style: AppTypography.monoMeta.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
+    );
   }
 }

@@ -3,10 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_radius.dart';
-import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/header_search_field.dart';
+import '../../../shared/widgets/mobile_page_header.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/discover_providers.dart';
 import '../domain/discover_entities.dart';
@@ -141,42 +140,30 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
 
     return Scaffold(
       // 移动端标题栏只保留标题与搜索框,刷新统一使用下拉手势。
-      appBar: isCompact
-          ? AppBar(
-              toolbarHeight: 60,
-              titleSpacing: AppSpacing.md,
-              title: Row(
-                children: [
-                  Text(
-                    l10n.tr('discover.title'),
-                    style: AppTypography.titleLarge.copyWith(
-                      color: colors.onSurface,
-                      fontWeight: FontWeight.w800,
-                      height: 1,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: HeaderSearchField(
-                      hintText: l10n.tr('discover.search_hint'),
-                      value: query,
-                      onChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
-                      height: 40,
-                      outlined: true,
-                      fillColor: colors.surface,
-                      borderRadius: AppRadius.xl,
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : null,
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: isCompact
-          ? RefreshIndicator.adaptive(
-              onRefresh: _refresh,
-              notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical,
-              child: content,
+          ? Column(
+              children: [
+                MobilePageHeader(
+                  title: l10n.tr('discover.title'),
+                  search: HeaderSearchField(
+                    hintText: l10n.tr('discover.search_hint'),
+                    value: query,
+                    onChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
+                    height: 42,
+                    outlined: true,
+                    fillColor: colors.surface,
+                    borderRadius: AppRadius.md,
+                  ),
+                ),
+                Expanded(
+                  child: RefreshIndicator.adaptive(
+                    onRefresh: _refresh,
+                    notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical,
+                    child: content,
+                  ),
+                ),
+              ],
             )
           : content,
     );

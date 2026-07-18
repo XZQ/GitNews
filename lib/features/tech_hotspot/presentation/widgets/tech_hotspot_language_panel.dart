@@ -15,11 +15,13 @@ class TechHotspotLanguagePanel extends StatelessWidget {
   const TechHotspotLanguagePanel({
     required this.languages,
     this.maxItems = 8,
+    this.compact = false,
     super.key,
   });
 
   final List<LanguageStat> languages;
   final int maxItems;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +38,10 @@ class TechHotspotLanguagePanel extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.code_rounded, size: 16, color: AppColors.info),
-                  const SizedBox(width: AppSpacing.sm),
+                  if (!compact) ...[
+                    const Icon(Icons.code_rounded, size: 16, color: AppColors.info),
+                    const SizedBox(width: AppSpacing.sm),
+                  ],
                   Text(l10n.tr('tech_hotspot.language_share'), style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
                   const Spacer(),
                   Text('Top ${visible.length}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
@@ -47,10 +51,11 @@ class TechHotspotLanguagePanel extends StatelessWidget {
               _LangBar(languages: visible),
               const SizedBox(height: AppSpacing.md),
               if (isBounded)
-                Expanded(child: _LangList(languages: visible))
+                Expanded(child: _LangList(languages: visible, compact: compact))
               else
                 _LangList(
                   languages: visible,
+                  compact: compact,
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                 )
@@ -84,9 +89,10 @@ class _LangBar extends StatelessWidget {
 }
 
 class _LangList extends StatelessWidget {
-  const _LangList({required this.languages, this.physics, this.shrinkWrap = false});
+  const _LangList({required this.languages, required this.compact, this.physics, this.shrinkWrap = false});
 
   final List<LanguageStat> languages;
+  final bool compact;
   final ScrollPhysics? physics;
   final bool shrinkWrap;
 
@@ -97,17 +103,18 @@ class _LangList extends StatelessWidget {
       physics: physics,
       shrinkWrap: shrinkWrap,
       itemCount: languages.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.xs2),
-      itemBuilder: (context, index) => _LangRow(stat: languages[index], rank: index + 1),
+      separatorBuilder: (_, __) => compact ? const Divider(height: 1) : const SizedBox(height: AppSpacing.xs2),
+      itemBuilder: (context, index) => _LangRow(stat: languages[index], rank: index + 1, compact: compact),
     );
   }
 }
 
 class _LangRow extends StatelessWidget {
-  const _LangRow({required this.stat, required this.rank});
+  const _LangRow({required this.stat, required this.rank, required this.compact});
 
   final LanguageStat stat;
   final int rank;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -136,17 +143,17 @@ class _LangRow extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Text('${stat.percent.toStringAsFixed(1)}% · ${stat.repoCount}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
           const SizedBox(width: AppSpacing.sm),
-          if (!isZero) ...[
+          if (!isZero || compact) ...[
             Icon(
-              isUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+              isUp || isZero ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
               size: 12,
-              color: isUp ? AppColors.trendUp : AppColors.trendDown,
+              color: isUp || isZero ? AppColors.trendUp : AppColors.trendDown,
             ),
             const SizedBox(width: AppSpacing.xxs),
             Text(
-              '${isUp ? '+' : ''}${stat.delta.toStringAsFixed(1)}',
+              '${isUp || isZero ? '+' : ''}${stat.delta.toStringAsFixed(1)}',
               style: AppTypography.labelSmall.copyWith(
-                color: isUp ? AppColors.trendUp : AppColors.trendDown,
+                color: isUp || isZero ? AppColors.trendUp : AppColors.trendDown,
                 fontWeight: FontWeight.w700,
               ),
             ),

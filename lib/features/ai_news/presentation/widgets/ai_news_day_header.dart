@@ -33,25 +33,25 @@ class AiNewsDayHeader extends StatelessWidget {
       label = l10n.tr('ai_news.date_md').replaceAll('{m}', '${date.month}').replaceAll('{d}', '${date.day}');
     }
 
+    // 移动端按设计稿只保留「日期 + 条数」:左侧色条和右侧列表图标在窄屏上
+    // 是纯装饰,去掉后分组头与下方列表卡的左边界能直接对齐。
     return Padding(
-      padding: EdgeInsets.only(top: isCompact ? AppSpacing.sm : AppSpacing.lg, bottom: AppSpacing.sm),
+      padding: EdgeInsets.only(top: isCompact ? AppSpacing.lg : AppSpacing.lg, bottom: AppSpacing.sm),
       child: Row(
         children: [
-          Container(width: AppRadius.bar, height: 14, decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.xs))),
-          const SizedBox(width: AppSpacing.sm),
-          Text(label, style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
-          const SizedBox(width: AppSpacing.xs2),
-          Text('$itemCount ${l10n.tr('ai_news.day_count_suffix')}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
-          if (isCompact) ...[
-            const Spacer(),
-            Container(
-              width: 32,
-              height: 32,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: colors.surfaceContainerHighest, borderRadius: BorderRadius.circular(AppRadius.md)),
-              child: Icon(Icons.format_list_bulleted_rounded, size: 19, color: colors.onSurfaceVariant),
-            ),
+          if (!isCompact) ...[
+            Container(width: AppRadius.bar, height: 14, decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.xs))),
+            const SizedBox(width: AppSpacing.sm),
           ],
+          Text(
+            label,
+            style: (isCompact ? AppTypography.titleLarge : AppTypography.titleSmall).copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            '$itemCount ${l10n.tr('ai_news.day_count_suffix')}',
+            style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
+          ),
         ],
       ),
     );

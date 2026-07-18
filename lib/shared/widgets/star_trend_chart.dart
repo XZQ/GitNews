@@ -14,6 +14,9 @@ class StarTrendChart extends StatelessWidget {
     required this.series,
     this.height = 180,
     this.showArea = true,
+    this.showGrid = true,
+    this.showLeftTitles = true,
+    this.curveSmoothness = 0.25,
     this.xLabels,
     super.key,
   });
@@ -22,6 +25,9 @@ class StarTrendChart extends StatelessWidget {
   final List<ChartSeries> series;
   final double height;
   final bool showArea;
+  final bool showGrid;
+  final bool showLeftTitles;
+  final double curveSmoothness;
 
   // 自定义 X 轴标签(按数据点 index 取值)。null 时默认显示 `'${i}d'`。
   final List<String>? xLabels;
@@ -52,7 +58,7 @@ class StarTrendChart extends StatelessWidget {
               minX: 0,
               maxX: maxX,
               gridData: FlGridData(
-                show: true,
+                show: showGrid,
                 drawVerticalLine: false,
                 horizontalInterval: yScale.interval,
                 getDrawingHorizontalLine: (_) => FlLine(
@@ -67,8 +73,8 @@ class StarTrendChart extends StatelessWidget {
                 rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 leftTitles: AxisTitles(
                   sideTitles: SideTitles(
-                    showTitles: true,
-                    reservedSize: constraints.maxWidth < 360 ? 44 : 48,
+                    showTitles: showLeftTitles,
+                    reservedSize: showLeftTitles ? (constraints.maxWidth < 360 ? 44 : 48) : 0,
                     interval: yScale.interval,
                     getTitlesWidget: (value, meta) => SideTitleWidget(
                       meta: meta,
@@ -122,8 +128,8 @@ class StarTrendChart extends StatelessWidget {
                     spots: [
                       for (var index = 0; index < item.values.length; index++) FlSpot(index.toDouble(), item.values[index]),
                     ],
-                    isCurved: true,
-                    curveSmoothness: 0.25,
+                    isCurved: curveSmoothness > 0,
+                    curveSmoothness: curveSmoothness,
                     color: item.color,
                     barWidth: 2.2,
                     isStrokeCapRound: true,

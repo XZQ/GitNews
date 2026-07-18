@@ -56,7 +56,13 @@ class AiNewsArticleCard extends StatelessWidget {
 }
 
 /*
-*移动端横向资讯卡:缩略图、标题摘要、来源时间和稍后读动作。
+*移动端资讯条目 — 纯文字三段式。
+*
+*结构为「来源行 / 标题 / 摘要」:来源行左起是分类色圆点 + 等宽来源名 +
+*  分类标签,右端是相对时间与稍后读开关。
+*不带缩略图,也不自带卡片外框:设计稿把同一天的条目收在一张卡里、用发丝
+*  分隔线断行,外框与背景由 [AiNewsTimelineRow] 统一提供,这样连续多条
+*  才能读成一张列表而不是一摞卡片。
 */
 class _CompactArticleCard extends StatelessWidget {
   const _CompactArticleCard({required this.item, required this.onTap, required this.isBookmarked, required this.onBookmarkTap});
@@ -78,103 +84,94 @@ class _CompactArticleCard extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
     final accent = aiNewsCategoryColor(item.category);
-    return AppCard(
+    return InkWell(
       onTap: onTap,
-      padding: const EdgeInsets.all(AppSpacing.md),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            child: Image.asset(
-              _articleThumbnailAsset(item.id),
-              width: 84,
-              height: 96,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.medium,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.sm, AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(width: AppSpacing.xs2, height: AppSpacing.xs2, decoration: BoxDecoration(color: accent, shape: BoxShape.circle)),
+                const SizedBox(width: AppSpacing.xs2),
+                Flexible(
+                  child: Text(
+                    item.source,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                _CategoryChip(label: item.category.label),
+                const Spacer(),
+                Text(
+                  formatRelativeTime(l10n, item.publishedAt),
+                  style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
+                ),
+                IconButton(
+                  tooltip: l10n.tr(isBookmarked ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
+                  onPressed: onBookmarkTap,
+                  icon: Icon(isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, size: 17),
+                  color: isBookmarked ? colors.primary : colors.onSurfaceVariant,
+                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+                  padding: EdgeInsets.zero,
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
             ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: SizedBox(
-              height: 96,
-              child: Stack(
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.titleSmall.copyWith(
-                          color: colors.onSurface,
-                          fontSize: 13.5,
-                          fontWeight: FontWeight.w700,
-                          height: 1.25,
-                        ),
-                      ),
-                      if (item.summary.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.xs),
-                        Expanded(
-                          child: Text(
-                            item.summary,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: colors.onSurfaceVariant,
-                              fontSize: 11,
-                              height: 1.3,
-                            ),
-                          ),
-                        ),
-                      ] else
-                        const Spacer(),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 32),
-                        child: Row(
-                          children: [
-                            Container(width: 6, height: 6, decoration: BoxDecoration(color: accent, shape: BoxShape.circle)),
-                            const SizedBox(width: AppSpacing.xs2),
-                            Expanded(
-                              child: Text(
-                                '${item.source} · ${item.category.label} · ${formatRelativeTime(l10n, item.publishedAt)}',
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Positioned(
-                    right: 0,
-                    bottom: 0,
-                    child: IconButton(
-                      tooltip: l10n.tr(isBookmarked ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
-                      onPressed: onBookmarkTap,
-                      icon: Transform.translate(
-                        offset: const Offset(0, 3),
-                        child: Icon(
-                          isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                          size: 17,
-                        ),
-                      ),
-                      color: isBookmarked ? colors.primary : colors.onSurfaceVariant,
-                      constraints: const BoxConstraints.tightFor(width: 40, height: 40),
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.bottomCenter,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ),
-                ],
+            const SizedBox(height: AppSpacing.xs),
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: Text(
+                item.title,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: 1.35),
               ),
             ),
-          ),
-        ],
+            if (item.summary.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.xs2),
+              Padding(
+                padding: const EdgeInsets.only(right: AppSpacing.sm),
+                child: Text(
+                  item.summary,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.5),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
+    );
+  }
+}
+
+/*
+*资讯分类标签 — 中性描边小药丸。
+*
+*设计稿用它区分「技巧 / 行业 / 产品」,颜色保持中性:分类的彩色信息已经由
+*  左侧圆点承担,标签再上色会让来源行出现两处竞争的彩块。
+*/
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({required this.label});
+
+  // 分类显示名。
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: 1),
+      decoration: BoxDecoration(
+        border: Border.all(color: colors.outlineVariant),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
+      ),
+      child: Text(label, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
     );
   }
 }
@@ -256,17 +253,6 @@ class _DesktopArticleCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/* 根据稳定条目 id 轮换设计稿同风格缩略图。 */
-String _articleThumbnailAsset(String id) {
-  const assets = [
-    'assets/ai_news/article_document.png',
-    'assets/ai_news/article_city.png',
-    'assets/ai_news/article_neural.png',
-  ];
-  final fingerprint = id.codeUnits.fold<int>(0, (sum, unit) => sum + unit);
-  return assets[fingerprint % assets.length];
 }
 
 /*

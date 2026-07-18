@@ -81,7 +81,7 @@ const List<TabSpec> appTabs = <TabSpec>[
 // 总览 → AI 动态 → 发现 → 监控 → 我的
 // tech_hotspot 已由「总览」直接承接;trending / project 保留二级路由。
 const List<MobileTabSpec> mobileAppTabs = <MobileTabSpec>[
-  MobileTabSpec(labelKey: 'tab.home', branchIndex: 0),
+  MobileTabSpec(labelKey: 'common.today', branchIndex: 0),
   MobileTabSpec(labelKey: 'mobile.ai', branchIndex: 1),
   MobileTabSpec(labelKey: 'mobile.discover', branchIndex: 4),
   MobileTabSpec(labelKey: 'mobile.monitor', branchIndex: 5),

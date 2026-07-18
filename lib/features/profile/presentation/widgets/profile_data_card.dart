@@ -6,6 +6,7 @@ import '../../../../core/preferences/config_service.dart';
 import '../../../../core/storage/storage_providers.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/app_logger.dart';
+import '../../../../core/utils/breakpoint.dart';
 import '../../../../core/utils/file_size.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
@@ -115,41 +116,56 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final sizeText = (_bytes ?? 0).toHumanReadableSize();
+    final compact = Breakpoints.isCompact(context);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(title: l10n.tr('profile.data.title'), subtitle: l10n.tr('profile.data.subtitle')),
+          SectionHeader(title: l10n.tr('profile.data.title'), subtitle: compact ? null : l10n.tr('profile.data.subtitle')),
           const SizedBox(height: AppSpacing.md),
           ProfileDataRow(label: l10n.tr('profile.data.db_size'), value: sizeText),
           ProfileDataRow(label: l10n.tr('profile.data.cap'), value: l10n.tr('profile.data.cap.value')),
           const SizedBox(height: AppSpacing.md),
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: _clearing ? null : _onClear,
-              icon: const Icon(Icons.cleaning_services_outlined, size: 16),
-              label: Text(_clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear')),
+          if (compact)
+            Row(
+              children: [
+                Expanded(child: OutlinedButton(onPressed: _clearing ? null : _onClear, child: Text(_clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear')))),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(child: OutlinedButton(onPressed: _exporting || _importing ? null : _onExport, child: Text(l10n.tr('config.export_button')))),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(child: OutlinedButton(onPressed: _exporting || _importing ? null : _onImport, child: Text(l10n.tr('config.import_button')))),
+              ],
+            )
+          else ...[
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: _clearing ? null : _onClear,
+                icon: const Icon(Icons.cleaning_services_outlined, size: 16),
+                label: Text(_clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear')),
+              ),
             ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Row(
-            children: [
-              Expanded(
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              children: [
+                Expanded(
                   child: OutlinedButton.icon(
-                onPressed: _exporting || _importing ? null : _onExport,
-                icon: const Icon(Icons.upload_outlined, size: 16),
-                label: Text(l10n.tr('config.export_button')),
-              )),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
+                    onPressed: _exporting || _importing ? null : _onExport,
+                    icon: const Icon(Icons.upload_outlined, size: 16),
+                    label: Text(l10n.tr('config.export_button')),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
                   child: OutlinedButton.icon(
-                onPressed: _exporting || _importing ? null : _onImport,
-                icon: const Icon(Icons.download_outlined, size: 16),
-                label: Text(l10n.tr('config.import_button')),
-              ))
-            ],
-          )
+                    onPressed: _exporting || _importing ? null : _onImport,
+                    icon: const Icon(Icons.download_outlined, size: 16),
+                    label: Text(l10n.tr('config.import_button')),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

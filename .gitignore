@@ -115,6 +115,9 @@ app.*.map.json
 # Local Android release signing material
 /key/
 
+# Local build-time secrets injected via --dart-define-from-file (never commit)
+/env.json
+
 /.workbuddy/
 /.codex/
 /.agents/

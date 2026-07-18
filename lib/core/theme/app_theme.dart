@@ -102,7 +102,7 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shadowColor: Colors.black.withValues(alpha: isLight ? 0.03 : 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg), side: BorderSide(color: border.withValues(alpha: isLight ? 0.54 : 0.9), width: 1)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.card), side: BorderSide(color: border.withValues(alpha: isLight ? 0.54 : 0.9), width: 1)),
         margin: EdgeInsets.zero,
       ),
       appBarTheme: AppBarTheme(
@@ -124,11 +124,14 @@ class AppTheme {
           systemNavigationBarContrastEnforced: false,
         ),
       ),
+      // 底栏按设计稿去掉 M3 药丸指示器,只用主色区分选中态,让五个目的地
+      // 在窄屏下保持等宽、安静的排布。
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) => AppTypography.labelSmall.copyWith(color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary)),
-        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(color: states.contains(WidgetState.selected) ? colorScheme.primary : textSecondary, size: 22)),
+        indicatorColor: Colors.transparent,
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => AppTypography.labelSmall.copyWith(color: states.contains(WidgetState.selected) ? colorScheme.primary : textMuted)),
+        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(color: states.contains(WidgetState.selected) ? colorScheme.primary : textMuted, size: 22)),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
         height: 64,
         elevation: 0,
         surfaceTintColor: Colors.transparent,

@@ -29,15 +29,17 @@ class TechHotspotAgentSignalBoard extends StatelessWidget {
         .where(
           (topic) => topic.category == 'Agent' || topic.name.contains('AI Coding') || topic.name.contains('本地推理'),
         )
-        .take(compact ? 2 : 3)
+        .take(3)
         .toList(growable: false);
 
     return AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Row(
         children: [
-          Icon(Icons.device_hub_rounded, size: 16, color: colors.primary),
-          const SizedBox(width: AppSpacing.sm),
+          if (!compact) ...[
+            Icon(Icons.device_hub_rounded, size: 16, color: colors.primary),
+            const SizedBox(width: AppSpacing.sm),
+          ],
           Expanded(child: Text(l10n.tr('tech_hotspot.agent_board.title'), style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700))),
           Text(l10n.tr('tech_hotspot.agent_board.source'), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600))
         ],
@@ -60,7 +62,10 @@ class TechHotspotAgentSignalBoard extends StatelessWidget {
         ])
       else
         Column(children: [
-          for (var i = 0; i < signals.length; i++) ...[if (i > 0) SizedBox(height: compact ? AppSpacing.sm : AppSpacing.md), _AgentSignalItem(rank: i + 1, topic: signals[i], compact: compact)]
+          for (var i = 0; i < signals.length; i++) ...[
+            if (i > 0) compact ? const Divider(height: 1) : const SizedBox(height: AppSpacing.md),
+            _AgentSignalItem(rank: i + 1, topic: signals[i], compact: compact),
+          ]
         ])
     ]));
   }
@@ -83,11 +88,11 @@ class _AgentSignalItem extends StatelessWidget {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final accent = switch (rank) { 1 => AppColors.danger, 2 => AppColors.brand, _ => AppColors.info };
     return Container(
-      padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.md),
+      padding: EdgeInsets.symmetric(horizontal: compact ? 0 : AppSpacing.md, vertical: compact ? AppSpacing.md : AppSpacing.md),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withValues(alpha: isLight ? 0.6 : 0.42),
+        color: compact ? Colors.transparent : colors.surfaceContainerHighest.withValues(alpha: isLight ? 0.6 : 0.42),
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.38 : 0.7), width: isLight ? 0.5 : 0.8),
+        border: compact ? null : Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.38 : 0.7), width: isLight ? 0.5 : 0.8),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -114,12 +119,10 @@ class _AgentSignalItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     )),
                     const SizedBox(width: AppSpacing.sm),
-                    Icon(
-                      topic.growth >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-                      size: 14,
-                      color: topic.growth >= 0 ? accent : AppColors.trendDown,
-                    ),
-                    const SizedBox(width: AppSpacing.xxs),
+                    if (!compact) ...[
+                      Icon(topic.growth >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded, size: 14, color: topic.growth >= 0 ? accent : AppColors.trendDown),
+                      const SizedBox(width: AppSpacing.xxs),
+                    ],
                     Text(
                       '${topic.growth > 0 ? '+' : ''}${topic.growth.toStringAsFixed(1)}%',
                       style: AppTypography.labelSmall.copyWith(
@@ -129,30 +132,25 @@ class _AgentSignalItem extends StatelessWidget {
                     )
                   ],
                 ),
-                if (!compact) ...[
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    topic.summary,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: colors.onSurfaceVariant,
-                      height: 1.45,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Row(
-                    children: [
-                      Icon(Icons.local_fire_department_rounded, size: 13, color: colors.onSurfaceVariant),
-                      const SizedBox(width: AppSpacing.xxs),
-                      Text('${topic.heat}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
-                      const SizedBox(width: AppSpacing.md),
-                      Icon(Icons.book_outlined, size: 13, color: colors.onSurfaceVariant),
-                      const SizedBox(width: AppSpacing.xxs),
-                      Text('${topic.relatedRepos}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
-                    ],
-                  ),
-                ],
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  topic.summary,
+                  style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.45),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Icon(Icons.local_fire_department_rounded, size: 13, color: colors.onSurfaceVariant),
+                    const SizedBox(width: AppSpacing.xxs),
+                    Text('${topic.heat}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
+                    const SizedBox(width: AppSpacing.md),
+                    Icon(Icons.book_outlined, size: 13, color: colors.onSurfaceVariant),
+                    const SizedBox(width: AppSpacing.xxs),
+                    Text('${topic.relatedRepos}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
+                  ],
+                ),
               ],
             ),
           )

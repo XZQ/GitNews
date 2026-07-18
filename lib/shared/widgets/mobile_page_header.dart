@@ -48,7 +48,7 @@ class MobilePageHeader extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.titleLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
+                    style: AppTypography.headlineLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
                   ),
                 ),
                 ...actions,

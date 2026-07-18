@@ -23,12 +23,16 @@ class DiscoverMonitorRow extends ConsumerWidget {
     required this.repo,
     this.badge,
     this.onTap,
+    this.embedded = false,
     super.key,
   });
 
   final RepoEntity repo;
   final String? badge;
   final VoidCallback? onTap;
+
+  // 紧凑端分组卡片中的行不再重复绘制外框。
+  final bool embedded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -42,7 +46,7 @@ class DiscoverMonitorRow extends ConsumerWidget {
     final avatarSize = compact ? 40.0 : AppSpacing.xxl;
     final avatarAccent = _avatarAccent(repo.language, accent);
     final metricAccent = _metricAccent(repo.language, accent, colors.onSurfaceVariant);
-    final avatarForeground = compact ? AppColors.surfaceLight : accent;
+    final avatarForeground = compact ? avatarAccent : accent;
 
     final content = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +54,7 @@ class DiscoverMonitorRow extends ConsumerWidget {
         Container(
           width: avatarSize,
           height: avatarSize,
-          decoration: BoxDecoration(color: compact ? avatarAccent : accent.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(compact ? AppRadius.lg : AppRadius.sm)),
+          decoration: BoxDecoration(color: avatarAccent.withValues(alpha: compact ? 0.14 : 0.16), borderRadius: BorderRadius.circular(compact ? AppRadius.md : AppRadius.sm)),
           alignment: Alignment.center,
           child: Text(
             repo.language.isNotEmpty ? repo.language.characters.first.toUpperCase() : '?',
@@ -96,37 +100,41 @@ class DiscoverMonitorRow extends ConsumerWidget {
       ],
     );
 
+    final interactive = Material(
+      color: Colors.transparent,
+      borderRadius: radius,
+      clipBehavior: embedded ? Clip.none : Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: radius,
+        child: Padding(
+          padding: compact ? const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md2) : const EdgeInsets.all(AppSpacing.lg),
+          child: compact
+              ? Stack(
+                  children: [
+                    content,
+                    Positioned(
+                      right: -AppSpacing.lg,
+                      bottom: -AppSpacing.md,
+                      child: _MonitorButton(repo: repo, monitored: monitored, controller: controller, compact: true),
+                    ),
+                  ],
+                )
+              : content,
+        ),
+      ),
+    );
+    if (embedded) {
+      return interactive;
+    }
     return DecoratedBox(
       decoration: BoxDecoration(
         color: colors.surface,
         borderRadius: radius,
         border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.42 : 1)),
-        boxShadow: [if (compact && isLight) BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 14, offset: const Offset(0, 5))],
+        boxShadow: [if (compact && isLight) BoxShadow(color: Colors.black.withValues(alpha: 0.025), blurRadius: 10, offset: const Offset(0, 3))],
       ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: radius,
-        clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: radius,
-          child: Padding(
-            padding: compact ? const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md2) : const EdgeInsets.all(AppSpacing.lg),
-            child: compact
-                ? Stack(
-                    children: [
-                      content,
-                      Positioned(
-                        right: -AppSpacing.lg,
-                        bottom: -AppSpacing.md,
-                        child: _MonitorButton(repo: repo, monitored: monitored, controller: controller, compact: true),
-                      ),
-                    ],
-                  )
-                : content,
-          ),
-        ),
-      ),
+      child: interactive,
     );
   }
 }
@@ -143,29 +151,42 @@ class _MobileMetrics extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: const EdgeInsets.only(right: AppSpacing.xxxl),
+      child: Wrap(
+        spacing: AppSpacing.sm2,
+        runSpacing: AppSpacing.xs,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          _LanguageMetric(language: repo.language, color: accent),
+          _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
+          _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.primary),
+          MetricBasisBadge(basis: repo.trendBasis),
+        ],
+      ),
+    );
+  }
+}
+
+/* 紧凑榜单的语言指标使用色点与纯文本，避免标签胶囊压缩仓库信息。 */
+class _LanguageMetric extends StatelessWidget {
+  const _LanguageMetric({required this.language, required this.color});
+
+  final String language;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Wrap(
-          spacing: AppSpacing.sm2,
-          runSpacing: AppSpacing.xs,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            _Pill(text: repo.language, color: accent),
-            _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
-            _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.primary),
-          ],
+        DecoratedBox(
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          child: const SizedBox.square(dimension: 7),
         ),
-        const SizedBox(height: AppSpacing.xs),
-        Padding(
-          padding: const EdgeInsets.only(right: AppSpacing.xxxl),
-          child: Wrap(
-            spacing: AppSpacing.sm,
-            runSpacing: AppSpacing.xs,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [_DeltaPill(value: repo.starDelta), MetricBasisBadge(basis: repo.trendBasis)],
-          ),
-        ),
+        const SizedBox(width: AppSpacing.xs),
+        Text(language, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
       ],
     );
   }
@@ -242,7 +263,7 @@ class _TopLine extends StatelessWidget {
           fullName,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: (compact ? AppTypography.bodyLarge : AppTypography.titleMedium).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: compact ? 1.3 : 1.35),
+          style: (compact ? AppTypography.monoTitle : AppTypography.titleMedium).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: compact ? 1.3 : 1.35),
         )),
         if (badge != null) ...[const SizedBox(width: AppSpacing.sm), _Pill(text: badge!, color: colors.tertiary)]
       ],

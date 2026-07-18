@@ -7,6 +7,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
+import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/discover_providers.dart';
@@ -84,6 +85,30 @@ class DiscoverReposSection extends ConsumerWidget {
             return EmptyView(icon: Icons.explore_off_outlined, message: query.trim().isEmpty ? l10n.tr('discover.empty.repos') : l10n.tr('discover.empty_filter').replaceAll('{query}', query));
           }
           final hasMore = query.trim().isEmpty && ref.read(trendingReposNotifierProvider.notifier).hasMore;
+          if (Breakpoints.isCompact(context)) {
+            return ListView(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.xxxl),
+              children: [
+                AppCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      for (var index = 0; index < repos.length; index++) ...[
+                        if (index != 0) const Divider(height: 1, indent: AppSpacing.lg, endIndent: AppSpacing.lg),
+                        DiscoverMonitorRow(
+                          repo: repos[index],
+                          badge: '#${index + 1}',
+                          embedded: true,
+                          onTap: () => context.go(discoverRepoDetailLocation(repos[index].fullName)),
+                        ),
+                      ],
+                      if (hasMore) const DiscoverLoadMoreIndicator(),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }
           return _buildDiscoverList(
             context: context,
             itemCount: repos.length,

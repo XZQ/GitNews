@@ -10,7 +10,7 @@ import 'package:github_news/features/ai_news/presentation/widgets/ai_news_timeli
 import 'package:github_news/shared/widgets/app_card.dart';
 
 void main() {
-  testWidgets('AI 资讯条目在移动宽度下使用日报同款卡片背景', (tester) async {
+  testWidgets('AI 资讯条目在移动宽度下渲染纯文字三段式,不含缩略图', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -54,11 +54,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
-    expect(find.byType(AppCard), findsOneWidget);
+    // 移动端条目不再自带 AppCard 外框:卡片表面由 AiNewsTimelineRow 提供,
+    // 以便同一天的多条拼成一张列表卡。
+    expect(find.byType(AppCard), findsNothing);
+    // 设计稿的移动端列表是纯文字的,不含缩略图。
+    expect(find.byType(Image), findsNothing);
     expect(find.byType(Divider), findsNothing);
-    expect(find.byType(Image), findsOneWidget);
     expect(find.byIcon(Icons.bookmark_border_rounded), findsOneWidget);
     expect(find.text(item.title), findsOneWidget);
     expect(find.text(item.summary), findsOneWidget);
+    expect(find.text(item.source), findsOneWidget);
+    expect(find.text(item.category.label), findsOneWidget);
   });
 }

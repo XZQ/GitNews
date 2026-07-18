@@ -26,6 +26,7 @@ class ProfileSettingRow extends StatelessWidget {
     required this.label,
     required this.trailing,
     this.onTap,
+    this.showIcon = true,
     super.key,
   });
 
@@ -33,6 +34,9 @@ class ProfileSettingRow extends StatelessWidget {
   final String label;
   final Widget trailing;
   final VoidCallback? onTap;
+
+  // 移动端设计稿使用无前导图标的设置行，桌面详情继续保留图标。
+  final bool showIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +46,10 @@ class ProfileSettingRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm2),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            const SizedBox(width: AppSpacing.md),
+            if (showIcon) ...[
+              Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+              const SizedBox(width: AppSpacing.md),
+            ],
             Expanded(child: Text(label, style: AppTypography.bodyMedium)),
             trailing
           ],

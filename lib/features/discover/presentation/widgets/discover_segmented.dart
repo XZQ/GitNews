@@ -35,9 +35,9 @@ class DiscoverSegmented extends StatelessWidget {
       // 移动端按设计稿固定三类入口;「官方内容」汇总官方账号与知名人士。
       final compactItems = _items.take(3).toList(growable: false);
       return SizedBox(
-        height: 52,
+        height: 44,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
           child: Row(
             children: [
               for (var i = 0; i < compactItems.length; i++) ...[
@@ -46,7 +46,6 @@ class DiscoverSegmented extends StatelessWidget {
                   flex: i == 2 ? 3 : 4,
                   child: _CompactSegmentChip(
                     selected: value == compactItems[i].value || (compactItems[i].value == 'official' && value == 'people'),
-                    icon: compactItems[i].icon,
                     label: l10n.tr(compactItems[i].labelKey),
                     onTap: () {
                       if (value != compactItems[i].value) {
@@ -85,12 +84,15 @@ class DiscoverSegmented extends StatelessWidget {
 }
 
 /*
- *移动端发现分类入口:匹配设计稿的轻描边卡片与选中浅色表面。
- */
+*移动端发现分类入口 — 实心选中态分段按钮。
+*
+*设计稿在窄屏上用「选中填充主色 + 未选中描边」表达当前分类,比浅色底
+*  更容易在一屏三个入口里一眼定位;同时去掉图标,让中文标签有足够
+*  横向空间不被截断。
+*/
 class _CompactSegmentChip extends StatelessWidget {
-  const _CompactSegmentChip({required this.icon, required this.label, required this.selected, required this.onTap});
+  const _CompactSegmentChip({required this.label, required this.selected, required this.onTap});
 
-  final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
@@ -98,35 +100,25 @@ class _CompactSegmentChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isLight = Theme.of(context).brightness == Brightness.light;
-    final foreground = selected ? colors.primary : colors.onSurface;
-    final radius = BorderRadius.circular(AppRadius.lg);
+    final foreground = selected ? colors.onPrimary : colors.onSurface;
+    final radius = BorderRadius.circular(AppRadius.sm);
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,
         child: Container(
-          height: 36,
+          height: 32,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2),
           decoration: BoxDecoration(
-            color: selected ? colors.primary.withValues(alpha: 0.08) : colors.surface,
-            border: Border.all(color: selected ? colors.primary.withValues(alpha: 0.28) : colors.outlineVariant.withValues(alpha: 0.7)),
+            color: selected ? colors.primary : colors.surface,
+            border: Border.all(color: selected ? colors.primary : colors.outlineVariant),
             borderRadius: radius,
-            boxShadow: [if (isLight) BoxShadow(color: Colors.black.withValues(alpha: 0.025), blurRadius: 10, offset: const Offset(0, 3))],
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 18, color: colors.primary),
-              const SizedBox(width: AppSpacing.xs2),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(label, maxLines: 1, style: AppTypography.labelMedium.copyWith(color: foreground, fontWeight: FontWeight.w700)),
-                ),
-              ),
-            ],
+          alignment: Alignment.center,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label, maxLines: 1, style: AppTypography.labelMedium.copyWith(color: foreground, fontWeight: selected ? FontWeight.w700 : FontWeight.w600)),
           ),
         ),
       ),
