@@ -31,7 +31,7 @@ The structure is reusable across projects:
   file wins.
 - Keep secrets out of source control, logs, screenshots, and test fixtures.
 - Verify meaningful changes with the smallest useful check first, then run the
-  full required checks before commit.
+  full required checks before push or in CI as defined under Commands.
 - When a command cannot be run, say exactly what was skipped and why.
 
 ## Project Profile
@@ -47,20 +47,36 @@ The structure is reusable across projects:
 
 ## Commands
 
-- In this Codex environment, run shell commands through `rtk`, for example
-  `rtk flutter analyze`.
-- Before commit, run:
-  - `rtk dart format .`
-  - `rtk flutter analyze`
-  - `rtk flutter test`
-- For desktop-impacting changes, also run:
-  - `rtk flutter build windows --release`
-  - `rtk proxy powershell -NoProfile -ExecutionPolicy Bypass -File tools/windows_release_smoke.ps1 -ReleaseDir build/windows/x64/runner/Release -TimeoutSeconds 15`
+- During development and before commit, run focused checks for the changed
+  scope:
+  - Format only intended Dart files with `dart format <changed Dart files>`.
+  - Analyze the affected Dart file or directory with `flutter analyze <path>`.
+  - Run directly relevant tests with `flutter test <relevant test files>` or
+    `flutter test --plain-name <test name>`.
+  - For server changes, run Ruff against the affected paths and pytest against
+    the relevant tests from `server/`.
+- Escalate to broader checks before commit when cross-file impact cannot be
+  covered reliably by focused selection.
+- Before push, or in CI when CI is the designated full validation gate, run the
+  full gate for each impacted scope.
+- For Flutter-impacting changes, run:
+  - `dart format --output=none --set-exit-if-changed lib test`
+  - `flutter analyze`
+  - `flutter test`
+- Keep the full formatter check scoped to `lib test` rather than `.`. The repo
+  root contains `server/` (Python), whose `.pytest_cache` is not always readable
+  and makes `dart format .` abort with `PathAccessException`. There is no Dart
+  source outside `lib/` and `test/`.
+- For desktop-impacting Flutter changes, also run:
+  - `flutter build windows --release`
+  - `powershell -NoProfile -ExecutionPolicy Bypass -File tools/windows_release_smoke.ps1 -ReleaseDir build/windows/x64/runner/Release -TimeoutSeconds 15`
 - For server-impacting changes, run from `server/`:
-  - `rtk uv run ruff check .`
-  - `rtk uv run ruff format --check .`
-  - `rtk uv run pytest`
-  - `rtk uv run python tools/live_smoke.py`
+  - `uv run ruff check .`
+  - `uv run ruff format --check .`
+  - `uv run pytest`
+  - `uv run python tools/live_smoke.py`
+- For documentation-only or other non-runtime changes, skip unrelated Flutter
+  and server suites; run only applicable checks such as `git diff --check`.
 
 ## Architecture
 
@@ -139,8 +155,8 @@ The structure is reusable across projects:
 
 - Add focused tests when changing repository behavior, cache logic, notifiers,
   routing, shared widgets, or parsing.
-- Prefer targeted tests while iterating, then run the full required checks before
-  commit.
+- Prefer targeted tests while iterating and before commit, then run the full
+  required checks before push or in CI as defined under Commands.
 - For visual/layout fixes, verify with a desktop run, screenshot, golden test,
   or Windows build when practical.
 

@@ -129,7 +129,7 @@ powershell -ExecutionPolicy Bypass -File tools/windows_tray_smoke.ps1
 powershell -ExecutionPolicy Bypass -File tools/check_markdown_links.ps1
 ```
 
-在 Codex 环境中按 `AGENTS.md` 要求给上述命令加 `rtk` 前缀。服务端改动另运行：
+在 `AGENTS.md` 的命令基础上，服务端改动另运行：
 
 ```bash
 cd server

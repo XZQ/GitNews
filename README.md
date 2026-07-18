@@ -82,7 +82,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/windows_tray_smoke.ps1
 
 服务端验证在 `server/` 下运行 `uv run ruff check .`、`uv run pytest` 和 `uv run python tools/live_smoke.py`，部署说明见 [server/README.md](server/README.md)。
 
-Codex 环境中的命令需加 `rtk` 前缀。更完整的环境和发布说明见 [RUN.md](RUN.md)。
+更完整的环境和发布说明见 [RUN.md](RUN.md)。
 
 ## 文档
 

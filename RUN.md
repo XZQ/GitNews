@@ -47,14 +47,6 @@ flutter analyze
 flutter test
 ```
 
-在 Codex 环境中使用：
-
-```bash
-rtk dart format .
-rtk flutter analyze
-rtk flutter test
-```
-
 ## 4. Windows Release 构建
 
 标准验证构建：

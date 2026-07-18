@@ -96,7 +96,7 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
 ## 2b. Line Width And Trailing Commas
 
 - `analysis_options.yaml` sets `formatter: page_width: 200`. Run
-  `rtk dart format .` before commit; do not override the page width in IDE
+  `dart format .` before commit; do not override the page width in IDE
   or editor config.
 - **Argument-count rule (overrides the single-line preference below):**
   - **4 or more arguments**: always multi-line with a trailing comma,
