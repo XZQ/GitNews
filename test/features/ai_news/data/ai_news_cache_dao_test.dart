@@ -24,6 +24,9 @@ void main() {
       String? title,
       String? summary,
       String source = 'src',
+      String author = '',
+      String content = '',
+      String attributionSource = '',
     }) {
       return AiNewsItem(
         id: id,
@@ -37,6 +40,9 @@ void main() {
         publishedAt: publishedAt ?? DateTime.utc(2026, 6, 28),
         score: 70,
         selected: true,
+        author: author,
+        content: content,
+        attributionSource: attributionSource,
       );
     }
 
@@ -76,6 +82,25 @@ void main() {
       expect(item, isNotNull);
       expect(item?.id, 'b');
       expect(item?.title, 'title b');
+    });
+
+    test('RSS author, content and attribution survive the SQLite round-trip', () async {
+      await dao.upsertPage(
+        category: null,
+        cursor: null,
+        digest: AiNewsDigest(
+          items: [makeItem('rss', author: 'Author', content: 'Content', attributionSource: 'AI HOT')],
+          count: 1,
+          hasNext: false,
+        ),
+        now: DateTime.utc(2026, 7, 19),
+      );
+
+      final item = await dao.readById('rss');
+
+      expect(item?.author, 'Author');
+      expect(item?.content, 'Content');
+      expect(item?.attributionSource, 'AI HOT');
     });
 
     test('readById should return null when item is missing', () async {

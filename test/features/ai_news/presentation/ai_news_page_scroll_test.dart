@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/preferences/ai_digest_config_controller.dart';
 import 'package:github_news/core/theme/app_colors.dart';
@@ -13,6 +14,8 @@ import 'package:github_news/features/ai_news/application/ai_digest_providers.dar
 import 'package:github_news/features/ai_news/application/ai_news_library_providers.dart';
 import 'package:github_news/features/ai_news/application/ai_news_providers.dart';
 import 'package:github_news/features/ai_news/application/ai_news_reminder_providers.dart';
+import 'package:github_news/features/ai_news/domain/ai_hot_daily.dart';
+import 'package:github_news/features/ai_news/domain/ai_hot_status.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item_state.dart';
 import 'package:github_news/features/ai_news/presentation/ai_news_page.dart';
@@ -131,6 +134,34 @@ void main() {
           ),
           aiNewsUnreadReminderCountProvider.overrideWithValue(0),
           aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none),
+          aiHotLatestDailyProvider.overrideWith(
+            (ref) async => const DataResult(
+              data: AiHotDailyReport(
+                date: '2026-07-19',
+                generatedAt: null,
+                windowStart: null,
+                windowEnd: null,
+                sections: [],
+                flashes: [],
+              ),
+              freshness: DataFreshness.freshCache,
+            ),
+          ),
+          aiHotTopicsProvider.overrideWith(
+            (ref) async => const DataResult(data: [], freshness: DataFreshness.freshCache),
+          ),
+          aiHotVersionProvider.overrideWith(
+            (ref) async => const DataResult(
+              data: AiHotVersion(
+                apiVersion: '1.4.0',
+                skillVersion: '0.3.6',
+                updatedAt: '2026-07-18',
+                changelogUrl: 'https://aihot.virxact.com/changelog',
+                recentChanges: [],
+              ),
+              freshness: DataFreshness.freshCache,
+            ),
+          ),
           aiDigestConfigControllerProvider.overrideWith(_StaticAiDigestConfigController.new),
           aiDigestNotifierProvider.overrideWith(_StaticAiDigestNotifier.new),
         ],

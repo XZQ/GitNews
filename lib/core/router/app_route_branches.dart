@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../../features/ai_news/presentation/ai_hot_daily_page.dart';
 import '../../features/ai_news/presentation/ai_news_detail_page.dart';
 import '../../features/ai_news/presentation/ai_news_page.dart';
 import '../../features/ai_news/presentation/ai_news_reminders_page.dart';
@@ -58,6 +59,7 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
             builder: (_, __) => const AiNewsPage(),
             routes: [
               GoRoute(path: 'detail/:id', name: 'ai_news_detail', builder: (_, state) => AiNewsDetailPage(id: state.pathParameters['id']!)),
+              GoRoute(path: 'daily/:date', name: 'ai_hot_daily', builder: (_, state) => AiHotDailyPage(date: state.pathParameters['date']!)),
               GoRoute(
                 path: 'reminders',
                 name: 'ai_news_reminders',

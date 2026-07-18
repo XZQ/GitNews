@@ -82,6 +82,46 @@ void main() {
       final b = parseAiNewsFeed(rss, source: source, fallbackTime: fallback);
       expect(a.first.id, b.first.id);
     });
+
+    test('AI HOT RSS maps guid, author, category, original URL and content:encoded', () {
+      const aiHotSource = AiNewsSourceConfig(
+        id: 'aihot_selected',
+        name: 'AI HOT 精选',
+        feedUrl: 'https://aihot.virxact.com/feed.xml',
+        categoryCode: 'industry',
+        usesAiHotContract: true,
+      );
+      const aiHotRss = '''
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <item>
+      <title>AI HOT item</title>
+      <link>https://aihot.virxact.com/items/item-123</link>
+      <description><![CDATA[中文摘要。
+🔗 阅读原文：https://example.com/original?utm_source=feed
+via AI HOT · https://aihot.virxact.com/items/item-123]]></description>
+      <content:encoded><![CDATA[<p>允许再分发的 <b>完整正文</b></p>]]></content:encoded>
+      <category>技巧观点</category>
+      <pubDate>Sat, 18 Jul 2026 04:47:25 GMT</pubDate>
+      <guid isPermaLink="false">item-123</guid>
+      <author>noreply@aihot.virxact.com (TechCrunch：AI（RSS）)</author>
+    </item>
+  </channel>
+</rss>
+''';
+
+      final item = parseAiNewsFeed(aiHotRss, source: aiHotSource, fallbackTime: fallback).single;
+
+      expect(item.id, 'item-123');
+      expect(item.permalink, 'https://aihot.virxact.com/items/item-123');
+      expect(item.url, 'https://example.com/original?utm_source=feed');
+      expect(item.source, 'TechCrunch：AI（RSS）');
+      expect(item.author, contains('noreply@aihot.virxact.com'));
+      expect(item.category, AiNewsCategory.tip);
+      expect(item.content, '允许再分发的 完整正文');
+      expect(item.attributionSource, 'AI HOT');
+      expect(item.selected, isTrue);
+    });
   });
 
   group('parseAiNewsFeed / Atom', () {

@@ -151,5 +151,21 @@ void main() {
       expect(await dao.readEtag('k'), isNull);
       expect(await dao.lastFetched('k'), isNull);
     });
+
+    test('validators should round-trip ETag and Last-Modified together', () async {
+      await dao.upsert('k', DateTime.utc(2026, 7, 19));
+      await dao.writeValidators(
+        'k',
+        const HttpCacheValidators(
+          etag: 'W/"feed-1"',
+          lastModified: 'Sat, 18 Jul 2026 04:47:25 GMT',
+        ),
+      );
+
+      final validators = await dao.readValidators('k');
+
+      expect(validators.etag, 'W/"feed-1"');
+      expect(validators.lastModified, 'Sat, 18 Jul 2026 04:47:25 GMT');
+    });
   });
 }

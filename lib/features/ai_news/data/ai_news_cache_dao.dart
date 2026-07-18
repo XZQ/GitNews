@@ -27,7 +27,7 @@ class AiNewsCacheDao {
   static String cacheKey({AiNewsCategory? category, String? cursor}) {
     final cat = category?.code ?? 'all';
     final cur = (cursor == null || cursor.isEmpty) ? 'head' : cursor;
-    return 'ai_news:v2:mode=all:category=$cat:cursor=$cur';
+    return 'ai_news:v3:mode=selected:category=$cat:cursor=$cur';
   }
 
   /* 
@@ -198,6 +198,9 @@ class AiNewsCacheDao {
             'published_at': item.publishedAt.millisecondsSinceEpoch,
             'score': item.score,
             'selected': item.selected ? 1 : 0,
+            'author': item.author,
+            'content': item.content,
+            'attribution_source': item.attributionSource,
             'cached_at': cachedAt
           },
           conflictAlgorithm: ConflictAlgorithm.replace,
@@ -261,6 +264,9 @@ class AiNewsCacheDao {
       publishedAt: DateTime.fromMillisecondsSinceEpoch(row['published_at'] as int, isUtc: true),
       score: row['score'] as int,
       selected: (row['selected'] as int) == 1,
+      author: row['author'] as String? ?? '',
+      content: row['content'] as String? ?? '',
+      attributionSource: row['attribution_source'] as String? ?? '',
     );
   }
 

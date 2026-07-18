@@ -1,7 +1,7 @@
 # AI资讯：产品、数据与系统边界
 
-更新时间：2026-07-16
-对应基线：`1.4.0+4` 加 `Unreleased` 改动
+更新时间：2026-07-19
+对应基线：`1.5.0+5` 加 `Unreleased` 改动
 
 ## 1. 第一性原理
 
@@ -40,7 +40,7 @@
 
 | 功能 | 远端来源 | 本机持久化 | 无网络降级 |
 |---|---|---|---|
-| AI 动态 | aihot 精选流、可管理 RSS/Atom、自托管聚合 API | SQLite 条目、FTS5、增强结果、兴趣反馈、已读/稍后读/提醒 | 过期缓存 / 种子 / 错误态 |
+| AI 动态 | AI HOT REST（items、hot-topics、daily、daily/{date}、dailies、fingerprint、version）、精选 RSS、可管理 RSS/Atom、自托管聚合 API | SQLite 条目、REST/RSS 条件缓存、FTS5、增强结果、兴趣反馈、已读/稍后读/提醒 | 过期缓存 / 种子 / 错误态 |
 | GitHub 热榜 | GitHub Search | JSON/仓库快照 | 过期缓存 / 种子 |
 | AI 雷达 | GitHub Search | 主题每日快照 | 过期缓存 / 种子 |
 | 发现 | GitHub Search、Skills 排行源 | JSON 快照 | 过期缓存 / 种子 |
@@ -53,14 +53,15 @@
 
 ## 4. 缓存和一致性
 
-- AI 动态、GitHub 热榜、AI 雷达：5 分钟。
+- AI HOT 时间流/当前热点、GitHub 热榜、AI 雷达：5 分钟。
+- AI HOT 官方日报、精选 RSS、轮询指纹：30 分钟；API 版本：24 小时。
 - 仓库监控：10 分钟。
 - 仓库详情、深度报告：30 分钟。
 - 发现：6 小时。
 - Agent Skills 排行：24 小时。
 - 默认读取新鲜缓存；缓存缺失、过期或显式刷新时请求远端。
 - 远端失败时先用过期缓存；只有没有可用缓存时才进入种子或错误态。
-- Repository、Contributors、User 等单资源请求保存 ETag；`304 Not Modified` 复用已解码实体并更新缓存时间。
+- Repository、Contributors、User 等单资源请求保存 ETag；AI HOT REST 保存 ETag，RSS 同时保存 ETag/Last-Modified；`304 Not Modified` 复用已解码实体并更新缓存时间。
 - 手动刷新只影响当前查询或资源，不清空无关缓存。
 
 ## 5. 数据可信度模型
@@ -88,7 +89,7 @@
 4. 规则命中后生成稳定指纹并写入 SQLite，避免同一事件重复创建。
 5. 用户在应用内完成已读、归档和恢复。
 
-仓库规则仍以取得真实仓库数据为触发条件。AI 资讯另有桌面托盘常驻刷新：进程隐藏后每 15 分钟采集，新条目进入应用内提醒并尽力发本机通知；应用完全退出后不运行。跨设备系统推送由服务端 outbox 衔接 webhook 或外部 FCM/APNs/WNS 网关，只有部署者配置真实凭据后才会送达。
+仓库规则仍以取得真实仓库数据为触发条件。AI 资讯另有桌面托盘常驻刷新：进程隐藏后每 30 分钟先比较 AI HOT 精选流指纹，仅在变化时采集条目；新条目进入应用内提醒并尽力发本机通知，应用完全退出后不运行。跨设备系统推送由服务端 outbox 衔接 webhook 或外部 FCM/APNs/WNS 网关，只有部署者配置真实凭据后才会送达。
 
 ## 7. 本地数据与安全
 

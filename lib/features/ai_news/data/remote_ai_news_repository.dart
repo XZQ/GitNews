@@ -26,6 +26,6 @@ class RemoteAiNewsRepository implements AiNewsRepository {
       cursor: cursor,
       selectedOnly: selectedOnly,
     );
-    return DataResult(data: response.toDomain(), freshness: DataFreshness.live);
+    return DataResult(data: response.data.toDomain(), freshness: response.freshness);
   }
 }

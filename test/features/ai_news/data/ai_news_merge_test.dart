@@ -90,5 +90,29 @@ void main() {
       );
       expect(merged.map((e) => e.id).toList(), ['new', 'old']);
     });
+
+    test('RSS guid/permalink duplicate enriches REST item with author and content', () {
+      final primary = [
+        item('same-id', title: 'REST primary title', url: 'https://example.com/original').copyWith(
+          permalink: 'https://aihot.virxact.com/items/same-id',
+          attributionSource: 'AI HOT',
+        ),
+      ];
+      final rss = [
+        item('same-id', title: 'RSS title', url: 'https://example.com/original').copyWith(
+          permalink: 'https://aihot.virxact.com/items/same-id',
+          author: 'Source Author',
+          content: 'Full redistributed content',
+        ),
+      ];
+
+      final merged = mergeAiNewsItems(primary: primary, extras: [rss]);
+
+      expect(merged, hasLength(1));
+      expect(merged.single.title, 'REST primary title');
+      expect(merged.single.author, 'Source Author');
+      expect(merged.single.content, 'Full redistributed content');
+      expect(merged.single.attributionSource, 'AI HOT');
+    });
   });
 }

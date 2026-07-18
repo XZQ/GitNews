@@ -14,6 +14,27 @@ class ApiEndpointsConfig {
   // AI 动态列表接口:`GET /api/public/items`。
   static const String aiNewsItemsPath = '/api/public/items';
 
+  // AI HOT 当前热点:`GET /api/public/hot-topics`。
+  static const String aiHotTopicsPath = '/api/public/hot-topics';
+
+  // AI HOT 最新日报:`GET /api/public/daily`。
+  static const String aiHotDailyPath = '/api/public/daily';
+
+  // AI HOT 指定日期日报:`GET /api/public/daily/{date}`。
+  static String aiHotDailyByDatePath(String date) => '$aiHotDailyPath/$date';
+
+  // AI HOT 日报索引:`GET /api/public/dailies`。
+  static const String aiHotDailiesPath = '/api/public/dailies';
+
+  // AI HOT 低流量轮询指纹:`GET /api/public/fingerprint`。
+  static const String aiHotFingerprintPath = '/api/public/fingerprint';
+
+  // AI HOT API 与 Skill 版本:`GET /api/public/version`。
+  static const String aiHotVersionPath = '/api/public/version';
+
+  // AI HOT 精选 RSS。
+  static const String aiHotSelectedFeedUrl = '$aiNewsBaseUrl/feed.xml';
+
   // AI 日报 LLM 默认 baseUrl(美团 LongCat OpenAI 兼容端点)。
   static const String aiDigestDefaultBaseUrl = 'https://api.longcat.chat/openai';
 

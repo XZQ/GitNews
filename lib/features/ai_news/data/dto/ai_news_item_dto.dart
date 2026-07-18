@@ -4,18 +4,20 @@ import '../../domain/ai_news_item.dart';
 *`/api/public/items` 单条响应 DTO。
 */
 class AiNewsItemDto {
-  const AiNewsItemDto(
-      {required this.id,
-      required this.title,
-      required this.titleEn,
-      required this.url,
-      required this.permalink,
-      required this.source,
-      required this.publishedAt,
-      required this.summary,
-      required this.category,
-      required this.score,
-      required this.selected});
+  const AiNewsItemDto({
+    required this.id,
+    required this.title,
+    required this.titleEn,
+    required this.url,
+    required this.permalink,
+    required this.source,
+    required this.publishedAt,
+    required this.summary,
+    required this.category,
+    required this.score,
+    required this.selected,
+    required this.attributionSource,
+  });
 
   factory AiNewsItemDto.fromJson(Map<String, Object?> json) {
     return AiNewsItemDto(
@@ -30,6 +32,7 @@ class AiNewsItemDto {
       category: json['category'] as String? ?? 'industry',
       score: (json['score'] as num?)?.toInt() ?? 0,
       selected: json['selected'] as bool? ?? false,
+      attributionSource: _attributionSource(json['attribution']),
     );
   }
 
@@ -45,6 +48,9 @@ class AiNewsItemDto {
   final int score;
   final bool selected;
 
+  // API 返回的聚合方署名。
+  final String attributionSource;
+
   AiNewsItem toDomain() {
     final cat = AiNewsCategory.fromCode(category) ?? AiNewsCategory.industry;
     return AiNewsItem(
@@ -59,7 +65,15 @@ class AiNewsItemDto {
       publishedAt: publishedAt,
       score: score,
       selected: selected,
+      attributionSource: attributionSource,
     );
+  }
+
+  static String _attributionSource(Object? raw) {
+    if (raw is Map && raw['source'] is String) {
+      return raw['source']! as String;
+    }
+    return '';
   }
 
   static DateTime _parseTime(Object? raw) {

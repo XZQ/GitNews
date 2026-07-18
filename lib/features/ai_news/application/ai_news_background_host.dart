@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/platform/desktop_integration_service.dart';
 import '../../../core/preferences/ai_news_reminder_preferences.dart';
@@ -11,12 +12,13 @@ import 'ai_news_library_providers.dart';
 import 'ai_news_providers.dart';
 import 'ai_news_reminder_providers.dart';
 
-const Duration aiNewsBackgroundRefreshInterval = Duration(minutes: 15);
+const Duration aiNewsBackgroundRefreshInterval = CacheTtlConfig.aiNewsBackgroundRefresh;
 const String _seenPreferenceKey = 'ai_news_background_seen_v1';
+const String _fingerprintPreferenceKey = 'ai_hot_selected_fingerprint_v1';
 
 /*
-*托盘常驻期间的前台进程轮询宿主。首次运行只建立基线，后续刷新发现
-*新条目时写入应用内提醒，并尽力发送桌面系统通知。
+*托盘常驻期间的前台进程轮询宿主。
+*每 30 分钟先查 AI HOT fingerprint；指纹未变时不下载 items，变化后才写入提醒与系统通知。
 */
 class AiNewsBackgroundHost extends ConsumerStatefulWidget {
   const AiNewsBackgroundHost({required this.child, super.key});
@@ -68,7 +70,18 @@ class _AiNewsBackgroundHostState extends ConsumerState<AiNewsBackgroundHost> wit
     _refreshing = true;
     try {
       final now = ref.read(clockProvider)().toUtc();
-      final result = await ref.read(aiNewsRepositoryProvider).fetchItems();
+      final preferences = ref.read(sharedPreferencesProvider);
+      final fingerprint = await ref.read(aiHotRepositoryProvider).fetchFingerprint();
+      final selectedFingerprint = fingerprint.data.selected;
+      final previousFingerprint = preferences.getString(_fingerprintPreferenceKey);
+      if (selectedFingerprint.isNotEmpty) {
+        await preferences.setString(_fingerprintPreferenceKey, selectedFingerprint);
+      }
+      if (!shouldFetchAiHotItems(previousFingerprint: previousFingerprint, currentFingerprint: selectedFingerprint)) {
+        return;
+      }
+
+      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(selectedOnly: true);
       final items = result.data.items;
       if (items.isEmpty) {
         return;
@@ -79,7 +92,6 @@ class _AiNewsBackgroundHostState extends ConsumerState<AiNewsBackgroundHost> wit
             digest: result.data,
             now: now,
           );
-      final preferences = ref.read(sharedPreferencesProvider);
       final previous = preferences.getStringList(_seenPreferenceKey) ?? const [];
       final freshItems = detectNewAiNewsItems(
         items,
@@ -112,6 +124,14 @@ class _AiNewsBackgroundHostState extends ConsumerState<AiNewsBackgroundHost> wit
       _refreshing = false;
     }
   }
+}
+
+/* 判断本次指纹探测是否需要继续拉取 items。 */
+bool shouldFetchAiHotItems({required String? previousFingerprint, required String currentFingerprint}) {
+  if (currentFingerprint.isEmpty) {
+    return false;
+  }
+  return previousFingerprint == null || previousFingerprint != currentFingerprint;
 }
 
 List<AiNewsItem> detectNewAiNewsItems(

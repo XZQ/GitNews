@@ -33,6 +33,7 @@ class AiNewsDetailInsights extends StatelessWidget {
       item.title,
       item.titleEn,
       item.summary,
+      item.content,
       item.url,
       item.permalink,
     ]);

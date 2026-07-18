@@ -1,9 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ai_hot/ai_hot_api_support.dart';
+import '../../../core/ai_hot/ai_hot_resource_cache.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
-import '../../../core/github/github_api_support.dart';
 import '../../../core/network/dio_client.dart';
 import '../../../core/preferences/ai_news_source_controller.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -13,7 +14,12 @@ import '../data/ai_news_cache_dao.dart';
 import '../data/ai_news_rss_client.dart';
 import '../data/ai_news_seed_data.dart';
 import '../data/ai_news_state_dao.dart';
+import '../data/remote_ai_hot_repository.dart';
 import '../data/remote_ai_news_repository.dart';
+import '../domain/ai_hot_daily.dart';
+import '../domain/ai_hot_repository.dart';
+import '../domain/ai_hot_status.dart';
+import '../domain/ai_hot_topic.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_repository.dart';
 
@@ -21,13 +27,29 @@ import '../domain/ai_news_repository.dart';
 // 例如测试可通过
 // `aiNewsDioProvider(AiNewsApiClient.baseUrl).overrideWithValue(mockDio)`
 // 注入带 mock adapter 的 Dio。
-final aiNewsDioProvider = Provider.family<Dio, String>((ref, baseUrl) => DioClient.create(baseUrl: baseUrl, headers: const {'Accept': 'application/json', 'User-Agent': GitHubApiSupport.userAgent}));
+final aiNewsDioProvider = Provider.family<Dio, String>(
+  (ref, baseUrl) => DioClient.create(
+    baseUrl: baseUrl,
+    headers: const {
+      'Accept': AiHotApiSupport.jsonAccept,
+      'User-Agent': AiHotApiSupport.userAgent,
+    },
+  ),
+);
 
-final aiNewsApiClientProvider = Provider<AiNewsApiClient>((ref) => AiNewsApiClient.create(ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl))));
+final aiHotResourceCacheProvider = Provider<AiHotResourceCache>(
+  (ref) => AiHotResourceCache(
+    dio: ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl)),
+    cache: ref.watch(jsonSnapshotCacheDaoProvider),
+    now: ref.watch(clockProvider),
+  ),
+);
+
+final aiNewsApiClientProvider = Provider<AiNewsApiClient>((ref) => AiNewsApiClient(ref.watch(aiHotResourceCacheProvider)));
 
 // 补充 RSS/Atom 源共享一个 Dio:feed URL 是绝对地址,baseUrl 不参与拼接;
 // 走同一 keyed 工厂便于测试按 URL override。
-final aiNewsRssClientProvider = Provider<AiNewsRssClient>((ref) => AiNewsRssClient(ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl))));
+final aiNewsRssClientProvider = Provider<AiNewsRssClient>((ref) => AiNewsRssClient(ref.watch(aiHotResourceCacheProvider)));
 
 // 聚合仓库:主源(精选流)+ 补充 RSS 源,head 页去重合并。
 // 任一源失败都不影响其余源;全部失败才抛错走缓存/种子降级。
@@ -43,6 +65,24 @@ final aiNewsRepositoryProvider = Provider<AiNewsRepository>((ref) {
     onSourceFailure: (id, at, error) => controller.reportFailure(id, at, error),
   );
 });
+
+// AI HOT 热点、日报、指纹与版本仓库。
+final aiHotRepositoryProvider = Provider<AiHotRepository>((ref) => RemoteAiHotRepository(ref.watch(aiNewsApiClientProvider)));
+
+// 当前多信源热点;失败不阻断主资讯流。
+final aiHotTopicsProvider = FutureProvider.autoDispose<DataResult<List<AiHotTopic>>>((ref) => ref.watch(aiHotRepositoryProvider).fetchHotTopics());
+
+// 最新 AI HOT 官方日报。
+final aiHotLatestDailyProvider = FutureProvider.autoDispose<DataResult<AiHotDailyReport>>((ref) => ref.watch(aiHotRepositoryProvider).fetchLatestDaily());
+
+// 最近 30 期日报索引。
+final aiHotDailyIndexProvider = FutureProvider.autoDispose<DataResult<List<AiHotDailyEntry>>>((ref) => ref.watch(aiHotRepositoryProvider).fetchDailies());
+
+// 指定日期官方日报。
+final aiHotDailyProvider = FutureProvider.autoDispose.family<DataResult<AiHotDailyReport>, String>((ref, date) => ref.watch(aiHotRepositoryProvider).fetchDaily(date));
+
+// AI HOT API/Skill 版本,长 TTL 且不影响内容加载。
+final aiHotVersionProvider = FutureProvider.autoDispose<DataResult<AiHotVersion>>((ref) => ref.watch(aiHotRepositoryProvider).fetchVersion());
 
 // AI 资讯缓存 DAO。共享全局 [appDatabaseProvider] 的 executor。
 final aiNewsCacheDaoProvider = Provider<AiNewsCacheDao>((ref) => AiNewsCacheDao(ref.watch(appDatabaseProvider).executor, ref.watch(cacheMetaDaoProvider)));
@@ -271,7 +311,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       final result = await ref.read(aiNewsRepositoryProvider).fetchItems(
             category: _category,
             cursor: requestCursor,
-            selectedOnly: false,
+            selectedOnly: true,
           );
       final digest = result.data;
       if (gen != _generation) {

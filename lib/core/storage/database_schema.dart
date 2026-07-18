@@ -69,6 +69,9 @@ const String _kCreateAiNewsState = '''
     published_at  INTEGER NOT NULL,
     score         INTEGER NOT NULL,
     selected      INTEGER NOT NULL,
+    author        TEXT NOT NULL DEFAULT '',
+    content       TEXT NOT NULL DEFAULT '',
+    attribution_source TEXT NOT NULL DEFAULT '',
     updated_at    INTEGER NOT NULL,
     ext1          TEXT,
     ext2          INTEGER
@@ -165,6 +168,9 @@ const List<String> _kBootstrap = [
       published_at  INTEGER NOT NULL,
       score         INTEGER NOT NULL,
       selected      INTEGER NOT NULL,
+      author        TEXT NOT NULL DEFAULT '',
+      content       TEXT NOT NULL DEFAULT '',
+      attribution_source TEXT NOT NULL DEFAULT '',
       cached_at     INTEGER NOT NULL,
       ext1          TEXT,
       ext2          TEXT,
@@ -206,6 +212,7 @@ const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
   _migrateV3ToV4,
   _migrateV4ToV5,
   _migrateV5ToV6,
+  _migrateV6ToV7,
 ];
 
 Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
@@ -255,6 +262,24 @@ Future<void> _migrateV5ToV6(DatabaseExecutor db) async {
     'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_read '
     'ON ai_news_reminder(read_at)',
   );
+}
+
+Future<void> _migrateV6ToV7(DatabaseExecutor db) async {
+  await _addColumnIfMissing(db, 'ai_news_item', 'author', "TEXT NOT NULL DEFAULT ''");
+  await _addColumnIfMissing(db, 'ai_news_item', 'content', "TEXT NOT NULL DEFAULT ''");
+  await _addColumnIfMissing(db, 'ai_news_item', 'attribution_source', "TEXT NOT NULL DEFAULT ''");
+  await _addColumnIfMissing(db, 'ai_news_state', 'author', "TEXT NOT NULL DEFAULT ''");
+  await _addColumnIfMissing(db, 'ai_news_state', 'content', "TEXT NOT NULL DEFAULT ''");
+  await _addColumnIfMissing(db, 'ai_news_state', 'attribution_source', "TEXT NOT NULL DEFAULT ''");
+}
+
+/* 为兼容新建表与历史表的交叉路径,仅在列缺失时执行 ALTER TABLE。 */
+Future<void> _addColumnIfMissing(DatabaseExecutor db, String table, String column, String definition) async {
+  final columns = await db.rawQuery('PRAGMA table_info($table)');
+  if (columns.any((entry) => entry['name'] == column)) {
+    return;
+  }
+  await db.execute('ALTER TABLE $table ADD COLUMN $column $definition');
 }
 
 // 新建库时一次性创建全部业务表。

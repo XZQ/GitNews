@@ -218,7 +218,7 @@ void main() {
     final loaded = container.read(aiNewsItemsNotifierProvider).valueOrNull!;
     expect(loaded.map((e) => e.id).toList(), [for (var i = 0; i < aiNewsPageSize; i++) 'head_$i', 'next_1', 'next_2']);
     expect(repo.cursors, [null, 'cursor_2']);
-    expect(repo.selectedOnlyValues, everyElement(isFalse));
+    expect(repo.selectedOnlyValues, everyElement(isTrue));
     expect(container.read(aiNewsItemsNotifierProvider.notifier).hasMore, isFalse);
   });
 

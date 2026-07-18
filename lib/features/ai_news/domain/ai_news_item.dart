@@ -50,18 +50,22 @@ enum AiNewsCategory {
 *AI 动态条目。
 */
 class AiNewsItem {
-  const AiNewsItem(
-      {required this.id,
-      required this.category,
-      required this.title,
-      required this.titleEn,
-      required this.summary,
-      required this.source,
-      required this.url,
-      required this.permalink,
-      required this.publishedAt,
-      required this.score,
-      required this.selected});
+  const AiNewsItem({
+    required this.id,
+    required this.category,
+    required this.title,
+    required this.titleEn,
+    required this.summary,
+    required this.source,
+    required this.url,
+    required this.permalink,
+    required this.publishedAt,
+    required this.score,
+    required this.selected,
+    this.author = '',
+    this.content = '',
+    this.attributionSource = '',
+  });
 
   final String id;
   final AiNewsCategory category;
@@ -74,6 +78,50 @@ class AiNewsItem {
   final DateTime publishedAt;
   final int score;
   final bool selected;
+
+  // RSS author 或条目作者标识。
+  final String author;
+
+  // 从 content:encoded/Atom content 提取的安全纯文本正文。
+  final String content;
+
+  // 聚合方署名;原文作者和来源仍由 [author]/[source] 表达。
+  final String attributionSource;
+
+  /* 复制条目,用于 REST 主条目吸收 RSS 补充字段。 */
+  AiNewsItem copyWith({
+    String? id,
+    AiNewsCategory? category,
+    String? title,
+    String? titleEn,
+    String? summary,
+    String? source,
+    String? url,
+    String? permalink,
+    DateTime? publishedAt,
+    int? score,
+    bool? selected,
+    String? author,
+    String? content,
+    String? attributionSource,
+  }) {
+    return AiNewsItem(
+      id: id ?? this.id,
+      category: category ?? this.category,
+      title: title ?? this.title,
+      titleEn: titleEn ?? this.titleEn,
+      summary: summary ?? this.summary,
+      source: source ?? this.source,
+      url: url ?? this.url,
+      permalink: permalink ?? this.permalink,
+      publishedAt: publishedAt ?? this.publishedAt,
+      score: score ?? this.score,
+      selected: selected ?? this.selected,
+      author: author ?? this.author,
+      content: content ?? this.content,
+      attributionSource: attributionSource ?? this.attributionSource,
+    );
+  }
 }
 
 /* 

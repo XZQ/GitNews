@@ -1,10 +1,12 @@
+import 'api_endpoints_config.dart';
+
 /*
 *AI 动态补充 RSS/Atom 源配置。
 *背景:主源 aihot.virxact.com 是单点,任一时刻失效整个模块只剩缓存;
 *这里声明式维护一组官方/权威补充源,由 ai_news 的聚合仓库并行拉取合并。
 *约束:core 不依赖 feature,因此分类用字符串 code(与
 *`AiNewsCategory.code` 对齐),由 feature 侧反查枚举。
-*全部 feedUrl 于 2026-07-14 核验可用;新增源只需追加一条配置。
+*内置 feedUrl 最近一次于 2026-07-19 核验;新增源只需追加一条配置。
 */
 class AiNewsSourceConfig {
   const AiNewsSourceConfig({
@@ -12,6 +14,7 @@ class AiNewsSourceConfig {
     required this.name,
     required this.feedUrl,
     required this.categoryCode,
+    this.usesAiHotContract = false,
   });
 
   // 稳定源标识,参与条目 id 生成,改名不要改 id。
@@ -25,6 +28,9 @@ class AiNewsSourceConfig {
 
   // 该源条目的默认分类(`AiNewsCategory.code`)。
   final String categoryCode;
+
+  // 是否按 AI HOT RSS 合同解析 guid、站内链接与原文链接。
+  final bool usesAiHotContract;
 }
 
 class AiNewsSourcesConfig {
@@ -40,6 +46,13 @@ class AiNewsSourcesConfig {
   static const Duration recencyWindow = Duration(days: 30);
 
   static const List<AiNewsSourceConfig> sources = [
+    AiNewsSourceConfig(
+      id: 'aihot_selected',
+      name: 'AI HOT 精选',
+      feedUrl: ApiEndpointsConfig.aiHotSelectedFeedUrl,
+      categoryCode: 'industry',
+      usesAiHotContract: true,
+    ),
     AiNewsSourceConfig(
       id: 'openai_news',
       name: 'OpenAI News',

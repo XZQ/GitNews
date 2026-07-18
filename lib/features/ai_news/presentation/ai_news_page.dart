@@ -16,8 +16,8 @@ import '../domain/ai_news_feedback.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_category_nav.dart';
 import 'widgets/ai_news_day_header.dart';
-import 'widgets/ai_news_digest_card.dart';
 import 'widgets/ai_news_list_skeleton.dart';
+import 'widgets/ai_news_overview_header.dart';
 import 'widgets/ai_news_page_header.dart';
 import 'widgets/ai_news_timeline_row.dart';
 
@@ -95,7 +95,7 @@ class _Body extends ConsumerWidget {
                 category: category,
                 query: '',
                 staticList: true,
-                header: const AiNewsDigestCard(),
+                header: const AiNewsOverviewHeader(),
               ),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider)),
@@ -111,7 +111,7 @@ class _Body extends ConsumerWidget {
           category: category,
           query: query,
           staticList: true,
-          header: const AiNewsDigestCard(),
+          header: const AiNewsOverviewHeader(),
         ),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query))),
@@ -124,7 +124,7 @@ class _Body extends ConsumerWidget {
         items: items,
         category: category,
         query: '',
-        header: const AiNewsDigestCard(),
+        header: const AiNewsOverviewHeader(),
       ),
       loading: () => const AiNewsListSkeleton(),
       error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider)),

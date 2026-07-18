@@ -149,6 +149,9 @@ class AiNewsStateDao {
         'published_at': item.publishedAt.millisecondsSinceEpoch,
         'score': item.score,
         'selected': item.selected ? 1 : 0,
+        'author': item.author,
+        'content': item.content,
+        'attribution_source': item.attributionSource,
         'updated_at': now.millisecondsSinceEpoch
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
@@ -175,6 +178,9 @@ class AiNewsStateDao {
       publishedAt: DateTime.fromMillisecondsSinceEpoch(row['published_at'] as int, isUtc: true),
       score: row['score'] as int,
       selected: (row['selected'] as int) == 1,
+      author: row['author'] as String? ?? '',
+      content: row['content'] as String? ?? '',
+      attributionSource: row['attribution_source'] as String? ?? '',
     );
   }
 }

@@ -16,6 +16,24 @@ class CacheTtlConfig {
   // AI 资讯(分类列表)。
   static const Duration aiNews = Duration(minutes: 5);
 
+  // AI HOT 当前热点。
+  static const Duration aiHotTopics = Duration(minutes: 5);
+
+  // AI HOT 官方日报与日期索引。
+  static const Duration aiHotDaily = Duration(minutes: 30);
+
+  // RSS/Atom 源条件轮询。
+  static const Duration aiNewsRss = Duration(minutes: 30);
+
+  // AI HOT 后台指纹轮询。
+  static const Duration aiHotFingerprint = Duration(minutes: 30);
+
+  // AI HOT 版本信息。
+  static const Duration aiHotVersion = Duration(hours: 24);
+
+  // Windows 托盘常驻期间的 AI 资讯轮询。
+  static const Duration aiNewsBackgroundRefresh = Duration(minutes: 30);
+
   // 技术热点(AI 雷达多 topic 聚合)。
   static const Duration techHotspot = Duration(minutes: 5);
 

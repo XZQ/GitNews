@@ -55,6 +55,13 @@ class AiNewsDetailOverview extends StatelessWidget {
                 AppTypography.bodySmall,
               ).copyWith(color: aiNewsDetailMutedColor(context)),
             ),
+            if (item.author.trim().isNotEmpty && item.author.trim() != item.source.trim())
+              Text(
+                item.author,
+                style: AppTypography.mono(
+                  AppTypography.bodySmall,
+                ).copyWith(color: aiNewsDetailMutedColor(context)),
+              ),
           ],
         ),
         const SizedBox(height: AppSpacing.md2),
@@ -76,6 +83,31 @@ class AiNewsDetailOverview extends StatelessWidget {
           )
         else
           _SingleLanguageBody(body: item.summary),
+        if (item.content.trim().isNotEmpty && item.content.trim() != item.summary.trim()) ...[
+          const SizedBox(height: AppSpacing.xl),
+          Text(
+            l10n.tr('ai_news.detail.source_content'),
+            style: AppTypography.reading(
+              AppTypography.labelMicro,
+            ).copyWith(color: aiNewsDetailMutedColor(context)),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text(
+            item.content,
+            style: AppTypography.reading(AppTypography.bodyLarge).copyWith(
+              fontSize: AppTypography.titleMedium.fontSize,
+              height: 1.9,
+              color: colors.onSurface,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            '// ${l10n.tr('ai_news.detail.source_content_note')}',
+            style: AppTypography.reading(
+              AppTypography.labelSmall,
+            ).copyWith(color: aiNewsDetailMutedColor(context)),
+          ),
+        ],
         const SizedBox(height: AppSpacing.lg),
         const Divider(height: 1),
         const SizedBox(height: AppSpacing.lg),
@@ -92,6 +124,11 @@ class AiNewsDetailOverview extends StatelessWidget {
                 icon: Icons.check_circle_outline_rounded,
                 label: l10n.tr('ai_news.detail_selected'),
                 positive: true,
+              ),
+            if (item.attributionSource.isNotEmpty)
+              AiNewsDetailMetricPill(
+                icon: Icons.verified_outlined,
+                label: item.attributionSource,
               ),
           ],
         ),

@@ -1,6 +1,6 @@
 # AI资讯启动与发布指南
 
-当前开发基线为 `1.4.0+4` 加 `Unreleased` 改动。Windows 桌面端是发布验证目标；紧凑窗口和移动端使用总览、AI、发现、监控、我的 5 Tab 导航。提交或发布前必须通过格式化、静态分析和全量测试；桌面影响改动还必须通过 Windows Release 构建和真实启动烟测。
+当前开发基线为 `1.5.0+5` 加 `Unreleased` 改动。Windows 桌面端是发布验证目标；紧凑窗口和移动端使用总览、AI、发现、监控、我的 5 Tab 导航。提交或发布前必须通过格式化、静态分析和全量测试；桌面影响改动还必须通过 Windows Release 构建和真实启动烟测。
 
 ## 1. 环境检查
 
@@ -39,7 +39,7 @@ flutter build windows --release --dart-define=GITHUB_OAUTH_CLIENT_ID=your_client
 
 没有该构建配置时，界面会明确引导到 Personal Access Token，不会尝试无效 OAuth 请求。
 
-AI 日报默认使用美团 LongCat。发布方如需预置默认 Key，应只在构建时注入；首次加载后应用会将其迁移到系统安全存储：
+AI 页默认展示无需 Key 的 AI HOT 官方日报；“我的 AI 日报”是独立的可选本地 LLM 能力，默认使用美团 LongCat。发布方如需为“我的 AI 日报”预置默认 Key，应只在构建时注入；首次加载后应用会将其迁移到系统安全存储：
 
 ```bash
 flutter build windows --release --dart-define=AI_DIGEST_DEFAULT_API_KEY=your_longcat_key
@@ -99,7 +99,7 @@ flutter run -d chrome
 - 远端失败时优先回退过期缓存；无缓存时部分列表使用种子数据。
 - GitHub 单资源请求使用 ETag；服务端返回 `304` 时复用本地实体并刷新缓存时间。
 - 仓库和报告活动来自 GitHub Events API；远端失败时只使用对应过期缓存或显示空态。
-- 仓库监控规则仍在取得真实仓库数据时计算；AI 资讯在 Windows 进程隐藏到托盘后每 15 分钟刷新并写入本地提醒中心。
+- 仓库监控规则仍在取得真实仓库数据时计算；AI 资讯在 Windows 进程隐藏到托盘后每 30 分钟比较 AI HOT 精选流指纹，仅在变化时读取条目并写入本地提醒中心。
 - 告警、观测、快照和偏好都保存在本机；清除应用数据会同时清除这些历史。
 - 启动初始化失败时应用保留现有数据并提供重试和打开数据目录；不会自动重建数据库。
 

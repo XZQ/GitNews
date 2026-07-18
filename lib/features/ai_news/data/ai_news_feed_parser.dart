@@ -7,8 +7,10 @@ import '../domain/ai_news_item.dart';
 /*
 *RSS 2.0 / Atom feed 解析器(纯函数,便于单测)。
 *把补充源条目直接映射为 [AiNewsItem]:
-*- id:`rss:<sourceId>:<fnv1a(link)>`,内容寻址、跨次拉取稳定
-*- category:取源配置的默认分类
+*- AI HOT RSS 优先用 guid 作 id,与 REST id 同一空间
+*- category:优先条目 category,回退源配置默认分类
+*- author/content:encoded:解析并以安全纯文本进入领域模型
+*- AI HOT 条目 link 作 permalink,description 中的“阅读原文”作 url
 *- summary:剥离 HTML 标签并截断
 *- publishedAt:统一转 UTC;缺失时用 [fallbackTime]
 */
@@ -50,13 +52,27 @@ List<AiNewsItem> _parseRss(XmlElement rss, AiNewsSourceConfig source, DateTime f
       continue;
     }
     final publishedAt = _parseFeedDate(_text(node, 'pubDate')) ?? _parseFeedDate(_text(node, 'date')) ?? channelDate;
-    items.add(_buildItem(
-      source: source,
-      title: title,
-      link: link.trim(),
-      summary: _text(node, 'description'),
-      publishedAt: publishedAt,
-    ));
+    final description = _text(node, 'description');
+    final guid = _text(node, 'guid');
+    final author = _text(node, 'author').isNotEmpty ? _text(node, 'author') : _text(node, 'creator');
+    final content = _text(node, 'encoded');
+    final category = _rssCategory(node);
+    final permalink = link.trim();
+    final originalUrl = source.usesAiHotContract ? (_extractOriginalUrl(description) ?? permalink) : permalink;
+    items.add(
+      _buildItem(
+        source: source,
+        title: title,
+        link: originalUrl,
+        permalink: permalink,
+        guid: guid,
+        author: author,
+        content: content,
+        categoryCode: category,
+        summary: description,
+        publishedAt: publishedAt,
+      ),
+    );
   }
   return items;
 }
@@ -71,13 +87,21 @@ List<AiNewsItem> _parseAtom(XmlElement feed, AiNewsSourceConfig source, DateTime
     }
     final publishedAt = _parseFeedDate(_text(node, 'published')) ?? _parseFeedDate(_text(node, 'updated')) ?? fallback;
     final summary = _text(node, 'summary');
-    items.add(_buildItem(
-      source: source,
-      title: title,
-      link: link,
-      summary: summary.isNotEmpty ? summary : _text(node, 'content'),
-      publishedAt: publishedAt,
-    ));
+    final content = _text(node, 'content');
+    items.add(
+      _buildItem(
+        source: source,
+        title: title,
+        link: link,
+        permalink: link,
+        guid: _text(node, 'id'),
+        author: _atomAuthor(node),
+        content: content,
+        categoryCode: _atomCategory(node),
+        summary: summary.isNotEmpty ? summary : content,
+        publishedAt: publishedAt,
+      ),
+    );
   }
   return items;
 }
@@ -86,23 +110,92 @@ AiNewsItem _buildItem({
   required AiNewsSourceConfig source,
   required String title,
   required String link,
+  required String permalink,
+  required String guid,
+  required String author,
+  required String content,
+  required String categoryCode,
   required String summary,
   required DateTime publishedAt,
 }) {
+  final stableIdentity = guid.trim().isNotEmpty ? guid.trim() : link;
+  final id = source.usesAiHotContract && guid.trim().isNotEmpty ? guid.trim() : 'rss:${source.id}:${fnv1aHex(stableIdentity)}';
   return AiNewsItem(
-    id: 'rss:${source.id}:${fnv1aHex(link)}',
-    category: AiNewsCategory.fromCode(source.categoryCode) ?? AiNewsCategory.industry,
+    id: id,
+    category: _categoryFromFeed(categoryCode) ?? AiNewsCategory.fromCode(source.categoryCode) ?? AiNewsCategory.industry,
     title: title,
     // 补充源均为英文源:主标题即原文,不重复占用副标题位。
     titleEn: '',
     summary: _truncate(_cleanText(summary), 600),
-    source: source.name,
+    source: _sourceName(author, source.name),
     url: link,
-    permalink: link,
+    permalink: permalink,
     publishedAt: publishedAt.toUtc(),
     score: 0,
-    selected: false,
+    selected: source.usesAiHotContract,
+    author: author.trim(),
+    content: _truncate(_cleanText(content), 8000),
+    attributionSource: source.usesAiHotContract ? 'AI HOT' : '',
   );
+}
+
+String _rssCategory(XmlElement item) {
+  for (final child in item.childElements) {
+    if (child.name.local == 'category') {
+      return child.innerText.trim();
+    }
+  }
+  return '';
+}
+
+String _atomCategory(XmlElement entry) {
+  for (final child in entry.childElements) {
+    if (child.name.local == 'category') {
+      return child.getAttribute('term')?.trim() ?? child.innerText.trim();
+    }
+  }
+  return '';
+}
+
+String _atomAuthor(XmlElement entry) {
+  for (final child in entry.childElements) {
+    if (child.name.local != 'author') {
+      continue;
+    }
+    return _text(child, 'name').isNotEmpty ? _text(child, 'name') : child.innerText.trim();
+  }
+  return '';
+}
+
+AiNewsCategory? _categoryFromFeed(String raw) {
+  final normalized = raw.trim().toLowerCase();
+  final direct = AiNewsCategory.fromCode(normalized);
+  if (direct != null) {
+    return direct;
+  }
+  return switch (normalized) {
+    '模型发布/更新' || '模型' => AiNewsCategory.aiModels,
+    '产品发布/更新' || '产品' => AiNewsCategory.aiProducts,
+    '论文研究' || '论文' => AiNewsCategory.paper,
+    '技巧观点' || '技巧与观点' || '技巧' => AiNewsCategory.tip,
+    '行业动态' || '行业' => AiNewsCategory.industry,
+    _ => null,
+  };
+}
+
+String _sourceName(String author, String fallback) {
+  final trimmed = author.trim();
+  if (trimmed.isEmpty) {
+    return fallback;
+  }
+  final match = RegExp(r'\((.+)\)$').firstMatch(trimmed);
+  return match?.group(1)?.trim().isNotEmpty == true ? match!.group(1)!.trim() : trimmed;
+}
+
+String? _extractOriginalUrl(String description) {
+  final text = _cleanText(description);
+  final match = RegExp(r'(?:阅读原文|原文|Original)\s*[:：]?\s*(https?://[^\s]+)', caseSensitive: false).firstMatch(text);
+  return match?.group(1)?.replaceFirst(RegExp(r'[。，,;)]]+$'), '');
 }
 
 // Atom 的 link 是元素属性:优先 rel=alternate,退回第一个带 href 的 link。

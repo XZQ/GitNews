@@ -103,6 +103,27 @@ class JsonSnapshotCacheDao {
       await _meta.writeEtag(key, etag);
     }
   }
+
+  /* 读取 payload 与 ETag/Last-Modified 校验器。 */
+  Future<ValidatedCacheEntry> readWithValidators(String key) async {
+    final payload = await read(key);
+    final validators = await _meta.readValidators(key);
+    return ValidatedCacheEntry(
+      payload: payload,
+      validators: validators,
+    );
+  }
+
+  /* 同时写入 payload 与完整 HTTP 校验器。 */
+  Future<void> upsertWithValidators({
+    required String key,
+    required Map<String, Object?> payload,
+    required DateTime now,
+    required HttpCacheValidators validators,
+  }) async {
+    await upsert(key: key, payload: payload, now: now);
+    await _meta.writeValidators(key, validators);
+  }
 }
 
 /* 
@@ -112,4 +133,17 @@ class EtaggedEntry {
   const EtaggedEntry({this.payload, this.etag});
   final Map<String, Object?>? payload;
   final String? etag;
+}
+
+/*
+*快照缓存与完整 HTTP 校验器。
+*/
+class ValidatedCacheEntry {
+  const ValidatedCacheEntry({this.payload, this.validators = const HttpCacheValidators()});
+
+  // 已解码的缓存快照。
+  final Map<String, Object?>? payload;
+
+  // 用于下次条件请求的校验器。
+  final HttpCacheValidators validators;
 }

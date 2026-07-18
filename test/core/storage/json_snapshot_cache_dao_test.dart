@@ -174,5 +174,23 @@ void main() {
       expect(entry.payload, {'a': 2});
       expect(entry.etag, 'W/"abc"');
     });
+
+    test('validated snapshot stores Last-Modified with payload', () async {
+      await dao.upsertWithValidators(
+        key: 'feed',
+        payload: const {'kind': 'text', 'data': '<rss />'},
+        validators: const HttpCacheValidators(
+          etag: 'W/"feed"',
+          lastModified: 'Sat, 18 Jul 2026 04:47:25 GMT',
+        ),
+        now: DateTime.utc(2026, 7, 19),
+      );
+
+      final entry = await dao.readWithValidators('feed');
+
+      expect(entry.payload?['data'], '<rss />');
+      expect(entry.validators.etag, 'W/"feed"');
+      expect(entry.validators.lastModified, 'Sat, 18 Jul 2026 04:47:25 GMT');
+    });
   });
 }

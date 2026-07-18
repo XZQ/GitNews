@@ -121,6 +121,33 @@ class CacheMetaDao {
     }
   }
 
+  /* 读取 HTTP 条件请求的 ETag 与 Last-Modified。 */
+  Future<HttpCacheValidators> readValidators(String cacheKey) async {
+    try {
+      final rows = await _db.query(
+        _table,
+        columns: ['payload_hash', 'ext1'],
+        where: 'cache_key = ?',
+        whereArgs: [cacheKey],
+        limit: 1,
+      );
+      if (rows.isEmpty) {
+        return const HttpCacheValidators();
+      }
+      return HttpCacheValidators(
+        etag: rows.first['payload_hash'] as String?,
+        lastModified: rows.first['ext1'] as String?,
+      );
+    } catch (e, st) {
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'readValidators', 'cacheKey': cacheKey},
+      );
+    }
+  }
+
   /* 
   *写入或覆盖 cache_key 对应的 ETag(payload_hash 列),
   *保留已存在的 last_fetched_at(若行不存在则用 0 占位)。
@@ -129,19 +156,64 @@ class CacheMetaDao {
     try {
       final existing = await _db.query(
         _table,
-        columns: ['last_fetched_at'],
+        columns: ['cache_key'],
         where: 'cache_key = ?',
         whereArgs: [cacheKey],
         limit: 1,
       );
-      final lastFetched = existing.isEmpty ? 0 : (existing.first['last_fetched_at'] as int? ?? 0);
-      await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': lastFetched, 'payload_hash': etag}, conflictAlgorithm: ConflictAlgorithm.replace);
+      if (existing.isEmpty) {
+        await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': 0, 'payload_hash': etag});
+      } else {
+        await _db.update(
+          _table,
+          {'payload_hash': etag},
+          where: 'cache_key = ?',
+          whereArgs: [cacheKey],
+        );
+      }
     } catch (e, st) {
       throw AppException(
         kind: AppExceptionKind.cache,
         cause: e,
         stack: st,
         meta: {'op': 'writeEtag', 'cacheKey': cacheKey},
+      );
+    }
+  }
+
+  /* 覆盖保存 HTTP 校验器;传 null 会清理对应旧值。 */
+  Future<void> writeValidators(String cacheKey, HttpCacheValidators validators) async {
+    try {
+      final existing = await _db.query(
+        _table,
+        columns: ['cache_key'],
+        where: 'cache_key = ?',
+        whereArgs: [cacheKey],
+        limit: 1,
+      );
+      final values = <String, Object?>{
+        'payload_hash': validators.etag,
+        'ext1': validators.lastModified,
+      };
+      if (existing.isEmpty) {
+        await _db.insert(
+          _table,
+          {'cache_key': cacheKey, 'last_fetched_at': 0, ...values},
+        );
+      } else {
+        await _db.update(
+          _table,
+          values,
+          where: 'cache_key = ?',
+          whereArgs: [cacheKey],
+        );
+      }
+    } catch (e, st) {
+      throw AppException(
+        kind: AppExceptionKind.cache,
+        cause: e,
+        stack: st,
+        meta: {'op': 'writeValidators', 'cacheKey': cacheKey},
       );
     }
   }
@@ -159,4 +231,18 @@ class CacheMetaDao {
       return 0;
     }
   }
+}
+
+/*
+*HTTP 条件请求校验器。
+*ETag 用于 If-None-Match,Last-Modified 用于 If-Modified-Since。
+*/
+class HttpCacheValidators {
+  const HttpCacheValidators({this.etag, this.lastModified});
+
+  // 当前资源 ETag。
+  final String? etag;
+
+  // 当前资源 Last-Modified HTTP 日期。
+  final String? lastModified;
 }

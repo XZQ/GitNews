@@ -12,7 +12,7 @@ import 'ai_news_rss_client.dart';
 *- 游标翻页:RSS 无分页概念,直接透传主源
 *- 关键词搜索:只有主源支持服务端搜索,同样透传
 *- 失败隔离:单个 RSS 源失败静默丢弃;主源失败但存在 RSS 结果时
-*  模块仍返回 live 数据(这正是引入多源要消除的单点);全军覆没才抛错
+*  模块仍按 RSS 的真实新鲜度返回数据;全军覆没才抛错
 */
 class AggregatedAiNewsRepository implements AiNewsRepository {
   const AggregatedAiNewsRepository(
@@ -66,7 +66,7 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
 
     final extras = [
       for (final o in rssOutcomes)
-        if (o.value != null) o.value!
+        if (o.value != null) o.value!.data
     ];
     final primaryDigest = primaryOutcome.value?.data;
     if (primaryDigest == null && extras.isEmpty) {
@@ -75,14 +75,21 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
     }
 
     final merged = mergeAiNewsItems(primary: primaryDigest?.items ?? const [], extras: extras);
+    final sourceFreshness = [
+      if (primaryOutcome.value != null) primaryOutcome.value!.freshness,
+      for (final outcome in rssOutcomes)
+        if (outcome.value != null) outcome.value!.freshness,
+    ];
     return DataResult(
-        data: AiNewsDigest(
-            items: merged,
-            count: merged.length,
-            // 分页能力完全由主源提供;主源失败时本页即为全部。
-            hasNext: primaryDigest?.hasNext ?? false,
-            nextCursor: primaryDigest?.nextCursor),
-        freshness: DataFreshness.live);
+      data: AiNewsDigest(
+        items: merged,
+        count: merged.length,
+        // 分页能力完全由主源提供;主源失败时本页即为全部。
+        hasNext: primaryDigest?.hasNext ?? false,
+        nextCursor: primaryDigest?.nextCursor,
+      ),
+      freshness: _combinedFreshness(sourceFreshness),
+    );
   }
 
   static Future<_Outcome<T>> _guard<T>(Future<T> Function() run) async {
@@ -93,7 +100,7 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
     }
   }
 
-  Future<_Outcome<List<AiNewsItem>>> _fetchSource(AiNewsSourceConfig source, DateTime now) async {
+  Future<_Outcome<DataResult<List<AiNewsItem>>>> _fetchSource(AiNewsSourceConfig source, DateTime now) async {
     try {
       final items = await _rssClient.fetchSource(source, now: now);
       await _reportSuccess(source.id, now);
@@ -102,6 +109,19 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
       await _reportFailure(source.id, now, error);
       return _Outcome(error: error);
     }
+  }
+
+  static DataFreshness _combinedFreshness(List<DataFreshness> values) {
+    if (values.contains(DataFreshness.live)) {
+      return DataFreshness.live;
+    }
+    if (values.contains(DataFreshness.freshCache)) {
+      return DataFreshness.freshCache;
+    }
+    if (values.contains(DataFreshness.staleCache)) {
+      return DataFreshness.staleCache;
+    }
+    return DataFreshness.seed;
   }
 
   Future<void> _reportSuccess(String sourceId, DateTime at) async {
