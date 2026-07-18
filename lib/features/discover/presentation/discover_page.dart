@@ -13,7 +13,7 @@ import 'discover_sections.dart';
 import 'widgets/discover_segmented.dart';
 
 /*
- *发现页:流行仓库 Top20 + Agent Skills 榜,行尾一键加/移监控。
+ *发现页:流行仓库 + Agent Skills 榜,行尾一键加/移监控。
  */
 class DiscoverHubPage extends ConsumerStatefulWidget {
   const DiscoverHubPage({super.key});
@@ -56,9 +56,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     if (notification.metrics.axis != Axis.vertical) {
       return false;
     }
-    final twoColumn = Breakpoints.isExpanded(context);
-    final extent = twoColumn ? discoverItemExtentCards / 2 : discoverItemExtentCards;
-    final remaining = notification.metrics.extentAfter / extent;
+    final remaining = notification.metrics.extentAfter / discoverItemExtentCards;
     if (remaining > discoverLoadMoreRemainingItems) {
       return false;
     }

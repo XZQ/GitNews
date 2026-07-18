@@ -505,11 +505,11 @@ const Map<String, String> stringsZhCN = <String, String>{
   // discover (发现页:流行仓库 Top20 + Agent Skills 榜 + 监控开关)
   'discover.title': '发现',
   'discover.subtitle': '探索最流行的仓库与 AI Agent Skills',
-  'discover.tab.repos': '流行仓库 Top20',
+  'discover.tab.repos': '流行仓库',
   'discover.tab.skills': 'Agent Skills 榜',
   'discover.tab.official': '官方内容',
   'discover.tab.people': '知名人士',
-  'discover.tab.repos.compact': 'Top20',
+  'discover.tab.repos.compact': '流行仓库',
   'discover.tab.skills.compact': 'Skills',
   'discover.tab.official.compact': '官方',
   'discover.tab.people.compact': '人物',

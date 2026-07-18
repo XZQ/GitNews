@@ -97,8 +97,61 @@ void main() {
     expect(find.text('实时数据'), findsNothing);
     expect(find.byIcon(Icons.refresh_rounded), findsNothing);
     expect(find.byType(HeaderSearchField), findsOneWidget);
+    expect(find.text('流行仓库'), findsOneWidget);
+    expect(find.text('流行仓库 Top20'), findsNothing);
     expect(tester.getTopLeft(find.byType(HeaderSearchField)).dy, lessThan(tester.getBottomLeft(find.text('发现')).dy));
     expect(find.descendant(of: find.byType(DiscoverSegmented), matching: find.byType(Text)), findsNWidgets(4));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('桌面发现页使用单列仓库卡片并隐藏无解释力的趋势口径', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final repos = List.generate(
+      2,
+      (index) => RepoEntity(
+        fullName: 'owner/repository-$index',
+        description: '用于验证桌面发现页布局的仓库。',
+        language: 'Dart',
+        starCount: 1000 + index,
+        starDelta: 0,
+        forkCount: 100 + index,
+        accentArgb: 0xFF12B886,
+        trendBasis: MetricBasis.estimated,
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          trendingReposNotifierProvider.overrideWith(() => _StaticTrendingReposNotifier(repos)),
+          localContentControllerProvider.overrideWith(_StaticLocalContentController.new),
+        ],
+        child: const MaterialApp(
+          locale: Locale('zh', 'CN'),
+          localizationsDelegates: [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: DiscoverHubPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final first = tester.getTopLeft(find.text('owner/repository-0'));
+    final second = tester.getTopLeft(find.text('owner/repository-1'));
+    expect(second.dx, first.dx);
+    expect(second.dy, greaterThan(first.dy));
+    expect(find.text('估算'), findsNothing);
+    expect(find.text('—'), findsNothing);
+    expect(find.text('流行仓库'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 

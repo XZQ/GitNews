@@ -18,10 +18,7 @@ import 'widgets/discover_profile_row.dart';
 import 'widgets/discover_repo_row.dart';
 
 /*
- *发现页列表容器:桌面端(≥1024)一行 2 项,其余单列卡片。
- *
- *桌面端两列通过把相邻两项包进同一 `Row` 实现,行高由较高的项决定,
- *避免 GridView 强制 aspectRatio 带来的描述文字裁切。
+ *发现页列表容器:所有窗口宽度均使用单列,保证仓库描述与指标可连续扫读。
  */
 Widget _buildDiscoverList({
   required BuildContext context,
@@ -29,32 +26,11 @@ Widget _buildDiscoverList({
   required bool hasMore,
   required Widget Function(BuildContext, int) itemBuilder,
 }) {
-  final twoColumn = Breakpoints.isExpanded(context);
-  final cardPadding = const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, AppSpacing.xxxl);
-  if (twoColumn) {
-    final rowCount = (itemCount + 1) ~/ 2;
-    return ListView.separated(
-        padding: cardPadding,
-        itemCount: rowCount + (hasMore ? 1 : 0),
-        separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
-        itemBuilder: (context, row) {
-          if (row >= rowCount) {
-            return const DiscoverLoadMoreIndicator();
-          }
-          final i1 = row * 2;
-          final i2 = i1 + 1;
-          return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(child: itemBuilder(context, i1)),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(child: i2 < itemCount ? itemBuilder(context, i2) : const SizedBox()),
-          ]);
-        });
-  }
-  // 单列(手机 / 平板):统一卡片式条目,与监控页、趋势页移动端保持一致。
+  final compact = Breakpoints.isCompact(context);
   return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.xxxl),
+      padding: EdgeInsets.fromLTRB(AppSpacing.lg, compact ? AppSpacing.xs : AppSpacing.md, compact ? AppSpacing.lg : AppSpacing.xl, AppSpacing.xxxl),
       itemCount: itemCount + (hasMore ? 1 : 0),
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+      separatorBuilder: (_, __) => SizedBox(height: compact ? AppSpacing.sm : AppSpacing.md),
       itemBuilder: (context, i) {
         if (i >= itemCount) {
           return const DiscoverLoadMoreIndicator();

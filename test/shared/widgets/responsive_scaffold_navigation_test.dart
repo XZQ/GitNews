@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/di/providers.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
+import 'package:github_news/shared/widgets/app_sidebar.dart';
 import 'package:github_news/shared/widgets/responsive_scaffold.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   testWidgets('发现与今日二级页全屏且返回后恢复底部导航', (tester) async {
@@ -15,7 +18,9 @@ void main() {
 
     final router = _router();
     addTearDown(router.dispose);
-    await tester.pumpWidget(_TestApp(router: router));
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    await tester.pumpWidget(_TestApp(router: router, preferences: preferences));
     await tester.pumpAndSettle();
 
     expect(find.text('发现一级页'), findsOneWidget);
@@ -46,6 +51,25 @@ void main() {
 
     expect(find.text('今日一级页'), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
+  });
+
+  testWidgets('桌面内容区与侧栏边界直接贴合', (tester) async {
+    tester.view.physicalSize = const Size(1280, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final router = _router();
+    addTearDown(router.dispose);
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    await tester.pumpWidget(_TestApp(router: router, preferences: preferences));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AppSidebar), findsOneWidget);
+    expect(find.byType(SafeArea), findsOneWidget);
+    expect(tester.getTopRight(find.byType(AppSidebar)).dx, tester.getTopLeft(find.byType(SafeArea)).dx);
+    expect(tester.takeException(), isNull);
   });
 }
 
@@ -90,14 +114,18 @@ StatefulShellBranch _branch(String path, Widget root, {List<RouteBase> routes = 
 *测试应用壳,提供底部导航所需的本地化上下文。
 */
 class _TestApp extends StatelessWidget {
-  const _TestApp({required this.router});
+  const _TestApp({required this.router, this.preferences});
 
   // 测试路由器。
   final GoRouter router;
 
+  // 桌面侧栏依赖的本地偏好;移动布局不读取时可省略。
+  final SharedPreferences? preferences;
+
   @override
   Widget build(BuildContext context) {
     return ProviderScope(
+      overrides: [if (preferences != null) sharedPreferencesProvider.overrideWithValue(preferences!)],
       child: MaterialApp.router(
         locale: const Locale('zh', 'CN'),
         localizationsDelegates: const [

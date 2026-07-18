@@ -55,8 +55,24 @@ class ResponsiveScaffold extends StatelessWidget {
     return switch (formFactor) {
       FormFactor.compact => throw StateError('compact handled above'),
       FormFactor.medium => Scaffold(body: Row(children: [_SideRail(currentIndex: index, onTap: onTap), Expanded(child: SafeArea(child: navigationShell))])),
-      FormFactor.expanded => Scaffold(body: Row(children: [AppSidebar(currentIndex: index, onTap: onTap), const _SidebarDragHandle(), Expanded(child: SafeArea(child: navigationShell))]))
+      FormFactor.expanded => Scaffold(body: Row(children: [_DesktopSidebar(currentIndex: index, onTap: onTap), Expanded(child: SafeArea(child: navigationShell))]))
     };
+  }
+}
+
+/* 将侧栏拖拽热区叠放在 A/B 区域边界内,不再用额外空隙隔开页面标题栏。 */
+class _DesktopSidebar extends StatelessWidget {
+  const _DesktopSidebar({required this.currentIndex, required this.onTap});
+
+  final int currentIndex;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(children: [
+      AppSidebar(currentIndex: currentIndex, onTap: onTap),
+      const Positioned(top: 0, right: 0, bottom: 0, child: _SidebarDragHandle()),
+    ]);
   }
 }
 
@@ -76,7 +92,7 @@ bool isMobilePrimaryLocation(String location) {
 }
 
 /* 
-*侧栏拖拽手柄:用户拖动以改变侧栏宽度(200–800px)。
+*侧栏拖拽手柄:覆盖在侧栏右边界内,用户拖动以改变侧栏宽度(200–360px)。
 */
 class _SidebarDragHandle extends ConsumerStatefulWidget {
   const _SidebarDragHandle();

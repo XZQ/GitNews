@@ -86,8 +86,6 @@ class DiscoverMonitorRow extends ConsumerWidget {
                     _Pill(text: repo.language, color: accent),
                     _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
                     _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.secondary),
-                    _DeltaPill(value: repo.starDelta),
-                    MetricBasisBadge(basis: repo.trendBasis),
                   ],
                 ),
             ],
@@ -304,27 +302,6 @@ class _IconMetric extends StatelessWidget {
         const SizedBox(width: AppSpacing.xxs),
         Text(value, style: AppTypography.labelSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600))
       ],
-    );
-  }
-}
-
-class _DeltaPill extends StatelessWidget {
-  const _DeltaPill({required this.value});
-
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    if (value == 0) {
-      return _Pill(
-        text: '—',
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      );
-    }
-    final color = value > 0 ? AppColors.success : AppColors.danger;
-    return _Pill(
-      text: value > 0 ? '+${_shortNumber(value)}' : _shortNumber(value),
-      color: color,
     );
   }
 }

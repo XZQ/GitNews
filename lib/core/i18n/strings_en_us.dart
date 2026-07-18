@@ -506,11 +506,11 @@ const Map<String, String> stringsEnUS = <String, String>{
   // discover
   'discover.title': 'Discover',
   'discover.subtitle': 'Explore the most popular repos & AI Agent Skills',
-  'discover.tab.repos': 'Top 20 Repos',
+  'discover.tab.repos': 'Popular Repos',
   'discover.tab.skills': 'Agent Skills',
   'discover.tab.official': 'Official',
   'discover.tab.people': 'People',
-  'discover.tab.repos.compact': 'Top 20',
+  'discover.tab.repos.compact': 'Popular',
   'discover.tab.skills.compact': 'Skills',
   'discover.tab.official.compact': 'Official',
   'discover.tab.people.compact': 'People',
