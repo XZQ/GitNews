@@ -111,6 +111,10 @@ app.*.map.json
 # Service account files
 **/google-services.json
 **/GoogleService-Info.plist
+
+# Local Android release signing material
+/key/
+
 /.workbuddy/
 /.codex/
 /.agents/
