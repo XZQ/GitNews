@@ -36,6 +36,7 @@ class _PagedAiNewsRepository implements AiNewsRepository {
 
   final Map<String?, AiNewsDigest> _pages;
   final List<String?> cursors = [];
+  final List<bool> selectedOnlyValues = [];
 
   @override
   Future<DataResult<AiNewsDigest>> fetchItems({
@@ -46,6 +47,7 @@ class _PagedAiNewsRepository implements AiNewsRepository {
     bool selectedOnly = true,
   }) async {
     cursors.add(cursor);
+    selectedOnlyValues.add(selectedOnly);
     return DataResult(data: _pages[cursor] ?? const AiNewsDigest(items: [], count: 0, hasNext: false), freshness: DataFreshness.live);
   }
 }
@@ -216,6 +218,31 @@ void main() {
     final loaded = container.read(aiNewsItemsNotifierProvider).valueOrNull!;
     expect(loaded.map((e) => e.id).toList(), [for (var i = 0; i < aiNewsPageSize; i++) 'head_$i', 'next_1', 'next_2']);
     expect(repo.cursors, [null, 'cursor_2']);
+    expect(repo.selectedOnlyValues, everyElement(isFalse));
+    expect(container.read(aiNewsItemsNotifierProvider.notifier).hasMore, isFalse);
+  });
+
+  test('游标页全部重复时应继续请求直到出现新条目或到达终点', () async {
+    final repo = _PagedAiNewsRepository({
+      null: AiNewsDigest(
+        items: [for (var i = 0; i < aiNewsPageSize; i++) _item('head_$i')],
+        count: aiNewsPageSize,
+        hasNext: true,
+        nextCursor: 'cursor_2',
+      ),
+      'cursor_2': AiNewsDigest(items: [_item('head_9')], count: 1, hasNext: true, nextCursor: 'cursor_3'),
+      'cursor_3': AiNewsDigest(items: [_item('next_1')], count: 1, hasNext: false),
+    });
+    final container = makeContainer(repo);
+    final sub = container.listen(aiNewsItemsNotifierProvider, (prev, next) {});
+    addTearDown(sub.close);
+
+    await container.read(aiNewsItemsNotifierProvider.future);
+    await container.read(aiNewsItemsNotifierProvider.notifier).loadMore();
+
+    final loaded = container.read(aiNewsItemsNotifierProvider).valueOrNull!;
+    expect(loaded.map((e) => e.id), contains('next_1'));
+    expect(repo.cursors, [null, 'cursor_2', 'cursor_3']);
     expect(container.read(aiNewsItemsNotifierProvider.notifier).hasMore, isFalse);
   });
 

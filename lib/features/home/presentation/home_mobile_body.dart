@@ -26,6 +26,8 @@ class HomeMobileBody extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: const [
+        HomeMobileAgentOverview(),
+        SizedBox(height: AppSpacing.lg),
         HomeMobileTrendingOverview(),
         SizedBox(height: AppSpacing.lg),
         HomeMobileRadarOverview(),

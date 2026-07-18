@@ -65,7 +65,8 @@ void main() {
       tester.element(find.byIcon(Icons.thumb_up_alt_rounded)),
     ).colorScheme.primary;
 
-    expect(find.text('赞 75'), findsOneWidget);
+    expect(find.text('赞'), findsOneWidget);
+    expect(find.textContaining('75'), findsNothing);
     expect(likedIcon.color, selectedColor);
     expect(savedIcon.color, selectedColor);
     expect(tester.takeException(), isNull);

@@ -67,7 +67,7 @@ bool isMobileFullScreenLocation(String location) {
 
 /* AI 主页面和所有移动端全屏二级页由内部 AppBar 接管状态栏。 */
 bool usesImmersiveStatusBar(String location) {
-  return location == '/ai_news' || isMobileFullScreenLocation(location);
+  return location == '/ai_news' || location == '/profile' || isMobileFullScreenLocation(location);
 }
 
 /* 移动端五个一级目的地;这些页面需要双击返回退出保护。 */

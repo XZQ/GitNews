@@ -24,10 +24,8 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: Text(l10n.tr('profile.title'), style: AppTypography.headlineLarge.copyWith(color: Theme.of(context).colorScheme.onSurface))) : null,
       body: ResponsiveLayout(compact: (_) => const _Mobile(), medium: (_) => const _Desktop(), expanded: (_) => const _Desktop()),
     );
   }
@@ -38,23 +36,43 @@ class _Mobile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
-      children: const [
-        ProfileUserCard(),
-        SizedBox(height: AppSpacing.lg),
-        ProfileOverviewListCard(),
-        SizedBox(height: AppSpacing.lg),
-        ProfileSettingsCard(),
-        SizedBox(height: AppSpacing.lg),
-        ProfileDataCard(),
-        SizedBox(height: AppSpacing.lg),
-        ProfileAboutCard(),
+      padding: EdgeInsets.zero,
+      children: [
+        Container(
+          color: colors.primary.withValues(alpha: isLight ? 0.08 : 0.16),
+          child: SafeArea(
+            bottom: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
+                  child: Text(l10n.tr('profile.title'), style: AppTypography.headlineLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800)),
+                ),
+                const ProfileUserCard(immersive: true),
+              ],
+            ),
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xl),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProfileOverviewListCard(),
+              SizedBox(height: AppSpacing.lg),
+              ProfileSettingsCard(),
+              SizedBox(height: AppSpacing.lg),
+              ProfileDataCard(),
+              SizedBox(height: AppSpacing.lg),
+              ProfileAboutCard(),
+            ],
+          ),
+        ),
       ],
     );
   }

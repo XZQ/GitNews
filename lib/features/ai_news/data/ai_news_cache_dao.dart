@@ -27,7 +27,7 @@ class AiNewsCacheDao {
   static String cacheKey({AiNewsCategory? category, String? cursor}) {
     final cat = category?.code ?? 'all';
     final cur = (cursor == null || cursor.isEmpty) ? 'head' : cursor;
-    return 'ai_news:items:category=$cat:cursor=$cur';
+    return 'ai_news:v2:mode=all:category=$cat:cursor=$cur';
   }
 
   /* 

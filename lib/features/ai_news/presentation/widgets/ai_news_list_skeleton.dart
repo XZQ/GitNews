@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/skeleton.dart';
 
 class AiNewsListSkeleton extends StatelessWidget {
@@ -43,5 +44,33 @@ class AiNewsLoadMoreIndicator extends StatelessWidget {
           height: 24,
           child: CircularProgressIndicator(strokeWidth: 2.4),
         )));
+  }
+}
+
+class AiNewsEndOfListFooter extends StatelessWidget {
+  const AiNewsEndOfListFooter({required this.label, super.key});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Semantics(
+      label: label,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+        child: Row(
+          children: [
+            Expanded(child: Divider(color: colors.outlineVariant)),
+            const SizedBox(width: AppSpacing.md),
+            Icon(Icons.check_circle_outline_rounded, size: 18, color: colors.onSurfaceVariant),
+            const SizedBox(width: AppSpacing.xs),
+            Text(label, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(child: Divider(color: colors.outlineVariant)),
+          ],
+        ),
+      ),
+    );
   }
 }

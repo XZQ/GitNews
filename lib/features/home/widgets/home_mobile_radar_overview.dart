@@ -19,6 +19,29 @@ import '../../tech_hotspot/presentation/widgets/tech_hotspot_topic_card.dart';
 import '../../trending/application/trending_providers.dart';
 import '../../trending/widgets/trending_topics_panel.dart';
 
+class HomeMobileAgentOverview extends ConsumerWidget {
+  const HomeMobileAgentOverview({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final state = ref.watch(techHotspotDigestProvider);
+    return state.when(
+      data: (digest) => digest.topics.isEmpty
+          ? EmptyView(icon: Icons.radar_rounded, message: l10n.tr('tech_hotspot.empty.agent_signals'))
+          : TechHotspotAgentSignalBoard(topics: digest.topics, compact: true),
+      loading: () => const Skeleton(height: 180),
+      error: (error, stack) => ErrorView(
+        error: error.asAppException(stack),
+        onRetry: () {
+          ref.invalidate(techHotspotDigestResultProvider);
+          ref.invalidate(techHotspotDigestProvider);
+        },
+      ),
+    );
+  }
+}
+
 /*
 * 移动总览中的 AI 雷达摘要，依次展示标签、观察榜、话题趋势、热度和语言占比。
 */
@@ -118,7 +141,7 @@ class _RadarSummarySections extends ConsumerWidget {
     // 话题趋势取自 GitHub 热榜聚合,与雷达数据不同源;设计稿把它排在
     // Agent 榜观察和信号热度之间,所以在这里跨源取一次,而不是把它留在
     // 热榜区块里破坏版面顺序。
-    final trending = ref.watch(trendingDigestProvider);
+    final trending = ref.watch(trendingHomeDigestProvider);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -130,8 +153,6 @@ class _RadarSummarySections extends ConsumerWidget {
             context.push('/tech_hotspot');
           },
         ),
-        const SizedBox(height: AppSpacing.lg),
-        TechHotspotAgentSignalBoard(topics: digest.topics, compact: true),
         const SizedBox(height: AppSpacing.md),
         if (trending.hasValue)
           TrendingTopicsPanel(

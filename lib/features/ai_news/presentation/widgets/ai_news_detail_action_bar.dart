@@ -62,10 +62,9 @@ class AiNewsDetailActionBar extends ConsumerWidget {
               Expanded(
                 child: _DetailActionItem(
                   icon: signal == AiNewsFeedbackSignal.more ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
-                  label: '${l10n.tr('ai_news.detail.like')} ${item.score}',
+                  label: l10n.tr('ai_news.detail.like'),
                   selected: signal == AiNewsFeedbackSignal.more,
                   onTap: () => _toggleFeedback(
-                    context,
                     ref,
                     AiNewsFeedbackSignal.more,
                     signal,
@@ -78,7 +77,6 @@ class AiNewsDetailActionBar extends ConsumerWidget {
                   label: l10n.tr('ai_news.detail.not_interested'),
                   selected: signal == AiNewsFeedbackSignal.less,
                   onTap: () => _toggleFeedback(
-                    context,
                     ref,
                     AiNewsFeedbackSignal.less,
                     signal,
@@ -116,7 +114,6 @@ class AiNewsDetailActionBar extends ConsumerWidget {
 
   /* 切换当前资讯的兴趣信号。 */
   Future<void> _toggleFeedback(
-    BuildContext context,
     WidgetRef ref,
     AiNewsFeedbackSignal next,
     AiNewsFeedbackSignal? current,
@@ -127,13 +124,6 @@ class AiNewsDetailActionBar extends ConsumerWidget {
     } else {
       await controller.set(item, next);
     }
-    if (!context.mounted) {
-      return;
-    }
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.feedback.saved'))));
   }
 
   /* 切换稍后读收藏状态。 */

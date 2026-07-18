@@ -61,17 +61,17 @@ class _MonitorStatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final items = <(String, String)>[
-      ('${stats.monitoredCount}', l10n.tr('monitor.status.monitored')),
-      ('${stats.unreadAlertCount}', l10n.tr('monitor.status.unread')),
-      ('${stats.triggeredTodayCount}', l10n.tr('monitor.status.triggered_today')),
-      ('${stats.totalAlertCount}', l10n.tr('monitor.status.total_alerts')),
+    final items = <(String, String, Color)>[
+      ('${stats.monitoredCount}', l10n.tr('monitor.status.monitored'), AppColors.brand),
+      ('${stats.unreadAlertCount}', l10n.tr('monitor.status.unread'), AppColors.warning),
+      ('${stats.triggeredTodayCount}', l10n.tr('monitor.status.triggered_today'), AppColors.info),
+      ('${stats.totalAlertCount}', l10n.tr('monitor.status.total_alerts'), AppColors.success),
     ];
     return Row(
       children: [
         for (var index = 0; index < items.length; index++) ...[
           if (index != 0) const SizedBox(width: AppSpacing.sm),
-          Expanded(child: _StatCell(value: items[index].$1, label: items[index].$2, highlighted: index == 0)),
+          Expanded(child: _StatCell(value: items[index].$1, label: items[index].$2, color: items[index].$3)),
         ],
       ],
     );
@@ -80,20 +80,22 @@ class _MonitorStatsRow extends StatelessWidget {
 
 /* 单个监控统计单元。 */
 class _StatCell extends StatelessWidget {
-  const _StatCell({required this.value, required this.label, required this.highlighted});
+  const _StatCell({required this.value, required this.label, required this.color});
 
   final String value;
   final String label;
-  final bool highlighted;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
     return AppCard(
+      color: color.withValues(alpha: isLight ? 0.09 : 0.16),
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.md),
       child: Column(
         children: [
-          Text(value, style: AppTypography.monoDisplay.copyWith(color: highlighted ? colors.primary : colors.onSurface)),
+          Text(value, style: AppTypography.monoDisplay.copyWith(color: value == '0' ? colors.onSurfaceVariant : color)),
           const SizedBox(height: AppSpacing.sm),
           Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
         ],

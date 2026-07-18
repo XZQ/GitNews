@@ -24,23 +24,99 @@ import '../../trending/widgets/trending_metrics.dart';
 * 话题趋势同属热榜数据，但设计稿把它排在 AI 雷达之后，因此由
 *   `HomeMobileRadarOverview` 渲染，不在本区块内。
 */
-class HomeMobileTrendingOverview extends ConsumerWidget {
+class HomeMobileTrendingOverview extends ConsumerStatefulWidget {
   const HomeMobileTrendingOverview({super.key});
+
+  @override
+  ConsumerState<HomeMobileTrendingOverview> createState() => _HomeMobileTrendingOverviewState();
+}
+
+class _HomeMobileTrendingOverviewState extends ConsumerState<HomeMobileTrendingOverview> {
+  final Map<String, TrendingDigest> _starDigestCache = {};
+  TrendingDigest? _lastStarDigest;
+  String? _lastStarWindow;
 
   /* 构建热榜两块内容及统一的加载和错误状态。 */
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(trendingDigestProvider);
-    return state.when(
-      data: (digest) => _TrendingSections(digest: digest),
-      loading: () => const _TrendingSkeleton(),
-      error: (error, stack) => ErrorView(
-        error: error.asAppException(stack),
-        onRetry: () {
-          ref.invalidate(trendingDigestResultProvider);
-          ref.invalidate(trendingDigestProvider);
-        },
-      ),
+  Widget build(BuildContext context) {
+    final homeState = ref.watch(trendingHomeDigestProvider);
+    final starState = ref.watch(trendingDigestProvider);
+    final selectedWindow = ref.watch(trendingWindowFilterProvider);
+    final currentDigest = starState.valueOrNull;
+    if (currentDigest != null) {
+      _starDigestCache[selectedWindow] = currentDigest;
+      _lastStarDigest = currentDigest;
+      _lastStarWindow = selectedWindow;
+    }
+    final selectedDigest = _starDigestCache[selectedWindow];
+    final visibleDigest = selectedDigest ?? _lastStarDigest;
+    final visibleWindow = selectedDigest == null ? (_lastStarWindow ?? selectedWindow) : selectedWindow;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        homeState.when(
+          data: (digest) => _HomeHotReposSection(digest: digest),
+          loading: () => const Skeleton(height: 260),
+          error: (error, stack) => ErrorView(
+            error: error.asAppException(stack),
+            onRetry: () {
+              ref.invalidate(trendingHomeDigestResultProvider);
+              ref.invalidate(trendingHomeDigestProvider);
+            },
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        if (visibleDigest != null)
+          Stack(
+            children: [
+              _StarGrowthSection(digest: visibleDigest, dataWindow: visibleWindow),
+              if (starState.isLoading)
+                Positioned(
+                  top: 0,
+                  left: AppSpacing.lg,
+                  right: AppSpacing.lg,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+                    child: LinearProgressIndicator(
+                      minHeight: 2,
+                      backgroundColor: Colors.transparent,
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+            ],
+          )
+        else
+          starState.when(
+            data: (digest) => _StarGrowthSection(digest: digest, dataWindow: selectedWindow),
+            loading: () => const Skeleton(height: 320),
+            error: (error, stack) => ErrorView(
+              error: error.asAppException(stack),
+              onRetry: () {
+                ref.invalidate(trendingDigestResultProvider);
+                ref.invalidate(trendingDigestProvider);
+              },
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _HomeHotReposSection extends StatelessWidget {
+  const _HomeHotReposSection({required this.digest});
+
+  final TrendingDigest digest;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final repos = digest.trendingRepos.take(3).toList(growable: false);
+    return _HotReposCard(
+      repos: repos,
+      meta: l10n.tr('trending.mobile.repos_count').replaceAll('{window}', l10n.tr('trending.window.today')).replaceAll('{count}', '${repos.length}'),
+      title: l10n.tr('trending.page.repos'),
+      emptyMessage: l10n.tr('trending.hot_repos.empty'),
     );
   }
 }
@@ -48,8 +124,10 @@ class HomeMobileTrendingOverview extends ConsumerWidget {
 /*
 * 移动总览中的 GitHub 热榜正文。
 */
-class _TrendingSections extends ConsumerWidget {
-  const _TrendingSections({required this.digest});
+class _StarGrowthSection extends ConsumerWidget {
+  const _StarGrowthSection({required this.digest, required this.dataWindow});
+
+  final String dataWindow;
 
   // 当前时间窗和语言筛选对应的 GitHub 热榜摘要。
   final TrendingDigest digest;
@@ -59,22 +137,12 @@ class _TrendingSections extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final window = ref.watch(trendingWindowFilterProvider);
-    final windowLabel = _windowLabel(l10n, window);
+    final windowLabel = _windowLabel(l10n, dataWindow);
     final repos = digest.trendingRepos.take(3).toList(growable: false);
     final primaryTrend = _tail(digest.primaryTrend, 7);
     final secondaryTrend = _tail(digest.secondaryTrend, 7);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _HotReposCard(
-          repos: repos,
-          meta: l10n.tr('trending.mobile.repos_count').replaceAll('{window}', windowLabel).replaceAll('{count}', '${repos.length}'),
-          title: l10n.tr('trending.page.repos'),
-          emptyMessage: l10n.tr('trending.hot_repos.empty'),
-        ),
-        const SizedBox(height: AppSpacing.lg),
-        AppCard(
-          child: Column(
+    return AppCard(
+      child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // 标题与时间窗切换同处一行:设计稿把切换器视作标题的一部分,
@@ -134,8 +202,6 @@ class _TrendingSections extends ConsumerWidget {
               ),
             ],
           ),
-        ),
-      ],
     );
   }
 

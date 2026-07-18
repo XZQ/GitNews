@@ -12,7 +12,7 @@ import '../../core/theme/app_typography.dart';
 *自带 SafeArea 顶部避让与状态栏样式标注,页面不再需要 AppBar。
 */
 class MobilePageHeader extends StatelessWidget {
-  const MobilePageHeader({required this.title, this.actions = const [], this.search, this.bottom, super.key});
+  const MobilePageHeader({required this.title, this.actions = const [], this.search, this.inlineSearch = false, this.bottom, super.key});
 
   final String title;
 
@@ -21,6 +21,9 @@ class MobilePageHeader extends StatelessWidget {
 
   // 细搜索栏(如 HeaderSearchField)。
   final Widget? search;
+
+  // 灏嗘悳绱㈡涓庢爣棰樻斁鍦ㄥ悓涓€琛岋紝閫傚悎浠ュ揩閫熸绱负棣栬浠诲姟鐨勯〉闈€銆?
+  final bool inlineSearch;
 
   // 标题/搜索下方的插槽(分类 chips 等)。
   final Widget? bottom;
@@ -43,19 +46,31 @@ class MobilePageHeader extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Expanded(
-                  child: Text(
+                if (inlineSearch)
+                  Text(
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.headlineLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
+                  )
+                else
+                  Expanded(
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.headlineLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
+                    ),
                   ),
-                ),
+                if (inlineSearch && search != null) ...[
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(child: search!),
+                ],
                 ...actions,
               ],
             ),
           ),
-          if (search != null)
+          if (search != null && !inlineSearch)
             Padding(
               padding: const EdgeInsets.fromLTRB(
                 AppSpacing.lg,

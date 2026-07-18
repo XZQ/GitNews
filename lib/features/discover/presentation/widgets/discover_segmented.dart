@@ -33,7 +33,7 @@ class DiscoverSegmented extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     if (compact) {
       // 移动端按设计稿固定三类入口;「官方内容」汇总官方账号与知名人士。
-      final compactItems = _items.take(3).toList(growable: false);
+      final compactItems = _items;
       return SizedBox(
         height: 44,
         child: Padding(
@@ -43,10 +43,9 @@ class DiscoverSegmented extends StatelessWidget {
               for (var i = 0; i < compactItems.length; i++) ...[
                 if (i > 0) const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  flex: i == 2 ? 3 : 4,
                   child: _CompactSegmentChip(
-                    selected: value == compactItems[i].value || (compactItems[i].value == 'official' && value == 'people'),
-                    label: l10n.tr(compactItems[i].labelKey),
+                    selected: value == compactItems[i].value,
+                    label: l10n.tr('discover.tab.${compactItems[i].value}.compact'),
                     onTap: () {
                       if (value != compactItems[i].value) {
                         onChanged(compactItems[i].value);

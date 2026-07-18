@@ -31,24 +31,15 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     }
     setState(() => _refreshing = true);
     try {
-      ref.read(discoverRefreshTickProvider.notifier).state++;
-      ref.invalidate(trendingReposNotifierProvider);
-      ref.invalidate(agentSkillsNotifierProvider);
-      ref.invalidate(officialProfilesNotifierProvider);
-      ref.invalidate(peopleProfilesNotifierProvider);
       switch (ref.read(discoverSegmentProvider)) {
         case 'skills':
-          await ref.read(agentSkillsNotifierProvider.future);
+          await ref.read(agentSkillsNotifierProvider.notifier).refresh();
         case 'official':
-          if (Breakpoints.isCompact(context)) {
-            await ref.read(filteredFeaturedProfilesProvider.future);
-          } else {
-            await ref.read(filteredOfficialProfilesProvider.future);
-          }
+          await ref.read(officialProfilesNotifierProvider.notifier).refresh();
         case 'people':
-          await ref.read(filteredPeopleProfilesProvider.future);
+          await ref.read(peopleProfilesNotifierProvider.notifier).refresh();
         default:
-          await ref.read(trendingReposNotifierProvider.future);
+          await ref.read(trendingReposNotifierProvider.notifier).refresh();
       }
     } finally {
       if (mounted) {
@@ -93,7 +84,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
     final colors = Theme.of(context).colorScheme;
     final isCompact = Breakpoints.isCompact(context);
     final segment = ref.watch(discoverSegmentProvider);
-    final visibleSegment = isCompact && segment == 'people' ? 'official' : segment;
+    final visibleSegment = segment;
     final query = ref.watch(discoverSearchQueryProvider);
     final content = NestedScrollView(
       physics: isCompact ? const AlwaysScrollableScrollPhysics() : null,
@@ -120,10 +111,10 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
         child: switch (visibleSegment) {
           'skills' => DiscoverSkillsSection(async: ref.watch(filteredAgentSkillsProvider), onRetry: _refresh),
           'official' => DiscoverProfilesSection(
-              provider: isCompact ? filteredFeaturedProfilesProvider : filteredOfficialProfilesProvider,
+              provider: filteredOfficialProfilesProvider,
               emptyIcon: Icons.verified_outlined,
               emptyMessage: l10n.tr('discover.empty.official'),
-              kind: isCompact ? null : DiscoverProfileKind.official,
+              kind: DiscoverProfileKind.official,
               onRetry: _refresh,
             ),
           'people' => DiscoverProfilesSection(
@@ -146,6 +137,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
               children: [
                 MobilePageHeader(
                   title: l10n.tr('discover.title'),
+                  inlineSearch: true,
                   search: HeaderSearchField(
                     hintText: l10n.tr('discover.search_hint'),
                     value: query,

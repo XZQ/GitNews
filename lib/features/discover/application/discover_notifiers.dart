@@ -43,6 +43,19 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
     }
   }
 
+  Future<void> refresh() async {
+    final previous = state.valueOrNull;
+    try {
+      final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(force: true, page: 1, perPage: discoverPageSize);
+      _page = 1;
+      _hasMore = result.data.length == discoverPageSize;
+      ref.read(discoverReposFreshnessProvider.notifier).state = result.freshness;
+      state = AsyncData(result.data);
+    } catch (error, stack) {
+      state = previous == null ? AsyncError(error, stack) : AsyncData(previous);
+    }
+  }
+
   bool get hasMore => _hasMore;
 }
 
@@ -79,6 +92,19 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
       state = AsyncError(error, stack);
     } finally {
       _loadingMore = false;
+    }
+  }
+
+  Future<void> refresh() async {
+    final previous = state.valueOrNull;
+    try {
+      final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(force: true, page: 1, perPage: discoverPageSize);
+      _page = 1;
+      _hasMore = result.data.length == discoverPageSize;
+      ref.read(discoverSkillsFreshnessProvider.notifier).state = result.freshness;
+      state = AsyncData(result.data);
+    } catch (error, stack) {
+      state = previous == null ? AsyncError(error, stack) : AsyncData(previous);
     }
   }
 
@@ -134,6 +160,27 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
       state = AsyncError(error, stack);
     } finally {
       _loadingMore = false;
+    }
+  }
+
+  Future<void> refresh() async {
+    final previous = state.valueOrNull;
+    try {
+      final result = await ref.read(discoverRepositoryProvider).fetchProfiles(
+            kind: kind,
+            force: true,
+            page: 1,
+            perPage: discoverProfilesPageSize,
+          );
+      _page = 1;
+      _enrichingLogins.clear();
+      _enrichFailedLogins.clear();
+      _updateFreshness(result.freshness);
+      _updateHasMore(result.data, page: 1);
+      state = AsyncData(result.data);
+      unawaited(_enrichNextBatch(result.data));
+    } catch (error, stack) {
+      state = previous == null ? AsyncError(error, stack) : AsyncData(previous);
     }
   }
 

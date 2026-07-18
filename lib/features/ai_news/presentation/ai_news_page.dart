@@ -208,6 +208,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
       );
     }
     final hasMore = !widget.staticList && query.isEmpty && ref.read(aiNewsItemsNotifierProvider.notifier).hasMore;
+    final showPagingFooter = !widget.staticList && query.isEmpty;
     final profile = ref.watch(aiNewsInterestProfileProvider).valueOrNull ?? AiNewsInterestProfile.empty;
     final isCompact = Breakpoints.isCompact(context);
     final ranked = rankAiNewsByInterest(widget.items, profile);
@@ -249,8 +250,10 @@ class _ItemListState extends ConsumerState<_ItemList> {
                           ),
                   );
                 }
-                return const AiNewsLoadMoreIndicator();
-              }, childCount: flat.length + (hasMore ? 1 : 0)),
+                return hasMore
+                    ? const AiNewsLoadMoreIndicator()
+                    : AiNewsEndOfListFooter(label: l10n.tr('ai_news.no_more'));
+              }, childCount: flat.length + (showPagingFooter ? 1 : 0)),
             ),
           ),
         ],

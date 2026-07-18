@@ -222,14 +222,27 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       }
       return;
     }
-    if (!_hasApiMore) {
+    if (_fetching) {
       return;
     }
-    await _fetchNextPage();
+    while (_hasApiMore && (state.valueOrNull?.length ?? 0) >= _buffer.length) {
+      final previousCursor = _nextCursor;
+      final previousBufferLength = _buffer.length;
+      await _fetchNextPage();
+      if (_buffer.length > previousBufferLength || !_hasApiMore) {
+        break;
+      }
+      if (_nextCursor == previousCursor) {
+        _hasApiMore = false;
+        break;
+      }
+    }
     final newShown = state.valueOrNull?.length ?? 0;
     final nextEnd = (newShown + aiNewsPageSize).clamp(0, _buffer.length);
     if (nextEnd > newShown) {
       state = AsyncData(_buffer.sublist(0, nextEnd));
+    } else if (!_hasApiMore) {
+      state = AsyncData(List<AiNewsItem>.of(state.valueOrNull ?? const []));
     }
   }
 
@@ -252,14 +265,19 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     final freshness = ref.read(aiNewsFreshnessProvider.notifier);
     // 关键不变量:cursor=null 表示「拉 head 页」(初始化或刷新),
     // 用新结果覆盖 buffer;cursor 非空表示「翻下一页」,追加到 buffer。
-    final isHead = _nextCursor == null;
+    final requestCursor = _nextCursor;
+    final isHead = requestCursor == null;
     try {
-      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: _nextCursor);
+      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(
+        category: _category,
+        cursor: requestCursor,
+        selectedOnly: false,
+      );
       final digest = result.data;
       if (gen != _generation) {
         return;
       }
-      _buffer = isHead ? digest.items : [..._buffer, ...digest.items];
+      _buffer = _mergeUnique(isHead ? [...digest.items, ..._buffer] : [..._buffer, ...digest.items]);
       final nextCursor = digest.nextCursor?.trim();
       _nextCursor = nextCursor == null || nextCursor.isEmpty ? null : nextCursor;
       _hasApiMore = digest.hasNext && _nextCursor != null;
@@ -269,8 +287,8 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
       final now = ref.read(clockProvider)();
       await dao.upsertPage(
         category: _category,
-        // meta 始终对齐 head 查询,因为我们只对 head 做 TTL 判定
-        cursor: null,
+        // 分页按实际 cursor 落盘；新鲜度判断仍只读取 head 的 meta。
+        cursor: requestCursor,
         digest: digest,
         now: now,
       );
@@ -292,5 +310,13 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     if (gen == _generation) {
       _fetching = false;
     }
+  }
+
+  List<AiNewsItem> _mergeUnique(List<AiNewsItem> items) {
+    final seen = <String>{};
+    return [
+      for (final item in items)
+        if (seen.add(item.id)) item,
+    ];
   }
 }

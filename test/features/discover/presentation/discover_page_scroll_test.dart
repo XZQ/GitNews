@@ -38,6 +38,12 @@ class _StaticTrendingReposNotifier extends TrendingReposNotifier {
   /* 静态列表不加载下一页。 */
   @override
   Future<void> loadMore() async {}
+
+  @override
+  Future<void> refresh() async {
+    onBuild?.call();
+    state = AsyncData(_items);
+  }
 }
 
 /*
@@ -91,8 +97,8 @@ void main() {
     expect(find.text('实时数据'), findsNothing);
     expect(find.byIcon(Icons.refresh_rounded), findsNothing);
     expect(find.byType(HeaderSearchField), findsOneWidget);
-    expect(tester.getTopLeft(find.byType(HeaderSearchField)).dy, greaterThan(tester.getBottomLeft(find.text('发现')).dy));
-    expect(tester.getRect(find.text('官方内容')).right, lessThanOrEqualTo(390));
+    expect(tester.getTopLeft(find.byType(HeaderSearchField)).dy, lessThan(tester.getBottomLeft(find.text('发现')).dy));
+    expect(find.descendant(of: find.byType(DiscoverSegmented), matching: find.byType(Text)), findsNWidgets(4));
     expect(tester.takeException(), isNull);
   });
 

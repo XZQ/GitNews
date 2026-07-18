@@ -90,6 +90,16 @@ final trendingDigestProvider = FutureProvider<TrendingDigest>((ref) async {
   return (await ref.watch(trendingDigestResultProvider.future)).data;
 });
 
+// 绉诲姩銆屼粖鏃ャ€嶉〉闈㈢殑绋冲畾鍩虹嚎锛氱儹闂ㄤ粨搴撳拰璇濋瓒嬪娍濮嬬粓鎸夊綋鏃ュ彛寰勫睍绀恒€?
+// 鍒囨崲 Star 鍥捐〃鏃堕棿绐楁椂涓嶄細璁╄繖浜涗笉鐩稿叧鍖哄潡涓€璧烽噸鏂拌姹傘€?
+final trendingHomeDigestResultProvider = FutureProvider<DataResult<TrendingDigest>>((ref) {
+  return ref.watch(trendingRepositoryProvider).getDigest();
+});
+
+final trendingHomeDigestProvider = FutureProvider<TrendingDigest>((ref) async {
+  return (await ref.watch(trendingHomeDigestResultProvider.future)).data;
+});
+
 final trendingFreshnessProvider = Provider<AsyncValue<DataFreshness>>((ref) {
   return ref.watch(trendingDigestResultProvider).whenData((result) => result.freshness);
 });

@@ -195,12 +195,21 @@ class StartupTabPreference extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final current = ref.watch(startupTabControllerProvider);
+    final colors = Theme.of(context).colorScheme;
     return DropdownButton<String>(
         value: current,
         underline: const SizedBox.shrink(),
         isDense: true,
-        style: AppTypography.labelMedium,
-        items: [for (final tab in appTabs) DropdownMenuItem(value: tab.pathSegment, child: Text(l10n.tr(tab.labelKey)))],
+        dropdownColor: colors.surface,
+        iconEnabledColor: colors.onSurfaceVariant,
+        style: AppTypography.labelMedium.copyWith(color: colors.onSurface),
+        items: [
+          for (final tab in appTabs)
+            DropdownMenuItem(
+              value: tab.pathSegment,
+              child: Text(l10n.tr(tab.labelKey), style: AppTypography.labelMedium.copyWith(color: colors.onSurface)),
+            ),
+        ],
         onChanged: (value) {
           if (value != null) {
             ref.read(startupTabControllerProvider.notifier).setSegment(value);

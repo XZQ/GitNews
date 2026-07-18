@@ -183,7 +183,7 @@ void main() {
     await tester.pumpWidget(_RouterTestApp(router: router));
     await tester.pumpAndSettle();
 
-    const orderedLabels = ['热门仓库', 'Star 增长榜', 'AI雷达', '雷达标签', 'Agent 榜观察', '话题趋势', '本周信号热度', '语言占比'];
+    const orderedLabels = ['Agent 榜观察', '热门仓库', 'Star 增长榜', 'AI雷达', '雷达标签', '话题趋势', '本周信号热度', '语言占比'];
     final verticalPositions = [
       for (final label in orderedLabels) tester.getTopLeft(find.textContaining(label).first).dy,
     ];
@@ -248,6 +248,7 @@ class _RouterTestApp extends StatelessWidget {
       overrides: [
         techHotspotDigestProvider.overrideWith((ref) async => _radarDigest),
         trendingDigestProvider.overrideWith((ref) async => _trendingDigest),
+        trendingHomeDigestProvider.overrideWith((ref) async => _trendingDigest),
       ],
       child: MaterialApp.router(
         locale: const Locale('zh', 'CN'),

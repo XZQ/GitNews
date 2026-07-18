@@ -18,7 +18,9 @@ import '../../../../shared/widgets/app_card.dart';
  *未登录时回退到本地匿名会话。
  */
 class ProfileUserCard extends ConsumerWidget {
-  const ProfileUserCard({super.key});
+  const ProfileUserCard({this.immersive = false, super.key});
+
+  final bool immersive;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,8 +45,7 @@ class ProfileUserCard extends ConsumerWidget {
       await ref.read(profileSessionControllerProvider.notifier).signOut();
     }
 
-    return AppCard(
-      child: Row(
+    final content = Row(
         children: [
           if (compact)
             Container(
@@ -112,7 +113,13 @@ class ProfileUserCard extends ConsumerWidget {
             ),
           )
         ],
-      ),
-    );
+      );
+    if (compact && immersive) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
+        child: content,
+      );
+    }
+    return AppCard(child: content);
   }
 }

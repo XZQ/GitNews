@@ -24,6 +24,7 @@ void main() {
 
   test('AI 主页面与移动端二级页由内部 AppBar 接管状态栏沉浸', () {
     expect(usesImmersiveStatusBar('/ai_news'), isTrue);
+    expect(usesImmersiveStatusBar('/profile'), isTrue);
     expect(usesImmersiveStatusBar('/ai_news/reminders'), isTrue);
     expect(usesImmersiveStatusBar('/ai_news/detail/item-id'), isTrue);
     expect(usesImmersiveStatusBar('/home/detail/repo'), isTrue);

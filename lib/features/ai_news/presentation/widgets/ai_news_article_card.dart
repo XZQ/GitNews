@@ -93,8 +93,6 @@ class _CompactArticleCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Container(width: AppSpacing.xs2, height: AppSpacing.xs2, decoration: BoxDecoration(color: accent, shape: BoxShape.circle)),
-                const SizedBox(width: AppSpacing.xs2),
                 Flexible(
                   child: Text(
                     item.source,
@@ -104,7 +102,7 @@ class _CompactArticleCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                _CategoryChip(label: item.category.label),
+                _CategoryChip(label: item.category.label, color: accent),
                 const Spacer(),
                 Text(
                   formatRelativeTime(l10n, item.publishedAt),
@@ -157,21 +155,23 @@ class _CompactArticleCard extends StatelessWidget {
 *  左侧圆点承担,标签再上色会让来源行出现两处竞争的彩块。
 */
 class _CategoryChip extends StatelessWidget {
-  const _CategoryChip({required this.label});
+  const _CategoryChip({required this.label, required this.color});
 
   // 分类显示名。
   final String label;
 
+  final Color color;
+
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: 1),
       decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
+        color: color.withValues(alpha: 0.12),
+        border: Border.all(color: color.withValues(alpha: 0.34)),
         borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
-      child: Text(label, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
+      child: Text(label, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
     );
   }
 }
