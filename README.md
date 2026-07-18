@@ -42,6 +42,7 @@
 - SQLite 保存远端快照、每日观测和告警事件；SharedPreferences 保存非敏感的本机偏好与内容状态。
 - GitHub Token 使用 `flutter_secure_storage`，在 Windows 上由 DPAPI 保护；旧版明文 Token 会在首次读取时迁移并清理。
 - GitHub OAuth 设备登录只在构建时提供 `GITHUB_OAUTH_CLIENT_ID` 后出现；未配置构建只展示 Personal Access Token 路径。
+- 应用账号支持 Supabase 手机/邮箱 OTP 与 Google/GitHub OAuth 能力开关；默认保持匿名，只有发布构建注入认证地址、publishable key 和对应功能开关后才展示入口。应用会话和 PKCE 校验材料使用系统安全存储，与 GitHub API Token 相互独立。
 - 配置导出仅包含受支持的非敏感偏好；导入先完整校验，写入失败会回滚，Token 永不进入配置文件。
 - 本地数据库或偏好初始化失败时显示恢复页，可重试或打开数据目录，不会自动删除用户数据。
 - Flutter 客户端仍以本机 SQLite/SharedPreferences 为事实源；自托管服务端是显式配置的可选增强，不参与客户端启动依赖。服务端 API Key 与 GitHub/LLM Key 一样使用系统安全存储，不进入配置导出。
@@ -56,7 +57,7 @@
 | 状态管理 | flutter_riverpod |
 | 路由 | go_router |
 | 网络 | dio |
-| 本地存储 | shared_preferences、sqflite_common_ffi、flutter_secure_storage |
+| 本地存储与认证 | shared_preferences、sqflite_common_ffi、flutter_secure_storage、supabase_flutter |
 | 桌面集成 | tray_manager、window_manager、local_notifier |
 | 可选服务端 | FastAPI、SQLite、httpx、Uvicorn、Docker Compose |
 | 图表 | fl_chart |

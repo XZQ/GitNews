@@ -8,7 +8,6 @@ import '../config/api_endpoints_config.dart';
 import '../errors/app_exception.dart';
 import '../network/dio_client.dart';
 import '../preferences/github_token_controller.dart';
-import '../preferences/profile_session_controller.dart';
 import '../shared/local_content_controller.dart';
 import 'github_api_support.dart';
 
@@ -18,15 +17,7 @@ import 'github_api_support.dart';
 enum DeviceFlowStatus { idle, awaiting, polling, success, error, expired, denied }
 
 class DeviceFlowState {
-  const DeviceFlowState({
-    this.status = DeviceFlowStatus.idle,
-    this.userCode,
-    this.verificationUri,
-    this.verificationUriComplete,
-    this.interval = 5,
-    this.expiresIn = 900,
-    this.error,
-  });
+  const DeviceFlowState({this.status = DeviceFlowStatus.idle, this.userCode, this.verificationUri, this.verificationUriComplete, this.interval = 5, this.expiresIn = 900, this.error});
 
   final DeviceFlowStatus status;
   final String? userCode;
@@ -36,16 +27,7 @@ class DeviceFlowState {
   final int expiresIn;
   final String? error;
 
-  DeviceFlowState copyWith({
-    DeviceFlowStatus? status,
-    String? userCode,
-    String? verificationUri,
-    String? verificationUriComplete,
-    int? interval,
-    int? expiresIn,
-    String? error,
-  }) =>
-      DeviceFlowState(
+  DeviceFlowState copyWith({DeviceFlowStatus? status, String? userCode, String? verificationUri, String? verificationUriComplete, int? interval, int? expiresIn, String? error}) => DeviceFlowState(
         status: status ?? this.status,
         userCode: userCode ?? this.userCode,
         verificationUri: verificationUri ?? this.verificationUri,
@@ -164,12 +146,14 @@ class GithubDeviceFlowController extends Notifier<DeviceFlowState> {
   Future<void> _complete(String token) async {
     await ref.read(githubTokenControllerProvider.notifier).setToken(token);
     try {
-      final user = await DioClient.create().get<Map<String, Object?>>(ApiEndpointsConfig.githubUserPath, options: Options(headers: GitHubApiSupport.headers(token: token)));
+      final user = await DioClient.create().get<Map<String, Object?>>(
+        ApiEndpointsConfig.githubUserPath,
+        options: Options(headers: GitHubApiSupport.headers(token: token)),
+      );
       final login = GitHubJson.nullableString(user.data?['login']);
       final avatar = GitHubJson.nullableString(user.data?['avatar_url']);
       if (login != null) {
         await ref.read(localContentControllerProvider.notifier).setCachedUser(name: login, avatarUrl: avatar);
-        await ref.read(profileSessionControllerProvider.notifier).signInLocal(login);
       }
     } catch (_) {
       // 即便拉不到用户信息,Token 已写入,不影响后续 API 调用。

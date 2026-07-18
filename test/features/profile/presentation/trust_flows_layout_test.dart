@@ -20,12 +20,7 @@ void main() {
     testWidgets('trust flows fit ${size.width.toInt()}px', (tester) async {
       final semantics = tester.ensureSemantics();
       final prefs = await _preferences();
-      await _pumpAtSize(
-        tester,
-        size,
-        prefs,
-        const CollectPage(),
-      );
+      await _pumpAtSize(tester, size, prefs, const CollectPage());
       expect(find.text('Starred topics'), findsWidgets);
       expect(find.bySemanticsLabel('Remove bookmark'), findsOneWidget);
       expect(tester.takeException(), isNull);
@@ -44,29 +39,20 @@ void main() {
               occurredAt: DateTime.now().subtract(const Duration(hours: 2)),
               htmlUrl: null,
               basis: MetricBasis.observed,
-            )
+            ),
           ],
         ),
       );
       expect(find.bySemanticsLabel(RegExp(r'Open owner/a-very-long-repository-name')), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await _pumpAtSize(
-        tester,
-        size,
-        prefs,
-        TechHotspotTagsCloud(tags: const [], onTagSelected: (_) {}),
-      );
+      await _pumpAtSize(tester, size, prefs, TechHotspotTagsCloud(tags: const [], onTagSelected: (_) {}));
       expect(find.text('No matching radar tags'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await _pumpAtSize(
-        tester,
-        size,
-        prefs,
-        const LoginPage(),
-      );
-      expect(find.text('Configure Personal Access Token'), findsOneWidget);
+      await _pumpAtSize(tester, size, prefs, const LoginPage());
+      expect(find.text('Sign in with phone'), findsOneWidget);
+      expect(find.text('Continue anonymously'), findsOneWidget);
       expect(tester.takeException(), isNull);
       semantics.dispose();
     });
@@ -74,12 +60,7 @@ void main() {
 
   testWidgets('bookmark removal is keyboard activatable', (tester) async {
     final prefs = await _preferences();
-    await _pumpAtSize(
-      tester,
-      const Size(1024, 768),
-      prefs,
-      const CollectPage(),
-    );
+    await _pumpAtSize(tester, const Size(1024, 768), prefs, const CollectPage());
     final removeIcon = find.byIcon(Icons.bookmark_remove_outlined);
 
     Focus.of(tester.element(removeIcon)).requestFocus();
@@ -97,29 +78,14 @@ Future<SharedPreferences> _preferences() async {
     'local_content_bookmarked_repos': ['remote/new-repo'],
     'local_content_monitored_repos': <String>[],
     'local_content_followed_developers': <String>[],
-    'local_content_repo_snapshots_v1': jsonEncode(
-      [
-        {
-          'fullName': 'remote/new-repo',
-          'description': 'Only returned by GitHub',
-          'language': 'Rust',
-          'starCount': 42,
-          'forkCount': 7,
-          'accentArgb': 0xFFDEA584,
-          'updatedAt': '2026-07-11T00:00:00.000Z'
-        }
-      ],
-    )
+    'local_content_repo_snapshots_v1': jsonEncode([
+      {'fullName': 'remote/new-repo', 'description': 'Only returned by GitHub', 'language': 'Rust', 'starCount': 42, 'forkCount': 7, 'accentArgb': 0xFFDEA584, 'updatedAt': '2026-07-11T00:00:00.000Z'},
+    ]),
   });
   return SharedPreferences.getInstance();
 }
 
-Future<void> _pumpAtSize(
-  WidgetTester tester,
-  Size size,
-  SharedPreferences preferences,
-  Widget child,
-) async {
+Future<void> _pumpAtSize(WidgetTester tester, Size size, SharedPreferences preferences, Widget child) async {
   tester.view
     ..devicePixelRatio = 1
     ..physicalSize = size;

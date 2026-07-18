@@ -23,6 +23,14 @@ flutter run -d windows
 
 应用可匿名访问 GitHub API；稳定使用建议在“设置 → 开发者选项”配置 Personal Access Token。Token 只存入系统安全存储，不写入仓库、日志或 SharedPreferences。
 
+应用账号默认关闭，未配置时仍可完整匿名使用。国内手机号验证码登录的本地开发命令如下；`SUPABASE_PUBLISHABLE_KEY` 是客户端公开 key，不要使用 service role key：
+
+```bash
+flutter run -d windows --dart-define=SUPABASE_URL=https://your-project.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=your_publishable_key --dart-define=AUTH_PHONE_ENABLED=true
+```
+
+发布前必须先在 Supabase 启用 Phone provider，并配置可用于目标地区的真实短信供应商、CAPTCHA、发送限频与成本监控。邮箱、GitHub、Google 入口分别由 `AUTH_EMAIL_ENABLED`、`AUTH_GITHUB_ENABLED`、`AUTH_GOOGLE_ENABLED` 控制；OAuth 还必须先完成 provider 和 `AUTH_REDIRECT_URL` 对应的平台回调注册。认证 refresh token 与 PKCE verifier 使用系统安全存储，不写入 SharedPreferences，也不与 GitHub API Token 混用。
+
 GitHub OAuth 设备登录默认关闭。只有在拥有 OAuth App Client ID 时才在构建命令加入：
 
 ```bash

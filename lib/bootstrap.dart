@@ -2,11 +2,15 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'app.dart';
+import 'core/auth/auth_models.dart';
+import 'core/auth/auth_repository.dart';
+import 'core/auth/supabase_auth_repository.dart';
 import 'core/di/providers.dart';
 import 'core/i18n/app_localizations.dart';
 import 'core/storage/cache_meta_dao.dart';
@@ -18,27 +22,30 @@ import 'shared/widgets/window_title_bar.dart';
 
 typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
 typedef DatabaseOpener = Future<LocalDatabase> Function();
+typedef AuthRepositoryLoader = Future<AuthRepository> Function(FlutterSecureStorage storage);
 typedef DataDirectoryOpener = Future<bool> Function();
 typedef BootstrapSuccessBuilder = Widget Function(BootstrapResult result);
 
 class BootstrapResult {
-  const BootstrapResult.success(this.preferences, this.database)
+  const BootstrapResult.success(this.preferences, this.database, [this.authRepository = const UnconfiguredAuthRepository()])
       : error = null,
         stackTrace = null;
 
   const BootstrapResult.failure(this.error, this.stackTrace)
       : preferences = null,
-        database = null;
+        database = null,
+        authRepository = const UnconfiguredAuthRepository();
 
   final SharedPreferences? preferences;
   final LocalDatabase? database;
+  final AuthRepository authRepository;
   final Object? error;
   final StackTrace? stackTrace;
 
   bool get isSuccess => preferences != null && database != null;
 }
 
-Future<BootstrapResult> initializeApplication({SharedPreferencesLoader? sharedPreferencesLoader, DatabaseOpener? databaseOpener}) async {
+Future<BootstrapResult> initializeApplication({SharedPreferencesLoader? sharedPreferencesLoader, DatabaseOpener? databaseOpener, AuthRepositoryLoader? authRepositoryLoader}) async {
   try {
     final preferences = await (sharedPreferencesLoader ?? SharedPreferences.getInstance)();
     final database = await (databaseOpener ?? LocalDatabase.open)();
@@ -47,7 +54,13 @@ Future<BootstrapResult> initializeApplication({SharedPreferencesLoader? sharedPr
     } catch (_) {
       // 缓存元数据清理是最佳努力，不阻断应用启动。
     }
-    return BootstrapResult.success(preferences, database);
+    AuthRepository authRepository;
+    try {
+      authRepository = await (authRepositoryLoader ?? initializeAuthRepository)(defaultSecureStorage);
+    } catch (_) {
+      authRepository = const UnavailableAuthRepository(AuthCapabilities(isConfigured: true));
+    }
+    return BootstrapResult.success(preferences, database, authRepository);
   } catch (error, stackTrace) {
     return BootstrapResult.failure(error, stackTrace);
   }
@@ -63,12 +76,7 @@ Future<bool> openApplicationDataDirectory() async {
 }
 
 class BootstrapApp extends StatefulWidget {
-  const BootstrapApp({
-    this.initializer,
-    this.openDataDirectory,
-    this.successBuilder,
-    super.key,
-  });
+  const BootstrapApp({this.initializer, this.openDataDirectory, this.successBuilder, super.key});
 
   final Future<BootstrapResult> Function()? initializer;
   final DataDirectoryOpener? openDataDirectory;
@@ -98,26 +106,31 @@ class _BootstrapAppState extends State<BootstrapApp> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<BootstrapResult>(
-        future: _result,
-        builder: (context, snapshot) {
-          final result = snapshot.data;
-          if (result?.isSuccess ?? false) {
-            if (widget.successBuilder case final successBuilder?) {
-              return successBuilder(result!);
-            }
-            return ProviderScope(overrides: [sharedPreferencesProvider.overrideWithValue(result!.preferences!), appDatabaseProvider.overrideWithValue(result.database!)], child: const GitHubNewsApp());
+      future: _result,
+      builder: (context, snapshot) {
+        final result = snapshot.data;
+        if (result?.isSuccess ?? false) {
+          if (widget.successBuilder case final successBuilder?) {
+            return successBuilder(result!);
           }
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const _BootstrapShell(child: _BootstrapLoadingView());
-          }
-          final failure = result ?? BootstrapResult.failure(snapshot.error ?? StateError('Unknown bootstrap failure'), snapshot.stackTrace ?? StackTrace.empty);
-          return _BootstrapShell(
-              child: _BootstrapFailureView(
-            result: failure,
-            onRetry: _retry,
-            openDataDirectory: widget.openDataDirectory ?? openApplicationDataDirectory,
-          ));
-        });
+          return ProviderScope(
+            overrides: [
+              sharedPreferencesProvider.overrideWithValue(result!.preferences!),
+              appDatabaseProvider.overrideWithValue(result.database!),
+              authRepositoryProvider.overrideWithValue(result.authRepository),
+            ],
+            child: const GitHubNewsApp(),
+          );
+        }
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const _BootstrapShell(child: _BootstrapLoadingView());
+        }
+        final failure = result ?? BootstrapResult.failure(snapshot.error ?? StateError('Unknown bootstrap failure'), snapshot.stackTrace ?? StackTrace.empty);
+        return _BootstrapShell(
+          child: _BootstrapFailureView(result: failure, onRetry: _retry, openDataDirectory: widget.openDataDirectory ?? openApplicationDataDirectory),
+        );
+      },
+    );
   }
 }
 
@@ -142,7 +155,9 @@ class _BootstrapLoadingView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Semantics(label: AppLocalizations.of(context).tr('bootstrap.loading'), child: const CircularProgressIndicator()));
+    return Center(
+      child: Semantics(label: AppLocalizations.of(context).tr('bootstrap.loading'), child: const CircularProgressIndicator()),
+    );
   }
 }
 
@@ -169,19 +184,23 @@ class _BootstrapFailureView extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               Text(l10n.tr('bootstrap.failure.title'), style: AppTypography.titleLarge, textAlign: TextAlign.center),
               const SizedBox(height: AppSpacing.sm),
-              Text(l10n.tr('bootstrap.failure.message'), style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant), textAlign: TextAlign.center),
+              Text(
+                l10n.tr('bootstrap.failure.message'),
+                style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+                textAlign: TextAlign.center,
+              ),
               if (kDebugMode && result.error != null) ...[
                 const SizedBox(height: AppSpacing.md),
-                SelectableText(result.error.toString(), style: AppTypography.labelSmall.copyWith(color: colors.error), textAlign: TextAlign.center)
+                SelectableText(
+                  result.error.toString(),
+                  style: AppTypography.labelSmall.copyWith(color: colors.error),
+                  textAlign: TextAlign.center,
+                ),
               ],
               const SizedBox(height: AppSpacing.xl),
               FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.restart_alt_rounded), label: Text(l10n.tr('bootstrap.retry'))),
               const SizedBox(height: AppSpacing.sm),
-              OutlinedButton.icon(
-                onPressed: () => _openDirectory(context),
-                icon: const Icon(Icons.folder_open_rounded),
-                label: Text(l10n.tr('bootstrap.open_data_directory')),
-              )
+              OutlinedButton.icon(onPressed: () => _openDirectory(context), icon: const Icon(Icons.folder_open_rounded), label: Text(l10n.tr('bootstrap.open_data_directory'))),
             ],
           ),
         ),

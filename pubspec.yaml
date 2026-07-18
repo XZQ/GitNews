@@ -37,12 +37,15 @@ dependencies:
 
   # 外链
   url_launcher: ^6.3.0
+  # 固定在仍兼容项目最低 SDK 的回调插件版本。
+  app_links: 6.4.0
 
   # 应用内 WebView(链接打开方式 = 应用内时使用)
   flutter_inappwebview: ^6.1.5
   tray_manager: ^0.5.3
   window_manager: ^0.5.2
   local_notifier: ^0.1.6
+  supabase_flutter: 2.15.4
 
 dev_dependencies:
   flutter_test:

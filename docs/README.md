@@ -15,6 +15,7 @@
 ## 常用文档
 
 - [当前产品、数据与系统边界](plans/product_ia_data_plan.md)
+- [账号与登录体系规划](plans/account_auth_plan.md)
 - [移动端与桌面端 UI 整改基线](plans/mobile_desktop_ui_refactor_plan.md)
 - [AI 资讯模块 Roadmap](plans/ai_news_roadmap.md)
 - [自托管服务端运行与 API](../server/README.md)
