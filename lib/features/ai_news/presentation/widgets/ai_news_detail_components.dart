@@ -10,7 +10,7 @@ import '../../domain/ai_news_item.dart';
 const double aiNewsDetailMaxWidth = 1040;
 
 /*
-*详情分页的居中滚动容器。
+* 详情页的居中纵向滚动容器。
 */
 class AiNewsDetailPageFrame extends StatelessWidget {
   const AiNewsDetailPageFrame({
@@ -22,85 +22,34 @@ class AiNewsDetailPageFrame extends StatelessWidget {
   // 页面主体。
   final Widget child;
 
-  // 用于测试和独立保存每页滚动位置。
+  // 用于测试并保存详情页滚动位置。
   final Key scrollKey;
 
   @override
   /* 构建按窗口宽度收敛边距的详情滚动区。 */
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final horizontal = constraints.maxWidth < 600 ? AppSpacing.lg : AppSpacing.xxl;
-        return SingleChildScrollView(
-          key: scrollKey,
-          padding: EdgeInsets.fromLTRB(
-            horizontal,
-            AppSpacing.lg,
-            horizontal,
-            AppSpacing.xxl,
-          ),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: aiNewsDetailMaxWidth),
-              child: child,
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surface,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontal = constraints.maxWidth < 600 ? AppSpacing.lg : AppSpacing.xxl;
+          return SingleChildScrollView(
+            key: scrollKey,
+            padding: EdgeInsets.fromLTRB(
+              horizontal,
+              AppSpacing.lg,
+              horizontal,
+              AppSpacing.xxl,
             ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-/*
-*截图式页码胶囊,用于提示横向阅读进度。
-*/
-class AiNewsDetailPageMarker extends StatelessWidget {
-  const AiNewsDetailPageMarker({
-    required this.current,
-    required this.total,
-    super.key,
-  });
-
-  // 当前页,从 1 开始。
-  final int current;
-
-  // 总页数。
-  final int total;
-
-  @override
-  /* 构建带品牌色圆点的页码标签。 */
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final label = AppLocalizations.of(context).tr('ai_news.detail.page_label').replaceAll('{current}', '$current').replaceAll('{total}', '$total');
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withValues(alpha: 0.58),
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: AppSpacing.sm2,
-            height: AppSpacing.sm2,
-            decoration: const BoxDecoration(
-              color: AppColors.brand,
-              shape: BoxShape.circle,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: aiNewsDetailMaxWidth),
+                child: child,
+              ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            label,
-            style: AppTypography.bodySmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/config/ai_news_sources_config.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/i18n/relative_time_formatter.dart';
@@ -10,6 +8,8 @@ import '../../../core/preferences/ai_news_source_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/page_header.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 
 /*
@@ -24,19 +24,18 @@ class AiNewsSourcesPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final sourceState = ref.watch(aiNewsSourceControllerProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('settings.ai_sources.title')),
-        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile')),
-        actions: [
-          IconButton(
-            tooltip: l10n.tr('settings.ai_sources.restore'),
-            onPressed: () => _restoreDefaults(context, ref),
-            icon: const Icon(Icons.restart_alt_rounded),
-          ),
-          const SizedBox(width: AppSpacing.sm),
-        ],
-      ),
+    return SecondaryPageScaffold(
+      title: l10n.tr('settings.ai_sources.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.rss_feed_rounded,
+      fallbackPath: '/profile',
+      actions: [
+        HeaderAction(
+          tooltip: l10n.tr('settings.ai_sources.restore'),
+          onPressed: () => _restoreDefaults(context, ref),
+          icon: Icons.restart_alt_rounded,
+        ),
+      ],
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(

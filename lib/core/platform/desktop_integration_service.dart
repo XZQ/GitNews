@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -31,6 +32,19 @@ class DesktopIntegrationService with WindowListener, TrayListener {
     _initialized = true;
     try {
       await windowManager.ensureInitialized();
+      unawaited(
+        windowManager.waitUntilReadyToShow(
+          const WindowOptions(
+            title: 'AI资讯',
+            titleBarStyle: TitleBarStyle.hidden,
+            windowButtonVisibility: false,
+          ),
+          () async {
+            await windowManager.show();
+            await windowManager.focus();
+          },
+        ),
+      );
       await windowManager.setPreventClose(true);
       windowManager.addListener(this);
     } catch (_) {

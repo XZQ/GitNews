@@ -5,12 +5,9 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/responsive_layout.dart';
-import 'widgets/profile_about_card.dart';
-import 'widgets/profile_data_card.dart';
 import 'widgets/profile_list_cards.dart';
 import 'widgets/profile_master_detail.dart';
 import 'widgets/profile_page_header.dart';
-import 'widgets/profile_settings_card.dart';
 import 'widgets/profile_user_card.dart';
 
 /* 
@@ -26,7 +23,7 @@ class ProfilePage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: Text(l10n.tr('profile.title'))) : null,
+      appBar: isCompact ? AppBar(title: Text(l10n.tr('profile.mobile_title'))) : null,
       body: ResponsiveLayout(compact: (_) => const _Mobile(), medium: (_) => const _Desktop(), expanded: (_) => const _Desktop()),
     );
   }
@@ -51,11 +48,7 @@ class _Mobile extends StatelessWidget {
         SizedBox(height: AppSpacing.lg),
         ProfileMonitorListCard(),
         SizedBox(height: AppSpacing.lg),
-        ProfileDataCard(),
-        SizedBox(height: AppSpacing.lg),
-        ProfileSettingsCard(),
-        SizedBox(height: AppSpacing.lg),
-        ProfileAboutCard()
+        ProfileSettingsListCard(),
       ],
     );
   }

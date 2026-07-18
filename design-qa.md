@@ -1,60 +1,59 @@
-# 设计 QA 汇总
+# AI 资讯详情页 Design QA
 
-## AI 与发现页
+- Source visual truth: `C:\Users\XZQ\AppData\Local\Temp\codex-clipboard-bf80bbb7-4fb8-4cd0-996a-30347338ff4d.png`
+- Implementation screenshot: `D:\workspace\github_news\test\features\ai_news\presentation\goldens\ai_news_detail_page_compact_chinese.png`
+- Viewport: 375 × 846 logical pixels, rendered at DPR 2 as 750 × 1692 pixels
+- State: Chinese IT之家 article, single vertical detail page, like and bookmark selected
 
-### 对照范围
+**Full-view comparison evidence**
 
-- Source visual truth: `C:\Users\XZQ\Downloads\AI页.png`
-- Implementation screenshot: `D:\workspace\github_news\test\features\ai_news\presentation\goldens\ai_news_page_mobile.png`
-- Device interaction evidence: `D:\workspace\github_news\build\device_ai_latest.png`, `device_after_bell.png`, `device_after_reminder_back.png`, `device_first_back.png`
-- Final comparison: `D:\workspace\github_news\build\design_qa\ai_news_comparison_pass3.png`
-- Viewport: 390 × 844 logical pixels for normalized comparison and 1080 × 2400 physical pixels on Xiaomi 22041216UC.
-- State: light theme; normalized capture uses an unconfigured digest and 12 same-day paper items; device evidence uses the configured digest and live local list/reminders.
+- The source and implementation were opened together and compared at the same compact mobile content viewport. The source includes Android status-bar chrome; the implementation golden begins at the Flutter app bar, so that outer chrome was excluded from layout judgment.
+- The implementation preserves the existing category pill, title hierarchy, illustration, summary, metrics, source card, and fixed four-action bottom bar.
+- Requested differences are intentional: the app bar no longer duplicates bookmark/share, and the Chinese article no longer renders English-original or Chinese-translation cards.
+- The former horizontal three-page flow and page marker are removed. Overview, AI analysis, and extended reading now form one continuous vertical reading flow.
 
-### 比较历史与结论
+**Focused region comparison evidence**
 
-1. 首轮压缩固定标题区、搜索与分类堆栈、日报横幅和文章卡片，并将缩略图调整为约 84 × 96。
-2. 修复两行摘要裁切，保留书签 40 × 40 点击区域；移除来源徽标和刷新按钮，改用原生下拉刷新。
-3. 第三轮将紧凑标题栏图标调整为 25 dp，并验证状态栏连续背景、提醒页返回和主页面双击退出行为。
-4. 标题层级、间距、主题色、生产位图、Material 图标、320 px 窄屏和可访问性检查均通过；没有剩余 P0、P1 或 P2 视觉问题。
+- Header and hero: the source shows a 29-pixel bottom overflow under the long title. The implementation uses a content-driven minimum height, keeps the illustration aligned, and renders the complete four-line title without clipping or overflow.
+- Language content: the source labels Chinese text as both English original and Chinese translation. The implementation detects this item as Chinese and omits both duplicate cards.
+- Bottom actions: the implementation shows `赞 75`; selected like and bookmark icons and labels use the active theme primary color, while unselected actions retain the neutral foreground color.
 
-### 交互验证
+**Required fidelity surfaces**
 
-- 搜索、分类、日报设置、文章导航、书签和 AI/发现页下拉刷新均保持接线。
-- 提醒页通过工具栏或系统返回键回到带五项导航的 AI 首页。
-- 五个主页面首次返回提示再次退出，两秒内再次返回才退出应用。
-- Flutter 原生金图和连接的 Android 设备均已验证；相关 UI、导航与本地化测试通过。
+- Fonts and typography: the compact golden uses the Windows CJK golden font. Title weight, 26-pixel display size, line height, body hierarchy, and one-line action labels remain legible; no wrapping or truncation defect is visible.
+- Spacing and layout rhythm: category metadata, hero, summary, metrics, source card, AI analysis, extended reading, and bottom bar retain consistent token-based spacing in one vertically scrollable document.
+- Colors and visual tokens: existing surface, outline, brand, and typography tokens are retained. Selected actions now use `colorScheme.primary`, so custom themes are respected.
+- Image quality and asset fidelity: the existing `detail_memory_sync_hero.png` asset is reused without stretching or replacement; crop and transparency remain clean.
+- Copy and content: `赞同` is changed to `赞`. Chinese articles hide bilingual labels; English articles keep English original and Chinese translation, with a transparent unavailable message only when neither source data nor local AI enrichment provides Chinese text.
 
-## 资讯详情页
+**Comparison history**
 
-### 对照范围
+1. Initial finding: P1 compact hero overflowed by 29 pixels because a fixed-height stack contained a multi-line title plus duplicate summary. Header actions and Chinese bilingual cards also contradicted the requested information hierarchy.
+2. Fixes: changed the hero to a content-driven minimum height, removed its duplicate summary, added language-aware content selection, removed duplicate app-bar bookmark/share actions, and moved selected feedback/bookmark color to the theme primary color.
+3. Flow correction: replaced the three-page `PageView` with one `SingleChildScrollView`, merged all detail sections into a continuous column, and removed all page counters and duplicated section content.
+4. Post-fix evidence: `ai_news_detail_page_compact_chinese.png`, `ai_news_detail_single_page_top.png`, and `ai_news_detail_single_page_scrolled.png` show the compact state and both ends of the same vertical document. Widget tests confirm that no `PageView` remains and that lower sections are reachable by vertical drag.
 
-- 视觉真值：`C:\Users\XZQ\Downloads\1.png`、`C:\Users\XZQ\Downloads\3.png`、`C:\Users\XZQ\Downloads\2.png`
-- 实现截图：`test/features/ai_news/presentation/goldens/ai_news_detail_page_1.png`、`ai_news_detail_page_2.png`、`ai_news_detail_page_3.png`
-- QA 副本：`C:\Users\XZQ\.codex\visualizations\2026\07\16\019f6a30-777b-7ca0-a47a-471312060c9f\qa_impl_page1_v3.png` 至 `qa_impl_page3_v3.png`
-- 视口：逻辑尺寸 471 × 835，DPR 2，浅色主题，中文资讯固定数据态。
+**Findings**
 
-### 比较证据
+- No actionable P0, P1, or P2 findings remain.
 
-- 三组参考图与实现图已在同一比较输入中逐页并排检查。
-- 全视图检查覆盖顶部导航、分页标识、正文阅读流、来源和关联内容、固定操作栏。
-- 聚焦检查覆盖第一页标题与生成主视觉、第二页三段 AI 解读卡、第三页要点与关联资讯卡。
+**Open Questions**
 
-### 必查表面
+- None.
 
-- 字体：标题、章节标题、正文、辅助信息层级清晰；窄屏中文和英文均无溢出。
-- 间距与布局：三页使用一致阅读列、白底与浅青卡片层级；桌面居中，紧凑视口保持可滚动。
-- 颜色与 token：复用项目主题色、间距和圆角 token，品牌青色与参考图一致。
-- 图片质量：主视觉使用 1536 × 1024 的生成式 PNG，主体、留白和浅青色调适配标题槽位，无拉伸或占位资源。
-- 文案与内容：使用真实 `AiNewsItem`、本地 AI 增强结果和缓存关联资讯；动态文章长度导致折叠位置略有变化，属于可滚动内容的预期差异。
-- 图标：使用 Material 图标库；返回、收藏、外链、菜单、解读、来源和底部操作语义完整。
-- 响应式与无障碍：已验证 471 × 835、390 × 844 暗色窄屏和桌面宽屏；图片有语义标签，操作按钮保持可点击区域。
-- 交互：横向滑动三页、纵向独立滚动、赞同、不感兴趣、收藏、分享、原文跳转和关联资讯跳转均接入现有状态与行为。
+**Implementation Checklist**
 
-### 比较历史
+- [x] Long compact titles grow without overflow.
+- [x] Chinese articles omit original/translation cards.
+- [x] English articles show an English original and Chinese translation surface.
+- [x] Header bookmark/share duplication is removed.
+- [x] Like, not-interested, and bookmark selected states follow the active theme.
+- [x] Detail content uses one continuous vertical scroll instead of three horizontal pages.
+- [x] Page counters and duplicated cross-page content are removed.
+- [x] Compact golden and focused widget regressions pass.
 
-1. 首轮发现固定底栏错误占满页面、紧凑标题区过高、第二页只展示简化预览。
-2. 修复底栏约束，压缩 471 宽标题区并保留 390 宽安全高度；第二页改为真实 enrichment provider 数据态。
-3. 重新生成三页金图并再次与三张参考图同输入对照，未发现阻断交付的裁切、溢出、错色、低质量资源或失效交互。
+**Follow-up Polish**
+
+- No P3 follow-up is required for this request.
 
 final result: passed

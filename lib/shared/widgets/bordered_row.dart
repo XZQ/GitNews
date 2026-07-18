@@ -28,9 +28,12 @@ class BorderedRow extends StatelessWidget {
           boxShadow: [if (isLight) BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 4))],
         ),
         clipBehavior: Clip.antiAlias,
-        child: IntrinsicHeight(
-            child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [for (var i = 0; i < children.length; i++) Expanded(flex: (flexValues != null && i < flexValues!.length) ? flexValues![i] : 1, child: children[i])])));
+        child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          for (var i = 0; i < children.length; i++)
+            Expanded(
+              flex: (flexValues != null && i < flexValues!.length) ? flexValues![i] : 1,
+              child: children[i],
+            ),
+        ]));
   }
 }

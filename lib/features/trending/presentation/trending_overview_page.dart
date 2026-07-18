@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/errors/app_exception.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
@@ -11,6 +9,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
@@ -25,8 +24,11 @@ class TrendingOverviewPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(projectDigestProvider);
-    return Scaffold(
-      appBar: AppBar(title: const Text('Star 增长趋势'), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/home'))),
+    return SecondaryPageScaffold(
+      title: 'Star 增长趋势',
+      subtitle: '跨仓库趋势总览',
+      icon: Icons.show_chart_rounded,
+      fallbackPath: '/home',
       body: ResponsiveLayout(
         compact: (_) => _Body(state: state),
         medium: (_) => CenteredContent(child: _Body(state: state)),

@@ -12,9 +12,14 @@ import '../../domain/tech_hotspot_models.dart';
 *编程语言分布与排行面板。
 */
 class TechHotspotLanguagePanel extends StatelessWidget {
-  const TechHotspotLanguagePanel({required this.languages, super.key});
+  const TechHotspotLanguagePanel({
+    required this.languages,
+    this.maxItems = 8,
+    super.key,
+  });
 
   final List<LanguageStat> languages;
+  final int maxItems;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +29,7 @@ class TechHotspotLanguagePanel extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.md),
         child: LayoutBuilder(builder: (context, constraints) {
           final isBounded = constraints.maxHeight.isFinite;
-          final visible = languages.take(8).toList(growable: false);
+          final visible = languages.take(maxItems).toList(growable: false);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: isBounded ? MainAxisSize.max : MainAxisSize.min,
@@ -67,7 +72,7 @@ class _LangBar extends StatelessWidget {
       child: Row(children: [
         for (final s in languages)
           Expanded(
-              flex: s.percent.round(),
+              flex: s.percent.round().clamp(1, 100),
               child: Container(
                 height: 8,
                 color: Color(s.color),
@@ -107,7 +112,8 @@ class _LangRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final isUp = stat.delta >= 0;
+    final isZero = stat.delta.abs() < 0.05;
+    final isUp = stat.delta > 0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
@@ -130,9 +136,21 @@ class _LangRow extends StatelessWidget {
           const SizedBox(width: AppSpacing.sm),
           Text('${stat.percent.toStringAsFixed(1)}% · ${stat.repoCount}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
           const SizedBox(width: AppSpacing.sm),
-          Icon(isUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded, size: 12, color: isUp ? AppColors.trendUp : AppColors.trendDown),
-          const SizedBox(width: AppSpacing.xxs),
-          Text('${isUp ? '+' : ''}${stat.delta.toStringAsFixed(1)}', style: AppTypography.labelSmall.copyWith(color: isUp ? AppColors.trendUp : AppColors.trendDown, fontWeight: FontWeight.w700))
+          if (!isZero) ...[
+            Icon(
+              isUp ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
+              size: 12,
+              color: isUp ? AppColors.trendUp : AppColors.trendDown,
+            ),
+            const SizedBox(width: AppSpacing.xxs),
+            Text(
+              '${isUp ? '+' : ''}${stat.delta.toStringAsFixed(1)}',
+              style: AppTypography.labelSmall.copyWith(
+                color: isUp ? AppColors.trendUp : AppColors.trendDown,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
         ],
       ),
     );

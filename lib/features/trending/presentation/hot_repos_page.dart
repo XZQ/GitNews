@@ -12,6 +12,7 @@ import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../application/trending_providers.dart';
@@ -28,8 +29,11 @@ class HotReposPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(filteredTrendingDigestProvider);
     final searchQuery = ref.watch(trendingSearchQueryProvider).trim();
-    return Scaffold(
-        appBar: AppBar(title: Text(l10n.tr('trending.hot_repos.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/trending'))),
+    return SecondaryPageScaffold(
+        title: l10n.tr('trending.hot_repos.title'),
+        subtitle: l10n.tr('common.secondary_page_subtitle'),
+        icon: Icons.local_fire_department_outlined,
+        fallbackPath: '/trending',
         body: state.when(
             data: (digest) {
               if (digest.allRepos.isEmpty) {

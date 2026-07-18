@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../application/project_providers.dart';
 import 'widgets/activity_contributors_card.dart';
 import 'widgets/activity_events_card.dart';
@@ -23,8 +22,11 @@ class ActivityPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(projectDigestProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.tr('project.activity.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/project'))),
+    return SecondaryPageScaffold(
+      title: l10n.tr('project.activity.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.history_rounded,
+      fallbackPath: '/project',
       body: ResponsiveLayout(
         compact: (_) => _Body(state: state),
         medium: (_) => CenteredContent(child: _Body(state: state)),

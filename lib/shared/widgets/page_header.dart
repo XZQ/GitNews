@@ -18,6 +18,7 @@ class PageHeader extends StatelessWidget {
   const PageHeader(
       {required this.title,
       required this.subtitle,
+      this.leading,
       this.icon,
       this.iconAccent = AppColors.brand,
       this.searchHint,
@@ -31,6 +32,7 @@ class PageHeader extends StatelessWidget {
       super.key});
 
   final IconData? icon;
+  final Widget? leading;
   final Color iconAccent;
   final String title;
   final String subtitle;
@@ -63,42 +65,91 @@ class PageHeader extends StatelessWidget {
       ],
     );
     final titleSlot = hasSearch ? ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: titleContent) : Expanded(child: titleContent);
+    final trailingWidgets = <Widget>[
+      for (final pill in pills) ...[const SizedBox(width: AppSpacing.md), pill],
+      for (final action in actions) ...[const SizedBox(width: AppSpacing.md), action],
+      if (onRefresh != null) ...[
+        const SizedBox(width: AppSpacing.sm),
+        IconButton(
+          tooltip: l10n.tr('a11y.refresh'),
+          icon: isRefreshing
+              ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: colors.onSurfaceVariant))
+              : Icon(Icons.refresh_rounded, size: 20, color: colors.onSurfaceVariant),
+          onPressed: isRefreshing ? null : onRefresh,
+          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          padding: EdgeInsets.zero,
+        ),
+      ],
+    ];
 
-    return Container(
-      height: 64,
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-      decoration: BoxDecoration(color: colors.surface, border: Border(bottom: BorderSide(color: colors.outlineVariant, width: 1))),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = hasSearch && constraints.maxWidth < 1040;
+        final leadingWidgets = [
+          if (leading != null) ...[leading!, const SizedBox(width: AppSpacing.sm)],
           if (icon != null) ...[PageHeaderIcon(icon: icon!, accent: iconAccent), const SizedBox(width: AppSpacing.md)],
-          titleSlot,
-          if (hasSearch) ...[
-            const SizedBox(width: AppSpacing.xl),
-            Expanded(
-                child: HeaderSearchField(
-              hintText: searchHint!,
-              value: searchValue,
-              onChanged: onSearchChanged,
-              onSubmitted: onSearchSubmitted,
-            ))
-          ],
-          for (final pill in pills) ...[const SizedBox(width: AppSpacing.md), pill],
-          for (final action in actions) ...[const SizedBox(width: AppSpacing.md), action],
-          if (onRefresh != null) ...[
-            const SizedBox(width: AppSpacing.sm),
-            IconButton(
-              tooltip: l10n.tr('a11y.refresh'),
-              icon: isRefreshing
-                  ? SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: colors.onSurfaceVariant))
-                  : Icon(Icons.refresh_rounded, size: 20, color: colors.onSurfaceVariant),
-              onPressed: isRefreshing ? null : onRefresh,
-              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
-              padding: EdgeInsets.zero,
-            )
-          ]
-        ],
-      ),
+        ];
+        return Container(
+          height: narrow ? 112 : 64,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+          decoration: BoxDecoration(color: colors.surface, border: Border(bottom: BorderSide(color: colors.outlineVariant, width: 1))),
+          child: narrow
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ...leadingWidgets,
+                          Expanded(child: titleContent),
+                          if (trailingWidgets.isNotEmpty)
+                            SizedBox(
+                              width: 220,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: trailingWidgets,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      height: 44,
+                      child: HeaderSearchField(
+                        hintText: searchHint!,
+                        value: searchValue,
+                        onChanged: onSearchChanged,
+                        onSubmitted: onSearchSubmitted,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    ...leadingWidgets,
+                    titleSlot,
+                    if (hasSearch) ...[
+                      const SizedBox(width: AppSpacing.xl),
+                      Expanded(
+                        child: HeaderSearchField(
+                          hintText: searchHint!,
+                          value: searchValue,
+                          onChanged: onSearchChanged,
+                          onSubmitted: onSearchSubmitted,
+                        ),
+                      ),
+                    ],
+                    ...trailingWidgets,
+                  ],
+                ),
+        );
+      },
     );
   }
 }

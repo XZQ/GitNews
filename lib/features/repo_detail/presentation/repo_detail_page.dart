@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
@@ -9,7 +8,9 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/shared/local_content_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/page_header.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../application/repo_detail_providers.dart';
 import '../domain/repo_detail_repository.dart';
 import 'detail/repo_detail_activity.dart';
@@ -32,26 +33,37 @@ class RepoDetailPage extends ConsumerWidget {
     final content = ref.watch(localContentControllerProvider);
     final decodedFullName = Uri.decodeComponent(fullName);
     final actionRepo = state.asData?.value.data.repo;
-    return Scaffold(
-        appBar: AppBar(
-            title: state.maybeWhen(data: (result) => Text(result.data.repo.fullName), orElse: () => Text(l10n.tr('repo_detail.title'))),
-            leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/home')),
-            actions: [
-              IconButton(
-                icon: Icon(content.isBookmarked(decodedFullName) ? Icons.bookmark : Icons.bookmark_border),
-                tooltip: l10n.tr(content.isBookmarked(decodedFullName) ? 'a11y.bookmark_remove' : 'a11y.bookmark_add'),
-                onPressed: actionRepo == null ? null : () => ref.read(localContentControllerProvider.notifier).toggleBookmark(actionRepo),
-              ),
-              IconButton(
-                  icon: Icon(content.isMonitored(decodedFullName) ? Icons.notifications_active : Icons.notifications_none),
-                  tooltip: l10n.tr('repo_detail.subscribe'),
-                  onPressed: actionRepo == null
-                      ? null
-                      : () {
-                          ref.read(localContentControllerProvider.notifier).addMonitor(actionRepo);
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('repo_detail.subscribed').replaceAll('{name}', decodedFullName))));
-                        })
-            ]),
+    final title = state.maybeWhen(
+      data: (result) => result.data.repo.fullName,
+      orElse: () => l10n.tr('repo_detail.title'),
+    );
+    final subtitle = state.maybeWhen(
+      data: (result) => result.data.repo.description,
+      orElse: () => l10n.tr('common.secondary_page_subtitle'),
+    );
+    final actions = [
+      HeaderAction(
+        icon: content.isBookmarked(decodedFullName) ? Icons.bookmark : Icons.bookmark_border,
+        tooltip: l10n.tr(content.isBookmarked(decodedFullName) ? 'a11y.bookmark_remove' : 'a11y.bookmark_add'),
+        onPressed: actionRepo == null ? null : () => ref.read(localContentControllerProvider.notifier).toggleBookmark(actionRepo),
+      ),
+      HeaderAction(
+        icon: content.isMonitored(decodedFullName) ? Icons.notifications_active : Icons.notifications_none,
+        tooltip: l10n.tr('repo_detail.subscribe'),
+        onPressed: actionRepo == null
+            ? null
+            : () {
+                ref.read(localContentControllerProvider.notifier).addMonitor(actionRepo);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('repo_detail.subscribed').replaceAll('{name}', decodedFullName))));
+              },
+      ),
+    ];
+    return SecondaryPageScaffold(
+        title: title,
+        subtitle: subtitle,
+        icon: Icons.code_rounded,
+        fallbackPath: '/home',
+        actions: actions,
         body: state.when(
             data: (result) {
               final digest = result.data;
@@ -82,7 +94,7 @@ class _Mobile extends StatelessWidget {
         AppSpacing.xl,
       ),
       children: [
-        RepoDetailHeader(repo: digest.repo, freshness: freshness),
+        RepoDetailHeader(repo: digest.repo, freshness: freshness, compact: true),
         const SizedBox(height: AppSpacing.lg),
         RepoDetailStats(repo: digest.repo, contributorCount: digest.contributors.length),
         const SizedBox(height: AppSpacing.lg),

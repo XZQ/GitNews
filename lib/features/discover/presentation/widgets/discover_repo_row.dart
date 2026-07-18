@@ -195,6 +195,29 @@ class _MonitorButton extends StatelessWidget {
         } else {
           await controller.addMonitor(repo);
         }
+        if (!context.mounted) {
+          return;
+        }
+        final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              l10n.tr(
+                monitored ? 'discover.monitor_removed' : 'discover.monitor_added',
+              ),
+            ),
+            action: SnackBarAction(
+              label: l10n.tr('common.undo'),
+              onPressed: () {
+                if (monitored) {
+                  controller.addMonitor(repo);
+                } else {
+                  controller.removeMonitor(repo.fullName);
+                }
+              },
+            ),
+          ),
+        );
       },
       constraints: BoxConstraints(minWidth: compact ? 40 : 44, minHeight: compact ? 40 : 44),
     );
@@ -271,8 +294,17 @@ class _DeltaPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = value >= 0 ? AppColors.success : AppColors.danger;
-    return _Pill(text: value >= 0 ? '+${_shortNumber(value)}' : _shortNumber(value), color: color);
+    if (value == 0) {
+      return _Pill(
+        text: '—',
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
+      );
+    }
+    final color = value > 0 ? AppColors.success : AppColors.danger;
+    return _Pill(
+      text: value > 0 ? '+${_shortNumber(value)}' : _shortNumber(value),
+      color: color,
+    );
   }
 }
 

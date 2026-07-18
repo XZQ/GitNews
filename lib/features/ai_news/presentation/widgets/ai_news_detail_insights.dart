@@ -11,13 +11,12 @@ import 'ai_news_detail_components.dart';
 import 'ai_news_enrichment_card.dart';
 
 /*
-*详情阅读流第二页:AI 深度解读、背景和双语材料。
+*详情页中的 AI 深度解读与关联仓库区块。
 */
 class AiNewsDetailInsights extends StatelessWidget {
   const AiNewsDetailInsights({
     required this.item,
     required this.showEnrichment,
-    this.onOpenOriginal,
     super.key,
   });
 
@@ -27,15 +26,9 @@ class AiNewsDetailInsights extends StatelessWidget {
   // 是否加载本地 AI 增强状态。
   final bool showEnrichment;
 
-  // 打开原文操作。
-  final VoidCallback? onOpenOriginal;
-
   @override
-  /* 构建第二页的深度阅读内容。 */
+  /* 构建 AI 解读与正文中识别出的仓库标签。 */
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
-    final originalText = item.titleEn.trim().isEmpty ? item.summary : item.titleEn;
     final repos = extractGitHubRepoLinks([
       item.title,
       item.titleEn,
@@ -43,85 +36,15 @@ class AiNewsDetailInsights extends StatelessWidget {
       item.url,
       item.permalink,
     ]);
-    return AiNewsDetailPageFrame(
-      scrollKey: const PageStorageKey('ai-news-detail-insights-scroll'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              AiNewsDetailCategoryPill(category: item.category),
-              const SizedBox(width: AppSpacing.sm),
-              Text(
-                '·',
-                style: AppTypography.titleMedium.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              const AiNewsDetailPageMarker(current: 2, total: 3),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          if (showEnrichment) AiNewsEnrichmentCard(item: item) else _InsightPreview(item: item),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (showEnrichment) AiNewsEnrichmentCard(item: item) else _InsightPreview(item: item),
+        if (repos.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xl),
-          AiNewsDetailSectionTitle(
-            icon: Icons.article_outlined,
-            title: l10n.tr('ai_news.detail.background'),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            item.summary,
-            style: AppTypography.bodyLarge.copyWith(
-              color: colors.onSurface,
-              height: 1.78,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            l10n.tr('ai_news.detail.category_context'),
-            style: AppTypography.bodyLarge.copyWith(
-              color: colors.onSurface,
-              height: 1.78,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            l10n.tr(
-              item.selected ? 'ai_news.detail.selected_context' : 'ai_news.detail.score_context',
-            ),
-            style: AppTypography.bodyLarge.copyWith(
-              color: colors.onSurface,
-              height: 1.78,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          AiNewsDetailLanguageCard(
-            icon: Icons.translate_rounded,
-            title: l10n.tr('ai_news.detail.original'),
-            body: originalText,
-            onOpenOriginal: onOpenOriginal,
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          AiNewsDetailLanguageCard(
-            icon: Icons.g_translate_rounded,
-            title: l10n.tr('ai_news.detail.translation'),
-            body: item.summary,
-            tinted: true,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            l10n.tr('ai_news.detail.translation_note'),
-            style: AppTypography.bodySmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          if (repos.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.lg),
-            _RelatedTags(repos: repos),
-          ],
+          _RelatedTags(repos: repos),
         ],
-      ),
+      ],
     );
   }
 }

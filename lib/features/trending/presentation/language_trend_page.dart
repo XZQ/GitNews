@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -10,6 +8,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../application/trending_providers.dart';
@@ -27,8 +26,11 @@ class LanguageTrendPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(trendingDigestProvider);
-    return Scaffold(
-        appBar: AppBar(title: Text(l10n.tr('trending.language_trend.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/trending'))),
+    return SecondaryPageScaffold(
+        title: l10n.tr('trending.language_trend.title'),
+        subtitle: l10n.tr('common.secondary_page_subtitle'),
+        icon: Icons.code_rounded,
+        fallbackPath: '/trending',
         body: state.when(
             data: (digest) {
               if (digest.languages.isEmpty) {

@@ -28,7 +28,7 @@ class DevIntelTopHeader extends ConsumerWidget {
       subtitle: l10n.tr('home.subtitle'),
       searchHint: l10n.tr('home.search_hint'),
       onSearchSubmitted: (v) => _openGlobalSearch(context, ref, v),
-      actions: [_BellWithDot(), const _LiveSyncBadge()],
+      actions: [_BellWithDot()],
     );
   }
 }
@@ -102,12 +102,3 @@ class _Dot extends StatelessWidget {
 /* 
 *实时同步胶囊(带脉冲点)。
 */
-class _LiveSyncBadge extends StatelessWidget {
-  const _LiveSyncBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return HeaderStatPill(icon: Icons.circle, label: l10n.tr('home.live_sync'), color: AppColors.success);
-  }
-}

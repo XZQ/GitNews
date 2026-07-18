@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
+import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
@@ -28,28 +30,31 @@ class MonitorPage extends ConsumerWidget {
     final isCompact = Breakpoints.isCompact(context);
     final state = ref.watch(filteredMonitorDigestProvider);
     return Scaffold(
-        appBar: isCompact ? AppBar(title: Text(l10n.tr('monitor.title'))) : null,
-        body: state.when(
-            data: (digest) {
-              if (digest.isEmpty) {
-                return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty'));
-              }
-              return ResponsiveLayout(
-                compact: (_) => _Mobile(digest: digest),
-                medium: (_) => _Desktop(digest: digest),
-                expanded: (_) => _Desktop(digest: digest),
-              );
-            },
-            loading: () => const _MonitorSkeleton(),
-            error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => forceRefreshMonitor(ref))));
+      appBar: isCompact ? AppBar(title: Text(l10n.tr('monitor.title'))) : null,
+      body: state.when(
+        data: (digest) {
+          if (digest.isEmpty) {
+            return EmptyView(
+              icon: Icons.visibility_off_outlined,
+              message: l10n.tr('monitor.empty'),
+            );
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Mobile(digest: digest),
+            medium: (_) => _Desktop(digest: digest),
+            expanded: (_) => _Desktop(digest: digest),
+          );
+        },
+        loading: () => const _MonitorSkeleton(),
+        error: (error, stack) => ErrorView(
+          error: error.asAppException(stack),
+          onRetry: () => forceRefreshMonitor(ref),
+        ),
+      ),
+    );
   }
 }
 
-/*
-*手机:状态 4 卡 + 我的监控仓库 + 最近告警。
-*不复用桌面版 [MonitorMonitoredRepos](内部自带 CustomScrollView,
-*放进外层滚动会高度无界);监控行改为 Sliver 懒构建的紧凑卡片。
-*/
 class _Mobile extends StatelessWidget {
   const _Mobile({required this.digest});
 
@@ -58,51 +63,142 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return CustomScrollView(slivers: [
-      SliverPadding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.sm,
-          AppSpacing.lg,
-          0,
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.sm,
+            AppSpacing.lg,
+            0,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: MonitorStatusRow(stats: digest.stats),
+          ),
         ),
-        sliver: SliverToBoxAdapter(child: MonitorStatusRow(stats: digest.stats)),
-      ),
-      SliverPadding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.xs,
+        const SliverPadding(
+          padding: EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.md,
+            AppSpacing.lg,
+            0,
+          ),
+          sliver: SliverToBoxAdapter(child: _MobileQuickActions()),
         ),
-        sliver: SliverToBoxAdapter(
-          child: SectionHeader(title: l10n.tr('monitor.monitored_repos.title'), subtitle: l10n.tr('monitor.monitored_repos.subtitle')),
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.xs,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: SectionHeader(
+              title: l10n.tr('monitor.monitored_repos.title'),
+              subtitle: l10n.tr('monitor.monitored_repos.subtitle'),
+            ),
+          ),
         ),
-      ),
-      SliverPadding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        sliver: SliverList.separated(
-          itemCount: digest.monitoredRepos.length,
-          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-          itemBuilder: (context, i) => MonitorMonitoredRow(repo: digest.monitoredRepos[i], dense: true),
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          sliver: SliverList.separated(
+            itemCount: digest.monitoredRepos.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+            itemBuilder: (context, index) => MonitorMonitoredRow(
+              repo: digest.monitoredRepos[index],
+              dense: true,
+            ),
+          ),
         ),
-      ),
-      SliverPadding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.lg,
-          AppSpacing.xl,
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.lg,
+            AppSpacing.xl,
+          ),
+          sliver: SliverToBoxAdapter(
+            child: MonitorRecentAlerts(alerts: digest.alerts),
+          ),
         ),
-        sliver: SliverToBoxAdapter(child: MonitorRecentAlerts(alerts: digest.alerts)),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
-/* 
-*桌面:左 8 列监控仓库表 + 告警 / 右 4 列(规则 + 通知设置)。
-*/
+class _MobileQuickActions extends StatelessWidget {
+  const _MobileQuickActions();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppCard(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: AppSpacing.xs,
+      ),
+      child: Row(
+        children: [
+          _QuickAction(
+            icon: Icons.notifications_outlined,
+            label: l10n.tr('monitor.quick.alerts'),
+            onTap: () => context.go('/monitor/alerts'),
+          ),
+          _QuickAction(
+            icon: Icons.rule_outlined,
+            label: l10n.tr('monitor.quick.rules'),
+            onTap: () => context.go('/profile/rules'),
+          ),
+          _QuickAction(
+            icon: Icons.tune_rounded,
+            label: l10n.tr('monitor.quick.settings'),
+            onTap: () => context.go('/monitor/settings'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Expanded(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, color: colors.primary, size: 20),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _Desktop extends ConsumerWidget {
   const _Desktop({required this.digest});
 
@@ -111,41 +207,54 @@ class _Desktop extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final searchQuery = ref.watch(monitorSearchQueryProvider).trim();
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-      MonitorPageHeader(stats: digest.stats),
-      Expanded(child: LayoutBuilder(builder: (context, constraints) {
-        final available = constraints.maxHeight;
-        return SingleChildScrollView(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        MonitorPageHeader(stats: digest.stats),
+        Expanded(
+          child: Padding(
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.xl,
               AppSpacing.lg,
               AppSpacing.xl,
-              AppSpacing.xxxl,
+              AppSpacing.xl,
             ),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              MonitorStatusRow(stats: digest.stats),
-              const SizedBox(height: AppSpacing.lg),
-              // 用可用高度而非全屏高度,窗口变矮时不再溢出;
-              // 外层 SingleChildScrollView 作为极矮窗口的安全兜底。
-              SizedBox(
-                height: (available - _kStatusRowHeight - AppSpacing.lg).clamp(220.0, 900.0),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(flex: 8, child: MonitorMonitoredRepos(repos: digest.monitoredRepos)),
-                    const SizedBox(width: AppSpacing.lg),
-                    Expanded(flex: 4, child: SingleChildScrollView(child: _RightColumn(alerts: digest.alerts, searchQuery: searchQuery)))
-                  ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                MonitorStatusRow(stats: digest.stats),
+                const SizedBox(height: AppSpacing.lg),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 8,
+                        child: MonitorMonitoredRepos(
+                          repos: digest.monitoredRepos,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.lg),
+                      Expanded(
+                        flex: 4,
+                        child: SingleChildScrollView(
+                          child: _RightColumn(
+                            alerts: digest.alerts,
+                            searchQuery: searchQuery,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              )
-            ]));
-      }))
-    ]);
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
-
-// MonitorStatusRow(4 张状态卡)的近似高度,用于从可用高度中扣除以计算双栏区高度。
-const double _kStatusRowHeight = 100.0;
 
 class _RightColumn extends StatelessWidget {
   const _RightColumn({required this.alerts, required this.searchQuery});
@@ -162,7 +271,7 @@ class _RightColumn extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         const MonitorNotificationCard(),
         const SizedBox(height: AppSpacing.lg),
-        MonitorRecentAlerts(alerts: alerts)
+        MonitorRecentAlerts(alerts: alerts),
       ],
     );
   }
@@ -189,11 +298,11 @@ class _MonitorSkeleton extends StatelessWidget {
             SizedBox(width: AppSpacing.sm),
             Expanded(child: Skeleton(height: 92)),
             SizedBox(width: AppSpacing.sm),
-            Expanded(child: Skeleton(height: 92))
+            Expanded(child: Skeleton(height: 92)),
           ],
         ),
         SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 360)
+        Skeleton(height: 360),
       ],
     );
   }

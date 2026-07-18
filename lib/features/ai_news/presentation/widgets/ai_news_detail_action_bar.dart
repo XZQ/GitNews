@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -18,6 +17,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
   const AiNewsDetailActionBar({
     required this.item,
     required this.onShare,
+    this.compact = true,
     super.key,
   });
 
@@ -27,6 +27,10 @@ class AiNewsDetailActionBar extends ConsumerWidget {
   // 分享操作。
   final VoidCallback onShare;
 
+  // Desktop uses the same actions in a compact inline toolbar; mobile keeps
+  // the fixed bottom bar so the primary reading actions remain reachable.
+  final bool compact;
+
   @override
   /* 构建赞同、不感兴趣、收藏和分享四个操作。 */
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,82 +38,79 @@ class AiNewsDetailActionBar extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final signal = ref.watch(aiNewsInterestProfileProvider).valueOrNull?.itemSignals[item.id];
     final saved = ref.watch(aiNewsItemStateProvider(item.id)).valueOrNull?.isReadLater ?? false;
-    return SafeArea(
-      top: false,
-      child: Container(
-        decoration: BoxDecoration(
-          color: colors.surface,
-          borderRadius: const BorderRadius.vertical(
-            top: Radius.circular(AppRadius.xl),
-          ),
-          border: Border(
-            top: BorderSide(
-              color: colors.outlineVariant.withValues(alpha: 0.52),
-            ),
-          ),
-          boxShadow: [
+    final toolbar = Container(
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: compact ? const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)) : BorderRadius.circular(AppRadius.lg),
+        border: compact ? Border(top: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.52))) : Border.all(color: colors.outlineVariant.withValues(alpha: 0.72)),
+        boxShadow: [
+          if (compact)
             BoxShadow(
-              color: Colors.black.withValues(
-                alpha: Theme.of(context).brightness == Brightness.light ? 0.07 : 0.2,
-              ),
+              color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.light ? 0.07 : 0.2),
               blurRadius: 20,
               offset: const Offset(0, -4),
             ),
-          ],
-        ),
-        child: Align(
-          alignment: Alignment.topCenter,
-          heightFactor: 1,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 760),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _DetailActionItem(
-                    icon: signal == AiNewsFeedbackSignal.more ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
-                    label: '${l10n.tr('ai_news.detail.like')} ${item.score}',
-                    selected: signal == AiNewsFeedbackSignal.more,
-                    onTap: () => _toggleFeedback(
-                      context,
-                      ref,
-                      AiNewsFeedbackSignal.more,
-                      signal,
-                    ),
+        ],
+      ),
+      child: Align(
+        alignment: Alignment.topCenter,
+        heightFactor: 1,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 760),
+          child: Row(
+            children: [
+              Expanded(
+                child: _DetailActionItem(
+                  icon: signal == AiNewsFeedbackSignal.more ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
+                  label: '${l10n.tr('ai_news.detail.like')} ${item.score}',
+                  selected: signal == AiNewsFeedbackSignal.more,
+                  onTap: () => _toggleFeedback(
+                    context,
+                    ref,
+                    AiNewsFeedbackSignal.more,
+                    signal,
                   ),
                 ),
-                Expanded(
-                  child: _DetailActionItem(
-                    icon: signal == AiNewsFeedbackSignal.less ? Icons.sentiment_dissatisfied_rounded : Icons.sentiment_neutral_outlined,
-                    label: l10n.tr('ai_news.detail.not_interested'),
-                    selected: signal == AiNewsFeedbackSignal.less,
-                    onTap: () => _toggleFeedback(
-                      context,
-                      ref,
-                      AiNewsFeedbackSignal.less,
-                      signal,
-                    ),
+              ),
+              Expanded(
+                child: _DetailActionItem(
+                  icon: signal == AiNewsFeedbackSignal.less ? Icons.sentiment_dissatisfied_rounded : Icons.sentiment_neutral_outlined,
+                  label: l10n.tr('ai_news.detail.not_interested'),
+                  selected: signal == AiNewsFeedbackSignal.less,
+                  onTap: () => _toggleFeedback(
+                    context,
+                    ref,
+                    AiNewsFeedbackSignal.less,
+                    signal,
                   ),
                 ),
-                Expanded(
-                  child: _DetailActionItem(
-                    icon: saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-                    label: l10n.tr('ai_news.detail.bookmark'),
-                    selected: saved,
-                    onTap: () => _toggleReadLater(context, ref),
-                  ),
+              ),
+              Expanded(
+                child: _DetailActionItem(
+                  icon: saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
+                  label: l10n.tr('ai_news.detail.bookmark'),
+                  selected: saved,
+                  onTap: () => _toggleReadLater(context, ref),
                 ),
-                Expanded(
-                  child: _DetailActionItem(
-                    icon: Icons.ios_share_rounded,
-                    label: l10n.tr('ai_news.detail.share'),
-                    onTap: onShare,
-                  ),
+              ),
+              Expanded(
+                child: _DetailActionItem(
+                  icon: Icons.ios_share_rounded,
+                  label: l10n.tr('ai_news.detail.share'),
+                  onTap: onShare,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
+    );
+    if (compact) {
+      return SafeArea(top: false, child: toolbar);
+    }
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.sm, AppSpacing.xxl, AppSpacing.md),
+      child: Align(alignment: Alignment.topCenter, child: toolbar),
     );
   }
 
@@ -180,7 +181,8 @@ class _DetailActionItem extends StatelessWidget {
   @override
   /* 构建满足触控尺寸的底部操作。 */
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.brand : Theme.of(context).colorScheme.onSurfaceVariant;
+    final colors = Theme.of(context).colorScheme;
+    final color = selected ? colors.primary : colors.onSurfaceVariant;
     return Semantics(
       button: true,
       selected: selected,

@@ -1,23 +1,24 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/theme/app_spacing.dart';
+import '../../application/ai_news_enrichment_providers.dart';
 import '../../domain/ai_news_item.dart';
+import 'ai_news_detail_components.dart';
 import 'ai_news_detail_extended.dart';
 import 'ai_news_detail_insights.dart';
 import 'ai_news_detail_overview.dart';
 
 /*
-*AI 资讯详情的三页横向阅读流。
+*AI 资讯详情的单页纵向阅读流。
 *
-*每页拥有独立纵向滚动位置;触摸、鼠标拖动和触控板都可横向翻页。
+*概览、AI 解读与延伸内容共享一个滚动位置,不使用横向分页。
 */
-class AiNewsDetailContent extends StatefulWidget {
+class AiNewsDetailContent extends ConsumerWidget {
   const AiNewsDetailContent({
     required this.item,
     this.relatedItems = const [],
     this.showEnrichment = true,
-    this.initialPage = 0,
     this.onOpenOriginal,
     this.onOpenRelated,
     this.onViewMore,
@@ -33,9 +34,6 @@ class AiNewsDetailContent extends StatefulWidget {
   // 是否读取本地 AI 增强状态。
   final bool showEnrichment;
 
-  // 初始页,用于恢复和视觉测试。
-  final int initialPage;
-
   // 打开原文操作。
   final VoidCallback? onOpenOriginal;
 
@@ -46,76 +44,38 @@ class AiNewsDetailContent extends StatefulWidget {
   final VoidCallback? onViewMore;
 
   @override
-  /* 创建横向分页控制器状态。 */
-  State<AiNewsDetailContent> createState() => _AiNewsDetailContentState();
-}
-
-/*
-*维护详情阅读流的页面控制器。
-*/
-class _AiNewsDetailContentState extends State<AiNewsDetailContent> {
-  // 横向三页控制器。
-  late final PageController _pageController;
-
-  @override
-  /* 按指定初始页创建控制器。 */
-  void initState() {
-    super.initState();
-    _pageController = PageController(
-      initialPage: widget.initialPage.clamp(0, 2).toInt(),
-    );
-  }
-
-  @override
-  /* 释放分页控制器。 */
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  /* 构建三页可横向拖动的详情内容。 */
-  Widget build(BuildContext context) {
-    return ScrollConfiguration(
-      behavior: const _AiNewsDetailScrollBehavior(),
-      child: PageView(
-        key: const ValueKey('ai-news-detail-pages'),
-        controller: _pageController,
-        allowImplicitScrolling: true,
+  /* 构建一个可上下滚动的完整详情页。 */
+  Widget build(BuildContext context, WidgetRef ref) {
+    final enrichment = showEnrichment ? ref.watch(aiNewsEnrichmentProvider(item.id)).valueOrNull : null;
+    return AiNewsDetailPageFrame(
+      scrollKey: const PageStorageKey('ai-news-detail-scroll'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           AiNewsDetailOverview(
-            item: widget.item,
-            onOpenOriginal: widget.onOpenOriginal,
+            item: item,
+            enrichment: enrichment,
+            onOpenOriginal: onOpenOriginal,
           ),
+          const SizedBox(height: AppSpacing.xl),
+          const Divider(height: 1),
+          const SizedBox(height: AppSpacing.xl),
           AiNewsDetailInsights(
-            item: widget.item,
-            showEnrichment: widget.showEnrichment,
-            onOpenOriginal: widget.onOpenOriginal,
+            item: item,
+            showEnrichment: showEnrichment,
           ),
+          const SizedBox(height: AppSpacing.xl),
+          const Divider(height: 1),
+          const SizedBox(height: AppSpacing.xl),
           AiNewsDetailExtended(
-            item: widget.item,
-            relatedItems: widget.relatedItems,
-            onOpenOriginal: widget.onOpenOriginal,
-            onOpenRelated: widget.onOpenRelated,
-            onViewMore: widget.onViewMore,
+            item: item,
+            relatedItems: relatedItems,
+            onOpenOriginal: onOpenOriginal,
+            onOpenRelated: onOpenRelated,
+            onViewMore: onViewMore,
           ),
         ],
       ),
     );
   }
-}
-
-/*
-*让桌面鼠标拖动与触控设备都可翻页的滚动策略。
-*/
-class _AiNewsDetailScrollBehavior extends MaterialScrollBehavior {
-  const _AiNewsDetailScrollBehavior();
-
-  @override
-  Set<PointerDeviceKind> get dragDevices => const {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.stylus,
-        PointerDeviceKind.trackpad,
-      };
 }

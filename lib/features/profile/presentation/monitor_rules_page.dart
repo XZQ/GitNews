@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/shared/local_content_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
-import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 
 class MonitorRulesPage extends StatelessWidget {
   const MonitorRulesPage({super.key});
@@ -16,8 +14,10 @@ class MonitorRulesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.tr('monitor.rules.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile'))),
+    return SecondaryPageScaffold(
+      title: l10n.tr('monitor.rules.title'),
+      icon: Icons.rule_rounded,
+      fallbackPath: '/profile',
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
         medium: (_) => const CenteredContent(child: _Body()),
@@ -38,8 +38,13 @@ class _Body extends ConsumerWidget {
     return ListView(padding: const EdgeInsets.all(AppSpacing.lg), children: [
       AppCard(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        SectionHeader(title: l10n.tr('monitor.rules.title'), subtitle: l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}')),
-        const SizedBox(height: AppSpacing.md),
+        Text(
+          l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}'),
+          style: AppTypography.bodyMedium.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
         for (var i = 0; i < monitorRuleCount; i++)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
@@ -50,7 +55,24 @@ class _Body extends ConsumerWidget {
                   enabledFlags[i] ? l10n.tr('monitor.rules.enabled') : l10n.tr('monitor.rules.disabled'),
                   style: AppTypography.labelSmall.copyWith(color: enabledFlags[i] ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
-                Switch(value: enabledFlags[i], onChanged: (value) => ref.read(localContentControllerProvider.notifier).setMonitorRule(i, value))
+                Switch(
+                  value: enabledFlags[i],
+                  onChanged: (value) {
+                    ref.read(localContentControllerProvider.notifier).setMonitorRule(i, value);
+                    final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          value ? l10n.tr('monitor.rules.enabled') : l10n.tr('monitor.rules.disabled'),
+                        ),
+                        action: SnackBarAction(
+                          label: l10n.tr('common.undo'),
+                          onPressed: () => ref.read(localContentControllerProvider.notifier).setMonitorRule(i, !value),
+                        ),
+                      ),
+                    );
+                  },
+                )
               ],
             ),
           )

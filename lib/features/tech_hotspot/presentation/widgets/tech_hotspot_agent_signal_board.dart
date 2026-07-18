@@ -11,16 +11,26 @@ import '../../../../shared/widgets/empty_view.dart';
 import '../../domain/tech_hotspot_models.dart';
 
 class TechHotspotAgentSignalBoard extends StatelessWidget {
-  const TechHotspotAgentSignalBoard({required this.topics, super.key});
+  const TechHotspotAgentSignalBoard({
+    required this.topics,
+    this.compact = false,
+    super.key,
+  });
 
   final List<TechTopic> topics;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final formFactor = Breakpoints.of(context);
-    final signals = topics.where((topic) => topic.category == 'Agent' || topic.name.contains('AI Coding') || topic.name.contains('本地推理')).take(3).toList(growable: false);
+    final signals = topics
+        .where(
+          (topic) => topic.category == 'Agent' || topic.name.contains('AI Coding') || topic.name.contains('本地推理'),
+        )
+        .take(compact ? 2 : 3)
+        .toList(growable: false);
 
     return AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
@@ -32,28 +42,40 @@ class TechHotspotAgentSignalBoard extends StatelessWidget {
           Text(l10n.tr('tech_hotspot.agent_board.source'), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600))
         ],
       ),
-      const SizedBox(height: AppSpacing.xs),
-      Text(l10n.tr('tech_hotspot.agent_board.subtitle'), style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
-      const SizedBox(height: AppSpacing.lg),
+      if (!compact) ...[
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          l10n.tr('tech_hotspot.agent_board.subtitle'),
+          style: AppTypography.bodySmall.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      ],
+      SizedBox(height: compact ? AppSpacing.sm : AppSpacing.lg),
       if (signals.isEmpty)
         EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('tech_hotspot.empty.agent_signals'))
       else if (formFactor == FormFactor.expanded)
         Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          for (var i = 0; i < signals.length; i++) ...[if (i > 0) const SizedBox(width: AppSpacing.lg), Expanded(child: _AgentSignalItem(rank: i + 1, topic: signals[i]))]
+          for (var i = 0; i < signals.length; i++) ...[if (i > 0) const SizedBox(width: AppSpacing.lg), Expanded(child: _AgentSignalItem(rank: i + 1, topic: signals[i], compact: compact))]
         ])
       else
         Column(children: [
-          for (var i = 0; i < signals.length; i++) ...[if (i > 0) const SizedBox(height: AppSpacing.md), _AgentSignalItem(rank: i + 1, topic: signals[i])]
+          for (var i = 0; i < signals.length; i++) ...[if (i > 0) SizedBox(height: compact ? AppSpacing.sm : AppSpacing.md), _AgentSignalItem(rank: i + 1, topic: signals[i], compact: compact)]
         ])
     ]));
   }
 }
 
 class _AgentSignalItem extends StatelessWidget {
-  const _AgentSignalItem({required this.rank, required this.topic});
+  const _AgentSignalItem({
+    required this.rank,
+    required this.topic,
+    required this.compact,
+  });
 
   final int rank;
   final TechTopic topic;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +83,7 @@ class _AgentSignalItem extends StatelessWidget {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final accent = switch (rank) { 1 => AppColors.danger, 2 => AppColors.brand, _ => AppColors.info };
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: EdgeInsets.all(compact ? AppSpacing.sm : AppSpacing.md),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest.withValues(alpha: isLight ? 0.6 : 0.42),
         borderRadius: BorderRadius.circular(AppRadius.md),
@@ -92,30 +114,45 @@ class _AgentSignalItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     )),
                     const SizedBox(width: AppSpacing.sm),
-                    Icon(Icons.trending_up_rounded, size: 14, color: accent),
+                    Icon(
+                      topic.growth >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                      size: 14,
+                      color: topic.growth >= 0 ? accent : AppColors.trendDown,
+                    ),
                     const SizedBox(width: AppSpacing.xxs),
-                    Text('+${topic.growth.toStringAsFixed(1)}%', style: AppTypography.labelSmall.copyWith(color: accent, fontWeight: FontWeight.w700))
+                    Text(
+                      '${topic.growth > 0 ? '+' : ''}${topic.growth.toStringAsFixed(1)}%',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: topic.growth >= 0 ? accent : AppColors.trendDown,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    )
                   ],
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  topic.summary,
-                  style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.45),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Row(
-                  children: [
-                    Icon(Icons.local_fire_department_rounded, size: 13, color: colors.onSurfaceVariant),
-                    const SizedBox(width: AppSpacing.xxs),
-                    Text('${topic.heat}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
-                    const SizedBox(width: AppSpacing.md),
-                    Icon(Icons.book_outlined, size: 13, color: colors.onSurfaceVariant),
-                    const SizedBox(width: AppSpacing.xxs),
-                    Text('${topic.relatedRepos}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
-                  ],
-                )
+                if (!compact) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    topic.summary,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: colors.onSurfaceVariant,
+                      height: 1.45,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      Icon(Icons.local_fire_department_rounded, size: 13, color: colors.onSurfaceVariant),
+                      const SizedBox(width: AppSpacing.xxs),
+                      Text('${topic.heat}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
+                      const SizedBox(width: AppSpacing.md),
+                      Icon(Icons.book_outlined, size: 13, color: colors.onSurfaceVariant),
+                      const SizedBox(width: AppSpacing.xxs),
+                      Text('${topic.relatedRepos}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+                    ],
+                  ),
+                ],
               ],
             ),
           )

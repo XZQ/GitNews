@@ -59,7 +59,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
       _EntrySpec(
         label: l10n.tr('home.entry.hotspot.label'),
         kpi: '${hotspot?.topics.length ?? 0} ${l10n.tr('home.entry.hotspot.kpi_suffix')}',
-        delta: '+${(hotspot?.topics.fold<double>(0, (sum, e) => sum + e.growth) ?? 0).toStringAsFixed(1)}%',
+        delta: _signedPercent(hotspot?.topics.fold<double>(0, (sum, e) => sum + e.growth) ?? 0),
         icon: Icons.device_hub_rounded,
         color: AppColors.brand,
         path: '/tech_hotspot',
@@ -88,6 +88,10 @@ class HomeSectionEntryRow extends ConsumerWidget {
       return l10n.tr('home.entry.syncing');
     }
     return '+${_compactNumber(score)}';
+  }
+
+  String _signedPercent(double value) {
+    return '${value > 0 ? '+' : ''}${value.toStringAsFixed(1)}%';
   }
 
   String _compactNumber(int value) {

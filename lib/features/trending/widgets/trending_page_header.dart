@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/preferences/trending_data_source_mode_controller.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/page_header.dart';
@@ -18,7 +17,6 @@ class TrendingPageHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final sourceStatus = ref.watch(trendingDataSourceStatusProvider);
     final freshness = ref.watch(trendingFreshnessProvider).valueOrNull;
     final query = ref.watch(trendingSearchQueryProvider);
     return PageHeader(
@@ -38,11 +36,6 @@ class TrendingPageHeader extends ConsumerWidget {
         },
         pills: [
           if (freshness != null) DataFreshnessBadge(freshness: freshness),
-          HeaderStatPill(
-            icon: sourceStatus.isGithub ? Icons.cloud_outlined : Icons.storage_rounded,
-            label: sourceStatus.label(l10n),
-            color: sourceStatus.mode == TrendingDataSourceMode.github ? AppColors.info : AppColors.brand,
-          )
         ],
         actions: [
           HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => refreshTrendingDigest(ref))

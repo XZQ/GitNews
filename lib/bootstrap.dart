@@ -14,6 +14,7 @@ import 'core/storage/local_database.dart';
 import 'core/storage/storage_providers.dart';
 import 'core/theme/app_spacing.dart';
 import 'core/theme/app_typography.dart';
+import 'shared/widgets/window_title_bar.dart';
 
 typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
 typedef DatabaseOpener = Future<LocalDatabase> Function();
@@ -131,7 +132,7 @@ class _BootstrapShell extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: child),
+      home: DesktopWindowFrame(child: Scaffold(body: child)),
     );
   }
 }

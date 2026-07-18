@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import 'widgets/github_token_card.dart';
 
@@ -14,8 +13,11 @@ class DeveloperOptionsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('开发者选项'), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile'))),
+    return SecondaryPageScaffold(
+      title: '开发者选项',
+      subtitle: 'API 与本地实验能力',
+      icon: Icons.developer_mode_rounded,
+      fallbackPath: '/profile',
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
         medium: (_) => const CenteredContent(child: _Body()),

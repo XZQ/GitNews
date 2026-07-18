@@ -141,8 +141,18 @@ class _TrendCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final delta = repo.starDelta;
-    final deltaColor = delta >= 0 ? AppColors.trendUp : AppColors.trendDown;
-    final deltaText = Text('${delta >= 0 ? '+' : ''}${_shortNumber(delta.abs())}', style: AppTypography.titleSmall.copyWith(color: deltaColor, fontWeight: FontWeight.w700));
+    final deltaColor = delta > 0
+        ? AppColors.trendUp
+        : delta < 0
+            ? AppColors.trendDown
+            : Theme.of(context).colorScheme.onSurfaceVariant;
+    final deltaText = Text(
+      delta == 0 ? '—' : '${delta > 0 ? '+' : '-'}${_shortNumber(delta.abs())}',
+      style: AppTypography.titleSmall.copyWith(
+        color: deltaColor,
+        fontWeight: FontWeight.w700,
+      ),
+    );
     final trend = repo.trend;
     if (!showTrend || trend == null || trend.isEmpty) {
       // 无增量信息时不再渲染「+0 ↗」噪声,给一个安静的占位。

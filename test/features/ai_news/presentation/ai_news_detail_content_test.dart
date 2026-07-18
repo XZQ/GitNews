@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/theme/app_colors.dart';
@@ -30,7 +31,7 @@ void main() {
     expect(languageCardRect.right, lessThan(1250));
   });
 
-  testWidgets('article detail swipes through all three reading pages', (
+  testWidgets('article detail uses one continuous vertical reading flow', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(471, 835);
@@ -48,17 +49,18 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('第 1 页 / 共 3 页').hitTestable(), findsOneWidget);
+    expect(find.byType(PageView), findsNothing);
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    expect(find.textContaining('共 3 页'), findsNothing);
 
-    await tester.drag(find.byType(PageView), const Offset(-420, 0));
+    await tester.dragUntilVisible(
+      find.text('相关文章'),
+      find.byType(SingleChildScrollView),
+      const Offset(0, -260),
+    );
     await tester.pumpAndSettle();
-    expect(find.text('第 2 页 / 共 3 页').hitTestable(), findsOneWidget);
-    expect(find.text('事件背景').hitTestable(), findsOneWidget);
 
-    await tester.drag(find.byType(PageView), const Offset(-420, 0));
-    await tester.pumpAndSettle();
-    expect(find.text('第 3 页 / 共 3 页').hitTestable(), findsOneWidget);
-    expect(find.text('延伸解读').hitTestable(), findsOneWidget);
+    expect(find.text('相关文章').hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -81,28 +83,94 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.drag(find.byType(PageView), const Offset(-350, 0));
-    await tester.pumpAndSettle();
-    await tester.drag(find.byType(PageView), const Offset(-350, 0));
+    await tester.dragUntilVisible(
+      find.text('相关文章'),
+      find.byType(SingleChildScrollView),
+      const Offset(0, -260),
+    );
     await tester.pumpAndSettle();
 
-    expect(find.text('延伸解读').hitTestable(), findsOneWidget);
+    expect(find.text('相关文章').hitTestable(), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Chinese articles hide duplicate original and translation cards', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(375, 846);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      _app(
+        AiNewsDetailContent(
+          item: _chineseItem(),
+          showEnrichment: false,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('英文原文'), findsNothing);
+    expect(find.text('中文翻译'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('English articles show the original and Chinese translation', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(375, 846);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      _app(AiNewsDetailContent(item: _item(), showEnrichment: false)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('英文原文'), findsOneWidget);
+    expect(find.text('中文翻译'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('long Chinese titles do not overflow the compact hero', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(375, 846);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      _app(
+        AiNewsDetailContent(
+          item: _chineseItem(
+            title: '世界人工智能合作组织协定签署仪式在上海举行，总部设在中国上海并推动全球协作',
+          ),
+          showEnrichment: false,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('世界人工智能合作组织协定'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
 
 Widget _app(Widget home, {ThemeData? theme}) {
-  return MaterialApp(
-    locale: const Locale('zh', 'CN'),
-    supportedLocales: AppLocalizations.supportedLocales,
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    theme: theme,
-    home: Scaffold(body: home),
+  return ProviderScope(
+    child: MaterialApp(
+      locale: const Locale('zh', 'CN'),
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      theme: theme,
+      home: Scaffold(body: home),
+    ),
   );
 }
 
@@ -135,5 +203,21 @@ AiNewsItem _relatedItem(String id) {
     publishedAt: DateTime(2026, 7, 15),
     score: 62,
     selected: false,
+  );
+}
+
+AiNewsItem _chineseItem({String? title}) {
+  return AiNewsItem(
+    id: 'chinese-detail',
+    category: AiNewsCategory.industry,
+    title: title ?? '国务院推进人工智能全学段教育',
+    titleEn: '国务院：推进人工智能全学段教育，提升学生人工智能素养',
+    summary: '规划要求完善科学教育体系，强化科技教育与人文教育协同。',
+    source: 'IT之家（RSS）',
+    url: 'https://example.com/chinese',
+    permalink: 'https://example.com/chinese',
+    publishedAt: DateTime(2026, 7, 16, 22, 38),
+    score: 75,
+    selected: true,
   );
 }

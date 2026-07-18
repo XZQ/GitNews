@@ -19,7 +19,7 @@ class ProfilePageHeader extends StatelessWidget {
       iconAccent: AppColors.starGold,
       title: l10n.tr('profile.title'),
       subtitle: l10n.tr('profile.subtitle.short'),
-      actions: [HeaderAction(icon: Icons.settings_outlined, tooltip: l10n.tr('profile.title'), onPressed: () => context.go('/profile'))],
+      actions: [HeaderAction(icon: Icons.settings_outlined, tooltip: l10n.tr('common.settings'), onPressed: () => context.go('/profile/preferences'))],
     );
   }
 }

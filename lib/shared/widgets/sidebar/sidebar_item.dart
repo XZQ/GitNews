@@ -48,6 +48,7 @@ class _SidebarItemState extends State<SidebarItem> {
           label: label,
           button: true,
           selected: isSelected,
+          onTap: widget.onTap,
           child: Material(
             color: Colors.transparent,
             child: InkWell(

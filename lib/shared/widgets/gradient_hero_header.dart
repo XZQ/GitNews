@@ -17,6 +17,7 @@ class GradientHeroHeader extends StatelessWidget {
     this.badges = const [],
     this.trailing,
     this.titleStyle,
+    this.compact = false,
     super.key,
   });
 
@@ -26,8 +27,21 @@ class GradientHeroHeader extends StatelessWidget {
   final Widget? trailing;
   final TextStyle? titleStyle;
 
+  // 在手机详情页使用更紧凑的内边距和标题尺度。
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
+    final resolvedTitleStyle = titleStyle ?? (compact ? AppTypography.headlineMedium : AppTypography.headlineLarge);
+    final trailingContent = trailing == null
+        ? null
+        : compact
+            ? DefaultTextStyle.merge(
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                child: trailing!,
+              )
+            : trailing;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -37,13 +51,28 @@ class GradientHeroHeader extends StatelessWidget {
           colors: [Color.lerp(accent, AppColors.brand, 0.18)!, Color.lerp(accent, Colors.black, 0.46)!],
         ),
       ),
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: EdgeInsets.all(compact ? AppSpacing.lg : AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (badges.isNotEmpty) ...[Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.xs, children: badges), const SizedBox(height: AppSpacing.lg)],
-          Text(title, style: (titleStyle ?? AppTypography.headlineLarge).copyWith(color: Colors.white, height: 1.25)),
-          if (trailing != null) ...[const SizedBox(height: AppSpacing.lg), trailing!]
+          if (badges.isNotEmpty) ...[
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.xs,
+              children: badges,
+            ),
+            SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
+          ],
+          Text(
+            title,
+            maxLines: compact ? 3 : null,
+            overflow: compact ? TextOverflow.ellipsis : null,
+            style: resolvedTitleStyle.copyWith(color: Colors.white, height: 1.25),
+          ),
+          if (trailingContent != null) ...[
+            SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
+            trailingContent,
+          ],
         ],
       ),
     );

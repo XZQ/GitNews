@@ -68,7 +68,7 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
                 onRegenerate: () => _generate(force: true),
               ),
         loading: () => const SizedBox(
-          height: 220,
+          height: 120,
           child: Center(child: CircularProgressIndicator()),
         ),
         error: (_, __) => _EnrichmentError(onRetry: _generate),
@@ -138,7 +138,7 @@ class _EnrichmentSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: AppColors.brandLight.withValues(alpha: isLight ? 0.22 : 0.06),
         border: Border.all(color: AppColors.brand.withValues(alpha: 0.2)),
@@ -173,12 +173,12 @@ class _EmptyEnrichment extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _EnrichmentHeader(working: working, onRegenerate: null),
-        const SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.sm),
         Text(
           l10n.tr(
             configured ? 'ai_news.enrichment.description' : 'ai_news.enrichment.configure',
           ),
-          style: AppTypography.bodyLarge.copyWith(
+          style: AppTypography.bodyMedium.copyWith(
             color: colors.onSurfaceVariant,
           ),
         ),
@@ -217,7 +217,7 @@ class _EnrichmentError extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _EnrichmentHeader(working: false, onRegenerate: null),
-        const SizedBox(height: AppSpacing.md),
+        const SizedBox(height: AppSpacing.sm),
         Text(l10n.tr('ai_news.enrichment.failed')),
         const SizedBox(height: AppSpacing.md),
         OutlinedButton.icon(
@@ -316,8 +316,8 @@ class _EnrichmentHeader extends StatelessWidget {
     return Row(
       children: [
         Container(
-          width: 34,
-          height: 34,
+          width: 30,
+          height: 30,
           decoration: const BoxDecoration(
             color: AppColors.brand,
             shape: BoxShape.circle,
@@ -325,14 +325,14 @@ class _EnrichmentHeader extends StatelessWidget {
           child: const Icon(
             Icons.auto_awesome_rounded,
             color: Colors.white,
-            size: 18,
+            size: 16,
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(
             l10n.tr('ai_news.detail.deep_read'),
-            style: AppTypography.titleLarge,
+            style: AppTypography.titleMedium,
           ),
         ),
         if (onRegenerate != null)

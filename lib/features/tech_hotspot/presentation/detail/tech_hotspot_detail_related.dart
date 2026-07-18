@@ -45,7 +45,13 @@ class TechHotspotDetailRelated extends StatelessWidget {
                 style: AppTypography.titleSmall,
               ),
               subtitle: Text('${e.category} · ${l10n.tr('tech_hotspot.detail.related_suffix').replaceAll('{heat}', e.heat.toString())}', style: AppTypography.labelSmall),
-              trailing: Text('+${e.growth.toStringAsFixed(1)}%', style: AppTypography.labelSmall.copyWith(color: AppColors.trendUp, fontWeight: FontWeight.w600)),
+              trailing: Text(
+                '${e.growth > 0 ? '+' : ''}${e.growth.toStringAsFixed(1)}%',
+                style: AppTypography.labelSmall.copyWith(
+                  color: e.growth >= 0 ? AppColors.trendUp : AppColors.trendDown,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             )
           ]
         ],

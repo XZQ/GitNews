@@ -16,6 +16,7 @@ import '../../features/profile/presentation/login_page.dart';
 import '../../features/profile/presentation/monitor_rules_page.dart';
 import '../../features/profile/presentation/monitor_topics_page.dart';
 import '../../features/profile/presentation/profile_page.dart';
+import '../../features/profile/presentation/profile_settings_page.dart';
 import '../../features/project/presentation/activity_page.dart';
 import '../../features/project/presentation/discover_page.dart';
 import '../../features/project/presentation/explore_page.dart';
@@ -154,6 +155,11 @@ List<StatefulShellBranch> buildAppRouteBranches() => [
               GoRoute(path: 'developers', name: 'profile_developers', builder: (_, __) => const FollowedDevelopersPage()),
               GoRoute(path: 'monitor', name: 'profile_monitor', builder: (_, __) => const MonitorTopicsPage()),
               GoRoute(path: 'rules', name: 'profile_rules', builder: (_, __) => const MonitorRulesPage()),
+              GoRoute(
+                path: 'preferences',
+                name: 'profile_preferences',
+                builder: (_, __) => const ProfileSettingsPage(),
+              ),
               GoRoute(path: 'developer', name: 'profile_developer', builder: (_, __) => const DeveloperOptionsPage()),
               GoRoute(path: 'sources', name: 'profile_ai_news_sources', builder: (_, __) => const AiNewsSourcesPage()),
               GoRoute(

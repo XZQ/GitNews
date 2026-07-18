@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../application/monitor_settings_controller.dart';
 import '../widgets/monitor_settings_cards.dart';
@@ -19,8 +18,11 @@ class MonitorSettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.tr('monitor.settings.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'))),
+    return SecondaryPageScaffold(
+      title: l10n.tr('monitor.settings.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.tune_rounded,
+      fallbackPath: '/monitor',
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
         medium: (_) => const CenteredContent(child: _Body()),

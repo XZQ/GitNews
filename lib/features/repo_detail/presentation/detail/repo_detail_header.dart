@@ -9,10 +9,18 @@ import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/gradient_hero_header.dart';
 
 class RepoDetailHeader extends StatelessWidget {
-  const RepoDetailHeader({required this.repo, required this.freshness, super.key});
+  const RepoDetailHeader({
+    required this.repo,
+    required this.freshness,
+    this.compact = false,
+    super.key,
+  });
 
   final RepoEntity repo;
   final DataFreshness freshness;
+
+  // 是否使用移动端紧凑标题布局。
+  final bool compact;
 
   @override
   Widget build(BuildContext context) {
@@ -20,6 +28,7 @@ class RepoDetailHeader extends StatelessWidget {
     return GradientHeroHeader(
       accent: Color(repo.accentArgb),
       title: repo.fullName,
+      compact: compact,
       badges: [
         HeroBadge(label: repo.language, icon: Icons.bolt_rounded),
         HeroBadge(label: l10n.tr('repo_detail.badge.public'), color: AppColors.info),
@@ -27,7 +36,10 @@ class RepoDetailHeader extends StatelessWidget {
         DataFreshnessBadge(freshness: freshness, compact: false, inverse: true),
         MetricBasisBadge(basis: repo.valueBasis, compact: false, inverse: true)
       ],
-      trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92))),
+      trailing: Text(
+        repo.description,
+        style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92)),
+      ),
     );
   }
 }

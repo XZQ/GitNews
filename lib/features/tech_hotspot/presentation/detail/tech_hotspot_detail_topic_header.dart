@@ -42,7 +42,11 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
         spacing: AppSpacing.lg,
         runSpacing: AppSpacing.sm,
         children: [
-          _MetricTile(icon: Icons.trending_up_rounded, label: l10n.tr('tech_hotspot.detail.metric.weekly'), value: '+${topic.growth.toStringAsFixed(1)}%'),
+          _MetricTile(
+            icon: topic.growth >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+            label: l10n.tr('tech_hotspot.detail.metric.weekly'),
+            value: '${topic.growth > 0 ? '+' : ''}${topic.growth.toStringAsFixed(1)}%',
+          ),
           _MetricTile(icon: Icons.forum_rounded, label: l10n.tr('tech_hotspot.detail.metric.discussion'), value: '${topic.mentions}'),
           _MetricTile(icon: Icons.book_outlined, label: l10n.tr('tech_hotspot.detail.metric.repos'), value: '${topic.relatedRepos}')
         ],

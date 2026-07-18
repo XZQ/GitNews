@@ -37,6 +37,42 @@ void main() {
     expect(find.byType(EmptyView), findsOneWidget);
     expect(find.text('feat: support streaming response'), findsNothing);
   });
+
+  testWidgets('mobile activity starts compact and can expand', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final activities = <RepoActivityEvent>[
+      for (var index = 0; index < 12; index++)
+        RepoActivityEvent(
+          repoFullName: 'owner/repo',
+          type: RepoActivityType.other,
+          title: 'activity $index',
+          actorLogin: 'octocat',
+          occurredAt: DateTime(2026, 7, 18).toUtc(),
+          htmlUrl: null,
+          basis: MetricBasis.observed,
+        ),
+    ];
+
+    await _pump(
+      tester,
+      SingleChildScrollView(
+        child: RepoDetailActivity(activities: activities),
+      ),
+    );
+
+    expect(find.text('activity 7'), findsOneWidget);
+    expect(find.text('activity 8'), findsNothing);
+    expect(find.text('展开全部活动'), findsOneWidget);
+
+    await tester.tap(find.text('展开全部活动'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('activity 11'), findsOneWidget);
+    expect(find.text('收起活动'), findsOneWidget);
+  });
 }
 
 Future<void> _pump(WidgetTester tester, Widget child) async {

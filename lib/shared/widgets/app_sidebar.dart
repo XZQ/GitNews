@@ -11,7 +11,9 @@ import 'sidebar/sidebar_item.dart';
 final sidebarWidthProvider = StateProvider<double>((ref) => 240);
 
 const double kSidebarMinWidth = 200;
-const double kSidebarMaxWidth = 800;
+// Keep the navigation rail readable while preserving enough room for the
+// main workspace on ordinary desktop windows.
+const double kSidebarMaxWidth = 360;
 
 /* 
 *桌面侧边栏:

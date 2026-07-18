@@ -8,6 +8,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../application/ai_news_library_providers.dart';
 import '../application/ai_news_providers.dart';
 import '../domain/ai_news_item.dart';
@@ -31,6 +32,7 @@ class AiNewsDetailPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemDetailProvider(id));
     final relatedItems = ref.watch(aiNewsRelatedItemsProvider(id)).valueOrNull ?? const <AiNewsItem>[];
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
     ref.listen(aiNewsItemDetailProvider(id), (previous, next) {
       final item = next.valueOrNull;
       if (item != null && previous?.valueOrNull?.id != item.id) {
@@ -38,67 +40,78 @@ class AiNewsDetailPage extends ConsumerWidget {
       }
     });
     final item = async.valueOrNull;
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => _back(context)),
-        centerTitle: true,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        title: Text(l10n.tr('ai_news.detail_title')),
-        actions: [
-          if (item != null) ...[
-            _TopBookmarkButton(item: item),
-            IconButton(
-              tooltip: l10n.tr('webview.open_in_browser'),
-              onPressed: () => _openOriginal(context, item),
-              icon: const Icon(Icons.open_in_new_rounded),
-            ),
-            PopupMenuButton<_DetailMenuAction>(
-              tooltip: l10n.tr('common.more'),
-              onSelected: (action) => _handleMenuAction(context, item, action),
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: _DetailMenuAction.copyLink,
-                  child: ListTile(
-                    leading: const Icon(Icons.link_rounded),
-                    title: Text(l10n.tr('webview.copy_link')),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+    return SecondaryPageScaffold(
+      title: l10n.tr('ai_news.detail_title'),
+      subtitle: item?.source ?? l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.article_rounded,
+      fallbackPath: '/ai_news',
+      actions: [
+        if (item != null)
+          PopupMenuButton<_DetailMenuAction>(
+            tooltip: l10n.tr('common.more'),
+            onSelected: (action) => _handleMenuAction(context, item, action),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: _DetailMenuAction.copyLink,
+                child: ListTile(
+                  leading: const Icon(Icons.link_rounded),
+                  title: Text(l10n.tr('webview.copy_link')),
+                  contentPadding: EdgeInsets.zero,
                 ),
-                PopupMenuItem(
-                  value: _DetailMenuAction.openOriginal,
-                  child: ListTile(
-                    leading: const Icon(Icons.open_in_browser_rounded),
-                    title: Text(l10n.tr('webview.open_in_browser')),
-                    contentPadding: EdgeInsets.zero,
-                  ),
+              ),
+              PopupMenuItem(
+                value: _DetailMenuAction.openOriginal,
+                child: ListTile(
+                  leading: const Icon(Icons.open_in_browser_rounded),
+                  title: Text(l10n.tr('webview.open_in_browser')),
+                  contentPadding: EdgeInsets.zero,
                 ),
-              ],
-            ),
-          ],
-        ],
-      ),
+              ),
+            ],
+          ),
+      ],
       body: async.when(
         data: (value) => value == null
             ? const _AiNewsDetailMissing()
-            : AiNewsDetailContent(
-                item: value,
-                relatedItems: relatedItems,
-                onOpenOriginal: () => _openOriginal(context, value),
-                onOpenRelated: (related) => context.pushNamed(
-                  'ai_news_detail',
-                  pathParameters: {'id': related.id},
-                ),
-                onViewMore: () => context.go('/ai_news'),
-              ),
+            : isCompact
+                ? AiNewsDetailContent(
+                    item: value,
+                    relatedItems: relatedItems,
+                    onOpenOriginal: () => _openOriginal(context, value),
+                    onOpenRelated: (related) => context.pushNamed(
+                      'ai_news_detail',
+                      pathParameters: {'id': related.id},
+                    ),
+                    onViewMore: () => context.go('/ai_news'),
+                  )
+                : Column(
+                    children: [
+                      AiNewsDetailActionBar(
+                        item: value,
+                        compact: false,
+                        onShare: () => _copyLink(context, value, sharing: true),
+                      ),
+                      Expanded(
+                        child: AiNewsDetailContent(
+                          item: value,
+                          relatedItems: relatedItems,
+                          onOpenOriginal: () => _openOriginal(context, value),
+                          onOpenRelated: (related) => context.pushNamed(
+                            'ai_news_detail',
+                            pathParameters: {'id': related.id},
+                          ),
+                          onViewMore: () => context.go('/ai_news'),
+                        ),
+                      ),
+                    ],
+                  ),
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => ErrorView(
           error: error.asAppException(),
           onRetry: () => ref.invalidate(aiNewsItemDetailProvider(id)),
         ),
       ),
-      bottomNavigationBar: item == null
+      bottomNavigationBar: !isCompact || item == null
           ? null
           : AiNewsDetailActionBar(
               item: item,
@@ -108,14 +121,6 @@ class AiNewsDetailPage extends ConsumerWidget {
   }
 
   /* 返回上一页,深链进入时回退到资讯列表。 */
-  void _back(BuildContext context) {
-    if (context.canPop()) {
-      context.pop();
-    } else {
-      context.go('/ai_news');
-    }
-  }
-
   /* 处理顶部更多菜单。 */
   Future<void> _handleMenuAction(
     BuildContext context,
@@ -167,50 +172,6 @@ class AiNewsDetailPage extends ConsumerWidget {
         context,
       ).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
     }
-  }
-}
-
-/*
-*顶部书签按钮,与底部收藏状态保持同步。
-*/
-class _TopBookmarkButton extends ConsumerWidget {
-  const _TopBookmarkButton({required this.item});
-
-  // 当前资讯。
-  final AiNewsItem item;
-
-  @override
-  /* 构建详情顶部收藏按钮。 */
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final saved = ref.watch(aiNewsItemStateProvider(item.id)).valueOrNull?.isReadLater ?? false;
-    return IconButton(
-      tooltip: l10n.tr(
-        saved ? 'ai_news.read_later_remove' : 'ai_news.read_later_add',
-      ),
-      onPressed: () => _toggle(context, ref),
-      icon: Icon(
-        saved ? Icons.bookmark_rounded : Icons.bookmark_border_rounded,
-      ),
-    );
-  }
-
-  /* 切换稍后读收藏状态。 */
-  Future<void> _toggle(BuildContext context, WidgetRef ref) async {
-    final added = await ref.read(aiNewsLibraryControllerProvider).toggleReadLater(item);
-    if (!context.mounted) {
-      return;
-    }
-    final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          l10n.tr(
-            added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed',
-          ),
-        ),
-      ),
-    );
   }
 }
 

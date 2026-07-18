@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -10,6 +8,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../application/project_providers.dart';
 import 'widgets/project_page_skeleton.dart';
@@ -25,8 +24,11 @@ class DiscoverPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(projectDigestProvider);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.tr('project.discover.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/project'))),
+    return SecondaryPageScaffold(
+      title: l10n.tr('project.discover.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.lightbulb_outline_rounded,
+      fallbackPath: '/project',
       body: ResponsiveLayout(
         compact: (_) => _Body(state: state),
         medium: (_) => CenteredContent(child: _Body(state: state)),

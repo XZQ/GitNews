@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
@@ -8,6 +7,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../application/tech_hotspot_detail_providers.dart';
 import '../application/tech_hotspot_providers.dart';
 import '../domain/tech_hotspot_models.dart';
@@ -29,16 +29,15 @@ class TechHotspotDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(techHotspotDetailProvider(id));
-    return Scaffold(
-      appBar: AppBar(
-        title: state.maybeWhen(data: (topic) => Text(topic.name), orElse: () => Text(l10n.tr('tech_hotspot.detail_title'))),
-        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/tech_hotspot')),
-      ),
+    return SecondaryPageScaffold(
+      title: state.maybeWhen(data: (topic) => topic.name, orElse: () => l10n.tr('tech_hotspot.detail_title')),
+      subtitle: l10n.tr('tech_hotspot.detail.summary.subtitle'),
+      icon: Icons.device_hub_rounded,
+      fallbackPath: '/tech_hotspot',
       body: state.when(
-        data: (topic) => _Loaded(id: id, topic: topic),
-        loading: () => const TechHotspotDetailSkeleton(),
-        error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(techHotspotDetailProvider(id))),
-      ),
+          data: (topic) => _Loaded(id: id, topic: topic),
+          loading: () => const TechHotspotDetailSkeleton(),
+          error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(techHotspotDetailProvider(id)))),
     );
   }
 }

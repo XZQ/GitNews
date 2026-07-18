@@ -17,9 +17,7 @@ import 'package:github_news/features/ai_news/domain/ai_news_feedback.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item_state.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_action_bar.dart';
-import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_extended.dart';
-import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_insights.dart';
-import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_overview.dart';
+import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_content.dart';
 
 Future<ThemeData>? _goldenThemeFuture;
 
@@ -29,41 +27,94 @@ class _StaticAiDigestConfigController extends AiDigestConfigController {
 }
 
 void main() {
-  for (var page = 0; page < 3; page++) {
-    testWidgets('captures article detail page ${page + 1}', (tester) async {
-      tester.view.physicalSize = const Size(942, 1670);
-      tester.view.devicePixelRatio = 2;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      final item = _item();
-      final theme = await tester.runAsync(_goldenTheme);
-      await tester.pumpWidget(_visualApp(item, page, theme!));
-      await tester.pump();
-      await tester.runAsync(() async {
-        final imageContext = tester.element(find.byKey(const ValueKey('ai-news-detail-visual')));
-        for (final path in [
-          'assets/ai_news/detail_memory_sync_hero.png',
-          'assets/ai_news/article_neural.png',
-          'assets/ai_news/article_document.png',
-          'assets/ai_news/article_city.png',
-        ]) {
-          await precacheImage(AssetImage(path), imageContext);
-        }
-      });
-      await tester.pumpAndSettle();
+  testWidgets('captures the top of the single-page article detail', (
+    tester,
+  ) async {
+    await _setViewport(tester, const Size(942, 1670));
+    final item = _item();
+    final theme = await tester.runAsync(_goldenTheme);
+    await tester.pumpWidget(_visualApp(item, theme!));
+    await _precacheDetailAssets(tester);
 
-      if (Platform.isWindows) {
-        await expectLater(find.byKey(const ValueKey('ai-news-detail-visual')), matchesGoldenFile('goldens/ai_news_detail_page_${page + 1}.png'));
-      }
-    });
-  }
+    expect(find.byType(PageView), findsNothing);
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    if (Platform.isWindows) {
+      await expectLater(
+        find.byKey(const ValueKey('ai-news-detail-visual')),
+        matchesGoldenFile('goldens/ai_news_detail_single_page_top.png'),
+      );
+    }
+  });
+
+  testWidgets('captures the vertically scrolled continuation', (tester) async {
+    await _setViewport(tester, const Size(942, 1670));
+    final item = _item();
+    final theme = await tester.runAsync(_goldenTheme);
+    await tester.pumpWidget(_visualApp(item, theme!));
+    await _precacheDetailAssets(tester);
+    await tester.dragUntilVisible(
+      find.text('相关文章'),
+      find.byType(SingleChildScrollView),
+      const Offset(0, -320),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('相关文章').hitTestable(), findsOneWidget);
+    if (Platform.isWindows) {
+      await expectLater(
+        find.byKey(const ValueKey('ai-news-detail-visual')),
+        matchesGoldenFile('goldens/ai_news_detail_single_page_scrolled.png'),
+      );
+    }
+  });
+
+  testWidgets('captures compact Chinese article detail without overflow', (
+    tester,
+  ) async {
+    await _setViewport(tester, const Size(750, 1692));
+    final item = _chineseItem();
+    final theme = await tester.runAsync(_goldenTheme);
+    await tester.pumpWidget(
+      _visualApp(
+        item,
+        theme!,
+        feedbackSignal: AiNewsFeedbackSignal.more,
+        itemState: AiNewsItemState(
+          readLaterAt: DateTime(2026, 7, 17),
+        ),
+      ),
+    );
+    await _precacheDetailAssets(tester);
+
+    expect(find.text('英文原文'), findsNothing);
+    expect(find.text('中文翻译'), findsNothing);
+    expect(tester.takeException(), isNull);
+    if (Platform.isWindows) {
+      await expectLater(
+        find.byKey(const ValueKey('ai-news-detail-visual')),
+        matchesGoldenFile('goldens/ai_news_detail_page_compact_chinese.png'),
+      );
+    }
+  });
 }
 
-Widget _visualApp(AiNewsItem item, int page, ThemeData theme) {
+Widget _visualApp(
+  AiNewsItem item,
+  ThemeData theme, {
+  AiNewsFeedbackSignal? feedbackSignal,
+  AiNewsItemState itemState = AiNewsItemState.none,
+}) {
   return ProviderScope(
     overrides: [
-      aiNewsInterestProfileProvider.overrideWith((ref) async => AiNewsInterestProfile.empty),
-      aiNewsItemStateProvider(item.id).overrideWith((ref) async => AiNewsItemState.none),
+      aiNewsInterestProfileProvider.overrideWith(
+        (ref) async => feedbackSignal == null
+            ? AiNewsInterestProfile.empty
+            : AiNewsInterestProfile(
+                itemSignals: {item.id: feedbackSignal},
+                topicWeights: const {},
+              ),
+      ),
+      aiNewsItemStateProvider(item.id).overrideWith((ref) async => itemState),
       aiDigestConfigControllerProvider.overrideWith(_StaticAiDigestConfigController.new),
       aiNewsEnrichmentProvider.overrideWith((ref, itemId) async => _enrichment(itemId)),
     ],
@@ -92,12 +143,13 @@ Widget _visualApp(AiNewsItem item, int page, ThemeData theme) {
                 scrolledUnderElevation: 0,
                 title: Text(l10n.tr('ai_news.detail_title')),
                 actions: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border_rounded)),
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.open_in_new_rounded)),
                   IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
                 ],
               ),
-              body: _visualPage(item, page),
+              body: AiNewsDetailContent(
+                item: item,
+                relatedItems: _relatedItems(),
+              ),
               bottomNavigationBar: AiNewsDetailActionBar(item: item, onShare: () {}),
             ),
           );
@@ -107,12 +159,31 @@ Widget _visualApp(AiNewsItem item, int page, ThemeData theme) {
   );
 }
 
-Widget _visualPage(AiNewsItem item, int page) {
-  return switch (page) {
-    0 => AiNewsDetailOverview(item: item),
-    1 => AiNewsDetailInsights(item: item, showEnrichment: true),
-    _ => AiNewsDetailExtended(item: item, relatedItems: _relatedItems()),
-  };
+/* 设置金图视口并在测试结束时恢复。 */
+Future<void> _setViewport(WidgetTester tester, Size physicalSize) async {
+  tester.view.physicalSize = physicalSize;
+  tester.view.devicePixelRatio = 2;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+}
+
+/* 预缓存单页详情首屏与下方推荐区使用的全部图片。 */
+Future<void> _precacheDetailAssets(WidgetTester tester) async {
+  await tester.pump();
+  await tester.runAsync(() async {
+    final imageContext = tester.element(
+      find.byKey(const ValueKey('ai-news-detail-visual')),
+    );
+    for (final path in [
+      'assets/ai_news/detail_memory_sync_hero.png',
+      'assets/ai_news/article_neural.png',
+      'assets/ai_news/article_document.png',
+      'assets/ai_news/article_city.png',
+    ]) {
+      await precacheImage(AssetImage(path), imageContext);
+    }
+  });
+  await tester.pumpAndSettle();
 }
 
 AiNewsEnrichment _enrichment(String itemId) {
@@ -171,6 +242,22 @@ AiNewsItem _item() {
     permalink: 'https://example.com/article',
     publishedAt: DateTime(2026, 7, 16, 6, 49),
     score: 76,
+    selected: true,
+  );
+}
+
+AiNewsItem _chineseItem() {
+  return AiNewsItem(
+    id: 'visual-chinese-detail',
+    category: AiNewsCategory.industry,
+    title: '世界人工智能合作组织协定签署仪式在上海举行，总部设在中国上海',
+    titleEn: '世界人工智能合作组织协定签署仪式在上海举行，总部设在中国上海',
+    summary: '7月16日，成立世界人工智能合作组织协定签署仪式在上海举行。该组织是独立的政府间国际组织，总部设在中国上海。',
+    source: 'IT之家（RSS）',
+    url: 'https://example.com/chinese-article',
+    permalink: 'https://example.com/chinese-article',
+    publishedAt: DateTime(2026, 7, 16, 22, 38),
+    score: 75,
     selected: true,
   );
 }

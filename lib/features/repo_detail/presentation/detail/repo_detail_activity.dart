@@ -13,17 +13,29 @@ import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/empty_view.dart';
 import '../../../../shared/widgets/section_header.dart';
 
-class RepoDetailActivity extends StatelessWidget {
+class RepoDetailActivity extends StatefulWidget {
   const RepoDetailActivity({required this.activities, super.key});
 
   final List<RepoActivityEvent> activities;
 
   @override
+  State<RepoDetailActivity> createState() => _RepoDetailActivityState();
+}
+
+class _RepoDetailActivityState extends State<RepoDetailActivity> {
+  static const _compactPreviewCount = 8;
+  bool _expanded = false;
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final activities = widget.activities;
     if (activities.isEmpty) {
       return EmptyView(icon: Icons.history_toggle_off_rounded, message: l10n.tr('project.activity.empty'));
     }
+    final isCompact = MediaQuery.sizeOf(context).width < 600;
+    final isCollapsible = isCompact && activities.length > _compactPreviewCount;
+    final visibleActivities = isCollapsible && !_expanded ? activities.take(_compactPreviewCount).toList(growable: false) : activities;
     return AppCard(
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(
@@ -34,7 +46,28 @@ class RepoDetailActivity extends StatelessWidget {
         ],
       ),
       const SizedBox(height: AppSpacing.md),
-      for (var index = 0; index < activities.length; index++) ...[if (index != 0) const Divider(height: 1), _ActivityTile(activity: activities[index])]
+      for (var index = 0; index < visibleActivities.length; index++) ...[
+        if (index != 0) const Divider(height: 1),
+        _ActivityTile(activity: visibleActivities[index]),
+      ],
+      if (isCollapsible) ...[
+        const Divider(height: 1),
+        Align(
+          alignment: Alignment.center,
+          child: TextButton.icon(
+            onPressed: () => setState(() => _expanded = !_expanded),
+            iconAlignment: IconAlignment.end,
+            icon: Icon(
+              _expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
+            ),
+            label: Text(
+              l10n.tr(
+                _expanded ? 'repo_detail.activity.collapse' : 'repo_detail.activity.expand',
+              ),
+            ),
+          ),
+        ),
+      ],
     ]));
   }
 }

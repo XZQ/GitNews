@@ -1,29 +1,32 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:window_manager/window_manager.dart';
 
 import '../../core/i18n/app_localizations.dart';
 import '../../core/platform/window_service.dart';
 import '../../core/theme/app_spacing.dart';
 import 'app_logo.dart';
 
-final windowServiceProvider = Provider<WindowService>((ref) {
-  return const WindowService();
-});
-
-/* 
+/*
 *自定义窗口标题栏(替代 Windows 系统蓝色标题栏,实现沉浸式)。
-*- 右侧最小化/最大化/关闭按钮通过 MethodChannel 调用 native
-*- 如需正式启用沉浸式标题栏,还需要在 Windows runner 中切换为无边框
-*窗口并补充拖动热区 hit-test
+*
+*通过 [DesktopIntegrationService] 隐藏原生标题栏；左侧区域可拖动窗口，
+*右侧保留最小化、最大化与关闭控制。
 */
-class WindowTitleBar extends ConsumerStatefulWidget {
+class WindowTitleBar extends StatefulWidget {
   const WindowTitleBar({super.key});
 
   @override
-  ConsumerState<WindowTitleBar> createState() => _WindowTitleBarState();
+  State<WindowTitleBar> createState() => _WindowTitleBarState();
 }
 
-class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
+class _WindowTitleBarState extends State<WindowTitleBar> {
+  // Windows 窗口控制桥接，非桌面平台会安全降级。
+  final WindowService _windowService = const WindowService();
+
+  // 当前窗口是否最大化，用于切换图标与提示。
   bool _isMaximized = false;
 
   @override
@@ -33,58 +36,102 @@ class _WindowTitleBarState extends ConsumerState<WindowTitleBar> {
   }
 
   Future<void> _refreshMaximized() async {
-    final value = await ref.read(windowServiceProvider).isMaximized();
+    final value = await _windowService.isMaximized();
     if (mounted) {
       setState(() => _isMaximized = value);
     }
   }
 
   Future<void> _onToggleMaximize() async {
-    await ref.read(windowServiceProvider).toggleMaximize();
+    await _windowService.toggleMaximize();
     await _refreshMaximized();
   }
 
   Future<void> _onMinimize() async {
-    await ref.read(windowServiceProvider).minimize();
+    await _windowService.minimize();
   }
 
   Future<void> _onClose() async {
-    await ref.read(windowServiceProvider).close();
+    await _windowService.close();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final barColor = isDark ? theme.colorScheme.surface : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
+    final colors = theme.colorScheme;
 
-    return Material(
-      color: barColor,
-      child: SizedBox(
-        height: 32,
-        child: Row(
-          children: [
-            const SizedBox(width: AppSpacing.md),
-            const LogoMark(size: 18),
-            const SizedBox(width: AppSpacing.sm),
-            Text(l10n.tr('app.name'), style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
-            const Spacer(),
-            _WindowButton(icon: Icons.remove_rounded, onPressed: _onMinimize, tooltip: l10n.tr('window.minimize')),
-            _WindowButton(
-              icon: _isMaximized ? Icons.filter_drama_rounded : Icons.crop_square_rounded,
-              onPressed: _onToggleMaximize,
-              tooltip: _isMaximized ? l10n.tr('window.restore') : l10n.tr('window.maximize'),
-            ),
-            _WindowButton(
-              icon: Icons.close_rounded,
-              onPressed: _onClose,
-              tooltip: l10n.tr('window.close'),
-              isClose: true,
-            )
-          ],
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: colors.surface,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: SizedBox(
+          height: 32,
+          child: Row(
+            children: [
+              Expanded(
+                child: DragToMoveArea(
+                  child: Row(
+                    children: [
+                      const SizedBox(width: AppSpacing.md),
+                      const LogoMark(size: 18),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(l10n.tr('app.name'), style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600)),
+                    ],
+                  ),
+                ),
+              ),
+              _WindowButton(icon: Icons.remove_rounded, onPressed: _onMinimize, tooltip: l10n.tr('window.minimize')),
+              _WindowButton(
+                icon: _isMaximized ? Icons.filter_drama_rounded : Icons.crop_square_rounded,
+                onPressed: _onToggleMaximize,
+                tooltip: _isMaximized ? l10n.tr('window.restore') : l10n.tr('window.maximize'),
+              ),
+              _WindowButton(
+                icon: Icons.close_rounded,
+                onPressed: _onClose,
+                tooltip: l10n.tr('window.close'),
+                isClose: true,
+              )
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+/*
+*Windows 应用框架:将自定义标题栏放在路由内容之外。
+*
+*移动端与 Web 不额外占用垂直空间，继续使用各自系统栏策略。
+*/
+class DesktopWindowFrame extends StatelessWidget {
+  const DesktopWindowFrame({required this.child, super.key});
+
+  // 路由或启动页内容。
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb || !Platform.isWindows) {
+      return child;
+    }
+    return Overlay(
+      initialEntries: [
+        OverlayEntry(
+          builder: (_) => Positioned.fill(
+            child: Column(
+              children: [
+                const WindowTitleBar(),
+                Expanded(child: child),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

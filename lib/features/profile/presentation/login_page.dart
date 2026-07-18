@@ -10,6 +10,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import 'widgets/device_flow_content.dart';
 
@@ -19,11 +20,11 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr(ApiEndpointsConfig.githubOAuthConfigured ? 'device_flow.title' : 'profile.token.title')),
-        leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/profile')),
-      ),
+    return SecondaryPageScaffold(
+      title: l10n.tr(ApiEndpointsConfig.githubOAuthConfigured ? 'device_flow.title' : 'profile.token.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.login_rounded,
+      fallbackPath: '/profile',
       body: ResponsiveLayout(
         compact: (_) => const _Body(),
         medium: (_) => const CenteredContent(maxWidth: 480, child: _Body()),

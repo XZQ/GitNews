@@ -71,3 +71,28 @@ class ProfileMonitorListCard extends StatelessWidget {
     );
   }
 }
+
+class ProfileSettingsListCard extends StatelessWidget {
+  const ProfileSettingsListCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AppCard(
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        leading: Icon(
+          Icons.settings_outlined,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        title: Text(
+          l10n.tr('profile.mobile_settings.title'),
+          style: AppTypography.titleMedium,
+        ),
+        subtitle: Text(l10n.tr('profile.mobile_settings.subtitle')),
+        trailing: const Icon(Icons.chevron_right, size: 18),
+        onTap: () => context.go('/profile/preferences'),
+      ),
+    );
+  }
+}

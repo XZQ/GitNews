@@ -71,7 +71,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    final now = DateTime.now().subtract(const Duration(hours: 5));
+    final now = DateTime.now();
     const titles = [
       'Learning Safe Agent Behaviour from Human Preferences',
       'Multi-Agent Collaborative Reasoning for Urban Regions',
@@ -95,7 +95,7 @@ void main() {
         titleEn: 'Independent AI topic $index',
         summary: '研究团队公布了新的方法、实验结果与可复现细节，为开发者提供清晰的技术参考。',
         source: 'arXiv cs.AI',
-        publishedAt: now.subtract(Duration(minutes: index * 3)),
+        publishedAt: now,
         score: 60 + index,
         selected: false,
         url: 'https://example.com/$index',

@@ -31,7 +31,7 @@ class HomeHotspotPreview extends ConsumerWidget {
         rankColor: _heatColor(item.heat),
         title: item.name,
         subtitle: '${item.category} · ${item.relatedRepos} ${l10n.tr('home.section.hotspot.meta_suffix')}',
-        meta: '+${item.growth.toStringAsFixed(1)}%',
+        meta: '${item.growth > 0 ? '+' : ''}${item.growth.toStringAsFixed(1)}%',
         onTap: () => context.go('/home/tech_hotspot_detail/${item.id}'),
       ),
     );

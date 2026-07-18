@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/preferences/server_connection_controller.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../application/self_hosted_server_providers.dart';
 
@@ -18,13 +17,11 @@ class SelfHostedServerPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final connection = ref.watch(serverConnectionControllerProvider);
     final status = ref.watch(selfHostedServerControllerProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.tr('settings.server.title')),
-        leading: BackButton(
-          onPressed: () => context.canPop() ? context.pop() : context.go('/profile'),
-        ),
-      ),
+    return SecondaryPageScaffold(
+      title: l10n.tr('settings.server.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.dns_outlined,
+      fallbackPath: '/profile',
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(

@@ -143,15 +143,19 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
       // 移动端标题栏只保留标题与搜索框,刷新统一使用下拉手势。
       appBar: isCompact
           ? AppBar(
-              toolbarHeight: 64,
-              titleSpacing: AppSpacing.lg,
+              toolbarHeight: 60,
+              titleSpacing: AppSpacing.md,
               title: Row(
                 children: [
                   Text(
                     l10n.tr('discover.title'),
-                    style: AppTypography.displayMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800, height: 1),
+                    style: AppTypography.titleLarge.copyWith(
+                      color: colors.onSurface,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
                   ),
-                  const SizedBox(width: AppSpacing.lg2),
+                  const SizedBox(width: AppSpacing.md),
                   Expanded(
                     child: HeaderSearchField(
                       hintText: l10n.tr('discover.search_hint'),

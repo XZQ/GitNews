@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
@@ -9,6 +8,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
+import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../application/monitor_alert_state_controller.dart';
@@ -23,8 +23,11 @@ class MonitorAlertsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(visibleMonitorDigestProvider);
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-        appBar: AppBar(title: Text(l10n.tr('monitor.alerts.title')), leading: BackButton(onPressed: () => context.canPop() ? context.pop() : context.go('/monitor'))),
+    return SecondaryPageScaffold(
+        title: l10n.tr('monitor.alerts.title'),
+        subtitle: l10n.tr('common.secondary_page_subtitle'),
+        icon: Icons.notifications_none_rounded,
+        fallbackPath: '/monitor',
         body: state.when(
             data: (digest) {
               final events = ref.watch(monitorAlertEventsProvider).valueOrNull ?? const [];

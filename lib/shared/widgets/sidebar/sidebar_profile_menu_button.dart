@@ -53,7 +53,7 @@ class SidebarProfileMenuButton extends ConsumerWidget {
               const SizedBox(width: AppSpacing.md),
               Text(l10n.tr('common.settings'))
             ]),
-            onTap: () => context.go('/profile'),
+            onTap: () => context.go('/profile/preferences'),
           ),
           PopupMenuItem<void>(
               child: Row(children: [

@@ -123,14 +123,20 @@ class _RadarSummarySections extends ConsumerWidget {
           },
         ),
         const SizedBox(height: AppSpacing.lg),
-        TechHotspotAgentSignalBoard(topics: digest.topics),
-        const SizedBox(height: AppSpacing.lg),
+        TechHotspotAgentSignalBoard(topics: digest.topics, compact: true),
+        const SizedBox(height: AppSpacing.md),
         SizedBox(
-          height: 260,
-          child: TechHotspotHeatChart(values: digest.heatTrend),
+          height: 170,
+          child: TechHotspotHeatChart(
+            values: digest.heatTrend,
+            compact: true,
+          ),
         ),
-        const SizedBox(height: AppSpacing.lg),
-        TechHotspotLanguagePanel(languages: digest.languages),
+        const SizedBox(height: AppSpacing.md),
+        TechHotspotLanguagePanel(
+          languages: digest.languages,
+          maxItems: 5,
+        ),
       ],
     );
   }
@@ -159,9 +165,10 @@ class _RadarTopicCards extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var index = 0; index < visibleTopics.length; index++) ...[
-          if (index != 0) const SizedBox(height: AppSpacing.md),
+          if (index != 0) const SizedBox(height: AppSpacing.sm),
           TechHotspotTopicCard(
             topic: visibleTopics[index],
+            compact: true,
             onTap: () => context.push(
               '/tech_hotspot/detail/${Uri.encodeComponent(visibleTopics[index].id)}',
             ),
@@ -186,11 +193,11 @@ class _RadarSummarySkeleton extends StatelessWidget {
       children: [
         Skeleton(height: 120),
         SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 260),
+        Skeleton(height: 180),
         SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 260),
+        Skeleton(height: 170),
         SizedBox(height: AppSpacing.lg),
-        Skeleton(height: 320),
+        Skeleton(height: 250),
       ],
     );
   }
@@ -208,11 +215,11 @@ class _RadarTopicsSkeleton extends StatelessWidget {
     return const Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Skeleton(height: 160),
-        SizedBox(height: AppSpacing.md),
-        Skeleton(height: 160),
-        SizedBox(height: AppSpacing.md),
-        Skeleton(height: 160),
+        Skeleton(height: 72),
+        SizedBox(height: AppSpacing.sm),
+        Skeleton(height: 72),
+        SizedBox(height: AppSpacing.sm),
+        Skeleton(height: 72),
       ],
     );
   }
