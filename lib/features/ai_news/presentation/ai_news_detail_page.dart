@@ -40,7 +40,8 @@ class AiNewsDetailPage extends ConsumerWidget {
       }
     });
     final item = async.valueOrNull;
-    return SecondaryPageScaffold(
+    final theme = Theme.of(context);
+    final scaffold = SecondaryPageScaffold(
       title: l10n.tr('ai_news.detail_title'),
       subtitle: item?.source ?? l10n.tr('common.secondary_page_subtitle'),
       icon: Icons.article_rounded,
@@ -86,11 +87,6 @@ class AiNewsDetailPage extends ConsumerWidget {
                   )
                 : Column(
                     children: [
-                      AiNewsDetailActionBar(
-                        item: value,
-                        compact: false,
-                        onShare: () => _copyLink(context, value, sharing: true),
-                      ),
                       Expanded(
                         child: AiNewsDetailContent(
                           item: value,
@@ -102,6 +98,11 @@ class AiNewsDetailPage extends ConsumerWidget {
                           ),
                           onViewMore: () => context.go('/ai_news'),
                         ),
+                      ),
+                      AiNewsDetailActionBar(
+                        item: value,
+                        compact: false,
+                        onShare: () => _copyLink(context, value, sharing: true),
                       ),
                     ],
                   ),
@@ -118,9 +119,20 @@ class AiNewsDetailPage extends ConsumerWidget {
               onShare: () => _copyLink(context, item, sharing: true),
             ),
     );
+    return Theme(
+      data: theme.copyWith(
+        appBarTheme: theme.appBarTheme.copyWith(
+          backgroundColor: theme.colorScheme.surface,
+          centerTitle: true,
+          shape: Border(
+            bottom: BorderSide(color: theme.colorScheme.outlineVariant),
+          ),
+        ),
+      ),
+      child: scaffold,
+    );
   }
 
-  /* 返回上一页,深链进入时回退到资讯列表。 */
   /* 处理顶部更多菜单。 */
   Future<void> _handleMenuAction(
     BuildContext context,

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_radius.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../application/ai_news_feedback_providers.dart';
@@ -39,18 +39,15 @@ class AiNewsDetailActionBar extends ConsumerWidget {
     final signal = ref.watch(aiNewsInterestProfileProvider).valueOrNull?.itemSignals[item.id];
     final saved = ref.watch(aiNewsItemStateProvider(item.id)).valueOrNull?.isReadLater ?? false;
     final toolbar = Container(
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.sm,
+        AppSpacing.sm2,
+        AppSpacing.sm,
+        compact ? AppSpacing.lg : AppSpacing.sm2,
+      ),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: compact ? const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)) : BorderRadius.circular(AppRadius.lg),
-        border: compact ? Border(top: BorderSide(color: colors.outlineVariant.withValues(alpha: 0.52))) : Border.all(color: colors.outlineVariant.withValues(alpha: 0.72)),
-        boxShadow: [
-          if (compact)
-            BoxShadow(
-              color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.light ? 0.07 : 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-            ),
-        ],
+        border: Border(top: BorderSide(color: colors.outlineVariant)),
       ),
       child: Align(
         alignment: Alignment.topCenter,
@@ -106,10 +103,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
     if (compact) {
       return SafeArea(top: false, child: toolbar);
     }
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.sm, AppSpacing.xxl, AppSpacing.md),
-      child: Align(alignment: Alignment.topCenter, child: toolbar),
-    );
+    return toolbar;
   }
 
   /* 切换当前资讯的兴趣信号。 */
@@ -172,7 +166,11 @@ class _DetailActionItem extends StatelessWidget {
   /* 构建满足触控尺寸的底部操作。 */
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final color = selected ? colors.primary : colors.onSurfaceVariant;
+    final color = selected
+        ? colors.primary
+        : Theme.of(context).brightness == Brightness.light
+            ? AppColors.textMutedLight
+            : AppColors.textMutedDark;
     return Semantics(
       button: true,
       selected: selected,
@@ -182,12 +180,12 @@ class _DetailActionItem extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(
             horizontal: AppSpacing.xs,
-            vertical: AppSpacing.sm,
+            vertical: AppSpacing.xxs,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(icon, color: color, size: 26),
+              Icon(icon, color: color, size: 22),
               const SizedBox(height: AppSpacing.xs),
               Text(
                 label,

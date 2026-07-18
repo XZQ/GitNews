@@ -12,6 +12,8 @@ import '../../../../core/theme/app_typography.dart';
 import '../../application/ai_news_enrichment_providers.dart';
 import '../../domain/ai_news_enrichment.dart';
 import '../../domain/ai_news_item.dart';
+import 'ai_digest_settings_dialog.dart';
+import 'ai_news_detail_components.dart';
 
 /*
 *资讯详情的 AI 深度解读卡片。
@@ -61,6 +63,10 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
                 : _EmptyEnrichment(
                     configured: configured,
                     working: _working,
+                    onConfigure: () => showDialog<void>(
+                      context: context,
+                      builder: (_) => const AiDigestSettingsDialog(),
+                    ),
                   )
             : _EnrichmentContent(
                 enrichment: value,
@@ -77,7 +83,10 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
   }
 
   /* AI 已配置且没有本地增强缓存时,在当前帧完成后自动发起一次生成。 */
-  void _scheduleAutomaticGeneration({required bool configured, required bool missingEnrichment}) {
+  void _scheduleAutomaticGeneration({
+    required bool configured,
+    required bool missingEnrichment,
+  }) {
     final itemId = widget.item.id;
     if (!configured || !missingEnrichment || _working || _autoRequestedItemId == itemId) {
       return;
@@ -101,7 +110,10 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
       _generationFailed = false;
     });
     try {
-      final result = await ref.read(aiNewsEnrichmentGeneratorProvider)(widget.item, force: force);
+      final result = await ref.read(aiNewsEnrichmentGeneratorProvider)(
+        widget.item,
+        force: force,
+      );
       if (result == null && mounted) {
         final l10n = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -125,7 +137,7 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
 }
 
 /*
-*深度解读的浅青色外层容器。
+*深度解读的中性卡片外层。
 */
 class _EnrichmentSurface extends StatelessWidget {
   const _EnrichmentSurface({required this.child});
@@ -134,14 +146,17 @@ class _EnrichmentSurface extends StatelessWidget {
   final Widget child;
 
   @override
-  /* 构建品牌色背景与边框。 */
+  /* 构建设计稿中的白色卡片与细边框。 */
   Widget build(BuildContext context) {
-    final isLight = Theme.of(context).brightness == Brightness.light;
+    final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.md,
+      ),
       decoration: BoxDecoration(
-        color: AppColors.brandLight.withValues(alpha: isLight ? 0.22 : 0.06),
-        border: Border.all(color: AppColors.brand.withValues(alpha: 0.2)),
+        color: colors.surface,
+        border: Border.all(color: colors.outlineVariant),
         borderRadius: BorderRadius.circular(AppRadius.lg),
       ),
       child: child,
@@ -156,6 +171,7 @@ class _EmptyEnrichment extends StatelessWidget {
   const _EmptyEnrichment({
     required this.configured,
     required this.working,
+    required this.onConfigure,
   });
 
   // 是否已经配置模型。
@@ -163,6 +179,9 @@ class _EmptyEnrichment extends StatelessWidget {
 
   // 是否正在生成。
   final bool working;
+
+  // 打开 AI 日报配置的操作。
+  final VoidCallback onConfigure;
 
   @override
   /* 构建增强空态与生成按钮。 */
@@ -178,9 +197,7 @@ class _EmptyEnrichment extends StatelessWidget {
           l10n.tr(
             configured ? 'ai_news.enrichment.description' : 'ai_news.enrichment.configure',
           ),
-          style: AppTypography.bodyMedium.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
+          style: AppTypography.bodyMedium.copyWith(color: aiNewsDetailSecondaryColor(context)),
         ),
         if (configured) ...[
           const SizedBox(height: AppSpacing.md),
@@ -193,6 +210,21 @@ class _EmptyEnrichment extends StatelessWidget {
               const SizedBox(width: AppSpacing.sm),
               Text(l10n.tr('ai_news.enrichment.generating')),
             ],
+          ),
+        ] else ...[
+          const SizedBox(height: AppSpacing.md2),
+          OutlinedButton(
+            onPressed: onConfigure,
+            style: OutlinedButton.styleFrom(
+              backgroundColor: colors.surfaceContainerHighest,
+              minimumSize: const Size(0, 40),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+              ),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              textStyle: AppTypography.reading(AppTypography.labelMedium).copyWith(fontSize: 13),
+            ),
+            child: Text(l10n.tr('ai_news.enrichment.configure_action')),
           ),
         ],
       ],
@@ -318,9 +350,9 @@ class _EnrichmentHeader extends StatelessWidget {
         Container(
           width: 30,
           height: 30,
-          decoration: const BoxDecoration(
-            color: AppColors.brand,
-            shape: BoxShape.circle,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary,
+            borderRadius: BorderRadius.circular(AppRadius.sm),
           ),
           child: const Icon(
             Icons.auto_awesome_rounded,

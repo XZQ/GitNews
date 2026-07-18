@@ -34,7 +34,7 @@ void main() {
     final item = _item();
     final theme = await tester.runAsync(_goldenTheme);
     await tester.pumpWidget(_visualApp(item, theme!));
-    await _precacheDetailAssets(tester);
+    await tester.pumpAndSettle();
 
     expect(find.byType(PageView), findsNothing);
     expect(find.byType(SingleChildScrollView), findsOneWidget);
@@ -51,7 +51,7 @@ void main() {
     final item = _item();
     final theme = await tester.runAsync(_goldenTheme);
     await tester.pumpWidget(_visualApp(item, theme!));
-    await _precacheDetailAssets(tester);
+    await tester.pumpAndSettle();
     await tester.dragUntilVisible(
       find.text('相关文章'),
       find.byType(SingleChildScrollView),
@@ -79,12 +79,10 @@ void main() {
         item,
         theme!,
         feedbackSignal: AiNewsFeedbackSignal.more,
-        itemState: AiNewsItemState(
-          readLaterAt: DateTime(2026, 7, 17),
-        ),
+        itemState: AiNewsItemState(readLaterAt: DateTime(2026, 7, 17)),
       ),
     );
-    await _precacheDetailAssets(tester);
+    await tester.pumpAndSettle();
 
     expect(find.text('英文原文'), findsNothing);
     expect(find.text('中文翻译'), findsNothing);
@@ -96,6 +94,33 @@ void main() {
       );
     }
   });
+
+  testWidgets('matches the selected mobile article detail design', (
+    tester,
+  ) async {
+    await _setViewport(tester, const Size(780, 3114));
+    final theme = await tester.runAsync(_goldenTheme);
+    await tester.pumpWidget(
+      _visualApp(
+        _designItem(),
+        theme!,
+        relatedItems: _designRelatedItems(),
+        showEnrichmentResult: false,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('对照'), findsOneWidget);
+    expect(find.text('去配置 →'), findsOneWidget);
+    expect(find.text('相关文章'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    if (Platform.isWindows) {
+      await expectLater(
+        find.byKey(const ValueKey('ai-news-detail-visual')),
+        matchesGoldenFile('goldens/ai_news_detail_design_target.png'),
+      );
+    }
+  });
 }
 
 Widget _visualApp(
@@ -103,6 +128,8 @@ Widget _visualApp(
   ThemeData theme, {
   AiNewsFeedbackSignal? feedbackSignal,
   AiNewsItemState itemState = AiNewsItemState.none,
+  List<AiNewsItem>? relatedItems,
+  bool showEnrichmentResult = true,
 }) {
   return ProviderScope(
     overrides: [
@@ -115,8 +142,12 @@ Widget _visualApp(
               ),
       ),
       aiNewsItemStateProvider(item.id).overrideWith((ref) async => itemState),
-      aiDigestConfigControllerProvider.overrideWith(_StaticAiDigestConfigController.new),
-      aiNewsEnrichmentProvider.overrideWith((ref, itemId) async => _enrichment(itemId)),
+      aiDigestConfigControllerProvider.overrideWith(
+        _StaticAiDigestConfigController.new,
+      ),
+      aiNewsEnrichmentProvider.overrideWith(
+        (ref, itemId) async => showEnrichmentResult ? _enrichment(itemId) : null,
+      ),
     ],
     child: MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -137,20 +168,32 @@ Widget _visualApp(
             child: Scaffold(
               backgroundColor: Theme.of(context).colorScheme.surface,
               appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.surface,
                 leading: const BackButton(),
                 centerTitle: true,
                 elevation: 0,
                 scrolledUnderElevation: 0,
                 title: Text(l10n.tr('ai_news.detail_title')),
+                shape: Border(
+                  bottom: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                ),
                 actions: [
-                  IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert_rounded)),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.more_vert_rounded),
+                  ),
                 ],
               ),
               body: AiNewsDetailContent(
                 item: item,
-                relatedItems: _relatedItems(),
+                relatedItems: relatedItems ?? _relatedItems(),
               ),
-              bottomNavigationBar: AiNewsDetailActionBar(item: item, onShare: () {}),
+              bottomNavigationBar: AiNewsDetailActionBar(
+                item: item,
+                onShare: () {},
+              ),
             ),
           );
         },
@@ -165,25 +208,6 @@ Future<void> _setViewport(WidgetTester tester, Size physicalSize) async {
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
-}
-
-/* 预缓存单页详情首屏与下方推荐区使用的全部图片。 */
-Future<void> _precacheDetailAssets(WidgetTester tester) async {
-  await tester.pump();
-  await tester.runAsync(() async {
-    final imageContext = tester.element(
-      find.byKey(const ValueKey('ai-news-detail-visual')),
-    );
-    for (final path in [
-      'assets/ai_news/detail_memory_sync_hero.png',
-      'assets/ai_news/article_neural.png',
-      'assets/ai_news/article_document.png',
-      'assets/ai_news/article_city.png',
-    ]) {
-      await precacheImage(AssetImage(path), imageContext);
-    }
-  });
-  await tester.pumpAndSettle();
 }
 
 AiNewsEnrichment _enrichment(String itemId) {
@@ -210,21 +234,37 @@ Future<ThemeData> _loadGoldenTheme() async {
   if (!Platform.isWindows) {
     return AppTheme.light(AppColors.brand);
   }
-  final cjkBytes = await File('C:/Windows/Fonts/simhei.ttf').readAsBytes();
-  final iconBytes = await File('D:/flutter_sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf').readAsBytes();
-  final cjkLoader = FontLoader('AiNewsDetailGoldenFont')..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(cjkBytes))));
-  final iconLoader = FontLoader('MaterialIcons')..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(iconBytes))));
-  await Future.wait([cjkLoader.load(), iconLoader.load()]);
+  final cjkBytes = await File(
+    'C:/Windows/Fonts/NotoSansSC-VF.ttf',
+  ).readAsBytes();
+  final monoBytes = await File('C:/Windows/Fonts/consola.ttf').readAsBytes();
+  final iconBytes = await File(
+    'D:/flutter_sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf',
+  ).readAsBytes();
+  final cjkLoader = FontLoader('Noto Sans SC')..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(cjkBytes))));
+  final monoLoader = FontLoader('JetBrainsMono')
+    ..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(monoBytes))))
+    ..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(cjkBytes))));
+  final iconLoader = FontLoader(
+    'MaterialIcons',
+  )..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(iconBytes))));
+  await Future.wait([cjkLoader.load(), monoLoader.load(), iconLoader.load()]);
   final baseTheme = AppTheme.light(AppColors.brand);
   return baseTheme.copyWith(
-    textTheme: baseTheme.textTheme.apply(fontFamily: 'AiNewsDetailGoldenFont'),
-    primaryTextTheme: baseTheme.primaryTextTheme.apply(fontFamily: 'AiNewsDetailGoldenFont'),
+    textTheme: baseTheme.textTheme.apply(fontFamily: 'Noto Sans SC'),
+    primaryTextTheme: baseTheme.primaryTextTheme.apply(
+      fontFamily: 'Noto Sans SC',
+    ),
     appBarTheme: baseTheme.appBarTheme.copyWith(
-      titleTextStyle: baseTheme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'AiNewsDetailGoldenFont'),
+      titleTextStyle: baseTheme.appBarTheme.titleTextStyle?.copyWith(
+        fontFamily: 'Noto Sans SC',
+      ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: baseTheme.textButtonTheme.style?.copyWith(
-        textStyle: WidgetStatePropertyAll(baseTheme.textTheme.labelLarge?.copyWith(fontFamily: 'AiNewsDetailGoldenFont')),
+        textStyle: WidgetStatePropertyAll(
+          baseTheme.textTheme.labelLarge?.copyWith(fontFamily: 'Noto Sans SC'),
+        ),
       ),
     ),
   );
@@ -263,7 +303,11 @@ AiNewsItem _chineseItem() {
 }
 
 List<AiNewsItem> _relatedItems() {
-  const titles = ['Mem0：为 LLM 提供持久化内存的开源方案', 'SSH 最佳实践：密钥管理与安全加固指南', 'AI 代理的记忆架构演进：从短期到跨会话'];
+  const titles = [
+    'Mem0：为 LLM 提供持久化内存的开源方案',
+    'SSH 最佳实践：密钥管理与安全加固指南',
+    'AI 代理的记忆架构演进：从短期到跨会话',
+  ];
   return [
     for (var index = 0; index < titles.length; index++)
       AiNewsItem(
@@ -277,6 +321,52 @@ List<AiNewsItem> _relatedItems() {
         permalink: 'https://example.com/related-$index',
         publishedAt: DateTime(2026, 7, 15 - index),
         score: 70 - index,
+        selected: false,
+      ),
+  ];
+}
+
+AiNewsItem _designItem() {
+  return AiNewsItem(
+    id: 'design-detail',
+    category: AiNewsCategory.tip,
+    title: 'Index Ventures 联合创始人 Neil Rimer 认为 AI 财富将面临"再分配"',
+    titleEn:
+        'Neil Rimer, co-founder of Index Ventures, believes the enormous wealth being generated around AI will face "some form of redistribution" — whether voluntary or compelled. He is urging technology leaders to take the lead in driving voluntary redistribution. Meanwhile, total charitable giving in the U.S. has hit a record high even as the number of donors keeps falling, and California is weighing a one-time 5% wealth tax on billionaires.',
+    summary: 'Index Ventures 联合创始人 Neil Rimer 表示，围绕 AI 积累的巨额财富将面临“某种形式的再分配”，无论是自愿还是强制。他呼吁科技领袖在推动自愿再分配中发挥主导作用。与此同时，美国慈善捐赠总额虽创新高，但捐赠人数持续下降，而加州正考虑对亿万富翁征收 5% 的一次性财富税。',
+    source: 'TechCrunch: AI (RSS)',
+    url: 'https://techcrunch.com/example',
+    permalink: 'https://techcrunch.com/example',
+    publishedAt: DateTime(2026, 7, 18, 12, 47),
+    score: 70,
+    selected: true,
+  );
+}
+
+List<AiNewsItem> _designRelatedItems() {
+  const titles = [
+    '八天四款前沿模型发布，Kimi K2 领跑榜单',
+    '首届「小有可为」大赛乡村教育赛道启动',
+    '前谷歌 DeepMind 研究员创办新公司',
+  ];
+  const summaries = [
+    '过去八天内，Grok 4.5、GPT-5.2 等密集登场',
+    '首届「小有可为」大赛乡村教育赛道正式开启',
+    '前谷歌 DeepMind 研究员 Alex T. 宣布新方向',
+  ];
+  return [
+    for (var index = 0; index < titles.length; index++)
+      AiNewsItem(
+        id: 'design-related-$index',
+        category: AiNewsCategory.tip,
+        title: titles[index],
+        titleEn: titles[index],
+        summary: summaries[index],
+        source: 'Design fixture',
+        url: 'https://example.com/design-related-$index',
+        permalink: 'https://example.com/design-related-$index',
+        publishedAt: DateTime(2026, 7, 17 - index),
+        score: 60 - index,
         selected: false,
       ),
   ];

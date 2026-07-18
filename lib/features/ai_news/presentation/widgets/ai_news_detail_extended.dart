@@ -9,26 +9,20 @@ import '../../domain/ai_news_item.dart';
 import 'ai_news_detail_components.dart';
 
 /*
-*详情页底部的延伸要点、相关推荐和更多信息。
+*详情页底部的相关文章列表。
+*
+*使用设计稿中的单卡分隔列表,避免连续大图卡片打断长文阅读。
 */
 class AiNewsDetailExtended extends StatelessWidget {
   const AiNewsDetailExtended({
-    required this.item,
     required this.relatedItems,
-    this.onOpenOriginal,
     this.onOpenRelated,
     this.onViewMore,
     super.key,
   });
 
-  // 当前资讯。
-  final AiNewsItem item;
-
   // 来自本机缓存的相关推荐。
   final List<AiNewsItem> relatedItems;
-
-  // 打开原文操作。
-  final VoidCallback? onOpenOriginal;
 
   // 打开相关推荐操作。
   final ValueChanged<AiNewsItem>? onOpenRelated;
@@ -37,142 +31,140 @@ class AiNewsDetailExtended extends StatelessWidget {
   final VoidCallback? onViewMore;
 
   @override
-  /* 构建单页阅读流的延伸内容。 */
+  /* 构建最多三条的紧凑相关文章卡片。 */
   Widget build(BuildContext context) {
+    if (relatedItems.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
+    final visibleItems = relatedItems.take(3).toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (relatedItems.isNotEmpty) ...[
-          AiNewsDetailSectionTitle(
-            icon: Icons.feed_outlined,
-            title: l10n.tr('ai_news.detail.related_articles'),
-            trailing: TextButton.icon(
-              onPressed: onViewMore,
-              iconAlignment: IconAlignment.end,
-              icon: const Icon(Icons.chevron_right_rounded, size: 18),
-              label: Text(l10n.tr('ai_news.detail.view_more')),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          for (var index = 0; index < relatedItems.length; index++) ...[
-            _RelatedArticleCard(
-              item: relatedItems[index],
-              imageAsset: _relatedImage(index),
-              onTap: () => onOpenRelated?.call(relatedItems[index]),
-            ),
-            if (index != relatedItems.length - 1) const SizedBox(height: AppSpacing.sm),
-          ],
-        ],
-        const SizedBox(height: AppSpacing.xl),
-        AiNewsDetailSectionTitle(
-          icon: Icons.info_outline_rounded,
-          title: l10n.tr('ai_news.detail.more_info'),
-        ),
-        const SizedBox(height: AppSpacing.sm),
-        Material(
-          color: AppColors.brandLight.withValues(
-            alpha: Theme.of(context).brightness == Brightness.light ? 0.22 : 0.06,
-          ),
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          child: InkWell(
-            onTap: onOpenOriginal,
-            borderRadius: BorderRadius.circular(AppRadius.lg),
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: AppSpacing.md,
-              ),
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColors.brand.withValues(alpha: 0.24),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxs),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  l10n.tr('ai_news.detail.related_articles'),
+                  style: AppTypography.reading(AppTypography.bodyLarge).copyWith(
+                    color: colors.onSurface,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(AppRadius.lg),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      '${item.source} · ${l10n.tr('ai_news.detail.view_original')}',
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: colors.onSurface,
-                      ),
-                    ),
-                  ),
-                  const Icon(
-                    Icons.open_in_new_rounded,
-                    color: AppColors.brand,
-                    size: 20,
-                  ),
-                ],
+              TextButton.icon(
+                onPressed: onViewMore,
+                iconAlignment: IconAlignment.end,
+                icon: const Icon(Icons.chevron_right_rounded, size: 16),
+                style: TextButton.styleFrom(
+                  foregroundColor: colors.primary,
+                  minimumSize: Size.zero,
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  visualDensity: VisualDensity.compact,
+                ),
+                label: Text(
+                  l10n.tr('ai_news.detail.view_more'),
+                  style: AppTypography.reading(
+                    AppTypography.labelSmall,
+                  ).copyWith(color: colors.primary, fontWeight: FontWeight.w600),
+                ),
               ),
-            ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Container(
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: Border.all(color: colors.outlineVariant),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            children: [
+              for (var index = 0; index < visibleItems.length; index++) ...[
+                if (index > 0)
+                  Divider(
+                    height: 1,
+                    indent: AppSpacing.lg,
+                    endIndent: AppSpacing.lg,
+                    color: colors.outlineVariant,
+                  ),
+                _RelatedArticleRow(
+                  item: visibleItems[index],
+                  accent: _relatedAccent(index),
+                  onTap: () => onOpenRelated?.call(visibleItems[index]),
+                ),
+              ],
+            ],
           ),
         ),
       ],
     );
   }
 
-  /* 按卡片顺序复用已登记的资讯插画资产。 */
-  String _relatedImage(int index) {
-    const assets = [
-      'assets/ai_news/article_neural.png',
-      'assets/ai_news/article_document.png',
-      'assets/ai_news/article_city.png',
-    ];
-    return assets[index % assets.length];
+  /* 按顺序为文字缩略块分配可复用语义色。 */
+  Color _relatedAccent(int index) {
+    const accents = [AppColors.accentPurple, AppColors.success, AppColors.info];
+    return accents[index % accents.length];
   }
 }
 
 /*
-*相关推荐的紧凑卡片。
+*相关文章卡片中的单行摘要。
 */
-class _RelatedArticleCard extends StatelessWidget {
-  const _RelatedArticleCard({
+class _RelatedArticleRow extends StatelessWidget {
+  const _RelatedArticleRow({
     required this.item,
-    required this.imageAsset,
+    required this.accent,
     required this.onTap,
   });
 
-  static const double _thumbnailSize = 64;
+  static const double _leadingSize = 44;
 
   // 推荐资讯。
   final AiNewsItem item;
 
-  // 资讯缩略图资产。
-  final String imageAsset;
+  // 文字缩略块强调色。
+  final Color accent;
 
   // 打开推荐资讯操作。
   final VoidCallback onTap;
 
   @override
-  /* 构建相关资讯标题、摘要与分类。 */
+  /* 构建文字缩略块、标题、摘要、分类和进入箭头。 */
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+    final label = _relatedLabel(item.title);
     return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(AppRadius.lg),
+      color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        child: Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: 0.6),
-            ),
-            borderRadius: BorderRadius.circular(AppRadius.lg),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
           ),
           child: Row(
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                child: Image.asset(
-                  imageAsset,
-                  width: _thumbnailSize,
-                  height: _thumbnailSize,
-                  fit: BoxFit.cover,
+              Container(
+                width: _leadingSize,
+                height: _leadingSize,
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.13),
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  label,
+                  style: AppTypography.titleLarge.copyWith(
+                    color: accent,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -184,18 +176,18 @@ class _RelatedArticleCard extends StatelessWidget {
                       item.title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.titleSmall.copyWith(
-                        color: colors.onSurface,
-                      ),
+                      style: AppTypography.reading(
+                        AppTypography.titleSmall,
+                      ).copyWith(color: colors.onSurface),
                     ),
-                    const SizedBox(height: AppSpacing.xs),
+                    const SizedBox(height: AppSpacing.xxs),
                     Text(
                       item.summary,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
+                      style: AppTypography.reading(
+                        AppTypography.bodySmall,
+                      ).copyWith(color: aiNewsDetailSecondaryColor(context)),
                     ),
                   ],
                 ),
@@ -204,25 +196,46 @@ class _RelatedArticleCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
+                  vertical: AppSpacing.xxs,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColors.brandLight.withValues(alpha: 0.32),
-                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  border: Border.all(color: colors.outlineVariant),
+                  borderRadius: BorderRadius.circular(AppRadius.xs),
                 ),
                 child: Text(
                   item.category.label,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.brandDark,
+                  style: AppTypography.labelMicro.copyWith(
+                    color: aiNewsDetailMutedColor(context),
                   ),
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
-              const Icon(Icons.chevron_right_rounded, color: AppColors.brand),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: aiNewsDetailMutedColor(context),
+                size: 18,
+              ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  /* 优先取标题里的拉丁产品首字母,其次取中文引号短语的识别字。 */
+  String _relatedLabel(String title) {
+    final value = title.trim();
+    if (value.isEmpty) {
+      return 'AI';
+    }
+    final latin = RegExp(r'\b[A-Z]').firstMatch(value);
+    if (latin != null) {
+      return latin.group(0)!;
+    }
+    final quoted = RegExp(r'[「“"]([^」”"]+)').firstMatch(value)?.group(1);
+    if (quoted != null && quoted.characters.length > 1) {
+      return quoted.characters.elementAt(1);
+    }
+    return value.characters.first;
   }
 }

@@ -6,8 +6,8 @@ import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/theme/app_colors.dart';
 import 'package:github_news/core/theme/app_theme.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
-import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_components.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_content.dart';
+import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_language_switcher.dart';
 
 void main() {
   testWidgets('article detail centers the reading column on desktop', (
@@ -23,10 +23,10 @@ void main() {
     await tester.pumpAndSettle();
 
     final languageCardRect = tester.getRect(
-      find.byType(AiNewsDetailLanguageCard).first,
+      find.byType(AiNewsDetailLanguageSwitcher),
     );
 
-    expect(languageCardRect.width, lessThanOrEqualTo(aiNewsDetailMaxWidth));
+    expect(languageCardRect.width, lessThanOrEqualTo(760));
     expect(languageCardRect.left, greaterThan(150));
     expect(languageCardRect.right, lessThan(1250));
   });
@@ -94,27 +94,23 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Chinese articles hide duplicate original and translation cards', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(375, 846);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      _app(
-        AiNewsDetailContent(
-          item: _chineseItem(),
-          showEnrichment: false,
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Chinese articles hide duplicate original and translation cards',
+    (tester) async {
+      tester.view.physicalSize = const Size(375, 846);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        _app(AiNewsDetailContent(item: _chineseItem(), showEnrichment: false)),
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.text('英文原文'), findsNothing);
-    expect(find.text('中文翻译'), findsNothing);
-    expect(tester.takeException(), isNull);
-  });
+      expect(find.text('英文原文'), findsNothing);
+      expect(find.text('中文翻译'), findsNothing);
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('English articles show the original and Chinese translation', (
     tester,
@@ -128,10 +124,41 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('英文原文'), findsOneWidget);
-    expect(find.text('中文翻译'), findsOneWidget);
+    expect(find.text('EN · 英文原文'), findsOneWidget);
+    expect(find.text('中 · 中文翻译'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'bilingual selector switches between comparison and single language',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        _app(AiNewsDetailContent(item: _item(), showEnrichment: false)),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('EN · 英文原文'), findsOneWidget);
+      expect(find.text('中 · 中文翻译'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('ai-news-language-chinese')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('EN · 英文原文'), findsNothing);
+      expect(find.text('中 · 中文翻译'), findsNothing);
+      expect(
+        find.descendant(
+          of: find.byType(AiNewsDetailLanguageSwitcher),
+          matching: find.textContaining('一个面向编程 AI 智能体'),
+        ),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   testWidgets('long Chinese titles do not overflow the compact hero', (
     tester,
@@ -143,9 +170,7 @@ void main() {
     await tester.pumpWidget(
       _app(
         AiNewsDetailContent(
-          item: _chineseItem(
-            title: '世界人工智能合作组织协定签署仪式在上海举行，总部设在中国上海并推动全球协作',
-          ),
+          item: _chineseItem(title: '世界人工智能合作组织协定签署仪式在上海举行，总部设在中国上海并推动全球协作'),
           showEnrichment: false,
         ),
       ),

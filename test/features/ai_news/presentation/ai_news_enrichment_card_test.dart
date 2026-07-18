@@ -87,7 +87,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          aiDigestConfigControllerProvider.overrideWith(() => _StaticAiDigestConfigController(false)),
+          aiDigestConfigControllerProvider.overrideWith(
+            () => _StaticAiDigestConfigController(false),
+          ),
           aiNewsEnrichmentProvider.overrideWith((ref, id) async => null),
           aiNewsEnrichmentGeneratorProvider.overrideWith((ref) {
             return (AiNewsItem requested, {bool force = false}) async {
@@ -104,6 +106,12 @@ void main() {
     expect(callCount, 0);
     expect(find.text('请先在 AI 日报设置中配置兼容端点、模型和 API Key。'), findsOneWidget);
     expect(find.text('生成增强内容'), findsNothing);
+    expect(find.text('去配置 →'), findsOneWidget);
+
+    await tester.tap(find.text('去配置 →'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('AI 日报设置'), findsOneWidget);
   });
 
   testWidgets('自动生成失败后显示重试入口', (tester) async {
@@ -113,7 +121,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          aiDigestConfigControllerProvider.overrideWith(() => _StaticAiDigestConfigController(true)),
+          aiDigestConfigControllerProvider.overrideWith(
+            () => _StaticAiDigestConfigController(true),
+          ),
           aiNewsEnrichmentProvider.overrideWith((ref, id) async => null),
           aiNewsEnrichmentGeneratorProvider.overrideWith((ref) {
             return (AiNewsItem requested, {bool force = false}) async {
