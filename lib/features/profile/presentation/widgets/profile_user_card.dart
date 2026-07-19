@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/auth_models.dart';
 import '../../../../core/auth/auth_session_controller.dart';
-import '../../../../core/auth/phone_number.dart';
+import '../../../../core/auth/email_address.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/shared/local_content_controller.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -117,8 +117,8 @@ class ProfileUserCard extends ConsumerWidget {
                 onPressed: auth.isBusy
                     ? null
                     : signedIn
-                        ? () => ref.read(authSessionControllerProvider.notifier).signOut()
-                        : () => context.push('/profile/login'),
+                    ? () => ref.read(authSessionControllerProvider.notifier).signOut()
+                    : () => context.push('/profile/login'),
                 style: TextButton.styleFrom(padding: EdgeInsets.zero, minimumSize: const Size(0, 28), tapTargetSize: MaterialTapTargetSize.shrinkWrap, alignment: Alignment.centerLeft),
                 child: Text(l10n.tr(signedIn ? 'profile.logout' : 'profile.login')),
               ),
@@ -128,22 +128,15 @@ class ProfileUserCard extends ConsumerWidget {
       ],
     );
     if (compact && immersive) {
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
-        child: content,
-      );
+      return Padding(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg), child: content);
     }
     return AppCard(child: content);
   }
 
-  /* 生成不泄露完整手机号或邮箱的账号状态文本。 */
+  /* 生成不泄露完整邮箱的账号状态文本。 */
   String _accountStatus(AppIdentity? identity, AppLocalizations l10n) {
     if (identity == null) {
       return l10n.tr('profile.user.anonymous_status');
-    }
-    final phone = maskMainlandPhoneNumber(identity.phone);
-    if (phone.isNotEmpty) {
-      return '$phone · ${l10n.tr('auth.account.phone_verified')}';
     }
     final email = maskEmailAddress(identity.email);
     if (email.isNotEmpty) {

@@ -14,10 +14,6 @@ abstract interface class AuthRepository {
 
   Stream<AppIdentity?> get identityChanges;
 
-  Future<void> sendPhoneOtp(String phone);
-
-  Future<AppIdentity> verifyPhoneOtp({required String phone, required String token});
-
   Future<void> sendEmailOtp(String email);
 
   Future<AppIdentity> verifyEmailOtp({required String email, required String token});
@@ -43,12 +39,6 @@ class UnconfiguredAuthRepository implements AuthRepository {
 
   @override
   Stream<AppIdentity?> get identityChanges => const Stream<AppIdentity?>.empty();
-
-  @override
-  Future<void> sendPhoneOtp(String phone) => _fail();
-
-  @override
-  Future<AppIdentity> verifyPhoneOtp({required String phone, required String token}) => _fail();
 
   @override
   Future<void> sendEmailOtp(String email) => _fail();
@@ -80,12 +70,6 @@ class UnavailableAuthRepository implements AuthRepository {
 
   @override
   Stream<AppIdentity?> get identityChanges => const Stream<AppIdentity?>.empty();
-
-  @override
-  Future<void> sendPhoneOtp(String phone) => _fail();
-
-  @override
-  Future<AppIdentity> verifyPhoneOtp({required String phone, required String token}) => _fail();
 
   @override
   Future<void> sendEmailOtp(String email) => _fail();

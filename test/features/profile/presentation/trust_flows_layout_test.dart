@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/auth/auth_models.dart';
+import 'package:github_news/core/auth/auth_repository.dart';
 import 'package:github_news/core/di/providers.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/domain/repo_activity_event.dart';
@@ -14,6 +16,8 @@ import 'package:github_news/features/profile/presentation/login_page.dart';
 import 'package:github_news/features/project/presentation/widgets/activity_events_card.dart';
 import 'package:github_news/features/tech_hotspot/presentation/widgets/tech_hotspot_tags_cloud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/auth/fake_auth_repository.dart';
 
 void main() {
   for (final size in const [Size(1366, 768), Size(1024, 768), Size(390, 844)]) {
@@ -50,8 +54,12 @@ void main() {
       expect(find.text('No matching radar tags'), findsOneWidget);
       expect(tester.takeException(), isNull);
 
-      await _pumpAtSize(tester, size, prefs, const LoginPage());
-      expect(find.text('Sign in with phone'), findsOneWidget);
+      final authRepository = FakeAuthRepository(capabilities: const AuthCapabilities(isConfigured: true));
+      addTearDown(authRepository.dispose);
+      await _pumpAtSize(tester, size, prefs, const LoginPage(), authRepository: authRepository);
+      expect(find.text('Email'), findsOneWidget);
+      expect(find.text('Continue with Google'), findsOneWidget);
+      expect(find.text('Continue with GitHub'), findsOneWidget);
       expect(find.text('Continue anonymously'), findsOneWidget);
       expect(tester.takeException(), isNull);
       semantics.dispose();
@@ -85,7 +93,7 @@ Future<SharedPreferences> _preferences() async {
   return SharedPreferences.getInstance();
 }
 
-Future<void> _pumpAtSize(WidgetTester tester, Size size, SharedPreferences preferences, Widget child) async {
+Future<void> _pumpAtSize(WidgetTester tester, Size size, SharedPreferences preferences, Widget child, {FakeAuthRepository? authRepository}) async {
   tester.view
     ..devicePixelRatio = 1
     ..physicalSize = size;
@@ -93,7 +101,7 @@ Future<void> _pumpAtSize(WidgetTester tester, Size size, SharedPreferences prefe
   addTearDown(tester.view.resetPhysicalSize);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [sharedPreferencesProvider.overrideWithValue(preferences)],
+      overrides: [sharedPreferencesProvider.overrideWithValue(preferences), authRepositoryProvider.overrideWithValue(authRepository ?? const UnconfiguredAuthRepository())],
       child: MaterialApp(
         locale: const Locale('en', 'US'),
         localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],

@@ -4,7 +4,6 @@ import '../../../../core/auth/auth_models.dart';
 String authFailureKey(AppAuthFailureKind kind) {
   return switch (kind) {
     AppAuthFailureKind.unconfigured => 'auth.error.unconfigured',
-    AppAuthFailureKind.methodDisabled => 'auth.error.method_disabled',
     AppAuthFailureKind.invalidInput => 'auth.error.invalid_input',
     AppAuthFailureKind.invalidOtp => 'auth.error.invalid_otp',
     AppAuthFailureKind.otpExpired => 'auth.error.otp_expired',

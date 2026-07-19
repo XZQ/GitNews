@@ -23,7 +23,7 @@ void main() {
 
     expect(result.isSuccess, isTrue);
     expect(result.authRepository.capabilities.isConfigured, isTrue);
-    await expectLater(result.authRepository.sendPhoneOtp('+8613812345678'), throwsA(isA<AppAuthFailure>()));
+    await expectLater(result.authRepository.sendEmailOtp('developer@example.com'), throwsA(isA<AppAuthFailure>()));
     await result.database?.close();
   });
 

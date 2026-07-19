@@ -5,14 +5,14 @@ import 'auth_config.dart';
 import 'auth_models.dart';
 import 'auth_repository.dart';
 import 'auth_secure_storage.dart';
-import 'phone_number.dart';
+import 'email_address.dart';
 
 /* 创建不会阻断应用启动的认证仓库。 */
 Future<AuthRepository> initializeAuthRepository(FlutterSecureStorage secureStorage) async {
   if (!AuthConfig.isConfigured) {
     return const UnconfiguredAuthRepository();
   }
-  const capabilities = AuthCapabilities(isConfigured: true, phone: AuthConfig.phoneEnabled, email: AuthConfig.emailEnabled, github: AuthConfig.githubEnabled, google: AuthConfig.googleEnabled);
+  const capabilities = AuthCapabilities(isConfigured: true);
   final uri = Uri.tryParse(AuthConfig.supabaseUrl.trim());
   if (uri == null || !uri.hasScheme || !uri.hasAuthority || (uri.scheme != 'https' && uri.scheme != 'http')) {
     return const UnavailableAuthRepository(capabilities);
@@ -50,38 +50,18 @@ class SupabaseAuthRepository implements AuthRepository {
   Stream<AppIdentity?> get identityChanges => _client.auth.onAuthStateChange.map((event) => _identityFromUser(event.session?.user)).distinct();
 
   @override
-  Future<void> sendPhoneOtp(String phone) async {
-    _require(capabilities.phone);
-    await _guard(() => _client.auth.signInWithOtp(phone: phone));
-  }
-
-  @override
-  Future<AppIdentity> verifyPhoneOtp({required String phone, required String token}) async {
-    _require(capabilities.phone);
-    final response = await _guard(() => _client.auth.verifyOTP(phone: phone, token: token, type: OtpType.sms));
-    return _requireIdentity(response.user ?? response.session?.user);
-  }
-
-  @override
   Future<void> sendEmailOtp(String email) async {
-    _require(capabilities.email);
     await _guard(() => _client.auth.signInWithOtp(email: email));
   }
 
   @override
   Future<AppIdentity> verifyEmailOtp({required String email, required String token}) async {
-    _require(capabilities.email);
     final response = await _guard(() => _client.auth.verifyOTP(email: email, token: token, type: OtpType.email));
     return _requireIdentity(response.user ?? response.session?.user);
   }
 
   @override
   Future<void> signInWithProvider(AppAuthProvider provider) async {
-    final enabled = switch (provider) {
-      AppAuthProvider.github => capabilities.github,
-      AppAuthProvider.google => capabilities.google,
-    };
-    _require(enabled);
     final supabaseProvider = switch (provider) {
       AppAuthProvider.github => OAuthProvider.github,
       AppAuthProvider.google => OAuthProvider.google,
@@ -94,13 +74,6 @@ class SupabaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() => _guard(() => _client.auth.signOut(scope: SignOutScope.local));
-
-  /* 未启用的登录方式在调用边界立即失败。 */
-  void _require(bool enabled) {
-    if (!enabled) {
-      throw const AppAuthFailure(AppAuthFailureKind.methodDisabled);
-    }
-  }
 
   /* 确保验证码校验后确实产生了可用用户。 */
   AppIdentity _requireIdentity(User? user) {
@@ -131,14 +104,10 @@ AppIdentity? _identityFromUser(User? user) {
     return null;
   }
   final metadata = user.userMetadata ?? const <String, dynamic>{};
-  final displayName = _firstString(metadata, const ['display_name', 'full_name', 'name', 'user_name']) ??
-      maskMainlandPhoneNumber(user.phone).trim().takeIfNotEmpty() ??
-      maskEmailAddress(user.email).trim().takeIfNotEmpty() ??
-      'AI 用户';
+  final displayName = _firstString(metadata, const ['display_name', 'full_name', 'name', 'user_name']) ?? maskEmailAddress(user.email).trim().takeIfNotEmpty() ?? 'AI 用户';
   return AppIdentity(
     userId: user.id,
     displayName: displayName,
-    phone: user.phone,
     email: user.email,
     avatarUrl: _firstString(metadata, const ['avatar_url', 'picture']),
     providers: {for (final identity in user.identities ?? const <UserIdentity>[]) identity.provider},

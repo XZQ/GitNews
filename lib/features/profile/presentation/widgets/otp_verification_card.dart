@@ -13,7 +13,7 @@ import '../../../../shared/widgets/section_header.dart';
 import 'auth_failure_text.dart';
 
 /*
-*手机或邮箱 6 位验证码校验页。
+*邮箱 6 位验证码校验页。
 */
 class OtpVerificationCard extends ConsumerStatefulWidget {
   const OtpVerificationCard({super.key});
@@ -57,7 +57,7 @@ class _OtpVerificationCardState extends ConsumerState<OtpVerificationCard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SectionHeader(title: l10n.tr('auth.otp.title'), subtitle: '${l10n.tr('auth.otp.sent_to')} ${state.maskedPendingTarget}'),
+              SectionHeader(title: l10n.tr('auth.otp.title'), subtitle: '${l10n.tr('auth.otp.sent_to')} ${state.maskedPendingEmail}'),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: _codeController,
@@ -96,21 +96,14 @@ class _OtpVerificationCardState extends ConsumerState<OtpVerificationCard> {
     ref.read(authSessionControllerProvider.notifier).verifyCode(_codeController.text);
   }
 
-  /* 通过当前通道重新发送验证码。 */
+  /* 向当前邮箱重新发送验证码。 */
   void _resend() {
     final state = ref.read(authSessionControllerProvider);
-    final target = state.pendingTarget;
-    if (target == null) {
+    final email = state.pendingEmail;
+    if (email == null) {
       return;
     }
-    switch (state.challengeKind) {
-      case AuthChallengeKind.phone:
-        ref.read(authSessionControllerProvider.notifier).sendPhoneCode(target);
-      case AuthChallengeKind.email:
-        ref.read(authSessionControllerProvider.notifier).sendEmailCode(target);
-      case null:
-        break;
-    }
+    ref.read(authSessionControllerProvider.notifier).sendEmailCode(email);
   }
 
   /* 计算验证码重发倒计时。 */

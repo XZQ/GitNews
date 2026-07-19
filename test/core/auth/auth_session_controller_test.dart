@@ -7,23 +7,23 @@ import 'package:github_news/core/auth/auth_session_controller.dart';
 import 'fake_auth_repository.dart';
 
 void main() {
-  test('phone OTP signs in with a normalized +86 number and signs out', () async {
-    final repository = FakeAuthRepository(capabilities: const AuthCapabilities(isConfigured: true, phone: true));
+  test('email OTP signs in with a normalized address and signs out', () async {
+    final repository = FakeAuthRepository(capabilities: const AuthCapabilities(isConfigured: true));
     addTearDown(repository.dispose);
     final container = ProviderContainer(overrides: [authRepositoryProvider.overrideWithValue(repository)]);
     addTearDown(container.dispose);
     final controller = container.read(authSessionControllerProvider.notifier);
 
-    await controller.sendPhoneCode('138 1234 5678');
+    await controller.sendEmailCode(' Developer@Example.com ');
 
-    expect(repository.sentPhone, '+8613812345678');
+    expect(repository.sentEmail, 'developer@example.com');
     expect(container.read(authSessionControllerProvider).operation, AuthOperation.codeSent);
-    expect(container.read(authSessionControllerProvider).maskedPendingTarget, '+86 138****5678');
+    expect(container.read(authSessionControllerProvider).maskedPendingEmail, 'de***@example.com');
 
     await controller.verifyCode('123456');
 
     expect(container.read(authSessionControllerProvider).isAuthenticated, isTrue);
-    expect(container.read(authSessionControllerProvider).identity?.userId, 'user-phone');
+    expect(container.read(authSessionControllerProvider).identity?.userId, 'user-email');
 
     await controller.signOut();
 
@@ -31,19 +31,19 @@ void main() {
     expect(container.read(authSessionControllerProvider).isAuthenticated, isFalse);
   });
 
-  test('invalid phone and OTP stay recoverable without calling remote verification', () async {
-    final repository = FakeAuthRepository(capabilities: const AuthCapabilities(isConfigured: true, phone: true));
+  test('invalid email and OTP stay recoverable without calling remote verification', () async {
+    final repository = FakeAuthRepository(capabilities: const AuthCapabilities(isConfigured: true));
     addTearDown(repository.dispose);
     final container = ProviderContainer(overrides: [authRepositoryProvider.overrideWithValue(repository)]);
     addTearDown(container.dispose);
     final controller = container.read(authSessionControllerProvider.notifier);
 
-    await controller.sendPhoneCode('10086');
+    await controller.sendEmailCode('not-an-email');
 
-    expect(repository.sentPhone, isNull);
+    expect(repository.sentEmail, isNull);
     expect(container.read(authSessionControllerProvider).failure, AppAuthFailureKind.invalidInput);
 
-    await controller.sendPhoneCode('13912345678');
+    await controller.sendEmailCode('developer@example.com');
     await controller.verifyCode('000000');
 
     expect(container.read(authSessionControllerProvider).operation, AuthOperation.codeSent);
@@ -55,7 +55,7 @@ void main() {
     final container = ProviderContainer();
     addTearDown(container.dispose);
 
-    await container.read(authSessionControllerProvider.notifier).sendPhoneCode('13812345678');
+    await container.read(authSessionControllerProvider.notifier).sendEmailCode('developer@example.com');
 
     expect(container.read(authSessionControllerProvider).isAuthenticated, isFalse);
     expect(container.read(authSessionControllerProvider).failure, AppAuthFailureKind.unconfigured);

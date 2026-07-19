@@ -18,9 +18,6 @@ class FakeAuthRepository implements AuthRepository {
   // 测试接受的验证码。
   final String acceptedCode;
 
-  // 最近发送的手机号。
-  String? sentPhone;
-
   // 最近发送的邮箱。
   String? sentEmail;
 
@@ -37,21 +34,6 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Stream<AppIdentity?> get identityChanges => _controller.stream;
-
-  @override
-  Future<void> sendPhoneOtp(String phone) async {
-    sentPhone = phone;
-  }
-
-  @override
-  Future<AppIdentity> verifyPhoneOtp({required String phone, required String token}) async {
-    if (token != acceptedCode) {
-      throw const AppAuthFailure(AppAuthFailureKind.invalidOtp);
-    }
-    identity = AppIdentity(userId: 'user-phone', displayName: '138****5678', phone: phone, providers: const {'phone'});
-    _controller.add(identity);
-    return identity!;
-  }
 
   @override
   Future<void> sendEmailOtp(String email) async {

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'auth_models.dart';
 import 'auth_repository.dart';
-import 'phone_number.dart';
+import 'email_address.dart';
 
 /*
 *当前认证操作。
@@ -30,21 +30,10 @@ enum AuthOperation {
 }
 
 /*
-*验证码通道。
-*/
-enum AuthChallengeKind {
-  // 手机短信验证码。
-  phone,
-
-  // 邮箱验证码。
-  email,
-}
-
-/*
 *全局应用账号会话状态。
 */
 class AuthSessionState {
-  const AuthSessionState({required this.capabilities, this.identity, this.operation = AuthOperation.idle, this.challengeKind, this.pendingTarget, this.resendAvailableAt, this.failure});
+  const AuthSessionState({required this.capabilities, this.identity, this.operation = AuthOperation.idle, this.pendingEmail, this.resendAvailableAt, this.failure});
 
   // 当前构建可用的认证方式。
   final AuthCapabilities capabilities;
@@ -55,11 +44,8 @@ class AuthSessionState {
   // 当前认证操作。
   final AuthOperation operation;
 
-  // 当前验证码通道。
-  final AuthChallengeKind? challengeKind;
-
-  // 内存中的待验证 E.164 手机号或邮箱；不持久化、不记录日志。
-  final String? pendingTarget;
+  // 内存中的待验证邮箱；不持久化、不记录日志。
+  final String? pendingEmail;
 
   // 允许再次发送验证码的时间。
   final DateTime? resendAvailableAt;
@@ -71,19 +57,13 @@ class AuthSessionState {
 
   bool get isBusy => operation == AuthOperation.sendingCode || operation == AuthOperation.verifyingCode || operation == AuthOperation.openingProvider || operation == AuthOperation.signingOut;
 
-  String get maskedPendingTarget {
-    return switch (challengeKind) {
-      AuthChallengeKind.phone => maskMainlandPhoneNumber(pendingTarget),
-      AuthChallengeKind.email => maskEmailAddress(pendingTarget),
-      null => '',
-    };
-  }
+  String get maskedPendingEmail => maskEmailAddress(pendingEmail);
 }
 
 /*
 *应用账号会话控制器。
 *
-*负责手机号/邮箱格式、验证码状态、provider 启动和退出；凭据生命周期由仓库处理。
+*负责邮箱格式、验证码状态、provider 启动和退出；凭据生命周期由仓库处理。
 */
 class AuthSessionController extends Notifier<AuthSessionState> {
   late AuthRepository _repository;
@@ -100,33 +80,6 @@ class AuthSessionController extends Notifier<AuthSessionState> {
       _subscription?.cancel();
     });
     return AuthSessionState(capabilities: _repository.capabilities, identity: _repository.currentIdentity);
-  }
-
-  /* 发送中国大陆手机号验证码。 */
-  Future<void> sendPhoneCode(String input) async {
-    final phone = normalizeMainlandPhoneNumber(input);
-    if (phone == null) {
-      state = _next(operation: AuthOperation.idle, failure: AppAuthFailureKind.invalidInput, clearFailure: false);
-      return;
-    }
-    if (!_canSendAgain()) {
-      state = _next(operation: AuthOperation.codeSent, failure: AppAuthFailureKind.rateLimited, clearFailure: false);
-      return;
-    }
-    state = _next(operation: AuthOperation.sendingCode, clearFailure: true);
-    try {
-      await _repository.sendPhoneOtp(phone);
-      state = AuthSessionState(
-        capabilities: state.capabilities,
-        identity: state.identity,
-        operation: AuthOperation.codeSent,
-        challengeKind: AuthChallengeKind.phone,
-        pendingTarget: phone,
-        resendAvailableAt: DateTime.now().add(const Duration(seconds: 60)),
-      );
-    } on AppAuthFailure catch (failure) {
-      state = _next(operation: AuthOperation.idle, failure: failure.kind, clearFailure: false);
-    }
   }
 
   /* 发送邮箱验证码。 */
@@ -147,8 +100,7 @@ class AuthSessionController extends Notifier<AuthSessionState> {
         capabilities: state.capabilities,
         identity: state.identity,
         operation: AuthOperation.codeSent,
-        challengeKind: AuthChallengeKind.email,
-        pendingTarget: email,
+        pendingEmail: email,
         resendAvailableAt: DateTime.now().add(const Duration(seconds: 60)),
       );
     } on AppAuthFailure catch (failure) {
@@ -156,21 +108,17 @@ class AuthSessionController extends Notifier<AuthSessionState> {
     }
   }
 
-  /* 校验当前手机或邮箱验证码。 */
+  /* 校验当前邮箱验证码。 */
   Future<void> verifyCode(String input) async {
     final token = input.trim();
-    final target = state.pendingTarget;
-    final kind = state.challengeKind;
-    if (!RegExp(r'^\d{6}$').hasMatch(token) || target == null || kind == null) {
+    final email = state.pendingEmail;
+    if (!RegExp(r'^\d{6}$').hasMatch(token) || email == null) {
       state = _next(operation: AuthOperation.codeSent, failure: AppAuthFailureKind.invalidInput, clearFailure: false);
       return;
     }
     state = _next(operation: AuthOperation.verifyingCode, clearFailure: true);
     try {
-      final identity = switch (kind) {
-        AuthChallengeKind.phone => await _repository.verifyPhoneOtp(phone: target, token: token),
-        AuthChallengeKind.email => await _repository.verifyEmailOtp(email: target, token: token),
-      };
+      final identity = await _repository.verifyEmailOtp(email: email, token: token);
       state = AuthSessionState(capabilities: state.capabilities, identity: identity);
     } on AppAuthFailure catch (failure) {
       state = _next(operation: AuthOperation.codeSent, failure: failure.kind, clearFailure: false);
@@ -232,8 +180,7 @@ class AuthSessionController extends Notifier<AuthSessionState> {
       capabilities: state.capabilities,
       identity: state.identity,
       operation: operation,
-      challengeKind: state.challengeKind,
-      pendingTarget: state.pendingTarget,
+      pendingEmail: state.pendingEmail,
       resendAvailableAt: state.resendAvailableAt,
       failure: clearFailure ? null : failure ?? state.failure,
     );
