@@ -34,7 +34,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
       tileBuilder: (context, item, index) => PreviewRow(
         rank: '${index + 1}',
         rankColor: aiNewsCategoryColor(item.category),
-        title: item.title,
+        title: item.titleForLanguage(l10n.locale.languageCode),
         subtitle: '${item.source} · ${item.category.label}',
         meta: '${item.score}',
         onTap: () => context.go('/ai_news'),

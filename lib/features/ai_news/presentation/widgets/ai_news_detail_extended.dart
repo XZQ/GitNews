@@ -14,12 +14,7 @@ import 'ai_news_detail_components.dart';
 *使用设计稿中的单卡分隔列表,避免连续大图卡片打断长文阅读。
 */
 class AiNewsDetailExtended extends StatelessWidget {
-  const AiNewsDetailExtended({
-    required this.relatedItems,
-    this.onOpenRelated,
-    this.onViewMore,
-    super.key,
-  });
+  const AiNewsDetailExtended({required this.relatedItems, this.onOpenRelated, this.onViewMore, super.key});
 
   // 来自本机缓存的相关推荐。
   final List<AiNewsItem> relatedItems;
@@ -49,10 +44,7 @@ class AiNewsDetailExtended extends StatelessWidget {
               Expanded(
                 child: Text(
                   l10n.tr('ai_news.detail.related_articles'),
-                  style: AppTypography.reading(AppTypography.bodyLarge).copyWith(
-                    color: colors.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTypography.reading(AppTypography.bodyLarge).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
                 ),
               ),
               TextButton.icon(
@@ -68,9 +60,7 @@ class AiNewsDetailExtended extends StatelessWidget {
                 ),
                 label: Text(
                   l10n.tr('ai_news.detail.view_more'),
-                  style: AppTypography.reading(
-                    AppTypography.labelSmall,
-                  ).copyWith(color: colors.primary, fontWeight: FontWeight.w600),
+                  style: AppTypography.reading(AppTypography.labelSmall).copyWith(color: colors.primary, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -87,18 +77,8 @@ class AiNewsDetailExtended extends StatelessWidget {
           child: Column(
             children: [
               for (var index = 0; index < visibleItems.length; index++) ...[
-                if (index > 0)
-                  Divider(
-                    height: 1,
-                    indent: AppSpacing.lg,
-                    endIndent: AppSpacing.lg,
-                    color: colors.outlineVariant,
-                  ),
-                _RelatedArticleRow(
-                  item: visibleItems[index],
-                  accent: _relatedAccent(index),
-                  onTap: () => onOpenRelated?.call(visibleItems[index]),
-                ),
+                if (index > 0) Divider(height: 1, indent: AppSpacing.lg, endIndent: AppSpacing.lg, color: colors.outlineVariant),
+                _RelatedArticleRow(item: visibleItems[index], accent: _relatedAccent(index), onTap: () => onOpenRelated?.call(visibleItems[index])),
               ],
             ],
           ),
@@ -118,11 +98,7 @@ class AiNewsDetailExtended extends StatelessWidget {
 *相关文章卡片中的单行摘要。
 */
 class _RelatedArticleRow extends StatelessWidget {
-  const _RelatedArticleRow({
-    required this.item,
-    required this.accent,
-    required this.onTap,
-  });
+  const _RelatedArticleRow({required this.item, required this.accent, required this.onTap});
 
   static const double _leadingSize = 44;
 
@@ -139,32 +115,24 @@ class _RelatedArticleRow extends StatelessWidget {
   /* 构建文字缩略块、标题、摘要、分类和进入箭头。 */
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final label = _relatedLabel(item.title);
+    final title = item.titleForLanguage(AppLocalizations.of(context).locale.languageCode);
+    final label = _relatedLabel(title);
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
           child: Row(
             children: [
               Container(
                 width: _leadingSize,
                 height: _leadingSize,
-                decoration: BoxDecoration(
-                  color: accent.withValues(alpha: 0.13),
-                  borderRadius: BorderRadius.circular(AppRadius.md),
-                ),
+                decoration: BoxDecoration(color: accent.withValues(alpha: 0.13), borderRadius: BorderRadius.circular(AppRadius.md)),
                 alignment: Alignment.center,
                 child: Text(
                   label,
-                  style: AppTypography.titleLarge.copyWith(
-                    color: accent,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTypography.titleLarge.copyWith(color: accent, fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -173,48 +141,32 @@ class _RelatedArticleRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      item.title,
+                      title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.reading(
-                        AppTypography.titleSmall,
-                      ).copyWith(color: colors.onSurface),
+                      style: AppTypography.reading(AppTypography.titleSmall).copyWith(color: colors.onSurface),
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
                       item.summary,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.reading(
-                        AppTypography.bodySmall,
-                      ).copyWith(color: aiNewsDetailSecondaryColor(context)),
+                      style: AppTypography.reading(AppTypography.bodySmall).copyWith(color: aiNewsDetailSecondaryColor(context)),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xxs,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
                 decoration: BoxDecoration(
                   border: Border.all(color: colors.outlineVariant),
                   borderRadius: BorderRadius.circular(AppRadius.xs),
                 ),
-                child: Text(
-                  item.category.label,
-                  style: AppTypography.labelMicro.copyWith(
-                    color: aiNewsDetailMutedColor(context),
-                  ),
-                ),
+                child: Text(item.category.label, style: AppTypography.labelMicro.copyWith(color: aiNewsDetailMutedColor(context))),
               ),
               const SizedBox(width: AppSpacing.xs),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: aiNewsDetailMutedColor(context),
-                size: 18,
-              ),
+              Icon(Icons.chevron_right_rounded, color: aiNewsDetailMutedColor(context), size: 18),
             ],
           ),
         ),

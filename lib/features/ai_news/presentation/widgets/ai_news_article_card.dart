@@ -17,14 +17,7 @@ import 'ai_news_category_style.dart';
 *移动端使用设计稿的缩略图横向资讯卡;桌面端继续保持标题优先的高密度排版。
 */
 class AiNewsArticleCard extends StatelessWidget {
-  const AiNewsArticleCard({
-    required this.item,
-    required this.onTap,
-    this.eventSources = const [],
-    this.isBookmarked = false,
-    this.onBookmarkTap,
-    super.key,
-  });
+  const AiNewsArticleCard({required this.item, required this.onTap, this.eventSources = const [], this.isBookmarked = false, this.onBookmarkTap, super.key});
 
   // 资讯实体。
   final AiNewsItem item;
@@ -44,12 +37,7 @@ class AiNewsArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (Breakpoints.isCompact(context)) {
-      return _CompactArticleCard(
-        item: item,
-        onTap: onTap,
-        isBookmarked: isBookmarked,
-        onBookmarkTap: onBookmarkTap,
-      );
+      return _CompactArticleCard(item: item, onTap: onTap, isBookmarked: isBookmarked, onBookmarkTap: onBookmarkTap);
     }
     return _DesktopArticleCard(item: item, onTap: onTap, eventSources: eventSources);
   }
@@ -104,10 +92,7 @@ class _CompactArticleCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 _CategoryChip(label: item.category.label, color: accent),
                 const Spacer(),
-                Text(
-                  formatRelativeTime(l10n, item.publishedAt),
-                  style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
-                ),
+                Text(formatRelativeTime(l10n, item.publishedAt), style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
                 IconButton(
                   tooltip: l10n.tr(isBookmarked ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
                   onPressed: onBookmarkTap,
@@ -123,7 +108,7 @@ class _CompactArticleCard extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(right: AppSpacing.sm),
               child: Text(
-                item.title,
+                item.titleForLanguage(l10n.locale.languageCode),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: 1.35),
@@ -171,7 +156,10 @@ class _CategoryChip extends StatelessWidget {
         border: Border.all(color: color.withValues(alpha: 0.34)),
         borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
-      child: Text(label, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
+      child: Text(
+        label,
+        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+      ),
     );
   }
 }
@@ -203,7 +191,7 @@ class _DesktopArticleCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            item.title,
+            item.titleForLanguage(l10n.locale.languageCode),
             style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600, height: 1.35),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -220,7 +208,11 @@ class _DesktopArticleCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              Container(width: 6, height: 6, decoration: BoxDecoration(color: accent, shape: BoxShape.circle)),
+              Container(
+                width: 6,
+                height: 6,
+                decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+              ),
               const SizedBox(width: AppSpacing.xs2),
               Flexible(
                 child: Text(
@@ -231,24 +223,15 @@ class _DesktopArticleCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              if (item.selected) ...[
-                const Icon(Icons.star_rounded, size: 13, color: AppColors.starGold),
-                const SizedBox(width: AppSpacing.xxs),
-              ],
+              if (item.selected) ...[const Icon(Icons.star_rounded, size: 13, color: AppColors.starGold), const SizedBox(width: AppSpacing.xxs)],
               if (item.score > 0)
                 Text(
                   '${item.score}',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: item.selected ? AppColors.starGold : colors.onSurfaceVariant,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTypography.labelSmall.copyWith(color: item.selected ? AppColors.starGold : colors.onSurfaceVariant, fontWeight: FontWeight.w700),
                 ),
             ],
           ),
-          if (eventSources.length > 1) ...[
-            const SizedBox(height: AppSpacing.xs2),
-            _EventSources(sources: eventSources),
-          ],
+          if (eventSources.length > 1) ...[const SizedBox(height: AppSpacing.xs2), _EventSources(sources: eventSources)],
         ],
       ),
     );

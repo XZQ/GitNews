@@ -9,48 +9,30 @@ class AiNewsReminderDao {
 
   final DatabaseExecutor _db;
 
-  Future<void> addItems(List<AiNewsItem> items, {required DateTime now}) async {
+  Future<void> addItems(List<AiNewsItem> items, {required DateTime now, String? languageCode}) async {
     try {
       final batch = _db.batch();
       for (final item in items) {
-        batch.insert(
-          'ai_news_reminder',
-          {
-            'item_id': item.id,
-            'title': item.title.isEmpty ? item.titleEn : item.title,
-            'source': item.source,
-            'published_at': item.publishedAt.millisecondsSinceEpoch,
-            'created_at': now.millisecondsSinceEpoch,
-          },
-          conflictAlgorithm: ConflictAlgorithm.ignore,
-        );
+        batch.insert('ai_news_reminder', {
+          'item_id': item.id,
+          'title': item.titleForLanguage(languageCode),
+          'source': item.source,
+          'published_at': item.publishedAt.millisecondsSinceEpoch,
+          'created_at': now.millisecondsSinceEpoch,
+        }, conflictAlgorithm: ConflictAlgorithm.ignore);
       }
       await batch.commit(noResult: true);
     } catch (error, stack) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: error,
-        stack: stack,
-        meta: {'op': 'addAiNewsReminders'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: error, stack: stack, meta: {'op': 'addAiNewsReminders'});
     }
   }
 
   Future<List<AiNewsReminder>> readAll({int limit = 100}) async {
     try {
-      final rows = await _db.query(
-        'ai_news_reminder',
-        orderBy: 'created_at DESC',
-        limit: limit,
-      );
+      final rows = await _db.query('ai_news_reminder', orderBy: 'created_at DESC', limit: limit);
       return rows.map(_fromRow).toList(growable: false);
     } catch (error, stack) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: error,
-        stack: stack,
-        meta: {'op': 'readAiNewsReminders'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: error, stack: stack, meta: {'op': 'readAiNewsReminders'});
     }
   }
 
@@ -62,33 +44,16 @@ class AiNewsReminderDao {
     await _updateRead(where: 'read_at IS NULL', now: now);
   }
 
-  Future<void> _updateRead({
-    required String where,
-    List<Object?>? whereArgs,
-    required DateTime now,
-  }) async {
+  Future<void> _updateRead({required String where, List<Object?>? whereArgs, required DateTime now}) async {
     try {
-      await _db.update(
-        'ai_news_reminder',
-        {'read_at': now.millisecondsSinceEpoch},
-        where: where,
-        whereArgs: whereArgs,
-      );
+      await _db.update('ai_news_reminder', {'read_at': now.millisecondsSinceEpoch}, where: where, whereArgs: whereArgs);
     } catch (error, stack) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: error,
-        stack: stack,
-        meta: {'op': 'readAiNewsReminder'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: error, stack: stack, meta: {'op': 'readAiNewsReminder'});
     }
   }
 
   static AiNewsReminder _fromRow(Map<String, Object?> row) {
-    DateTime time(String key) => DateTime.fromMillisecondsSinceEpoch(
-          row[key] as int,
-          isUtc: true,
-        );
+    DateTime time(String key) => DateTime.fromMillisecondsSinceEpoch(row[key] as int, isUtc: true);
     final readAt = row['read_at'];
     return AiNewsReminder(
       itemId: row['item_id'] as String,

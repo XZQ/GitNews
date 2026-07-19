@@ -6,6 +6,7 @@ import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/features/ai_news/application/ai_news_library_providers.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item_state.dart';
+import 'package:github_news/features/ai_news/presentation/widgets/ai_news_article_card.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_timeline_row.dart';
 import 'package:github_news/shared/widgets/app_card.dart';
 
@@ -35,12 +36,7 @@ void main() {
         overrides: [aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none)],
         child: MaterialApp(
           locale: const Locale('zh', 'CN'),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: Scaffold(
             body: Padding(
@@ -65,5 +61,36 @@ void main() {
     expect(find.text(item.summary), findsOneWidget);
     expect(find.text(item.source), findsOneWidget);
     expect(find.text(item.category.label), findsOneWidget);
+  });
+
+  testWidgets('AI news title follows the English app locale', (tester) async {
+    final item = AiNewsItem(
+      id: 'english-title',
+      category: AiNewsCategory.industry,
+      title: '中文标题',
+      titleEn: 'English title',
+      summary: '',
+      source: 'Source',
+      publishedAt: DateTime(2026, 7, 19),
+      score: 0,
+      selected: false,
+      url: 'https://example.com/article',
+      permalink: 'https://example.com/article',
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        locale: const Locale('en', 'US'),
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Scaffold(
+          body: AiNewsArticleCard(item: item, onTap: () {}),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('English title'), findsOneWidget);
+    expect(find.text('中文标题'), findsNothing);
   });
 }

@@ -88,6 +88,19 @@ class AiNewsItem {
   // 聚合方署名;原文作者和来源仍由 [author]/[source] 表达。
   final String attributionSource;
 
+  /*
+  *按语言返回资讯标题。
+  *中文环境优先 [title],其余语言默认 [titleEn];首选字段为空时回退到另一字段。
+  */
+  String titleForLanguage(String? languageCode) {
+    final chineseTitle = title.trim();
+    final englishTitle = titleEn.trim();
+    if (languageCode?.trim().toLowerCase().startsWith('zh') ?? false) {
+      return chineseTitle.isNotEmpty ? chineseTitle : englishTitle;
+    }
+    return englishTitle.isNotEmpty ? englishTitle : chineseTitle;
+  }
+
   /* 复制条目,用于 REST 主条目吸收 RSS 补充字段。 */
   AiNewsItem copyWith({
     String? id,
@@ -128,12 +141,7 @@ class AiNewsItem {
 *一次拉取的页面结果。
 */
 class AiNewsDigest {
-  const AiNewsDigest({
-    required this.items,
-    required this.count,
-    required this.hasNext,
-    this.nextCursor,
-  });
+  const AiNewsDigest({required this.items, required this.count, required this.hasNext, this.nextCursor});
 
   final List<AiNewsItem> items;
   final int count;

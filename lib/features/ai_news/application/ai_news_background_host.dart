@@ -39,10 +39,7 @@ class _AiNewsBackgroundHostState extends ConsumerState<AiNewsBackgroundHost> wit
     WidgetsBinding.instance.addObserver(this);
     if (DesktopIntegrationService.instance.active) {
       unawaited(_refresh());
-      _timer = Timer.periodic(
-        aiNewsBackgroundRefreshInterval,
-        (_) => _refresh(),
-      );
+      _timer = Timer.periodic(aiNewsBackgroundRefreshInterval, (_) => _refresh());
     }
   }
 
@@ -86,37 +83,25 @@ class _AiNewsBackgroundHostState extends ConsumerState<AiNewsBackgroundHost> wit
       if (items.isEmpty) {
         return;
       }
-      await ref.read(aiNewsCacheDaoProvider).upsertPage(
-            category: null,
-            cursor: null,
-            digest: result.data,
-            now: now,
-          );
+      await ref.read(aiNewsCacheDaoProvider).upsertPage(category: null, cursor: null, digest: result.data, now: now);
       final previous = preferences.getStringList(_seenPreferenceKey) ?? const [];
-      final freshItems = detectNewAiNewsItems(
-        items,
-        seenIds: previous.toSet(),
-        now: now,
-      );
+      final freshItems = detectNewAiNewsItems(items, seenIds: previous.toSet(), now: now);
       // 与历史合并而非整表覆盖:head 页只有几十条,单源临时失败会把
       // 老条目挤出列表;若直接覆盖,源恢复后这些条目会被误判为新条目
       // 而重复提醒。新 id 在前,截断只淘汰最旧的。
-      await preferences.setStringList(
-        _seenPreferenceKey,
-        <String>{...items.map((item) => item.id), ...previous}.take(300).toList(),
-      );
+      await preferences.setStringList(_seenPreferenceKey, <String>{...items.map((item) => item.id), ...previous}.take(300).toList());
       if (previous.isEmpty || freshItems.isEmpty) {
         return;
       }
-      await ref.read(aiNewsReminderDaoProvider).addItems(freshItems, now: now);
+      final languageCode = _resolveLanguageCode(preferences.getString('app_locale'), systemLanguageCode: WidgetsBinding.instance.platformDispatcher.locale.languageCode);
+      await ref.read(aiNewsReminderDaoProvider).addItems(freshItems, now: now, languageCode: languageCode);
       ref
         ..invalidate(aiNewsRemindersProvider)
         ..invalidate(aiNewsItemsNotifierProvider)
         ..invalidate(aiNewsLibrarySourcesProvider);
-      final locale = preferences.getString('app_locale') ?? 'zh_CN';
       await DesktopIntegrationService.instance.showNotification(
-        title: locale == 'en_US' ? 'New AI updates' : 'AI 资讯更新',
-        body: _notificationBody(freshItems, english: locale == 'en_US'),
+        title: languageCode == 'zh' ? 'AI 资讯更新' : 'New AI updates',
+        body: _notificationBody(freshItems, languageCode: languageCode),
       );
     } catch (_) {
       // 后台刷新是增强能力；网络或通知失败不改变前台数据的降级链。
@@ -134,11 +119,7 @@ bool shouldFetchAiHotItems({required String? previousFingerprint, required Strin
   return previousFingerprint == null || previousFingerprint != currentFingerprint;
 }
 
-List<AiNewsItem> detectNewAiNewsItems(
-  List<AiNewsItem> items, {
-  required Set<String> seenIds,
-  required DateTime now,
-}) {
+List<AiNewsItem> detectNewAiNewsItems(List<AiNewsItem> items, {required Set<String> seenIds, required DateTime now}) {
   if (seenIds.isEmpty) {
     return const [];
   }
@@ -149,10 +130,17 @@ List<AiNewsItem> detectNewAiNewsItems(
   ];
 }
 
-String _notificationBody(List<AiNewsItem> items, {required bool english}) {
-  final first = items.first.title.isEmpty ? items.first.titleEn : items.first.title;
+String _notificationBody(List<AiNewsItem> items, {required String languageCode}) {
+  final first = items.first.titleForLanguage(languageCode);
   if (items.length == 1) {
     return first;
   }
-  return english ? '$first and ${items.length - 1} more' : '$first 等 ${items.length} 条';
+  return languageCode == 'zh' ? '$first 等 ${items.length} 条' : '$first and ${items.length - 1} more';
+}
+
+/* 优先使用用户保存的应用语言,未设置时跟随系统;其他语言默认英文。 */
+String _resolveLanguageCode(String? savedLocale, {required String systemLanguageCode}) {
+  final savedLanguageCode = savedLocale?.split(RegExp('[_-]')).first;
+  final languageCode = savedLanguageCode ?? systemLanguageCode;
+  return languageCode.toLowerCase() == 'zh' ? 'zh' : 'en';
 }

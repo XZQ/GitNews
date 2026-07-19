@@ -15,12 +15,7 @@ import 'ai_news_detail_language_switcher.dart';
 *严格按设计稿编排元数据、重标题、双语正文、状态指标和原始来源。
 */
 class AiNewsDetailOverview extends StatelessWidget {
-  const AiNewsDetailOverview({
-    required this.item,
-    this.enrichment,
-    this.onOpenOriginal,
-    super.key,
-  });
+  const AiNewsDetailOverview({required this.item, this.enrichment, this.onOpenOriginal, super.key});
 
   // 当前资讯。
   final AiNewsItem item;
@@ -36,10 +31,7 @@ class AiNewsDetailOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final languageContent = AiNewsDetailLanguageContent.fromItem(
-      item,
-      enrichment: enrichment,
-    );
+    final languageContent = AiNewsDetailLanguageContent.fromItem(item, enrichment: enrichment);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -49,64 +41,31 @@ class AiNewsDetailOverview extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             AiNewsDetailCategoryPill(category: item.category),
-            Text(
-              '${formatAiNewsDetailDate(item.publishedAt)} · ${item.source}',
-              style: AppTypography.mono(
-                AppTypography.bodySmall,
-              ).copyWith(color: aiNewsDetailMutedColor(context)),
-            ),
+            Text('${formatAiNewsDetailDate(item.publishedAt)} · ${item.source}', style: AppTypography.mono(AppTypography.bodySmall).copyWith(color: aiNewsDetailMutedColor(context))),
             if (item.author.trim().isNotEmpty && item.author.trim() != item.source.trim())
-              Text(
-                item.author,
-                style: AppTypography.mono(
-                  AppTypography.bodySmall,
-                ).copyWith(color: aiNewsDetailMutedColor(context)),
-              ),
+              Text(item.author, style: AppTypography.mono(AppTypography.bodySmall).copyWith(color: aiNewsDetailMutedColor(context))),
           ],
         ),
         const SizedBox(height: AppSpacing.md2),
         Text(
-          item.title,
-          style: AppTypography.reading(AppTypography.displayMedium).copyWith(
-            fontSize: 26,
-            fontWeight: FontWeight.w800,
-            height: 1.34,
-            letterSpacing: -0.26,
-            color: colors.onSurface,
-          ),
+          item.titleForLanguage(l10n.locale.languageCode),
+          style: AppTypography.reading(AppTypography.displayMedium).copyWith(fontSize: 26, fontWeight: FontWeight.w800, height: 1.34, letterSpacing: -0.26, color: colors.onSurface),
         ),
         const SizedBox(height: AppSpacing.lg),
         if (languageContent.isEnglishArticle && languageContent.englishOriginal != null)
-          AiNewsDetailLanguageSwitcher(
-            englishOriginal: languageContent.englishOriginal!,
-            chineseTranslation: languageContent.chineseTranslation,
-          )
+          AiNewsDetailLanguageSwitcher(englishOriginal: languageContent.englishOriginal!, chineseTranslation: languageContent.chineseTranslation)
         else
           _SingleLanguageBody(body: item.summary),
         if (item.content.trim().isNotEmpty && item.content.trim() != item.summary.trim()) ...[
           const SizedBox(height: AppSpacing.xl),
-          Text(
-            l10n.tr('ai_news.detail.source_content'),
-            style: AppTypography.reading(
-              AppTypography.labelMicro,
-            ).copyWith(color: aiNewsDetailMutedColor(context)),
-          ),
+          Text(l10n.tr('ai_news.detail.source_content'), style: AppTypography.reading(AppTypography.labelMicro).copyWith(color: aiNewsDetailMutedColor(context))),
           const SizedBox(height: AppSpacing.lg),
           Text(
             item.content,
-            style: AppTypography.reading(AppTypography.bodyLarge).copyWith(
-              fontSize: AppTypography.titleMedium.fontSize,
-              height: 1.9,
-              color: colors.onSurface,
-            ),
+            style: AppTypography.reading(AppTypography.bodyLarge).copyWith(fontSize: AppTypography.titleMedium.fontSize, height: 1.9, color: colors.onSurface),
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            '// ${l10n.tr('ai_news.detail.source_content_note')}',
-            style: AppTypography.reading(
-              AppTypography.labelSmall,
-            ).copyWith(color: aiNewsDetailMutedColor(context)),
-          ),
+          Text('// ${l10n.tr('ai_news.detail.source_content_note')}', style: AppTypography.reading(AppTypography.labelSmall).copyWith(color: aiNewsDetailMutedColor(context))),
         ],
         const SizedBox(height: AppSpacing.lg),
         const Divider(height: 1),
@@ -115,21 +74,9 @@ class AiNewsDetailOverview extends StatelessWidget {
           spacing: AppSpacing.sm2,
           runSpacing: AppSpacing.sm,
           children: [
-            AiNewsDetailMetricPill(
-              icon: Icons.local_fire_department_rounded,
-              label: '${l10n.tr('ai_news.detail_score')} ${item.score}',
-            ),
-            if (item.selected)
-              AiNewsDetailMetricPill(
-                icon: Icons.check_circle_outline_rounded,
-                label: l10n.tr('ai_news.detail_selected'),
-                positive: true,
-              ),
-            if (item.attributionSource.isNotEmpty)
-              AiNewsDetailMetricPill(
-                icon: Icons.verified_outlined,
-                label: item.attributionSource,
-              ),
+            AiNewsDetailMetricPill(icon: Icons.local_fire_department_rounded, label: '${l10n.tr('ai_news.detail_score')} ${item.score}'),
+            if (item.selected) AiNewsDetailMetricPill(icon: Icons.check_circle_outline_rounded, label: l10n.tr('ai_news.detail_selected'), positive: true),
+            if (item.attributionSource.isNotEmpty) AiNewsDetailMetricPill(icon: Icons.verified_outlined, label: item.attributionSource),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
@@ -156,20 +103,11 @@ class _SingleLanguageBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.tr('ai_news.detail.body'),
-          style: AppTypography.reading(
-            AppTypography.labelMicro,
-          ).copyWith(color: aiNewsDetailMutedColor(context)),
-        ),
+        Text(l10n.tr('ai_news.detail.body'), style: AppTypography.reading(AppTypography.labelMicro).copyWith(color: aiNewsDetailMutedColor(context))),
         const SizedBox(height: AppSpacing.lg),
         Text(
           body,
-          style: AppTypography.reading(AppTypography.bodyLarge).copyWith(
-            fontSize: AppTypography.titleMedium.fontSize,
-            height: 1.9,
-            color: colors.onSurface,
-          ),
+          style: AppTypography.reading(AppTypography.bodyLarge).copyWith(fontSize: AppTypography.titleMedium.fontSize, height: 1.9, color: colors.onSurface),
         ),
       ],
     );

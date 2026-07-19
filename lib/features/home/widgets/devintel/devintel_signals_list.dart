@@ -57,7 +57,7 @@ class _SignalTile extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                item.title,
+                item.titleForLanguage(l10n.locale.languageCode),
                 style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
