@@ -37,7 +37,7 @@ class _HomePageState extends ConsumerState<HomePage> {
   }
 
   void _maybeShowOnboarding() {
-    final shouldShow = ref.read(shouldShowOnboardingProvider).valueOrNull;
+    final shouldShow = ref.read(shouldShowOnboardingProvider).value;
     if (shouldShow == true && mounted) {
       showDialog(context: context, barrierDismissible: false, builder: (_) => const OnboardingDialog());
     }
@@ -50,21 +50,16 @@ class _HomePageState extends ConsumerState<HomePage> {
     }
     final isCompact = Breakpoints.isCompact(context);
     return Scaffold(
-        body: Column(children: [
-      // 移动端统一页头(大标题 + 图标动作),替代默认 AppBar。
-      if (isCompact)
-        MobilePageHeader(
-          title: AppLocalizations.of(context).tr('home.title'),
-          actions: const [_HeaderDate()],
-        ),
-      Expanded(
-        child: ResponsiveLayout(
-          compact: (_) => const HomeMobileBody(),
-          medium: (_) => const HomeTabletBody(),
-          expanded: (_) => const SizedBox.shrink(),
-        ),
+      body: Column(
+        children: [
+          // 移动端统一页头(大标题 + 图标动作),替代默认 AppBar。
+          if (isCompact) MobilePageHeader(title: AppLocalizations.of(context).tr('home.title'), actions: const [_HeaderDate()]),
+          Expanded(
+            child: ResponsiveLayout(compact: (_) => const HomeMobileBody(), medium: (_) => const HomeTabletBody(), expanded: (_) => const SizedBox.shrink()),
+          ),
+        ],
       ),
-    ]));
+    );
   }
 }
 
@@ -89,10 +84,7 @@ class _HeaderDate extends StatelessWidget {
     final weekday = _weekdayAbbreviations[now.weekday - 1];
     return Padding(
       padding: const EdgeInsets.only(right: AppSpacing.xs2),
-      child: Text(
-        '$month-$day $weekday',
-        style: AppTypography.monoMeta.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-      ),
+      child: Text('$month-$day $weekday', style: AppTypography.monoMeta.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
     );
   }
 }

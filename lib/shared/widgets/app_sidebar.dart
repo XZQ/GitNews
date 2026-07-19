@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../core/router/app_router.dart';
 import '../../core/theme/app_spacing.dart';
@@ -32,24 +33,26 @@ class AppSidebar extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final width = ref.watch(sidebarWidthProvider);
     return FocusTraversalGroup(
-        child: Material(
-            color: colors.surface,
-            child: SizedBox(
-                width: width,
-                child: Column(children: [
-                  const SidebarHeader(),
-                  const SizedBox(height: AppSpacing.md),
-                  Expanded(
-                      child: ListView(padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs), children: [
-                    for (var i = 0; i < appTabs.length; i++)
-                      SidebarItem(
-                        tab: appTabs[i],
-                        selected: i == currentIndex,
-                        onTap: () => onTap(i),
-                      )
-                  ])),
-                  Divider(height: 1, thickness: 0.5, color: colors.outlineVariant.withValues(alpha: 0.35)),
-                  const SidebarFooter()
-                ]))));
+      child: Material(
+        color: colors.surface,
+        child: SizedBox(
+          width: width,
+          child: Column(
+            children: [
+              const SidebarHeader(),
+              const SizedBox(height: AppSpacing.md),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+                  children: [for (var i = 0; i < appTabs.length; i++) SidebarItem(tab: appTabs[i], selected: i == currentIndex, onTap: () => onTap(i))],
+                ),
+              ),
+              Divider(height: 1, thickness: 0.5, color: colors.outlineVariant.withValues(alpha: 0.35)),
+              const SidebarFooter(),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

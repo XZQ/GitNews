@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/di/providers.dart';
@@ -22,27 +23,12 @@ class _FakeTrendingDataSource implements TrendingDataSource {
 
   @override
   Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
-    return const TrendingDataSnapshot(
-      trendingRepos: [],
-      recentRepos: [],
-      languages: [],
-      primaryTrend: [],
-      secondaryTrend: [],
-      tertiaryTrend: [],
-    );
+    return const TrendingDataSnapshot(trendingRepos: [], recentRepos: [], languages: [], primaryTrend: [], secondaryTrend: [], tertiaryTrend: []);
   }
 }
 
 RepoEntity _repo(String fullName, {String description = 'A useful project', String language = 'Dart'}) {
-  return RepoEntity(
-    fullName: fullName,
-    description: description,
-    language: language,
-    starCount: 1000,
-    starDelta: 120,
-    forkCount: 40,
-    accentArgb: 0xFF00A389,
-  );
+  return RepoEntity(fullName: fullName, description: description, language: language, starCount: 1000, starDelta: 120, forkCount: 40, accentArgb: 0xFF00A389);
 }
 
 void main() {
@@ -90,15 +76,9 @@ void main() {
       final repo = _MockTrendingRepository();
       when(() => repo.getDigest(query: any(named: 'query'))).thenAnswer(
         (_) async => const DataResult(
-            freshness: DataFreshness.live,
-            data: TrendingDigest(
-              trendingRepos: [],
-              recentRepos: [],
-              languages: [],
-              primaryTrend: [],
-              secondaryTrend: [],
-              tertiaryTrend: [],
-            )),
+          freshness: DataFreshness.live,
+          data: TrendingDigest(trendingRepos: [], recentRepos: [], languages: [], primaryTrend: [], secondaryTrend: [], tertiaryTrend: []),
+        ),
       );
 
       final container = ProviderContainer(overrides: [trendingRepositoryProvider.overrideWithValue(repo)]);
@@ -116,15 +96,9 @@ void main() {
       when(() => repo.getDigest(query: any(named: 'query'))).thenAnswer((invocation) async {
         capturedQuery = invocation.namedArguments[#query] as TrendingQuery;
         return const DataResult(
-            freshness: DataFreshness.live,
-            data: TrendingDigest(
-              trendingRepos: [],
-              recentRepos: [],
-              languages: [],
-              primaryTrend: [],
-              secondaryTrend: [],
-              tertiaryTrend: [],
-            ));
+          freshness: DataFreshness.live,
+          data: TrendingDigest(trendingRepos: [], recentRepos: [], languages: [], primaryTrend: [], secondaryTrend: [], tertiaryTrend: []),
+        );
       });
 
       final container = ProviderContainer(overrides: [trendingRepositoryProvider.overrideWithValue(repo)]);
@@ -165,18 +139,7 @@ void main() {
     });
 
     test('filterTrendingRepos should match repo name description and language', () {
-      final repos = [
-        _repo(
-          'openai/codex',
-          description: 'AI coding agent',
-          language: 'TypeScript',
-        ),
-        _repo(
-          'modelcontextprotocol/servers',
-          description: 'MCP reference servers',
-          language: 'Python',
-        )
-      ];
+      final repos = [_repo('openai/codex', description: 'AI coding agent', language: 'TypeScript'), _repo('modelcontextprotocol/servers', description: 'MCP reference servers', language: 'Python')];
 
       expect(filterTrendingRepos(repos, '').length, 2);
       expect(filterTrendingRepos(repos, 'codex'), [repos.first]);
@@ -191,7 +154,10 @@ void main() {
         (_) async => DataResult(
           freshness: DataFreshness.live,
           data: TrendingDigest(
-            trendingRepos: [_repo('openai/codex', language: 'TypeScript'), _repo('google/gemini-cli', language: 'Go')],
+            trendingRepos: [
+              _repo('openai/codex', language: 'TypeScript'),
+              _repo('google/gemini-cli', language: 'Go'),
+            ],
             recentRepos: [_repo('modelcontextprotocol/servers', language: 'Python')],
             languages: const [],
             primaryTrend: const [],

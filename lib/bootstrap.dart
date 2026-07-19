@@ -11,6 +11,7 @@ import 'app.dart';
 import 'core/auth/auth_models.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/supabase_auth_repository.dart';
+import 'core/di/provider_retry_policy.dart';
 import 'core/di/providers.dart';
 import 'core/i18n/app_localizations.dart';
 import 'core/storage/cache_meta_dao.dart';
@@ -27,14 +28,9 @@ typedef DataDirectoryOpener = Future<bool> Function();
 typedef BootstrapSuccessBuilder = Widget Function(BootstrapResult result);
 
 class BootstrapResult {
-  const BootstrapResult.success(this.preferences, this.database, [this.authRepository = const UnconfiguredAuthRepository()])
-      : error = null,
-        stackTrace = null;
+  const BootstrapResult.success(this.preferences, this.database, [this.authRepository = const UnconfiguredAuthRepository()]) : error = null, stackTrace = null;
 
-  const BootstrapResult.failure(this.error, this.stackTrace)
-      : preferences = null,
-        database = null,
-        authRepository = const UnconfiguredAuthRepository();
+  const BootstrapResult.failure(this.error, this.stackTrace) : preferences = null, database = null, authRepository = const UnconfiguredAuthRepository();
 
   final SharedPreferences? preferences;
   final LocalDatabase? database;
@@ -114,6 +110,7 @@ class _BootstrapAppState extends State<BootstrapApp> {
             return successBuilder(result!);
           }
           return ProviderScope(
+            retry: noProviderRetry,
             overrides: [
               sharedPreferencesProvider.overrideWithValue(result!.preferences!),
               appDatabaseProvider.overrideWithValue(result.database!),

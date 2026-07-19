@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/ai_hot/ai_hot_api_support.dart';
 import '../../../core/ai_hot/ai_hot_resource_cache.dart';
@@ -28,21 +29,11 @@ import '../domain/ai_news_repository.dart';
 // `aiNewsDioProvider(AiNewsApiClient.baseUrl).overrideWithValue(mockDio)`
 // 注入带 mock adapter 的 Dio。
 final aiNewsDioProvider = Provider.family<Dio, String>(
-  (ref, baseUrl) => DioClient.create(
-    baseUrl: baseUrl,
-    headers: const {
-      'Accept': AiHotApiSupport.jsonAccept,
-      'User-Agent': AiHotApiSupport.userAgent,
-    },
-  ),
+  (ref, baseUrl) => DioClient.create(baseUrl: baseUrl, headers: const {'Accept': AiHotApiSupport.jsonAccept, 'User-Agent': AiHotApiSupport.userAgent}),
 );
 
 final aiHotResourceCacheProvider = Provider<AiHotResourceCache>(
-  (ref) => AiHotResourceCache(
-    dio: ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl)),
-    cache: ref.watch(jsonSnapshotCacheDaoProvider),
-    now: ref.watch(clockProvider),
-  ),
+  (ref) => AiHotResourceCache(dio: ref.watch(aiNewsDioProvider(AiNewsApiClient.baseUrl)), cache: ref.watch(jsonSnapshotCacheDaoProvider), now: ref.watch(clockProvider)),
 );
 
 final aiNewsApiClientProvider = Provider<AiNewsApiClient>((ref) => AiNewsApiClient(ref.watch(aiHotResourceCacheProvider)));
@@ -109,7 +100,7 @@ List<AiNewsItem> filterAiNewsItems(List<AiNewsItem> items, String query) {
 
   return [
     for (final item in items)
-      if (_aiNewsSearchText(item).contains(keyword)) item
+      if (_aiNewsSearchText(item).contains(keyword)) item,
   ];
 }
 
@@ -157,11 +148,7 @@ final aiNewsRelatedItemsProvider = FutureProvider.autoDispose.family<List<AiNews
 });
 
 /* 按同分类、热度和发布时间选择详情页相关推荐。 */
-List<AiNewsItem> selectRelatedAiNewsItems(
-  List<AiNewsItem> items, {
-  required AiNewsItem current,
-  int limit = 3,
-}) {
+List<AiNewsItem> selectRelatedAiNewsItems(List<AiNewsItem> items, {required AiNewsItem current, int limit = 3}) {
   final candidates = items.where((item) => item.id != current.id).toList();
   candidates.sort((left, right) {
     final leftCategoryRank = left.category == current.category ? 0 : 1;
@@ -184,7 +171,7 @@ List<AiNewsItem> selectRelatedAiNewsItems(
 // 让用户清楚当前看到的是实时、缓存还是种子兜底数据。
 final aiNewsFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.live);
 
-class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
+class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
   List<AiNewsItem> _buffer = const [];
   String? _nextCursor;
   bool _hasApiMore = true;
@@ -210,7 +197,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
 
     // Phase A:优先读缓存,瞬间出列表
     final cached = await dao.readAll(category: _category);
-    if (gen != _generation) {
+    if (!ref.mounted || gen != _generation) {
       return const [];
     }
     if (cached.isNotEmpty) {
@@ -222,13 +209,8 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     }
 
     // Phase B:缓存仍新鲜就不发请求,否则后台静默刷新
-    final fresh = await dao.isFresh(
-      category: _category,
-      cursor: null,
-      ttl: aiNewsCacheTtl,
-      now: now,
-    );
-    if (gen != _generation) {
+    final fresh = await dao.isFresh(category: _category, cursor: null, ttl: aiNewsCacheTtl, now: now);
+    if (!ref.mounted || gen != _generation) {
       return const [];
     }
     if (fresh) {
@@ -238,7 +220,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     }
 
     await _fetchNextPage(generation: gen);
-    if (gen != _generation) {
+    if (!ref.mounted || gen != _generation) {
       return const [];
     }
     return _currentSlice();
@@ -254,7 +236,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     if (state.hasError) {
       return;
     }
-    final shown = state.valueOrNull?.length ?? 0;
+    final shown = state.value?.length ?? 0;
     if (shown < _buffer.length) {
       final nextEnd = (shown + aiNewsPageSize).clamp(0, _buffer.length);
       if (nextEnd > shown) {
@@ -265,10 +247,13 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     if (_fetching) {
       return;
     }
-    while (_hasApiMore && (state.valueOrNull?.length ?? 0) >= _buffer.length) {
+    while (_hasApiMore && (state.value?.length ?? 0) >= _buffer.length) {
       final previousCursor = _nextCursor;
       final previousBufferLength = _buffer.length;
       await _fetchNextPage();
+      if (!ref.mounted) {
+        return;
+      }
       if (_buffer.length > previousBufferLength || !_hasApiMore) {
         break;
       }
@@ -277,12 +262,12 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
         break;
       }
     }
-    final newShown = state.valueOrNull?.length ?? 0;
+    final newShown = state.value?.length ?? 0;
     final nextEnd = (newShown + aiNewsPageSize).clamp(0, _buffer.length);
     if (nextEnd > newShown) {
       state = AsyncData(_buffer.sublist(0, nextEnd));
     } else if (!_hasApiMore) {
-      state = AsyncData(List<AiNewsItem>.of(state.valueOrNull ?? const []));
+      state = AsyncData(List<AiNewsItem>.of(state.value ?? const []));
     }
   }
 
@@ -290,7 +275,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
   *是否还有更多条目可加载(供 UI 决定是否显示底部 loader / 「没有更多」)。
   */
   bool get hasMore {
-    final shown = state.valueOrNull?.length ?? 0;
+    final shown = state.value?.length ?? 0;
     return shown < _buffer.length || _hasApiMore;
   }
 
@@ -298,7 +283,7 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
 
   Future<void> _fetchNextPage({int? generation}) async {
     final gen = generation ?? _generation;
-    if (_fetching && gen == _generation) {
+    if (!ref.mounted || (_fetching && gen == _generation)) {
       return;
     }
     _fetching = true;
@@ -308,13 +293,9 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
     final requestCursor = _nextCursor;
     final isHead = requestCursor == null;
     try {
-      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(
-            category: _category,
-            cursor: requestCursor,
-            selectedOnly: true,
-          );
+      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: requestCursor, selectedOnly: true);
       final digest = result.data;
-      if (gen != _generation) {
+      if (!ref.mounted || gen != _generation) {
         return;
       }
       _buffer = _mergeUnique(isHead ? [...digest.items, ..._buffer] : [..._buffer, ...digest.items]);
@@ -333,12 +314,12 @@ class AiNewsItemsNotifier extends AutoDisposeAsyncNotifier<List<AiNewsItem>> {
         now: now,
       );
     } catch (e) {
-      if (gen != _generation) {
+      if (!ref.mounted || gen != _generation) {
         return;
       }
       _fetching = false;
       // 后台刷新失败容忍:已有缓存数据就不报错,标记为陈旧缓存兜底
-      if (state.valueOrNull != null) {
+      if (state.value != null) {
         freshness.state = DataFreshness.staleCache;
         return;
       }

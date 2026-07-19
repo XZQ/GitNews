@@ -5,22 +5,16 @@ import '../data/ai_news_reminder_dao.dart';
 import '../domain/ai_news_reminder.dart';
 import 'ai_news_providers.dart';
 
-final aiNewsReminderDaoProvider = Provider<AiNewsReminderDao>(
-  (ref) => AiNewsReminderDao(ref.watch(appDatabaseProvider).executor),
-);
+final aiNewsReminderDaoProvider = Provider<AiNewsReminderDao>((ref) => AiNewsReminderDao(ref.watch(appDatabaseProvider).executor));
 
-final aiNewsRemindersProvider = FutureProvider<List<AiNewsReminder>>(
-  (ref) => ref.watch(aiNewsReminderDaoProvider).readAll(),
-);
+final aiNewsRemindersProvider = FutureProvider<List<AiNewsReminder>>((ref) => ref.watch(aiNewsReminderDaoProvider).readAll());
 
 final aiNewsUnreadReminderCountProvider = Provider<int>((ref) {
-  final reminders = ref.watch(aiNewsRemindersProvider).valueOrNull ?? const [];
+  final reminders = ref.watch(aiNewsRemindersProvider).value ?? const [];
   return reminders.where((reminder) => !reminder.isRead).length;
 });
 
-final aiNewsReminderControllerProvider = Provider<AiNewsReminderController>(
-  AiNewsReminderController.new,
-);
+final aiNewsReminderControllerProvider = Provider<AiNewsReminderController>(AiNewsReminderController.new);
 
 class AiNewsReminderController {
   const AiNewsReminderController(this._ref);

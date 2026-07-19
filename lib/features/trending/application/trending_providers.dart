@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/di/providers.dart';
@@ -50,7 +51,10 @@ final trendingClockProvider = Provider<DateTime Function()>((ref) {
 
 final trendingDataSourceProvider = Provider<TrendingDataSource>((ref) {
   final mode = ref.watch(trendingDataSourceModeControllerProvider);
-  return switch (mode) { TrendingDataSourceMode.local => const LocalTrendingDataSource(), TrendingDataSourceMode.github => ref.watch(githubTrendingDataSourceProvider) };
+  return switch (mode) {
+    TrendingDataSourceMode.local => const LocalTrendingDataSource(),
+    TrendingDataSourceMode.github => ref.watch(githubTrendingDataSourceProvider),
+  };
 });
 
 final trendingCacheDaoProvider = Provider<TrendingCacheDao>((ref) {
@@ -140,7 +144,7 @@ List<RepoEntity> filterTrendingRepos(List<RepoEntity> repos, String query) {
 
   return [
     for (final repo in repos)
-      if (_repoSearchText(repo).contains(keyword)) repo
+      if (_repoSearchText(repo).contains(keyword)) repo,
   ];
 }
 

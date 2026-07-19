@@ -14,12 +14,7 @@ class _FakeRepo implements DiscoverRepository {
   final Map<String, DiscoverProfileEntity> _detail = {};
 
   @override
-  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
-    required DiscoverProfileKind kind,
-    bool force = false,
-    int page = 1,
-    int perPage = 20,
-  }) async {
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({required DiscoverProfileKind kind, bool force = false, int page = 1, int perPage = 20}) async {
     final List<DiscoverProfileEntity> data;
     if (page == 1) {
       final whitelist = [
@@ -36,7 +31,7 @@ class _FakeRepo implements DiscoverRepository {
             featuredRepoFullName: 'wl-$i/repo',
             kind: kind,
             enriched: true,
-          )
+          ),
       ];
       final search = [
         for (var i = 0; i < searchPageSize; i++)
@@ -52,7 +47,7 @@ class _FakeRepo implements DiscoverRepository {
             featuredRepoFullName: 'search-${page}_$i/repo',
             kind: kind,
             enriched: false,
-          )
+          ),
       ];
       data = [...whitelist, ...search];
     } else {
@@ -70,7 +65,7 @@ class _FakeRepo implements DiscoverRepository {
             featuredRepoFullName: 'search-${page}_$i/repo',
             kind: kind,
             enriched: false,
-          )
+          ),
       ];
     }
     return DataResult(data: data, freshness: DataFreshness.live);
@@ -113,6 +108,8 @@ void main() {
     final repo = _FakeRepo();
     final container = ProviderContainer(overrides: [discoverRepositoryProvider.overrideWithValue(repo)]);
     addTearDown(container.dispose);
+    final sub = container.listen(officialProfilesNotifierProvider, (previous, next) {});
+    addTearDown(sub.close);
 
     final first = await container.read(officialProfilesNotifierProvider.future);
     expect(first.length, 8 + 20);
@@ -125,11 +122,13 @@ void main() {
     final repo = _FakeRepo(searchPageSize: 20);
     final container = ProviderContainer(overrides: [discoverRepositoryProvider.overrideWithValue(repo)]);
     addTearDown(container.dispose);
+    final sub = container.listen(officialProfilesNotifierProvider, (previous, next) {});
+    addTearDown(sub.close);
 
     await container.read(officialProfilesNotifierProvider.future);
     await container.read(officialProfilesNotifierProvider.notifier).loadMore();
 
-    final list = container.read(officialProfilesNotifierProvider).valueOrNull!;
+    final list = container.read(officialProfilesNotifierProvider).value!;
     expect(list.length, 8 + 20 + 20);
   });
 
@@ -137,11 +136,13 @@ void main() {
     final repo = _FakeRepo();
     final container = ProviderContainer(overrides: [discoverRepositoryProvider.overrideWithValue(repo)]);
     addTearDown(container.dispose);
+    final sub = container.listen(officialProfilesNotifierProvider, (previous, next) {});
+    addTearDown(sub.close);
 
     await container.read(officialProfilesNotifierProvider.future);
     await container.read(officialProfilesNotifierProvider.notifier).enrichOne('search-1_0');
 
-    final list = container.read(officialProfilesNotifierProvider).valueOrNull!;
+    final list = container.read(officialProfilesNotifierProvider).value!;
     final target = list.firstWhere((p) => p.login == 'search-1_0');
     expect(target.enriched, isTrue);
     expect(target.bio, 'enriched-bio');

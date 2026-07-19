@@ -31,15 +31,15 @@ class AiNewsDetailPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemDetailProvider(id));
-    final relatedItems = ref.watch(aiNewsRelatedItemsProvider(id)).valueOrNull ?? const <AiNewsItem>[];
+    final relatedItems = ref.watch(aiNewsRelatedItemsProvider(id)).value ?? const <AiNewsItem>[];
     final isCompact = MediaQuery.sizeOf(context).width < 600;
     ref.listen(aiNewsItemDetailProvider(id), (previous, next) {
-      final item = next.valueOrNull;
-      if (item != null && previous?.valueOrNull?.id != item.id) {
+      final item = next.value;
+      if (item != null && previous?.value?.id != item.id) {
         ref.read(aiNewsLibraryControllerProvider).markRead(item);
       }
     });
-    final item = async.valueOrNull;
+    final item = async.value;
     final theme = Theme.of(context);
     final scaffold = SecondaryPageScaffold(
       title: l10n.tr('ai_news.detail_title'),
@@ -54,19 +54,11 @@ class AiNewsDetailPage extends ConsumerWidget {
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: _DetailMenuAction.copyLink,
-                child: ListTile(
-                  leading: const Icon(Icons.link_rounded),
-                  title: Text(l10n.tr('webview.copy_link')),
-                  contentPadding: EdgeInsets.zero,
-                ),
+                child: ListTile(leading: const Icon(Icons.link_rounded), title: Text(l10n.tr('webview.copy_link')), contentPadding: EdgeInsets.zero),
               ),
               PopupMenuItem(
                 value: _DetailMenuAction.openOriginal,
-                child: ListTile(
-                  leading: const Icon(Icons.open_in_browser_rounded),
-                  title: Text(l10n.tr('webview.open_in_browser')),
-                  contentPadding: EdgeInsets.zero,
-                ),
+                child: ListTile(leading: const Icon(Icons.open_in_browser_rounded), title: Text(l10n.tr('webview.open_in_browser')), contentPadding: EdgeInsets.zero),
               ),
             ],
           ),
@@ -75,58 +67,38 @@ class AiNewsDetailPage extends ConsumerWidget {
         data: (value) => value == null
             ? const _AiNewsDetailMissing()
             : isCompact
-                ? AiNewsDetailContent(
-                    item: value,
-                    relatedItems: relatedItems,
-                    onOpenOriginal: () => _openOriginal(context, value),
-                    onOpenRelated: (related) => context.pushNamed(
-                      'ai_news_detail',
-                      pathParameters: {'id': related.id},
+            ? AiNewsDetailContent(
+                item: value,
+                relatedItems: relatedItems,
+                onOpenOriginal: () => _openOriginal(context, value),
+                onOpenRelated: (related) => context.pushNamed('ai_news_detail', pathParameters: {'id': related.id}),
+                onViewMore: () => context.go('/ai_news'),
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    child: AiNewsDetailContent(
+                      item: value,
+                      relatedItems: relatedItems,
+                      onOpenOriginal: () => _openOriginal(context, value),
+                      onOpenRelated: (related) => context.pushNamed('ai_news_detail', pathParameters: {'id': related.id}),
+                      onViewMore: () => context.go('/ai_news'),
                     ),
-                    onViewMore: () => context.go('/ai_news'),
-                  )
-                : Column(
-                    children: [
-                      Expanded(
-                        child: AiNewsDetailContent(
-                          item: value,
-                          relatedItems: relatedItems,
-                          onOpenOriginal: () => _openOriginal(context, value),
-                          onOpenRelated: (related) => context.pushNamed(
-                            'ai_news_detail',
-                            pathParameters: {'id': related.id},
-                          ),
-                          onViewMore: () => context.go('/ai_news'),
-                        ),
-                      ),
-                      AiNewsDetailActionBar(
-                        item: value,
-                        compact: false,
-                        onShare: () => _copyLink(context, value, sharing: true),
-                      ),
-                    ],
                   ),
+                  AiNewsDetailActionBar(item: value, compact: false, onShare: () => _copyLink(context, value, sharing: true)),
+                ],
+              ),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => ErrorView(
-          error: error.asAppException(),
-          onRetry: () => ref.invalidate(aiNewsItemDetailProvider(id)),
-        ),
+        error: (error, _) => ErrorView(error: error.asAppException(), onRetry: () => ref.invalidate(aiNewsItemDetailProvider(id))),
       ),
-      bottomNavigationBar: !isCompact || item == null
-          ? null
-          : AiNewsDetailActionBar(
-              item: item,
-              onShare: () => _copyLink(context, item, sharing: true),
-            ),
+      bottomNavigationBar: !isCompact || item == null ? null : AiNewsDetailActionBar(item: item, onShare: () => _copyLink(context, item, sharing: true)),
     );
     return Theme(
       data: theme.copyWith(
         appBarTheme: theme.appBarTheme.copyWith(
           backgroundColor: theme.colorScheme.surface,
           centerTitle: true,
-          shape: Border(
-            bottom: BorderSide(color: theme.colorScheme.outlineVariant),
-          ),
+          shape: Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant)),
         ),
       ),
       child: scaffold,
@@ -134,11 +106,7 @@ class AiNewsDetailPage extends ConsumerWidget {
   }
 
   /* 处理顶部更多菜单。 */
-  Future<void> _handleMenuAction(
-    BuildContext context,
-    AiNewsItem item,
-    _DetailMenuAction action,
-  ) async {
+  Future<void> _handleMenuAction(BuildContext context, AiNewsItem item, _DetailMenuAction action) async {
     switch (action) {
       case _DetailMenuAction.copyLink:
         await _copyLink(context, item);
@@ -150,24 +118,14 @@ class AiNewsDetailPage extends ConsumerWidget {
   }
 
   /* 复制原文链接并显示反馈。 */
-  Future<void> _copyLink(
-    BuildContext context,
-    AiNewsItem item, {
-    bool sharing = false,
-  }) async {
+  Future<void> _copyLink(BuildContext context, AiNewsItem item, {bool sharing = false}) async {
     final link = item.url.isNotEmpty ? item.url : item.permalink;
     await Clipboard.setData(ClipboardData(text: link));
     if (!context.mounted) {
       return;
     }
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          l10n.tr(sharing ? 'ai_news.detail.link_copied' : 'webview.copied'),
-        ),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr(sharing ? 'ai_news.detail.link_copied' : 'webview.copied'))));
   }
 
   /* 在系统浏览器中打开原文。 */
@@ -180,9 +138,7 @@ class AiNewsDetailPage extends ConsumerWidget {
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
     if (!opened && context.mounted) {
       final l10n = AppLocalizations.of(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));
     }
   }
 }
@@ -208,9 +164,6 @@ class _AiNewsDetailMissing extends StatelessWidget {
   /* 构建缓存缺失说明。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return EmptyView(
-      icon: Icons.article_outlined,
-      message: l10n.tr('ai_news.detail_missing'),
-    );
+    return EmptyView(icon: Icons.article_outlined, message: l10n.tr('ai_news.detail_missing'));
   }
 }

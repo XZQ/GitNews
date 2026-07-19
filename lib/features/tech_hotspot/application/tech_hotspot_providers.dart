@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/data_freshness.dart';
@@ -64,15 +65,10 @@ TechHotspotDigest filterTechHotspotDigest(TechHotspotDigest digest, String query
       ? digest.topics
       : [
           for (final topic in digest.topics)
-            if (topic.category.toLowerCase() == categoryKey) topic
+            if (topic.category.toLowerCase() == categoryKey) topic,
         ];
   if (keyword.isEmpty) {
-    return TechHotspotDigest(
-      languages: digest.languages,
-      topics: categoryTopics,
-      heatTrend: digest.heatTrend,
-      hotTags: digest.hotTags,
-    );
+    return TechHotspotDigest(languages: digest.languages, topics: categoryTopics, heatTrend: digest.heatTrend, hotTags: digest.hotTags);
   }
 
   return TechHotspotDigest(
@@ -81,7 +77,7 @@ TechHotspotDigest filterTechHotspotDigest(TechHotspotDigest digest, String query
     heatTrend: digest.heatTrend,
     hotTags: [
       for (final tag in digest.hotTags)
-        if (tag.toLowerCase().contains(keyword)) tag
+        if (tag.toLowerCase().contains(keyword)) tag,
     ],
   );
 }
@@ -94,7 +90,7 @@ List<TechTopic> filterTechTopics(List<TechTopic> topics, String query) {
 
   return [
     for (final topic in topics)
-      if (_topicSearchText(topic).contains(keyword)) topic
+      if (_topicSearchText(topic).contains(keyword)) topic,
   ];
 }
 

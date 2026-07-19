@@ -42,7 +42,7 @@ class _HomeMobileTrendingOverviewState extends ConsumerState<HomeMobileTrendingO
     final homeState = ref.watch(trendingHomeDigestProvider);
     final starState = ref.watch(trendingDigestProvider);
     final selectedWindow = ref.watch(trendingWindowFilterProvider);
-    final currentDigest = starState.valueOrNull;
+    final currentDigest = starState.value;
     if (currentDigest != null) {
       _starDigestCache[selectedWindow] = currentDigest;
       _lastStarDigest = currentDigest;
@@ -77,11 +77,7 @@ class _HomeMobileTrendingOverviewState extends ConsumerState<HomeMobileTrendingO
                   right: AppSpacing.lg,
                   child: ClipRRect(
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
-                    child: LinearProgressIndicator(
-                      minHeight: 2,
-                      backgroundColor: Colors.transparent,
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7),
-                    ),
+                    child: LinearProgressIndicator(minHeight: 2, backgroundColor: Colors.transparent, color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.7)),
                   ),
                 ),
             ],
@@ -158,40 +154,30 @@ class _StarGrowthSection extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              TrendingWindowSegmented(
-                value: window,
-                dense: true,
-                onChanged: (value) => ref.read(trendingWindowFilterProvider.notifier).state = value,
-              ),
+              TrendingWindowSegmented(value: window, dense: true, onChanged: (value) => ref.read(trendingWindowFilterProvider.notifier).state = value),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            l10n.tr('trending.mobile.tracking_subtitle').replaceAll('{window}', windowLabel),
-            style: AppTypography.monoMeta.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
+          Text(l10n.tr('trending.mobile.tracking_subtitle').replaceAll('{window}', windowLabel), style: AppTypography.monoMeta.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           const SizedBox(height: AppSpacing.sm),
           if (repos.isNotEmpty)
             Row(
               children: [
-                Expanded(child: _ChartLegend(repo: repos.first, color: Theme.of(context).colorScheme.primary)),
-                if (repos.length > 1) Expanded(child: _ChartLegend(repo: repos[1], color: AppColors.info, alignEnd: true)),
+                Expanded(
+                  child: _ChartLegend(repo: repos.first, color: Theme.of(context).colorScheme.primary),
+                ),
+                if (repos.length > 1)
+                  Expanded(
+                    child: _ChartLegend(repo: repos[1], color: AppColors.info, alignEnd: true),
+                  ),
               ],
             ),
           const SizedBox(height: AppSpacing.sm),
           RepaintBoundary(
             child: StarTrendChart(
               series: [
-                ChartSeries(
-                  values: primaryTrend,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                ChartSeries(
-                  values: secondaryTrend,
-                  color: AppColors.info,
-                ),
+                ChartSeries(values: primaryTrend, color: Theme.of(context).colorScheme.primary),
+                ChartSeries(values: secondaryTrend, color: AppColors.info),
               ],
               height: 170,
               showGrid: false,
@@ -253,8 +239,18 @@ class _HotReposCard extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: Text(title, style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700))),
-            Text(meta, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
+            Expanded(
+              child: Text(
+                title,
+                style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+              ),
+            ),
+            Text(
+              meta,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
+            ),
           ],
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -266,11 +262,7 @@ class _HotReposCard extends StatelessWidget {
                   children: [
                     for (var index = 0; index < repos.length; index++) ...[
                       if (index != 0) Divider(height: 1, indent: AppSpacing.lg, endIndent: AppSpacing.lg, color: colors.outlineVariant),
-                      _HotRepoRow(
-                        repo: repos[index],
-                        rank: index + 1,
-                        onTap: () => context.push('/trending/detail/${Uri.encodeComponent(repos[index].fullName)}'),
-                      ),
+                      _HotRepoRow(repo: repos[index], rank: index + 1, onTap: () => context.push('/trending/detail/${Uri.encodeComponent(repos[index].fullName)}')),
                     ],
                   ],
                 ),
@@ -305,7 +297,10 @@ class _HotRepoRow extends StatelessWidget {
           children: [
             SizedBox(
               width: AppSpacing.lg,
-              child: Text('$rank', style: AppTypography.monoMeta.copyWith(color: rank == 1 ? AppColors.warning : colors.onSurfaceVariant, fontWeight: FontWeight.w700)),
+              child: Text(
+                '$rank',
+                style: AppTypography.monoMeta.copyWith(color: rank == 1 ? AppColors.warning : colors.onSurfaceVariant, fontWeight: FontWeight.w700),
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Container(
@@ -313,20 +308,39 @@ class _HotRepoRow extends StatelessWidget {
               height: AppSpacing.xxl,
               decoration: BoxDecoration(color: accent.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(AppRadius.md)),
               alignment: Alignment.center,
-              child: Text(initial, style: AppTypography.titleSmall.copyWith(color: accent, fontWeight: FontWeight.w800)),
+              child: Text(
+                initial,
+                style: AppTypography.titleSmall.copyWith(color: accent, fontWeight: FontWeight.w800),
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(repo.fullName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.monoTitle.copyWith(color: colors.onSurface)),
+                  Text(
+                    repo.fullName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.monoTitle.copyWith(color: colors.onSurface),
+                  ),
                   const SizedBox(height: AppSpacing.xxs),
                   Row(
                     children: [
-                      Container(width: AppSpacing.xs2, height: AppSpacing.xs2, decoration: BoxDecoration(color: accent, shape: BoxShape.circle)),
+                      Container(
+                        width: AppSpacing.xs2,
+                        height: AppSpacing.xs2,
+                        decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                      ),
                       const SizedBox(width: AppSpacing.xs2),
-                      Flexible(child: Text(repo.language, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant))),
+                      Flexible(
+                        child: Text(
+                          repo.language,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
+                        ),
+                      ),
                       const SizedBox(width: AppSpacing.sm),
                       const Icon(Icons.star_rounded, size: 13, color: AppColors.starGold),
                       const SizedBox(width: AppSpacing.xxs),
@@ -337,10 +351,7 @@ class _HotRepoRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            Text(
-              '${repo.starDelta > 0 ? '+' : ''}${_shortNumber(repo.starDelta)}',
-              style: AppTypography.monoMetric.copyWith(color: repo.starDelta >= 0 ? AppColors.trendUp : AppColors.trendDown),
-            ),
+            Text('${repo.starDelta > 0 ? '+' : ''}${_shortNumber(repo.starDelta)}', style: AppTypography.monoMetric.copyWith(color: repo.starDelta >= 0 ? AppColors.trendUp : AppColors.trendDown)),
           ],
         ),
       ),
@@ -362,7 +373,11 @@ class _ChartLegend extends StatelessWidget {
     return Row(
       mainAxisAlignment: alignEnd ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
-        Container(width: AppSpacing.sm, height: AppSpacing.sm, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        Container(
+          width: AppSpacing.sm,
+          height: AppSpacing.sm,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
         const SizedBox(width: AppSpacing.sm),
         Flexible(
           child: Text(

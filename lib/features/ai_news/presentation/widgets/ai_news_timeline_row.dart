@@ -19,14 +19,7 @@ import 'ai_news_article_card.dart';
 *保持原 API(item/onTap/eventSources)不变,调用方零改动。
 */
 class AiNewsTimelineRow extends ConsumerWidget {
-  const AiNewsTimelineRow({
-    required this.item,
-    required this.onTap,
-    this.eventSources = const [],
-    this.isFirstInGroup = false,
-    this.isLastInGroup = false,
-    super.key,
-  });
+  const AiNewsTimelineRow({required this.item, required this.onTap, this.eventSources = const [], this.isFirstInGroup = false, this.isLastInGroup = false, super.key});
 
   final AiNewsItem item;
   final VoidCallback onTap;
@@ -40,16 +33,13 @@ class AiNewsTimelineRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isBookmarked = ref.watch(aiNewsItemStateProvider(item.id)).valueOrNull?.isReadLater ?? false;
-    final card = AiNewsArticleCard(
-      item: item,
-      onTap: onTap,
-      eventSources: eventSources,
-      isBookmarked: isBookmarked,
-      onBookmarkTap: () => _toggleBookmark(context, ref),
-    );
+    final isBookmarked = ref.watch(aiNewsItemStateProvider(item.id)).value?.isReadLater ?? false;
+    final card = AiNewsArticleCard(item: item, onTap: onTap, eventSources: eventSources, isBookmarked: isBookmarked, onBookmarkTap: () => _toggleBookmark(context, ref));
     if (!Breakpoints.isCompact(context)) {
-      return Padding(padding: const EdgeInsets.only(bottom: AppSpacing.sm), child: card);
+      return Padding(
+        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+        child: card,
+      );
     }
     final colors = Theme.of(context).colorScheme;
     const radius = Radius.circular(AppRadius.card);
@@ -60,10 +50,7 @@ class AiNewsTimelineRow extends ConsumerWidget {
       decoration: BoxDecoration(
         color: colors.surface,
         border: Border(left: line, right: line, bottom: line, top: isFirstInGroup ? line : BorderSide.none),
-        borderRadius: BorderRadius.vertical(
-          top: isFirstInGroup ? radius : Radius.zero,
-          bottom: isLastInGroup ? radius : Radius.zero,
-        ),
+        borderRadius: BorderRadius.vertical(top: isFirstInGroup ? radius : Radius.zero, bottom: isLastInGroup ? radius : Radius.zero),
       ),
       margin: EdgeInsets.only(bottom: isLastInGroup ? AppSpacing.md : 0),
       child: card,

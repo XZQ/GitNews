@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/data_freshness.dart';
@@ -97,7 +98,7 @@ Set<String> _enabledRuleIds(List<bool> toggles) {
   const ids = [MonitorRuleIds.starDailyDelta, MonitorRuleIds.starDailyRate, MonitorRuleIds.forkDailyDelta, MonitorRuleIds.issueHeatRatio];
   return {
     for (var index = 0; index < ids.length; index++)
-      if (index < toggles.length && toggles[index]) ids[index]
+      if (index < toggles.length && toggles[index]) ids[index],
   };
 }
 
@@ -124,7 +125,7 @@ MonitorDigest applyMonitorAlertEvents(MonitorDigest digest, Iterable<MonitorAler
         observedAt: event.observedAt,
         readAt: event.readAt,
         archivedAt: event.archivedAt,
-      )
+      ),
   ];
   final todayCount = visibleEvents.where((event) => _isSameLocalDay(event.observedAt, now)).length;
 
@@ -169,11 +170,7 @@ MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
     return digest;
   }
 
-  return MonitorDigest(
-    monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword),
-    alerts: filterMonitorAlerts(digest.alerts, keyword),
-    stats: digest.stats,
-  );
+  return MonitorDigest(monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword), alerts: filterMonitorAlerts(digest.alerts, keyword), stats: digest.stats);
 }
 
 List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {
@@ -184,7 +181,7 @@ List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {
 
   return [
     for (final repo in repos)
-      if (_repoSearchText(repo).contains(keyword)) repo
+      if (_repoSearchText(repo).contains(keyword)) repo,
   ];
 }
 
@@ -196,7 +193,7 @@ List<AlertEntity> filterMonitorAlerts(List<AlertEntity> alerts, String query) {
 
   return [
     for (final alert in alerts)
-      if (_alertSearchText(alert).contains(keyword)) alert
+      if (_alertSearchText(alert).contains(keyword)) alert,
   ];
 }
 

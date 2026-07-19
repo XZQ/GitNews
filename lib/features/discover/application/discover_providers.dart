@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/di/providers.dart';
 import '../../../core/domain/data_freshness.dart';
@@ -52,7 +53,7 @@ final discoverFreshnessProvider = Provider<DataFreshness>((ref) {
     'skills' => ref.watch(discoverSkillsFreshnessProvider),
     'official' => ref.watch(discoverOfficialFreshnessProvider),
     'people' => ref.watch(discoverPeopleFreshnessProvider),
-    _ => ref.watch(discoverReposFreshnessProvider)
+    _ => ref.watch(discoverReposFreshnessProvider),
   };
 });
 
@@ -104,10 +105,7 @@ final filteredPeopleProfilesProvider = FutureProvider.autoDispose<List<DiscoverP
 
 // 移动端「官方内容」把官方组织与知名人士合并成一个发现入口。
 final filteredFeaturedProfilesProvider = FutureProvider.autoDispose<List<DiscoverProfileEntity>>((ref) async {
-  final groups = await Future.wait<List<DiscoverProfileEntity>>([
-    ref.watch(filteredOfficialProfilesProvider.future),
-    ref.watch(filteredPeopleProfilesProvider.future),
-  ]);
+  final groups = await Future.wait<List<DiscoverProfileEntity>>([ref.watch(filteredOfficialProfilesProvider.future), ref.watch(filteredPeopleProfilesProvider.future)]);
   return [...groups[0], ...groups[1]];
 });
 

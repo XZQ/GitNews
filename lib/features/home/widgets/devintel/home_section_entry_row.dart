@@ -26,19 +26,23 @@ class HomeSectionEntryRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final specs = _buildSpecs(ref, context);
     return SizedBox(
-        height: 168,
-        child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          for (var i = 0; i < specs.length; i++) ...[if (i > 0) const SizedBox(width: AppSpacing.lg), Expanded(child: _EntryTile(spec: specs[i]))]
-        ]));
+      height: 168,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < specs.length; i++) ...[if (i > 0) const SizedBox(width: AppSpacing.lg), Expanded(child: _EntryTile(spec: specs[i]))],
+        ],
+      ),
+    );
   }
 
   List<_EntrySpec> _buildSpecs(WidgetRef ref, BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final aiItems = ref.watch(aiNewsItemsNotifierProvider).valueOrNull;
-    final trending = ref.watch(trendingDigestProvider).valueOrNull;
-    final hotspot = ref.watch(techHotspotDigestProvider).valueOrNull;
-    final monitor = ref.watch(visibleMonitorDigestProvider).valueOrNull;
-    final project = ref.watch(projectDigestProvider).valueOrNull;
+    final aiItems = ref.watch(aiNewsItemsNotifierProvider).value;
+    final trending = ref.watch(trendingDigestProvider).value;
+    final hotspot = ref.watch(techHotspotDigestProvider).value;
+    final monitor = ref.watch(visibleMonitorDigestProvider).value;
+    final project = ref.watch(projectDigestProvider).value;
     return [
       _EntrySpec(
         label: l10n.tr('home.entry.ai_news.label'),
@@ -79,7 +83,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
         icon: Icons.insights_rounded,
         color: AppColors.success,
         path: '/project',
-      )
+      ),
     ];
   }
 
@@ -106,14 +110,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
 }
 
 class _EntrySpec {
-  const _EntrySpec({
-    required this.label,
-    required this.kpi,
-    required this.delta,
-    required this.icon,
-    required this.color,
-    required this.path,
-  });
+  const _EntrySpec({required this.label, required this.kpi, required this.delta, required this.icon, required this.color, required this.path});
 
   final String label;
   final String kpi;
@@ -152,12 +149,7 @@ class _EntryTile extends StatelessWidget {
               children: [
                 Positioned.fill(child: _AccentStrip(color: spec.color)),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.xl,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -171,22 +163,31 @@ class _EntryTile extends StatelessWidget {
                             child: Icon(spec.icon, size: 18, color: spec.color),
                           ),
                           const Spacer(),
-                          Icon(Icons.chevron_right_rounded, size: 18, color: colors.onSurfaceVariant)
+                          Icon(Icons.chevron_right_rounded, size: 18, color: colors.onSurfaceVariant),
                         ],
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      Text(spec.label, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600)),
+                      Text(
+                        spec.label,
+                        style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w600),
+                      ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(spec.kpi, style: AppTypography.titleLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
+                      Text(
+                        spec.kpi,
+                        style: AppTypography.titleLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+                      ),
                       const SizedBox(height: AppSpacing.sm),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: 3),
                         decoration: BoxDecoration(color: spec.color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(AppRadius.xs)),
-                        child: Text(spec.delta, style: AppTypography.labelSmall.copyWith(color: spec.color, fontWeight: FontWeight.w700)),
-                      )
+                        child: Text(
+                          spec.delta,
+                          style: AppTypography.labelSmall.copyWith(color: spec.color, fontWeight: FontWeight.w700),
+                        ),
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),

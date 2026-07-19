@@ -37,22 +37,12 @@ class AiHotDailyPage extends ConsumerWidget {
       icon: Icons.auto_stories_rounded,
       fallbackPath: '/ai_news',
       actions: [
-        IconButton(
-          tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
-          onPressed: () => ref.invalidate(aiHotDailyProvider(date)),
-          icon: const Icon(Icons.refresh_rounded),
-        ),
+        IconButton(tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel, onPressed: () => ref.invalidate(aiHotDailyProvider(date)), icon: const Icon(Icons.refresh_rounded)),
       ],
       body: state.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stack) => ErrorView(
-          error: error.asAppException(stack),
-          onRetry: () => ref.invalidate(aiHotDailyProvider(date)),
-        ),
-        data: (result) => _DailyReportBody(
-          report: result.data,
-          freshness: result.freshness,
-        ),
+        error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(aiHotDailyProvider(date))),
+        data: (result) => _DailyReportBody(report: result.data, freshness: result.freshness),
       ),
     );
   }
@@ -74,12 +64,9 @@ class _DailyReportBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     if (report.sections.every((section) => section.items.isEmpty) && report.flashes.isEmpty) {
-      return EmptyView(
-        icon: Icons.article_outlined,
-        message: l10n.tr('ai_news.daily.empty'),
-      );
+      return EmptyView(icon: Icons.article_outlined, message: l10n.tr('ai_news.daily.empty'));
     }
-    final index = ref.watch(aiHotDailyIndexProvider).valueOrNull?.data ?? const <AiHotDailyEntry>[];
+    final index = ref.watch(aiHotDailyIndexProvider).value?.data ?? const <AiHotDailyEntry>[];
     return ListView(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xxxl),
       children: [
@@ -90,24 +77,11 @@ class _DailyReportBody extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _DateToolbar(
-                  date: report.date,
-                  dates: index,
-                  freshness: freshness,
-                ),
-                if (report.lead != null) ...[
-                  const SizedBox(height: AppSpacing.lg),
-                  _LeadCard(lead: report.lead!),
-                ],
+                _DateToolbar(date: report.date, dates: index, freshness: freshness),
+                if (report.lead != null) ...[const SizedBox(height: AppSpacing.lg), _LeadCard(lead: report.lead!)],
                 for (final section in report.sections)
-                  if (section.items.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.xl),
-                    _Section(section: section),
-                  ],
-                if (report.flashes.isNotEmpty) ...[
-                  const SizedBox(height: AppSpacing.xl),
-                  _Flashes(items: report.flashes),
-                ],
+                  if (section.items.isNotEmpty) ...[const SizedBox(height: AppSpacing.xl), _Section(section: section)],
+                if (report.flashes.isNotEmpty) ...[const SizedBox(height: AppSpacing.xl), _Flashes(items: report.flashes)],
                 const SizedBox(height: AppSpacing.xl),
                 _Attribution(report: report),
               ],
@@ -141,10 +115,7 @@ class _DateToolbar extends StatelessWidget {
         Expanded(
           child: DropdownButtonFormField<String>(
             initialValue: date,
-            decoration: InputDecoration(
-              labelText: l10n.tr('ai_news.daily.select_date'),
-              prefixIcon: const Icon(Icons.calendar_month_rounded),
-            ),
+            decoration: InputDecoration(labelText: l10n.tr('ai_news.daily.select_date'), prefixIcon: const Icon(Icons.calendar_month_rounded)),
             items: [for (final entry in options) DropdownMenuItem(value: entry.date, child: Text(entry.date))],
             onChanged: (value) {
               if (value != null && value != date) {
@@ -176,10 +147,7 @@ class _LeadCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (lead.title.isNotEmpty) Text(lead.title, style: AppTypography.headlineMedium.copyWith(color: colors.onSurface, height: 1.35)),
-          if (lead.paragraph.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(lead.paragraph, style: AppTypography.bodyLarge.copyWith(color: colors.onSurfaceVariant, height: 1.7)),
-          ],
+          if (lead.paragraph.isNotEmpty) ...[const SizedBox(height: AppSpacing.sm), Text(lead.paragraph, style: AppTypography.bodyLarge.copyWith(color: colors.onSurfaceVariant, height: 1.7))],
         ],
       ),
     );
@@ -201,10 +169,7 @@ class _Section extends StatelessWidget {
       children: [
         Text(section.label, style: AppTypography.titleLarge.copyWith(color: colors.onSurface)),
         const SizedBox(height: AppSpacing.sm),
-        for (var index = 0; index < section.items.length; index++) ...[
-          _DailyItemCard(item: section.items[index]),
-          if (index != section.items.length - 1) const SizedBox(height: AppSpacing.sm),
-        ],
+        for (var index = 0; index < section.items.length; index++) ...[_DailyItemCard(item: section.items[index]), if (index != section.items.length - 1) const SizedBox(height: AppSpacing.sm)],
       ],
     );
   }
@@ -227,10 +192,7 @@ class _DailyItemCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(item.title, style: AppTypography.titleMedium.copyWith(color: colors.onSurface, height: 1.42)),
-          if (item.summary.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.sm),
-            Text(item.summary, style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.65)),
-          ],
+          if (item.summary.isNotEmpty) ...[const SizedBox(height: AppSpacing.sm), Text(item.summary, style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.65))],
           const SizedBox(height: AppSpacing.sm),
           Wrap(
             spacing: AppSpacing.sm,
@@ -238,17 +200,9 @@ class _DailyItemCard extends StatelessWidget {
             children: [
               Text(item.sourceName, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
               if (item.permalink != null)
-                TextButton.icon(
-                  onPressed: () => _openWeb(context, item.permalink!, item.title),
-                  icon: const Icon(Icons.auto_stories_outlined, size: 17),
-                  label: Text(l10n.tr('ai_news.daily.aihot')),
-                ),
+                TextButton.icon(onPressed: () => _openWeb(context, item.permalink!, item.title), icon: const Icon(Icons.auto_stories_outlined, size: 17), label: Text(l10n.tr('ai_news.daily.aihot'))),
               if (item.sourceUrl.isNotEmpty)
-                TextButton.icon(
-                  onPressed: () => _openWeb(context, item.sourceUrl, item.title),
-                  icon: const Icon(Icons.open_in_new_rounded, size: 17),
-                  label: Text(l10n.tr('ai_news.daily.original')),
-                ),
+                TextButton.icon(onPressed: () => _openWeb(context, item.sourceUrl, item.title), icon: const Icon(Icons.open_in_new_rounded, size: 17), label: Text(l10n.tr('ai_news.daily.original'))),
             ],
           ),
         ],
@@ -311,11 +265,7 @@ class _Attribution extends StatelessWidget {
         const Icon(Icons.verified_outlined, size: 18, color: AppColors.brand),
         const SizedBox(width: AppSpacing.sm),
         Expanded(child: Text(l10n.tr('ai_news.official_daily.attribution'))),
-        if (attribution != null)
-          TextButton(
-            onPressed: () => _openWeb(context, attribution.canonical, '${l10n.tr('ai_news.daily.page_title')} ${report.date}'),
-            child: Text(attribution.source),
-          ),
+        if (attribution != null) TextButton(onPressed: () => _openWeb(context, attribution.canonical, '${l10n.tr('ai_news.daily.page_title')} ${report.date}'), child: Text(attribution.source)),
       ],
     );
   }

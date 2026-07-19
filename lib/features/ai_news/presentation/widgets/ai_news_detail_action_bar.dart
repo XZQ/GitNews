@@ -14,12 +14,7 @@ import '../../domain/ai_news_item.dart';
 *资讯详情底部固定操作栏。
 */
 class AiNewsDetailActionBar extends ConsumerWidget {
-  const AiNewsDetailActionBar({
-    required this.item,
-    required this.onShare,
-    this.compact = true,
-    super.key,
-  });
+  const AiNewsDetailActionBar({required this.item, required this.onShare, this.compact = true, super.key});
 
   // 当前资讯。
   final AiNewsItem item;
@@ -36,15 +31,10 @@ class AiNewsDetailActionBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final signal = ref.watch(aiNewsInterestProfileProvider).valueOrNull?.itemSignals[item.id];
-    final saved = ref.watch(aiNewsItemStateProvider(item.id)).valueOrNull?.isReadLater ?? false;
+    final signal = ref.watch(aiNewsInterestProfileProvider).value?.itemSignals[item.id];
+    final saved = ref.watch(aiNewsItemStateProvider(item.id)).value?.isReadLater ?? false;
     final toolbar = Container(
-      padding: EdgeInsets.fromLTRB(
-        AppSpacing.sm,
-        AppSpacing.sm2,
-        AppSpacing.sm,
-        compact ? AppSpacing.lg : AppSpacing.sm2,
-      ),
+      padding: EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.sm2, AppSpacing.sm, compact ? AppSpacing.lg : AppSpacing.sm2),
       decoration: BoxDecoration(
         color: colors.surface,
         border: Border(top: BorderSide(color: colors.outlineVariant)),
@@ -61,11 +51,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
                   icon: signal == AiNewsFeedbackSignal.more ? Icons.thumb_up_alt_rounded : Icons.thumb_up_alt_outlined,
                   label: l10n.tr('ai_news.detail.like'),
                   selected: signal == AiNewsFeedbackSignal.more,
-                  onTap: () => _toggleFeedback(
-                    ref,
-                    AiNewsFeedbackSignal.more,
-                    signal,
-                  ),
+                  onTap: () => _toggleFeedback(ref, AiNewsFeedbackSignal.more, signal),
                 ),
               ),
               Expanded(
@@ -73,11 +59,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
                   icon: signal == AiNewsFeedbackSignal.less ? Icons.sentiment_dissatisfied_rounded : Icons.sentiment_neutral_outlined,
                   label: l10n.tr('ai_news.detail.not_interested'),
                   selected: signal == AiNewsFeedbackSignal.less,
-                  onTap: () => _toggleFeedback(
-                    ref,
-                    AiNewsFeedbackSignal.less,
-                    signal,
-                  ),
+                  onTap: () => _toggleFeedback(ref, AiNewsFeedbackSignal.less, signal),
                 ),
               ),
               Expanded(
@@ -89,11 +71,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
                 ),
               ),
               Expanded(
-                child: _DetailActionItem(
-                  icon: Icons.ios_share_rounded,
-                  label: l10n.tr('ai_news.detail.share'),
-                  onTap: onShare,
-                ),
+                child: _DetailActionItem(icon: Icons.ios_share_rounded, label: l10n.tr('ai_news.detail.share'), onTap: onShare),
               ),
             ],
           ),
@@ -107,11 +85,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
   }
 
   /* 切换当前资讯的兴趣信号。 */
-  Future<void> _toggleFeedback(
-    WidgetRef ref,
-    AiNewsFeedbackSignal next,
-    AiNewsFeedbackSignal? current,
-  ) async {
+  Future<void> _toggleFeedback(WidgetRef ref, AiNewsFeedbackSignal next, AiNewsFeedbackSignal? current) async {
     final controller = ref.read(aiNewsFeedbackControllerProvider);
     if (current == next) {
       await controller.clear(item);
@@ -127,15 +101,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
       return;
     }
     final l10n = AppLocalizations.of(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          l10n.tr(
-            added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed',
-          ),
-        ),
-      ),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr(added ? 'ai_news.read_later_added' : 'ai_news.read_later_removed'))));
   }
 }
 
@@ -143,12 +109,7 @@ class AiNewsDetailActionBar extends ConsumerWidget {
 *底部操作栏中的单个图标与标签。
 */
 class _DetailActionItem extends StatelessWidget {
-  const _DetailActionItem({
-    required this.icon,
-    required this.label,
-    required this.onTap,
-    this.selected = false,
-  });
+  const _DetailActionItem({required this.icon, required this.label, required this.onTap, this.selected = false});
 
   // 操作图标。
   final IconData icon;
@@ -169,8 +130,8 @@ class _DetailActionItem extends StatelessWidget {
     final color = selected
         ? colors.primary
         : Theme.of(context).brightness == Brightness.light
-            ? AppColors.textMutedLight
-            : AppColors.textMutedDark;
+        ? AppColors.textMutedLight
+        : AppColors.textMutedDark;
     return Semantics(
       button: true,
       selected: selected,
@@ -178,10 +139,7 @@ class _DetailActionItem extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.xs,
-            vertical: AppSpacing.xxs,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.xxs),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [

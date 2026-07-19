@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 // 深度报告 / 项目页顶部搜索关键词,跨 feature 共享。
 // repo_detail、home 也会写入以跳转至项目搜索结果。

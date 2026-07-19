@@ -15,15 +15,7 @@ import 'ai_news_detail_overview.dart';
 *概览、AI 解读与延伸内容共享一个滚动位置,不使用横向分页。
 */
 class AiNewsDetailContent extends ConsumerWidget {
-  const AiNewsDetailContent({
-    required this.item,
-    this.relatedItems = const [],
-    this.showEnrichment = true,
-    this.onOpenOriginal,
-    this.onOpenRelated,
-    this.onViewMore,
-    super.key,
-  });
+  const AiNewsDetailContent({required this.item, this.relatedItems = const [], this.showEnrichment = true, this.onOpenOriginal, this.onOpenRelated, this.onViewMore, super.key});
 
   // 当前资讯。
   final AiNewsItem item;
@@ -46,25 +38,17 @@ class AiNewsDetailContent extends ConsumerWidget {
   @override
   /* 构建一个可上下滚动的完整详情页。 */
   Widget build(BuildContext context, WidgetRef ref) {
-    final enrichment = showEnrichment ? ref.watch(aiNewsEnrichmentProvider(item.id)).valueOrNull : null;
+    final enrichment = showEnrichment ? ref.watch(aiNewsEnrichmentProvider(item.id)).value : null;
     return AiNewsDetailPageFrame(
       scrollKey: const PageStorageKey('ai-news-detail-scroll'),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AiNewsDetailOverview(
-            item: item,
-            enrichment: enrichment,
-            onOpenOriginal: onOpenOriginal,
-          ),
+          AiNewsDetailOverview(item: item, enrichment: enrichment, onOpenOriginal: onOpenOriginal),
           const SizedBox(height: AppSpacing.lg),
           AiNewsDetailInsights(item: item, showEnrichment: showEnrichment),
           const SizedBox(height: AppSpacing.lg),
-          AiNewsDetailExtended(
-            relatedItems: relatedItems,
-            onOpenRelated: onOpenRelated,
-            onViewMore: onViewMore,
-          ),
+          AiNewsDetailExtended(relatedItems: relatedItems, onOpenRelated: onOpenRelated, onViewMore: onViewMore),
         ],
       ),
     );

@@ -36,10 +36,7 @@ class AiHotDailyCard extends ConsumerWidget {
           error: (_, __) => _StatusRow(
             icon: Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.error),
             label: l10n.tr('ai_news.official_daily.failed'),
-            action: TextButton(
-              onPressed: () => ref.invalidate(aiHotLatestDailyProvider),
-              child: Text(l10n.tr('common.retry')),
-            ),
+            action: TextButton(onPressed: () => ref.invalidate(aiHotLatestDailyProvider), child: Text(l10n.tr('common.retry'))),
           ),
           data: (result) => _DailyContent(report: result.data, freshness: result.freshness),
         ),
@@ -64,12 +61,9 @@ class _DailyContent extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final headline = _headline(report);
     final summary = _summary(report);
-    final version = ref.watch(aiHotVersionProvider).valueOrNull?.data.apiVersion;
+    final version = ref.watch(aiHotVersionProvider).value?.data.apiVersion;
     if (headline.isEmpty) {
-      return _StatusRow(
-        icon: const Icon(Icons.auto_stories_outlined),
-        label: l10n.tr('ai_news.official_daily.empty'),
-      );
+      return _StatusRow(icon: const Icon(Icons.auto_stories_outlined), label: l10n.tr('ai_news.official_daily.empty'));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,10 +85,20 @@ class _DailyContent extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.md),
-        Text(headline, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.titleLarge.copyWith(color: colors.onSurface, height: 1.4)),
+        Text(
+          headline,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.titleLarge.copyWith(color: colors.onSurface, height: 1.4),
+        ),
         if (summary.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.xs2),
-          Text(summary, maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.55)),
+          Text(
+            summary,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.55),
+          ),
         ],
         const SizedBox(height: AppSpacing.md),
         Wrap(
@@ -102,10 +106,7 @@ class _DailyContent extends ConsumerWidget {
           runSpacing: AppSpacing.sm,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            Text(
-              l10n.tr('ai_news.official_daily.items').replaceAll('{count}', '${report.itemCount}'),
-              style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant),
-            ),
+            Text(l10n.tr('ai_news.official_daily.items').replaceAll('{count}', '${report.itemCount}'), style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
             Text('${report.date}${version == null ? '' : ' · API v$version'}', style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
             FilledButton.tonalIcon(
               onPressed: () => context.go('/ai_news/daily/${report.date}'),
@@ -166,7 +167,9 @@ class _StatusRow extends StatelessWidget {
       children: [
         icon,
         const SizedBox(width: AppSpacing.sm),
-        Expanded(child: Text(label, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
+        Expanded(
+          child: Text(label, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ),
         if (action != null) action!,
       ],
     );

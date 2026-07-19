@@ -7,7 +7,7 @@ import '../../../core/domain/repo_entity.dart';
 import '../domain/discover_entities.dart';
 import 'discover_providers.dart';
 
-class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
+class TrendingReposNotifier extends AsyncNotifier<List<RepoEntity>> {
   int _page = 0;
   bool _hasMore = true;
   bool _loadingMore = false;
@@ -18,6 +18,9 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
     _page = 1;
     final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(force: force, page: _page, perPage: discoverPageSize);
     final repos = result.data;
+    if (!ref.mounted) {
+      return repos;
+    }
     ref.read(discoverReposFreshnessProvider.notifier).state = result.freshness;
     _hasMore = repos.length == discoverPageSize;
     return repos;
@@ -32,11 +35,17 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
       final nextPage = _page + 1;
       final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(page: nextPage, perPage: discoverPageSize);
       final repos = result.data;
+      if (!ref.mounted) {
+        return;
+      }
       ref.read(discoverReposFreshnessProvider.notifier).state = result.freshness;
       _page = nextPage;
       _hasMore = repos.length == discoverPageSize;
-      state = AsyncData([...?state.valueOrNull, ...repos]);
+      state = AsyncData([...?state.value, ...repos]);
     } catch (error, stack) {
+      if (!ref.mounted) {
+        return;
+      }
       state = AsyncError(error, stack);
     } finally {
       _loadingMore = false;
@@ -44,14 +53,20 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
   }
 
   Future<void> refresh() async {
-    final previous = state.valueOrNull;
+    final previous = state.value;
     try {
       final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(force: true, page: 1, perPage: discoverPageSize);
+      if (!ref.mounted) {
+        return;
+      }
       _page = 1;
       _hasMore = result.data.length == discoverPageSize;
       ref.read(discoverReposFreshnessProvider.notifier).state = result.freshness;
       state = AsyncData(result.data);
     } catch (error, stack) {
+      if (!ref.mounted) {
+        return;
+      }
       state = previous == null ? AsyncError(error, stack) : AsyncData(previous);
     }
   }
@@ -59,7 +74,7 @@ class TrendingReposNotifier extends AutoDisposeAsyncNotifier<List<RepoEntity>> {
   bool get hasMore => _hasMore;
 }
 
-class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
+class AgentSkillsNotifier extends AsyncNotifier<List<SkillEntity>> {
   int _page = 0;
   bool _hasMore = true;
   bool _loadingMore = false;
@@ -70,6 +85,9 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
     _page = 1;
     final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(force: force, page: _page, perPage: discoverPageSize);
     final skills = result.data;
+    if (!ref.mounted) {
+      return skills;
+    }
     ref.read(discoverSkillsFreshnessProvider.notifier).state = result.freshness;
     _hasMore = skills.length == discoverPageSize;
     return skills;
@@ -84,11 +102,17 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
       final nextPage = _page + 1;
       final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(page: nextPage, perPage: discoverPageSize);
       final skills = result.data;
+      if (!ref.mounted) {
+        return;
+      }
       ref.read(discoverSkillsFreshnessProvider.notifier).state = result.freshness;
       _page = nextPage;
       _hasMore = skills.length == discoverPageSize;
-      state = AsyncData([...?state.valueOrNull, ...skills]);
+      state = AsyncData([...?state.value, ...skills]);
     } catch (error, stack) {
+      if (!ref.mounted) {
+        return;
+      }
       state = AsyncError(error, stack);
     } finally {
       _loadingMore = false;
@@ -96,14 +120,20 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
   }
 
   Future<void> refresh() async {
-    final previous = state.valueOrNull;
+    final previous = state.value;
     try {
       final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(force: true, page: 1, perPage: discoverPageSize);
+      if (!ref.mounted) {
+        return;
+      }
       _page = 1;
       _hasMore = result.data.length == discoverPageSize;
       ref.read(discoverSkillsFreshnessProvider.notifier).state = result.freshness;
       state = AsyncData(result.data);
     } catch (error, stack) {
+      if (!ref.mounted) {
+        return;
+      }
       state = previous == null ? AsyncError(error, stack) : AsyncData(previous);
     }
   }
@@ -111,7 +141,7 @@ class AgentSkillsNotifier extends AutoDisposeAsyncNotifier<List<SkillEntity>> {
   bool get hasMore => _hasMore;
 }
 
-class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEntity>> {
+class ProfilesNotifier extends AsyncNotifier<List<DiscoverProfileEntity>> {
   ProfilesNotifier(this.kind);
 
   final DiscoverProfileKind kind;
@@ -129,13 +159,11 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
     _hasMore = true;
     _enrichingLogins.clear();
     _enrichFailedLogins.clear();
-    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(
-          kind: kind,
-          force: force,
-          page: _page,
-          perPage: discoverProfilesPageSize,
-        );
+    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, force: force, page: _page, perPage: discoverProfilesPageSize);
     final list = result.data;
+    if (!ref.mounted) {
+      return list;
+    }
     _updateFreshness(result.freshness);
     _updateHasMore(list, page: _page);
     // Unawaited:补全在后台进行,不阻塞首屏。
@@ -150,13 +178,19 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
       final nextPage = _page + 1;
       final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, page: nextPage, perPage: discoverProfilesPageSize);
       final next = result.data;
+      if (!ref.mounted) {
+        return;
+      }
       _updateFreshness(result.freshness);
       _page = nextPage;
-      final merged = [...?state.valueOrNull, ...next];
+      final merged = [...?state.value, ...next];
       state = AsyncData(merged);
       _updateHasMore(next, page: nextPage);
       unawaited(_enrichNextBatch(next));
     } catch (error, stack) {
+      if (!ref.mounted) {
+        return;
+      }
       state = AsyncError(error, stack);
     } finally {
       _loadingMore = false;
@@ -164,14 +198,12 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
   }
 
   Future<void> refresh() async {
-    final previous = state.valueOrNull;
+    final previous = state.value;
     try {
-      final result = await ref.read(discoverRepositoryProvider).fetchProfiles(
-            kind: kind,
-            force: true,
-            page: 1,
-            perPage: discoverProfilesPageSize,
-          );
+      final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, force: true, page: 1, perPage: discoverProfilesPageSize);
+      if (!ref.mounted) {
+        return;
+      }
       _page = 1;
       _enrichingLogins.clear();
       _enrichFailedLogins.clear();
@@ -180,48 +212,56 @@ class ProfilesNotifier extends AutoDisposeAsyncNotifier<List<DiscoverProfileEnti
       state = AsyncData(result.data);
       unawaited(_enrichNextBatch(result.data));
     } catch (error, stack) {
+      if (!ref.mounted) {
+        return;
+      }
       state = previous == null ? AsyncError(error, stack) : AsyncData(previous);
     }
   }
 
   Future<void> enrichOne(String login) async {
-    if (_enrichingLogins.contains(login) || _enrichFailedLogins.contains(login)) {
+    if (!ref.mounted || _enrichingLogins.contains(login) || _enrichFailedLogins.contains(login)) {
       return;
     }
     _enrichingLogins.add(login);
     try {
       final result = await ref.read(discoverRepositoryProvider).fetchProfileDetail(login: login, kind: kind);
+      if (!ref.mounted) {
+        return;
+      }
       final enriched = result.data;
-      final current = state.valueOrNull;
+      final current = state.value;
       if (current == null) return;
-      state = AsyncData(
-        [
-          for (final p in current)
-            if (p.login == login) enriched else p
-        ],
-      );
+      state = AsyncData([
+        for (final p in current)
+          if (p.login == login) enriched else p,
+      ]);
     } catch (_) {
+      if (!ref.mounted) {
+        return;
+      }
       _enrichFailedLogins.add(login);
-      final current = state.valueOrNull;
+      final current = state.value;
       if (current == null) return;
-      state = AsyncData(
-        [
-          for (final p in current)
-            if (p.login == login) p.copyWith(enrichFailed: true) else p
-        ],
-      );
+      state = AsyncData([
+        for (final p in current)
+          if (p.login == login) p.copyWith(enrichFailed: true) else p,
+      ]);
     } finally {
       _enrichingLogins.remove(login);
     }
   }
 
   Future<void> _enrichNextBatch(List<DiscoverProfileEntity> latest) async {
-    if (_enrichingLogins.length > discoverProfileEnrichBatchSize * 2) return;
+    if (!ref.mounted || _enrichingLogins.length > discoverProfileEnrichBatchSize * 2) return;
     final pending = latest.where((p) => !p.enriched && !p.enrichFailed).take(discoverProfileEnrichBatchSize).toList();
     // 串行窗口(并发度 4),无第三方依赖。
     for (var i = 0; i < pending.length; i += 4) {
       final window = pending.skip(i).take(4);
       await Future.wait([for (final p in window) enrichOne(p.login)]);
+      if (!ref.mounted) {
+        return;
+      }
     }
   }
 

@@ -41,12 +41,7 @@ void _openGlobalSearch(BuildContext context, WidgetRef ref, String rawQuery) {
     projectSetter: (q) => ref.read(projectSearchQueryProvider.notifier).state = q,
     trendingSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q,
   );
-  GlobalSearchRouter.route(
-    rawQuery: rawQuery,
-    entries: entries,
-    fallbackSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q,
-    onRoute: (route) => context.go(route),
-  );
+  GlobalSearchRouter.route(rawQuery: rawQuery, entries: entries, fallbackSetter: (q) => ref.read(trendingSearchQueryProvider.notifier).state = q, onRoute: (route) => context.go(route));
 }
 
 /* 
@@ -57,7 +52,7 @@ class _BellWithDot extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = Theme.of(context).colorScheme;
     final l10n = AppLocalizations.of(context);
-    final monitor = ref.watch(visibleMonitorDigestProvider).valueOrNull;
+    final monitor = ref.watch(visibleMonitorDigestProvider).value;
     final hasUnread = (monitor?.stats.unreadAlertCount ?? 0) > 0;
     return Semantics(
       label: l10n.tr('a11y.notification'),
@@ -67,17 +62,8 @@ class _BellWithDot extends ConsumerWidget {
         icon: Stack(
           clipBehavior: Clip.none,
           children: [
-            Icon(
-              Icons.notifications_none_rounded,
-              size: 20,
-              color: colors.onSurfaceVariant,
-            ),
-            if (hasUnread)
-              const Positioned(
-                right: -2,
-                top: -2,
-                child: _Dot(),
-              )
+            Icon(Icons.notifications_none_rounded, size: 20, color: colors.onSurfaceVariant),
+            if (hasUnread) const Positioned(right: -2, top: -2, child: _Dot()),
           ],
         ),
         tooltip: l10n.tr('home.monitor_center'),
@@ -93,10 +79,12 @@ class _Dot extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const SizedBox(
-        width: 8,
-        height: 8,
-        child: DecoratedBox(decoration: BoxDecoration(color: AppColors.danger, shape: BoxShape.circle)),
-      );
+    width: 8,
+    height: 8,
+    child: DecoratedBox(
+      decoration: BoxDecoration(color: AppColors.danger, shape: BoxShape.circle),
+    ),
+  );
 }
 
 /* 

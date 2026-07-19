@@ -35,6 +35,7 @@ linter:
     throw_in_finally: true
     unawaited_futures: true
     unnecessary_statements: true
-    unsafe_html: true
+    unnecessary_underscores: false
     use_super_parameters: true
+    use_null_aware_elements: false
     curly_braces_in_flow_control_structures: true

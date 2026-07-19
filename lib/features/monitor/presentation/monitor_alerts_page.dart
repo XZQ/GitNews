@@ -24,25 +24,31 @@ class MonitorAlertsPage extends ConsumerWidget {
     final state = ref.watch(visibleMonitorDigestProvider);
     final l10n = AppLocalizations.of(context);
     return SecondaryPageScaffold(
-        title: l10n.tr('monitor.alerts.title'),
-        subtitle: l10n.tr('common.secondary_page_subtitle'),
-        icon: Icons.notifications_none_rounded,
-        fallbackPath: '/monitor',
-        body: state.when(
-            data: (digest) {
-              final events = ref.watch(monitorAlertEventsProvider).valueOrNull ?? const [];
-              final archivedCount = events.where((event) => event.isArchived).length;
-              if (digest.alerts.isEmpty && archivedCount == 0) {
-                return EmptyView(icon: Icons.notifications_none_rounded, message: l10n.tr('monitor.alerts.empty'));
-              }
-              return ResponsiveLayout(
-                compact: (_) => _Body(alerts: digest.alerts, archivedCount: archivedCount),
-                medium: (_) => CenteredContent(child: _Body(alerts: digest.alerts, archivedCount: archivedCount)),
-                expanded: (_) => CenteredContent(child: _Body(alerts: digest.alerts, archivedCount: archivedCount)),
-              );
-            },
-            loading: () => const _AlertsSkeleton(),
-            error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => forceRefreshMonitor(ref))));
+      title: l10n.tr('monitor.alerts.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.notifications_none_rounded,
+      fallbackPath: '/monitor',
+      body: state.when(
+        data: (digest) {
+          final events = ref.watch(monitorAlertEventsProvider).value ?? const [];
+          final archivedCount = events.where((event) => event.isArchived).length;
+          if (digest.alerts.isEmpty && archivedCount == 0) {
+            return EmptyView(icon: Icons.notifications_none_rounded, message: l10n.tr('monitor.alerts.empty'));
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Body(alerts: digest.alerts, archivedCount: archivedCount),
+            medium: (_) => CenteredContent(
+              child: _Body(alerts: digest.alerts, archivedCount: archivedCount),
+            ),
+            expanded: (_) => CenteredContent(
+              child: _Body(alerts: digest.alerts, archivedCount: archivedCount),
+            ),
+          );
+        },
+        loading: () => const _AlertsSkeleton(),
+        error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => forceRefreshMonitor(ref)),
+      ),
+    );
   }
 }
 
@@ -60,111 +66,80 @@ class _Body extends ConsumerWidget {
     final unreadCount = alerts.where((alert) => !alert.isRead).length;
     // 头部卡片 + Sliver 懒构建的告警列表:告警会随时间持久累积,
     // 旧的 shrinkWrap 列表会一次性构建全部条目,数量一多滚动必卡。
-    return CustomScrollView(slivers: [
-      SliverPadding(
-        padding: const EdgeInsets.fromLTRB(
-          AppSpacing.lg,
-          AppSpacing.sm,
-          AppSpacing.lg,
-          0,
-        ),
-        sliver: SliverToBoxAdapter(
-          child: AppCard(
-            padding: EdgeInsets.zero,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.md,
-                    AppSpacing.lg,
-                    AppSpacing.xs,
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
+          sliver: SliverToBoxAdapter(
+            child: AppCard(
+              padding: EdgeInsets.zero,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+                    child: SectionHeader(
+                      title: l10n.tr('monitor.alerts.all'),
+                      subtitle: l10n.tr('monitor.alerts.subtitle').replaceAll('{visible}', '${alerts.length}').replaceAll('{unread}', '$unreadCount').replaceAll('{archived}', '$archivedCount'),
+                    ),
                   ),
-                  child: SectionHeader(
-                    title: l10n.tr('monitor.alerts.all'),
-                    subtitle: l10n.tr('monitor.alerts.subtitle').replaceAll('{visible}', '${alerts.length}').replaceAll('{unread}', '$unreadCount').replaceAll('{archived}', '$archivedCount'),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.sm),
+                    child: Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        SegmentedButton<MonitorAlertFilter>(
+                          segments: [
+                            ButtonSegment(value: MonitorAlertFilter.all, label: Text(l10n.tr('monitor.alerts.filter.all')), icon: const Icon(Icons.inbox_outlined)),
+                            ButtonSegment(value: MonitorAlertFilter.unread, label: Text(l10n.tr('monitor.alerts.filter.unread')), icon: const Icon(Icons.notifications_active_outlined)),
+                            ButtonSegment(value: MonitorAlertFilter.important, label: Text(l10n.tr('monitor.alerts.filter.important')), icon: const Icon(Icons.priority_high_rounded)),
+                          ],
+                          selected: {filter},
+                          onSelectionChanged: (values) => ref.read(monitorAlertFilterProvider.notifier).state = values.single,
+                        ),
+                        TextButton.icon(
+                          onPressed: unreadCount == 0 ? null : () => ref.read(monitorAlertEventsProvider.notifier).markAllRead(alerts.map((alert) => alert.id).whereType<String>()),
+                          icon: const Icon(Icons.done_all_rounded),
+                          label: Text(l10n.tr('monitor.alerts.mark_all_read')),
+                        ),
+                        TextButton.icon(
+                          onPressed: alerts.any((alert) => alert.isRead) ? () => ref.read(monitorAlertEventsProvider.notifier).archiveRead() : null,
+                          icon: const Icon(Icons.cleaning_services_outlined),
+                          label: Text(l10n.tr('monitor.alerts.clear_read')),
+                        ),
+                        TextButton.icon(
+                          onPressed: archivedCount == 0 ? null : () => ref.read(monitorAlertEventsProvider.notifier).restoreAll(),
+                          icon: const Icon(Icons.restore_rounded),
+                          label: Text(l10n.tr('monitor.alerts.restore_archived')),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.xs,
-                    AppSpacing.lg,
-                    AppSpacing.sm,
-                  ),
-                  child: Wrap(
-                    spacing: AppSpacing.sm,
-                    runSpacing: AppSpacing.sm,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      SegmentedButton<MonitorAlertFilter>(
-                        segments: [
-                          ButtonSegment(value: MonitorAlertFilter.all, label: Text(l10n.tr('monitor.alerts.filter.all')), icon: const Icon(Icons.inbox_outlined)),
-                          ButtonSegment(
-                            value: MonitorAlertFilter.unread,
-                            label: Text(l10n.tr('monitor.alerts.filter.unread')),
-                            icon: const Icon(Icons.notifications_active_outlined),
-                          ),
-                          ButtonSegment(
-                            value: MonitorAlertFilter.important,
-                            label: Text(l10n.tr('monitor.alerts.filter.important')),
-                            icon: const Icon(Icons.priority_high_rounded),
-                          )
-                        ],
-                        selected: {filter},
-                        onSelectionChanged: (values) => ref.read(monitorAlertFilterProvider.notifier).state = values.single,
-                      ),
-                      TextButton.icon(
-                        onPressed: unreadCount == 0 ? null : () => ref.read(monitorAlertEventsProvider.notifier).markAllRead(alerts.map((alert) => alert.id).whereType<String>()),
-                        icon: const Icon(Icons.done_all_rounded),
-                        label: Text(l10n.tr('monitor.alerts.mark_all_read')),
-                      ),
-                      TextButton.icon(
-                        onPressed: alerts.any((alert) => alert.isRead) ? () => ref.read(monitorAlertEventsProvider.notifier).archiveRead() : null,
-                        icon: const Icon(Icons.cleaning_services_outlined),
-                        label: Text(l10n.tr('monitor.alerts.clear_read')),
-                      ),
-                      TextButton.icon(
-                        onPressed: archivedCount == 0 ? null : () => ref.read(monitorAlertEventsProvider.notifier).restoreAll(),
-                        icon: const Icon(Icons.restore_rounded),
-                        label: Text(l10n.tr('monitor.alerts.restore_archived')),
-                      )
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      if (filteredAlerts.isEmpty)
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.lg,
-            AppSpacing.xl,
+        if (filteredAlerts.isEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xl),
+            sliver: SliverToBoxAdapter(
+              child: EmptyView(icon: Icons.notifications_off_outlined, message: l10n.tr('monitor.alerts.filtered_empty')),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xl),
+            sliver: SliverList.separated(
+              itemCount: filteredAlerts.length,
+              separatorBuilder: (_, __) => const Divider(height: 1),
+              itemBuilder: (context, i) => RepaintBoundary(child: MonitorAlertListTile(alert: filteredAlerts[i])),
+            ),
           ),
-          sliver: SliverToBoxAdapter(
-            child: EmptyView(icon: Icons.notifications_off_outlined, message: l10n.tr('monitor.alerts.filtered_empty')),
-          ),
-        )
-      else
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.md,
-            AppSpacing.lg,
-            AppSpacing.xl,
-          ),
-          sliver: SliverList.separated(
-            itemCount: filteredAlerts.length,
-            separatorBuilder: (_, __) => const Divider(height: 1),
-            itemBuilder: (context, i) => RepaintBoundary(child: MonitorAlertListTile(alert: filteredAlerts[i])),
-          ),
-        ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -174,12 +149,7 @@ class _AlertsSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: const [
         Skeleton(height: 72),
         SizedBox(height: AppSpacing.md),
@@ -187,7 +157,7 @@ class _AlertsSkeleton extends StatelessWidget {
         SizedBox(height: AppSpacing.md),
         Skeleton(height: 72),
         SizedBox(height: AppSpacing.md),
-        Skeleton(height: 72)
+        Skeleton(height: 72),
       ],
     );
   }

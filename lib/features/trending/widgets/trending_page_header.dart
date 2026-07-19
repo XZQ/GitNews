@@ -17,28 +17,25 @@ class TrendingPageHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final freshness = ref.watch(trendingFreshnessProvider).valueOrNull;
+    final freshness = ref.watch(trendingFreshnessProvider).value;
     final query = ref.watch(trendingSearchQueryProvider);
     return PageHeader(
-        icon: Icons.trending_up_rounded,
-        iconAccent: AppColors.info,
-        title: l10n.tr('trending.title'),
-        subtitle: l10n.tr('trending.page_header.subtitle'),
-        searchHint: l10n.tr('trending.search_hint'),
-        searchValue: query,
-        onSearchChanged: (v) => ref.read(trendingSearchQueryProvider.notifier).state = v,
-        onSearchSubmitted: (v) {
-          ref.read(trendingSearchQueryProvider.notifier).state = v;
-          if (v.trim().isEmpty) {
-            return;
-          }
-          context.go('/trending/repos');
-        },
-        pills: [
-          if (freshness != null) DataFreshnessBadge(freshness: freshness),
-        ],
-        actions: [
-          HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => refreshTrendingDigest(ref))
-        ]);
+      icon: Icons.trending_up_rounded,
+      iconAccent: AppColors.info,
+      title: l10n.tr('trending.title'),
+      subtitle: l10n.tr('trending.page_header.subtitle'),
+      searchHint: l10n.tr('trending.search_hint'),
+      searchValue: query,
+      onSearchChanged: (v) => ref.read(trendingSearchQueryProvider.notifier).state = v,
+      onSearchSubmitted: (v) {
+        ref.read(trendingSearchQueryProvider.notifier).state = v;
+        if (v.trim().isEmpty) {
+          return;
+        }
+        context.go('/trending/repos');
+      },
+      pills: [if (freshness != null) DataFreshnessBadge(freshness: freshness)],
+      actions: [HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => refreshTrendingDigest(ref))],
+    );
   }
 }

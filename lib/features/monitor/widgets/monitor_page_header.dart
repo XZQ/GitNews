@@ -21,7 +21,7 @@ class MonitorPageHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(monitorSearchQueryProvider);
-    final freshness = ref.watch(monitorFreshnessProvider).valueOrNull;
+    final freshness = ref.watch(monitorFreshnessProvider).value;
     return PageHeader(
       icon: Icons.radar_rounded,
       iconAccent: AppColors.success,
@@ -34,11 +34,7 @@ class MonitorPageHeader extends ConsumerWidget {
       onRefresh: () => forceRefreshMonitor(ref),
       pills: [
         if (freshness != null) DataFreshnessBadge(freshness: freshness),
-        HeaderStatPill(
-          icon: Icons.circle,
-          label: l10n.tr('monitor.unread_count').replaceAll('{n}', stats.unreadAlertCount.toString()),
-          color: AppColors.success,
-        )
+        HeaderStatPill(icon: Icons.circle, label: l10n.tr('monitor.unread_count').replaceAll('{n}', stats.unreadAlertCount.toString()), color: AppColors.success),
       ],
       actions: [HeaderAction(icon: Icons.add_circle_outline_rounded, tooltip: l10n.tr('a11y.add_monitor'), onPressed: () => context.go('/profile/monitor'))],
     );

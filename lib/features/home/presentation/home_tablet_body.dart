@@ -28,7 +28,7 @@ class HomeTabletBody extends StatelessWidget {
         SizedBox(height: AppSpacing.lg),
         _DesktopMainLayout(tab: HomeLegacyTab.trending),
         SizedBox(height: AppSpacing.lg),
-        HomeTopicsPanel()
+        HomeTopicsPanel(),
       ],
     );
   }
@@ -43,7 +43,11 @@ class _DesktopMainLayout extends StatelessWidget {
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [Expanded(flex: 8, child: _ChartCard(tab: tab)), const SizedBox(width: AppSpacing.lg), Expanded(flex: 4, child: HomeTodayStack(tab: tab))],
+        children: [
+          Expanded(flex: 8, child: _ChartCard(tab: tab)),
+          const SizedBox(width: AppSpacing.lg),
+          Expanded(flex: 4, child: HomeTodayStack(tab: tab)),
+        ],
       ),
     );
   }
@@ -63,27 +67,34 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final digest = ref.watch(trendingDigestProvider).valueOrNull;
-    final series = homeSeriesForWindow(
-      _chartWindow,
-      widget.tab,
-      Theme.of(context).colorScheme.primary,
-      primaryTrend: digest?.primaryTrend,
-      secondaryTrend: digest?.secondaryTrend,
-    );
+    final digest = ref.watch(trendingDigestProvider).value;
+    final series = homeSeriesForWindow(_chartWindow, widget.tab, Theme.of(context).colorScheme.primary, primaryTrend: digest?.primaryTrend, secondaryTrend: digest?.secondaryTrend);
     final windowLabel = '近 $_chartWindow 天';
     final title = homeChartTitle(l10n, widget.tab);
     final subtitle = homeChartSubtitle(l10n, widget.tab, windowLabel);
     final legends = homeChartLegends(l10n, widget.tab, Theme.of(context).colorScheme.primary);
     return AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [Expanded(child: SectionHeader(title: title, subtitle: subtitle)), ChartWindowSegmented(value: _chartWindow, onChanged: (v) => setState(() => _chartWindow = v))]),
-      const SizedBox(height: AppSpacing.md),
-      Row(children: [
-        for (var i = 0; i < legends.length; i++) ...[HomeLegendDot(color: legends[i].color, label: legends[i].label), if (i != legends.length - 1) const SizedBox(width: AppSpacing.md)]
-      ]),
-      const SizedBox(height: AppSpacing.sm),
-      StarTrendChart(series: series, height: 280)
-    ]));
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: SectionHeader(title: title, subtitle: subtitle),
+              ),
+              ChartWindowSegmented(value: _chartWindow, onChanged: (v) => setState(() => _chartWindow = v)),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              for (var i = 0; i < legends.length; i++) ...[HomeLegendDot(color: legends[i].color, label: legends[i].label), if (i != legends.length - 1) const SizedBox(width: AppSpacing.md)],
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          StarTrendChart(series: series, height: 280),
+        ],
+      ),
+    );
   }
 }

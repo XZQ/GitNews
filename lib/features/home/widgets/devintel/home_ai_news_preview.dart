@@ -22,7 +22,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemsNotifierProvider);
     final freshness = ref.watch(aiNewsFreshnessProvider);
-    final items = async.valueOrNull?.take(4).toList() ?? const <AiNewsItem>[];
+    final items = async.value?.take(4).toList() ?? const <AiNewsItem>[];
     return HomeSectionPreviewCard<AiNewsItem>(
       title: l10n.tr('home.section.ai_news.title'),
       subtitle: l10n.tr('home.section.ai_news.subtitle'),

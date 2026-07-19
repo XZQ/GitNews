@@ -6,14 +6,8 @@ import '../../application/ai_news_library_providers.dart';
 import '../../application/ai_news_providers.dart';
 import '../../domain/ai_news_library_filter.dart';
 
-Future<void> showAiNewsLibraryFiltersDialog(
-  BuildContext context,
-  WidgetRef ref,
-) {
-  return showDialog<void>(
-    context: context,
-    builder: (_) => const AiNewsLibraryFiltersDialog(),
-  );
+Future<void> showAiNewsLibraryFiltersDialog(BuildContext context, WidgetRef ref) {
+  return showDialog<void>(context: context, builder: (_) => const AiNewsLibraryFiltersDialog());
 }
 
 class AiNewsLibraryFiltersDialog extends ConsumerStatefulWidget {
@@ -44,7 +38,7 @@ class _AiNewsLibraryFiltersDialogState extends ConsumerState<AiNewsLibraryFilter
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final sources = ref.watch(aiNewsLibrarySourcesProvider).valueOrNull ?? const [];
+    final sources = ref.watch(aiNewsLibrarySourcesProvider).value ?? const [];
     return AlertDialog(
       title: Text(l10n.tr('ai_news.filters.title')),
       content: SizedBox(
@@ -56,31 +50,19 @@ class _AiNewsLibraryFiltersDialogState extends ConsumerState<AiNewsLibraryFilter
             DropdownButtonFormField<String>(
               initialValue: _source ?? '',
               isExpanded: true,
-              decoration: InputDecoration(
-                labelText: l10n.tr('ai_news.filters.source'),
-              ),
+              decoration: InputDecoration(labelText: l10n.tr('ai_news.filters.source')),
               items: [
                 DropdownMenuItem(
                   value: '',
-                  child: Text(
-                    l10n.tr('ai_news.filters.all_sources'),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  child: Text(l10n.tr('ai_news.filters.all_sources'), maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
                 for (final source in sources)
                   DropdownMenuItem(
                     value: source,
-                    child: Text(
-                      source,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: Text(source, maxLines: 1, overflow: TextOverflow.ellipsis),
                   ),
               ],
-              onChanged: (value) => setState(
-                () => _source = value == null || value.isEmpty ? null : value,
-              ),
+              onChanged: (value) => setState(() => _source = value == null || value.isEmpty ? null : value),
             ),
             const SizedBox(height: 20),
             Text(l10n.tr('ai_news.filters.time')),
@@ -90,9 +72,7 @@ class _AiNewsLibraryFiltersDialogState extends ConsumerState<AiNewsLibraryFilter
               children: [
                 for (final days in <int?>[null, 7, 30])
                   ChoiceChip(
-                    label: Text(
-                      days == null ? l10n.tr('ai_news.filters.all_time') : l10n.tr('ai_news.filters.last_days').replaceAll('{days}', '$days'),
-                    ),
+                    label: Text(days == null ? l10n.tr('ai_news.filters.all_time') : l10n.tr('ai_news.filters.last_days').replaceAll('{days}', '$days')),
                     selected: _days == days,
                     onSelected: (_) => setState(() => _days = days),
                   ),
@@ -103,18 +83,9 @@ class _AiNewsLibraryFiltersDialogState extends ConsumerState<AiNewsLibraryFilter
             const SizedBox(height: 8),
             SegmentedButton<AiNewsReadFilter>(
               segments: [
-                ButtonSegment(
-                  value: AiNewsReadFilter.all,
-                  label: Text(l10n.tr('ai_news.filters.read_all')),
-                ),
-                ButtonSegment(
-                  value: AiNewsReadFilter.unread,
-                  label: Text(l10n.tr('ai_news.filters.unread')),
-                ),
-                ButtonSegment(
-                  value: AiNewsReadFilter.read,
-                  label: Text(l10n.tr('ai_news.filters.read')),
-                ),
+                ButtonSegment(value: AiNewsReadFilter.all, label: Text(l10n.tr('ai_news.filters.read_all'))),
+                ButtonSegment(value: AiNewsReadFilter.unread, label: Text(l10n.tr('ai_news.filters.unread'))),
+                ButtonSegment(value: AiNewsReadFilter.read, label: Text(l10n.tr('ai_news.filters.read'))),
               ],
               selected: {_read},
               onSelectionChanged: (value) => setState(() => _read = value.single),
@@ -124,10 +95,7 @@ class _AiNewsLibraryFiltersDialogState extends ConsumerState<AiNewsLibraryFilter
       ),
       actions: [
         TextButton(onPressed: _reset, child: Text(l10n.tr('common.reset'))),
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(l10n.tr('common.cancel')),
-        ),
+        TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.tr('common.cancel'))),
         FilledButton(onPressed: _apply, child: Text(l10n.tr('common.confirm'))),
       ],
     );

@@ -34,12 +34,7 @@ class AiNewsDigestCard extends ConsumerWidget {
       return _CompactDigestBanner(config: config, digest: digest);
     }
     return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.md,
-        AppSpacing.xl,
-        0,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, 0),
       child: AppCard(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
@@ -49,8 +44,10 @@ class AiNewsDigestCard extends ConsumerWidget {
               children: [
                 Icon(Icons.auto_awesome_rounded, size: 18, color: colors.primary),
                 const SizedBox(width: AppSpacing.sm),
-                Expanded(child: Text(l10n.tr('ai_news.digest_title'), style: AppTypography.titleMedium.copyWith(color: colors.onSurface))),
-                if (config.configured && digest.valueOrNull != null)
+                Expanded(
+                  child: Text(l10n.tr('ai_news.digest_title'), style: AppTypography.titleMedium.copyWith(color: colors.onSurface)),
+                ),
+                if (config.configured && digest.value != null)
                   IconButton(
                     tooltip: l10n.tr('ai_news.digest_regenerate'),
                     iconSize: 18,
@@ -62,11 +59,11 @@ class AiNewsDigestCard extends ConsumerWidget {
                   iconSize: 18,
                   onPressed: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
                   icon: const Icon(Icons.settings_outlined),
-                )
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
-            _DigestBody(config: config, digest: digest)
+            _DigestBody(config: config, digest: digest),
           ],
         ),
       ),
@@ -115,7 +112,10 @@ class _CompactDigestBanner extends ConsumerWidget {
                 left: 0,
                 top: 0,
                 bottom: 0,
-                child: ColoredBox(color: colors.primary, child: const SizedBox(width: AppSpacing.xs)),
+                child: ColoredBox(
+                  color: colors.primary,
+                  child: const SizedBox(width: AppSpacing.xs),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
@@ -186,7 +186,10 @@ class _CompactDigestBody extends ConsumerWidget {
             height: 36,
             child: FilledButton(
               onPressed: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
-              style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md))),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+              ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -201,19 +204,27 @@ class _CompactDigestBody extends ConsumerWidget {
       );
     }
     if (digest.isLoading) {
-      return const SizedBox(height: 48, child: Align(alignment: Alignment.centerLeft, child: CircularProgressIndicator(strokeWidth: 2.4)));
+      return const SizedBox(
+        height: 48,
+        child: Align(alignment: Alignment.centerLeft, child: CircularProgressIndicator(strokeWidth: 2.4)),
+      );
     }
     if (digest.hasError) {
       return Row(
         children: [
           Expanded(
-            child: Text(l10n.tr('ai_news.digest_failed'), maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.error)),
+            child: Text(
+              l10n.tr('ai_news.digest_failed'),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.bodySmall.copyWith(color: colors.error),
+            ),
           ),
           TextButton(onPressed: () => ref.read(aiDigestNotifierProvider.notifier).generate(force: true), child: Text(l10n.tr('common.retry'))),
         ],
       );
     }
-    final text = digest.valueOrNull;
+    final text = digest.value;
     if (text == null || text.isEmpty) {
       return SizedBox(
         height: 40,
@@ -224,7 +235,12 @@ class _CompactDigestBody extends ConsumerWidget {
         ),
       );
     }
-    return Text(text, maxLines: 3, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurface, height: 1.5));
+    return Text(
+      text,
+      maxLines: 3,
+      overflow: TextOverflow.ellipsis,
+      style: AppTypography.bodySmall.copyWith(color: colors.onSurface, height: 1.5),
+    );
   }
 }
 
@@ -240,34 +256,41 @@ class _DigestBody extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     if (!config.configured) {
       // 未配置态收成单行:一句引导 + 配置入口;安全说明挪进配置对话框。
-      return Row(children: [
-        Expanded(
-          child: Text(
-            l10n.tr('ai_news.digest_unconfigured'),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+      return Row(
+        children: [
+          Expanded(
+            child: Text(
+              l10n.tr('ai_news.digest_unconfigured'),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant),
+            ),
           ),
-        ),
-        TextButton(
-          onPressed: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
-          child: Text(l10n.tr('ai_news.digest_configure')),
-        ),
-      ]);
+          TextButton(
+            onPressed: () => showDialog<void>(context: context, builder: (_) => const AiDigestSettingsDialog()),
+            child: Text(l10n.tr('ai_news.digest_configure')),
+          ),
+        ],
+      );
     }
     if (digest.isLoading) {
-      return const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.md), child: Center(child: CircularProgressIndicator()));
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+        child: Center(child: CircularProgressIndicator()),
+      );
     }
     if (digest.hasError) {
       final kind = digest.error!.asAppException().kind.name;
       return Row(
         children: [
-          Expanded(child: Text('${l10n.tr('ai_news.digest_failed')} ($kind)', style: AppTypography.bodyMedium.copyWith(color: colors.error))),
-          TextButton(onPressed: () => ref.read(aiDigestNotifierProvider.notifier).generate(force: true), child: Text(l10n.tr('common.retry')))
+          Expanded(
+            child: Text('${l10n.tr('ai_news.digest_failed')} ($kind)', style: AppTypography.bodyMedium.copyWith(color: colors.error)),
+          ),
+          TextButton(onPressed: () => ref.read(aiDigestNotifierProvider.notifier).generate(force: true), child: Text(l10n.tr('common.retry'))),
         ],
       );
     }
-    final text = digest.valueOrNull;
+    final text = digest.value;
     if (text == null || text.isEmpty) {
       return Align(
         alignment: Alignment.centerLeft,

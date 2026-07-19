@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/storage/storage_providers.dart';
 import '../data/monitor_alert_event_dao.dart';
@@ -35,7 +36,7 @@ class MonitorAlertEventsController extends AsyncNotifier<List<MonitorAlertEvent>
   }
 
   Future<void> toggleRead(String id) async {
-    final events = state.valueOrNull ?? await _dao.list(includeArchived: true);
+    final events = state.value ?? await _dao.list(includeArchived: true);
     final event = events.where((item) => item.id == id).firstOrNull;
     if (event == null) {
       return;

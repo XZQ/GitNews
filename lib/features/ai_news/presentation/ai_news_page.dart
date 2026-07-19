@@ -45,13 +45,7 @@ class AiNewsPage extends ConsumerWidget {
     );
     return Scaffold(
       appBar: isCompact ? const AiNewsCompactAppBar() : null,
-      body: isCompact
-          ? RefreshIndicator.adaptive(
-              onRefresh: () => _refreshAiNews(ref),
-              notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical,
-              child: content,
-            )
-          : content,
+      body: isCompact ? RefreshIndicator.adaptive(onRefresh: () => _refreshAiNews(ref), notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical, child: content) : content,
     );
   }
 
@@ -90,13 +84,7 @@ class _Body extends ConsumerWidget {
       return async.when(
         data: (items) => items.isEmpty
             ? EmptyView(icon: Icons.bookmark_border_rounded, message: AppLocalizations.of(context).tr('ai_news.read_later_empty'))
-            : _ItemList(
-                items: items,
-                category: category,
-                query: '',
-                staticList: true,
-                header: const AiNewsOverviewHeader(),
-              ),
+            : _ItemList(items: items, category: category, query: '', staticList: true, header: const AiNewsOverviewHeader()),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider)),
       );
@@ -106,13 +94,7 @@ class _Body extends ConsumerWidget {
     if (query.isNotEmpty || libraryFilter.isActive) {
       final async = ref.watch(aiNewsLibrarySearchProvider(query));
       return async.when(
-        data: (items) => _ItemList(
-          items: items,
-          category: category,
-          query: query,
-          staticList: true,
-          header: const AiNewsOverviewHeader(),
-        ),
+        data: (items) => _ItemList(items: items, category: category, query: query, staticList: true, header: const AiNewsOverviewHeader()),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query))),
       );
@@ -120,12 +102,7 @@ class _Body extends ConsumerWidget {
 
     final async = ref.watch(aiNewsItemsNotifierProvider);
     return async.when(
-      data: (items) => _ItemList(
-        items: items,
-        category: category,
-        query: '',
-        header: const AiNewsOverviewHeader(),
-      ),
+      data: (items) => _ItemList(items: items, category: category, query: '', header: const AiNewsOverviewHeader()),
       loading: () => const AiNewsListSkeleton(),
       error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider)),
     );
@@ -133,13 +110,7 @@ class _Body extends ConsumerWidget {
 }
 
 class _ItemList extends ConsumerStatefulWidget {
-  const _ItemList({
-    required this.items,
-    required this.category,
-    required this.query,
-    this.staticList = false,
-    this.header,
-  });
+  const _ItemList({required this.items, required this.category, required this.query, this.staticList = false, this.header});
 
   final List<AiNewsItem> items;
   final AiNewsCategory? category;
@@ -203,13 +174,13 @@ class _ItemListState extends ConsumerState<_ItemList> {
         message: query.isNotEmpty
             ? l10n.tr('ai_news.empty_search').replaceAll('{query}', query)
             : widget.category == null
-                ? l10n.tr('ai_news.empty')
-                : l10n.tr('ai_news.empty_category').replaceAll('{cat}', widget.category!.label),
+            ? l10n.tr('ai_news.empty')
+            : l10n.tr('ai_news.empty_category').replaceAll('{cat}', widget.category!.label),
       );
     }
     final hasMore = !widget.staticList && query.isEmpty && ref.read(aiNewsItemsNotifierProvider.notifier).hasMore;
     final showPagingFooter = !widget.staticList && query.isEmpty;
-    final profile = ref.watch(aiNewsInterestProfileProvider).valueOrNull ?? AiNewsInterestProfile.empty;
+    final profile = ref.watch(aiNewsInterestProfileProvider).value ?? AiNewsInterestProfile.empty;
     final isCompact = Breakpoints.isCompact(context);
     final ranked = rankAiNewsByInterest(widget.items, profile);
     final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
@@ -217,8 +188,8 @@ class _ItemListState extends ConsumerState<_ItemList> {
     final flat = <_FlatEntry>[
       for (final g in groups) ...[
         _FlatEntry.header(g.key, g.value.length),
-        for (var i = 0; i < g.value.length; i++) _FlatEntry.item(g.value[i], isFirstInGroup: i == 0, isLastInGroup: i == g.value.length - 1)
-      ]
+        for (var i = 0; i < g.value.length; i++) _FlatEntry.item(g.value[i], isFirstInGroup: i == 0, isLastInGroup: i == g.value.length - 1),
+      ],
     ];
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
@@ -227,12 +198,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
         slivers: [
           if (widget.header != null) SliverToBoxAdapter(child: widget.header),
           SliverPadding(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              isCompact ? AppSpacing.xs : AppSpacing.md,
-              isCompact ? AppSpacing.lg : AppSpacing.xl,
-              AppSpacing.xxxl,
-            ),
+            padding: EdgeInsets.fromLTRB(AppSpacing.lg, isCompact ? AppSpacing.xs : AppSpacing.md, isCompact ? AppSpacing.lg : AppSpacing.xl, AppSpacing.xxxl),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate((context, index) {
                 if (index < flat.length) {
@@ -259,9 +225,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
     );
   }
 
-  List<MapEntry<DateTime, List<AiNewsEventCluster>>> _groupEventsByDay(
-    List<AiNewsEventCluster> clusters,
-  ) {
+  List<MapEntry<DateTime, List<AiNewsEventCluster>>> _groupEventsByDay(List<AiNewsEventCluster> clusters) {
     final groups = <DateTime, List<AiNewsEventCluster>>{};
     for (final cluster in clusters) {
       final local = cluster.primary.publishedAt.toLocal();

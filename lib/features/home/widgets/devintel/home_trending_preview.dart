@@ -17,7 +17,7 @@ class HomeTrendingPreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final items = ref.watch(trendingDigestProvider).valueOrNull?.trendingRepos.take(4).toList() ?? const <RepoEntity>[];
+    final items = ref.watch(trendingDigestProvider).value?.trendingRepos.take(4).toList() ?? const <RepoEntity>[];
     return HomeSectionPreviewCard<RepoEntity>(
       title: l10n.tr('home.section.trending.title'),
       subtitle: l10n.tr('home.section.trending.subtitle'),
