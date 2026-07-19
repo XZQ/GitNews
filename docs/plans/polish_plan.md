@@ -17,7 +17,7 @@
    - 修复：新建 `lib/shared/providers/app_search_query_provider.dart` 存放 `projectSearchQueryProvider`；从 `project_providers` 移除定义并改为 import+export；repo_detail 与 home/devintel 改从 shared 引入。project 内部文件经 re-export 保持不变。
 
 3. **数据来源可信度模型过粗且展示不全**
-   - `lib/core/domain/data_provenance.dart:6` 仅 `observed/estimated/localFallback` 三态，把"实时/新鲜缓存/过期缓存"全并入 `observed`，过期缓存会被误标为真实观测。
+   - `lib/core/domain/data_provenance.dart:6` 仅 `observed/estimated/localFallback` 三态，把"实时/有效缓存/过期缓存"全并入 `observed`，过期缓存会被误标为真实观测。
    - 仅在 `repo_detail`（`repo_detail_chart.dart:31/41`）与 `monitor_detail_page.dart:127` 展示；`ai_news/trending/project/home` 未暴露来源。
    - 改法：扩展为 5 态（live / freshCache / staleCache / estimated / seed），并在全部数据 feature 显示来源 badge。
 
@@ -28,7 +28,7 @@
 5. **回退链路与缓存编解码缺测试（稳定性盲点）**
    - `repo_detail/data/github_repo_detail_repository.dart:83`、`tech_hotspot/data/github_tech_hotspot_repository.dart:83` 的"过期缓存→种子"回退在 `catch` 内且未再包裹，本地兜底抛异常会冒泡为未捕获 AsyncError。
    - `github_repo_entity_codec.dart`、`github_tech_hotspot_cache_codec.dart`、`github_repo_detail_cache_codec.dart` 均无往返单测。
-   - 改法：补"新鲜缓存→过期回退→远端失败回退种子"三态单测 + codec 序列化往返与脏数据容错测试。
+   - 改法：补"有效缓存→过期回退→远端失败回退种子"三态单测 + codec 序列化往返与脏数据容错测试。
 
 ## 二、中优先级（一致性、性能、体验）
 

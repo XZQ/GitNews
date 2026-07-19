@@ -1,4 +1,4 @@
-# AI 日报模型服务商目录
+# AI 解读模型服务商目录
 
 核对日期：2026-07-16。应用使用 OpenAI Chat Completions 兼容协议，在所列 Base URL 后追加 `/chat/completions`。
 
@@ -28,4 +28,4 @@
 
 只有用户已提供 Key 的 Agnes、DeepSeek、MiniMax、Z.AI、Meituan LongCat 能完成鉴权后的真实生成验证；其余服务商已按官方接口与模型目录核对，仍需各自有效 Key 才能做最终账户级验证。模型目录会变化，更新时应同时修改 `lib/core/config/ai_model_providers_config.dart` 和本文档。
 
-发布构建可通过 `--dart-define=AI_DIGEST_DEFAULT_API_KEY=...` 注入 LongCat 默认 Key。应用首次加载后会将其写入系统安全存储；Key 不应写入源码、文档或提交记录。
+逐条 AI 解读可通过 `--dart-define=AI_DIGEST_DEFAULT_API_KEY=...` 注入兼容的默认 Key；该环境变量名称为兼容旧版本而保留。应用首次加载后会将 Key 写入系统安全存储；Key 不应写入源码、文档、脚本或提交记录。

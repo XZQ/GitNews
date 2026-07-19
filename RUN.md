@@ -39,13 +39,7 @@ flutter build windows --release --dart-define=GITHUB_OAUTH_CLIENT_ID=your_client
 
 没有该构建配置时，界面会明确引导到 Personal Access Token，不会尝试无效 OAuth 请求。
 
-AI 页默认展示无需 Key 的 AI HOT 官方日报；“我的 AI 日报”是独立的可选本地 LLM 能力，默认使用美团 LongCat。发布方如需为“我的 AI 日报”预置默认 Key，应只在构建时注入；首次加载后应用会将其迁移到系统安全存储：
-
-```bash
-flutter build windows --release --dart-define=AI_DIGEST_DEFAULT_API_KEY=your_longcat_key
-```
-
-不要把真实 Key 写入源码、文档、脚本或提交记录。用户在设置中保存的 Key 始终优先于构建默认值。
+AI 页默认展示无需 Key 的 AI HOT 官方日报；总览顶部展示同样无需 Key 的当前热点。“我的 AI 日报”入口已移除，不再把模型 Key 配置作为主流程的一部分。资讯详情中的逐条 AI 解读仍是可选增强，未配置时不会发起模型请求。不要把真实 Key 写入源码、文档、脚本或提交记录。
 
 ## 3. 质量检查
 

@@ -2,35 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/domain/data_freshness.dart';
-import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/app_card.dart';
-import '../../../../shared/widgets/data_provenance_badge.dart';
-import '../../application/ai_news_providers.dart';
-import '../../domain/ai_hot_topic.dart';
+import '../../../core/domain/data_freshness.dart';
+import '../../../core/i18n/app_localizations.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/app_radius.dart';
+import '../../../core/theme/app_spacing.dart';
+import '../../../core/theme/app_typography.dart';
+import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/data_provenance_badge.dart';
+import '../../ai_news/application/ai_news_providers.dart';
+import '../../ai_news/domain/ai_hot_topic.dart';
 
 /*
-*AI HOT 当前热点卡。
-*它表达多信源讨论强度,不合并到 GitHub AI 雷达;加载失败也不阻断资讯列表。
+*总览顶部的 AI HOT 当前热点卡。
+*它优先呈现跨来源讨论强度,加载失败时不阻断总览中的其他情报区块。
 */
-class AiHotTopicsCard extends ConsumerWidget {
-  const AiHotTopicsCard({super.key});
+class HomeAiHotTopicsCard extends ConsumerWidget {
+  const HomeAiHotTopicsCard({this.padding = const EdgeInsets.symmetric(horizontal: AppSpacing.lg), super.key});
+
+  // 适配总览三档布局的外边距。
+  final EdgeInsetsGeometry padding;
 
   @override
-  /* 构建当前热点独立状态。 */
+  /* 构建当前热点的独立加载、错误与数据状态。 */
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(aiHotTopicsProvider);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.xl, 0),
+      padding: padding,
       child: AppCard(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: state.when(
-          loading: () => _Message(icon: const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)), text: l10n.tr('ai_news.hot_topics.loading')),
+          loading: () => _Message(
+            icon: const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+            text: l10n.tr('ai_news.hot_topics.loading'),
+          ),
           error: (_, __) => _Message(
             icon: Icon(Icons.cloud_off_rounded, color: Theme.of(context).colorScheme.error),
             text: l10n.tr('ai_news.hot_topics.failed'),
@@ -43,6 +49,9 @@ class AiHotTopicsCard extends ConsumerWidget {
   }
 }
 
+/*
+*当前热点的标题与前三条信号。
+*/
 class _Topics extends StatelessWidget {
   const _Topics({required this.items, required this.freshness});
 
@@ -53,7 +62,7 @@ class _Topics extends StatelessWidget {
   final DataFreshness freshness;
 
   @override
-  /* 构建标题与最多三条热点。 */
+  /* 构建热点标题与内容列表。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
@@ -86,6 +95,9 @@ class _Topics extends StatelessWidget {
   }
 }
 
+/*
+*总览热点列表中的单条可点击信号。
+*/
 class _TopicRow extends StatelessWidget {
   const _TopicRow({required this.topic});
 
@@ -93,7 +105,7 @@ class _TopicRow extends StatelessWidget {
   final AiHotTopic topic;
 
   @override
-  /* 构建可打开 AI HOT canonical 的热点行。 */
+  /* 构建热点标题、来源数和信号数。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
@@ -109,7 +121,12 @@ class _TopicRow extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(topic.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall.copyWith(color: colors.onSurface, height: 1.4)),
+                  Text(
+                    topic.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.titleSmall.copyWith(color: colors.onSurface, height: 1.4),
+                  ),
                   const SizedBox(height: AppSpacing.xxs),
                   Text(
                     '${l10n.tr('ai_news.hot_topics.sources').replaceAll('{count}', '${topic.sourceCount}')} · ${l10n.tr('ai_news.hot_topics.signals').replaceAll('{count}', '${topic.signalCount}')}',
@@ -126,15 +143,15 @@ class _TopicRow extends StatelessWidget {
     );
   }
 
+  /* 在总览分支中打开共用 WebView 的精简标题栏变体。 */
   static void _open(BuildContext context, AiHotTopic topic) {
-    final location = Uri(
-      path: '/ai_news/webview',
-      queryParameters: {'url': topic.permalink, 'title': topic.title},
-    );
-    context.go(location.toString());
+    context.pushNamed('home_hot_topic_webview', queryParameters: {'url': topic.permalink, 'title': topic.title});
   }
 }
 
+/*
+*当前热点的紧凑加载或错误提示。
+*/
 class _Message extends StatelessWidget {
   const _Message({required this.icon, required this.text, this.action});
 
@@ -154,7 +171,9 @@ class _Message extends StatelessWidget {
       children: [
         icon,
         const SizedBox(width: AppSpacing.sm),
-        Expanded(child: Text(text, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))),
+        Expanded(
+          child: Text(text, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+        ),
         if (action != null) action!,
       ],
     );

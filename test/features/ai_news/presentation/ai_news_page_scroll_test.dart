@@ -7,10 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
-import 'package:github_news/core/preferences/ai_digest_config_controller.dart';
 import 'package:github_news/core/theme/app_colors.dart';
 import 'package:github_news/core/theme/app_theme.dart';
-import 'package:github_news/features/ai_news/application/ai_digest_providers.dart';
 import 'package:github_news/features/ai_news/application/ai_news_library_providers.dart';
 import 'package:github_news/features/ai_news/application/ai_news_providers.dart';
 import 'package:github_news/features/ai_news/application/ai_news_reminder_providers.dart';
@@ -47,24 +45,6 @@ class _StaticAiNewsItemsNotifier extends AiNewsItemsNotifier {
   /* 静态列表不加载下一页。 */
   @override
   Future<void> loadMore() async {}
-}
-
-/*
-*测试用日报配置,固定为未配置态。
-*/
-class _StaticAiDigestConfigController extends AiDigestConfigController {
-  /* 跳过安全存储读取。 */
-  @override
-  AiDigestConfigState build() => const AiDigestConfigState();
-}
-
-/*
-*测试用日报内容,固定为空。
-*/
-class _StaticAiDigestNotifier extends AiDigestNotifier {
-  /* 跳过偏好存储读取。 */
-  @override
-  Future<String?> build() async => null;
 }
 
 void main() {
@@ -115,13 +95,9 @@ void main() {
         ? baseTheme.copyWith(
             textTheme: baseTheme.textTheme.apply(fontFamily: 'AiNewsGoldenFont'),
             primaryTextTheme: baseTheme.primaryTextTheme.apply(fontFamily: 'AiNewsGoldenFont'),
-            appBarTheme: baseTheme.appBarTheme.copyWith(
-              titleTextStyle: baseTheme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'AiNewsGoldenFont'),
-            ),
+            appBarTheme: baseTheme.appBarTheme.copyWith(titleTextStyle: baseTheme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'AiNewsGoldenFont')),
             filledButtonTheme: FilledButtonThemeData(
-              style: baseTheme.filledButtonTheme.style?.copyWith(
-                textStyle: WidgetStatePropertyAll(baseTheme.textTheme.labelLarge?.copyWith(fontFamily: 'AiNewsGoldenFont')),
-              ),
+              style: baseTheme.filledButtonTheme.style?.copyWith(textStyle: WidgetStatePropertyAll(baseTheme.textTheme.labelLarge?.copyWith(fontFamily: 'AiNewsGoldenFont'))),
             ),
           )
         : baseTheme;
@@ -129,50 +105,25 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          aiNewsItemsNotifierProvider.overrideWith(
-            () => _StaticAiNewsItemsNotifier(items, onBuild: () => buildCount++),
-          ),
+          aiNewsItemsNotifierProvider.overrideWith(() => _StaticAiNewsItemsNotifier(items, onBuild: () => buildCount++)),
           aiNewsUnreadReminderCountProvider.overrideWithValue(0),
           aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none),
           aiHotLatestDailyProvider.overrideWith(
             (ref) async => const DataResult(
-              data: AiHotDailyReport(
-                date: '2026-07-19',
-                generatedAt: null,
-                windowStart: null,
-                windowEnd: null,
-                sections: [],
-                flashes: [],
-              ),
+              data: AiHotDailyReport(date: '2026-07-19', generatedAt: null, windowStart: null, windowEnd: null, sections: [], flashes: []),
               freshness: DataFreshness.freshCache,
             ),
-          ),
-          aiHotTopicsProvider.overrideWith(
-            (ref) async => const DataResult(data: [], freshness: DataFreshness.freshCache),
           ),
           aiHotVersionProvider.overrideWith(
             (ref) async => const DataResult(
-              data: AiHotVersion(
-                apiVersion: '1.4.0',
-                skillVersion: '0.3.6',
-                updatedAt: '2026-07-18',
-                changelogUrl: 'https://aihot.virxact.com/changelog',
-                recentChanges: [],
-              ),
+              data: AiHotVersion(apiVersion: '1.4.0', skillVersion: '0.3.6', updatedAt: '2026-07-18', changelogUrl: 'https://aihot.virxact.com/changelog', recentChanges: []),
               freshness: DataFreshness.freshCache,
             ),
           ),
-          aiDigestConfigControllerProvider.overrideWith(_StaticAiDigestConfigController.new),
-          aiDigestNotifierProvider.overrideWith(_StaticAiDigestNotifier.new),
         ],
         child: MaterialApp(
           locale: const Locale('zh', 'CN'),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           theme: testTheme,
           home: const AiNewsPage(),
@@ -191,12 +142,7 @@ void main() {
     if (Platform.isWindows) {
       final imageContext = tester.element(find.byType(AiNewsPage));
       await tester.runAsync(() async {
-        for (final path in const [
-          'assets/ai_news/digest_banner.png',
-          'assets/ai_news/article_document.png',
-          'assets/ai_news/article_city.png',
-          'assets/ai_news/article_neural.png',
-        ]) {
+        for (final path in const ['assets/ai_news/article_document.png', 'assets/ai_news/article_city.png', 'assets/ai_news/article_neural.png']) {
           await precacheImage(AssetImage(path), imageContext);
         }
       });

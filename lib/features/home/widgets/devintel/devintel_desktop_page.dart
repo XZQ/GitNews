@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../shared/widgets/bordered_row.dart';
+import '../home_ai_hot_topics_card.dart';
 import 'devintel_bottom_grid.dart';
 import 'devintel_chart_card.dart';
 import 'devintel_top_header.dart';
@@ -12,7 +13,8 @@ import 'home_trending_preview.dart';
 
 /* 
 *首页(桌面 / Expanded)情报总览。
-*三行布局:
+*内容顺序:
+*- 顶部:[HomeAiHotTopicsCard] — 跨来源当前热点
 *- Row 1:[HomeSectionEntryRow] — 5 栏目入口 + KPI
 *- Row 2:3 列 [HomeAiNewsPreview] / [HomeTrendingPreview] / [HomeHotspotPreview]
 *- Row 3:[DevIntelChartCard] + [DevIntelBottomGrid] — Star 趋势与监控状态
@@ -29,26 +31,23 @@ class DevIntelDesktopPage extends StatelessWidget {
           DevIntelTopHeader(),
           Expanded(
             child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                AppSpacing.xl,
-                AppSpacing.lg,
-                AppSpacing.xl,
-                AppSpacing.xxxl,
-              ),
+              padding: EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  HomeAiHotTopicsCard(padding: EdgeInsets.zero),
+                  SizedBox(height: AppSpacing.lg),
                   HomeSectionEntryRow(),
                   SizedBox(height: AppSpacing.lg),
                   _PreviewRow(),
                   SizedBox(height: AppSpacing.lg),
                   DevIntelChartCard(),
                   SizedBox(height: AppSpacing.lg),
-                  DevIntelBottomGrid()
+                  DevIntelBottomGrid(),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

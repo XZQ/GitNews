@@ -7,6 +7,7 @@ import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/star_trend_chart.dart';
 import '../../trending/application/trending_providers.dart';
+import '../widgets/home_ai_hot_topics_card.dart';
 import '../widgets/home_topics_panel.dart';
 import 'home_chart_models.dart';
 import 'home_chart_widgets.dart';
@@ -14,7 +15,7 @@ import 'home_tablet_metrics_row.dart';
 import 'home_today_stack.dart';
 
 /* 
-*Home medium (600–1024) 分支:指标行 + 主图表 + 主题。
+*Home medium (600–1024) 分支:当前热点 + 指标行 + 主图表 + 主题。
 */
 class HomeTabletBody extends StatelessWidget {
   const HomeTabletBody({super.key});
@@ -24,6 +25,8 @@ class HomeTabletBody extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
       children: const [
+        HomeAiHotTopicsCard(),
+        SizedBox(height: AppSpacing.lg),
         HomeTabletMetricsRow(tab: HomeLegacyTab.trending),
         SizedBox(height: AppSpacing.lg),
         _DesktopMainLayout(tab: HomeLegacyTab.trending),

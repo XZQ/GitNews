@@ -92,7 +92,7 @@ class MobileTabSpec {
 }
 
 const mobileAppTabs = <MobileTabSpec>[
-  MobileTabSpec(labelKey: 'mobile.today', branchIndex: 0),
+  MobileTabSpec(labelKey: 'mobile.home', branchIndex: 0),
   MobileTabSpec(labelKey: 'mobile.ai', branchIndex: 1),
   MobileTabSpec(labelKey: 'mobile.project', branchIndex: 2),
   MobileTabSpec(labelKey: 'mobile.settings', branchIndex: 7),
@@ -356,7 +356,7 @@ Add `MonitorObservationDao`, `MonitorAlertEventDao`, enabled rule IDs, and `Data
 
 - [ ] **Step 4: Update UI state**
 
-Render durable event timestamps and read/archive state from the async alert controller. Page headers show “实时检查 / 新鲜缓存 / 陈旧缓存 / 本地种子”.
+Render durable event timestamps and read/archive state from the async alert controller. Page headers show “实时检查 / 陈旧缓存 / 本地种子”; valid cache stays visually quiet.
 
 - [ ] **Step 5: Run monitor tests**
 
