@@ -18,6 +18,7 @@ import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item_state.dart';
 import 'package:github_news/features/ai_news/presentation/ai_news_page.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_category_nav.dart';
+import 'package:github_news/features/ai_news/presentation/widgets/ai_news_overview_header.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_page_header.dart';
 
 /*
@@ -164,6 +165,63 @@ void main() {
     expect(tester.getTopLeft(appBarFinder).dy, appBarTopBefore);
     expect(tester.getTopLeft(searchFinder).dy, searchTopBefore);
     expect(tester.getTopLeft(categoryFinder).dy, lessThan(categoryTopBefore));
+  });
+
+  testWidgets('AI HOT 官方日报只在全部分类显示', (tester) async {
+    final item = AiNewsItem(
+      id: 'daily-category-visibility',
+      category: AiNewsCategory.paper,
+      title: 'AI 研究进展',
+      titleEn: 'AI research update',
+      summary: '测试分类切换时官方日报的显示范围。',
+      source: 'Test',
+      url: 'https://example.com/article',
+      permalink: 'https://example.com/article',
+      publishedAt: DateTime(2026, 7, 20),
+      score: 80,
+      selected: false,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          aiNewsItemsNotifierProvider.overrideWith(() => _StaticAiNewsItemsNotifier([item])),
+          aiNewsUnreadReminderCountProvider.overrideWithValue(0),
+          aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none),
+          aiHotLatestDailyProvider.overrideWith(
+            (ref) async => const DataResult(
+              data: AiHotDailyReport(date: '2026-07-20', generatedAt: null, windowStart: null, windowEnd: null, sections: [], flashes: []),
+              freshness: DataFreshness.freshCache,
+            ),
+          ),
+          aiHotVersionProvider.overrideWith(
+            (ref) async => const DataResult(
+              data: AiHotVersion(apiVersion: '1.4.0', skillVersion: '0.3.6', updatedAt: '2026-07-20', changelogUrl: 'https://aihot.virxact.com/changelog', recentChanges: []),
+              freshness: DataFreshness.freshCache,
+            ),
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('zh', 'CN'),
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: AiNewsPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AiNewsOverviewHeader), findsOneWidget);
+
+    await tester.tap(find.text(AiNewsCategory.paper.label));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AiNewsOverviewHeader), findsNothing);
+
+    await tester.tap(find.text('全部'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AiNewsOverviewHeader), findsOneWidget);
   });
 }
 

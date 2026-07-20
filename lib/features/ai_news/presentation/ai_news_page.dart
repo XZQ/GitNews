@@ -84,7 +84,7 @@ class _Body extends ConsumerWidget {
       return async.when(
         data: (items) => items.isEmpty
             ? EmptyView(icon: Icons.bookmark_border_rounded, message: AppLocalizations.of(context).tr('ai_news.read_later_empty'))
-            : _ItemList(items: items, category: category, query: '', staticList: true, header: const AiNewsOverviewHeader()),
+            : _ItemList(items: items, category: category, query: '', staticList: true, header: category == null ? const AiNewsOverviewHeader() : null),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider)),
       );
@@ -94,7 +94,7 @@ class _Body extends ConsumerWidget {
     if (query.isNotEmpty || libraryFilter.isActive) {
       final async = ref.watch(aiNewsLibrarySearchProvider(query));
       return async.when(
-        data: (items) => _ItemList(items: items, category: category, query: query, staticList: true, header: const AiNewsOverviewHeader()),
+        data: (items) => _ItemList(items: items, category: category, query: query, staticList: true, header: category == null ? const AiNewsOverviewHeader() : null),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsLibrarySearchProvider(query))),
       );
@@ -102,7 +102,7 @@ class _Body extends ConsumerWidget {
 
     final async = ref.watch(aiNewsItemsNotifierProvider);
     return async.when(
-      data: (items) => _ItemList(items: items, category: category, query: '', header: const AiNewsOverviewHeader()),
+      data: (items) => _ItemList(items: items, category: category, query: '', header: category == null ? const AiNewsOverviewHeader() : null),
       loading: () => const AiNewsListSkeleton(),
       error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider)),
     );
