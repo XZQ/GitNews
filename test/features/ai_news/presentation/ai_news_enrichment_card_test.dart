@@ -31,7 +31,7 @@ class _StaticAiDigestConfigController extends AiDigestConfigController {
 }
 
 void main() {
-  testWidgets('AI 配置读取完成后自动生成增强内容', (tester) async {
+  testWidgets('Agnes 返回有效数据后才显示 AI 深度解读', (tester) async {
     final item = _item();
     final result = _enrichment(item.id);
     final completion = Completer<AiNewsEnrichment?>();
@@ -69,8 +69,7 @@ void main() {
     await tester.pump();
 
     expect(callCount, 1);
-    expect(find.text('正在自动生成增强内容…'), findsOneWidget);
-    expect(find.text('生成增强内容'), findsNothing);
+    expect(find.text('AI 深度解读'), findsNothing);
 
     completion.complete(result);
     await tester.pump();
@@ -80,7 +79,7 @@ void main() {
     expect(find.text(result.generatedSummary), findsOneWidget);
   });
 
-  testWidgets('未配置 AI 时不自动生成增强内容', (tester) async {
+  testWidgets('构建未注入 Agnes Key 时隐藏 AI 深度解读', (tester) async {
     final item = _item();
     var callCount = 0;
 
@@ -102,17 +101,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(callCount, 0);
-    expect(find.text('请先在 AI 解读设置中配置兼容端点、模型和 API Key。'), findsOneWidget);
-    expect(find.text('生成增强内容'), findsNothing);
-    expect(find.text('去配置 →'), findsOneWidget);
-
-    await tester.tap(find.text('去配置 →'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('AI 解读设置'), findsOneWidget);
+    expect(find.text('AI 深度解读'), findsNothing);
+    expect(find.byType(OutlinedButton), findsNothing);
   });
 
-  testWidgets('自动生成失败后显示重试入口', (tester) async {
+  testWidgets('Agnes 请求失败时隐藏 AI 深度解读', (tester) async {
     final item = _item();
     var callCount = 0;
 
@@ -134,13 +127,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(callCount, 1);
-    expect(find.text('条目增强失败，请检查模型配置后重试。'), findsWidgets);
-    expect(find.text('重试'), findsOneWidget);
-
-    await tester.tap(find.text('重试'));
-    await tester.pumpAndSettle();
-
-    expect(callCount, 2);
+    expect(find.text('AI 深度解读'), findsNothing);
+    expect(find.text('重试'), findsNothing);
   });
 }
 
@@ -190,7 +178,7 @@ AiNewsEnrichment _enrichment(String itemId) {
     translatedSummary: '详情页打开后无需点击。',
     importanceScore: 88,
     entities: const AiNewsEntities(),
-    model: 'test-model',
+    model: 'agnes-2.0-flash',
     updatedAt: DateTime.utc(2026, 7, 16),
   );
 }

@@ -4,8 +4,8 @@ import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/errors/app_exception.dart';
 
 /*
-*OpenAI 兼容 Chat Completions 客户端(AI 日报)。
-*端点与凭据完全由用户配置注入;失败以 [AppException] 抛出,
+*内置 Agnes Chat Completions 客户端。
+*端点和模型固定使用应用内置值;失败以 [AppException] 抛出,
 *绝不返回伪造的摘要文本。Key 只出现在请求头,不写日志。
 */
 class AiDigestLlmClient {
@@ -16,23 +16,17 @@ class AiDigestLlmClient {
   /*
   *执行一次补全,返回首个 choice 的文本。
   */
-  Future<String> complete({
-    required String baseUrl,
-    required String apiKey,
-    required String model,
-    required String systemPrompt,
-    required String userPrompt,
-  }) async {
+  Future<String> complete({required String apiKey, required String systemPrompt, required String userPrompt}) async {
     final Response<Map<String, Object?>> resp;
     try {
       resp = await _dio.post<Map<String, Object?>>(
-        '$baseUrl${ApiEndpointsConfig.aiDigestChatCompletionsPath}',
+        ApiEndpointsConfig.aiDigestChatCompletionsUrl,
         data: {
-          'model': model,
+          'model': ApiEndpointsConfig.aiDigestDefaultModel,
           'messages': [
             {'role': 'system', 'content': systemPrompt},
-            {'role': 'user', 'content': userPrompt}
-          ]
+            {'role': 'user', 'content': userPrompt},
+          ],
         },
         options: Options(
           headers: {'Authorization': 'Bearer $apiKey', 'Content-Type': 'application/json'},

@@ -39,7 +39,7 @@ flutter build windows --release --dart-define=GITHUB_OAUTH_CLIENT_ID=your_client
 
 没有该构建配置时，界面会明确引导到 Personal Access Token，不会尝试无效 OAuth 请求。
 
-AI 页默认展示无需 Key 的 AI HOT 官方日报；总览顶部展示同样无需 Key 的当前热点。“我的 AI 日报”入口已移除，不再把模型 Key 配置作为主流程的一部分。资讯详情中的逐条 AI 解读仍是可选增强，未配置时不会发起模型请求。不要把真实 Key 写入源码、文档、脚本或提交记录。
+AI 页默认展示无需 Key 的 AI HOT 官方日报；总览顶部展示同样无需 Key 的当前热点。“我的 AI 日报”和最终用户模型配置入口均已移除。资讯详情只使用内置 Agnes `https://apihub.agnes-ai.com/v1` 与 `agnes-2.0-flash`：真实生成并解析成功才展示 AI 深度解读，未注入 Key、网络失败、鉴权失败或响应无效时整块隐藏。发布方通过忽略的 `env.json` 写入 `AI_ENRICHMENT_AGNES_API_KEY`，再使用 `--dart-define-from-file=env.json` 构建；不要把真实 Key 写入源码、文档、脚本或提交记录。
 
 ## 3. 质量检查
 

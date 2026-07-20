@@ -35,18 +35,21 @@ class ApiEndpointsConfig {
   // AI HOT 精选 RSS。
   static const String aiHotSelectedFeedUrl = '$aiNewsBaseUrl/feed.xml';
 
-  // AI 日报 LLM 默认 baseUrl(美团 LongCat OpenAI 兼容端点)。
-  static const String aiDigestDefaultBaseUrl = 'https://api.longcat.chat/openai';
+  // 资讯深度解读唯一内置的 Agnes OpenAI 兼容端点。
+  static const String aiDigestDefaultBaseUrl = 'https://apihub.agnes-ai.com/v1';
 
-  // OpenAI 兼容 Chat Completions 路径(与用户配置的 baseUrl 拼接)。
+  // Agnes OpenAI 兼容 Chat Completions 路径。
   static const String aiDigestChatCompletionsPath = '/chat/completions';
 
-  // AI 日报默认美团 LongCat 文本模型(用户可切换到其他内置服务商)。
-  static const String aiDigestDefaultModel = 'LongCat-2.0';
+  // Agnes Chat Completions 完整端点。
+  static const String aiDigestChatCompletionsUrl = '$aiDigestDefaultBaseUrl$aiDigestChatCompletionsPath';
 
-  // 发布构建可注入 AI 日报默认 Key；首次加载后迁移到系统安全存储。
+  // 资讯深度解读唯一内置的 Agnes 文本模型。
+  static const String aiDigestDefaultModel = 'agnes-2.0-flash';
+
+  // 发布构建可注入 Agnes Key；首次加载后迁移到系统安全存储。
   // 用 --dart-define-from-file=env.json 注入（env.json 已在 .gitignore）。
-  static const String aiDigestDefaultApiKey = String.fromEnvironment('AI_DIGEST_DEFAULT_API_KEY');
+  static const String aiDigestDefaultApiKey = String.fromEnvironment('AI_ENRICHMENT_AGNES_API_KEY');
 
   // GitHub REST API 默认 baseUrl。
   static const String githubBaseUrl = 'https://api.github.com';
@@ -71,13 +74,7 @@ class ApiEndpointsConfig {
 
   // GitHub 仓库搜索(发现页:按 stars 排序的流行仓库 / AI Agent Skills 仓库)。
   // 返回完整 query path,与 [githubBaseUrl] 拼接后直接 GET。
-  static String githubSearchRepositoriesUrl({
-    String q = 'stars:>1000',
-    String sort = 'stars',
-    String order = 'desc',
-    int perPage = 20,
-    int page = 1,
-  }) =>
+  static String githubSearchRepositoriesUrl({String q = 'stars:>1000', String sort = 'stars', String order = 'desc', int perPage = 20, int page = 1}) =>
       '/search/repositories?q=${Uri.encodeQueryComponent(q)}'
       '&sort=$sort&order=$order&per_page=$perPage&page=$page';
 
@@ -86,7 +83,8 @@ class ApiEndpointsConfig {
   static const String githubSearchUsersPath = '/search/users';
 
   // GitHub 用户/组织搜索(发现页:官方账号 / 知名开发者)。
-  static String githubSearchUsersUrl({required String q, int perPage = 20, int page = 1}) => '/search/users?q=${Uri.encodeQueryComponent(q)}'
+  static String githubSearchUsersUrl({required String q, int perPage = 20, int page = 1}) =>
+      '/search/users?q=${Uri.encodeQueryComponent(q)}'
       '&per_page=$perPage&page=$page';
 
   // GitHub 用户/组织公开资料:`GET /users/{login}`。

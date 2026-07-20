@@ -12,8 +12,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../application/ai_news_enrichment_providers.dart';
 import '../../domain/ai_news_enrichment.dart';
 import '../../domain/ai_news_item.dart';
-import 'ai_digest_settings_dialog.dart';
-import 'ai_news_detail_components.dart';
 
 /*
 *资讯详情的 AI 深度解读卡片。
@@ -38,7 +36,6 @@ class AiNewsEnrichmentCard extends ConsumerStatefulWidget {
 class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
   // 防止重复生成。
   bool _working = false;
-  bool _generationFailed = false;
   String? _autoRequestedItemId;
 
   @override
@@ -46,47 +43,21 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
   Widget build(BuildContext context) {
     final enrichment = ref.watch(aiNewsEnrichmentProvider(widget.item.id));
     final configured = ref.watch(aiDigestConfigControllerProvider).configured;
-    final missingEnrichment = enrichment.when(
-      data: (value) => value == null,
-      loading: () => false,
-      error: (_, __) => false,
-    );
-    _scheduleAutomaticGeneration(
-      configured: configured,
-      missingEnrichment: missingEnrichment,
-    );
-    return _EnrichmentSurface(
-      child: enrichment.when(
-        data: (value) => value == null
-            ? _generationFailed
-                ? _EnrichmentError(onRetry: _generate)
-                : _EmptyEnrichment(
-                    configured: configured,
-                    working: _working,
-                    onConfigure: () => showDialog<void>(
-                      context: context,
-                      builder: (_) => const AiDigestSettingsDialog(),
-                    ),
-                  )
-            : _EnrichmentContent(
-                enrichment: value,
-                working: _working,
-                onRegenerate: () => _generate(force: true),
-              ),
-        loading: () => const SizedBox(
-          height: 120,
-          child: Center(child: CircularProgressIndicator()),
-        ),
-        error: (_, __) => _EnrichmentError(onRetry: _generate),
-      ),
+    final missingEnrichment = enrichment.when(data: (value) => value == null, loading: () => false, error: (_, __) => false);
+    _scheduleAutomaticGeneration(configured: configured, missingEnrichment: missingEnrichment);
+    return enrichment.when(
+      data: (value) => value == null
+          ? const SizedBox.shrink()
+          : _EnrichmentSurface(
+              child: _EnrichmentContent(enrichment: value, working: _working, onRegenerate: () => _generate(force: true)),
+            ),
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 
   /* AI 已配置且没有本地增强缓存时,在当前帧完成后自动发起一次生成。 */
-  void _scheduleAutomaticGeneration({
-    required bool configured,
-    required bool missingEnrichment,
-  }) {
+  void _scheduleAutomaticGeneration({required bool configured, required bool missingEnrichment}) {
     final itemId = widget.item.id;
     if (!configured || !missingEnrichment || _working || _autoRequestedItemId == itemId) {
       return;
@@ -107,27 +78,11 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
     }
     setState(() {
       _working = true;
-      _generationFailed = false;
     });
     try {
-      final result = await ref.read(aiNewsEnrichmentGeneratorProvider)(
-        widget.item,
-        force: force,
-      );
-      if (result == null && mounted) {
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.tr('ai_news.enrichment.configure'))),
-        );
-      }
+      await ref.read(aiNewsEnrichmentGeneratorProvider)(widget.item, force: force);
     } catch (_) {
-      if (mounted) {
-        setState(() => _generationFailed = true);
-        final l10n = AppLocalizations.of(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.tr('ai_news.enrichment.failed'))),
-        );
-      }
+      // Agnes 不可用或返回无效内容时保持隐藏,不把服务商故障转嫁给用户。
     } finally {
       if (mounted) {
         setState(() => _working = false);
@@ -150,10 +105,7 @@ class _EnrichmentSurface extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.lg,
-        vertical: AppSpacing.md,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       decoration: BoxDecoration(
         color: colors.surface,
         border: Border.all(color: colors.outlineVariant),
@@ -165,112 +117,10 @@ class _EnrichmentSurface extends StatelessWidget {
 }
 
 /*
-*未生成增强内容时的行动入口。
-*/
-class _EmptyEnrichment extends StatelessWidget {
-  const _EmptyEnrichment({
-    required this.configured,
-    required this.working,
-    required this.onConfigure,
-  });
-
-  // 是否已经配置模型。
-  final bool configured;
-
-  // 是否正在生成。
-  final bool working;
-
-  // 打开 AI 日报配置的操作。
-  final VoidCallback onConfigure;
-
-  @override
-  /* 构建增强空态与生成按钮。 */
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    final colors = Theme.of(context).colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _EnrichmentHeader(working: working, onRegenerate: null),
-        const SizedBox(height: AppSpacing.sm),
-        Text(
-          l10n.tr(
-            configured ? 'ai_news.enrichment.description' : 'ai_news.enrichment.configure',
-          ),
-          style: AppTypography.bodyMedium.copyWith(color: aiNewsDetailSecondaryColor(context)),
-        ),
-        if (configured) ...[
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              const SizedBox.square(
-                dimension: 16,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Text(l10n.tr('ai_news.enrichment.generating')),
-            ],
-          ),
-        ] else ...[
-          const SizedBox(height: AppSpacing.md2),
-          OutlinedButton(
-            onPressed: onConfigure,
-            style: OutlinedButton.styleFrom(
-              backgroundColor: colors.surfaceContainerHighest,
-              minimumSize: const Size(0, 40),
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-              ),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              textStyle: AppTypography.reading(AppTypography.labelMedium).copyWith(fontSize: 13),
-            ),
-            child: Text(l10n.tr('ai_news.enrichment.configure_action')),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-/*
-*增强失败后的重试状态。
-*/
-class _EnrichmentError extends StatelessWidget {
-  const _EnrichmentError({required this.onRetry});
-
-  // 重试操作。
-  final VoidCallback onRetry;
-
-  @override
-  /* 构建错误说明与重试按钮。 */
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _EnrichmentHeader(working: false, onRegenerate: null),
-        const SizedBox(height: AppSpacing.sm),
-        Text(l10n.tr('ai_news.enrichment.failed')),
-        const SizedBox(height: AppSpacing.md),
-        OutlinedButton.icon(
-          onPressed: onRetry,
-          icon: const Icon(Icons.refresh_rounded),
-          label: Text(l10n.tr('common.retry')),
-        ),
-      ],
-    );
-  }
-}
-
-/*
 *增强成功后的三段结构化解读。
 */
 class _EnrichmentContent extends StatelessWidget {
-  const _EnrichmentContent({
-    required this.enrichment,
-    required this.working,
-    required this.onRegenerate,
-  });
+  const _EnrichmentContent({required this.enrichment, required this.working, required this.onRegenerate});
 
   // 本地增强结果。
   final AiNewsEnrichment enrichment;
@@ -295,32 +145,16 @@ class _EnrichmentContent extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
-            border: Border.all(
-              color: Theme.of(
-                context,
-              ).colorScheme.outlineVariant.withValues(alpha: 0.58),
-            ),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.58)),
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           child: Column(
             children: [
-              _InsightRow(
-                icon: Icons.my_location_rounded,
-                title: l10n.tr('ai_news.detail.core_view'),
-                body: enrichment.generatedSummary,
-              ),
+              _InsightRow(icon: Icons.my_location_rounded, title: l10n.tr('ai_news.detail.core_view'), body: enrichment.generatedSummary),
               const Divider(height: 1),
-              _InsightRow(
-                icon: Icons.visibility_outlined,
-                title: l10n.tr('ai_news.detail.why_it_matters'),
-                body: enrichment.translatedSummary,
-              ),
+              _InsightRow(icon: Icons.visibility_outlined, title: l10n.tr('ai_news.detail.why_it_matters'), body: enrichment.translatedSummary),
               const Divider(height: 1),
-              _InsightRow(
-                icon: Icons.extension_outlined,
-                title: l10n.tr('ai_news.detail.use_cases'),
-                body: signalText,
-              ),
+              _InsightRow(icon: Icons.extension_outlined, title: l10n.tr('ai_news.detail.use_cases'), body: signalText),
             ],
           ),
         ),
@@ -350,33 +184,16 @@ class _EnrichmentHeader extends StatelessWidget {
         Container(
           width: 30,
           height: 30,
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            borderRadius: BorderRadius.circular(AppRadius.sm),
-          ),
-          child: const Icon(
-            Icons.auto_awesome_rounded,
-            color: Colors.white,
-            size: 16,
-          ),
+          decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(AppRadius.sm)),
+          child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 16),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: Text(
-            l10n.tr('ai_news.detail.deep_read'),
-            style: AppTypography.titleMedium,
-          ),
-        ),
+        Expanded(child: Text(l10n.tr('ai_news.detail.deep_read'), style: AppTypography.titleMedium)),
         if (onRegenerate != null)
           IconButton(
             tooltip: l10n.tr('ai_news.enrichment.regenerate'),
             onPressed: working ? null : onRegenerate,
-            icon: working
-                ? const SizedBox.square(
-                    dimension: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.refresh_rounded),
+            icon: working ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.refresh_rounded),
           ),
       ],
     );
@@ -387,11 +204,7 @@ class _EnrichmentHeader extends StatelessWidget {
 *深度解读中的单条观点。
 */
 class _InsightRow extends StatelessWidget {
-  const _InsightRow({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
+  const _InsightRow({required this.icon, required this.title, required this.body});
 
   // 观点图标。
   final IconData icon;
@@ -414,10 +227,7 @@ class _InsightRow extends StatelessWidget {
           Container(
             width: 46,
             height: 46,
-            decoration: BoxDecoration(
-              color: AppColors.brandLight.withValues(alpha: 0.4),
-              borderRadius: BorderRadius.circular(AppRadius.lg),
-            ),
+            decoration: BoxDecoration(color: AppColors.brandLight.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(AppRadius.lg)),
             child: Icon(icon, color: AppColors.brand, size: 24),
           ),
           const SizedBox(width: AppSpacing.md),
@@ -425,21 +235,13 @@ class _InsightRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppTypography.titleMedium.copyWith(
-                    color: colors.onSurface,
-                  ),
-                ),
+                Text(title, style: AppTypography.titleMedium.copyWith(color: colors.onSurface)),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   body,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: colors.onSurfaceVariant,
-                    height: 1.62,
-                  ),
+                  style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.62),
                 ),
               ],
             ),

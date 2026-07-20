@@ -4,35 +4,25 @@ import '../config/api_endpoints_config.dart';
 import '../di/providers.dart';
 
 /*
-*AI 日报 LLM 配置状态。
-*Key 是敏感凭据,与 GitHub Token 同级:只进 secure storage,
-*不进日志、导出配置和源码;baseUrl / model 是非敏感偏好,走 prefs。
+*内置 Agnes 深度解读的凭据状态。
+*Key 只由发布构建注入并进入系统安全存储,不向最终用户暴露配置入口。
 */
 class AiDigestConfigState {
-  const AiDigestConfigState({this.apiKey, this.baseUrl = ApiEndpointsConfig.aiDigestDefaultBaseUrl, this.model = ApiEndpointsConfig.aiDigestDefaultModel});
+  const AiDigestConfigState({this.apiKey});
 
   final String? apiKey;
-  final String baseUrl;
-  final String model;
 
   bool get configured => apiKey != null && apiKey!.trim().isNotEmpty;
-
-  String get maskedKey {
-    final raw = apiKey?.trim();
-    if (raw == null || raw.isEmpty) {
-      return '';
-    }
-    return 'xxxxxxxx';
-  }
 }
 
 /*
-*AI 日报 LLM 配置 controller(OpenAI 兼容端点)。
+*加载发布方注入的 Agnes Key,并清理旧版用户可编辑的服务商配置。
 */
 class AiDigestConfigController extends Notifier<AiDigestConfigState> {
-  static const _kSecureKey = 'ai_digest_api_key';
-  static const _kBaseUrlKey = 'ai_digest_base_url';
-  static const _kModelKey = 'ai_digest_model';
+  static const _kAgnesSecureKey = 'ai_enrichment_agnes_api_key';
+  static const _kLegacySecureKey = 'ai_digest_api_key';
+  static const _kLegacyBaseUrlKey = 'ai_digest_base_url';
+  static const _kLegacyModelKey = 'ai_digest_model';
 
   @override
   AiDigestConfigState build() {
@@ -43,43 +33,15 @@ class AiDigestConfigController extends Notifier<AiDigestConfigState> {
   Future<void> _load() async {
     final prefs = ref.read(sharedPreferencesProvider);
     final secure = ref.read(secureStorageProvider);
-    final storedKey = await secure.read(key: _kSecureKey);
+    final storedKey = await secure.read(key: _kAgnesSecureKey);
     final key = storedKey ?? _defaultApiKey;
     if (storedKey == null && key != null) {
-      await secure.write(key: _kSecureKey, value: key);
+      await secure.write(key: _kAgnesSecureKey, value: key);
     }
-    state = AiDigestConfigState(
-      apiKey: key,
-      baseUrl: prefs.getString(_kBaseUrlKey) ?? ApiEndpointsConfig.aiDigestDefaultBaseUrl,
-      model: prefs.getString(_kModelKey) ?? ApiEndpointsConfig.aiDigestDefaultModel,
-    );
-  }
-
-  Future<void> save({required String apiKey, required String baseUrl, required String model}) async {
-    final prefs = ref.read(sharedPreferencesProvider);
-    final secure = ref.read(secureStorageProvider);
-    final trimmedKey = apiKey.trim();
-    final trimmedBase = _normalizeBaseUrl(baseUrl);
-    final trimmedModel = model.trim().isEmpty ? ApiEndpointsConfig.aiDigestDefaultModel : model.trim();
-    if (trimmedKey.isEmpty) {
-      await secure.delete(key: _kSecureKey);
-    } else {
-      await secure.write(key: _kSecureKey, value: trimmedKey);
-    }
-    await prefs.setString(_kBaseUrlKey, trimmedBase);
-    await prefs.setString(_kModelKey, trimmedModel);
-    state = AiDigestConfigState(apiKey: trimmedKey.isEmpty ? null : trimmedKey, baseUrl: trimmedBase, model: trimmedModel);
-  }
-
-  static String _normalizeBaseUrl(String raw) {
-    var s = raw.trim();
-    if (s.isEmpty) {
-      return ApiEndpointsConfig.aiDigestDefaultBaseUrl;
-    }
-    while (s.endsWith('/')) {
-      s = s.substring(0, s.length - 1);
-    }
-    return s;
+    await secure.delete(key: _kLegacySecureKey);
+    await prefs.remove(_kLegacyBaseUrlKey);
+    await prefs.remove(_kLegacyModelKey);
+    state = AiDigestConfigState(apiKey: key);
   }
 
   static String? get _defaultApiKey {

@@ -40,23 +40,19 @@ void main() {
       ),
     );
 
-    final result = await client.complete(
-      baseUrl: 'https://example.com/v1',
-      apiKey: 'secret',
-      model: 'model-id',
-      systemPrompt: 'system',
-      userPrompt: 'user',
-    );
-    final captured = verify(
-      () => dio.post<Map<String, Object?>>(
-        any(),
-        data: captureAny(named: 'data'),
-        options: any(named: 'options'),
-      ),
-    ).captured.single as Map<String, Object?>;
+    final result = await client.complete(apiKey: 'secret', systemPrompt: 'system', userPrompt: 'user');
+    final captured =
+        verify(
+              () => dio.post<Map<String, Object?>>(
+                'https://apihub.agnes-ai.com/v1/chat/completions',
+                data: captureAny(named: 'data'),
+                options: any(named: 'options'),
+              ),
+            ).captured.single
+            as Map<String, Object?>;
 
     expect(result, '第一段第二段');
     expect(captured.containsKey('temperature'), isFalse);
-    expect(captured['model'], 'model-id');
+    expect(captured['model'], 'agnes-2.0-flash');
   });
 }

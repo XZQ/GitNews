@@ -95,7 +95,7 @@
 
 - SQLite：远端缓存、FTS5 索引、LLM 增强、兴趣反馈、资讯提醒、仓库/主题每日快照、监控告警事件。
 - SharedPreferences：收藏、关注、监控列表、规则、主题、语言和其他非敏感偏好。
-- FlutterSecureStorage：GitHub Token、LLM Key、自托管服务 API Key；Windows 使用 DPAPI，macOS 使用 Keychain。
+- FlutterSecureStorage：GitHub Token、发布方注入的 Agnes Key、自托管服务 API Key；Windows 使用 DPAPI，macOS 使用 Keychain。最终用户不配置 AI 模型，Agnes 生成失败时详情页隐藏 AI 深度解读。
 - Token 不进入日志、测试 fixture、导出报告或源码。
 - OAuth Client ID 只通过 `GITHUB_OAUTH_CLIENT_ID` 构建配置注入；未配置构建不暴露失效登录入口。
 - 配置导出使用非敏感白名单，导入先完整校验并在写入失败时回滚。
