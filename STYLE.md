@@ -1,32 +1,39 @@
-# Dart & Flutter Style Guide
+# Reusable Dart & Flutter Style Guide
 
-Reusable Dart/Flutter conventions for this and future projects. Mechanical
-rules belong in `analysis_options.yaml`; this file records conventions that lint
-cannot fully enforce.
+Baseline conventions for Dart and Flutter projects. This file contains only
+rules that can be reused across applications; product behavior, feature
+architecture, concrete class names, platform targets, and repository commands
+belong in each project's own documentation.
 
-If this file conflicts with `analysis_options.yaml`, the analyzer wins. If this
-file conflicts with a project-specific `AGENTS.md`, the project-specific rule
-wins.
+Mechanical rules belong in `analysis_options.yaml`; this file records
+conventions that lint and formatting tools cannot fully enforce. Apply the
+following precedence:
+
+1. The Dart compiler, analyzer, and formatter configuration determine
+   mechanically valid code.
+2. A project-specific `AGENTS.md` or `CONTRIBUTING.md` may add or override
+   architecture, product, workflow, and verification rules.
+3. This guide supplies the reusable default when no project overlay exists.
 
 ## 1. Naming
 
 | Kind | Convention | Example |
 |---|---|---|
-| Class, enum, typedef, mixin, extension | UpperCamelCase | `RateLimitGate` |
-| File and directory | lowercase_with_underscores | `rate_limit_gate.dart` |
-| Variable, parameter, function | lowerCamelCase | `fetchRepos()` |
-| Private member | Leading underscore | `_readCache()` |
+| Class, enum, typedef, mixin, extension | UpperCamelCase | `SessionController` |
+| File and directory | lowercase_with_underscores | `session_controller.dart` |
+| Variable, parameter, function | lowerCamelCase | `loadSettings()` |
+| Private member | Leading underscore | `_parseValue()` |
 | Constant, including `static const` | lowerCamelCase | `defaultTimeout` |
 | Boolean | Adjective or `is` / `has` / `can` / `should` | `isFresh` |
-| Enum value | lowerCamelCase | `DataSource.live` |
+| Enum value | lowerCamelCase | `LoadState.ready` |
 
 Avoid unclear abbreviations (`btn`, `cfg`), Hungarian notation, and names that
 shadow Dart SDK types such as `List`, `Future`, or `Record`.
 
 ## 2. Comments
 
-- Do not use `///` doc comments; this project intentionally opts out of
-  dartdoc-style comments.
+- Do not use `///` doc comments; projects adopting this guide use block and line
+  comments instead of dartdoc-style comments.
 - Every class and method must have a `/* ... */` block comment explaining its
   purpose. The form depends on the declaration kind:
   - **Class, enum, mixin, extension, and typedef declarations** always use the
@@ -60,13 +67,12 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
   comment; when in doubt, write one.
 - Enum case members use `//` line comments above each case, not `/* ... */`:
   ```
-  enum Category {
-    // 新模型 / 模型版本更新。
-    aiModels('ai-models', '模型'),
+  enum SyncStatus {
+    // 当前没有同步任务。
+    idle,
 
-    // 行业动态 / 公司战略 / 投融资。
-    industry('industry', '行业');
-    ...
+    // 同步任务正在执行。
+    running;
   }
   ```
 - Local variables and parameters may use `//` line comments inline or above.
@@ -95,16 +101,19 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
 
 ## 2b. Line Width And Trailing Commas
 
-- `analysis_options.yaml` sets `formatter: page_width: 200`. Run
-  `dart format .` before commit; do not override the page width in IDE
-  or editor config.
+- The baseline formatter page width is 200. Projects adopting this guide should
+  set `formatter: page_width: 200` in `analysis_options.yaml` and keep IDE or
+  editor settings aligned with it.
+- Run the formatting command defined by the project before commit. A Dart-only
+  repository may use `dart format .`; a mixed-language repository should scope
+  formatting to its Dart source and test directories.
 - **Argument-count rule (overrides the single-line preference below):**
   - **4 or more arguments**: always multi-line with a trailing comma,
     even if the whole call fits on one line under 200 chars. Four-plus
     args on one line are too dense to scan; density does not justify
     crushing them together.
   - **3 arguments**: single-line if the full line (with indent) is under
-    160 chars; otherwise multi-line with a trailing comma.
+    180 chars; otherwise multi-line with a trailing comma.
   - **1-2 arguments**: single-line if the full line is under 200 chars;
     otherwise multi-line with a trailing comma.
   - "Argument" counts top-level parameters of a call, declaration, or
@@ -117,10 +126,10 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
   closing bracket so `dart format` uses 2-space block indent and puts
   the closing bracket on its own line:
   ```
-  return RepoActivityEvent(
-    repoFullName: repoFullName,
-    type: parsed.type,
-    basis: MetricBasis.observed,
+  return RetryPolicy(
+    maxAttempts: maxAttempts,
+    delay: retryDelay,
+    shouldRetry: shouldRetry,
   );
   ```
   Avoid the trailing-comma-less multi-line form, which makes `dart format`
@@ -128,10 +137,10 @@ shadow Dart SDK types such as `List`, `Future`, or `Record`.
   last argument:
   ```
   // AVOID — dart format produces this when the trailing comma is missing:
-  return RepoActivityEvent(
-      repoFullName: repoFullName,
-      type: parsed.type,
-      basis: MetricBasis.observed);
+  return RetryPolicy(
+      maxAttempts: maxAttempts,
+      delay: retryDelay,
+      shouldRetry: shouldRetry);
   ```
 - When adding a new argument to a multi-line construct, you may need to
   add a comma to the previously-last argument. This is the accepted
@@ -159,13 +168,14 @@ Import order:
 3. Relative imports
 4. Exports
 
-Project policy must choose one internal import style and keep it consistent.
-This project uses relative imports inside `lib/` and package imports from tests
-or external packages.
+Each project must choose one internal import style and keep it consistent. When
+a project does not define an override, use relative imports within `lib/` and
+package imports from tests or external packages.
 
-- Presentation code must not import feature `data` classes directly.
-- Shared domain types belong in `core/domain` or a shared package, not in another
-  feature's private folders.
+- In a layered architecture, higher-level UI and domain code should depend on
+  contracts rather than importing data-source implementations directly.
+- Types shared across features belong in the project's declared shared boundary
+  or package, not in another feature's private directory.
 - Keep files under 300 lines where practical. i18n maps, generated code, and
   mechanical codecs may exceed this.
 - Prefer cohesive small files over large mixed files. Split by responsibility,
@@ -205,8 +215,9 @@ Recommended order:
 
 - `build` methods should compose widgets. Move complex branches into private
   widget classes instead of widget-returning helper methods.
-- Business state belongs in Riverpod/Provider/Bloc/etc. Use `setState` only for
-  local UI state such as hover, focus, expansion, or a chart selector.
+- Business state belongs in the project's selected state-management layer (for
+  example Riverpod, Provider, or Bloc). Use `setState` only for local UI state
+  such as hover, focus, expansion, or a chart selector.
 - Use theme tokens for color, spacing, radius, typography, and motion. Avoid
   naked `Color(0x...)`, ad hoc border widths, or one-off dimensions.
 - Every user-facing data page should cover loading, data, error, and empty
@@ -228,7 +239,7 @@ Recommended order:
 - Prefer `const` widgets and stable keys where they reduce rebuild work.
 - Do not optimize blindly; use DevTools, tests, or screenshots for risky changes.
 
-## 9. Data And Caching
+## 9. Data And Caching (When Applicable)
 
 - Separate DTOs/codecs from domain entities.
 - Repositories orchestrate source selection, cache policy, fallback, and mapping;
@@ -253,15 +264,20 @@ Recommended order:
 - Add regression tests with bug fixes when the behavior can reasonably break
   again.
 
-## Project Overlay: AI资讯
+## 11. Project Overlay Boundary
 
-- Follow `AGENTS.md` for feature layout, data boundaries, commands, and Git
-  workflow.
-- Desktop UI should feel like an operational intelligence workspace: dense,
-  calm, scannable, and consistent across light/dark themes.
-- Use `HeaderSearchField`, `AppCard`, `PageHeader`, `DataProvenanceBadge`, and
-  `core/theme` tokens before creating new variants.
-- Primary in-app detail flows should stay inside the app shell/B region unless
-  the requested behavior is explicitly external.
-- Remote data must remain usable offline through local cache and clear fallback
-  provenance.
+Keep this shared guide free of application-specific facts. Record the following
+in the adopting repository's `AGENTS.md`, `CONTRIBUTING.md`, `README.md`, or run
+guide instead:
+
+- application and feature names, navigation structure, and product behavior;
+- concrete shared widget, provider, logger, error type, and package names;
+- feature-layer directories and project-specific dependency boundaries;
+- exact API endpoints, cache durations, fallback order, and data provenance
+  rules;
+- supported platforms, release targets, and exact validation commands;
+- repository-specific Git, CI, deployment, and secret-management workflows.
+
+Project overlays should reference this guide and state only their additions or
+exceptions. Do not copy the complete shared guide into an overlay, because
+duplicated rules drift independently.
