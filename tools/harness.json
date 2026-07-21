@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "artifactDirectory": "build/harness",
+  "suites": {
+    "docs": {
+      "description": "Repository whitespace and local Markdown link checks.",
+      "steps": [
+        "repo.diff-check",
+        "docs.links"
+      ]
+    },
+    "quick": {
+      "description": "Fast Flutter feedback loop with incremental formatting and no tests.",
+      "includes": [
+        "docs"
+      ],
+      "steps": [
+        "flutter.changed-format-check",
+        "flutter.analyze"
+      ]
+    },
+    "flutter": {
+      "description": "Complete Flutter quality gate.",
+      "includes": [
+        "quick"
+      ],
+      "steps": [
+        "flutter.format-check",
+        "flutter.test"
+      ]
+    },
+    "ci-windows": {
+      "description": "Incremental formatting, complete tests, and Windows release build for CI while baseline format debt remains visible.",
+      "platforms": [
+        "windows"
+      ],
+      "includes": [
+        "quick"
+      ],
+      "steps": [
+        "flutter.test",
+        "desktop.release-build"
+      ]
+    },
+    "windows-build": {
+      "description": "Complete Flutter gate plus a Windows release build; safe for headless CI.",
+      "platforms": [
+        "windows"
+      ],
+      "includes": [
+        "flutter"
+      ],
+      "steps": [
+        "desktop.release-build"
+      ]
+    },
+    "desktop": {
+      "description": "Complete interactive Windows desktop gate, including visible-window and tray smoke tests.",
+      "platforms": [
+        "windows"
+      ],
+      "includes": [
+        "windows-build"
+      ],
+      "steps": [
+        "desktop.release-smoke",
+        "desktop.tray-smoke"
+      ]
+    },
+    "server": {
+      "description": "Complete self-hosted Python service quality gate.",
+      "includes": [
+        "docs"
+      ],
+      "steps": [
+        "server.ruff-check",
+        "server.ruff-format-check",
+        "server.pytest",
+        "server.live-smoke"
+      ]
+    },
+    "all": {
+      "description": "All Flutter, Windows desktop, and server gates.",
+      "platforms": [
+        "windows"
+      ],
+      "includes": [
+        "desktop",
+        "server"
+      ],
+      "steps": []
+    }
+  },
+  "steps": {
+    "repo.diff-check": {
+      "description": "Reject whitespace errors in the current diff.",
+      "kind": "process",
+      "command": "git",
+      "arguments": [
+        "diff",
+        "--check"
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 120
+    },
+    "docs.links": {
+      "description": "Validate repository-local Markdown links.",
+      "kind": "powershell",
+      "script": "tools/check_markdown_links.ps1",
+      "arguments": [
+        "."
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 300
+    },
+    "flutter.format-check": {
+      "description": "Verify Dart formatting without mutating source files.",
+      "kind": "process",
+      "command": "dart",
+      "arguments": [
+        "format",
+        "--output=none",
+        "--set-exit-if-changed",
+        "lib",
+        "test"
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 300
+    },
+    "flutter.changed-format-check": {
+      "description": "Verify formatting only for changed Dart files, including the CI base range when provided.",
+      "kind": "powershell",
+      "script": "tools/check_changed_dart_format.ps1",
+      "arguments": [
+        "."
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 300
+    },
+    "flutter.analyze": {
+      "description": "Run the repository Flutter analyzer gate.",
+      "kind": "process",
+      "command": "flutter",
+      "arguments": [
+        "analyze"
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 900
+    },
+    "flutter.test": {
+      "description": "Run the complete Flutter test suite.",
+      "kind": "process",
+      "command": "flutter",
+      "arguments": [
+        "test"
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 1800
+    },
+    "desktop.release-build": {
+      "description": "Build the Windows release application.",
+      "kind": "process",
+      "command": "flutter",
+      "arguments": [
+        "build",
+        "windows",
+        "--release"
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 2400
+    },
+    "desktop.release-smoke": {
+      "description": "Verify release files, process startup, and a visible main window.",
+      "kind": "powershell",
+      "script": "tools/windows_release_smoke.ps1",
+      "arguments": [
+        "build/windows/x64/runner/Release",
+        "15"
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 120
+    },
+    "desktop.tray-smoke": {
+      "description": "Verify the release process remains alive after its main window closes.",
+      "kind": "powershell",
+      "script": "tools/windows_tray_smoke.ps1",
+      "arguments": [
+        "build/windows/x64/runner/Release",
+        "15"
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 120
+    },
+    "server.ruff-check": {
+      "description": "Run Ruff lint checks for the optional server.",
+      "kind": "process",
+      "command": "uv",
+      "arguments": [
+        "run",
+        "ruff",
+        "check",
+        "."
+      ],
+      "workingDirectory": "server",
+      "timeoutSeconds": 600
+    },
+    "server.ruff-format-check": {
+      "description": "Verify Ruff formatting for the optional server.",
+      "kind": "process",
+      "command": "uv",
+      "arguments": [
+        "run",
+        "ruff",
+        "format",
+        "--check",
+        "."
+      ],
+      "workingDirectory": "server",
+      "timeoutSeconds": 600
+    },
+    "server.pytest": {
+      "description": "Run the complete optional server test suite.",
+      "kind": "process",
+      "command": "uv",
+      "arguments": [
+        "run",
+        "pytest"
+      ],
+      "workingDirectory": "server",
+      "timeoutSeconds": 1800
+    },
+    "server.live-smoke": {
+      "description": "Exercise a real local Uvicorn health, auth, source, and sync round-trip.",
+      "kind": "process",
+      "command": "uv",
+      "arguments": [
+        "run",
+        "python",
+        "tools/live_smoke.py"
+      ],
+      "workingDirectory": "server",
+      "timeoutSeconds": 300
+    }
+  }
+}

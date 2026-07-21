@@ -73,7 +73,20 @@ flutter pub get
 flutter run -d windows
 ```
 
-提交或发布前运行：
+统一 Harness 可以列出、检查并执行仓库门禁：
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -List
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -Suite quick
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -Suite desktop
+```
+
+`quick` 用于日常格式和静态分析反馈，`flutter` 增加全量测试，`desktop` 再增加
+Windows Release 构建与主窗口/托盘烟测。服务端使用 `-Suite server`，Windows
+发布前的全工程门禁使用 `-Suite all`。每次运行的摘要和逐步日志保存在忽略的
+`build/harness/`，详细说明见 [Agent Harness](docs/harness/README.md)。
+
+等价的底层命令为：
 
 ```bash
 dart format .
@@ -94,6 +107,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/windows_tray_smoke.ps1
 - [运行指南](RUN.md)
 - [变更记录](CHANGELOG.md)
 - [项目规则](AGENTS.md)
+- [Agent Harness](docs/harness/README.md)
 - [自托管服务端](server/README.md)
 
 ## 当前状态

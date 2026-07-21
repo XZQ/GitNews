@@ -1,0 +1,79 @@
+name: Harness
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harness-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  flutter-windows:
+    name: Flutter and Windows release build
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Resolve Flutter dependencies
+        run: flutter pub get
+
+      - name: Run Windows build harness
+        shell: pwsh
+        env:
+          HARNESS_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: pwsh -NoProfile -File tools/harness.ps1 -Suite ci-windows
+
+      - name: Upload harness evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: harness-flutter-windows
+          path: build/harness/
+          if-no-files-found: ignore
+
+  server-linux:
+    name: Self-hosted server
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: server/uv.lock
+
+      - name: Resolve server dependencies
+        working-directory: server
+        run: uv sync --all-groups
+
+      - name: Run server harness
+        shell: pwsh
+        run: pwsh -NoProfile -File tools/harness.ps1 -Suite server
+
+      - name: Upload harness evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: harness-server-linux
+          path: build/harness/
+          if-no-files-found: ignore

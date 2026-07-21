@@ -19,6 +19,8 @@ import 'package:github_news/features/monitor/application/monitor_settings_contro
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('export includes only supported non-secret preferences', () async {
     SharedPreferences.setMockInitialValues({'theme_mode': 'dark', 'github_personal_access_token': 'secret', 'unrelated_cache': 'internal'});
     final prefs = await SharedPreferences.getInstance();
@@ -63,7 +65,7 @@ void main() {
   });
 
   test('successful import refreshes all preference providers', () async {
-    SharedPreferences.setMockInitialValues({'link_open_mode_migrated_v2': true});
+    SharedPreferences.setMockInitialValues({'app_locale': 'zh_CN', 'link_open_mode_migrated_v2': true});
     final prefs = await SharedPreferences.getInstance();
     final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)]);
     addTearDown(container.dispose);
@@ -79,7 +81,9 @@ void main() {
     container.read(localContentControllerProvider);
     container.read(monitorSettingsControllerProvider);
 
-    final count = await container.read(configServiceProvider).importText(
+    final count = await container
+        .read(configServiceProvider)
+        .importText(
           _config({
             'app_locale': 'en_US',
             'theme_mode': 'dark',
@@ -88,11 +92,11 @@ void main() {
             'trending_data_source_mode': 'github',
             'link_open_mode': 'inApp',
             aiNewsSourcesPreferenceKey: jsonEncode([
-              {'id': 'custom_example', 'name': 'Example AI', 'feedUrl': 'https://example.com/feed.xml', 'categoryCode': 'industry', 'enabled': true, 'isCustom': true}
+              {'id': 'custom_example', 'name': 'Example AI', 'feedUrl': 'https://example.com/feed.xml', 'categoryCode': 'industry', 'enabled': true, 'isCustom': true},
             ]),
             aiNewsRemindersEnabledPreferenceKey: false,
             'local_content_monitor_rules': ['0', '1', '1', '0'],
-            'monitor_notification_settings': ['0']
+            'monitor_notification_settings': ['0'],
           }),
         );
 
@@ -103,10 +107,7 @@ void main() {
     expect(container.read(startupTabControllerProvider), 'project');
     expect(container.read(trendingDataSourceModeControllerProvider), TrendingDataSourceMode.github);
     expect(container.read(linkOpenModeControllerProvider), LinkOpenMode.inApp);
-    expect(
-      container.read(aiNewsSourceControllerProvider).entries.any((entry) => entry.config.id == 'custom_example'),
-      isTrue,
-    );
+    expect(container.read(aiNewsSourceControllerProvider).entries.any((entry) => entry.config.id == 'custom_example'), isTrue);
     expect(container.read(aiNewsReminderPreferencesProvider), isFalse);
     expect(container.read(localContentControllerProvider).monitorRules, [false, true, true, false]);
     expect(container.read(monitorSettingsControllerProvider), [false]);

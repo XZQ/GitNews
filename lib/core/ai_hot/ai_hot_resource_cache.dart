@@ -12,13 +12,7 @@ import 'ai_hot_api_support.dart';
 *304 刷新快照时间,远程失败时明确回退 stale cache。
 */
 class AiHotResourceCache {
-  const AiHotResourceCache({
-    required Dio dio,
-    required JsonSnapshotCacheDao cache,
-    DateTime Function()? now,
-  })  : _dio = dio,
-        _cache = cache,
-        _now = now ?? DateTime.now;
+  const AiHotResourceCache({required Dio dio, required JsonSnapshotCacheDao cache, DateTime Function()? now}) : _dio = dio, _cache = cache, _now = now ?? DateTime.now;
 
   // 复用项目超时与重试链的 HTTP 客户端。
   final Dio _dio;
@@ -30,12 +24,7 @@ class AiHotResourceCache {
   final DateTime Function() _now;
 
   /* 请求 JSON object,支持 TTL、304 与 stale fallback。 */
-  Future<DataResult<Map<String, Object?>>> getObject({
-    required String url,
-    required Duration ttl,
-    Map<String, Object?>? queryParameters,
-    bool force = false,
-  }) {
+  Future<DataResult<Map<String, Object?>>> getObject({required String url, required Duration ttl, Map<String, Object?>? queryParameters, bool force = false}) {
     return _get<Map<String, Object?>>(
       url: url,
       ttl: ttl,
@@ -49,20 +38,8 @@ class AiHotResourceCache {
   }
 
   /* 请求 RSS/Atom/XML 文本,支持 ETag 与 Last-Modified。 */
-  Future<DataResult<String>> getText({
-    required String url,
-    required Duration ttl,
-    bool force = false,
-  }) {
-    return _get<String>(
-      url: url,
-      ttl: ttl,
-      kind: 'text',
-      accept: AiHotApiSupport.feedAccept,
-      force: force,
-      responseType: ResponseType.plain,
-      decode: _decodeText,
-    );
+  Future<DataResult<String>> getText({required String url, required Duration ttl, bool force = false}) {
+    return _get<String>(url: url, ttl: ttl, kind: 'text', accept: AiHotApiSupport.feedAccept, force: force, responseType: ResponseType.plain, decode: _decodeText);
   }
 
   Future<DataResult<T>> _get<T>({
@@ -100,19 +77,13 @@ class AiHotResourceCache {
         queryParameters: queryParameters,
         options: Options(
           responseType: responseType,
-          headers: AiHotApiSupport.headers(
-            accept: accept,
-            validators: entry.validators,
-          ),
+          headers: AiHotApiSupport.headers(accept: accept, validators: entry.validators),
           validateStatus: (status) => status == 200 || status == 304,
         ),
       );
       if (response.statusCode == 304) {
         if (cached == null) {
-          throw AppException(
-            kind: AppExceptionKind.cache,
-            meta: {'op': 'aiHotResource.304WithoutPayload', 'key': key},
-          );
+          throw AppException(kind: AppExceptionKind.cache, meta: {'op': 'aiHotResource.304WithoutPayload', 'key': key});
         }
         await _cache.upsertWithValidators(
           key: key,
@@ -123,18 +94,10 @@ class AiHotResourceCache {
         return DataResult(data: cached, freshness: DataFreshness.freshCache);
       }
       if (response.statusCode != 200) {
-        throw AppException(
-          kind: AppExceptionKind.server,
-          meta: {'statusCode': response.statusCode},
-        );
+        throw AppException(kind: AppExceptionKind.server, meta: {'statusCode': response.statusCode});
       }
       final data = decode(response.data);
-      await _cache.upsertWithValidators(
-        key: key,
-        payload: {'kind': kind, 'data': data},
-        validators: _responseValidators(response),
-        now: now,
-      );
+      await _cache.upsertWithValidators(key: key, payload: {'kind': kind, 'data': data}, validators: _responseValidators(response), now: now);
       return DataResult(data: data, freshness: DataFreshness.live);
     } on DioException catch (error) {
       if (cached != null) {
@@ -170,10 +133,7 @@ class AiHotResourceCache {
   }
 
   static HttpCacheValidators _responseValidators(Response<Object?> response, {HttpCacheValidators fallback = const HttpCacheValidators()}) {
-    return HttpCacheValidators(
-      etag: response.headers.value('etag') ?? fallback.etag,
-      lastModified: response.headers.value('last-modified') ?? fallback.lastModified,
-    );
+    return HttpCacheValidators(etag: response.headers.value('etag') ?? fallback.etag, lastModified: response.headers.value('last-modified') ?? fallback.lastModified);
   }
 
   static Map<String, Object?> _decodeObject(Object? raw) {
@@ -195,8 +155,6 @@ class AiHotResourceCache {
 
   static String _canonicalQuery(Map<String, Object?> parameters) {
     final keys = parameters.keys.toList()..sort();
-    return '?${[
-      for (final key in keys) '${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent('${parameters[key]}')}',
-    ].join('&')}';
+    return '?${[for (final key in keys) '${Uri.encodeQueryComponent(key)}=${Uri.encodeQueryComponent('${parameters[key]}')}'].join('&')}';
   }
 }

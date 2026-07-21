@@ -47,6 +47,14 @@ The structure is reusable across projects:
 
 ## Commands
 
+- `tools/harness.json` is the machine-readable source of truth for complete
+  quality suites. Use `powershell -NoProfile -ExecutionPolicy Bypass -File
+  tools/harness.ps1 -List` to discover them and `-Doctor -Suite <name>` to
+  validate prerequisites without running checks.
+- Keep using the focused commands below while iterating. For complete gates,
+  prefer the Harness suites so local runs and CI execute the same command set:
+  `flutter`, `windows-build`, `desktop`, `server`, or `all`.
+
 - During development and before commit, run focused checks for the changed
   scope:
   - Format only intended Dart files with `dart format <changed Dart files>`.
@@ -77,6 +85,18 @@ The structure is reusable across projects:
   - `uv run python tools/live_smoke.py`
 - For documentation-only or other non-runtime changes, skip unrelated Flutter
   and server suites; run only applicable checks such as `git diff --check`.
+
+## Agent Harness And ExecPlans
+
+- Read `docs/harness/README.md` before changing Harness files or complete gate
+  behavior. Harness runs write ignored evidence under `build/harness/`; do not
+  commit those artifacts.
+- Use an ExecPlan for complex features, significant refactors, migrations, or
+  work that needs multiple verification milestones. Follow `.agent/PLANS.md`
+  and store the living plan under `docs/plans/exec/`.
+- Treat repeated agent failures as missing knowledge, tooling, observability,
+  or enforceable boundaries. Improve the narrow Harness component that owns
+  the failure instead of accumulating broad prompt instructions.
 
 ## Architecture
 
@@ -176,3 +196,5 @@ The structure is reusable across projects:
 - Product and data plan: `docs/plans/product_ia_data_plan.md`
 - Current capabilities and data boundary: `README.md`
 - Local run guide: `RUN.md`
+- Agent Harness: `docs/harness/README.md`
+- ExecPlan specification: `.agent/PLANS.md`
