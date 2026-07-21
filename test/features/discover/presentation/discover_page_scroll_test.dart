@@ -12,6 +12,7 @@ import 'package:github_news/features/discover/presentation/discover_page.dart';
 import 'package:github_news/features/discover/presentation/widgets/discover_segmented.dart';
 import 'package:github_news/shared/widgets/header_search_field.dart';
 import 'package:github_news/shared/widgets/mobile_page_header.dart';
+import 'package:github_news/shared/widgets/page_header.dart';
 
 /*
 *测试用静态仓库列表,避免滚动行为测试访问 GitHub。
@@ -81,12 +82,7 @@ void main() {
         ],
         child: const MaterialApp(
           locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: DiscoverHubPage(),
         ),
@@ -126,18 +122,10 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          trendingReposNotifierProvider.overrideWith(() => _StaticTrendingReposNotifier(repos)),
-          localContentControllerProvider.overrideWith(_StaticLocalContentController.new),
-        ],
+        overrides: [trendingReposNotifierProvider.overrideWith(() => _StaticTrendingReposNotifier(repos)), localContentControllerProvider.overrideWith(_StaticLocalContentController.new)],
         child: const MaterialApp(
           locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: DiscoverHubPage(),
         ),
@@ -147,11 +135,20 @@ void main() {
 
     final first = tester.getTopLeft(find.text('owner/repository-0'));
     final second = tester.getTopLeft(find.text('owner/repository-1'));
+    final pageHeader = tester.widget<PageHeader>(find.byType(PageHeader));
+    final pageHeaderContainer = tester.widget<Container>(find.descendant(of: find.byType(PageHeader), matching: find.byType(Container)).first);
+    final pageHeaderDecoration = pageHeaderContainer.decoration as BoxDecoration;
+    final segmentedContainer = tester.widget<Container>(find.descendant(of: find.byType(DiscoverSegmented), matching: find.byType(Container)).first);
+    final segmentedDecoration = segmentedContainer.decoration as BoxDecoration;
+    expect(pageHeader.showBottomDivider, isFalse);
+    expect(pageHeaderDecoration.border, isNull);
+    expect(segmentedDecoration.border, isNotNull);
     expect(second.dx, first.dx);
     expect(second.dy, greaterThan(first.dy));
     expect(find.text('估算'), findsNothing);
     expect(find.text('—'), findsNothing);
     expect(find.text('流行仓库'), findsOneWidget);
+    expect(find.text('探视流行仓库和Agent'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -178,19 +175,12 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          trendingReposNotifierProvider.overrideWith(
-            () => _StaticTrendingReposNotifier(repos, onBuild: () => buildCount++),
-          ),
+          trendingReposNotifierProvider.overrideWith(() => _StaticTrendingReposNotifier(repos, onBuild: () => buildCount++)),
           localContentControllerProvider.overrideWith(_StaticLocalContentController.new),
         ],
         child: const MaterialApp(
           locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: DiscoverHubPage(),
         ),
@@ -204,9 +194,7 @@ void main() {
     final headerTopBefore = tester.getTopLeft(headerFinder).dy;
     final searchTopBefore = tester.getTopLeft(searchFinder).dy;
     final segmentedTopBefore = tester.getTopLeft(segmentedFinder).dy;
-    final verticalListFinder = find.byWidgetPredicate(
-      (widget) => widget is ListView && widget.scrollDirection == Axis.vertical,
-    );
+    final verticalListFinder = find.byWidgetPredicate((widget) => widget is ListView && widget.scrollDirection == Axis.vertical);
 
     expect(find.byType(RefreshIndicator), findsOneWidget);
     await tester.drag(verticalListFinder, const Offset(0, 300));

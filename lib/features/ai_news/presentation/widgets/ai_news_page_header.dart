@@ -42,11 +42,7 @@ class AiNewsPageHeader extends ConsumerWidget {
         tooltip: l10n.tr(readLaterOnly ? 'ai_news.read_later_show_all' : 'ai_news.read_later_filter'),
         onPressed: () => ref.read(aiNewsReadLaterOnlyProvider.notifier).state = !readLaterOnly,
       ),
-      HeaderAction(
-        icon: Icons.refresh_rounded,
-        tooltip: l10n.tr('common.refresh'),
-        onPressed: () => ref.invalidate(aiNewsItemsNotifierProvider),
-      ),
+      HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => ref.invalidate(aiNewsItemsNotifierProvider)),
     ];
 
     return PageHeader(
@@ -57,6 +53,7 @@ class AiNewsPageHeader extends ConsumerWidget {
       onSearchChanged: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
       actions: actions,
+      showBottomDivider: false,
     );
   }
 }
@@ -111,22 +108,14 @@ class AiNewsCompactAppBar extends ConsumerWidget implements PreferredSizeWidget 
         ),
         const SizedBox(width: AppSpacing.xs),
       ],
-      bottom: const PreferredSize(
-        preferredSize: Size.fromHeight(_searchHeight),
-        child: AiNewsCompactSearchBar(),
-      ),
+      bottom: const PreferredSize(preferredSize: Size.fromHeight(_searchHeight), child: AiNewsCompactSearchBar()),
     );
   }
 }
 
 /* 移动端标题栏动作:通知、筛选与稍后读。 */
 class _CompactHeaderAction extends StatelessWidget {
-  const _CompactHeaderAction({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
-    this.showBadge = false,
-  });
+  const _CompactHeaderAction({required this.icon, required this.tooltip, required this.onPressed, this.showBadge = false});
 
   final IconData icon;
   final String tooltip;

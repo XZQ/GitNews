@@ -15,21 +15,23 @@ import 'page_header_icon.dart';
 *避免每个 feature 各自重画。
 */
 class PageHeader extends StatelessWidget {
-  const PageHeader(
-      {required this.title,
-      required this.subtitle,
-      this.leading,
-      this.icon,
-      this.iconAccent = AppColors.brand,
-      this.searchHint,
-      this.searchValue = '',
-      this.onSearchChanged,
-      this.onSearchSubmitted,
-      this.pills = const [],
-      this.actions = const [],
-      this.onRefresh,
-      this.isRefreshing = false,
-      super.key});
+  const PageHeader({
+    required this.title,
+    required this.subtitle,
+    this.leading,
+    this.icon,
+    this.iconAccent = AppColors.brand,
+    this.searchHint,
+    this.searchValue = '',
+    this.onSearchChanged,
+    this.onSearchSubmitted,
+    this.pills = const [],
+    this.actions = const [],
+    this.onRefresh,
+    this.isRefreshing = false,
+    this.showBottomDivider = true,
+    super.key,
+  });
 
   final IconData? icon;
   final Widget? leading;
@@ -49,6 +51,9 @@ class PageHeader extends StatelessWidget {
   // 刷新按钮是否处于加载中(禁用 + spinner)。
   final bool isRefreshing;
 
+  // 是否显示页头底部分隔线。
+  final bool showBottomDivider;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -59,9 +64,17 @@ class PageHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(title, style: AppTypography.titleLarge.copyWith(color: colors.onSurface, height: 1.0), overflow: TextOverflow.ellipsis),
+        Text(
+          title,
+          style: AppTypography.titleLarge.copyWith(color: colors.onSurface, height: 1.0),
+          overflow: TextOverflow.ellipsis,
+        ),
         const SizedBox(height: AppSpacing.xs),
-        Text(subtitle, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant), overflow: TextOverflow.ellipsis)
+        Text(
+          subtitle,
+          style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+          overflow: TextOverflow.ellipsis,
+        ),
       ],
     );
     final titleSlot = hasSearch ? ConstrainedBox(constraints: const BoxConstraints(maxWidth: 150), child: titleContent) : Expanded(child: titleContent);
@@ -92,7 +105,10 @@ class PageHeader extends StatelessWidget {
         return Container(
           height: narrow ? 112 : 64,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-          decoration: BoxDecoration(color: colors.surface, border: Border(bottom: BorderSide(color: colors.outlineVariant, width: 1))),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            border: showBottomDivider ? Border(bottom: BorderSide(color: colors.outlineVariant, width: 1)) : null,
+          ),
           child: narrow
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -109,10 +125,7 @@ class PageHeader extends StatelessWidget {
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 alignment: Alignment.centerRight,
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: trailingWidgets,
-                                ),
+                                child: Row(mainAxisSize: MainAxisSize.min, children: trailingWidgets),
                               ),
                             ),
                         ],
@@ -120,12 +133,7 @@ class PageHeader extends StatelessWidget {
                     ),
                     SizedBox(
                       height: 44,
-                      child: HeaderSearchField(
-                        hintText: searchHint!,
-                        value: searchValue,
-                        onChanged: onSearchChanged,
-                        onSubmitted: onSearchSubmitted,
-                      ),
+                      child: HeaderSearchField(hintText: searchHint!, value: searchValue, onChanged: onSearchChanged, onSubmitted: onSearchSubmitted),
                     ),
                   ],
                 )
@@ -137,12 +145,7 @@ class PageHeader extends StatelessWidget {
                     if (hasSearch) ...[
                       const SizedBox(width: AppSpacing.xl),
                       Expanded(
-                        child: HeaderSearchField(
-                          hintText: searchHint!,
-                          value: searchValue,
-                          onChanged: onSearchChanged,
-                          onSubmitted: onSearchSubmitted,
-                        ),
+                        child: HeaderSearchField(hintText: searchHint!, value: searchValue, onChanged: onSearchChanged, onSubmitted: onSearchSubmitted),
                       ),
                     ],
                     ...trailingWidgets,
@@ -158,12 +161,7 @@ class PageHeader extends StatelessWidget {
 *Header 用的状态/统计胶囊:图标 + 文案 + 强调色。
 */
 class HeaderStatPill extends StatelessWidget {
-  const HeaderStatPill({
-    required this.icon,
-    required this.label,
-    required this.color,
-    super.key,
-  });
+  const HeaderStatPill({required this.icon, required this.label, required this.color, super.key});
 
   final IconData icon;
   final String label;
@@ -181,13 +179,12 @@ class HeaderStatPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            icon,
-            size: 12,
-            color: color,
-          ),
+          Icon(icon, size: 12, color: color),
           const SizedBox(width: AppSpacing.xs),
-          Text(label, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700))
+          Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+          ),
         ],
       ),
     );
@@ -199,13 +196,7 @@ class HeaderStatPill extends StatelessWidget {
 *IconButton 样板(constraints: minWidth:44 / padding:零 等)。
 */
 class HeaderAction extends StatelessWidget {
-  const HeaderAction({
-    required this.icon,
-    required this.tooltip,
-    required this.onPressed,
-    this.iconSize = 20,
-    super.key,
-  });
+  const HeaderAction({required this.icon, required this.tooltip, required this.onPressed, this.iconSize = 20, super.key});
 
   final IconData icon;
   final String tooltip;

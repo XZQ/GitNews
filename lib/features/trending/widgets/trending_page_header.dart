@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/page_header.dart';
 import '../application/trending_providers.dart';
 
@@ -17,7 +16,6 @@ class TrendingPageHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final freshness = ref.watch(trendingFreshnessProvider).value;
     final query = ref.watch(trendingSearchQueryProvider);
     return PageHeader(
       icon: Icons.trending_up_rounded,
@@ -34,7 +32,6 @@ class TrendingPageHeader extends ConsumerWidget {
         }
         context.go('/trending/repos');
       },
-      pills: [if (freshness != null) DataFreshnessBadge(freshness: freshness)],
       actions: [HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => refreshTrendingDigest(ref))],
     );
   }

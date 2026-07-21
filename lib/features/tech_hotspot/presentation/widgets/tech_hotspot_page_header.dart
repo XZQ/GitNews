@@ -5,7 +5,6 @@ import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/page_header.dart';
 import '../../application/tech_hotspot_providers.dart';
 import '../../domain/tech_hotspot_models.dart';
@@ -19,11 +18,8 @@ class TechHotspotPageHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final digest = ref.watch(filteredTechHotspotDigestProvider).value;
-    final freshness = ref.watch(techHotspotFreshnessProvider).value;
     final query = ref.watch(techHotspotSearchQueryProvider);
     final category = ref.watch(techHotspotCategoryFilterProvider);
-    final topicCount = digest?.topics.length ?? 8;
     return PageHeader(
       icon: Icons.device_hub_rounded,
       iconAccent: AppColors.brand,
@@ -37,10 +33,6 @@ class TechHotspotPageHeader extends ConsumerWidget {
         ref.invalidate(techHotspotDigestResultProvider);
         ref.invalidate(techHotspotDigestProvider);
       },
-      pills: [
-        if (freshness != null) DataFreshnessBadge(freshness: freshness),
-        HeaderStatPill(icon: Icons.tag_rounded, label: l10n.tr('tech_hotspot.pill.themes').replaceAll('{n}', '$topicCount'), color: AppColors.brand),
-      ],
       actions: [
         HeaderAction(icon: category == 'all' ? Icons.tune_rounded : Icons.filter_alt_rounded, tooltip: l10n.tr('tech_hotspot.filter'), onPressed: () => _showCategoryFilterSheet(context, ref)),
       ],

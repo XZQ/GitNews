@@ -98,6 +98,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
               onSearchChanged: (value) => ref.read(discoverSearchQueryProvider.notifier).state = value,
               onRefresh: _refresh,
               isRefreshing: _refreshing,
+              showBottomDivider: false,
             ),
           ),
         SliverToBoxAdapter(
@@ -109,19 +110,19 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
         child: switch (visibleSegment) {
           'skills' => DiscoverSkillsSection(async: ref.watch(filteredAgentSkillsProvider), onRetry: _refresh),
           'official' => DiscoverProfilesSection(
-              provider: filteredOfficialProfilesProvider,
-              emptyIcon: Icons.verified_outlined,
-              emptyMessage: l10n.tr('discover.empty.official'),
-              kind: DiscoverProfileKind.official,
-              onRetry: _refresh,
-            ),
+            provider: filteredOfficialProfilesProvider,
+            emptyIcon: Icons.verified_outlined,
+            emptyMessage: l10n.tr('discover.empty.official'),
+            kind: DiscoverProfileKind.official,
+            onRetry: _refresh,
+          ),
           'people' => DiscoverProfilesSection(
-              provider: filteredPeopleProfilesProvider,
-              emptyIcon: Icons.person_search_outlined,
-              emptyMessage: l10n.tr('discover.empty.people'),
-              kind: DiscoverProfileKind.people,
-              onRetry: _refresh,
-            ),
+            provider: filteredPeopleProfilesProvider,
+            emptyIcon: Icons.person_search_outlined,
+            emptyMessage: l10n.tr('discover.empty.people'),
+            kind: DiscoverProfileKind.people,
+            onRetry: _refresh,
+          ),
           _ => DiscoverReposSection(async: ref.watch(filteredTrendingReposProvider), onRetry: _refresh),
         },
       ),
@@ -147,11 +148,7 @@ class _DiscoverHubPageState extends ConsumerState<DiscoverHubPage> {
                   ),
                 ),
                 Expanded(
-                  child: RefreshIndicator.adaptive(
-                    onRefresh: _refresh,
-                    notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical,
-                    child: content,
-                  ),
+                  child: RefreshIndicator.adaptive(onRefresh: _refresh, notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical, child: content),
                 ),
               ],
             )

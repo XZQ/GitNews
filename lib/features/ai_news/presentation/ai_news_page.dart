@@ -33,19 +33,27 @@ class AiNewsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final category = ref.watch(aiNewsCategoryFilterProvider);
     final isCompact = Breakpoints.isCompact(context);
-    final content = NestedScrollView(
-      physics: isCompact ? const AlwaysScrollableScrollPhysics() : null,
-      headerSliverBuilder: (context, innerBoxIsScrolled) => [
-        if (!isCompact) const SliverToBoxAdapter(child: AiNewsPageHeader()),
-        SliverToBoxAdapter(
-          child: AiNewsCategoryNav(selected: category, onSelected: (value) => ref.read(aiNewsCategoryFilterProvider.notifier).state = value),
+    final categoryNav = AiNewsCategoryNav(selected: category, onSelected: (value) => ref.read(aiNewsCategoryFilterProvider.notifier).state = value);
+    if (!isCompact) {
+      return Scaffold(
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const AiNewsPageHeader(),
+            categoryNav,
+            Expanded(child: _Body(category: category)),
+          ],
         ),
-      ],
+      );
+    }
+    final content = NestedScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [SliverToBoxAdapter(child: categoryNav)],
       body: _Body(category: category),
     );
     return Scaffold(
-      appBar: isCompact ? const AiNewsCompactAppBar() : null,
-      body: isCompact ? RefreshIndicator.adaptive(onRefresh: () => _refreshAiNews(ref), notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical, child: content) : content,
+      appBar: const AiNewsCompactAppBar(),
+      body: RefreshIndicator.adaptive(onRefresh: () => _refreshAiNews(ref), notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical, child: content),
     );
   }
 

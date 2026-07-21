@@ -167,6 +167,76 @@ void main() {
     expect(tester.getTopLeft(categoryFinder).dy, lessThan(categoryTopBefore));
   });
 
+  testWidgets('AI 动态桌面标题栏和分类导航不跟随资讯列表滚动', (tester) async {
+    tester.view.physicalSize = const Size(1280, 720);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final now = DateTime.now();
+    final items = List.generate(
+      12,
+      (index) => AiNewsItem(
+        id: 'desktop-scroll-$index',
+        category: AiNewsCategory.paper,
+        title: '桌面滚动测试资讯 $index',
+        titleEn: 'Desktop scrolling article $index',
+        summary: '用于验证桌面标题栏与分类导航保持固定，只有资讯列表发生滚动。',
+        source: 'Test',
+        publishedAt: now.subtract(Duration(days: index)),
+        score: 60 + index,
+        selected: false,
+        url: 'https://example.com/desktop/$index',
+        permalink: 'https://example.com/desktop/$index',
+      ),
+    );
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          aiNewsItemsNotifierProvider.overrideWith(() => _StaticAiNewsItemsNotifier(items)),
+          aiNewsUnreadReminderCountProvider.overrideWithValue(0),
+          aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none),
+          aiHotLatestDailyProvider.overrideWith(
+            (ref) async => const DataResult(
+              data: AiHotDailyReport(date: '2026-07-21', generatedAt: null, windowStart: null, windowEnd: null, sections: [], flashes: []),
+              freshness: DataFreshness.freshCache,
+            ),
+          ),
+          aiHotVersionProvider.overrideWith(
+            (ref) async => const DataResult(
+              data: AiHotVersion(apiVersion: '1.4.0', skillVersion: '0.3.6', updatedAt: '2026-07-21', changelogUrl: 'https://aihot.virxact.com/changelog', recentChanges: []),
+              freshness: DataFreshness.freshCache,
+            ),
+          ),
+        ],
+        child: const MaterialApp(
+          locale: Locale('zh', 'CN'),
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: AiNewsPage(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final headerFinder = find.byType(AiNewsPageHeader);
+    final categoryFinder = find.byType(AiNewsCategoryNav);
+    final listFinder = find.byType(CustomScrollView).last;
+    final listScrollableFinder = find.descendant(of: listFinder, matching: find.byType(Scrollable));
+    final headerTopBefore = tester.getTopLeft(headerFinder).dy;
+    final categoryTopBefore = tester.getTopLeft(categoryFinder).dy;
+
+    await tester.drag(listFinder, const Offset(0, -320));
+    await tester.pumpAndSettle();
+
+    final scrollable = tester.state<ScrollableState>(listScrollableFinder);
+    expect(scrollable.position.pixels, greaterThan(0));
+    expect(tester.getTopLeft(headerFinder).dy, headerTopBefore);
+    expect(tester.getTopLeft(categoryFinder).dy, categoryTopBefore);
+    expect(find.byType(NestedScrollView), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('AI HOT 官方日报只在全部分类显示', (tester) async {
     final item = AiNewsItem(
       id: 'daily-category-visibility',

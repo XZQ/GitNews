@@ -7,7 +7,9 @@ import 'package:github_news/features/tech_hotspot/application/tech_hotspot_provi
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_models.dart';
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_repository.dart';
 import 'package:github_news/features/tech_hotspot/presentation/tech_hotspot_page.dart';
+import 'package:github_news/shared/widgets/data_provenance_badge.dart';
 import 'package:github_news/shared/widgets/error_view.dart';
+import 'package:github_news/shared/widgets/page_header.dart';
 
 class _StubRepo implements TechHotspotRepository {
   _StubRepo(this._digest, {this.shouldThrow = false});
@@ -107,6 +109,10 @@ void main() {
 
     await pumpAtSize(tester, const Size(1280, 720), _harness(_StubRepo(digest)));
 
+    expect(find.byType(DataFreshnessBadge), findsNothing);
+    expect(find.byType(HeaderStatPill), findsNothing);
+    expect(find.byIcon(Icons.tune_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
