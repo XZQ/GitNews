@@ -4,7 +4,6 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/page_header.dart';
 import '../../application/project_exporter.dart';
 import '../../application/project_providers.dart';
@@ -19,7 +18,6 @@ class ProjectPageHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final query = ref.watch(projectSearchQueryProvider);
-    final freshness = ref.watch(projectFreshnessProvider).value;
     return PageHeader(
       icon: Icons.insights_rounded,
       iconAccent: AppColors.warning,
@@ -33,7 +31,6 @@ class ProjectPageHeader extends ConsumerWidget {
         ref.invalidate(projectDigestResultProvider);
         ref.invalidate(projectDigestProvider);
       },
-      pills: [if (freshness != null) DataFreshnessBadge(freshness: freshness)],
       actions: [HeaderAction(icon: Icons.download_outlined, tooltip: l10n.tr('project.export'), onPressed: () => _exportReport(context, ref))],
     );
   }
