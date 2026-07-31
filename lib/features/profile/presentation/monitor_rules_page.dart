@@ -35,48 +35,48 @@ class _Body extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final content = ref.watch(localContentControllerProvider);
     final enabledFlags = content.monitorRules;
-    return ListView(padding: const EdgeInsets.all(AppSpacing.lg), children: [
-      AppCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(
-          l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}'),
-          style: AppTypography.bodyMedium.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: [
+        AppCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                l10n.tr('monitor.rules.enabled_count').replaceAll('{count}', '${content.enabledRuleCount}'),
+                style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              for (var i = 0; i < monitorRuleCount; i++)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
+                  child: Row(
+                    children: [
+                      Expanded(child: Text(monitorRuleLabels(l10n)[i], style: AppTypography.bodyMedium)),
+                      Text(
+                        enabledFlags[i] ? l10n.tr('monitor.rules.enabled') : l10n.tr('monitor.rules.disabled'),
+                        style: AppTypography.labelSmall.copyWith(color: enabledFlags[i] ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                      Switch(
+                        value: enabledFlags[i],
+                        onChanged: (value) {
+                          ref.read(localContentControllerProvider.notifier).setMonitorRule(i, value);
+                          final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(value ? l10n.tr('monitor.rules.enabled') : l10n.tr('monitor.rules.disabled')),
+                              action: SnackBarAction(label: l10n.tr('common.undo'), onPressed: () => ref.read(localContentControllerProvider.notifier).setMonitorRule(i, !value)),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
         ),
-        const SizedBox(height: AppSpacing.sm),
-        for (var i = 0; i < monitorRuleCount; i++)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs2),
-            child: Row(
-              children: [
-                Expanded(child: Text(monitorRuleLabels(l10n)[i], style: AppTypography.bodyMedium)),
-                Text(
-                  enabledFlags[i] ? l10n.tr('monitor.rules.enabled') : l10n.tr('monitor.rules.disabled'),
-                  style: AppTypography.labelSmall.copyWith(color: enabledFlags[i] ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant),
-                ),
-                Switch(
-                  value: enabledFlags[i],
-                  onChanged: (value) {
-                    ref.read(localContentControllerProvider.notifier).setMonitorRule(i, value);
-                    final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
-                    messenger.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          value ? l10n.tr('monitor.rules.enabled') : l10n.tr('monitor.rules.disabled'),
-                        ),
-                        action: SnackBarAction(
-                          label: l10n.tr('common.undo'),
-                          onPressed: () => ref.read(localContentControllerProvider.notifier).setMonitorRule(i, !value),
-                        ),
-                      ),
-                    );
-                  },
-                )
-              ],
-            ),
-          )
-      ]))
-    ]);
+      ],
+    );
   }
 }

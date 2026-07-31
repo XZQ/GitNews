@@ -22,28 +22,22 @@ const Duration projectRemoteCacheTtl = CacheTtlConfig.project;
 *基于趋势仓库 + GitHub contributors 的深度报告仓库。
 */
 class GithubProjectRepository implements ProjectRepository {
-  GithubProjectRepository(
-      {required RepositoryFeed repositoryFeed,
-      required Dio dio,
-      required JsonSnapshotCacheDao cache,
-      String? token,
-      String cacheScope = 'anonymous',
-      DateTime Function()? now,
-      bool Function()? isRateLimited,
-      void Function(int retryAfterSeconds)? onRateLimited})
-      : _repositoryFeed = repositoryFeed,
-        _cache = cache,
-        _resources = GitHubResourceCache(
-          dio: dio,
-          cache: cache,
-          token: token,
-          cacheScope: cacheScope,
-          now: now,
-        ),
-        _cacheScope = cacheScope,
-        _now = now ?? DateTime.now,
-        _isRateLimited = isRateLimited,
-        _onRateLimited = onRateLimited;
+  GithubProjectRepository({
+    required RepositoryFeed repositoryFeed,
+    required Dio dio,
+    required JsonSnapshotCacheDao cache,
+    String? token,
+    String cacheScope = 'anonymous',
+    DateTime Function()? now,
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
+  }) : _repositoryFeed = repositoryFeed,
+       _cache = cache,
+       _resources = GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now),
+       _cacheScope = cacheScope,
+       _now = now ?? DateTime.now,
+       _isRateLimited = isRateLimited,
+       _onRateLimited = onRateLimited;
 
   final RepositoryFeed _repositoryFeed;
   final JsonSnapshotCacheDao _cache;
@@ -71,13 +65,7 @@ class GithubProjectRepository implements ProjectRepository {
     final activities = await activityFuture;
     return DataResult(
       freshness: _leastFresh(feedResult.freshness, contributorResult.freshness),
-      data: ProjectDigest(
-        repos: feed.repos,
-        contributors: contributorResult.data,
-        primaryTrend: feed.primaryTrend,
-        secondaryTrend: feed.secondaryTrend,
-        activities: activities,
-      ),
+      data: ProjectDigest(repos: feed.repos, contributors: contributorResult.data, primaryTrend: feed.primaryTrend, secondaryTrend: feed.secondaryTrend, activities: activities),
     );
   }
 
@@ -171,11 +159,7 @@ class GithubProjectRepository implements ProjectRepository {
 
   ContributorEntity _contributorFromJson(Object? raw) {
     final json = GitHubJson.map(raw);
-    return ContributorEntity(
-      login: GitHubJson.string(json['login']),
-      contributions: GitHubJson.intValue(json['contributions']),
-      avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
-    );
+    return ContributorEntity(login: GitHubJson.string(json['login']), contributions: GitHubJson.intValue(json['contributions']), avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']));
   }
 }
 

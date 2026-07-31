@@ -20,47 +20,51 @@ class AppTheme {
   *以指定 seed 构造浅色主题。
   */
   static ThemeData light(Color seed) => _build(
-        brightness: Brightness.light,
-        seed: seed,
-        background: AppColors.bgLight,
-        surface: AppColors.surfaceLight,
-        surfaceAlt: AppColors.surfaceLightAlt,
-        border: AppColors.borderLight,
-        textPrimary: AppColors.textPrimaryLight,
-        textSecondary: AppColors.textSecondaryLight,
-        textMuted: AppColors.textMutedLight,
-      );
+    brightness: Brightness.light,
+    seed: seed,
+    background: AppColors.bgLight,
+    surface: AppColors.surfaceLight,
+    surfaceAlt: AppColors.surfaceLightAlt,
+    border: AppColors.borderLight,
+    textPrimary: AppColors.textPrimaryLight,
+    textSecondary: AppColors.textSecondaryLight,
+    textMuted: AppColors.textMutedLight,
+  );
 
   /* 
   *以指定 seed 构造深色主题。
   */
   static ThemeData dark(Color seed) => _build(
-        brightness: Brightness.dark,
-        seed: seed,
-        background: AppColors.bgDark,
-        surface: AppColors.surfaceDark,
-        surfaceAlt: AppColors.surfaceDarkAlt,
-        border: AppColors.borderDark,
-        textPrimary: AppColors.textPrimaryDark,
-        textSecondary: AppColors.textSecondaryDark,
-        textMuted: AppColors.textMutedDark,
-      );
+    brightness: Brightness.dark,
+    seed: seed,
+    background: AppColors.bgDark,
+    surface: AppColors.surfaceDark,
+    surfaceAlt: AppColors.surfaceDarkAlt,
+    border: AppColors.borderDark,
+    textPrimary: AppColors.textPrimaryDark,
+    textSecondary: AppColors.textSecondaryDark,
+    textMuted: AppColors.textMutedDark,
+  );
 
   /* 
   *通用工厂。
   */
-  static ThemeData fromSeed(Brightness brightness, Color seed) => switch (brightness) { Brightness.light => light(seed), Brightness.dark => dark(seed) };
+  static ThemeData fromSeed(Brightness brightness, Color seed) => switch (brightness) {
+    Brightness.light => light(seed),
+    Brightness.dark => dark(seed),
+  };
 
-  static ThemeData _build(
-      {required Brightness brightness,
-      required Color seed,
-      required Color background,
-      required Color surface,
-      required Color surfaceAlt,
-      required Color border,
-      required Color textPrimary,
-      required Color textSecondary,
-      required Color textMuted}) {
+  static ThemeData _build({
+    required Brightness brightness,
+    required Color seed,
+    required Color background,
+    required Color surface,
+    required Color surfaceAlt,
+    required Color border,
+    required Color textPrimary,
+    required Color textSecondary,
+    required Color textMuted,
+  }) {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: seed,
       brightness: brightness,
@@ -102,7 +106,10 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shadowColor: Colors.black.withValues(alpha: isLight ? 0.03 : 0),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.card), side: BorderSide(color: border.withValues(alpha: isLight ? 0.54 : 0.9), width: 1)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.card),
+          side: BorderSide(color: border.withValues(alpha: isLight ? 0.54 : 0.9), width: 1),
+        ),
         margin: EdgeInsets.zero,
       ),
       appBarTheme: AppBarTheme(
@@ -148,14 +155,27 @@ class AppTheme {
         indicatorShape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
         elevation: 0,
       ),
-      dividerTheme: DividerThemeData(color: border.withValues(alpha: isLight ? 0.68 : 1), thickness: isLight ? 0.6 : 1, space: 1),
+      dividerTheme: DividerThemeData(
+        color: border.withValues(alpha: isLight ? 0.68 : 1),
+        thickness: isLight ? 0.6 : 1,
+        space: 1,
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isLight ? surface : surfaceAlt,
         hintStyle: AppTypography.bodyMedium.copyWith(color: textMuted),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide(color: border)),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide(color: border)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(AppRadius.md), borderSide: BorderSide(color: colorScheme.primary, width: 1.5)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: BorderSide(color: border),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: BorderSide(color: border),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: BorderSide(color: colorScheme.primary, width: 1.5),
+        ),
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -175,7 +195,9 @@ class AppTheme {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
         ),
       ),
-      textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: colorScheme.primary, textStyle: AppTypography.labelLarge)),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: colorScheme.primary, textStyle: AppTypography.labelLarge),
+      ),
       chipTheme: ChipThemeData(
         backgroundColor: isLight ? surface : surfaceAlt,
         side: BorderSide(color: border),

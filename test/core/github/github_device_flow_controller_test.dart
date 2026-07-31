@@ -22,6 +22,12 @@ void main() {
 
     expect(container.read(githubDeviceFlowProvider).status, DeviceFlowStatus.error);
     expect(container.read(githubDeviceFlowProvider).error, 'not_configured');
-    verifyNever(() => dio.post<Map<String, Object?>>(any(), data: any(named: 'data'), options: any(named: 'options')));
+    verifyNever(
+      () => dio.post<Map<String, Object?>>(
+        any(),
+        data: any(named: 'data'),
+        options: any(named: 'options'),
+      ),
+    );
   });
 }

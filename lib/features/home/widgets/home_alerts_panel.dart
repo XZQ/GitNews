@@ -32,37 +32,34 @@ class HomeAlertsPanel extends ConsumerWidget {
         onTap: () => context.go('/monitor'),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-          child: Row(children: [
-            Expanded(child: Text(l10n.tr('home.section.alerts.title'), style: AppTypography.titleSmall)),
-            Text(
-              l10n.tr('home.section.alerts.unread').replaceAll('{n}', '0'),
-              style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Icon(Icons.chevron_right_rounded, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          ]),
+          child: Row(
+            children: [
+              Expanded(child: Text(l10n.tr('home.section.alerts.title'), style: AppTypography.titleSmall)),
+              Text(l10n.tr('home.section.alerts.unread').replaceAll('{n}', '0'), style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+              const SizedBox(width: AppSpacing.xs),
+              Icon(Icons.chevron_right_rounded, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            ],
+          ),
         ),
       );
     }
     return AppCard(
-        padding: EdgeInsets.zero,
-        child: Column(children: [
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
           if (showHeader)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.xs,
-              ),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
               child: SectionHeader(
                 title: l10n.tr('home.section.alerts.title'),
                 subtitle: l10n.tr('home.section.alerts.unread').replaceAll('{n}', '${items.length}'),
                 onTap: () => context.go('/monitor'),
               ),
             ),
-          for (var i = 0; i < items.length; i++) ...[if (i != 0) const Divider(height: 1), _AlertTile(alert: items[i])]
-        ]));
+          for (var i = 0; i < items.length; i++) ...[if (i != 0) const Divider(height: 1), _AlertTile(alert: items[i])],
+        ],
+      ),
+    );
   }
 }
 
@@ -75,7 +72,7 @@ class _AlertTile extends StatelessWidget {
       AlertSeverity.success => AppColors.success,
       AlertSeverity.warning => AppColors.warning,
       AlertSeverity.danger => AppColors.danger,
-      AlertSeverity.info => AppColors.info
+      AlertSeverity.info => AppColors.info,
     };
   }
 
@@ -84,7 +81,7 @@ class _AlertTile extends StatelessWidget {
       AlertSeverity.success => Icons.trending_up_rounded,
       AlertSeverity.warning => Icons.warning_amber_rounded,
       AlertSeverity.danger => Icons.error_outline_rounded,
-      AlertSeverity.info => Icons.info_outline_rounded
+      AlertSeverity.info => Icons.info_outline_rounded,
     };
   }
 
@@ -112,7 +109,7 @@ class _AlertTile extends StatelessWidget {
                 children: [
                   Text(alert.repoFullName, style: AppTypography.titleSmall.copyWith(color: colors.onSurface)),
                   const SizedBox(height: AppSpacing.xxs),
-                  Text(alert.metric, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant))
+                  Text(alert.metric, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
                 ],
               ),
             ),
@@ -120,11 +117,14 @@ class _AlertTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(alert.value, style: AppTypography.labelMedium.copyWith(color: color, fontWeight: FontWeight.w600)),
+                Text(
+                  alert.value,
+                  style: AppTypography.labelMedium.copyWith(color: color, fontWeight: FontWeight.w600),
+                ),
                 const SizedBox(height: AppSpacing.xxs),
-                Text(alert.time, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+                Text(alert.time, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
               ],
-            )
+            ),
           ],
         ),
       ),

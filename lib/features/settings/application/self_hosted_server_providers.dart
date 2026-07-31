@@ -11,12 +11,7 @@ import '../data/self_hosted_server_client.dart';
 enum ServerOperation { idle, testing, pushing, pulling }
 
 class SelfHostedServerStatus {
-  const SelfHostedServerStatus({
-    this.operation = ServerOperation.idle,
-    this.messageKey,
-    this.error = false,
-    this.lastSuccessAt,
-  });
+  const SelfHostedServerStatus({this.operation = ServerOperation.idle, this.messageKey, this.error = false, this.lastSuccessAt});
 
   final ServerOperation operation;
   final String? messageKey;
@@ -27,22 +22,12 @@ class SelfHostedServerStatus {
 }
 
 final selfHostedServerDioProvider = Provider<Dio>(
-  (ref) => Dio(
-    BaseOptions(
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 20),
-      sendTimeout: const Duration(seconds: 20),
-    ),
-  ),
+  (ref) => Dio(BaseOptions(connectTimeout: const Duration(seconds: 10), receiveTimeout: const Duration(seconds: 20), sendTimeout: const Duration(seconds: 20))),
 );
 
-final selfHostedServerClientProvider = Provider<SelfHostedServerClient>(
-  (ref) => SelfHostedServerClient(ref.watch(selfHostedServerDioProvider)),
-);
+final selfHostedServerClientProvider = Provider<SelfHostedServerClient>((ref) => SelfHostedServerClient(ref.watch(selfHostedServerDioProvider)));
 
-final selfHostedServerControllerProvider = NotifierProvider<SelfHostedServerController, SelfHostedServerStatus>(
-  SelfHostedServerController.new,
-);
+final selfHostedServerControllerProvider = NotifierProvider<SelfHostedServerController, SelfHostedServerStatus>(SelfHostedServerController.new);
 
 class SelfHostedServerController extends Notifier<SelfHostedServerStatus> {
   @override
@@ -75,33 +60,20 @@ class SelfHostedServerController extends Notifier<SelfHostedServerStatus> {
     }, 'settings.server.pulled');
   }
 
-  Future<void> _run(
-    ServerOperation operation,
-    Future<void> Function() action,
-    String successKey,
-  ) async {
+  Future<void> _run(ServerOperation operation, Future<void> Function() action, String successKey) async {
     if (state.busy) {
       return;
     }
     state = SelfHostedServerStatus(operation: operation);
     try {
       await action();
-      state = SelfHostedServerStatus(
-        messageKey: successKey,
-        lastSuccessAt: DateTime.now().toUtc(),
-      );
+      state = SelfHostedServerStatus(messageKey: successKey, lastSuccessAt: DateTime.now().toUtc());
     } on AppException catch (e) {
       // 推送冲突需要用户先拉取,给针对性提示而非笼统失败。
       final conflict = e.meta['reason'] == 'conflict';
-      state = SelfHostedServerStatus(
-        messageKey: conflict ? 'settings.server.conflict' : 'settings.server.failed',
-        error: true,
-      );
+      state = SelfHostedServerStatus(messageKey: conflict ? 'settings.server.conflict' : 'settings.server.failed', error: true);
     } catch (_) {
-      state = const SelfHostedServerStatus(
-        messageKey: 'settings.server.failed',
-        error: true,
-      );
+      state = const SelfHostedServerStatus(messageKey: 'settings.server.failed', error: true);
     }
   }
 

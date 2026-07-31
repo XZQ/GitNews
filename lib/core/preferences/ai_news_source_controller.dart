@@ -72,9 +72,9 @@ class AiNewsSourceState {
   final List<AiNewsSourceEntry> entries;
 
   List<AiNewsSourceConfig> get enabledConfigs => [
-        for (final entry in entries)
-          if (entry.enabled) entry.config
-      ];
+    for (final entry in entries)
+      if (entry.enabled) entry.config,
+  ];
 
   int get enabledCount => entries.where((entry) => entry.enabled).length;
 
@@ -98,7 +98,7 @@ class AiNewsSourceController extends Notifier<AiNewsSourceState> {
   Future<void> setEnabled(String id, bool enabled) async {
     state = AiNewsSourceState([
       for (final entry in state.entries)
-        if (entry.config.id == id) entry.copyWith(enabled: enabled) else entry
+        if (entry.config.id == id) entry.copyWith(enabled: enabled) else entry,
     ]);
     await _persist();
   }
@@ -133,7 +133,7 @@ class AiNewsSourceController extends Notifier<AiNewsSourceState> {
     }
     state = AiNewsSourceState([
       for (final entry in state.entries)
-        if (entry.config.id != id) entry
+        if (entry.config.id != id) entry,
     ]);
     await _persist();
   }
@@ -161,11 +161,7 @@ class AiNewsSourceController extends Notifier<AiNewsSourceState> {
       for (final entry in state.entries)
         if (entry.config.id == id)
           entry.copyWith(
-            health: entry.health.copyWith(
-              consecutiveFailures: entry.health.consecutiveFailures + 1,
-              lastFailureAt: now,
-              lastError: error.runtimeType.toString(),
-            ),
+            health: entry.health.copyWith(consecutiveFailures: entry.health.consecutiveFailures + 1, lastFailureAt: now, lastError: error.runtimeType.toString()),
           )
         else
           entry,
@@ -216,12 +212,7 @@ List<AiNewsSourceEntry> _decodeEntries(String? raw) {
   final byId = {for (final entry in stored) entry.config.id: entry};
   final result = <AiNewsSourceEntry>[
     for (final config in AiNewsSourcesConfig.sources)
-      AiNewsSourceEntry(
-        config: config,
-        enabled: byId[config.id]?.enabled ?? true,
-        isCustom: false,
-        health: byId[config.id]?.health ?? const AiNewsSourceHealth(),
-      ),
+      AiNewsSourceEntry(config: config, enabled: byId[config.id]?.enabled ?? true, isCustom: false, health: byId[config.id]?.health ?? const AiNewsSourceHealth()),
   ];
   final builtInIds = AiNewsSourcesConfig.sources.map((source) => source.id).toSet();
   result.addAll(stored.where((entry) => entry.isCustom && !builtInIds.contains(entry.config.id)));

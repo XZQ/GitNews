@@ -54,10 +54,7 @@ class _BodyState extends ConsumerState<_Body> {
       return EmptyView(
         icon: Icons.person_add_outlined,
         message: l10n.tr('profile.collection.developers.empty'),
-        action: FilledButton(
-          onPressed: () => context.go('/discover'),
-          child: Text(l10n.tr('profile.collection.discover_action')),
-        ),
+        action: FilledButton(onPressed: () => context.go('/discover'), child: Text(l10n.tr('profile.collection.discover_action'))),
       );
     }
     final query = _query.trim().toLowerCase();
@@ -66,12 +63,7 @@ class _BodyState extends ConsumerState<_Body> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.md,
-            AppSpacing.lg,
-            AppSpacing.sm,
-          ),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.sm),
           child: CollectionPageControls(
             countLabel: l10n.tr('profile.collection.developers.count').replaceAll('{n}', '${filtered.length}'),
             searchHint: l10n.tr('profile.collection.search_developers'),
@@ -80,17 +72,9 @@ class _BodyState extends ConsumerState<_Body> {
         ),
         Expanded(
           child: filtered.isEmpty
-              ? EmptyView(
-                  icon: Icons.search_off_rounded,
-                  message: l10n.tr('profile.collection.no_match'),
-                )
+              ? EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('profile.collection.no_match'))
               : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.xs,
-                    AppSpacing.lg,
-                    AppSpacing.xxxl,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.xxxl),
                   itemCount: filtered.length,
                   separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, index) {
@@ -100,27 +84,10 @@ class _BodyState extends ConsumerState<_Body> {
                       child: ListTile(
                         leading: CircleAvatar(
                           backgroundColor: Color(developer.avatarAccentArgb).withValues(alpha: 0.16),
-                          child: Text(
-                            developer.login[0].toUpperCase(),
-                            style: AppTypography.titleSmall.copyWith(
-                              color: Color(developer.avatarAccentArgb),
-                            ),
-                          ),
+                          child: Text(developer.login[0].toUpperCase(), style: AppTypography.titleSmall.copyWith(color: Color(developer.avatarAccentArgb))),
                         ),
-                        title: Text(
-                          developer.login,
-                          style: AppTypography.titleSmall,
-                        ),
-                        subtitle: Text(
-                          l10n
-                              .tr(
-                                'profile.collection.developers.contribution',
-                              )
-                              .replaceAll(
-                                '{n}',
-                                '${developer.contributions}',
-                              ),
-                        ),
+                        title: Text(developer.login, style: AppTypography.titleSmall),
+                        subtitle: Text(l10n.tr('profile.collection.developers.contribution').replaceAll('{n}', '${developer.contributions}')),
                         trailing: IconButton(
                           tooltip: l10n.tr('a11y.developer_unfollow').replaceAll('{name}', developer.login),
                           icon: const Icon(Icons.person_remove_outlined),
@@ -142,10 +109,7 @@ class _BodyState extends ConsumerState<_Body> {
     messenger.showSnackBar(
       SnackBar(
         content: Text(l10n.tr('profile.collection.developer_removed')),
-        action: SnackBarAction(
-          label: l10n.tr('common.undo'),
-          onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(developer),
-        ),
+        action: SnackBarAction(label: l10n.tr('common.undo'), onPressed: () => ref.read(localContentControllerProvider.notifier).toggleDeveloper(developer)),
       ),
     );
   }

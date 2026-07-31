@@ -17,14 +17,7 @@ class AiHotDailyLead {
 *日报分类内的单条精选。
 */
 class AiHotDailyItem {
-  const AiHotDailyItem({
-    required this.title,
-    required this.summary,
-    required this.sourceUrl,
-    required this.sourceName,
-    this.permalink,
-    this.attribution,
-  });
+  const AiHotDailyItem({required this.title, required this.summary, required this.sourceUrl, required this.sourceName, this.permalink, this.attribution});
 
   // 精选标题。
   final String title;
@@ -62,14 +55,7 @@ class AiHotDailySection {
 *日报快讯条目。
 */
 class AiHotDailyFlash {
-  const AiHotDailyFlash({
-    required this.title,
-    required this.sourceName,
-    required this.sourceUrl,
-    required this.publishedAt,
-    this.permalink,
-    this.attribution,
-  });
+  const AiHotDailyFlash({required this.title, required this.sourceName, required this.sourceUrl, required this.publishedAt, this.permalink, this.attribution});
 
   // 快讯标题。
   final String title;
@@ -136,13 +122,7 @@ class AiHotDailyReport {
 *最近日报索引条目。
 */
 class AiHotDailyEntry {
-  const AiHotDailyEntry({
-    required this.date,
-    required this.generatedAt,
-    this.leadTitle,
-    this.leadParagraph,
-    this.attribution,
-  });
+  const AiHotDailyEntry({required this.date, required this.generatedAt, this.leadTitle, this.leadParagraph, this.attribution});
 
   // YYYY-MM-DD 日期。
   final String date;

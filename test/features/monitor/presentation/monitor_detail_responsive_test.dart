@@ -25,16 +25,7 @@ void main() {
     trend: [520000, 521000, 522500, 524000, 526000, 527000],
   );
 
-  const stats = MonitorStats(
-    monitoredCount: 7,
-    monitoredDelta: 0,
-    unreadAlertCount: 0,
-    unreadAlertDelta: 0,
-    triggeredTodayCount: 0,
-    triggeredTodayDelta: 0,
-    totalAlertCount: 0,
-    totalAlertDelta: 0,
-  );
+  const stats = MonitorStats(monitoredCount: 7, monitoredDelta: 0, unreadAlertCount: 0, unreadAlertDelta: 0, triggeredTodayCount: 0, triggeredTodayDelta: 0, totalAlertCount: 0, totalAlertDelta: 0);
 
   testWidgets('监控摘要在手机两列、桌面四列', (tester) async {
     tester.view.devicePixelRatio = 1;
@@ -99,12 +90,7 @@ class _StatusTestApp extends StatelessWidget {
     return MaterialApp(
       locale: const Locale('zh', 'CN'),
       supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       home: Scaffold(
         body: Padding(
           padding: const EdgeInsets.all(16),
@@ -129,30 +115,14 @@ class _MonitorTestApp extends StatelessWidget {
     final digest = MonitorDigest(
       monitoredRepos: [repo],
       alerts: const [],
-      stats: const MonitorStats(
-        monitoredCount: 1,
-        monitoredDelta: 0,
-        unreadAlertCount: 0,
-        unreadAlertDelta: 0,
-        triggeredTodayCount: 0,
-        triggeredTodayDelta: 0,
-        totalAlertCount: 0,
-        totalAlertDelta: 0,
-      ),
+      stats: const MonitorStats(monitoredCount: 1, monitoredDelta: 0, unreadAlertCount: 0, unreadAlertDelta: 0, triggeredTodayCount: 0, triggeredTodayDelta: 0, totalAlertCount: 0, totalAlertDelta: 0),
     );
     return ProviderScope(
-      overrides: [
-        visibleMonitorDigestProvider.overrideWith((ref) async => digest),
-      ],
+      overrides: [visibleMonitorDigestProvider.overrideWith((ref) async => digest)],
       child: MaterialApp(
         locale: const Locale('zh', 'CN'),
         supportedLocales: AppLocalizations.supportedLocales,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
         home: MonitorDetailPage(repoFullName: repo.fullName),
       ),
     );

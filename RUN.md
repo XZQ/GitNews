@@ -54,7 +54,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -Suite flu
 需要直接定位单项问题时，等价底层命令仍可单独运行：
 
 ```bash
-dart format .
+dart format lib test
 flutter analyze
 flutter test
 ```
@@ -67,10 +67,10 @@ flutter test
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -Suite desktop
 ```
 
-无交互 CI 当前使用 `-Suite ci-windows`，对提交范围执行增量格式检查，并运行
-analyzer、全量测试和 Release 构建。`-Suite windows-build` 仍代表包含全量
-`lib/test` 格式检查的完整构建门禁；两者都不把无桌面会话表述成窗口或托盘已经
-验证。对应底层命令为：
+无交互 CI 当前使用 `-Suite ci-windows`，执行完整 `lib/test` 格式检查、
+可移植性检查、analyzer、全量测试和 Release 构建；它与 `-Suite windows-build`
+使用同一完整质量边界。两者都不把无桌面会话表述成窗口或托盘已经验证。
+对应底层命令为：
 
 ```bash
 flutter build windows --release

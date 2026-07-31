@@ -7,8 +7,18 @@ enum AlertSeverity { info, success, warning, danger }
 *监控告警实体。
 */
 class AlertEntity {
-  const AlertEntity(
-      {required this.repoFullName, required this.metric, required this.value, required this.time, required this.severity, this.id, this.ruleId, this.observedAt, this.readAt, this.archivedAt});
+  const AlertEntity({
+    required this.repoFullName,
+    required this.metric,
+    required this.value,
+    required this.time,
+    required this.severity,
+    this.id,
+    this.ruleId,
+    this.observedAt,
+    this.readAt,
+    this.archivedAt,
+  });
 
   final String repoFullName;
   final String metric;
@@ -31,15 +41,16 @@ class AlertEntity {
 *监控统计摘要。
 */
 class MonitorStats {
-  const MonitorStats(
-      {required this.monitoredCount,
-      required this.monitoredDelta,
-      required this.unreadAlertCount,
-      required this.unreadAlertDelta,
-      required this.triggeredTodayCount,
-      required this.triggeredTodayDelta,
-      required this.totalAlertCount,
-      required this.totalAlertDelta});
+  const MonitorStats({
+    required this.monitoredCount,
+    required this.monitoredDelta,
+    required this.unreadAlertCount,
+    required this.unreadAlertDelta,
+    required this.triggeredTodayCount,
+    required this.triggeredTodayDelta,
+    required this.totalAlertCount,
+    required this.totalAlertDelta,
+  });
 
   final int monitoredCount;
   final int monitoredDelta;

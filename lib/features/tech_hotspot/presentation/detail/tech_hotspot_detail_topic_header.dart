@@ -32,11 +32,7 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
       titleStyle: AppTypography.headlineMedium,
       badges: [
         HeroBadge(label: topic.category, color: heatColor),
-        HeroBadge(
-          label: l10n.tr('tech_hotspot.detail.heat_value').replaceAll('{heat}', topic.heat.toString()),
-          color: heatColor,
-          icon: Icons.local_fire_department_rounded,
-        )
+        HeroBadge(label: l10n.tr('tech_hotspot.detail.heat_value').replaceAll('{heat}', topic.heat.toString()), color: heatColor, icon: Icons.local_fire_department_rounded),
       ],
       trailing: Wrap(
         spacing: AppSpacing.lg,
@@ -48,7 +44,7 @@ class TechHotspotDetailTopicHeader extends StatelessWidget {
             value: '${topic.growth > 0 ? '+' : ''}${topic.growth.toStringAsFixed(1)}%',
           ),
           _MetricTile(icon: Icons.forum_rounded, label: l10n.tr('tech_hotspot.detail.metric.discussion'), value: '${topic.mentions}'),
-          _MetricTile(icon: Icons.book_outlined, label: l10n.tr('tech_hotspot.detail.metric.repos'), value: '${topic.relatedRepos}')
+          _MetricTile(icon: Icons.book_outlined, label: l10n.tr('tech_hotspot.detail.metric.repos'), value: '${topic.relatedRepos}'),
         ],
       ),
     );
@@ -70,7 +66,10 @@ class _MetricTile extends StatelessWidget {
         Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.9)),
         const SizedBox(width: AppSpacing.xs),
         Text('$label · ', style: AppTypography.labelMedium.copyWith(color: Colors.white.withValues(alpha: 0.7))),
-        Text(value, style: AppTypography.labelMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700))
+        Text(
+          value,
+          style: AppTypography.labelMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+        ),
       ],
     );
   }

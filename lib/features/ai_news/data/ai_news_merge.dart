@@ -44,12 +44,7 @@ List<String> _identityKeys(AiNewsItem item) {
   final permalink = normalizeAiNewsUrl(item.permalink);
   final originalUrl = normalizeAiNewsUrl(item.url);
   final title = normalizeAiNewsTitle(item.titleEn.isNotEmpty ? item.titleEn : item.title);
-  return [
-    if (id.isNotEmpty) 'id:$id',
-    if (permalink.isNotEmpty) 'permalink:$permalink',
-    if (originalUrl.isNotEmpty) 'url:$originalUrl',
-    if (title.isNotEmpty) 'title:$title',
-  ];
+  return [if (id.isNotEmpty) 'id:$id', if (permalink.isNotEmpty) 'permalink:$permalink', if (originalUrl.isNotEmpty) 'url:$originalUrl', if (title.isNotEmpty) 'title:$title'];
 }
 
 AiNewsItem _enrich(AiNewsItem primary, AiNewsItem supplement) {
@@ -85,13 +80,7 @@ String normalizeAiNewsUrl(String raw) {
   if (path.length > 1 && path.endsWith('/')) {
     path = path.substring(0, path.length - 1);
   }
-  return Uri(
-    scheme: uri.scheme.toLowerCase(),
-    host: uri.host.toLowerCase(),
-    port: uri.hasPort ? uri.port : null,
-    path: path,
-    queryParameters: query.isEmpty ? null : query,
-  ).toString();
+  return Uri(scheme: uri.scheme.toLowerCase(), host: uri.host.toLowerCase(), port: uri.hasPort ? uri.port : null, path: path, queryParameters: query.isEmpty ? null : query).toString();
 }
 
 /* 标题规范化:小写后仅保留中英文与数字;过短标题不参与去重。 */

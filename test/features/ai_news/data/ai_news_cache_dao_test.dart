@@ -51,12 +51,7 @@ void main() {
     });
 
     test('upsertPage should persist items and meta', () async {
-      final now = DateTime.utc(
-        2026,
-        6,
-        30,
-        10,
-      );
+      final now = DateTime.utc(2026, 6, 30, 10);
       await dao.upsertPage(
         category: null,
         cursor: null,
@@ -108,23 +103,11 @@ void main() {
     });
 
     test('isFresh should be false when meta missing', () async {
-      expect(
-          await dao.isFresh(
-            category: null,
-            cursor: null,
-            ttl: const Duration(minutes: 5),
-            now: DateTime.utc(2026, 6, 30, 10),
-          ),
-          isFalse);
+      expect(await dao.isFresh(category: null, cursor: null, ttl: const Duration(minutes: 5), now: DateTime.utc(2026, 6, 30, 10)), isFalse);
     });
 
     test('isFresh should be true within TTL window', () async {
-      final fetched = DateTime.utc(
-        2026,
-        6,
-        30,
-        10,
-      );
+      final fetched = DateTime.utc(2026, 6, 30, 10);
       await dao.upsertPage(
         category: null,
         cursor: null,
@@ -132,22 +115,8 @@ void main() {
         now: fetched,
       );
 
-      expect(
-          await dao.isFresh(
-            category: null,
-            cursor: null,
-            ttl: const Duration(minutes: 5),
-            now: fetched.add(const Duration(minutes: 3)),
-          ),
-          isTrue);
-      expect(
-          await dao.isFresh(
-            category: null,
-            cursor: null,
-            ttl: const Duration(minutes: 5),
-            now: fetched.add(const Duration(hours: 1, minutes: 1)),
-          ),
-          isFalse);
+      expect(await dao.isFresh(category: null, cursor: null, ttl: const Duration(minutes: 5), now: fetched.add(const Duration(minutes: 3))), isTrue);
+      expect(await dao.isFresh(category: null, cursor: null, ttl: const Duration(minutes: 5), now: fetched.add(const Duration(hours: 1, minutes: 1))), isFalse);
     });
 
     test('readAll should filter by category', () async {
@@ -155,16 +124,15 @@ void main() {
         category: null,
         cursor: null,
         digest: AiNewsDigest(
-          items: [makeItem('a', category: AiNewsCategory.aiModels), makeItem('b', category: AiNewsCategory.paper), makeItem('c', category: AiNewsCategory.aiModels)],
+          items: [
+            makeItem('a', category: AiNewsCategory.aiModels),
+            makeItem('b', category: AiNewsCategory.paper),
+            makeItem('c', category: AiNewsCategory.aiModels),
+          ],
           count: 3,
           hasNext: false,
         ),
-        now: DateTime.utc(
-          2026,
-          6,
-          30,
-          10,
-        ),
+        now: DateTime.utc(2026, 6, 30, 10),
       );
 
       final onlyAiModels = await dao.readAll(category: AiNewsCategory.aiModels);
@@ -173,12 +141,7 @@ void main() {
     });
 
     test('upsertPage should replace existing item by id', () async {
-      final first = DateTime.utc(
-        2026,
-        6,
-        30,
-        10,
-      );
+      final first = DateTime.utc(2026, 6, 30, 10);
       await dao.upsertPage(
         category: null,
         cursor: null,
@@ -203,7 +166,7 @@ void main() {
               publishedAt: DateTime.utc(2026, 6, 28),
               score: 90,
               selected: false,
-            )
+            ),
           ],
           count: 1,
           hasNext: false,
@@ -234,11 +197,7 @@ void main() {
       await dao.upsertPage(
         category: null,
         cursor: null,
-        digest: AiNewsDigest(
-          items: [makeItem('a', title: 'Quantum model benchmark')],
-          count: 1,
-          hasNext: false,
-        ),
+        digest: AiNewsDigest(items: [makeItem('a', title: 'Quantum model benchmark')], count: 1, hasNext: false),
         now: now,
       );
       expect((await dao.searchAll('quantum')).single.id, 'a');
@@ -246,11 +205,7 @@ void main() {
       await dao.upsertPage(
         category: null,
         cursor: null,
-        digest: AiNewsDigest(
-          items: [makeItem('a', title: 'Vision model benchmark')],
-          count: 1,
-          hasNext: false,
-        ),
+        digest: AiNewsDigest(items: [makeItem('a', title: 'Vision model benchmark')], count: 1, hasNext: false),
         now: now,
       );
 
@@ -265,18 +220,8 @@ void main() {
         cursor: null,
         digest: AiNewsDigest(
           items: [
-            makeItem(
-              'new',
-              title: 'Agent release',
-              source: 'OpenAI',
-              publishedAt: now,
-            ),
-            makeItem(
-              'old',
-              title: 'Agent archive',
-              source: 'Other',
-              publishedAt: now.subtract(const Duration(days: 60)),
-            ),
+            makeItem('new', title: 'Agent release', source: 'OpenAI', publishedAt: now),
+            makeItem('old', title: 'Agent archive', source: 'Other', publishedAt: now.subtract(const Duration(days: 60))),
           ],
           count: 2,
           hasNext: false,
@@ -301,11 +246,7 @@ void main() {
 
       final results = await dao.searchAll(
         'agent',
-        filter: AiNewsLibraryFilter(
-          source: 'OpenAI',
-          publishedAfter: now.subtract(const Duration(days: 7)),
-          read: AiNewsReadFilter.read,
-        ),
+        filter: AiNewsLibraryFilter(source: 'OpenAI', publishedAfter: now.subtract(const Duration(days: 7)), read: AiNewsReadFilter.read),
       );
       expect(results.map((item) => item.id), ['new']);
     });

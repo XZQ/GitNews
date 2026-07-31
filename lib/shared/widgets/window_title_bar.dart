@@ -62,9 +62,7 @@ class _WindowTitleBarState extends State<WindowTitleBar> {
     final colors = theme.colorScheme;
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: colors.surface,
-      ),
+      decoration: BoxDecoration(color: colors.surface),
       child: Material(
         color: Colors.transparent,
         child: SizedBox(
@@ -89,12 +87,7 @@ class _WindowTitleBarState extends State<WindowTitleBar> {
                 onPressed: _onToggleMaximize,
                 tooltip: _isMaximized ? l10n.tr('window.restore') : l10n.tr('window.maximize'),
               ),
-              _WindowButton(
-                icon: Icons.close_rounded,
-                onPressed: _onClose,
-                tooltip: l10n.tr('window.close'),
-                isClose: true,
-              )
+              _WindowButton(icon: Icons.close_rounded, onPressed: _onClose, tooltip: l10n.tr('window.close'), isClose: true),
             ],
           ),
         ),
@@ -137,12 +130,7 @@ class DesktopWindowFrame extends StatelessWidget {
 }
 
 class _WindowButton extends StatefulWidget {
-  const _WindowButton({
-    required this.icon,
-    required this.onPressed,
-    required this.tooltip,
-    this.isClose = false,
-  });
+  const _WindowButton({required this.icon, required this.onPressed, required this.tooltip, this.isClose = false});
 
   final IconData icon;
   final VoidCallback onPressed;

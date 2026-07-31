@@ -22,10 +22,7 @@ class ResponsiveScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final routerDelegate = GoRouter.of(context).routerDelegate;
-    return ListenableBuilder(
-      listenable: routerDelegate,
-      builder: (context, _) => _buildForLocation(context, routerDelegate.currentConfiguration.uri.path),
-    );
+    return ListenableBuilder(listenable: routerDelegate, builder: (context, _) => _buildForLocation(context, routerDelegate.currentConfiguration.uri.path));
   }
 
   /* 根据实时路由位置构建移动底栏或桌面侧栏。 */
@@ -35,27 +32,35 @@ class ResponsiveScaffold extends StatelessWidget {
     void onTap(int i) => navigationShell.goBranch(i, initialLocation: i == navigationShell.currentIndex);
 
     if (formFactor == FormFactor.compact) {
-      final body = SafeArea(
-        top: !usesImmersiveStatusBar(location),
-        child: navigationShell,
-      );
+      final body = SafeArea(top: !usesImmersiveStatusBar(location), child: navigationShell);
       if (isMobileFullScreenLocation(location)) {
         return Scaffold(body: body);
       }
       final scaffold = Scaffold(
         body: body,
-        bottomNavigationBar: _BottomBar(
-          currentBranchIndex: index,
-          onTap: onTap,
-        ),
+        bottomNavigationBar: _BottomBar(currentBranchIndex: index, onTap: onTap),
       );
       return isMobilePrimaryLocation(location) ? MobileDoubleBackExit(child: scaffold) : scaffold;
     }
 
     return switch (formFactor) {
       FormFactor.compact => throw StateError('compact handled above'),
-      FormFactor.medium => Scaffold(body: Row(children: [_SideRail(currentIndex: index, onTap: onTap), Expanded(child: SafeArea(child: navigationShell))])),
-      FormFactor.expanded => Scaffold(body: Row(children: [_DesktopSidebar(currentIndex: index, onTap: onTap), Expanded(child: SafeArea(child: navigationShell))]))
+      FormFactor.medium => Scaffold(
+        body: Row(
+          children: [
+            _SideRail(currentIndex: index, onTap: onTap),
+            Expanded(child: SafeArea(child: navigationShell)),
+          ],
+        ),
+      ),
+      FormFactor.expanded => Scaffold(
+        body: Row(
+          children: [
+            _DesktopSidebar(currentIndex: index, onTap: onTap),
+            Expanded(child: SafeArea(child: navigationShell)),
+          ],
+        ),
+      ),
     };
   }
 }
@@ -69,10 +74,12 @@ class _DesktopSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      AppSidebar(currentIndex: currentIndex, onTap: onTap),
-      const Positioned(top: 0, right: 0, bottom: 0, child: _SidebarDragHandle()),
-    ]);
+    return Stack(
+      children: [
+        AppSidebar(currentIndex: currentIndex, onTap: onTap),
+        const Positioned(top: 0, right: 0, bottom: 0, child: _SidebarDragHandle()),
+      ],
+    );
   }
 }
 
@@ -154,18 +161,15 @@ class _BottomBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return NavigationBar(
-        selectedIndex: mobileDestinationIndex(currentBranchIndex),
-        onDestinationSelected: (index) {
-          onTap(mobileAppTabs[index].branchIndex);
-        },
-        destinations: [
-          for (final mobileSpec in mobileAppTabs)
-            NavigationDestination(
-              icon: Icon(appTabs[mobileSpec.branchIndex].icon),
-              selectedIcon: Icon(appTabs[mobileSpec.branchIndex].selectedIcon),
-              label: l10n.tr(mobileSpec.labelKey),
-            )
-        ]);
+      selectedIndex: mobileDestinationIndex(currentBranchIndex),
+      onDestinationSelected: (index) {
+        onTap(mobileAppTabs[index].branchIndex);
+      },
+      destinations: [
+        for (final mobileSpec in mobileAppTabs)
+          NavigationDestination(icon: Icon(appTabs[mobileSpec.branchIndex].icon), selectedIcon: Icon(appTabs[mobileSpec.branchIndex].selectedIcon), label: l10n.tr(mobileSpec.labelKey)),
+      ],
+    );
   }
 }
 
@@ -184,14 +188,7 @@ class _SideRail extends StatelessWidget {
       extended: false,
       minExtendedWidth: 80,
       labelType: NavigationRailLabelType.selected,
-      destinations: [
-        for (final spec in appTabs)
-          NavigationRailDestination(
-            icon: Icon(spec.icon),
-            selectedIcon: Icon(spec.selectedIcon),
-            label: Text(l10n.tr(spec.labelKey)),
-          )
-      ],
+      destinations: [for (final spec in appTabs) NavigationRailDestination(icon: Icon(spec.icon), selectedIcon: Icon(spec.selectedIcon), label: Text(l10n.tr(spec.labelKey)))],
     );
   }
 }

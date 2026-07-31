@@ -28,14 +28,14 @@ class DeviceFlowState {
   final String? error;
 
   DeviceFlowState copyWith({DeviceFlowStatus? status, String? userCode, String? verificationUri, String? verificationUriComplete, int? interval, int? expiresIn, String? error}) => DeviceFlowState(
-        status: status ?? this.status,
-        userCode: userCode ?? this.userCode,
-        verificationUri: verificationUri ?? this.verificationUri,
-        verificationUriComplete: verificationUriComplete ?? this.verificationUriComplete,
-        interval: interval ?? this.interval,
-        expiresIn: expiresIn ?? this.expiresIn,
-        error: error ?? this.error,
-      );
+    status: status ?? this.status,
+    userCode: userCode ?? this.userCode,
+    verificationUri: verificationUri ?? this.verificationUri,
+    verificationUriComplete: verificationUriComplete ?? this.verificationUriComplete,
+    interval: interval ?? this.interval,
+    expiresIn: expiresIn ?? this.expiresIn,
+    error: error ?? this.error,
+  );
 }
 
 /*

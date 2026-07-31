@@ -35,10 +35,10 @@ class RepoDetailContributors extends StatelessWidget {
                   subtitle: Text(l10n.tr('repo_detail.contrib.this_week').replaceAll('{n}', c.contributions.toString())),
                   trailing: const Icon(Icons.chevron_right, size: 18),
                 ),
-                const SizedBox(height: AppSpacing.xs)
-              ]
+                const SizedBox(height: AppSpacing.xs),
+              ],
             ],
-          )
+          ),
         ],
       ),
     );

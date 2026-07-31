@@ -26,16 +26,8 @@ class TrendingDataSourcePreference extends ConsumerWidget {
     return SegmentedButton<TrendingDataSourceMode>(
       style: _compactStyle,
       segments: [
-        ButtonSegment(
-          value: TrendingDataSourceMode.local,
-          icon: compact ? null : const Icon(Icons.storage_rounded, size: 14),
-          label: Text(l10n.tr('profile.settings.data_source.local')),
-        ),
-        ButtonSegment(
-          value: TrendingDataSourceMode.github,
-          icon: compact ? null : const Icon(Icons.cloud_outlined, size: 14),
-          label: Text(l10n.tr('profile.settings.data_source.github')),
-        )
+        ButtonSegment(value: TrendingDataSourceMode.local, icon: compact ? null : const Icon(Icons.storage_rounded, size: 14), label: Text(l10n.tr('profile.settings.data_source.local'))),
+        ButtonSegment(value: TrendingDataSourceMode.github, icon: compact ? null : const Icon(Icons.cloud_outlined, size: 14), label: Text(l10n.tr('profile.settings.data_source.github'))),
       ],
       selected: {mode},
       onSelectionChanged: (selection) => ref.read(trendingDataSourceModeControllerProvider.notifier).setMode(selection.first),
@@ -66,14 +58,7 @@ class LanguagePreference extends ConsumerWidget {
     final compact = Breakpoints.isCompact(context);
     return SegmentedButton<Locale>(
       style: _compactStyle,
-      segments: [
-        for (final option in _options)
-          ButtonSegment(
-            value: option,
-            icon: compact ? null : const Icon(Icons.translate_rounded, size: 14),
-            label: Text(l10n.tr(_labelKeyFor(option))),
-          )
-      ],
+      segments: [for (final option in _options) ButtonSegment(value: option, icon: compact ? null : const Icon(Icons.translate_rounded, size: 14), label: Text(l10n.tr(_labelKeyFor(option))))],
       selected: {current},
       onSelectionChanged: (selection) => ref.read(localeControllerProvider.notifier).setLocale(selection.first),
       showSelectedIcon: false,
@@ -97,7 +82,7 @@ class LinkOpenModePreference extends ConsumerWidget {
       style: _compactStyle,
       segments: [
         ButtonSegment(value: LinkOpenMode.inApp, icon: compact ? null : const Icon(Icons.apps_outlined, size: 14), label: Text(l10n.tr(LinkOpenMode.inApp.label))),
-        ButtonSegment(value: LinkOpenMode.external, icon: compact ? null : const Icon(Icons.open_in_new_rounded, size: 14), label: Text(l10n.tr(LinkOpenMode.external.label)))
+        ButtonSegment(value: LinkOpenMode.external, icon: compact ? null : const Icon(Icons.open_in_new_rounded, size: 14), label: Text(l10n.tr(LinkOpenMode.external.label))),
       ],
       selected: {mode},
       onSelectionChanged: (selection) => ref.read(linkOpenModeControllerProvider.notifier).setMode(selection.first),
@@ -124,7 +109,7 @@ class ThemeColorPreference extends ConsumerWidget {
               Icon(Icons.palette_outlined, size: 18, color: colors.onSurfaceVariant),
               const SizedBox(width: AppSpacing.md),
               Expanded(child: Text(l10n.tr('profile.settings.theme_color'), style: AppTypography.bodyMedium)),
-              Text(current.name, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant))
+              Text(current.name, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
             ],
           ),
           const SizedBox(height: AppSpacing.sm2),
@@ -132,16 +117,11 @@ class ThemeColorPreference extends ConsumerWidget {
             spacing: AppSpacing.sm2,
             runSpacing: AppSpacing.sm2,
             children: [
-              for (final preset in AppThemePreset.values)
-                _ColorSwatch(
-                  preset: preset,
-                  selected: preset == current,
-                  onTap: () => ref.read(themePresetControllerProvider.notifier).setPreset(preset),
-                )
+              for (final preset in AppThemePreset.values) _ColorSwatch(preset: preset, selected: preset == current, onTap: () => ref.read(themePresetControllerProvider.notifier).setPreset(preset)),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(l10n.tr('profile.settings.theme_color.hint'), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+          Text(l10n.tr('profile.settings.theme_color.hint'), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
         ],
       ),
     );
@@ -197,24 +177,25 @@ class StartupTabPreference extends ConsumerWidget {
     final current = ref.watch(startupTabControllerProvider);
     final colors = Theme.of(context).colorScheme;
     return DropdownButton<String>(
-        value: current,
-        underline: const SizedBox.shrink(),
-        isDense: true,
-        dropdownColor: colors.surface,
-        iconEnabledColor: colors.onSurfaceVariant,
-        style: AppTypography.labelMedium.copyWith(color: colors.onSurface),
-        items: [
-          for (final tab in appTabs)
-            DropdownMenuItem(
-              value: tab.pathSegment,
-              child: Text(l10n.tr(tab.labelKey), style: AppTypography.labelMedium.copyWith(color: colors.onSurface)),
-            ),
-        ],
-        onChanged: (value) {
-          if (value != null) {
-            ref.read(startupTabControllerProvider.notifier).setSegment(value);
-          }
-        });
+      value: current,
+      underline: const SizedBox.shrink(),
+      isDense: true,
+      dropdownColor: colors.surface,
+      iconEnabledColor: colors.onSurfaceVariant,
+      style: AppTypography.labelMedium.copyWith(color: colors.onSurface),
+      items: [
+        for (final tab in appTabs)
+          DropdownMenuItem(
+            value: tab.pathSegment,
+            child: Text(l10n.tr(tab.labelKey), style: AppTypography.labelMedium.copyWith(color: colors.onSurface)),
+          ),
+      ],
+      onChanged: (value) {
+        if (value != null) {
+          ref.read(startupTabControllerProvider.notifier).setSegment(value);
+        }
+      },
+    );
   }
 }
 

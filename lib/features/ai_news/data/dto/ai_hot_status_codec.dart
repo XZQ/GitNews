@@ -9,11 +9,7 @@ class AiHotStatusCodec {
 
   /* 解码低流量轮询指纹。 */
   static AiHotFingerprint fingerprint(Map<String, Object?> json) {
-    return AiHotFingerprint(
-      selected: AiHotJson.string(json['selected']),
-      all: AiHotJson.string(json['all']),
-      docs: AiHotJson.nullableString(json['docs']),
-    );
+    return AiHotFingerprint(selected: AiHotJson.string(json['selected']), all: AiHotJson.string(json['all']), docs: AiHotJson.nullableString(json['docs']));
   }
 
   /* 解码 API 与 Skill 版本信息。 */

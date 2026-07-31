@@ -9,12 +9,7 @@ import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/gradient_hero_header.dart';
 
 class RepoDetailHeader extends StatelessWidget {
-  const RepoDetailHeader({
-    required this.repo,
-    required this.freshness,
-    this.compact = false,
-    super.key,
-  });
+  const RepoDetailHeader({required this.repo, required this.freshness, this.compact = false, super.key});
 
   final RepoEntity repo;
   final DataFreshness freshness;
@@ -34,12 +29,9 @@ class RepoDetailHeader extends StatelessWidget {
         HeroBadge(label: l10n.tr('repo_detail.badge.public'), color: AppColors.info),
         HeroBadge(label: l10n.tr('repo_detail.badge.monitored'), color: AppColors.success),
         DataFreshnessBadge(freshness: freshness, compact: false, inverse: true),
-        MetricBasisBadge(basis: repo.valueBasis, compact: false, inverse: true)
+        MetricBasisBadge(basis: repo.valueBasis, compact: false, inverse: true),
       ],
-      trailing: Text(
-        repo.description,
-        style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92)),
-      ),
+      trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92))),
     );
   }
 }

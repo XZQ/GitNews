@@ -11,14 +11,7 @@ import '../../core/theme/app_spacing.dart';
 *避免固定高度在系统大字体或长文案下产生溢出。
 */
 class AdaptiveMetricGrid extends StatelessWidget {
-  const AdaptiveMetricGrid({
-    required this.children,
-    this.compactMaxWidth = 520,
-    this.compactColumns = 2,
-    this.expandedColumns = 4,
-    this.spacing = AppSpacing.sm,
-    super.key,
-  });
+  const AdaptiveMetricGrid({required this.children, this.compactMaxWidth = 520, this.compactColumns = 2, this.expandedColumns = 4, this.spacing = AppSpacing.sm, super.key});
 
   // 按显示顺序排列的指标卡。
   final List<Widget> children;
@@ -55,9 +48,7 @@ class AdaptiveMetricGrid extends StatelessWidget {
                   children: [
                     for (var columnIndex = 0; columnIndex < columnCount; columnIndex++) ...[
                       if (columnIndex != 0) SizedBox(width: spacing),
-                      Expanded(
-                        child: rowIndex * columnCount + columnIndex < children.length ? children[rowIndex * columnCount + columnIndex] : const SizedBox.shrink(),
-                      ),
+                      Expanded(child: rowIndex * columnCount + columnIndex < children.length ? children[rowIndex * columnCount + columnIndex] : const SizedBox.shrink()),
                     ],
                   ],
                 ),

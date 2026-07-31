@@ -9,12 +9,7 @@ import '../../core/i18n/app_localizations.dart';
 *移动端一级页面返回保护:首次返回提示,短时间内再次返回才退出应用。
 */
 class MobileDoubleBackExit extends StatefulWidget {
-  const MobileDoubleBackExit({
-    required this.child,
-    this.interval = const Duration(seconds: 2),
-    this.onExit,
-    super.key,
-  });
+  const MobileDoubleBackExit({required this.child, this.interval = const Duration(seconds: 2), this.onExit, super.key});
 
   final Widget child;
   final Duration interval;
@@ -44,22 +39,13 @@ class MobileDoubleBackExitState extends State<MobileDoubleBackExit> {
     final messenger = ScaffoldMessenger.of(context);
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context).tr('common.press_back_again_to_exit')),
-          duration: widget.interval,
-        ),
-      );
+      ..showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).tr('common.press_back_again_to_exit')), duration: widget.interval));
   }
 
   Future<void> _exitApplication() => SystemNavigator.pop();
 
   @override
   Widget build(BuildContext context) {
-    return PopScope<Object?>(
-      canPop: false,
-      onPopInvokedWithResult: _handlePop,
-      child: widget.child,
-    );
+    return PopScope<Object?>(canPop: false, onPopInvokedWithResult: _handlePop, child: widget.child);
   }
 }

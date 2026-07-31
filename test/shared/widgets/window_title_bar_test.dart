@@ -16,31 +16,20 @@ final List<String> _windowMethodCalls = <String>[];
 void main() {
   setUp(() {
     _windowMethodCalls.clear();
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      _windowChannel,
-      (call) async {
-        _windowMethodCalls.add(call.method);
-        return call.method == 'isMaximized' ? false : null;
-      },
-    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(_windowChannel, (call) async {
+      _windowMethodCalls.add(call.method);
+      return call.method == 'isMaximized' ? false : null;
+    });
   });
 
   tearDown(() {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(
-      _windowChannel,
-      null,
-    );
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(_windowChannel, null);
   });
 
   testWidgets('Windows 应用框架在路由内容上方保留自定义标题栏', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+        localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         locale: Locale('zh', 'CN'),
         home: DesktopWindowFrame(child: Scaffold(body: Text('route-content'))),
@@ -55,12 +44,7 @@ void main() {
   testWidgets('标题栏窗口控制会转发到 Windows 桥接', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
-        localizationsDelegates: [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+        localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         locale: Locale('zh', 'CN'),
         home: DesktopWindowFrame(child: Scaffold(body: Text('route-content'))),
@@ -84,12 +68,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light(AppTheme.defaultSeed),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('zh', 'CN'),
         home: const DesktopWindowFrame(child: Scaffold(body: Text('route-content'))),

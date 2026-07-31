@@ -21,7 +21,7 @@ class _FakeRepositoryFeed implements RepositoryFeed {
             accentArgb: 0xFF000000,
             valueBasis: MetricBasis.observed,
             trendBasis: MetricBasis.observed,
-          )
+          ),
         ],
         primaryTrend: [1, 2],
         secondaryTrend: [2, 3],

@@ -60,13 +60,12 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
-      children: [ActivityEventsCard(activities: digest.activities), const SizedBox(height: AppSpacing.lg), ActivityContributorsCard(contributors: digest.contributors)],
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
+      children: [
+        ActivityEventsCard(activities: digest.activities),
+        const SizedBox(height: AppSpacing.lg),
+        ActivityContributorsCard(contributors: digest.contributors),
+      ],
     );
   }
 }

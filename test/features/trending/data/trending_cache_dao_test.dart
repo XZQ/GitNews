@@ -43,13 +43,12 @@ void main() {
     });
 
     test('upsertSnapshot should persist snapshot and meta', () async {
-      final now = DateTime.utc(
-        2026,
-        7,
-        4,
-        10,
+      final now = DateTime.utc(2026, 7, 4, 10);
+      await dao.upsertSnapshot(
+        query: const TrendingQuery(language: 'Rust'),
+        snapshot: _snapshot('rust-lang/rust'),
+        now: now,
       );
-      await dao.upsertSnapshot(query: const TrendingQuery(language: 'Rust'), snapshot: _snapshot('rust-lang/rust'), now: now);
 
       final cached = await dao.readSnapshot(const TrendingQuery(language: 'Rust'));
 
@@ -58,36 +57,24 @@ void main() {
       expect(cached?.topics.single.name, 'ai-agents');
       expect(cached?.topics.single.basis, MetricBasis.observed);
       expect(
-          await dao.isFresh(
-            query: const TrendingQuery(language: 'Rust'),
-            ttl: const Duration(minutes: 5),
-            now: now.add(const Duration(minutes: 3)),
-          ),
-          isTrue);
+        await dao.isFresh(
+          query: const TrendingQuery(language: 'Rust'),
+          ttl: const Duration(minutes: 5),
+          now: now.add(const Duration(minutes: 3)),
+        ),
+        isTrue,
+      );
     });
 
     test('isFresh should be false when TTL expired', () async {
-      final now = DateTime.utc(
-        2026,
-        7,
-        4,
-        10,
-      );
+      final now = DateTime.utc(2026, 7, 4, 10);
       await dao.upsertSnapshot(query: const TrendingQuery(), snapshot: _snapshot('openai/codex'), now: now);
 
       expect(await dao.isFresh(query: const TrendingQuery(), ttl: const Duration(minutes: 5), now: now.add(const Duration(minutes: 6))), isFalse);
     });
 
     test('clear should remove trending snapshots', () async {
-      await dao.upsertSnapshot(
-          query: const TrendingQuery(),
-          snapshot: _snapshot('openai/codex'),
-          now: DateTime.utc(
-            2026,
-            7,
-            4,
-            10,
-          ));
+      await dao.upsertSnapshot(query: const TrendingQuery(), snapshot: _snapshot('openai/codex'), now: DateTime.utc(2026, 7, 4, 10));
 
       await dao.clear();
 
@@ -97,20 +84,10 @@ void main() {
     test('deleteSnapshot should remove only the matching query and scope', () async {
       const python = TrendingQuery(language: 'Python');
       const rust = TrendingQuery(language: 'Rust');
-      final now = DateTime.utc(
-        2026,
-        7,
-        4,
-        10,
-      );
+      final now = DateTime.utc(2026, 7, 4, 10);
       await dao.upsertSnapshot(query: python, snapshot: _snapshot('python/repo'), now: now);
       await dao.upsertSnapshot(query: rust, snapshot: _snapshot('rust/repo'), now: now);
-      await dao.upsertSnapshot(
-        query: python,
-        scope: 'token_1',
-        snapshot: _snapshot('token/repo'),
-        now: now,
-      );
+      await dao.upsertSnapshot(query: python, scope: 'token_1', snapshot: _snapshot('token/repo'), now: now);
 
       await dao.deleteSnapshot(python);
 
@@ -122,21 +99,8 @@ void main() {
 
     test('cache scope should isolate anonymous and token snapshots', () async {
       const query = TrendingQuery(language: 'Python');
-      await dao.upsertSnapshot(
-          query: query,
-          snapshot: _snapshot('anonymous/repo'),
-          now: DateTime.utc(
-            2026,
-            7,
-            4,
-            10,
-          ));
-      await dao.upsertSnapshot(
-        query: query,
-        scope: 'token_1',
-        snapshot: _snapshot('token/repo'),
-        now: DateTime.utc(2026, 7, 4, 10),
-      );
+      await dao.upsertSnapshot(query: query, snapshot: _snapshot('anonymous/repo'), now: DateTime.utc(2026, 7, 4, 10));
+      await dao.upsertSnapshot(query: query, scope: 'token_1', snapshot: _snapshot('token/repo'), now: DateTime.utc(2026, 7, 4, 10));
 
       final anonymous = await dao.readSnapshot(query);
       final token = await dao.readSnapshot(query, scope: 'token_1');
@@ -148,12 +112,7 @@ void main() {
     test('cache key should isolate board filters', () async {
       const agent = TrendingQuery(board: TrendingBoard.agent);
       const mcp = TrendingQuery(board: TrendingBoard.mcp);
-      final now = DateTime.utc(
-        2026,
-        7,
-        4,
-        10,
-      );
+      final now = DateTime.utc(2026, 7, 4, 10);
       await dao.upsertSnapshot(query: agent, snapshot: _snapshot('agent/repo'), now: now);
       await dao.upsertSnapshot(query: mcp, snapshot: _snapshot('mcp/repo'), now: now);
 
@@ -173,12 +132,7 @@ void main() {
     setUp(() async {
       db = await LocalDatabase.openInMemory();
       dao = TrendingCacheDao(db.executor, CacheMetaDao(db.executor));
-      now = DateTime.utc(
-        2026,
-        7,
-        4,
-        10,
-      );
+      now = DateTime.utc(2026, 7, 4, 10);
     });
 
     tearDown(() async => db.close());
@@ -187,12 +141,7 @@ void main() {
       const query = TrendingQuery(language: 'Python');
       await dao.upsertSnapshot(query: query, snapshot: _snapshot('cached/repo'), now: now);
       final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'));
-      final dataSource = CachedTrendingDataSource(
-        remote: remote,
-        cache: dao,
-        now: () => now.add(const Duration(minutes: 3)),
-        ttl: const Duration(minutes: 5),
-      );
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now.add(const Duration(minutes: 3)), ttl: const Duration(minutes: 5));
 
       final snapshot = await dataSource.fetchTrending(query);
 
@@ -219,12 +168,7 @@ void main() {
       const query = TrendingQuery(language: 'Python');
       await dao.upsertSnapshot(query: query, snapshot: _snapshot('stale/repo'), now: now);
       final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'));
-      final dataSource = CachedTrendingDataSource(
-        remote: remote,
-        cache: dao,
-        now: () => now.add(const Duration(minutes: 6)),
-        ttl: const Duration(minutes: 5),
-      );
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now.add(const Duration(minutes: 6)), ttl: const Duration(minutes: 5));
 
       final snapshot = await dataSource.fetchTrending(query);
       final cached = await dao.readSnapshot(query);
@@ -238,12 +182,7 @@ void main() {
       const query = TrendingQuery(language: 'Python');
       await dao.upsertSnapshot(query: query, snapshot: _snapshot('stale/repo'), now: now);
       final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'))..error = StateError('network down');
-      final dataSource = CachedTrendingDataSource(
-        remote: remote,
-        cache: dao,
-        now: () => now.add(const Duration(minutes: 6)),
-        ttl: const Duration(minutes: 5),
-      );
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now.add(const Duration(minutes: 6)), ttl: const Duration(minutes: 5));
 
       final snapshot = await dataSource.fetchTrending(query);
 
@@ -255,12 +194,7 @@ void main() {
       const query = TrendingQuery();
       await dao.upsertSnapshot(query: query, snapshot: _snapshot('stale/repo'), now: now);
       final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'))..error = StateError('network down');
-      final dataSource = CachedTrendingDataSource(
-        remote: remote,
-        cache: dao,
-        now: () => now.add(const Duration(minutes: 6)),
-        ttl: const Duration(minutes: 5),
-      );
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now.add(const Duration(minutes: 6)), ttl: const Duration(minutes: 5));
 
       final result = await dataSource.fetchTrendingResult(query);
 
@@ -272,36 +206,13 @@ void main() {
 TrendingDataSnapshot _snapshot(String fullName) {
   return TrendingDataSnapshot(
     trendingRepos: [
-      RepoEntity(
-        fullName: fullName,
-        description: 'desc',
-        language: 'Python',
-        starCount: 1200,
-        starDelta: 32,
-        forkCount: 80,
-        accentArgb: 0xFF3572A5,
-        trend: const [1, 2, 3],
-      )
+      RepoEntity(fullName: fullName, description: 'desc', language: 'Python', starCount: 1200, starDelta: 32, forkCount: 80, accentArgb: 0xFF3572A5, trend: const [1, 2, 3]),
     ],
     recentRepos: const [],
-    languages: const [
-      LanguageEntity(
-        name: 'Python',
-        percent: 100,
-        delta: 0,
-        accentArgb: 0xFF3572A5,
-      )
-    ],
+    languages: const [LanguageEntity(name: 'Python', percent: 100, delta: 0, accentArgb: 0xFF3572A5)],
     primaryTrend: const [1, 2, 3],
     secondaryTrend: const [1, 2, 3],
     tertiaryTrend: const [1, 2, 3],
-    topics: const [
-      TrendingTopicEntity(
-        name: 'ai-agents',
-        repoCount: 2,
-        starCount: 18000,
-        basis: MetricBasis.observed,
-      ),
-    ],
+    topics: const [TrendingTopicEntity(name: 'ai-agents', repoCount: 2, starCount: 18000, basis: MetricBasis.observed)],
   );
 }

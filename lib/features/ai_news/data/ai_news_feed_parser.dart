@@ -19,12 +19,7 @@ List<AiNewsItem> parseAiNewsFeed(String xmlText, {required AiNewsSourceConfig so
   try {
     doc = XmlDocument.parse(xmlText);
   } on XmlException catch (e, st) {
-    throw AppException(
-      kind: AppExceptionKind.parse,
-      cause: e,
-      stack: st,
-      meta: {'source': source.id},
-    );
+    throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st, meta: {'source': source.id});
   }
   final root = doc.rootElement;
   final fallbackUtc = fallbackTime.toUtc();
@@ -260,7 +255,7 @@ DateTime? _parseFeedDate(String raw) {
 
 const Map<String, int> _kMonths = {
   'jan': 1, 'feb': 2, 'mar': 3, 'apr': 4, 'may': 5, 'jun': 6, // -
-  'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12
+  'jul': 7, 'aug': 8, 'sep': 9, 'oct': 10, 'nov': 11, 'dec': 12,
 };
 
 /*
@@ -281,14 +276,7 @@ DateTime? parseRfc822Date(String raw) {
   if (year < 100) {
     year += year >= 70 ? 1900 : 2000;
   }
-  final utc = DateTime.utc(
-    year,
-    month,
-    int.parse(match.group(1)!),
-    int.parse(match.group(4)!),
-    int.parse(match.group(5)!),
-    int.parse(match.group(6) ?? '0'),
-  );
+  final utc = DateTime.utc(year, month, int.parse(match.group(1)!), int.parse(match.group(4)!), int.parse(match.group(5)!), int.parse(match.group(6) ?? '0'));
   final zone = match.group(7) ?? '';
   final numeric = RegExp(r'^([+-])(\d{2})(\d{2})$').firstMatch(zone);
   if (numeric == null) {

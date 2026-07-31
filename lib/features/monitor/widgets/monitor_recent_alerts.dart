@@ -24,15 +24,11 @@ class MonitorRecentAlerts extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final unreadCount = alerts.where((alert) => !alert.isRead).length;
     return AppCard(
-        padding: EdgeInsets.zero,
-        child: Column(children: [
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
             child: SectionHeader(
               title: l10n.tr('monitor.recent_alerts.title'),
               subtitle: unreadCount == 0 ? l10n.tr('monitor.recent_alerts.subtitle_done') : l10n.tr('monitor.recent_alerts.subtitle_unread').replaceAll('{n}', '$unreadCount'),
@@ -46,16 +42,13 @@ class MonitorRecentAlerts extends ConsumerWidget {
           ),
           if (alerts.isEmpty)
             Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.lg,
-              ),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.lg),
               child: EmptyView(icon: Icons.notifications_off_outlined, message: l10n.tr('monitor.recent_alerts.empty')),
             ),
-          for (var i = 0; i < alerts.length; i++) ...[if (i != 0) const Divider(height: 1), MonitorAlertRow(alert: alerts[i])]
-        ]));
+          for (var i = 0; i < alerts.length; i++) ...[if (i != 0) const Divider(height: 1), MonitorAlertRow(alert: alerts[i])],
+        ],
+      ),
+    );
   }
 }
 
@@ -69,7 +62,7 @@ class MonitorAlertRow extends ConsumerWidget {
       AlertSeverity.success => AppColors.success,
       AlertSeverity.warning => AppColors.warning,
       AlertSeverity.danger => AppColors.danger,
-      AlertSeverity.info => AppColors.info
+      AlertSeverity.info => AppColors.info,
     };
   }
 
@@ -78,7 +71,7 @@ class MonitorAlertRow extends ConsumerWidget {
       AlertSeverity.success => Icons.trending_up_rounded,
       AlertSeverity.warning => Icons.warning_amber_rounded,
       AlertSeverity.danger => Icons.error_outline,
-      AlertSeverity.info => Icons.info_outline
+      AlertSeverity.info => Icons.info_outline,
     };
   }
 
@@ -89,69 +82,84 @@ class MonitorAlertRow extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final isRead = alert.isRead;
     return InkWell(
-        onTap: () {
-          final id = alert.id;
-          if (id != null) {
-            ref.read(monitorAlertEventsProvider.notifier).markRead(id);
-          }
-          context.go('/project/detail/${Uri.encodeComponent(alert.repoFullName)}');
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-          child: Row(
-            children: [
-              Container(
-                width: AppSpacing.xxl,
-                height: AppSpacing.xxl,
-                decoration: BoxDecoration(color: color.withValues(alpha: isRead ? 0.08 : 0.14), borderRadius: BorderRadius.circular(AppRadius.sm)),
-                child: Icon(_icon(), color: color, size: 18),
+      onTap: () {
+        final id = alert.id;
+        if (id != null) {
+          ref.read(monitorAlertEventsProvider.notifier).markRead(id);
+        }
+        context.go('/project/detail/${Uri.encodeComponent(alert.repoFullName)}');
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        child: Row(
+          children: [
+            Container(
+              width: AppSpacing.xxl,
+              height: AppSpacing.xxl,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: isRead ? 0.08 : 0.14),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        if (!isRead) ...[
-                          Container(width: 6, height: 6, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(AppRadius.pill))),
-                          const SizedBox(width: AppSpacing.xs2)
-                        ],
-                        Expanded(
-                          child: Text(alert.repoFullName,
-                              maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleSmall.copyWith(color: isRead ? colors.onSurfaceVariant : colors.onSurface)),
-                        )
-                      ],
-                    ),
-                    Text(
-                      monitorAlertMetricLabel(context, alert),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
+              child: Icon(_icon(), color: color, size: 18),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(alert.value, style: AppTypography.labelMedium.copyWith(color: color, fontWeight: FontWeight.w600)),
-                  Text(alert.time, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+                  Row(
+                    children: [
+                      if (!isRead) ...[
+                        Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(AppRadius.pill)),
+                        ),
+                        const SizedBox(width: AppSpacing.xs2),
+                      ],
+                      Expanded(
+                        child: Text(
+                          alert.repoFullName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.titleSmall.copyWith(color: isRead ? colors.onSurfaceVariant : colors.onSurface),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    monitorAlertMetricLabel(context, alert),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+                  ),
                 ],
               ),
-              const SizedBox(width: AppSpacing.xs),
-              Tooltip(
-                message: l10n.tr(isRead ? 'a11y.mark_unread' : 'a11y.mark_read'),
-                child: IconButton(
-                  visualDensity: VisualDensity.compact,
-                  iconSize: 18,
-                  onPressed: alert.id == null ? null : () => ref.read(monitorAlertEventsProvider.notifier).toggleRead(alert.id!),
-                  icon: Icon(isRead ? Icons.notifications_active_outlined : Icons.done_outlined),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  alert.value,
+                  style: AppTypography.labelMedium.copyWith(color: color, fontWeight: FontWeight.w600),
                 ),
-              )
-            ],
-          ),
-        ));
+                Text(alert.time, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
+              ],
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Tooltip(
+              message: l10n.tr(isRead ? 'a11y.mark_unread' : 'a11y.mark_read'),
+              child: IconButton(
+                visualDensity: VisualDensity.compact,
+                iconSize: 18,
+                onPressed: alert.id == null ? null : () => ref.read(monitorAlertEventsProvider.notifier).toggleRead(alert.id!),
+                icon: Icon(isRead ? Icons.notifications_active_outlined : Icons.done_outlined),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

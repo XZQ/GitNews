@@ -54,30 +54,16 @@ class _BodyState extends ConsumerState<_Body> {
       return EmptyView(
         icon: Icons.bookmark_border_rounded,
         message: l10n.tr('profile.collection.starred.empty'),
-        action: FilledButton(
-          onPressed: () => context.go('/discover'),
-          child: Text(l10n.tr('profile.collection.discover_action')),
-        ),
+        action: FilledButton(onPressed: () => context.go('/discover'), child: Text(l10n.tr('profile.collection.discover_action'))),
       );
     }
     final query = _query.trim().toLowerCase();
-    final filtered = query.isEmpty
-        ? repos
-        : repos
-            .where(
-              (repo) => [repo.fullName, repo.description, repo.language].join(' ').toLowerCase().contains(query),
-            )
-            .toList(growable: false);
+    final filtered = query.isEmpty ? repos : repos.where((repo) => [repo.fullName, repo.description, repo.language].join(' ').toLowerCase().contains(query)).toList(growable: false);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.md,
-            AppSpacing.lg,
-            AppSpacing.sm,
-          ),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.sm),
           child: CollectionPageControls(
             countLabel: l10n.tr('profile.collection.starred.count').replaceAll('{n}', '${filtered.length}'),
             searchHint: l10n.tr('profile.collection.search_repos'),
@@ -86,17 +72,9 @@ class _BodyState extends ConsumerState<_Body> {
         ),
         Expanded(
           child: filtered.isEmpty
-              ? EmptyView(
-                  icon: Icons.search_off_rounded,
-                  message: l10n.tr('profile.collection.no_match'),
-                )
+              ? EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('profile.collection.no_match'))
               : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.xs,
-                    AppSpacing.lg,
-                    AppSpacing.xxxl,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.xxxl),
                   itemCount: filtered.length,
                   separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, index) {
@@ -107,19 +85,13 @@ class _BodyState extends ConsumerState<_Body> {
                         repo: repo,
                         card: false,
                         dense: true,
-                        onTap: () => context.go(
-                          '/profile/detail/${Uri.encodeComponent(repo.fullName)}',
-                        ),
+                        onTap: () => context.go('/profile/detail/${Uri.encodeComponent(repo.fullName)}'),
                         trailing: Semantics(
                           container: true,
                           button: true,
                           label: l10n.tr('a11y.bookmark_remove'),
                           excludeSemantics: true,
-                          child: IconButton(
-                            tooltip: l10n.tr('a11y.bookmark_remove'),
-                            icon: const Icon(Icons.bookmark_remove_outlined),
-                            onPressed: () => _removeBookmark(repo),
-                          ),
+                          child: IconButton(tooltip: l10n.tr('a11y.bookmark_remove'), icon: const Icon(Icons.bookmark_remove_outlined), onPressed: () => _removeBookmark(repo)),
                         ),
                       ),
                     );
@@ -137,10 +109,7 @@ class _BodyState extends ConsumerState<_Body> {
     messenger.showSnackBar(
       SnackBar(
         content: Text(l10n.tr('profile.collection.bookmark_removed')),
-        action: SnackBarAction(
-          label: l10n.tr('common.undo'),
-          onPressed: () => ref.read(localContentControllerProvider.notifier).toggleBookmark(repo),
-        ),
+        action: SnackBarAction(label: l10n.tr('common.undo'), onPressed: () => ref.read(localContentControllerProvider.notifier).toggleBookmark(repo)),
       ),
     );
   }

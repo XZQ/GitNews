@@ -63,20 +63,12 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
             children: [
               FilledButton.icon(onPressed: _save, icon: const Icon(Icons.save_outlined, size: 16), label: Text(l10n.tr('profile.token.save'))),
               const SizedBox(width: AppSpacing.sm),
-              OutlinedButton.icon(
-                onPressed: tokenState.hasToken ? _clear : null,
-                icon: const Icon(Icons.delete_outline, size: 16),
-                label: Text(l10n.tr('profile.token.clear')),
-              ),
+              OutlinedButton.icon(onPressed: tokenState.hasToken ? _clear : null, icon: const Icon(Icons.delete_outline, size: 16), label: Text(l10n.tr('profile.token.clear'))),
               const SizedBox(width: AppSpacing.sm),
-              OutlinedButton.icon(
-                onPressed: _rateLimit?.isLoading == true ? null : _checkQuota,
-                icon: const Icon(Icons.speed_rounded, size: 16),
-                label: Text(l10n.tr('profile.token.check_quota')),
-              )
+              OutlinedButton.icon(onPressed: _rateLimit?.isLoading == true ? null : _checkQuota, icon: const Icon(Icons.speed_rounded, size: 16), label: Text(l10n.tr('profile.token.check_quota'))),
             ],
           ),
-          if (_rateLimit != null) ...[const SizedBox(height: AppSpacing.md), _RateLimitStatus(value: _rateLimit!)]
+          if (_rateLimit != null) ...[const SizedBox(height: AppSpacing.md), _RateLimitStatus(value: _rateLimit!)],
         ],
       ),
     );
@@ -134,7 +126,7 @@ class _RateLimitStatus extends StatelessWidget {
         children: [
           SizedBox.square(dimension: 16, child: CircularProgressIndicator(strokeWidth: 2, color: colors.primary)),
           const SizedBox(width: AppSpacing.sm),
-          Text(l10n.tr('profile.token.checking'), style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant))
+          Text(l10n.tr('profile.token.checking'), style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
         ],
       ),
       error: (_, __) => Text(l10n.tr('profile.token.check_failed'), style: AppTypography.labelMedium.copyWith(color: AppColors.danger)),
@@ -147,7 +139,7 @@ class _RateLimitStatus extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(l10n.tr('profile.token.check_time').replaceAll('{time}', _formatTime(snapshot.checkedAt)), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
-          )
+          ),
         ],
       ),
     );
@@ -167,22 +159,23 @@ class _QuotaRow extends StatelessWidget {
     final accent = ratio > 0.35 ? AppColors.success : AppColors.warning;
     return Row(
       children: [
-        SizedBox(width: 92, child: Text(label, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant))),
+        SizedBox(
+          width: 92,
+          child: Text(label, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
+        ),
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(AppRadius.pill),
-            child: LinearProgressIndicator(
-              value: ratio.clamp(0, 1),
-              minHeight: 7,
-              color: accent,
-              backgroundColor: colors.surfaceContainerHighest,
-            ),
+            child: LinearProgressIndicator(value: ratio.clamp(0, 1), minHeight: 7, color: accent, backgroundColor: colors.surfaceContainerHighest),
           ),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Text('${bucket.remaining}/${bucket.limit}', style: AppTypography.labelMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
+        Text(
+          '${bucket.remaining}/${bucket.limit}',
+          style: AppTypography.labelMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+        ),
         const SizedBox(width: AppSpacing.sm),
-        Text(_formatTime(bucket.resetAt), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+        Text(_formatTime(bucket.resetAt), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
       ],
     );
   }
@@ -211,7 +204,10 @@ class _StatusPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadius.pill),
         border: Border.all(color: color.withValues(alpha: 0.32)),
       ),
-      child: Text(label, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
+      child: Text(
+        label,
+        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+      ),
     );
   }
 }

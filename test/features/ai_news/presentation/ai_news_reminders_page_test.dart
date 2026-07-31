@@ -18,37 +18,16 @@ void main() {
 
     final now = DateTime(2026, 7, 16, 12);
     final reminders = [
-      AiNewsReminder(
-        itemId: 'unread',
-        title: '未读提醒使用更明确的标题权重和状态点',
-        source: '测试来源',
-        publishedAt: now.subtract(const Duration(minutes: 15)),
-        createdAt: now,
-      ),
-      AiNewsReminder(
-        itemId: 'read',
-        title: '已读提醒仍保留统一卡片表面',
-        source: '另一个来源',
-        publishedAt: now.subtract(const Duration(hours: 2)),
-        createdAt: now,
-        readAt: now,
-      ),
+      AiNewsReminder(itemId: 'unread', title: '未读提醒使用更明确的标题权重和状态点', source: '测试来源', publishedAt: now.subtract(const Duration(minutes: 15)), createdAt: now),
+      AiNewsReminder(itemId: 'read', title: '已读提醒仍保留统一卡片表面', source: '另一个来源', publishedAt: now.subtract(const Duration(hours: 2)), createdAt: now, readAt: now),
     ];
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          aiNewsRemindersProvider.overrideWith((ref) async => reminders),
-          aiNewsUnreadReminderCountProvider.overrideWithValue(1),
-        ],
+        overrides: [aiNewsRemindersProvider.overrideWith((ref) async => reminders), aiNewsUnreadReminderCountProvider.overrideWithValue(1)],
         child: const MaterialApp(
           locale: Locale('zh', 'CN'),
-          localizationsDelegates: [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: AiNewsRemindersPage(),
         ),
@@ -69,16 +48,8 @@ void main() {
       routes: [
         GoRoute(
           path: '/ai_news',
-          builder: (context, state) => const Scaffold(
-            body: Text('AI_ROOT'),
-            bottomNavigationBar: Text('BOTTOM_NAV'),
-          ),
-          routes: [
-            GoRoute(
-              path: 'reminders',
-              builder: (context, state) => const AiNewsRemindersPage(),
-            ),
-          ],
+          builder: (context, state) => const Scaffold(body: Text('AI_ROOT'), bottomNavigationBar: Text('BOTTOM_NAV')),
+          routes: [GoRoute(path: 'reminders', builder: (context, state) => const AiNewsRemindersPage())],
         ),
       ],
     );
@@ -86,19 +57,11 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
-          aiNewsRemindersProvider.overrideWith((ref) async => const []),
-          aiNewsUnreadReminderCountProvider.overrideWithValue(0),
-        ],
+        overrides: [aiNewsRemindersProvider.overrideWith((ref) async => const []), aiNewsUnreadReminderCountProvider.overrideWithValue(0)],
         child: MaterialApp.router(
           routerConfig: router,
           locale: const Locale('zh', 'CN'),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
         ),
       ),

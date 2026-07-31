@@ -1,9 +1,5 @@
 class AiNewsEntities {
-  const AiNewsEntities({
-    this.models = const [],
-    this.companies = const [],
-    this.repositories = const [],
-  });
+  const AiNewsEntities({this.models = const [], this.companies = const [], this.repositories = const []});
 
   final List<String> models;
   final List<String> companies;

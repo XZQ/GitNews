@@ -17,13 +17,16 @@ GoRouter buildAppRouter(Ref ref) {
     initialLocation: '/$startupSegment',
     debugLogDiagnostics: false,
     routes: [
-      StatefulShellRoute.indexedStack(builder: (_, __, navigationShell) => ResponsiveScaffold(navigationShell: navigationShell), branches: buildAppRouteBranches()),
+      StatefulShellRoute.indexedStack(
+        builder: (_, __, navigationShell) => ResponsiveScaffold(navigationShell: navigationShell),
+        branches: buildAppRouteBranches(),
+      ),
       GoRoute(path: '/login', name: 'login', redirect: (_, __) => '/profile/login'),
       GoRoute(
         path: '/webview',
         name: 'webview',
         builder: (_, state) => WebViewPage(url: state.uri.queryParameters['url'] ?? '', title: state.uri.queryParameters['title']),
-      )
+      ),
     ],
     errorBuilder: (context, state) => RouteErrorView(error: state.error),
   );

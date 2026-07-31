@@ -23,19 +23,9 @@ class AiNewsStateDao {
   Future<void> markRead(AiNewsItem item, {required DateTime now}) async {
     try {
       final existing = await _rowOf(item.id);
-      await _upsert(
-        item,
-        readAt: existing?['read_at'] as int? ?? now.millisecondsSinceEpoch,
-        readLaterAt: existing?['read_later_at'] as int?,
-        now: now,
-      );
+      await _upsert(item, readAt: existing?['read_at'] as int? ?? now.millisecondsSinceEpoch, readLaterAt: existing?['read_later_at'] as int?, now: now);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'markRead'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'markRead'});
     }
   }
 
@@ -46,20 +36,10 @@ class AiNewsStateDao {
     try {
       final existing = await _rowOf(item.id);
       final wasReadLater = existing?['read_later_at'] != null;
-      await _upsert(
-        item,
-        readAt: existing?['read_at'] as int?,
-        readLaterAt: wasReadLater ? null : now.millisecondsSinceEpoch,
-        now: now,
-      );
+      await _upsert(item, readAt: existing?['read_at'] as int?, readLaterAt: wasReadLater ? null : now.millisecondsSinceEpoch, now: now);
       return !wasReadLater;
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'toggleReadLater'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'toggleReadLater'});
     }
   }
 
@@ -74,12 +54,7 @@ class AiNewsStateDao {
       }
       return AiNewsItemState(readAt: _time(row['read_at']), readLaterAt: _time(row['read_later_at']));
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'stateOf'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'stateOf'});
     }
   }
 
@@ -91,12 +66,7 @@ class AiNewsStateDao {
       final rows = await _db.query(_table, where: 'read_later_at IS NOT NULL', orderBy: 'read_later_at DESC');
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'readLaterItems'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'readLaterItems'});
     }
   }
 
@@ -108,54 +78,35 @@ class AiNewsStateDao {
       final row = await _rowOf(itemId);
       return row == null ? null : _rowToItem(row);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'snapshotOf'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'snapshotOf'});
     }
   }
 
   Future<Map<String, Object?>?> _rowOf(String itemId) async {
-    final rows = await _db.query(
-      _table,
-      where: 'item_id = ?',
-      whereArgs: [itemId],
-      limit: 1,
-    );
+    final rows = await _db.query(_table, where: 'item_id = ?', whereArgs: [itemId], limit: 1);
     return rows.isEmpty ? null : rows.first;
   }
 
-  Future<void> _upsert(
-    AiNewsItem item, {
-    required int? readAt,
-    required int? readLaterAt,
-    required DateTime now,
-  }) {
-    return _db.insert(
-      _table,
-      {
-        'item_id': item.id,
-        'read_at': readAt,
-        'read_later_at': readLaterAt,
-        'category': item.category.code,
-        'title': item.title,
-        'title_en': item.titleEn,
-        'summary': item.summary,
-        'source': item.source,
-        'url': item.url,
-        'permalink': item.permalink,
-        'published_at': item.publishedAt.millisecondsSinceEpoch,
-        'score': item.score,
-        'selected': item.selected ? 1 : 0,
-        'author': item.author,
-        'content': item.content,
-        'attribution_source': item.attributionSource,
-        'updated_at': now.millisecondsSinceEpoch
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  Future<void> _upsert(AiNewsItem item, {required int? readAt, required int? readLaterAt, required DateTime now}) {
+    return _db.insert(_table, {
+      'item_id': item.id,
+      'read_at': readAt,
+      'read_later_at': readLaterAt,
+      'category': item.category.code,
+      'title': item.title,
+      'title_en': item.titleEn,
+      'summary': item.summary,
+      'source': item.source,
+      'url': item.url,
+      'permalink': item.permalink,
+      'published_at': item.publishedAt.millisecondsSinceEpoch,
+      'score': item.score,
+      'selected': item.selected ? 1 : 0,
+      'author': item.author,
+      'content': item.content,
+      'attribution_source': item.attributionSource,
+      'updated_at': now.millisecondsSinceEpoch,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   static DateTime? _time(Object? millis) {

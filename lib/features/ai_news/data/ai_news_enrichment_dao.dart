@@ -12,50 +12,27 @@ class AiNewsEnrichmentDao {
 
   Future<AiNewsEnrichment?> read(String itemId) async {
     try {
-      final rows = await _db.query(
-        'ai_news_enrichment',
-        where: 'item_id = ?',
-        whereArgs: [itemId],
-        limit: 1,
-      );
+      final rows = await _db.query('ai_news_enrichment', where: 'item_id = ?', whereArgs: [itemId], limit: 1);
       return rows.isEmpty ? null : _fromRow(rows.first);
     } catch (error, stack) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: error,
-        stack: stack,
-        meta: {'op': 'readAiNewsEnrichment'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: error, stack: stack, meta: {'op': 'readAiNewsEnrichment'});
     }
   }
 
   Future<void> upsert(AiNewsEnrichment enrichment) async {
     try {
-      await _db.insert(
-        'ai_news_enrichment',
-        {
-          'item_id': enrichment.itemId,
-          'generated_summary': enrichment.generatedSummary,
-          'translated_title': enrichment.translatedTitle,
-          'translated_summary': enrichment.translatedSummary,
-          'importance_score': enrichment.importanceScore,
-          'entities_json': jsonEncode({
-            'models': enrichment.entities.models,
-            'companies': enrichment.entities.companies,
-            'repositories': enrichment.entities.repositories,
-          }),
-          'model': enrichment.model,
-          'updated_at': enrichment.updatedAt.millisecondsSinceEpoch,
-        },
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await _db.insert('ai_news_enrichment', {
+        'item_id': enrichment.itemId,
+        'generated_summary': enrichment.generatedSummary,
+        'translated_title': enrichment.translatedTitle,
+        'translated_summary': enrichment.translatedSummary,
+        'importance_score': enrichment.importanceScore,
+        'entities_json': jsonEncode({'models': enrichment.entities.models, 'companies': enrichment.entities.companies, 'repositories': enrichment.entities.repositories}),
+        'model': enrichment.model,
+        'updated_at': enrichment.updatedAt.millisecondsSinceEpoch,
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
     } catch (error, stack) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: error,
-        stack: stack,
-        meta: {'op': 'upsertAiNewsEnrichment'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: error, stack: stack, meta: {'op': 'upsertAiNewsEnrichment'});
     }
   }
 
@@ -68,16 +45,9 @@ class AiNewsEnrichmentDao {
       translatedTitle: row['translated_title'] as String,
       translatedSummary: row['translated_summary'] as String,
       importanceScore: (row['importance_score'] as num).toDouble(),
-      entities: AiNewsEntities(
-        models: _strings(entities['models']),
-        companies: _strings(entities['companies']),
-        repositories: _strings(entities['repositories']),
-      ),
+      entities: AiNewsEntities(models: _strings(entities['models']), companies: _strings(entities['companies']), repositories: _strings(entities['repositories'])),
       model: row['model'] as String,
-      updatedAt: DateTime.fromMillisecondsSinceEpoch(
-        row['updated_at'] as int,
-        isUtc: true,
-      ),
+      updatedAt: DateTime.fromMillisecondsSinceEpoch(row['updated_at'] as int, isUtc: true),
     );
   }
 

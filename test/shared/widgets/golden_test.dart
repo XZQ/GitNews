@@ -30,12 +30,20 @@ void main() {
 
   group('Windows golden baselines', () {
     testWidgets('EmptyView golden', (tester) async {
-      await pumpScene(tester, const EmptyView(icon: Icons.inbox_outlined, message: '暂无数据'), finderType: EmptyView);
+      await pumpScene(
+        tester,
+        const EmptyView(icon: Icons.inbox_outlined, message: '暂无数据'),
+        finderType: EmptyView,
+      );
       await expectLater(find.byType(EmptyView), matchesGoldenFile('goldens/empty_view.png'));
     });
 
     testWidgets('ErrorView network golden', (tester) async {
-      await pumpScene(tester, const ErrorView(error: AppException(kind: AppExceptionKind.network)), finderType: ErrorView);
+      await pumpScene(
+        tester,
+        const ErrorView(error: AppException(kind: AppExceptionKind.network)),
+        finderType: ErrorView,
+      );
       await expectLater(find.byType(ErrorView), matchesGoldenFile('goldens/error_view_network.png'));
     });
 

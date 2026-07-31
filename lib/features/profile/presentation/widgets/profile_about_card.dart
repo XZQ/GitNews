@@ -20,7 +20,7 @@ class ProfileAboutCard extends StatelessWidget {
           const SizedBox(height: AppSpacing.md),
           ProfileAboutRow(label: l10n.tr('profile.about.version'), value: '1.5.0'),
           ProfileAboutRow(label: l10n.tr('profile.about.build'), value: '5'),
-          ProfileAboutRow(label: l10n.tr('profile.about.site'), value: 'github-news.app')
+          ProfileAboutRow(label: l10n.tr('profile.about.site'), value: 'github-news.app'),
         ],
       ),
     );

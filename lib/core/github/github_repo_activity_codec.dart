@@ -18,7 +18,7 @@ Map<String, Object?> repoActivityToJson(RepoActivityEvent activity) {
     'actorLogin': activity.actorLogin,
     'occurredAt': activity.occurredAt.toUtc().toIso8601String(),
     'htmlUrl': activity.htmlUrl,
-    'basis': activity.basis.name
+    'basis': activity.basis.name,
   };
 }
 

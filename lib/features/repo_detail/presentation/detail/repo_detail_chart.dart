@@ -36,17 +36,12 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
               final isCompact = constraints.maxWidth < 640;
               final sectionHeader = SectionHeader(
                 title: l10n.tr('repo_detail.section.star_trend'),
-                subtitle: l10n.tr(
-                  hasMeaningfulComparison ? 'repo_detail.section.star_trend.subtitle_compare' : 'repo_detail.section.star_trend.subtitle',
-                ),
+                subtitle: l10n.tr(hasMeaningfulComparison ? 'repo_detail.section.star_trend.subtitle_compare' : 'repo_detail.section.star_trend.subtitle'),
               );
               final controls = Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  MetricBasisBadge(
-                    basis: widget.digest.repo.trendBasis,
-                    compact: isCompact,
-                  ),
+                  MetricBasisBadge(basis: widget.digest.repo.trendBasis, compact: isCompact),
                   const SizedBox(width: AppSpacing.md),
                   _WindowSelector(
                     value: _window,
@@ -62,10 +57,7 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
                   children: [
                     sectionHeader,
                     const SizedBox(height: AppSpacing.md),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: controls,
-                    ),
+                    SingleChildScrollView(scrollDirection: Axis.horizontal, child: controls),
                   ],
                 );
               }
@@ -80,10 +72,7 @@ class _RepoDetailChartState extends State<RepoDetailChart> {
           const SizedBox(height: AppSpacing.md),
           StarTrendChart(
             series: [
-              ChartSeries(
-                values: primary,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              ChartSeries(values: primary, color: Theme.of(context).colorScheme.primary),
               if (hasMeaningfulComparison) ChartSeries(values: compare, color: AppColors.info),
             ],
             height: 220,

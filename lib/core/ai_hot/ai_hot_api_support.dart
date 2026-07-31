@@ -20,10 +20,7 @@ class AiHotApiSupport {
   static const String feedAccept = 'application/rss+xml, application/atom+xml, application/xml, text/xml';
 
   /* 构造普通或条件 GET 请求头。 */
-  static Map<String, Object?> headers({
-    required String accept,
-    HttpCacheValidators validators = const HttpCacheValidators(),
-  }) {
+  static Map<String, Object?> headers({required String accept, HttpCacheValidators validators = const HttpCacheValidators()}) {
     return {
       'Accept': accept,
       'User-Agent': userAgent,
@@ -41,19 +38,11 @@ class AiHotApiSupport {
       return AppException(
         kind: AppExceptionKind.server,
         cause: error,
-        meta: {
-          'statusCode': statusCode,
-          if (json['requestId'] case final String requestId) 'requestId': requestId,
-          if (json['help'] case final String help) 'help': help,
-        },
+        meta: {'statusCode': statusCode, if (json['requestId'] case final String requestId) 'requestId': requestId, if (json['help'] case final String help) 'help': help},
       );
     }
     if (statusCode == 429 && error.response?.headers.value('retry-after') == null) {
-      return AppException(
-        kind: AppExceptionKind.rateLimit,
-        cause: error,
-        meta: {'retryAfter': 30},
-      );
+      return AppException(kind: AppExceptionKind.rateLimit, cause: error, meta: {'retryAfter': 30});
     }
     return error.toAppException();
   }

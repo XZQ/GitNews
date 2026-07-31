@@ -28,7 +28,7 @@ class RepoDetailAboutCard extends StatelessWidget {
           const Text(
             'A modern runtime for JavaScript and TypeScript. Built on V8, Rust, and Tokio. Provides a secure, production-ready environment for building web apps.',
             style: AppTypography.bodyMedium,
-          )
+          ),
         ],
       ),
     );
@@ -43,21 +43,30 @@ class RepoDetailTopicsCard extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final topics = [l10n.tr('repo_detail.topic.runtime'), 'TypeScript', 'Rust', l10n.tr('repo_detail.topic.cli'), 'Web'];
     return AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      SectionHeader(title: l10n.tr('repo_detail.section.topics'), subtitle: l10n.tr('repo_detail.section.topics.subtitle')),
-      const SizedBox(height: AppSpacing.md),
-      Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
-        for (final topic in topics)
-          ActionChip(
-              avatar: const Icon(Icons.search_rounded, size: 16),
-              label: Text(topic),
-              tooltip: l10n.tr('repo_detail.topic.search').replaceAll('{topic}', topic),
-              onPressed: () {
-                ref.read(projectSearchQueryProvider.notifier).state = topic;
-                context.go('/project');
-              })
-      ])
-    ]));
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SectionHeader(title: l10n.tr('repo_detail.section.topics'), subtitle: l10n.tr('repo_detail.section.topics.subtitle')),
+          const SizedBox(height: AppSpacing.md),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [
+              for (final topic in topics)
+                ActionChip(
+                  avatar: const Icon(Icons.search_rounded, size: 16),
+                  label: Text(topic),
+                  tooltip: l10n.tr('repo_detail.topic.search').replaceAll('{topic}', topic),
+                  onPressed: () {
+                    ref.read(projectSearchQueryProvider.notifier).state = topic;
+                    context.go('/project');
+                  },
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -74,12 +83,7 @@ class RepoDetailRelatedReposCard extends StatelessWidget {
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
             child: SectionHeader(title: l10n.tr('repo_detail.section.related'), subtitle: l10n.tr('repo_detail.section.related.subtitle')),
           ),
           for (final r in repos) ...[
@@ -94,8 +98,8 @@ class RepoDetailRelatedReposCard extends StatelessWidget {
               ),
               title: Text(r.fullName, style: AppTypography.titleSmall),
               trailing: Text('+${shortNumber(r.starDelta)}', style: AppTypography.labelSmall.copyWith(color: AppColors.success)),
-            )
-          ]
+            ),
+          ],
         ],
       ),
     );
@@ -116,7 +120,10 @@ class RepoPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.pill)),
-      child: Text(text, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600)),
+      child: Text(
+        text,
+        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

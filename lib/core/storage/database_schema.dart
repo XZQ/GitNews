@@ -198,7 +198,7 @@ const List<String> _kBootstrap = [
   'CREATE INDEX IF NOT EXISTS idx_ai_news_feedback_topic ON ai_news_feedback(topic_key, signal)',
   _kCreateAiNewsReminder,
   'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_created ON ai_news_reminder(created_at DESC)',
-  'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_read ON ai_news_reminder(read_at)'
+  'CREATE INDEX IF NOT EXISTS idx_ai_news_reminder_read ON ai_news_reminder(read_at)',
 ];
 
 // 版本 N → N+1 的迁移函数列表。索引 0 = v0→v1。
@@ -206,14 +206,7 @@ const List<String> _kBootstrap = [
 // ```dart
 // (db) async => await db.execute('ALTER TABLE ai_news_item ADD COLUMN ext6 TEXT'),
 // ```
-const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [
-  _migrateV1ToV2,
-  _migrateV2ToV3,
-  _migrateV3ToV4,
-  _migrateV4ToV5,
-  _migrateV5ToV6,
-  _migrateV6ToV7,
-];
+const List<Future<void> Function(DatabaseExecutor)> _kMigrations = [_migrateV1ToV2, _migrateV2ToV3, _migrateV3ToV4, _migrateV4ToV5, _migrateV5ToV6, _migrateV6ToV7];
 
 Future<void> _migrateV1ToV2(DatabaseExecutor db) async {
   await db.execute(_kCreateTrendingSnapshotCache);

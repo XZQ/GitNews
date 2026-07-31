@@ -33,24 +33,12 @@ Future<SharedPreferences> _preferences() async {
     'local_content_bookmarked_repos': ['remote/new-repo'],
     'local_content_monitored_repos': ['remote/new-repo'],
     'local_content_followed_developers': ['remote-dev'],
-    'local_content_repo_snapshots_v1': jsonEncode(
-      [
-        {
-          'fullName': 'remote/new-repo',
-          'description': 'Only returned by GitHub',
-          'language': 'Rust',
-          'starCount': 42,
-          'forkCount': 7,
-          'accentArgb': 0xFFDEA584,
-          'updatedAt': '2026-07-11T00:00:00.000Z'
-        }
-      ],
-    ),
-    'local_content_developer_snapshots_v1': jsonEncode(
-      [
-        {'login': 'remote-dev', 'contributions': 19, 'avatarAccentArgb': 0xFF6366F1, 'updatedAt': '2026-07-11T00:00:00.000Z'}
-      ],
-    )
+    'local_content_repo_snapshots_v1': jsonEncode([
+      {'fullName': 'remote/new-repo', 'description': 'Only returned by GitHub', 'language': 'Rust', 'starCount': 42, 'forkCount': 7, 'accentArgb': 0xFFDEA584, 'updatedAt': '2026-07-11T00:00:00.000Z'},
+    ]),
+    'local_content_developer_snapshots_v1': jsonEncode([
+      {'login': 'remote-dev', 'contributions': 19, 'avatarAccentArgb': 0xFF6366F1, 'updatedAt': '2026-07-11T00:00:00.000Z'},
+    ]),
   });
   return SharedPreferences.getInstance();
 }

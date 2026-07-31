@@ -63,13 +63,7 @@ class MonitorStatusRow extends StatelessWidget {
 }
 
 class _MonitorStatusCard extends StatelessWidget {
-  const _MonitorStatusCard({
-    required this.label,
-    required this.value,
-    this.delta,
-    required this.icon,
-    required this.color,
-  });
+  const _MonitorStatusCard({required this.label, required this.value, this.delta, required this.icon, required this.color});
 
   final String label;
   final String value;
@@ -108,16 +102,15 @@ class _MonitorStatusCard extends StatelessWidget {
                 child: FittedBox(
                   alignment: Alignment.centerLeft,
                   fit: BoxFit.scaleDown,
-                  child: Text(
-                    value,
-                    maxLines: 1,
-                    style: AppTypography.monoDisplay.copyWith(color: value == '0' ? colors.onSurfaceVariant : color),
-                  ),
+                  child: Text(value, maxLines: 1, style: AppTypography.monoDisplay.copyWith(color: value == '0' ? colors.onSurfaceVariant : color)),
                 ),
               ),
               if (delta != null) ...[
                 const SizedBox(height: AppSpacing.xxs),
-                Text(delta!, style: AppTypography.monoMeta.copyWith(color: color, fontWeight: FontWeight.w600)),
+                Text(
+                  delta!,
+                  style: AppTypography.monoMeta.copyWith(color: color, fontWeight: FontWeight.w600),
+                ),
               ],
             ],
           ),

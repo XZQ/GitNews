@@ -4,11 +4,7 @@ import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 
 void main() {
   test('similar titles inside time window become one multi-source event', () {
-    final items = [
-      _item('a', 'OpenAI launches GPT 6 model today', 'Source A'),
-      _item('b', 'OpenAI GPT 6 model launches today', 'Source B'),
-      _item('c', 'New robotics funding round', 'Source C'),
-    ];
+    final items = [_item('a', 'OpenAI launches GPT 6 model today', 'Source A'), _item('b', 'OpenAI GPT 6 model launches today', 'Source B'), _item('c', 'New robotics funding round', 'Source C')];
 
     final clusters = clusterAiNewsEvents(items);
 

@@ -34,7 +34,11 @@ class MonitorPage extends ConsumerWidget {
     final isCompact = Breakpoints.isCompact(context);
     final state = ref.watch(filteredMonitorDigestProvider);
     return Scaffold(
-      appBar: isCompact ? AppBar(title: Text(l10n.tr('monitor.title'), style: AppTypography.headlineLarge.copyWith(color: Theme.of(context).colorScheme.onSurface))) : null,
+      appBar: isCompact
+          ? AppBar(
+              title: Text(l10n.tr('monitor.title'), style: AppTypography.headlineLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+            )
+          : null,
       body: state.when(
         data: (digest) {
           if (digest.isEmpty) {
@@ -82,7 +86,9 @@ class _Desktop extends ConsumerWidget {
                       const SizedBox(width: AppSpacing.lg),
                       Expanded(
                         flex: 4,
-                        child: SingleChildScrollView(child: _RightColumn(alerts: digest.alerts, searchQuery: searchQuery)),
+                        child: SingleChildScrollView(
+                          child: _RightColumn(alerts: digest.alerts, searchQuery: searchQuery),
+                        ),
                       ),
                     ],
                   ),

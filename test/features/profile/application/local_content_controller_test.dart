@@ -56,7 +56,7 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'local_content_bookmarked_repos': ['legacy/unknown'],
       'local_content_monitored_repos': <String>[],
-      'local_content_followed_developers': ['legacy-dev']
+      'local_content_followed_developers': ['legacy-dev'],
     });
     final container = await _container();
     addTearDown(container.dispose);
@@ -83,15 +83,7 @@ void main() {
   });
 }
 
-const _remoteRepo = RepoEntity(
-  fullName: 'remote/new-repo',
-  description: 'Only returned by GitHub',
-  language: 'Rust',
-  starCount: 42,
-  starDelta: 3,
-  forkCount: 7,
-  accentArgb: 0xFFDEA584,
-);
+const _remoteRepo = RepoEntity(fullName: 'remote/new-repo', description: 'Only returned by GitHub', language: 'Rust', starCount: 42, starDelta: 3, forkCount: 7, accentArgb: 0xFFDEA584);
 
 const _remoteDeveloper = ContributorEntity(login: 'remote-dev', contributions: 19, avatarAccentArgb: 0xFF6366F1);
 

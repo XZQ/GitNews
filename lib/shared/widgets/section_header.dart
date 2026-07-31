@@ -12,15 +12,7 @@ import '../../core/theme/app_typography.dart';
 *  meta 在右、subtitle 在下,不冲突。
 */
 class SectionHeader extends StatelessWidget {
-  const SectionHeader({
-    required this.title,
-    this.subtitle,
-    this.meta,
-    this.trailing,
-    this.onTap,
-    this.showChevron = true,
-    super.key,
-  });
+  const SectionHeader({required this.title, this.subtitle, this.meta, this.trailing, this.onTap, this.showChevron = true, super.key});
 
   // meta 的宽度上限:约为 390 逻辑像素窄屏的 40%,超出则省略。
   // 用固定上限而不是 Flexible,是因为 Flexible 与左侧 Expanded 会平分剩余
@@ -51,8 +43,11 @@ class SectionHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title, style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
-                  if (subtitle != null) ...[const SizedBox(height: AppSpacing.xxs), Text(subtitle!, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant))]
+                  Text(
+                    title,
+                    style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+                  ),
+                  if (subtitle != null) ...[const SizedBox(height: AppSpacing.xxs), Text(subtitle!, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant))],
                 ],
               ),
             ),
@@ -70,14 +65,7 @@ class SectionHeader extends StatelessWidget {
               ),
             ],
             if (trailing != null) trailing!,
-            if (onTap != null && showChevron) ...[
-              const SizedBox(width: AppSpacing.xs),
-              Icon(
-                Icons.chevron_right,
-                size: AppTypography.titleMedium.fontSize!,
-                color: colors.onSurfaceVariant,
-              )
-            ]
+            if (onTap != null && showChevron) ...[const SizedBox(width: AppSpacing.xs), Icon(Icons.chevron_right, size: AppTypography.titleMedium.fontSize!, color: colors.onSurfaceVariant)],
           ],
         ),
       ),

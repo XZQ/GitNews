@@ -9,25 +9,26 @@ class DiscoverCacheCodec {
   const DiscoverCacheCodec._();
 
   static Map<String, Object?> repoListToJson(List<RepoEntity> repos) => {
-        'items': [for (final repo in repos) _repoToJson(repo)]
-      };
+    'items': [for (final repo in repos) _repoToJson(repo)],
+  };
 
   static List<RepoEntity> decodeRepos(Map<String, Object?> json) => [for (final raw in GitHubJson.list(json['items'])) _repoFromJson(GitHubJson.map(raw))];
 
   static Map<String, Object?> skillsToJson(List<SkillEntity> skills) => {
-        'items': [
-          for (final skill in skills) {'repo': _repoToJson(skill.repo), 'category': skill.category, 'source': skill.source, 'rank': skill.rank, 'summary': skill.summary ?? ''}
-        ]
-      };
+    'items': [
+      for (final skill in skills) {'repo': _repoToJson(skill.repo), 'category': skill.category, 'source': skill.source, 'rank': skill.rank, 'summary': skill.summary ?? ''},
+    ],
+  };
 
   static List<SkillEntity> decodeSkills(Map<String, Object?> json) => [for (final raw in GitHubJson.list(json['items'])) _skillFromJson(GitHubJson.map(raw))];
 
   static Map<String, Object?> profilesToJson(List<DiscoverProfileEntity> profiles) => {
-        'items': [for (final profile in profiles) _profileToJson(profile)]
-      };
+    'items': [for (final profile in profiles) _profileToJson(profile)],
+  };
 
-  static List<DiscoverProfileEntity> decodeProfiles(Map<String, Object?> json, DiscoverProfileKind kind) =>
-      [for (final raw in GitHubJson.list(json['items'])) profileFromJson(GitHubJson.map(raw), kind)];
+  static List<DiscoverProfileEntity> decodeProfiles(Map<String, Object?> json, DiscoverProfileKind kind) => [
+    for (final raw in GitHubJson.list(json['items'])) profileFromJson(GitHubJson.map(raw), kind),
+  ];
 
   static RepoEntity repoFromGitHubSearch(Map<String, Object?> json) {
     final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
@@ -64,28 +65,28 @@ class DiscoverCacheCodec {
   }
 
   static Map<String, Object?> _repoToJson(RepoEntity repo) => {
-        'fullName': repo.fullName,
-        'description': repo.description,
-        'language': repo.language,
-        'starCount': repo.starCount,
-        'starDelta': repo.starDelta,
-        'forkCount': repo.forkCount,
-        'accentArgb': repo.accentArgb,
-        'valueBasis': repo.valueBasis.name,
-        'trendBasis': repo.trendBasis.name
-      };
+    'fullName': repo.fullName,
+    'description': repo.description,
+    'language': repo.language,
+    'starCount': repo.starCount,
+    'starDelta': repo.starDelta,
+    'forkCount': repo.forkCount,
+    'accentArgb': repo.accentArgb,
+    'valueBasis': repo.valueBasis.name,
+    'trendBasis': repo.trendBasis.name,
+  };
 
   static RepoEntity _repoFromJson(Map<String, Object?> json) => RepoEntity(
-        fullName: GitHubJson.string(json['fullName']),
-        description: GitHubJson.string(json['description']),
-        language: GitHubJson.string(json['language']),
-        starCount: GitHubJson.intValue(json['starCount']),
-        starDelta: GitHubJson.intValue(json['starDelta']),
-        forkCount: GitHubJson.intValue(json['forkCount']),
-        accentArgb: GitHubJson.intValue(json['accentArgb']),
-        valueBasis: _basisFromJson(json, 'valueBasis', 'valueProvenance'),
-        trendBasis: _basisFromJson(json, 'trendBasis', 'trendProvenance'),
-      );
+    fullName: GitHubJson.string(json['fullName']),
+    description: GitHubJson.string(json['description']),
+    language: GitHubJson.string(json['language']),
+    starCount: GitHubJson.intValue(json['starCount']),
+    starDelta: GitHubJson.intValue(json['starDelta']),
+    forkCount: GitHubJson.intValue(json['forkCount']),
+    accentArgb: GitHubJson.intValue(json['accentArgb']),
+    valueBasis: _basisFromJson(json, 'valueBasis', 'valueProvenance'),
+    trendBasis: _basisFromJson(json, 'trendBasis', 'trendProvenance'),
+  );
 
   static SkillEntity _skillFromJson(Map<String, Object?> json) {
     return SkillEntity(
@@ -103,16 +104,16 @@ class DiscoverCacheCodec {
   }
 
   static Map<String, Object?> _profileToJson(DiscoverProfileEntity profile) => {
-        'login': profile.login,
-        'name': profile.name,
-        'type': profile.type,
-        'bio': profile.bio,
-        'publicRepos': profile.publicRepos,
-        'followers': profile.followers,
-        'avatarUrl': profile.avatarUrl,
-        'htmlUrl': profile.htmlUrl,
-        'featuredRepoFullName': profile.featuredRepoFullName,
-        'enriched': profile.enriched,
-        'enrichFailed': profile.enrichFailed
-      };
+    'login': profile.login,
+    'name': profile.name,
+    'type': profile.type,
+    'bio': profile.bio,
+    'publicRepos': profile.publicRepos,
+    'followers': profile.followers,
+    'avatarUrl': profile.avatarUrl,
+    'htmlUrl': profile.htmlUrl,
+    'featuredRepoFullName': profile.featuredRepoFullName,
+    'enriched': profile.enriched,
+    'enrichFailed': profile.enrichFailed,
+  };
 }

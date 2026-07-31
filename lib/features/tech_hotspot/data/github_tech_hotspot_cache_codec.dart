@@ -7,7 +7,7 @@ Map<String, Object?> techHotspotDigestToJson(TechHotspotDigest digest) {
     'languages': digest.languages.map(_languageToJson).toList(),
     'topics': digest.topics.map(_topicToJson).toList(),
     'heatTrend': digest.heatTrend.map(_heatToJson).toList(),
-    'hotTags': digest.hotTags
+    'hotTags': digest.hotTags,
   };
 }
 
@@ -47,7 +47,7 @@ Map<String, Object?> _topicToJson(TechTopic topic) {
     'relatedRepos': topic.relatedRepos,
     'summary': topic.summary,
     'valueBasis': topic.valueBasis.name,
-    'growthBasis': topic.growthBasis.name
+    'growthBasis': topic.growthBasis.name,
   };
 }
 

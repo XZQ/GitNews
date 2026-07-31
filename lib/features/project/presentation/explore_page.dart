@@ -68,12 +68,7 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         const _HotChipsCard(),
         const SizedBox(height: AppSpacing.lg),
@@ -87,7 +82,7 @@ class _DigestView extends StatelessWidget {
           title: AppLocalizations.of(context).tr('project.explore.followable_devs'),
           subtitle: AppLocalizations.of(context).tr('project.explore.followable_devs.subtitle'),
           contributors: digest.contributors,
-        )
+        ),
       ],
     );
   }
@@ -108,7 +103,7 @@ class _HotChipsCard extends ConsumerWidget {
       const _TopicChipSpec(label: 'Web3', color: AppColors.danger),
       _TopicChipSpec(label: l10n.tr('project.topic.cloud_native'), color: colors.primary),
       _TopicChipSpec(label: l10n.tr('project.topic.data_infra'), color: AppColors.info),
-      _TopicChipSpec(label: l10n.tr('project.topic.security'), color: AppColors.success)
+      _TopicChipSpec(label: l10n.tr('project.topic.security'), color: AppColors.success),
     ];
     return AppCard(
       child: Column(
@@ -116,7 +111,11 @@ class _HotChipsCard extends ConsumerWidget {
         children: [
           SectionHeader(title: l10n.tr('project.explore.hot_topics'), subtitle: l10n.tr('project.explore.hot_topics.subtitle')),
           const SizedBox(height: AppSpacing.md),
-          Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [for (final c in chips) ProjectTopicChip(label: c.label, color: c.color)])
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: [for (final c in chips) ProjectTopicChip(label: c.label, color: c.color)],
+          ),
         ],
       ),
     );

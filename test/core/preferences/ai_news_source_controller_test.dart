@@ -22,25 +22,16 @@ void main() {
     final controller = first.read(aiNewsSourceControllerProvider.notifier);
 
     await controller.setEnabled('openai_news', false);
-    await controller.addCustom(
-      name: 'Example AI',
-      feedUrl: 'https://example.com/feed.xml#latest',
-      categoryCode: 'industry',
-    );
+    await controller.addCustom(name: 'Example AI', feedUrl: 'https://example.com/feed.xml#latest', categoryCode: 'industry');
     first.dispose();
 
     final prefs = await SharedPreferences.getInstance();
-    final second = ProviderContainer(
-      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-    );
+    final second = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)]);
     addTearDown(second.dispose);
     final state = second.read(aiNewsSourceControllerProvider);
     final custom = state.entries.singleWhere((entry) => entry.isCustom);
 
-    expect(
-      state.entries.singleWhere((entry) => entry.config.id == 'openai_news').enabled,
-      isFalse,
-    );
+    expect(state.entries.singleWhere((entry) => entry.config.id == 'openai_news').enabled, isFalse);
     expect(custom.config.name, 'Example AI');
     expect(custom.config.feedUrl, 'https://example.com/feed.xml');
     expect(custom.enabled, isTrue);
@@ -53,11 +44,7 @@ void main() {
     final failureAt = DateTime.utc(2026, 7, 16, 1);
 
     for (var index = 0; index < 3; index++) {
-      await controller.reportFailure(
-        'openai_news',
-        failureAt.add(Duration(minutes: index)),
-        StateError('offline'),
-      );
+      await controller.reportFailure('openai_news', failureAt.add(Duration(minutes: index)), StateError('offline'));
     }
 
     var source = container.read(aiNewsSourceControllerProvider).entries.singleWhere((entry) => entry.config.id == 'openai_news');
@@ -88,7 +75,5 @@ void main() {
 Future<ProviderContainer> _container() async {
   SharedPreferences.setMockInitialValues({});
   final prefs = await SharedPreferences.getInstance();
-  return ProviderContainer(
-    overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-  );
+  return ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)]);
 }

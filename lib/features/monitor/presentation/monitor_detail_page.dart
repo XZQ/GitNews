@@ -45,17 +45,11 @@ class MonitorDetailPage extends ConsumerWidget {
       body: state.when(
         data: (digest) {
           if (digest.monitoredRepos.isEmpty) {
-            return EmptyView(
-              icon: Icons.visibility_off_outlined,
-              message: l10n.tr('monitor.empty'),
-            );
+            return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty'));
           }
           final repo = digest.repoByFullName(repoFullName);
           if (repo == null) {
-            return EmptyView(
-              icon: Icons.visibility_off_outlined,
-              message: l10n.tr('monitor.empty.not_in_list'),
-            );
+            return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty.not_in_list'));
           }
           final repoAlerts = digest.alerts.where((alert) => alert.repoFullName == repo.fullName).take(5).toList(growable: false);
           return ResponsiveLayout(
@@ -71,10 +65,7 @@ class MonitorDetailPage extends ConsumerWidget {
           );
         },
         loading: () => const _DetailSkeleton(),
-        error: (error, stack) => ErrorView(
-          error: error.asAppException(stack),
-          onRetry: () => forceRefreshMonitor(ref),
-        ),
+        error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => forceRefreshMonitor(ref)),
       ),
     );
   }
@@ -95,12 +86,7 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         _MonitorHero(repo: repo, compact: true),
         const SizedBox(height: AppSpacing.lg),
@@ -166,16 +152,9 @@ class _MonitorHero extends StatelessWidget {
         HeroBadge(label: repo.language, icon: Icons.bolt_rounded),
         HeroBadge(label: '★ ${_shortNumber(repo.starCount)}', icon: Icons.star_rounded),
         HeroBadge(label: '⑂ ${_shortNumber(repo.forkCount)}', icon: Icons.call_split_rounded),
-        MetricBasisBadge(
-          basis: repo.trendBasis,
-          compact: compact,
-          inverse: true,
-        ),
+        MetricBasisBadge(basis: repo.trendBasis, compact: compact, inverse: true),
       ],
-      trailing: Text(
-        repo.description,
-        style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92)),
-      ),
+      trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92))),
     );
   }
 }
@@ -198,28 +177,17 @@ class _TrendCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('monitor.section.realtime_trend'),
-            subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendBasis.labelKey)}',
-          ),
+          SectionHeader(title: l10n.tr('monitor.section.realtime_trend'), subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendBasis.labelKey)}'),
           const SizedBox(height: AppSpacing.md),
           if (hasTrend)
             StarTrendChart(
-              series: [
-                ChartSeries(
-                  values: trend,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ],
+              series: [ChartSeries(values: trend, color: Theme.of(context).colorScheme.primary)],
               height: 220,
             )
           else
             SizedBox(
               height: 180,
-              child: EmptyView(
-                icon: Icons.show_chart_rounded,
-                message: l10n.tr('monitor.section.realtime_trend.empty'),
-              ),
+              child: EmptyView(icon: Icons.show_chart_rounded, message: l10n.tr('monitor.section.realtime_trend.empty')),
             ),
         ],
       ),
@@ -243,33 +211,21 @@ class _AlertHistoryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader(
-            title: l10n.tr('monitor.section.alert_history'),
-            subtitle: l10n.tr('monitor.section.alert_history.subtitle'),
-          ),
+          SectionHeader(title: l10n.tr('monitor.section.alert_history'), subtitle: l10n.tr('monitor.section.alert_history.subtitle')),
           const SizedBox(height: AppSpacing.md),
           if (alerts.isEmpty)
-            EmptyView(
-              icon: Icons.notifications_none_rounded,
-              message: l10n.tr('monitor.section.alert_history.empty'),
-            )
+            EmptyView(icon: Icons.notifications_none_rounded, message: l10n.tr('monitor.section.alert_history.empty'))
           else
             for (var index = 0; index < alerts.length; index++) ...[
               if (index != 0) const Divider(height: AppSpacing.lg),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  Icons.history_rounded,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
+                leading: Icon(Icons.history_rounded, color: Theme.of(context).colorScheme.primary),
                 title: Text(alerts[index].repoFullName, style: AppTypography.titleSmall),
                 subtitle: Text('${monitorAlertMetricLabel(context, alerts[index])} · ${alerts[index].time}'),
                 trailing: Text(
                   alerts[index].value,
-                  style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.success,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  style: AppTypography.labelMedium.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
                 ),
               ),
             ],
@@ -288,12 +244,7 @@ class _DetailSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: const [
         Skeleton(height: 180),
         SizedBox(height: AppSpacing.lg),

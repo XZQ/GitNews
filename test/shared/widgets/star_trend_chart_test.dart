@@ -16,14 +16,8 @@ void main() {
             padding: EdgeInsets.all(16),
             child: StarTrendChart(
               series: [
-                ChartSeries(
-                  values: [42800, 42840, 42810, 42890, 42920, 42910, 42980],
-                  color: Colors.teal,
-                ),
-                ChartSeries(
-                  values: [0, 120, 260, 400, 520, 700, 820],
-                  color: Colors.blue,
-                ),
+                ChartSeries(values: [42800, 42840, 42810, 42890, 42920, 42910, 42980], color: Colors.teal),
+                ChartSeries(values: [0, 120, 260, 400, 520, 700, 820], color: Colors.blue),
               ],
               height: 220,
             ),

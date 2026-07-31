@@ -13,11 +13,7 @@ class AiNewsEventCluster {
 *按标题词元相似度和时间窗合并多源报道。算法完全本地、确定性运行；
 *单条事件也以 cluster 返回，便于 UI 统一渲染。
 */
-List<AiNewsEventCluster> clusterAiNewsEvents(
-  List<AiNewsItem> items, {
-  Duration timeWindow = const Duration(hours: 48),
-  double similarityThreshold = 0.52,
-}) {
+List<AiNewsEventCluster> clusterAiNewsEvents(List<AiNewsItem> items, {Duration timeWindow = const Duration(hours: 48), double similarityThreshold = 0.52}) {
   final clusters = <List<AiNewsItem>>[];
   for (final item in items) {
     final tokens = _titleTokens(item.title.isEmpty ? item.titleEn : item.title);
@@ -28,9 +24,7 @@ List<AiNewsEventCluster> clusterAiNewsEvents(
       if (distance > timeWindow) {
         continue;
       }
-      final candidateTokens = _titleTokens(
-        candidate.title.isEmpty ? candidate.titleEn : candidate.title,
-      );
+      final candidateTokens = _titleTokens(candidate.title.isEmpty ? candidate.titleEn : candidate.title);
       if (_jaccard(tokens, candidateTokens) >= similarityThreshold) {
         match = cluster;
         break;
@@ -39,17 +33,14 @@ List<AiNewsEventCluster> clusterAiNewsEvents(
     (match ?? (clusters..add(<AiNewsItem>[])).last).add(item);
   }
 
-  final result = [
-    for (final cluster in clusters) AiNewsEventCluster(primary: _primary(cluster), items: List.unmodifiable(cluster)),
-  ];
-  result.sort(
-    (left, right) => right.primary.publishedAt.compareTo(left.primary.publishedAt),
-  );
+  final result = [for (final cluster in clusters) AiNewsEventCluster(primary: _primary(cluster), items: List.unmodifiable(cluster))];
+  result.sort((left, right) => right.primary.publishedAt.compareTo(left.primary.publishedAt));
   return result;
 }
 
 AiNewsItem _primary(List<AiNewsItem> items) {
-  final sorted = [...items]..sort((left, right) {
+  final sorted = [...items]
+    ..sort((left, right) {
       final score = right.score.compareTo(left.score);
       return score != 0 ? score : right.publishedAt.compareTo(left.publishedAt);
     });

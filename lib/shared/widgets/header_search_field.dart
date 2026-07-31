@@ -54,7 +54,10 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
   void didUpdateWidget(covariant HeaderSearchField oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.value != _controller.text) {
-      _controller.value = TextEditingValue(text: widget.value, selection: TextSelection.collapsed(offset: widget.value.length));
+      _controller.value = TextEditingValue(
+        text: widget.value,
+        selection: TextSelection.collapsed(offset: widget.value.length),
+      );
     }
   }
 
@@ -77,39 +80,47 @@ class _HeaderSearchFieldState extends State<HeaderSearchField> {
     final borderSide = widget.outlined ? BorderSide(color: colors.outlineVariant.withValues(alpha: 0.82)) : BorderSide.none;
     final isEmphasized = widget.height >= 46;
     return Semantics(
-        label: l10n.tr('a11y.search'),
-        hint: widget.hintText,
-        textField: true,
-        child: SizedBox(
-            height: widget.height,
-            child: TextField(
-                controller: _controller,
-                onChanged: widget.onChanged,
-                onSubmitted: widget.onSubmitted,
-                textInputAction: TextInputAction.search,
-                style: (isEmphasized ? AppTypography.bodyLarge : AppTypography.bodyMedium).copyWith(color: colors.onSurface),
-                decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search_rounded, size: isEmphasized ? 22 : 18, color: colors.onSurfaceVariant),
-                    hintText: widget.hintText,
-                    hintStyle: (isEmphasized ? AppTypography.bodyMedium : AppTypography.bodySmall).copyWith(color: colors.onSurfaceVariant),
-                    suffixIcon: ListenableBuilder(
-                        listenable: _controller,
-                        builder: (context, _) {
-                          if (_controller.text.isEmpty) {
-                            return const SizedBox.shrink();
-                          }
-                          return IconButton(
-                            tooltip: l10n.tr('a11y.clear_search'),
-                            onPressed: _clear,
-                            icon: Icon(Icons.close_rounded, size: 16, color: colors.onSurfaceVariant),
-                          );
-                        }),
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    filled: true,
-                    fillColor: widget.fillColor ?? (widget.outlined ? colors.surface : colors.surfaceContainerHighest),
-                    border: OutlineInputBorder(borderRadius: radius, borderSide: borderSide),
-                    enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: borderSide),
-                    focusedBorder: OutlineInputBorder(borderRadius: radius, borderSide: BorderSide(color: colors.primary, width: 1.4))))));
+      label: l10n.tr('a11y.search'),
+      hint: widget.hintText,
+      textField: true,
+      child: SizedBox(
+        height: widget.height,
+        child: TextField(
+          controller: _controller,
+          onChanged: widget.onChanged,
+          onSubmitted: widget.onSubmitted,
+          textInputAction: TextInputAction.search,
+          style: (isEmphasized ? AppTypography.bodyLarge : AppTypography.bodyMedium).copyWith(color: colors.onSurface),
+          decoration: InputDecoration(
+            prefixIcon: Icon(Icons.search_rounded, size: isEmphasized ? 22 : 18, color: colors.onSurfaceVariant),
+            hintText: widget.hintText,
+            hintStyle: (isEmphasized ? AppTypography.bodyMedium : AppTypography.bodySmall).copyWith(color: colors.onSurfaceVariant),
+            suffixIcon: ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                if (_controller.text.isEmpty) {
+                  return const SizedBox.shrink();
+                }
+                return IconButton(
+                  tooltip: l10n.tr('a11y.clear_search'),
+                  onPressed: _clear,
+                  icon: Icon(Icons.close_rounded, size: 16, color: colors.onSurfaceVariant),
+                );
+              },
+            ),
+            isDense: true,
+            contentPadding: EdgeInsets.zero,
+            filled: true,
+            fillColor: widget.fillColor ?? (widget.outlined ? colors.surface : colors.surfaceContainerHighest),
+            border: OutlineInputBorder(borderRadius: radius, borderSide: borderSide),
+            enabledBorder: OutlineInputBorder(borderRadius: radius, borderSide: borderSide),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: radius,
+              borderSide: BorderSide(color: colors.primary, width: 1.4),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

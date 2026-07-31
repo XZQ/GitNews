@@ -17,11 +17,7 @@ void main() {
       limit: 3,
     );
 
-    expect(result.map((item) => item.id), [
-      'same-high',
-      'same-low',
-      'other-hot',
-    ]);
+    expect(result.map((item) => item.id), ['same-high', 'same-low', 'other-hot']);
   });
 }
 

@@ -26,12 +26,9 @@ class RouteErrorView extends StatelessWidget {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-          leading: IconButton(
-            tooltip: l10n.tr('a11y.home'),
-            icon: const Icon(Icons.home_rounded),
-            onPressed: () => context.go('/home'),
-          ),
-          title: Text(l10n.tr('route_error.title'))),
+        leading: IconButton(tooltip: l10n.tr('a11y.home'), icon: const Icon(Icons.home_rounded), onPressed: () => context.go('/home')),
+        title: Text(l10n.tr('route_error.title')),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
@@ -44,7 +41,7 @@ class RouteErrorView extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(l10n.tr('route_error.hint'), textAlign: TextAlign.center, style: AppTypography.bodySmall),
               const SizedBox(height: AppSpacing.lg),
-              FilledButton(onPressed: () => context.go('/home'), child: Text(l10n.tr('route_error.back_home')))
+              FilledButton(onPressed: () => context.go('/home'), child: Text(l10n.tr('route_error.back_home'))),
             ],
           ),
         ),

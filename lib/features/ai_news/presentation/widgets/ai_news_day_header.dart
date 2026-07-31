@@ -40,7 +40,11 @@ class AiNewsDayHeader extends StatelessWidget {
       child: Row(
         children: [
           if (!isCompact) ...[
-            Container(width: AppRadius.bar, height: 14, decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.xs))),
+            Container(
+              width: AppRadius.bar,
+              height: 14,
+              decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.xs)),
+            ),
             const SizedBox(width: AppSpacing.sm),
           ],
           Text(
@@ -48,10 +52,7 @@ class AiNewsDayHeader extends StatelessWidget {
             style: (isCompact ? AppTypography.titleLarge : AppTypography.titleSmall).copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Text(
-            '$itemCount ${l10n.tr('ai_news.day_count_suffix')}',
-            style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
-          ),
+          Text('$itemCount ${l10n.tr('ai_news.day_count_suffix')}', style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
         ],
       ),
     );

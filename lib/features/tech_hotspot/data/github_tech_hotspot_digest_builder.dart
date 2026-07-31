@@ -22,22 +22,18 @@ List<LanguageStat> buildTechHotspotLanguages(List<GithubTechHotspotTopicResult> 
     return const [];
   }
   final entries = counts.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
-  return entries.take(8).map((entry) {
-    return LanguageStat(
-      name: entry.key,
-      percent: entry.value / total * 100,
-      delta: 0,
-      color: GitHubApiSupport.languageColor(entry.key),
-      repoCount: entry.value,
-      basis: MetricBasis.estimated,
-    );
-  }).toList(growable: false);
+  return entries
+      .take(8)
+      .map((entry) {
+        return LanguageStat(name: entry.key, percent: entry.value / total * 100, delta: 0, color: GitHubApiSupport.languageColor(entry.key), repoCount: entry.value, basis: MetricBasis.estimated);
+      })
+      .toList(growable: false);
 }
 
 List<TechHeatPoint> buildTechHotspotHeatTrend(List<GithubTechHotspotTopicResult> results) {
   final observed = [
     for (final result in results)
-      if (result.heatTrend != null && result.heatTrend!.length >= 2) result.heatTrend!
+      if (result.heatTrend != null && result.heatTrend!.length >= 2) result.heatTrend!,
   ];
   if (observed.isNotEmpty) {
     final pointCount = observed.fold<int>(observed.first.length, (count, trend) => trend.length < count ? trend.length : count);

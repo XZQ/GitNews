@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -20,6 +19,8 @@ import 'package:github_news/features/ai_news/presentation/ai_news_page.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_category_nav.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_overview_header.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_page_header.dart';
+
+import '../../../support/test_fonts.dart';
 
 /*
 *测试用静态资讯状态,避免滚动行为测试访问网络和本地数据库。
@@ -297,9 +298,5 @@ void main() {
 
 /* 加载 Windows 中文字体,让移动端设计稿金图保留真实字形。 */
 Future<void> _loadWindowsCjkFont() async {
-  final cjkBytes = await File('C:/Windows/Fonts/simhei.ttf').readAsBytes();
-  final iconBytes = await File('D:/flutter_sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf').readAsBytes();
-  final cjkLoader = FontLoader('AiNewsGoldenFont')..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(cjkBytes))));
-  final iconLoader = FontLoader('MaterialIcons')..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(iconBytes))));
-  await Future.wait([cjkLoader.load(), iconLoader.load()]);
+  await loadPortableTestFontFamilies(const ['AiNewsGoldenFont', 'JetBrainsMono']);
 }

@@ -88,12 +88,7 @@ class AiNewsItemDto {
 *`/api/public/items` 顶层响应 DTO。
 */
 class AiNewsListResponseDto {
-  const AiNewsListResponseDto({
-    required this.count,
-    required this.hasNext,
-    required this.items,
-    this.nextCursor,
-  });
+  const AiNewsListResponseDto({required this.count, required this.hasNext, required this.items, this.nextCursor});
 
   factory AiNewsListResponseDto.fromJson(Map<String, Object?> json) {
     final list = json['items'];
@@ -110,10 +105,5 @@ class AiNewsListResponseDto {
   final String? nextCursor;
   final List<AiNewsItemDto> items;
 
-  AiNewsDigest toDomain() => AiNewsDigest(
-        items: items.map((e) => e.toDomain()).toList(growable: false),
-        count: count,
-        hasNext: hasNext,
-        nextCursor: nextCursor,
-      );
+  AiNewsDigest toDomain() => AiNewsDigest(items: items.map((e) => e.toDomain()).toList(growable: false), count: count, hasNext: hasNext, nextCursor: nextCursor);
 }

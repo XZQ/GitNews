@@ -91,17 +91,9 @@ class _TestApp extends StatelessWidget {
     return MaterialApp(
       locale: const Locale('zh', 'CN'),
       supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       home: Scaffold(
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: child,
-        ),
+        body: SingleChildScrollView(padding: const EdgeInsets.all(16), child: child),
       ),
     );
   }

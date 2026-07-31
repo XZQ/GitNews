@@ -63,9 +63,13 @@ if ($dartFiles.Count -eq 0) {
   exit 0
 }
 
+$argumentLength = ($dartFiles | ForEach-Object { $_.Length + 3 } | Measure-Object -Sum).Sum
+$useFullBaseline = $dartFiles.Count -gt 80 -or $argumentLength -gt 7000
+$formatTargets = if ($useFullBaseline) { @('lib', 'test') } else { $dartFiles }
+
 Push-Location -LiteralPath $rootPath
 try {
-  & dart format --output=none --set-exit-if-changed @dartFiles
+  & dart format --output=none --set-exit-if-changed @formatTargets
   $exitCode = $LASTEXITCODE
 } finally {
   Pop-Location
@@ -76,4 +80,8 @@ if ($exitCode -ne 0) {
   exit $exitCode
 }
 
-Write-Output "Changed Dart format check passed for $($dartFiles.Count) file(s)."
+if ($useFullBaseline) {
+  Write-Output "Changed Dart format check passed via the full baseline fallback for $($dartFiles.Count) changed file(s)."
+} else {
+  Write-Output "Changed Dart format check passed for $($dartFiles.Count) file(s)."
+}

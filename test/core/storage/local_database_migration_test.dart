@@ -22,8 +22,7 @@ void main() {
   Future<Database> openRawV1Db() async {
     final db = await databaseFactoryFfi.openDatabase(':memory:', options: OpenDatabaseOptions(version: 1));
     // v1 原始 schema:cache_meta + ai_news_item + 索引。
-    await db.execute(
-      '''
+    await db.execute('''
       CREATE TABLE cache_meta (
         cache_key        TEXT PRIMARY KEY,
         last_fetched_at  INTEGER NOT NULL,
@@ -32,10 +31,8 @@ void main() {
         ext2             INTEGER,
         ext3             REAL
       )
-    ''',
-    );
-    await db.execute(
-      '''
+    ''');
+    await db.execute('''
       CREATE TABLE ai_news_item (
         id            TEXT PRIMARY KEY,
         category      TEXT NOT NULL,
@@ -50,8 +47,7 @@ void main() {
         selected      INTEGER NOT NULL,
         cached_at     INTEGER NOT NULL
       )
-    ''',
-    );
+    ''');
     return db;
   }
 
@@ -69,7 +65,7 @@ void main() {
       'published_at': 0,
       'score': 1,
       'selected': 0,
-      'cached_at': 0
+      'cached_at': 0,
     });
   }
 
@@ -97,7 +93,7 @@ void main() {
         'ai_news_fts',
         'ai_news_enrichment',
         'ai_news_feedback',
-        'ai_news_reminder'
+        'ai_news_reminder',
       ];
       for (final table in expected) {
         expect(names, contains(table), reason: '$table 必须在 v1→v7 升级后存在');
@@ -121,9 +117,7 @@ void main() {
       expect(newsRows.first['author'], '');
       expect(newsRows.first['content'], '');
       expect(newsRows.first['attribution_source'], '');
-      final searchRows = await db.rawQuery(
-        "SELECT item_id FROM ai_news_fts WHERE ai_news_fts MATCH 'legacy'",
-      );
+      final searchRows = await db.rawQuery("SELECT item_id FROM ai_news_fts WHERE ai_news_fts MATCH 'legacy'");
       expect(searchRows.single['item_id'], 'legacy-news');
     });
 
@@ -146,7 +140,7 @@ void main() {
         'published_at': 0,
         'score': 1,
         'selected': 0,
-        'updated_at': 0
+        'updated_at': 0,
       });
       final rows = await db.query('ai_news_state');
       expect(rows, hasLength(1), reason: '升级后 ai_news_state 必须可读写');
@@ -165,10 +159,7 @@ void main() {
 
       await onUpgradeSchema(db, 2, 7);
       final tablesAfterV7 = await tableNames(db);
-      expect(
-        tablesAfterV7,
-        containsAll(['json_snapshot_cache', 'monitor_alert_event', 'ai_news_state', 'ai_news_fts', 'ai_news_enrichment', 'ai_news_feedback', 'ai_news_reminder']),
-      );
+      expect(tablesAfterV7, containsAll(['json_snapshot_cache', 'monitor_alert_event', 'ai_news_state', 'ai_news_fts', 'ai_news_enrichment', 'ai_news_feedback', 'ai_news_reminder']));
     });
 
     test('v3 → v7 adds monitor and AI news state tables', () async {
@@ -191,10 +182,7 @@ void main() {
       await onUpgradeSchema(db, 4, 7);
       final after = await tableNames(db);
       expect(after, contains('ai_news_state'));
-      expect(
-        after,
-        containsAll(['ai_news_fts', 'ai_news_enrichment', 'ai_news_feedback', 'ai_news_reminder']),
-      );
+      expect(after, containsAll(['ai_news_fts', 'ai_news_enrichment', 'ai_news_feedback', 'ai_news_reminder']));
     });
 
     test('v5 → v7 adds FTS, enrichment, feedback and RSS fields', () async {
@@ -204,10 +192,7 @@ void main() {
 
       await onUpgradeSchema(db, 5, 7);
       final tables = await tableNames(db);
-      expect(
-        tables,
-        containsAll(['ai_news_fts', 'ai_news_enrichment', 'ai_news_feedback', 'ai_news_reminder']),
-      );
+      expect(tables, containsAll(['ai_news_fts', 'ai_news_enrichment', 'ai_news_feedback', 'ai_news_reminder']));
       final columns = await db.rawQuery('PRAGMA table_info(ai_news_item)');
       expect(columns.map((column) => column['name']), containsAll(['author', 'content', 'attribution_source']));
     });

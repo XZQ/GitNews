@@ -12,12 +12,7 @@ import '../../domain/tech_hotspot_models.dart';
 *编程语言分布与排行面板。
 */
 class TechHotspotLanguagePanel extends StatelessWidget {
-  const TechHotspotLanguagePanel({
-    required this.languages,
-    this.maxItems = 8,
-    this.compact = false,
-    super.key,
-  });
+  const TechHotspotLanguagePanel({required this.languages, this.maxItems = 8, this.compact = false, super.key});
 
   final List<LanguageStat> languages;
   final int maxItems;
@@ -28,8 +23,9 @@ class TechHotspotLanguagePanel extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return AppCard(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: LayoutBuilder(builder: (context, constraints) {
+      padding: const EdgeInsets.all(AppSpacing.md),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
           final isBounded = constraints.maxHeight.isFinite;
           final visible = languages.take(maxItems).toList(growable: false);
           return Column(
@@ -38,30 +34,29 @@ class TechHotspotLanguagePanel extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  if (!compact) ...[
-                    const Icon(Icons.code_rounded, size: 16, color: AppColors.info),
-                    const SizedBox(width: AppSpacing.sm),
-                  ],
-                  Text(l10n.tr('tech_hotspot.language_share'), style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
+                  if (!compact) ...[const Icon(Icons.code_rounded, size: 16, color: AppColors.info), const SizedBox(width: AppSpacing.sm)],
+                  Text(
+                    l10n.tr('tech_hotspot.language_share'),
+                    style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+                  ),
                   const Spacer(),
-                  Text('Top ${visible.length}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+                  Text('Top ${visible.length}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
               _LangBar(languages: visible),
               const SizedBox(height: AppSpacing.md),
               if (isBounded)
-                Expanded(child: _LangList(languages: visible, compact: compact))
-              else
-                _LangList(
-                  languages: visible,
-                  compact: compact,
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
+                Expanded(
+                  child: _LangList(languages: visible, compact: compact),
                 )
+              else
+                _LangList(languages: visible, compact: compact, physics: const NeverScrollableScrollPhysics(), shrinkWrap: true),
             ],
           );
-        }));
+        },
+      ),
+    );
   }
 }
 
@@ -74,16 +69,15 @@ class _LangBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.pill),
-      child: Row(children: [
-        for (final s in languages)
-          Expanded(
+      child: Row(
+        children: [
+          for (final s in languages)
+            Expanded(
               flex: s.percent.round().clamp(1, 100),
-              child: Container(
-                height: 8,
-                color: Color(s.color),
-                margin: const EdgeInsets.only(right: 1),
-              ))
-      ]),
+              child: Container(height: 8, color: Color(s.color), margin: const EdgeInsets.only(right: 1)),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -125,7 +119,10 @@ class _LangRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
         children: [
-          SizedBox(width: 18, child: Text('$rank', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))),
+          SizedBox(
+            width: 18,
+            child: Text('$rank', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
+          ),
           const SizedBox(width: AppSpacing.sm),
           Container(
             width: AppSpacing.xs2,
@@ -134,28 +131,22 @@ class _LangRow extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
-              child: Text(
-            stat.name,
-            style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          )),
+            child: Text(
+              stat.name,
+              style: AppTypography.bodyMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
           const SizedBox(width: AppSpacing.sm),
           Text('${stat.percent.toStringAsFixed(1)}% · ${stat.repoCount}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
           const SizedBox(width: AppSpacing.sm),
           if (!isZero || compact) ...[
-            Icon(
-              isUp || isZero ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded,
-              size: 12,
-              color: isUp || isZero ? AppColors.trendUp : AppColors.trendDown,
-            ),
+            Icon(isUp || isZero ? Icons.arrow_upward_rounded : Icons.arrow_downward_rounded, size: 12, color: isUp || isZero ? AppColors.trendUp : AppColors.trendDown),
             const SizedBox(width: AppSpacing.xxs),
             Text(
               '${isUp || isZero ? '+' : ''}${stat.delta.toStringAsFixed(1)}',
-              style: AppTypography.labelSmall.copyWith(
-                color: isUp || isZero ? AppColors.trendUp : AppColors.trendDown,
-                fontWeight: FontWeight.w700,
-              ),
+              style: AppTypography.labelSmall.copyWith(color: isUp || isZero ? AppColors.trendUp : AppColors.trendDown, fontWeight: FontWeight.w700),
             ),
           ],
         ],

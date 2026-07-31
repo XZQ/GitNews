@@ -49,7 +49,10 @@ class _Mobile extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
-                  child: Text(l10n.tr('profile.title'), style: AppTypography.headlineLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800)),
+                  child: Text(
+                    l10n.tr('profile.title'),
+                    style: AppTypography.headlineLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
+                  ),
                 ),
                 const ProfileUserCard(immersive: true),
               ],
@@ -87,15 +90,17 @@ class _Desktop extends StatelessWidget {
         ProfilePageHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: EdgeInsets.fromLTRB(
-              AppSpacing.xl,
-              AppSpacing.lg,
-              AppSpacing.xl,
-              AppSpacing.xxxl,
+            padding: EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.lg, AppSpacing.xl, AppSpacing.xxxl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ProfileUserCard(),
+                SizedBox(height: AppSpacing.lg),
+                ProfileMasterDetail(),
+              ],
             ),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [ProfileUserCard(), SizedBox(height: AppSpacing.lg), ProfileMasterDetail()]),
           ),
-        )
+        ),
       ],
     );
   }

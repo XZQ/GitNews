@@ -16,82 +16,16 @@ import 'package:go_router/go_router.dart';
 
 const _radarDigest = TechHotspotDigest(
   languages: [
-    LanguageStat(
-      name: 'Dart',
-      percent: 60,
-      delta: 1.2,
-      color: 0xFF00B4AB,
-      repoCount: 6,
-    ),
-    LanguageStat(
-      name: 'Python',
-      percent: 40,
-      delta: 0.4,
-      color: 0xFF3572A5,
-      repoCount: 4,
-    ),
+    LanguageStat(name: 'Dart', percent: 60, delta: 1.2, color: 0xFF00B4AB, repoCount: 6),
+    LanguageStat(name: 'Python', percent: 40, delta: 0.4, color: 0xFF3572A5, repoCount: 4),
   ],
   topics: [
-    TechTopic(
-      id: 'agent',
-      name: 'Agent 框架',
-      category: 'Agent',
-      heat: 96,
-      growth: 12.5,
-      mentions: 120,
-      relatedRepos: 18,
-      summary: 'Agent ecosystem signal',
-    ),
-    TechTopic(
-      id: 'mcp',
-      name: 'MCP 协议',
-      category: 'Agent',
-      heat: 92,
-      growth: 11.2,
-      mentions: 110,
-      relatedRepos: 16,
-      summary: 'MCP ecosystem signal',
-    ),
-    TechTopic(
-      id: 'coding',
-      name: 'AI Coding 工具',
-      category: 'DevTools',
-      heat: 88,
-      growth: 9.8,
-      mentions: 100,
-      relatedRepos: 14,
-      summary: 'AI coding ecosystem signal',
-    ),
-    TechTopic(
-      id: 'rag',
-      name: 'RAG 工程化',
-      category: 'Data',
-      heat: 82,
-      growth: 8.6,
-      mentions: 90,
-      relatedRepos: 12,
-      summary: 'RAG ecosystem signal',
-    ),
-    TechTopic(
-      id: 'local',
-      name: '本地推理',
-      category: 'Infra',
-      heat: 76,
-      growth: 7.4,
-      mentions: 80,
-      relatedRepos: 10,
-      summary: 'Local inference ecosystem signal',
-    ),
-    TechTopic(
-      id: 'extra',
-      name: '不应出现在总览',
-      category: 'Infra',
-      heat: 70,
-      growth: 6.2,
-      mentions: 70,
-      relatedRepos: 8,
-      summary: 'Only visible on the full Radar page',
-    ),
+    TechTopic(id: 'agent', name: 'Agent 框架', category: 'Agent', heat: 96, growth: 12.5, mentions: 120, relatedRepos: 18, summary: 'Agent ecosystem signal'),
+    TechTopic(id: 'mcp', name: 'MCP 协议', category: 'Agent', heat: 92, growth: 11.2, mentions: 110, relatedRepos: 16, summary: 'MCP ecosystem signal'),
+    TechTopic(id: 'coding', name: 'AI Coding 工具', category: 'DevTools', heat: 88, growth: 9.8, mentions: 100, relatedRepos: 14, summary: 'AI coding ecosystem signal'),
+    TechTopic(id: 'rag', name: 'RAG 工程化', category: 'Data', heat: 82, growth: 8.6, mentions: 90, relatedRepos: 12, summary: 'RAG ecosystem signal'),
+    TechTopic(id: 'local', name: '本地推理', category: 'Infra', heat: 76, growth: 7.4, mentions: 80, relatedRepos: 10, summary: 'Local inference ecosystem signal'),
+    TechTopic(id: 'extra', name: '不应出现在总览', category: 'Infra', heat: 70, growth: 6.2, mentions: 70, relatedRepos: 8, summary: 'Only visible on the full Radar page'),
   ],
   heatTrend: [
     TechHeatPoint(label: '周一', value: 70),
@@ -122,14 +56,7 @@ const _trendingDigest = TrendingDigest(
   primaryTrend: [12, 18, 24, 30],
   secondaryTrend: [8, 12, 16, 20],
   tertiaryTrend: [],
-  topics: [
-    TrendingTopicEntity(
-      name: 'ai-agents',
-      repoCount: 1,
-      starCount: 12000,
-      basis: MetricBasis.observed,
-    ),
-  ],
+  topics: [TrendingTopicEntity(name: 'ai-agents', repoCount: 1, starCount: 12000, basis: MetricBasis.observed)],
 );
 
 void main() {
@@ -162,9 +89,7 @@ void main() {
     expect(find.text('雷达详情'), findsOneWidget);
   });
 
-  testWidgets('mobile overview presents eight blocks in reading order', (
-    tester,
-  ) async {
+  testWidgets('mobile overview presents eight blocks in reading order', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 5000);
     addTearDown(tester.view.resetPhysicalSize);
@@ -183,16 +108,10 @@ void main() {
     await tester.pumpAndSettle();
 
     const orderedLabels = ['Agent 榜观察', '热门仓库', 'Star 增长榜', 'AI雷达', '雷达标签', '话题趋势', '本周信号热度', '语言占比'];
-    final verticalPositions = [
-      for (final label in orderedLabels) tester.getTopLeft(find.textContaining(label).first).dy,
-    ];
+    final verticalPositions = [for (final label in orderedLabels) tester.getTopLeft(find.textContaining(label).first).dy];
 
     for (var index = 1; index < verticalPositions.length; index++) {
-      expect(
-        verticalPositions[index],
-        greaterThan(verticalPositions[index - 1]),
-        reason: '${orderedLabels[index]} should follow ${orderedLabels[index - 1]}',
-      );
+      expect(verticalPositions[index], greaterThan(verticalPositions[index - 1]), reason: '${orderedLabels[index]} should follow ${orderedLabels[index - 1]}');
     }
   });
 }
@@ -207,13 +126,7 @@ GoRouter _buildRouter() {
         builder: (_, __) => const Scaffold(
           body: SingleChildScrollView(
             padding: EdgeInsets.all(16),
-            child: Column(
-              children: [
-                HomeMobileRadarOverview(),
-                SizedBox(height: 16),
-                HomeMobileRadarTopicList(),
-              ],
-            ),
+            child: Column(children: [HomeMobileRadarOverview(), SizedBox(height: 16), HomeMobileRadarTopicList()]),
           ),
         ),
       ),
@@ -251,12 +164,7 @@ class _RouterTestApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         locale: const Locale('zh', 'CN'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         routerConfig: router,
       ),

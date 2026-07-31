@@ -7,12 +7,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 
 class TechHotspotDetailSectionError extends StatelessWidget {
-  const TechHotspotDetailSectionError({
-    required this.title,
-    required this.error,
-    required this.onRetry,
-    super.key,
-  });
+  const TechHotspotDetailSectionError({required this.title, required this.error, required this.onRetry, super.key});
 
   final String title;
   final AppException error;
@@ -38,16 +33,15 @@ class TechHotspotDetailSectionError extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(title, style: Theme.of(context).textTheme.titleSmall),
-                Text(
-                  _messageFor(l10n, error),
-                  style: Theme.of(context).textTheme.bodySmall,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                )
+                Text(_messageFor(l10n, error), style: Theme.of(context).textTheme.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
               ],
             ),
           ),
-          TextButton(onPressed: onRetry, style: TextButton.styleFrom(foregroundColor: AppColors.brand), child: Text(l10n.tr('common.retry')))
+          TextButton(
+            onPressed: onRetry,
+            style: TextButton.styleFrom(foregroundColor: AppColors.brand),
+            child: Text(l10n.tr('common.retry')),
+          ),
         ],
       ),
     );

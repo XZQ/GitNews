@@ -24,7 +24,7 @@ class TechHotspotDetailSummary extends StatelessWidget {
         children: [
           SectionHeader(title: l10n.tr('tech_hotspot.detail.summary'), subtitle: l10n.tr('tech_hotspot.detail.summary.subtitle')),
           const SizedBox(height: AppSpacing.md),
-          Text(topic.summary, style: AppTypography.bodyLarge.copyWith(color: colors.onSurface, height: 1.7))
+          Text(topic.summary, style: AppTypography.bodyLarge.copyWith(color: colors.onSurface, height: 1.7)),
         ],
       ),
     );
@@ -52,7 +52,11 @@ class TechHotspotDetailLanguages extends StatelessWidget {
           for (final lang in languages.take(5)) ...[
             Row(
               children: [
-                Container(width: 10, height: 10, decoration: BoxDecoration(color: Color(lang.color), borderRadius: BorderRadius.circular(AppRadius.pill))),
+                Container(
+                  width: 10,
+                  height: 10,
+                  decoration: BoxDecoration(color: Color(lang.color), borderRadius: BorderRadius.circular(AppRadius.pill)),
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 Text(lang.name, style: AppTypography.labelLarge),
                 const SizedBox(width: AppSpacing.xs),
@@ -61,11 +65,11 @@ class TechHotspotDetailLanguages extends StatelessWidget {
                 Text(
                   '${lang.delta >= 0 ? '+' : ''}${lang.delta.toStringAsFixed(1)}%',
                   style: AppTypography.labelSmall.copyWith(color: lang.delta >= 0 ? AppColors.trendUp : AppColors.trendDown, fontWeight: FontWeight.w600),
-                )
+                ),
               ],
             ),
-            const SizedBox(height: AppSpacing.xs)
-          ]
+            const SizedBox(height: AppSpacing.xs),
+          ],
         ],
       ),
     );

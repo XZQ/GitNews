@@ -7,6 +7,9 @@ class DiscoverLoadMoreIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(padding: EdgeInsets.symmetric(vertical: AppSpacing.lg), child: Center(child: CircularProgressIndicator()));
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+      child: Center(child: CircularProgressIndicator()),
+    );
   }
 }

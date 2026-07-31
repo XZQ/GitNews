@@ -9,20 +9,25 @@ import 'local_content_snapshots.dart';
 
 const int monitorRuleCount = 4;
 
-List<String> monitorRuleLabels(AppLocalizations l10n) =>
-    [l10n.tr('monitor.rule.star_growth'), l10n.tr('monitor.rule.daily_growth'), l10n.tr('monitor.rule.fork_growth'), l10n.tr('monitor.rule.discuss_heat')];
+List<String> monitorRuleLabels(AppLocalizations l10n) => [
+  l10n.tr('monitor.rule.star_growth'),
+  l10n.tr('monitor.rule.daily_growth'),
+  l10n.tr('monitor.rule.fork_growth'),
+  l10n.tr('monitor.rule.discuss_heat'),
+];
 
 class LocalContentState {
-  const LocalContentState(
-      {required this.bookmarkedRepos,
-      required this.monitoredRepos,
-      required this.monitoredSkills,
-      required this.followedDevelopers,
-      required this.monitorRules,
-      required this.repoSnapshots,
-      required this.developerSnapshots,
-      this.cachedUserName,
-      this.cachedAvatarUrl});
+  const LocalContentState({
+    required this.bookmarkedRepos,
+    required this.monitoredRepos,
+    required this.monitoredSkills,
+    required this.followedDevelopers,
+    required this.monitorRules,
+    required this.repoSnapshots,
+    required this.developerSnapshots,
+    this.cachedUserName,
+    this.cachedAvatarUrl,
+  });
 
   final Set<String> bookmarkedRepos;
   final Set<String> monitoredRepos;
@@ -45,31 +50,32 @@ class LocalContentState {
   bool isFollowingDeveloper(String login) => followedDevelopers.contains(login);
 
   Map<String, SavedRepoSnapshot> get bookmarkedRepoSnapshots => {
-        for (final id in bookmarkedRepos)
-          if (repoSnapshots[id] case final snapshot?) id: snapshot
-      };
+    for (final id in bookmarkedRepos)
+      if (repoSnapshots[id] case final snapshot?) id: snapshot,
+  };
 
   Map<String, SavedRepoSnapshot> get monitoredRepoSnapshots => {
-        for (final id in monitoredRepos)
-          if (repoSnapshots[id] case final snapshot?) id: snapshot
-      };
+    for (final id in monitoredRepos)
+      if (repoSnapshots[id] case final snapshot?) id: snapshot,
+  };
 
   Map<String, SavedDeveloperSnapshot> get followedDeveloperSnapshots => {
-        for (final id in followedDevelopers)
-          if (developerSnapshots[id] case final snapshot?) id: snapshot
-      };
+    for (final id in followedDevelopers)
+      if (developerSnapshots[id] case final snapshot?) id: snapshot,
+  };
 
-  LocalContentState copyWith(
-      {Set<String>? bookmarkedRepos,
-      Set<String>? monitoredRepos,
-      Set<String>? monitoredSkills,
-      Set<String>? followedDevelopers,
-      List<bool>? monitorRules,
-      Map<String, SavedRepoSnapshot>? repoSnapshots,
-      Map<String, SavedDeveloperSnapshot>? developerSnapshots,
-      String? cachedUserName,
-      String? cachedAvatarUrl,
-      bool clearCachedUser = false}) {
+  LocalContentState copyWith({
+    Set<String>? bookmarkedRepos,
+    Set<String>? monitoredRepos,
+    Set<String>? monitoredSkills,
+    Set<String>? followedDevelopers,
+    List<bool>? monitorRules,
+    Map<String, SavedRepoSnapshot>? repoSnapshots,
+    Map<String, SavedDeveloperSnapshot>? developerSnapshots,
+    String? cachedUserName,
+    String? cachedAvatarUrl,
+    bool clearCachedUser = false,
+  }) {
     return LocalContentState(
       bookmarkedRepos: bookmarkedRepos ?? this.bookmarkedRepos,
       monitoredRepos: monitoredRepos ?? this.monitoredRepos,

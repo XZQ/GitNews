@@ -24,31 +24,25 @@ const Duration repoDetailRemoteCacheTtl = CacheTtlConfig.repoDetail;
 *基于 GitHub REST API 的仓库详情仓库。
 */
 class GithubRepoDetailRepository implements RepoDetailRepository {
-  GithubRepoDetailRepository(
-      {required Dio dio,
-      required JsonSnapshotCacheDao cache,
-      RepoSnapshotHistoryDao? snapshotHistory,
-      String? token,
-      String cacheScope = 'anonymous',
-      DateTime Function()? now,
-      RepoDetailRepository fallback = const LocalRepoDetailRepository(),
-      bool Function()? isRateLimited,
-      void Function(int retryAfterSeconds)? onRateLimited})
-      : _dio = dio,
-        _cache = cache,
-        _snapshotHistory = snapshotHistory,
-        _token = token,
-        _resources = GitHubResourceCache(
-          dio: dio,
-          cache: cache,
-          token: token,
-          cacheScope: cacheScope,
-          now: now,
-        ),
-        _now = now ?? DateTime.now,
-        _fallback = fallback,
-        _isRateLimited = isRateLimited,
-        _onRateLimited = onRateLimited;
+  GithubRepoDetailRepository({
+    required Dio dio,
+    required JsonSnapshotCacheDao cache,
+    RepoSnapshotHistoryDao? snapshotHistory,
+    String? token,
+    String cacheScope = 'anonymous',
+    DateTime Function()? now,
+    RepoDetailRepository fallback = const LocalRepoDetailRepository(),
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
+  }) : _dio = dio,
+       _cache = cache,
+       _snapshotHistory = snapshotHistory,
+       _token = token,
+       _resources = GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now),
+       _now = now ?? DateTime.now,
+       _fallback = fallback,
+       _isRateLimited = isRateLimited,
+       _onRateLimited = onRateLimited;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
@@ -130,17 +124,16 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     if (history == null) {
       return repo;
     }
-    await history.record(
-      fullName: repo.fullName,
-      stars: repo.starCount,
-      forks: repo.forkCount,
-      capturedAt: now,
-    );
+    await history.record(fullName: repo.fullName, stars: repo.starCount, forks: repo.forkCount, capturedAt: now);
     final starTrend = await history.starTrend(repo.fullName);
     if (starTrend == null) {
       return repo;
     }
-    return repo.copyWith(starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta), trend: starTrend.values, trendBasis: starTrend.basis);
+    return repo.copyWith(
+      starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta),
+      trend: starTrend.values,
+      trendBasis: starTrend.basis,
+    );
   }
 
   int _observedDelta(List<double> values, {required int fallback}) {
@@ -211,13 +204,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       description: GitHubJson.nullableString(json['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: repoDetailActivityScore(
-        stars: stars,
-        forks: forks,
-        issues: issues,
-        pushedAt: pushedAt,
-        now: now,
-      ),
+      starDelta: repoDetailActivityScore(stars: stars, forks: forks, issues: issues, pushedAt: pushedAt, now: now),
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
       valueBasis: MetricBasis.observed,

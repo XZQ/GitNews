@@ -34,7 +34,7 @@ class ActivityContributorsCard extends StatelessWidget {
               ),
               title: Text(c.login, style: AppTypography.titleSmall),
               subtitle: Text(l10n.tr('project.activity.contrib').replaceAll('{n}', c.contributions.toString())),
-            )
+            ),
         ],
       ),
     );

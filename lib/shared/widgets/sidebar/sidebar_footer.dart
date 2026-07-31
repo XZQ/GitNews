@@ -43,8 +43,8 @@ class _SidebarProfileCardState extends ConsumerState<SidebarProfileCard> {
     final status = signedIn
         ? l10n.tr('auth.account.signed_in')
         : githubConnected
-            ? l10n.tr('profile.github.connected_not_signed_in')
-            : l10n.tr('profile.user.anonymous_status');
+        ? l10n.tr('profile.github.connected_not_signed_in')
+        : l10n.tr('profile.user.anonymous_status');
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),

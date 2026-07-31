@@ -34,7 +34,13 @@ void main() {
 
   test('JSON 200 stores ETag and 304 reuses cached payload', () async {
     var call = 0;
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((invocation) async {
       final options = invocation.namedArguments[#options] as Options;
       expect(options.headers?['User-Agent'], AiHotApiSupport.userAgent);
       call++;
@@ -56,16 +62,17 @@ void main() {
 
   test('RSS stores and sends both ETag and Last-Modified', () async {
     var call = 0;
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((invocation) async {
       final options = invocation.namedArguments[#options] as Options;
       call++;
       if (call == 1) {
-        return _response(
-          statusCode: 200,
-          data: '<rss><channel /></rss>',
-          etag: 'W/"feed-1"',
-          lastModified: 'Sat, 18 Jul 2026 04:47:25 GMT',
-        );
+        return _response(statusCode: 200, data: '<rss><channel /></rss>', etag: 'W/"feed-1"', lastModified: 'Sat, 18 Jul 2026 04:47:25 GMT');
       }
       expect(options.headers?['If-None-Match'], 'W/"feed-1"');
       expect(options.headers?['If-Modified-Since'], 'Sat, 18 Jul 2026 04:47:25 GMT');
@@ -80,11 +87,26 @@ void main() {
   });
 
   test('expired remote failure returns stale cache', () async {
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options')))
-        .thenAnswer((_) async => _response(statusCode: 200, data: <String, Object?>{'id': 1}));
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((_) async => _response(statusCode: 200, data: <String, Object?>{'id': 1}));
     await resources.getObject(url: '/api/public/items', ttl: Duration.zero);
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options')))
-        .thenThrow(DioException(type: DioExceptionType.connectionError, requestOptions: RequestOptions(path: '/api/public/items')));
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenThrow(
+      DioException(
+        type: DioExceptionType.connectionError,
+        requestOptions: RequestOptions(path: '/api/public/items'),
+      ),
+    );
 
     final result = await resources.getObject(url: '/api/public/items', ttl: Duration.zero);
 
@@ -93,22 +115,28 @@ void main() {
   });
 
   test('fresh TTL cache skips the network', () async {
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options')))
-        .thenAnswer((_) async => _response(statusCode: 200, data: <String, Object?>{'id': 1}));
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((_) async => _response(statusCode: 200, data: <String, Object?>{'id': 1}));
 
     await resources.getObject(url: '/api/public/version', ttl: const Duration(hours: 24));
     await resources.getObject(url: '/api/public/version', ttl: const Duration(hours: 24));
 
-    verify(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).called(1);
+    verify(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).called(1);
   });
 }
 
-Response<Object?> _response({
-  required int statusCode,
-  Object? data,
-  String? etag,
-  String? lastModified,
-}) {
+Response<Object?> _response({required int statusCode, Object? data, String? etag, String? lastModified}) {
   return Response<Object?>(
     requestOptions: RequestOptions(path: '/resource'),
     statusCode: statusCode,

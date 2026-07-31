@@ -24,35 +24,30 @@ import 'monitor_observation_dao.dart';
 const Duration monitorRemoteCacheTtl = CacheTtlConfig.monitor;
 
 class GithubMonitorRepository implements MonitorRepository {
-  GithubMonitorRepository(
-      {required Dio dio,
-      required JsonSnapshotCacheDao cache,
-      required MonitorObservationDao observationDao,
-      required MonitorAlertEventDao alertDao,
-      RepoSnapshotHistoryDao? snapshotHistory,
-      MonitorRuleEvaluator evaluator = const MonitorRuleEvaluator(),
-      Set<String> enabledRuleIds = MonitorRuleIds.all,
-      String? token,
-      DateTime Function()? now,
-      MonitorRepository fallback = const LocalMonitorRepository(),
-      bool Function()? isRateLimited,
-      void Function(int retryAfterSeconds)? onRateLimited,
-      this.repos = githubMonitorDefaultRepos,
-      this.cacheKey = githubMonitorCacheKey})
-      : _dio = dio,
-        _cache = cache,
-        _assembler = MonitorDigestAssembler(
-          observationDao: observationDao,
-          alertDao: alertDao,
-          evaluator: evaluator,
-          enabledRuleIds: enabledRuleIds,
-        ),
-        _snapshotHistory = snapshotHistory,
-        _token = token,
-        _now = now ?? DateTime.now,
-        _fallback = fallback,
-        _isRateLimited = isRateLimited,
-        _onRateLimited = onRateLimited;
+  GithubMonitorRepository({
+    required Dio dio,
+    required JsonSnapshotCacheDao cache,
+    required MonitorObservationDao observationDao,
+    required MonitorAlertEventDao alertDao,
+    RepoSnapshotHistoryDao? snapshotHistory,
+    MonitorRuleEvaluator evaluator = const MonitorRuleEvaluator(),
+    Set<String> enabledRuleIds = MonitorRuleIds.all,
+    String? token,
+    DateTime Function()? now,
+    MonitorRepository fallback = const LocalMonitorRepository(),
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
+    this.repos = githubMonitorDefaultRepos,
+    this.cacheKey = githubMonitorCacheKey,
+  }) : _dio = dio,
+       _cache = cache,
+       _assembler = MonitorDigestAssembler(observationDao: observationDao, alertDao: alertDao, evaluator: evaluator, enabledRuleIds: enabledRuleIds),
+       _snapshotHistory = snapshotHistory,
+       _token = token,
+       _now = now ?? DateTime.now,
+       _fallback = fallback,
+       _isRateLimited = isRateLimited,
+       _onRateLimited = onRateLimited;
 
   final Dio _dio;
   final JsonSnapshotCacheDao _cache;
@@ -145,7 +140,10 @@ class GithubMonitorRepository implements MonitorRepository {
 
   Future<GithubMonitorRemoteRepoItem> _fetchRepo(String fullName, DateTime now) async {
     try {
-      final response = await _dio.get<Map<String, Object?>>(ApiEndpointsConfig.githubRepoPath(fullName), options: Options(headers: GitHubApiSupport.headers(token: _token)));
+      final response = await _dio.get<Map<String, Object?>>(
+        ApiEndpointsConfig.githubRepoPath(fullName),
+        options: Options(headers: GitHubApiSupport.headers(token: _token)),
+      );
       final data = response.data;
       if (data == null) {
         throw const AppException(kind: AppExceptionKind.parse);
@@ -168,22 +166,18 @@ class GithubMonitorRepository implements MonitorRepository {
     if (history == null) {
       return item;
     }
-    await history.record(
-      fullName: item.repo.fullName,
-      stars: item.repo.starCount,
-      forks: item.repo.forkCount,
-      capturedAt: now,
-    );
+    await history.record(fullName: item.repo.fullName, stars: item.repo.starCount, forks: item.repo.forkCount, capturedAt: now);
     final starTrend = await history.starTrend(item.repo.fullName);
     if (starTrend == null) {
       return item;
     }
     return item.copyWith(
-        repo: item.repo.copyWith(
-      starDelta: _observedDelta(starTrend.values, fallback: item.repo.starDelta),
-      trend: starTrend.values,
-      trendBasis: starTrend.basis,
-    ));
+      repo: item.repo.copyWith(
+        starDelta: _observedDelta(starTrend.values, fallback: item.repo.starDelta),
+        trend: starTrend.values,
+        trendBasis: starTrend.basis,
+      ),
+    );
   }
 
   int _observedDelta(List<double> values, {required int fallback}) {
@@ -206,13 +200,7 @@ class GithubMonitorRepository implements MonitorRepository {
         description: GitHubJson.nullableString(json['description']) ?? 'No description',
         language: language,
         starCount: stars,
-        starDelta: githubMonitorActivityScore(
-          stars: stars,
-          forks: forks,
-          openIssues: openIssues,
-          pushedAt: pushedAt,
-          now: now,
-        ),
+        starDelta: githubMonitorActivityScore(stars: stars, forks: forks, openIssues: openIssues, pushedAt: pushedAt, now: now),
         forkCount: forks,
         accentArgb: GitHubApiSupport.languageColor(language),
         valueBasis: MetricBasis.observed,

@@ -7,47 +7,27 @@ import '../../domain/ai_news_item.dart';
 *优先使用来源自带的中英文内容,本地 AI 增强只补足缺失的中文翻译。
 */
 class AiNewsDetailLanguageContent {
-  const AiNewsDetailLanguageContent({
-    required this.isEnglishArticle,
-    this.englishOriginal,
-    this.chineseTranslation,
-  });
+  const AiNewsDetailLanguageContent({required this.isEnglishArticle, this.englishOriginal, this.chineseTranslation});
 
   /* 从条目与可选增强结果提取需要展示的双语内容。 */
-  factory AiNewsDetailLanguageContent.fromItem(
-    AiNewsItem item, {
-    AiNewsEnrichment? enrichment,
-  }) {
+  factory AiNewsDetailLanguageContent.fromItem(AiNewsItem item, {AiNewsEnrichment? enrichment}) {
     final title = item.title.trim();
     final titleEn = item.titleEn.trim();
     final summary = item.summary.trim();
     final isEnglishArticle = _isEnglishDominant(titleEn) || _isEnglishDominant(title) || (_isEnglishDominant(summary) && !_isChineseContent(title));
     if (!isEnglishArticle) {
-      return const AiNewsDetailLanguageContent(
-        isEnglishArticle: false,
-        englishOriginal: null,
-      );
+      return const AiNewsDetailLanguageContent(isEnglishArticle: false, englishOriginal: null);
     }
 
     final englishTitle = _isEnglishDominant(title)
         ? title
         : _isEnglishDominant(titleEn)
-            ? titleEn
-            : null;
+        ? titleEn
+        : null;
     final englishSummary = _isEnglishDominant(summary) ? summary : null;
     final englishOriginal = englishTitle != null && englishSummary != null && englishSummary != englishTitle ? '$englishTitle\n\n$englishSummary' : englishTitle ?? englishSummary;
-    final chineseTranslation = _firstChineseContent([
-      summary,
-      enrichment?.translatedSummary,
-      enrichment?.generatedSummary,
-      title,
-      enrichment?.translatedTitle,
-    ]);
-    return AiNewsDetailLanguageContent(
-      isEnglishArticle: isEnglishArticle,
-      englishOriginal: englishOriginal,
-      chineseTranslation: chineseTranslation,
-    );
+    final chineseTranslation = _firstChineseContent([summary, enrichment?.translatedSummary, enrichment?.generatedSummary, title, enrichment?.translatedTitle]);
+    return AiNewsDetailLanguageContent(isEnglishArticle: isEnglishArticle, englishOriginal: englishOriginal, chineseTranslation: chineseTranslation);
   }
 
   // 当前条目是否具有可识别的英文原文。

@@ -19,13 +19,7 @@ class AiHotFingerprint {
 *AI HOT API 与 Skill 版本信息。
 */
 class AiHotVersion {
-  const AiHotVersion({
-    required this.apiVersion,
-    required this.skillVersion,
-    required this.updatedAt,
-    required this.changelogUrl,
-    required this.recentChanges,
-  });
+  const AiHotVersion({required this.apiVersion, required this.skillVersion, required this.updatedAt, required this.changelogUrl, required this.recentChanges});
 
   // REST API 合同版本。
   final String apiVersion;

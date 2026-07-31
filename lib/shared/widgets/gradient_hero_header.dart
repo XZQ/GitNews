@@ -11,15 +11,7 @@ import '../../core/theme/app_typography.dart';
 *保证所有二级/三级详情页视觉统一。
 */
 class GradientHeroHeader extends StatelessWidget {
-  const GradientHeroHeader({
-    required this.accent,
-    required this.title,
-    this.badges = const [],
-    this.trailing,
-    this.titleStyle,
-    this.compact = false,
-    super.key,
-  });
+  const GradientHeroHeader({required this.accent, required this.title, this.badges = const [], this.trailing, this.titleStyle, this.compact = false, super.key});
 
   final Color accent;
   final String title;
@@ -36,43 +28,25 @@ class GradientHeroHeader extends StatelessWidget {
     final trailingContent = trailing == null
         ? null
         : compact
-            ? DefaultTextStyle.merge(
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                child: trailing!,
-              )
-            : trailing;
+        ? DefaultTextStyle.merge(maxLines: 3, overflow: TextOverflow.ellipsis, child: trailing!)
+        : trailing;
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color.lerp(accent, AppColors.brand, 0.18)!, Color.lerp(accent, Colors.black, 0.46)!],
-        ),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color.lerp(accent, AppColors.brand, 0.18)!, Color.lerp(accent, Colors.black, 0.46)!]),
       ),
       padding: EdgeInsets.all(compact ? AppSpacing.lg : AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (badges.isNotEmpty) ...[
-            Wrap(
-              spacing: AppSpacing.sm,
-              runSpacing: AppSpacing.xs,
-              children: badges,
-            ),
-            SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
-          ],
+          if (badges.isNotEmpty) ...[Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.xs, children: badges), SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg)],
           Text(
             title,
             maxLines: compact ? 3 : null,
             overflow: compact ? TextOverflow.ellipsis : null,
             style: resolvedTitleStyle.copyWith(color: Colors.white, height: 1.25),
           ),
-          if (trailingContent != null) ...[
-            SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg),
-            trailingContent,
-          ],
+          if (trailingContent != null) ...[SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg), trailingContent],
         ],
       ),
     );
@@ -83,12 +57,7 @@ class GradientHeroHeader extends StatelessWidget {
 *渐变头部使用的半透明胶囊标签。
 */
 class HeroBadge extends StatelessWidget {
-  const HeroBadge({
-    required this.label,
-    this.color,
-    this.icon,
-    super.key,
-  });
+  const HeroBadge({required this.label, this.color, this.icon, super.key});
 
   final String label;
   final Color? color;
@@ -108,7 +77,10 @@ class HeroBadge extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           if (icon != null) ...[Icon(icon, size: 12, color: tinted), const SizedBox(width: AppSpacing.xs)],
-          Text(label, style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700))
+          Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+          ),
         ],
       ),
     );

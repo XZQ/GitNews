@@ -7,13 +7,7 @@ enum AiNewsReadFilter { all, unread, read }
 *便于按自然日和预设时间窗口组合。
 */
 class AiNewsLibraryFilter {
-  const AiNewsLibraryFilter({
-    this.category,
-    this.source,
-    this.publishedAfter,
-    this.publishedBefore,
-    this.read = AiNewsReadFilter.all,
-  });
+  const AiNewsLibraryFilter({this.category, this.source, this.publishedAfter, this.publishedBefore, this.read = AiNewsReadFilter.all});
 
   final AiNewsCategory? category;
   final String? source;

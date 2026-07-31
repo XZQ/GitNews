@@ -15,11 +15,12 @@ class DioClient {
   static Dio create({String? baseUrl, Map<String, Object?>? headers}) {
     final dio = Dio(
       BaseOptions(
-          baseUrl: baseUrl ?? ApiEndpointsConfig.githubBaseUrl,
-          connectTimeout: const Duration(seconds: 10),
-          receiveTimeout: const Duration(seconds: 10),
-          sendTimeout: const Duration(seconds: 10),
-          headers: headers ?? const {'Accept': GitHubApiSupport.githubAccept, 'X-GitHub-Api-Version': GitHubApiSupport.apiVersion}),
+        baseUrl: baseUrl ?? ApiEndpointsConfig.githubBaseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+        sendTimeout: const Duration(seconds: 10),
+        headers: headers ?? const {'Accept': GitHubApiSupport.githubAccept, 'X-GitHub-Api-Version': GitHubApiSupport.apiVersion},
+      ),
     );
     dio.interceptors.add(_RetryInterceptor(dio: dio));
     return dio;

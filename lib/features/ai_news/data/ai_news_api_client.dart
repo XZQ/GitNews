@@ -22,14 +22,8 @@ class AiNewsApiClient {
   const AiNewsApiClient(this._resources);
 
   /* 用共享 Dio 与 SQLite 快照缓存构造客户端。 */
-  factory AiNewsApiClient.create({
-    required Dio dio,
-    required JsonSnapshotCacheDao cache,
-    DateTime Function()? now,
-  }) {
-    return AiNewsApiClient(
-      AiHotResourceCache(dio: dio, cache: cache, now: now),
-    );
+  factory AiNewsApiClient.create({required Dio dio, required JsonSnapshotCacheDao cache, DateTime Function()? now}) {
+    return AiNewsApiClient(AiHotResourceCache(dio: dio, cache: cache, now: now));
   }
 
   static const String baseUrl = ApiEndpointsConfig.aiNewsBaseUrl;
@@ -38,14 +32,7 @@ class AiNewsApiClient {
   final AiHotResourceCache _resources;
 
   /* 读取精选或最近 7 天公开池条目。 */
-  Future<DataResult<AiNewsListResponseDto>> fetchItems({
-    String? category,
-    DateTime? since,
-    String? query,
-    String? cursor,
-    bool selectedOnly = true,
-    bool force = false,
-  }) async {
+  Future<DataResult<AiNewsListResponseDto>> fetchItems({String? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false}) async {
     final parameters = <String, Object?>{
       'mode': selectedOnly ? 'selected' : 'all',
       'take': 50,
@@ -54,35 +41,19 @@ class AiNewsApiClient {
       if (query != null && query.trim().length >= 2) 'q': query.trim(),
       if (cursor != null && cursor.isNotEmpty) 'cursor': cursor,
     };
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.aiNewsItemsPath,
-      queryParameters: parameters,
-      ttl: CacheTtlConfig.aiNews,
-      force: force,
-    );
-    return DataResult(
-      data: AiNewsListResponseDto.fromJson(result.data),
-      freshness: result.freshness,
-    );
+    final result = await _resources.getObject(url: ApiEndpointsConfig.aiNewsItemsPath, queryParameters: parameters, ttl: CacheTtlConfig.aiNews, force: force);
+    return DataResult(data: AiNewsListResponseDto.fromJson(result.data), freshness: result.freshness);
   }
 
   /* 读取当前多信源热点。 */
   Future<DataResult<List<AiHotTopic>>> fetchHotTopics({bool force = false}) async {
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.aiHotTopicsPath,
-      ttl: CacheTtlConfig.aiHotTopics,
-      force: force,
-    );
+    final result = await _resources.getObject(url: ApiEndpointsConfig.aiHotTopicsPath, ttl: CacheTtlConfig.aiHotTopics, force: force);
     return DataResult(data: AiHotTopicCodec.list(result.data), freshness: result.freshness);
   }
 
   /* 读取最新官方日报。 */
   Future<DataResult<AiHotDailyReport>> fetchLatestDaily({bool force = false}) async {
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.aiHotDailyPath,
-      ttl: CacheTtlConfig.aiHotDaily,
-      force: force,
-    );
+    final result = await _resources.getObject(url: ApiEndpointsConfig.aiHotDailyPath, ttl: CacheTtlConfig.aiHotDaily, force: force);
     return DataResult(data: AiHotDailyCodec.report(result.data), freshness: result.freshness);
   }
 
@@ -91,42 +62,25 @@ class AiNewsApiClient {
     if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(date)) {
       throw const AppException(kind: AppExceptionKind.parse, meta: {'field': 'date'});
     }
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.aiHotDailyByDatePath(date),
-      ttl: CacheTtlConfig.aiHotDaily,
-      force: force,
-    );
+    final result = await _resources.getObject(url: ApiEndpointsConfig.aiHotDailyByDatePath(date), ttl: CacheTtlConfig.aiHotDaily, force: force);
     return DataResult(data: AiHotDailyCodec.report(result.data), freshness: result.freshness);
   }
 
   /* 读取最近日报索引。 */
   Future<DataResult<List<AiHotDailyEntry>>> fetchDailies({int take = 30, bool force = false}) async {
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.aiHotDailiesPath,
-      queryParameters: {'take': take.clamp(1, 180)},
-      ttl: CacheTtlConfig.aiHotDaily,
-      force: force,
-    );
+    final result = await _resources.getObject(url: ApiEndpointsConfig.aiHotDailiesPath, queryParameters: {'take': take.clamp(1, 180)}, ttl: CacheTtlConfig.aiHotDaily, force: force);
     return DataResult(data: AiHotDailyCodec.entries(result.data), freshness: result.freshness);
   }
 
   /* 读取低流量内容指纹。 */
   Future<DataResult<AiHotFingerprint>> fetchFingerprint({bool force = false}) async {
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.aiHotFingerprintPath,
-      ttl: CacheTtlConfig.aiHotFingerprint,
-      force: force,
-    );
+    final result = await _resources.getObject(url: ApiEndpointsConfig.aiHotFingerprintPath, ttl: CacheTtlConfig.aiHotFingerprint, force: force);
     return DataResult(data: AiHotStatusCodec.fingerprint(result.data), freshness: result.freshness);
   }
 
   /* 读取 API 与 Skill 版本信息。 */
   Future<DataResult<AiHotVersion>> fetchVersion({bool force = false}) async {
-    final result = await _resources.getObject(
-      url: ApiEndpointsConfig.aiHotVersionPath,
-      ttl: CacheTtlConfig.aiHotVersion,
-      force: force,
-    );
+    final result = await _resources.getObject(url: ApiEndpointsConfig.aiHotVersionPath, ttl: CacheTtlConfig.aiHotVersion, force: force);
     return DataResult(data: AiHotStatusCodec.version(result.data), freshness: result.freshness);
   }
 }

@@ -11,12 +11,7 @@ import '../../domain/tech_hotspot_models.dart';
 *技术主题卡片(网格单元)。
 */
 class TechHotspotTopicCard extends StatelessWidget {
-  const TechHotspotTopicCard({
-    required this.topic,
-    required this.onTap,
-    this.compact = false,
-    super.key,
-  });
+  const TechHotspotTopicCard({required this.topic, required this.onTap, this.compact = false, super.key});
 
   final TechTopic topic;
   final VoidCallback onTap;
@@ -37,17 +32,10 @@ class TechHotspotTopicCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: radius,
           child: Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm2,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm2),
             decoration: BoxDecoration(
               borderRadius: radius,
-              border: Border.all(
-                color: colors.outlineVariant.withValues(
-                  alpha: isLight ? 0.58 : 1,
-                ),
-              ),
+              border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1)),
             ),
             child: Row(
               children: [
@@ -55,15 +43,8 @@ class TechHotspotTopicCard extends StatelessWidget {
                   width: 38,
                   height: 38,
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: heatColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(AppRadius.md),
-                  ),
-                  child: Icon(
-                    Icons.local_fire_department_rounded,
-                    color: heatColor,
-                    size: 20,
-                  ),
+                  decoration: BoxDecoration(color: heatColor.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.md)),
+                  child: Icon(Icons.local_fire_department_rounded, color: heatColor, size: 20),
                 ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
@@ -74,19 +55,14 @@ class TechHotspotTopicCard extends StatelessWidget {
                         topic.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.titleSmall.copyWith(
-                          color: colors.onSurface,
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
                       ),
                       const SizedBox(height: AppSpacing.xxs),
                       Text(
                         '${topic.category} · ${l10n.tr('tech_hotspot.repos_short').replaceAll('{count}', '${topic.relatedRepos}')} · ${topic.growth > 0 ? '+' : ''}${topic.growth.toStringAsFixed(1)}%',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTypography.labelSmall.copyWith(
-                          color: colors.onSurfaceVariant,
-                        ),
+                        style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
                       ),
                     ],
                   ),
@@ -94,11 +70,7 @@ class TechHotspotTopicCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 _HeatIndicator(value: topic.heat, color: heatColor),
                 const SizedBox(width: AppSpacing.xs),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: colors.onSurfaceVariant,
-                  size: 18,
-                ),
+                Icon(Icons.chevron_right_rounded, color: colors.onSurfaceVariant, size: 18),
               ],
             ),
           ),
@@ -114,13 +86,19 @@ class TechHotspotTopicCard extends StatelessWidget {
         borderRadius: radius,
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1), width: 1)),
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1), width: 1),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _TopicHeader(topic: topic, heatColor: heatColor),
               const SizedBox(height: AppSpacing.md),
-              Text(topic.name, style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
+              Text(
+                topic.name,
+                style: AppTypography.titleMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: AppSpacing.sm),
               Text(
                 topic.summary,
@@ -129,7 +107,7 @@ class TechHotspotTopicCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: AppSpacing.md),
-              _TopicStatsBar(topic: topic)
+              _TopicStatsBar(topic: topic),
             ],
           ),
         ),
@@ -165,10 +143,13 @@ class _TopicHeader extends StatelessWidget {
             border: Border.all(color: heatColor.withValues(alpha: 0.4)),
             borderRadius: BorderRadius.circular(AppRadius.xs),
           ),
-          child: Text(topic.category, style: AppTypography.labelSmall.copyWith(color: heatColor, fontWeight: FontWeight.w700)),
+          child: Text(
+            topic.category,
+            style: AppTypography.labelSmall.copyWith(color: heatColor, fontWeight: FontWeight.w700),
+          ),
         ),
         const Spacer(),
-        _HeatIndicator(value: topic.heat, color: heatColor)
+        _HeatIndicator(value: topic.heat, color: heatColor),
       ],
     );
   }
@@ -199,7 +180,7 @@ class _TopicStatsBar extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Icon(Icons.book_outlined, size: 12, color: colors.onSurfaceVariant),
         const SizedBox(width: AppSpacing.xxs),
-        Text('${topic.relatedRepos}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))
+        Text('${topic.relatedRepos}', style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
       ],
     );
   }
@@ -218,7 +199,10 @@ class _HeatIndicator extends StatelessWidget {
       children: [
         Icon(Icons.local_fire_department_rounded, size: 12, color: color),
         const SizedBox(width: AppSpacing.xxs),
-        Text('$value', style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700))
+        Text(
+          '$value',
+          style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+        ),
       ],
     );
   }

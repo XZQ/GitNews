@@ -15,14 +15,7 @@ import 'ai_news_rss_client.dart';
 *  模块仍按 RSS 的真实新鲜度返回数据;全军覆没才抛错
 */
 class AggregatedAiNewsRepository implements AiNewsRepository {
-  const AggregatedAiNewsRepository(
-    this._primary,
-    this._rssClient, {
-    this.sources = AiNewsSourcesConfig.sources,
-    this.clock = DateTime.now,
-    this.onSourceSuccess,
-    this.onSourceFailure,
-  });
+  const AggregatedAiNewsRepository(this._primary, this._rssClient, {this.sources = AiNewsSourcesConfig.sources, this.clock = DateTime.now, this.onSourceSuccess, this.onSourceFailure});
 
   final AiNewsRepository _primary;
   final AiNewsRssClient _rssClient;
@@ -32,30 +25,18 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
   final Future<void> Function(String sourceId, DateTime at, Object error)? onSourceFailure;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({
-    AiNewsCategory? category,
-    DateTime? since,
-    String? query,
-    String? cursor,
-    bool selectedOnly = true,
-  }) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
     final isHead = cursor == null || cursor.isEmpty;
     final hasQuery = query != null && query.trim().isNotEmpty;
     if (!isHead || hasQuery) {
-      return _primary.fetchItems(
-        category: category,
-        since: since,
-        query: query,
-        cursor: cursor,
-        selectedOnly: selectedOnly,
-      );
+      return _primary.fetchItems(category: category, since: since, query: query, cursor: cursor, selectedOnly: selectedOnly);
     }
 
     final now = clock();
     // 分类筛选时只请求默认分类匹配的源,省掉必然被过滤的流量。
     final applicable = [
       for (final s in sources)
-        if (category == null || s.categoryCode == category.code) s
+        if (category == null || s.categoryCode == category.code) s,
     ];
 
     final primaryFuture = _guard(() => _primary.fetchItems(category: category, since: since, selectedOnly: selectedOnly));
@@ -66,7 +47,7 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
 
     final extras = [
       for (final o in rssOutcomes)
-        if (o.value != null) o.value!.data
+        if (o.value != null) o.value!.data,
     ];
     final primaryDigest = primaryOutcome.value?.data;
     if (primaryDigest == null && extras.isEmpty) {
@@ -132,11 +113,7 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
     }
   }
 
-  Future<void> _reportFailure(
-    String sourceId,
-    DateTime at,
-    Object error,
-  ) async {
+  Future<void> _reportFailure(String sourceId, DateTime at, Object error) async {
     try {
       await onSourceFailure?.call(sourceId, at, error);
     } catch (_) {

@@ -13,7 +13,7 @@ Map<String, Object?> githubRepoEntityToJson(RepoEntity repo) {
     'accentArgb': repo.accentArgb,
     'valueBasis': repo.valueBasis.name,
     'trendBasis': repo.trendBasis.name,
-    'trend': repo.trend
+    'trend': repo.trend,
   };
 }
 

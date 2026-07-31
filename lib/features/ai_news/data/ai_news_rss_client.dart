@@ -21,16 +21,10 @@ class AiNewsRssClient {
   *拉取并解析单个源,返回按发布时间倒序、按源限额且在新鲜窗口内的条目。
   */
   Future<DataResult<List<AiNewsItem>>> fetchSource(AiNewsSourceConfig source, {required DateTime now}) async {
-    final result = await _resources.getText(
-      url: source.feedUrl,
-      ttl: CacheTtlConfig.aiNewsRss,
-    );
+    final result = await _resources.getText(url: source.feedUrl, ttl: CacheTtlConfig.aiNewsRss);
     final body = result.data;
     if (body.trim().isEmpty) {
-      throw AppException(
-        kind: AppExceptionKind.parse,
-        meta: {'source': source.id, 'reason': 'empty body'},
-      );
+      throw AppException(kind: AppExceptionKind.parse, meta: {'source': source.id, 'reason': 'empty body'});
     }
     final items = parseAiNewsFeed(body, source: source, fallbackTime: now);
     final cutoff = now.toUtc().subtract(AiNewsSourcesConfig.recencyWindow);
@@ -41,9 +35,6 @@ class AiNewsRssClient {
     if (recent.length <= AiNewsSourcesConfig.maxItemsPerSource) {
       return DataResult(data: recent, freshness: result.freshness);
     }
-    return DataResult(
-      data: recent.sublist(0, AiNewsSourcesConfig.maxItemsPerSource),
-      freshness: result.freshness,
-    );
+    return DataResult(data: recent.sublist(0, AiNewsSourcesConfig.maxItemsPerSource), freshness: result.freshness);
   }
 }

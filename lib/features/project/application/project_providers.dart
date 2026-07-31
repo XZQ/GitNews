@@ -58,7 +58,7 @@ List<RepoEntity> filterProjectRepos(List<RepoEntity> repos, String query) {
 
   return [
     for (final repo in repos)
-      if (_repoSearchText(repo).contains(keyword)) repo
+      if (_repoSearchText(repo).contains(keyword)) repo,
   ];
 }
 
@@ -70,7 +70,7 @@ List<ContributorEntity> filterProjectContributors(List<ContributorEntity> contri
 
   return [
     for (final contributor in contributors)
-      if (_contributorSearchText(contributor).contains(keyword)) contributor
+      if (_contributorSearchText(contributor).contains(keyword)) contributor,
   ];
 }
 

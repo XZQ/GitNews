@@ -10,118 +10,79 @@ import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_language_switcher.dart';
 
 void main() {
-  testWidgets('article detail centers the reading column on desktop', (
-    tester,
-  ) async {
+  testWidgets('article detail centers the reading column on desktop', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      _app(AiNewsDetailContent(item: _item(), showEnrichment: false)),
-    );
+    await tester.pumpWidget(_app(AiNewsDetailContent(item: _item(), showEnrichment: false)));
     await tester.pumpAndSettle();
 
-    final languageCardRect = tester.getRect(
-      find.byType(AiNewsDetailLanguageSwitcher),
-    );
+    final languageCardRect = tester.getRect(find.byType(AiNewsDetailLanguageSwitcher));
 
     expect(languageCardRect.width, lessThanOrEqualTo(760));
     expect(languageCardRect.left, greaterThan(150));
     expect(languageCardRect.right, lessThan(1250));
   });
 
-  testWidgets('article detail uses one continuous vertical reading flow', (
-    tester,
-  ) async {
+  testWidgets('article detail uses one continuous vertical reading flow', (tester) async {
     tester.view.physicalSize = const Size(471, 835);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      _app(
-        AiNewsDetailContent(
-          item: _item(),
-          relatedItems: [_relatedItem('related-1'), _relatedItem('related-2')],
-          showEnrichment: false,
-        ),
-      ),
-    );
+    await tester.pumpWidget(_app(AiNewsDetailContent(item: _item(), relatedItems: [_relatedItem('related-1'), _relatedItem('related-2')], showEnrichment: false)));
     await tester.pumpAndSettle();
 
     expect(find.byType(PageView), findsNothing);
     expect(find.byType(SingleChildScrollView), findsOneWidget);
     expect(find.textContaining('共 3 页'), findsNothing);
 
-    await tester.dragUntilVisible(
-      find.text('相关文章'),
-      find.byType(SingleChildScrollView),
-      const Offset(0, -260),
-    );
+    await tester.dragUntilVisible(find.text('相关文章'), find.byType(SingleChildScrollView), const Offset(0, -260));
     await tester.pumpAndSettle();
 
     expect(find.text('相关文章').hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('article detail remains usable in a narrow dark viewport', (
-    tester,
-  ) async {
+  testWidgets('article detail remains usable in a narrow dark viewport', (tester) async {
     tester.view.physicalSize = const Size(390, 844);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(
       _app(
-        AiNewsDetailContent(
-          item: _item(),
-          relatedItems: [_relatedItem('related-dark')],
-          showEnrichment: false,
-        ),
+        AiNewsDetailContent(item: _item(), relatedItems: [_relatedItem('related-dark')], showEnrichment: false),
         theme: AppTheme.dark(AppColors.brand),
       ),
     );
     await tester.pumpAndSettle();
 
-    await tester.dragUntilVisible(
-      find.text('相关文章'),
-      find.byType(SingleChildScrollView),
-      const Offset(0, -260),
-    );
+    await tester.dragUntilVisible(find.text('相关文章'), find.byType(SingleChildScrollView), const Offset(0, -260));
     await tester.pumpAndSettle();
 
     expect(find.text('相关文章').hitTestable(), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets(
-    'Chinese articles hide duplicate original and translation cards',
-    (tester) async {
-      tester.view.physicalSize = const Size(375, 846);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(
-        _app(AiNewsDetailContent(item: _chineseItem(), showEnrichment: false)),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text('英文原文'), findsNothing);
-      expect(find.text('中文翻译'), findsNothing);
-      expect(tester.takeException(), isNull);
-    },
-  );
-
-  testWidgets('English articles show the original and Chinese translation', (
-    tester,
-  ) async {
+  testWidgets('Chinese articles hide duplicate original and translation cards', (tester) async {
     tester.view.physicalSize = const Size(375, 846);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      _app(AiNewsDetailContent(item: _item(), showEnrichment: false)),
-    );
+    await tester.pumpWidget(_app(AiNewsDetailContent(item: _chineseItem(), showEnrichment: false)));
+    await tester.pumpAndSettle();
+
+    expect(find.text('英文原文'), findsNothing);
+    expect(find.text('中文翻译'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('English articles show the original and Chinese translation', (tester) async {
+    tester.view.physicalSize = const Size(375, 846);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(_app(AiNewsDetailContent(item: _item(), showEnrichment: false)));
     await tester.pumpAndSettle();
 
     expect(find.text('EN · 英文原文'), findsOneWidget);
@@ -129,52 +90,32 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets(
-    'bilingual selector switches between comparison and single language',
-    (tester) async {
-      tester.view.physicalSize = const Size(390, 844);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.resetPhysicalSize);
-      addTearDown(tester.view.resetDevicePixelRatio);
-      await tester.pumpWidget(
-        _app(AiNewsDetailContent(item: _item(), showEnrichment: false)),
-      );
-      await tester.pumpAndSettle();
+  testWidgets('bilingual selector switches between comparison and single language', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(_app(AiNewsDetailContent(item: _item(), showEnrichment: false)));
+    await tester.pumpAndSettle();
 
-      expect(find.text('EN · 英文原文'), findsOneWidget);
-      expect(find.text('中 · 中文翻译'), findsOneWidget);
+    expect(find.text('EN · 英文原文'), findsOneWidget);
+    expect(find.text('中 · 中文翻译'), findsOneWidget);
 
-      await tester.tap(find.byKey(const ValueKey('ai-news-language-chinese')));
-      await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('ai-news-language-chinese')));
+    await tester.pumpAndSettle();
 
-      expect(find.text('EN · 英文原文'), findsNothing);
-      expect(find.text('中 · 中文翻译'), findsNothing);
-      expect(
-        find.descendant(
-          of: find.byType(AiNewsDetailLanguageSwitcher),
-          matching: find.textContaining('一个面向编程 AI 智能体'),
-        ),
-        findsOneWidget,
-      );
-      expect(tester.takeException(), isNull);
-    },
-  );
+    expect(find.text('EN · 英文原文'), findsNothing);
+    expect(find.text('中 · 中文翻译'), findsNothing);
+    expect(find.descendant(of: find.byType(AiNewsDetailLanguageSwitcher), matching: find.textContaining('一个面向编程 AI 智能体')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
-  testWidgets('long Chinese titles do not overflow the compact hero', (
-    tester,
-  ) async {
+  testWidgets('long Chinese titles do not overflow the compact hero', (tester) async {
     tester.view.physicalSize = const Size(375, 846);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(
-      _app(
-        AiNewsDetailContent(
-          item: _chineseItem(title: '世界人工智能合作组织协定签署仪式在上海举行，总部设在中国上海并推动全球协作'),
-          showEnrichment: false,
-        ),
-      ),
-    );
+    await tester.pumpWidget(_app(AiNewsDetailContent(item: _chineseItem(title: '世界人工智能合作组织协定签署仪式在上海举行，总部设在中国上海并推动全球协作'), showEnrichment: false)));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('世界人工智能合作组织协定'), findsOneWidget);
@@ -187,12 +128,7 @@ Widget _app(Widget home, {ThemeData? theme}) {
     child: MaterialApp(
       locale: const Locale('zh', 'CN'),
       supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       theme: theme,
       home: Scaffold(body: home),
     ),

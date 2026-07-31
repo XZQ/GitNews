@@ -70,12 +70,7 @@ class _DigestView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         const _HotTopicsCard(),
         const SizedBox(height: AppSpacing.lg),
@@ -89,7 +84,7 @@ class _DigestView extends StatelessWidget {
           title: AppLocalizations.of(context).tr('project.discover.recommended_devs'),
           subtitle: AppLocalizations.of(context).tr('project.discover.recommended_devs.subtitle'),
           contributors: digest.contributors,
-        )
+        ),
       ],
     );
   }
@@ -106,7 +101,7 @@ class _HotTopicsCard extends ConsumerWidget {
       _TopicSpec(label: l10n.tr('project.topic.ai_agent'), count: 32, color: colors.primary),
       _TopicSpec(label: l10n.tr('project.topic.llm'), count: 128, color: AppColors.info),
       _TopicSpec(label: l10n.tr('project.topic.devtools'), count: 64, color: AppColors.success),
-      _TopicSpec(label: l10n.tr('project.topic.rag'), count: 24, color: AppColors.warning)
+      _TopicSpec(label: l10n.tr('project.topic.rag'), count: 24, color: AppColors.warning),
     ];
     return AppCard(
       child: Column(
@@ -117,15 +112,8 @@ class _HotTopicsCard extends ConsumerWidget {
           Wrap(
             spacing: AppSpacing.sm,
             runSpacing: AppSpacing.sm,
-            children: [
-              for (final t in topics)
-                ProjectTopicCard(
-                  label: t.label,
-                  description: l10n.tr('project.discover.topic_repos').replaceAll('{n}', t.count.toString()),
-                  color: t.color,
-                )
-            ],
-          )
+            children: [for (final t in topics) ProjectTopicCard(label: t.label, description: l10n.tr('project.discover.topic_repos').replaceAll('{n}', t.count.toString()), color: t.color)],
+          ),
         ],
       ),
     );

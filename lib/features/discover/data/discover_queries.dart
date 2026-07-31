@@ -5,7 +5,8 @@ class DiscoverQueries {
   const DiscoverQueries._();
 
   static const String trending = 'stars:>1000';
-  static const String skills = 'topic:agent-skills OR topic:claude-skills OR topic:mcp '
+  static const String skills =
+      'topic:agent-skills OR topic:claude-skills OR topic:mcp '
       'OR topic:ai-agent OR topic:llm-agent OR topic:mcp-server '
       'stars:>10';
 
@@ -43,7 +44,7 @@ class DiscoverQueries {
     'fchollet': 'keras-team/keras',
     'soumith': 'pytorch/pytorch',
     'TimDettmers': 'bitsandbytes-foundation/bitsandbytes',
-    'shreyashankar': 'lotus-data/lotus'
+    'shreyashankar': 'lotus-data/lotus',
   };
 
   static List<String> profileLogins(DiscoverProfileKind kind) {

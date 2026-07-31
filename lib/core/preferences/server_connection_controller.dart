@@ -7,12 +7,7 @@ const String serverWorkspacePreferenceKey = 'self_hosted_server_workspace';
 const String serverMemberPreferenceKey = 'self_hosted_server_member';
 
 class ServerConnectionState {
-  const ServerConnectionState({
-    this.baseUrl = 'http://127.0.0.1:8080',
-    this.workspaceId = 'personal',
-    this.memberId = 'desktop',
-    this.apiKey,
-  });
+  const ServerConnectionState({this.baseUrl = 'http://127.0.0.1:8080', this.workspaceId = 'personal', this.memberId = 'desktop', this.apiKey});
 
   final String baseUrl;
   final String workspaceId;
@@ -47,23 +42,13 @@ class ServerConnectionController extends Notifier<ServerConnectionState> {
   Future<void> _load() async {
     try {
       final apiKey = await ref.read(secureStorageProvider).read(key: _secureKey);
-      state = ServerConnectionState(
-        baseUrl: state.baseUrl,
-        workspaceId: state.workspaceId,
-        memberId: state.memberId,
-        apiKey: apiKey,
-      );
+      state = ServerConnectionState(baseUrl: state.baseUrl, workspaceId: state.workspaceId, memberId: state.memberId, apiKey: apiKey);
     } catch (_) {
       // 安全存储在无插件的测试/受限环境不可用时保留非敏感配置。
     }
   }
 
-  Future<void> save({
-    required String baseUrl,
-    required String workspaceId,
-    required String memberId,
-    required String apiKey,
-  }) async {
+  Future<void> save({required String baseUrl, required String workspaceId, required String memberId, required String apiKey}) async {
     final normalizedUrl = normalizeServerBaseUrl(baseUrl);
     final workspace = _identifier(workspaceId, 'workspace');
     final member = _identifier(memberId, 'member');
@@ -76,12 +61,7 @@ class ServerConnectionController extends Notifier<ServerConnectionState> {
     await preferences.setString(serverWorkspacePreferenceKey, workspace);
     await preferences.setString(serverMemberPreferenceKey, member);
     await ref.read(secureStorageProvider).write(key: _secureKey, value: key);
-    state = ServerConnectionState(
-      baseUrl: normalizedUrl,
-      workspaceId: workspace,
-      memberId: member,
-      apiKey: key,
-    );
+    state = ServerConnectionState(baseUrl: normalizedUrl, workspaceId: workspace, memberId: member, apiKey: key);
   }
 }
 
@@ -102,6 +82,4 @@ String _identifier(String raw, String field) {
   return value;
 }
 
-final serverConnectionControllerProvider = NotifierProvider<ServerConnectionController, ServerConnectionState>(
-  ServerConnectionController.new,
-);
+final serverConnectionControllerProvider = NotifierProvider<ServerConnectionController, ServerConnectionState>(ServerConnectionController.new);

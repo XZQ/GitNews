@@ -19,16 +19,7 @@ import 'star_trend_chart.dart';
 *- `dense: true` 为移动端紧凑密度:小头像、单行描述、收紧内边距
 */
 class RepoTile extends StatelessWidget {
-  const RepoTile({
-    required this.repo,
-    this.showTrend = true,
-    this.onTap,
-    this.rank,
-    this.trailing,
-    this.card = true,
-    this.dense = false,
-    super.key,
-  });
+  const RepoTile({required this.repo, this.showTrend = true, this.onTap, this.rank, this.trailing, this.card = true, this.dense = false, super.key});
 
   final RepoEntity repo;
   final bool showTrend;
@@ -92,23 +83,29 @@ class RepoTile extends StatelessWidget {
                     children: [
                       const Icon(Icons.star_rounded, size: 12, color: AppColors.starGold),
                       const SizedBox(width: AppSpacing.xxs),
-                      Text(_shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold))
+                      Text(_shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold)),
                     ],
                   ),
-                  MetricBasisBadge(basis: repo.trendBasis)
+                  MetricBasisBadge(basis: repo.trendBasis),
                 ],
-              )
+              ),
             ],
           ),
         ),
         const SizedBox(width: AppSpacing.md),
         _TrendCell(repo: repo, showTrend: showTrend),
-        if (trailing != null) ...[const SizedBox(width: AppSpacing.sm), trailing!]
+        if (trailing != null) ...[const SizedBox(width: AppSpacing.sm), trailing!],
       ],
     );
 
     if (!card) {
-      return InkWell(onTap: onTap, child: Padding(padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md), child: row));
+      return InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+          child: row,
+        ),
+      );
     }
 
     final radius = BorderRadius.circular(AppRadius.md);
@@ -119,7 +116,10 @@ class RepoTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: radius,
         child: Container(
-          decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.45 : 0.6))),
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.45 : 0.6)),
+          ),
           padding: EdgeInsets.symmetric(horizontal: dense ? AppSpacing.sm2 : AppSpacing.md, vertical: dense ? AppSpacing.sm : AppSpacing.md),
           child: row,
         ),
@@ -144,12 +144,9 @@ class _TrendCell extends StatelessWidget {
     final deltaColor = delta > 0
         ? AppColors.trendUp
         : delta < 0
-            ? AppColors.trendDown
-            : Theme.of(context).colorScheme.onSurfaceVariant;
-    final deltaText = Text(
-      delta == 0 ? '—' : '${delta > 0 ? '+' : '-'}${_shortNumber(delta.abs())}',
-      style: AppTypography.monoMetric.copyWith(color: deltaColor),
-    );
+        ? AppColors.trendDown
+        : Theme.of(context).colorScheme.onSurfaceVariant;
+    final deltaText = Text(delta == 0 ? '—' : '${delta > 0 ? '+' : '-'}${_shortNumber(delta.abs())}', style: AppTypography.monoMetric.copyWith(color: deltaColor));
     final trend = repo.trend;
     if (!showTrend || trend == null || trend.isEmpty) {
       // 无增量信息时不再渲染「+0 ↗」噪声,给一个安静的占位。
@@ -165,28 +162,23 @@ class _TrendCell extends StatelessWidget {
       }
       return SizedBox(
         width: 64,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          deltaText,
-          Icon(
-            delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-            size: 14,
-            color: deltaColor,
-          )
-        ]),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            deltaText,
+            Icon(delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded, size: 14, color: deltaColor),
+          ],
+        ),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         RepaintBoundary(
-            child: Sparkline(
-          values: trend,
-          color: deltaColor,
-          width: 64,
-          height: 24,
-        )),
+          child: Sparkline(values: trend, color: deltaColor, width: 64, height: 24),
+        ),
         const SizedBox(height: AppSpacing.xxs),
-        deltaText
+        deltaText,
       ],
     );
   }
@@ -207,9 +199,15 @@ class _RankBadge extends StatelessWidget {
     return Container(
       width: 22,
       height: 22,
-      decoration: BoxDecoration(color: color.withValues(alpha: highlighted ? 0.14 : 0.08), borderRadius: BorderRadius.circular(AppRadius.xs)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: highlighted ? 0.14 : 0.08),
+        borderRadius: BorderRadius.circular(AppRadius.xs),
+      ),
       alignment: Alignment.center,
-      child: Text('$rank', style: AppTypography.monoMeta.copyWith(color: color, fontWeight: FontWeight.w700)),
+      child: Text(
+        '$rank',
+        style: AppTypography.monoMeta.copyWith(color: color, fontWeight: FontWeight.w700),
+      ),
     );
   }
 }

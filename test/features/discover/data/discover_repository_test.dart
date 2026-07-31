@@ -21,9 +21,13 @@ class _StubAdapter implements HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
     final payload = _responder(options);
-    return ResponseBody.fromString(jsonEncode(payload), 200, headers: {
-      Headers.contentTypeHeader: ['application/json']
-    });
+    return ResponseBody.fromString(
+      jsonEncode(payload),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
   }
 }
 
@@ -49,8 +53,8 @@ void main() {
         if (options.path.contains('/search/users')) {
           return {
             'items': [
-              {'login': 'some-new-org', 'avatar_url': 'https://github.com/some-new-org.png', 'html_url': 'https://github.com/some-new-org', 'type': 'Organization'}
-            ]
+              {'login': 'some-new-org', 'avatar_url': 'https://github.com/some-new-org.png', 'html_url': 'https://github.com/some-new-org', 'type': 'Organization'},
+            ],
           };
         }
         // /users/{login} — used by whitelist enrichment
@@ -62,7 +66,7 @@ void main() {
           'public_repos': 5,
           'followers': 9999,
           'avatar_url': 'https://github.com/x.png',
-          'html_url': 'https://github.com/x'
+          'html_url': 'https://github.com/x',
         };
       });
       final repo = buildRepo(dio);
@@ -83,8 +87,8 @@ void main() {
       dio.httpClientAdapter = _StubAdapter((options) {
         return {
           'items': [
-            {'login': 'page2-org', 'avatar_url': '', 'html_url': '', 'type': 'Organization'}
-          ]
+            {'login': 'page2-org', 'avatar_url': '', 'html_url': '', 'type': 'Organization'},
+          ],
         };
       });
       final repo = buildRepo(dio);
@@ -106,9 +110,9 @@ void main() {
                 'login': 'openai', // 白名单已有
                 'avatar_url': '',
                 'html_url': '',
-                'type': 'Organization'
-              }
-            ]
+                'type': 'Organization',
+              },
+            ],
           };
         }
         return {'login': options.path.split('/').last, 'name': 'OpenAI', 'type': 'Organization', 'bio': 'bio', 'public_repos': 100, 'followers': 200, 'avatar_url': '', 'html_url': ''};

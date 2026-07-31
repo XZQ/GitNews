@@ -11,6 +11,13 @@
 
 ### Changed
 
+- CI 的 Windows 门禁从增量格式检查升级为完整 `lib/test` 格式、可移植性、
+  analyzer、全量测试和 Release 构建；Dart 3.12 格式基线已完成迁移。
+- AI 视觉测试改用仓库内带许可证与哈希记录的 Noto Sans SC 测试子集，并统一
+  加载 Flutter Material Icons，不再依赖 Windows 字体或本机 Flutter SDK 路径。
+- sqlite3 恢复默认原生资产打包，Windows 测试和干净构建不再依赖系统
+  `sqlite3.dll`；仓库检查同时阻止 Xcode 工程对象重复定义回归。
+- 刷新真实 Windows Release 界面证据，移除重复、过时及误入的桌面截图。
 - 应用账号删除手机号与短信验证码登录，只保留邮箱 OTP、Google OAuth 和 GitHub OAuth；移除三个独立登录方式构建开关，正式账号服务配置完成后三种入口固定展示。
 - 当前热点移动到总览顶部，移动端首个底栏入口由“今日”改为“首页”；AI 页移除“我的 AI 日报”主流程入口，热点详情复用精简标题栏。
 - TTL 内有效缓存不再显示口径徽章，过期缓存、在线数据、种子与估算口径仍按信任风险显式标记。

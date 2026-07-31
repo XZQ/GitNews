@@ -4,18 +4,8 @@ import 'package:github_news/features/ai_news/data/ai_news_feed_parser.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 
 void main() {
-  const source = AiNewsSourceConfig(
-    id: 'test_src',
-    name: 'Test Source',
-    feedUrl: 'https://example.com/feed.xml',
-    categoryCode: 'paper',
-  );
-  final fallback = DateTime.utc(
-    2026,
-    7,
-    14,
-    12,
-  );
+  const source = AiNewsSourceConfig(id: 'test_src', name: 'Test Source', feedUrl: 'https://example.com/feed.xml', categoryCode: 'paper');
+  final fallback = DateTime.utc(2026, 7, 14, 12);
 
   group('parseAiNewsFeed / RSS 2.0', () {
     const rss = '''
@@ -54,27 +44,12 @@ void main() {
       expect(first.source, 'Test Source');
       expect(first.url, 'https://example.com/a');
       // -0400 → UTC。
-      expect(
-          first.publishedAt,
-          DateTime.utc(
-            2026,
-            7,
-            13,
-            14,
-            30,
-          ));
+      expect(first.publishedAt, DateTime.utc(2026, 7, 13, 14, 30));
     });
 
     test('item without date falls back to channel date', () {
       final items = parseAiNewsFeed(rss, source: source, fallbackTime: fallback);
-      expect(
-          items[1].publishedAt,
-          DateTime.utc(
-            2026,
-            7,
-            13,
-            8,
-          ));
+      expect(items[1].publishedAt, DateTime.utc(2026, 7, 13, 8));
     });
 
     test('same link yields stable id across parses', () {
@@ -84,13 +59,7 @@ void main() {
     });
 
     test('AI HOT RSS maps guid, author, category, original URL and content:encoded', () {
-      const aiHotSource = AiNewsSourceConfig(
-        id: 'aihot_selected',
-        name: 'AI HOT 精选',
-        feedUrl: 'https://aihot.virxact.com/feed.xml',
-        categoryCode: 'industry',
-        usesAiHotContract: true,
-      );
+      const aiHotSource = AiNewsSourceConfig(id: 'aihot_selected', name: 'AI HOT 精选', feedUrl: 'https://aihot.virxact.com/feed.xml', categoryCode: 'industry', usesAiHotContract: true);
       const aiHotRss = '''
 <rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
@@ -143,38 +112,17 @@ via AI HOT · https://aihot.virxact.com/items/item-123]]></description>
       final items = parseAiNewsFeed(atom, source: source, fallbackTime: fallback);
       expect(items, hasLength(1));
       expect(items.first.url, 'https://example.com/atom-1');
-      expect(
-          items.first.publishedAt,
-          DateTime.utc(
-            2026,
-            7,
-            12,
-            9,
-          ));
+      expect(items.first.publishedAt, DateTime.utc(2026, 7, 12, 9));
     });
   });
 
   group('parseRfc822Date', () {
     test('parses numeric offset', () {
-      expect(
-          parseRfc822Date('Sat, 18 Apr 2026 00:00:00 -0400'),
-          DateTime.utc(
-            2026,
-            4,
-            18,
-            4,
-          ));
+      expect(parseRfc822Date('Sat, 18 Apr 2026 00:00:00 -0400'), DateTime.utc(2026, 4, 18, 4));
     });
 
     test('treats GMT as UTC and returns null on garbage', () {
-      expect(
-          parseRfc822Date('Mon, 13 Jul 2026 08:00:00 GMT'),
-          DateTime.utc(
-            2026,
-            7,
-            13,
-            8,
-          ));
+      expect(parseRfc822Date('Mon, 13 Jul 2026 08:00:00 GMT'), DateTime.utc(2026, 7, 13, 8));
       expect(parseRfc822Date('not a date'), isNull);
     });
   });

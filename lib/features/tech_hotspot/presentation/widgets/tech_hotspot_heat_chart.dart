@@ -11,11 +11,7 @@ import '../../../../shared/widgets/app_card.dart';
 import '../../domain/tech_hotspot_models.dart';
 
 class TechHotspotHeatChart extends StatelessWidget {
-  const TechHotspotHeatChart({
-    required this.values,
-    this.compact = false,
-    super.key,
-  });
+  const TechHotspotHeatChart({required this.values, this.compact = false, super.key});
 
   final List<TechHeatPoint> values;
   final bool compact;
@@ -27,12 +23,7 @@ class TechHotspotHeatChart extends StatelessWidget {
     if (values.isEmpty) {
       return AppCard(
         child: Center(
-          child: Text(
-            l10n.tr('common.empty'),
-            style: AppTypography.bodySmall.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
+          child: Text(l10n.tr('common.empty'), style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
         ),
       );
     }
@@ -42,12 +33,7 @@ class TechHotspotHeatChart extends StatelessWidget {
     final padding = math.max(5.0, range * 0.12);
     final minY = math.max(0.0, rawMin - padding);
     final maxY = rawMax + padding;
-    final labelIndexes = <int>{
-      0,
-      ...List.generate(values.length, (index) => index),
-      values.length - 1,
-    }.toList()
-      ..sort();
+    final labelIndexes = <int>{0, ...List.generate(values.length, (index) => index), values.length - 1}.toList()..sort();
 
     return AppCard(
       child: Column(
@@ -55,25 +41,14 @@ class TechHotspotHeatChart extends StatelessWidget {
         children: [
           Row(
             children: [
-              if (!compact) ...[
-                const Icon(Icons.show_chart_rounded, size: 16, color: AppColors.warning),
-                const SizedBox(width: AppSpacing.sm),
-              ],
+              if (!compact) ...[const Icon(Icons.show_chart_rounded, size: 16, color: AppColors.warning), const SizedBox(width: AppSpacing.sm)],
               Expanded(
                 child: Text(
                   l10n.tr('tech_hotspot.heat_chart.title'),
-                  style: AppTypography.titleSmall.copyWith(
-                    color: colors.onSurface,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
                 ),
               ),
-              Text(
-                l10n.tr('tech_hotspot.heat_chart.peak').replaceAll('{v}', rawMax.toStringAsFixed(0)),
-                style: AppTypography.labelSmall.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
+              Text(l10n.tr('tech_hotspot.heat_chart.peak').replaceAll('{v}', rawMax.toStringAsFixed(0)), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
             ],
           ),
           SizedBox(height: compact ? AppSpacing.sm : AppSpacing.md),
@@ -95,26 +70,15 @@ class TechHotspotHeatChart extends StatelessWidget {
                     barWidth: 2.4,
                     color: AppColors.warning,
                     dotData: FlDotData(show: values.length == 1),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: AppColors.warning.withValues(alpha: 0.16),
-                    ),
-                    spots: [
-                      for (var index = 0; index < values.length; index++) FlSpot(index.toDouble(), values[index].value),
-                    ],
+                    belowBarData: BarAreaData(show: true, color: AppColors.warning.withValues(alpha: 0.16)),
+                    spots: [for (var index = 0; index < values.length; index++) FlSpot(index.toDouble(), values[index].value)],
                   ),
                 ],
                 lineTouchData: LineTouchData(
                   touchTooltipData: LineTouchTooltipData(
                     getTooltipItems: (spots) => [
                       for (final spot in spots)
-                        LineTooltipItem(
-                          '${values[spot.spotIndex].label}\n${spot.y.toStringAsFixed(0)}',
-                          AppTypography.labelSmall.copyWith(
-                            color: colors.surface,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
+                        LineTooltipItem('${values[spot.spotIndex].label}\n${spot.y.toStringAsFixed(0)}', AppTypography.labelSmall.copyWith(color: colors.surface, fontWeight: FontWeight.w700)),
                     ],
                   ),
                 ),
@@ -124,15 +88,7 @@ class TechHotspotHeatChart extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              for (final index in labelIndexes)
-                Text(
-                  values[index].label,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-            ],
+            children: [for (final index in labelIndexes) Text(values[index].label, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant))],
           ),
         ],
       ),

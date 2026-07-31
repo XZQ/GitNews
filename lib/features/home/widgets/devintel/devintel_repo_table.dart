@@ -19,15 +19,20 @@ class DevIntelRepoTable extends ConsumerWidget {
     final colors = Theme.of(context).colorScheme;
     final rows = ref.watch(trendingDigestProvider).maybeWhen(data: (digest) => digest.allRepos.take(6).toList(), orElse: () => const <RepoEntity>[]);
     return Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
           Text(l10n.tr('home.repo_table.title'), style: AppTypography.titleMedium.copyWith(color: colors.onSurface)),
           const SizedBox(height: AppSpacing.lg),
           const _HeaderRow(),
           const SizedBox(height: AppSpacing.sm),
           Divider(color: colors.outlineVariant, height: 1),
-          for (var i = 0; i < rows.length; i++) ...[if (i != 0) Divider(color: colors.outlineVariant, height: 1), _RepoRowTile(repo: rows[i], rank: i + 1)]
-        ]));
+          for (var i = 0; i < rows.length; i++) ...[if (i != 0) Divider(color: colors.outlineVariant, height: 1), _RepoRowTile(repo: rows[i], rank: i + 1)],
+        ],
+      ),
+    );
   }
 }
 
@@ -45,9 +50,18 @@ class _HeaderRow extends StatelessWidget {
         const SizedBox(width: AppSpacing.md),
         Expanded(flex: 5, child: Text(l10n.tr('home.repo_table.col_repo'), style: style)),
         SizedBox(width: 100, child: Text(l10n.tr('home.repo_table.col_category'), style: style)),
-        SizedBox(width: 80, child: Text(l10n.tr('home.repo_table.col_lang'), textAlign: TextAlign.right, style: style)),
-        SizedBox(width: 90, child: Text(l10n.tr('home.repo_table.col_new_stars'), textAlign: TextAlign.right, style: style)),
-        SizedBox(width: 70, child: Text(l10n.tr('home.repo_table.col_total'), textAlign: TextAlign.right, style: style))
+        SizedBox(
+          width: 80,
+          child: Text(l10n.tr('home.repo_table.col_lang'), textAlign: TextAlign.right, style: style),
+        ),
+        SizedBox(
+          width: 90,
+          child: Text(l10n.tr('home.repo_table.col_new_stars'), textAlign: TextAlign.right, style: style),
+        ),
+        SizedBox(
+          width: 70,
+          child: Text(l10n.tr('home.repo_table.col_total'), textAlign: TextAlign.right, style: style),
+        ),
       ],
     );
   }
@@ -76,19 +90,33 @@ class _RepoRowTile extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(color: color.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(AppRadius.sm)),
                 alignment: Alignment.center,
-                child: Text(rank.toString().padLeft(2, '0'), style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w700, color: color)),
+                child: Text(
+                  rank.toString().padLeft(2, '0'),
+                  style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w700, color: color),
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.md),
-            Expanded(flex: 5, child: Text(repo.fullName, style: AppTypography.labelLarge.copyWith(color: colors.onSurface), overflow: TextOverflow.ellipsis)),
-            SizedBox(width: 100, child: _CategoryBadge(text: _category(repo), color: color)),
+            Expanded(
+              flex: 5,
+              child: Text(
+                repo.fullName,
+                style: AppTypography.labelLarge.copyWith(color: colors.onSurface),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
             SizedBox(
-                width: 80,
-                child: Text(
-                  repo.language,
-                  textAlign: TextAlign.right,
-                  style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
-                )),
+              width: 100,
+              child: _CategoryBadge(text: _category(repo), color: color),
+            ),
+            SizedBox(
+              width: 80,
+              child: Text(
+                repo.language,
+                textAlign: TextAlign.right,
+                style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+              ),
+            ),
             SizedBox(
               width: 90,
               child: Text(
@@ -106,7 +134,7 @@ class _RepoRowTile extends StatelessWidget {
                 overflow: TextOverflow.fade,
                 softWrap: false,
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -152,7 +180,10 @@ class _CategoryBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
       decoration: BoxDecoration(color: color.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(AppRadius.xs)),
-      child: Text(text, style: AppTypography.labelMicro.copyWith(fontWeight: FontWeight.w700, color: color)),
+      child: Text(
+        text,
+        style: AppTypography.labelMicro.copyWith(fontWeight: FontWeight.w700, color: color),
+      ),
     );
   }
 }

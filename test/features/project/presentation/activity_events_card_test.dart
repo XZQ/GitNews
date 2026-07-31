@@ -21,7 +21,7 @@ void main() {
             occurredAt: DateTime.now().toUtc(),
             htmlUrl: 'https://github.com/owner/repo/releases/v1.3.0',
             basis: MetricBasis.observed,
-          )
+          ),
         ],
       ),
     );

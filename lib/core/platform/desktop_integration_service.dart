@@ -33,17 +33,10 @@ class DesktopIntegrationService with WindowListener, TrayListener {
     try {
       await windowManager.ensureInitialized();
       unawaited(
-        windowManager.waitUntilReadyToShow(
-          const WindowOptions(
-            title: 'AI资讯',
-            titleBarStyle: TitleBarStyle.hidden,
-            windowButtonVisibility: false,
-          ),
-          () async {
-            await windowManager.show();
-            await windowManager.focus();
-          },
-        ),
+        windowManager.waitUntilReadyToShow(const WindowOptions(title: 'AI资讯', titleBarStyle: TitleBarStyle.hidden, windowButtonVisibility: false), () async {
+          await windowManager.show();
+          await windowManager.focus();
+        }),
       );
       await windowManager.setPreventClose(true);
       windowManager.addListener(this);
@@ -67,10 +60,7 @@ class DesktopIntegrationService with WindowListener, TrayListener {
       // 托盘不可用时应用仍可正常以前台窗口运行。
     }
     try {
-      await localNotifier.setup(
-        appName: 'AI资讯',
-        shortcutPolicy: ShortcutPolicy.requireCreate,
-      );
+      await localNotifier.setup(appName: 'AI资讯', shortcutPolicy: ShortcutPolicy.requireCreate);
       _notificationsReady = true;
     } catch (_) {
       _notificationsReady = false;
@@ -90,10 +80,7 @@ class DesktopIntegrationService with WindowListener, TrayListener {
     }
   }
 
-  Future<void> showNotification({
-    required String title,
-    required String body,
-  }) async {
+  Future<void> showNotification({required String title, required String body}) async {
     if (!_notificationsReady) {
       return;
     }
@@ -150,18 +137,8 @@ class DesktopIntegrationService with WindowListener, TrayListener {
   }
 
   String _trayIconPath() {
-    final relative = p.join(
-      'windows',
-      'runner',
-      'resources',
-      'app_icon.ico',
-    );
-    final bundled = p.join(
-      File(Platform.resolvedExecutable).parent.path,
-      'data',
-      'flutter_assets',
-      relative,
-    );
+    final relative = p.join('windows', 'runner', 'resources', 'app_icon.ico');
+    final bundled = p.join(File(Platform.resolvedExecutable).parent.path, 'data', 'flutter_assets', relative);
     return File(bundled).existsSync() ? bundled : p.join(Directory.current.path, relative);
   }
 

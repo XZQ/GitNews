@@ -4,21 +4,22 @@ import '../../../core/i18n/app_localizations.dart';
 import '../domain/project_repository.dart';
 
 class ProjectReportCopy {
-  const ProjectReportCopy(
-      {required this.title,
-      required this.generatedAt,
-      required this.repositoryCount,
-      required this.contributorCount,
-      required this.popularRepositories,
-      required this.noRepositories,
-      required this.language,
-      required this.stars,
-      required this.newStars,
-      required this.forks,
-      required this.description,
-      required this.contributors,
-      required this.noContributors,
-      required this.contributionUnit});
+  const ProjectReportCopy({
+    required this.title,
+    required this.generatedAt,
+    required this.repositoryCount,
+    required this.contributorCount,
+    required this.popularRepositories,
+    required this.noRepositories,
+    required this.language,
+    required this.stars,
+    required this.newStars,
+    required this.forks,
+    required this.description,
+    required this.contributors,
+    required this.noContributors,
+    required this.contributionUnit,
+  });
 
   factory ProjectReportCopy.fromLocalizations(AppLocalizations l10n) {
     return ProjectReportCopy(
@@ -129,12 +130,7 @@ String formatProjectDigestMarkdown(ProjectDigest digest, {required DateTime gene
   return buffer.toString();
 }
 
-Future<File> writeProjectDigestMarkdown({
-  required ProjectDigest digest,
-  required Directory outputDirectory,
-  required DateTime generatedAt,
-  required ProjectReportCopy copy,
-}) async {
+Future<File> writeProjectDigestMarkdown({required ProjectDigest digest, required Directory outputDirectory, required DateTime generatedAt, required ProjectReportCopy copy}) async {
   final reportsDir = Directory('${outputDirectory.path}/GitHubIntelligence/reports');
   await reportsDir.create(recursive: true);
   final file = File('${reportsDir.path}/report_${_stamp(generatedAt)}.md');

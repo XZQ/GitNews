@@ -24,27 +24,21 @@ import 'discover_users_search_client.dart';
  *与监控/热榜一致的离线路优先策略。
  */
 class DiscoverRepository {
-  DiscoverRepository(
-      {required Dio dio,
-      required JsonSnapshotCacheDao cache,
-      String? token,
-      String cacheScope = 'anonymous',
-      DateTime Function()? now,
-      bool Function()? isRateLimited,
-      void Function(int retryAfterSeconds)? onRateLimited})
-      : _cache = cache,
-        _searchClient = DiscoverSearchClient(dio, token),
-        _usersSearchClient = DiscoverUsersSearchClient(dio, token),
-        _profileClient = DiscoverProfileClient(GitHubResourceCache(
-          dio: dio,
-          cache: cache,
-          token: token,
-          cacheScope: cacheScope,
-          now: now,
-        )),
-        _now = now ?? DateTime.now,
-        _isRateLimited = isRateLimited,
-        _onRateLimited = onRateLimited;
+  DiscoverRepository({
+    required Dio dio,
+    required JsonSnapshotCacheDao cache,
+    String? token,
+    String cacheScope = 'anonymous',
+    DateTime Function()? now,
+    bool Function()? isRateLimited,
+    void Function(int retryAfterSeconds)? onRateLimited,
+  }) : _cache = cache,
+       _searchClient = DiscoverSearchClient(dio, token),
+       _usersSearchClient = DiscoverUsersSearchClient(dio, token),
+       _profileClient = DiscoverProfileClient(GitHubResourceCache(dio: dio, cache: cache, token: token, cacheScope: cacheScope, now: now)),
+       _now = now ?? DateTime.now,
+       _isRateLimited = isRateLimited,
+       _onRateLimited = onRateLimited;
 
   final JsonSnapshotCacheDao _cache;
   final DiscoverSearchClient _searchClient;
@@ -83,7 +77,10 @@ class DiscoverRepository {
     if (cached != null) {
       return DataResult(data: DiscoverCacheCodec.decodeRepos(cached), freshness: DataFreshness.staleCache);
     }
-    return DataResult(data: DiscoverQueries.slice(DiscoverSeed.seedPopularRepos, page: page, perPage: perPage), freshness: DataFreshness.seed);
+    return DataResult(
+      data: DiscoverQueries.slice(DiscoverSeed.seedPopularRepos, page: page, perPage: perPage),
+      freshness: DataFreshness.seed,
+    );
   }
 
   Future<DataResult<List<SkillEntity>>> fetchAgentSkills({bool force = false, int page = 1, int perPage = 20}) async {
@@ -104,13 +101,7 @@ class DiscoverRepository {
         final offset = (page - 1) * perPage;
         final skills = [
           for (var i = 0; i < repos.length; i++)
-            SkillEntity(
-              repo: repos[i],
-              category: DiscoverQueries.deriveSkillCategory(repos[i]),
-              source: 'github_search',
-              rank: offset + i + 1,
-              summary: repos[i].description,
-            )
+            SkillEntity(repo: repos[i], category: DiscoverQueries.deriveSkillCategory(repos[i]), source: 'github_search', rank: offset + i + 1, summary: repos[i].description),
         ];
         await _cache.upsert(key: key, payload: DiscoverCacheCodec.skillsToJson(skills), now: now);
         return DataResult(data: skills, freshness: DataFreshness.live);
@@ -126,15 +117,13 @@ class DiscoverRepository {
     if (cached != null) {
       return DataResult(data: DiscoverCacheCodec.decodeSkills(cached), freshness: DataFreshness.staleCache);
     }
-    return DataResult(data: DiscoverQueries.slice(DiscoverSeed.seedAgentSkills, page: page, perPage: perPage), freshness: DataFreshness.seed);
+    return DataResult(
+      data: DiscoverQueries.slice(DiscoverSeed.seedAgentSkills, page: page, perPage: perPage),
+      freshness: DataFreshness.seed,
+    );
   }
 
-  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({
-    required DiscoverProfileKind kind,
-    bool force = false,
-    int page = 1,
-    int perPage = 20,
-  }) async {
+  Future<DataResult<List<DiscoverProfileEntity>>> fetchProfiles({required DiscoverProfileKind kind, bool force = false, int page = 1, int perPage = 20}) async {
     return fetchProfilesPage(
       profileClient: _profileClient,
       usersSearchClient: _usersSearchClient,

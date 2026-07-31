@@ -16,6 +16,4 @@ class AiNewsReminderPreferences extends Notifier<bool> {
   }
 }
 
-final aiNewsReminderPreferencesProvider = NotifierProvider<AiNewsReminderPreferences, bool>(
-  AiNewsReminderPreferences.new,
-);
+final aiNewsReminderPreferencesProvider = NotifierProvider<AiNewsReminderPreferences, bool>(AiNewsReminderPreferences.new);

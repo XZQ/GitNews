@@ -29,14 +29,21 @@ class TechHotspotTagsCloud extends StatelessWidget {
               children: [
                 Icon(Icons.tag_rounded, size: 16, color: colors.primary),
                 const SizedBox(width: AppSpacing.sm),
-                Text(l10n.tr('tech_hotspot.tag_cloud'), style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
+                Text(
+                  l10n.tr('tech_hotspot.tag_cloud'),
+                  style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+                ),
               ],
             ),
           const SizedBox(height: AppSpacing.md),
           if (tags.isEmpty)
             EmptyView(icon: Icons.sell_outlined, message: l10n.tr('tech_hotspot.empty.tags'))
           else
-            Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [for (final tag in tags) _Tag(label: tag, compact: compact, onSelected: () => onTagSelected(tag))])
+            Wrap(
+              spacing: AppSpacing.sm,
+              runSpacing: AppSpacing.sm,
+              children: [for (final tag in tags) _Tag(label: tag, compact: compact, onSelected: () => onTagSelected(tag))],
+            ),
         ],
       ),
     );
@@ -65,7 +72,10 @@ class _Tag extends StatelessWidget {
             border: Border.all(color: compact ? colors.outlineVariant : Colors.transparent),
             borderRadius: BorderRadius.circular(compact ? AppRadius.sm : AppRadius.pill),
           ),
-          child: Text('# $label', style: (compact ? AppTypography.bodySmall : AppTypography.labelMedium).copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w500)),
+          child: Text(
+            '# $label',
+            style: (compact ? AppTypography.bodySmall : AppTypography.labelMedium).copyWith(color: colors.onSurfaceVariant, fontWeight: FontWeight.w500),
+          ),
         ),
       ),
     );

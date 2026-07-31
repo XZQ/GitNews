@@ -39,7 +39,7 @@ Map<String, Object?> _statsToJson(MonitorStats stats) {
     'triggeredTodayCount': stats.triggeredTodayCount,
     'triggeredTodayDelta': stats.triggeredTodayDelta,
     'totalAlertCount': stats.totalAlertCount,
-    'totalAlertDelta': stats.totalAlertDelta
+    'totalAlertDelta': stats.totalAlertDelta,
   };
 }
 

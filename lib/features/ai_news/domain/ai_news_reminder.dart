@@ -1,12 +1,5 @@
 class AiNewsReminder {
-  const AiNewsReminder({
-    required this.itemId,
-    required this.title,
-    required this.source,
-    required this.publishedAt,
-    required this.createdAt,
-    this.readAt,
-  });
+  const AiNewsReminder({required this.itemId, required this.title, required this.source, required this.publishedAt, required this.createdAt, this.readAt});
 
   final String itemId;
   final String title;

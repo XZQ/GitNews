@@ -17,7 +17,7 @@ class DevIntelBottomGrid extends StatelessWidget {
       children: [
         BorderedRow(flexValues: [7, 5], children: [DevIntelRepoTable(), DevIntelHotspotList()]),
         SizedBox(height: AppSpacing.lg),
-        BorderedRow(flexValues: [7, 5], children: [DevIntelSignalsList(), DevIntelMonitoringStatus()])
+        BorderedRow(flexValues: [7, 5], children: [DevIntelSignalsList(), DevIntelMonitoringStatus()]),
       ],
     );
   }

@@ -46,11 +46,15 @@ class _RecordingAdapter implements HttpClientAdapter {
     final payload = jsonEncode({
       'items': [
         {'login': 'openai', 'avatar_url': 'https://github.com/openai.png', 'html_url': 'https://github.com/openai', 'type': 'Organization'},
-        {'login': 'karpathy', 'avatar_url': 'https://github.com/karpathy.png', 'html_url': 'https://github.com/karpathy', 'type': 'User'}
-      ]
+        {'login': 'karpathy', 'avatar_url': 'https://github.com/karpathy.png', 'html_url': 'https://github.com/karpathy', 'type': 'User'},
+      ],
     });
-    return ResponseBody.fromString(payload, 200, headers: {
-      Headers.contentTypeHeader: ['application/json']
-    });
+    return ResponseBody.fromString(
+      payload,
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
   }
 }

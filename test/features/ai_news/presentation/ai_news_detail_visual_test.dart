@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -18,6 +17,8 @@ import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item_state.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_action_bar.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_content.dart';
+
+import '../../../support/test_fonts.dart';
 
 Future<ThemeData>? _goldenThemeFuture;
 
@@ -171,18 +172,7 @@ Future<ThemeData> _goldenTheme() async {
 }
 
 Future<ThemeData> _loadGoldenTheme() async {
-  if (!Platform.isWindows) {
-    return AppTheme.light(AppColors.brand);
-  }
-  final cjkBytes = await File('C:/Windows/Fonts/NotoSansSC-VF.ttf').readAsBytes();
-  final monoBytes = await File('C:/Windows/Fonts/consola.ttf').readAsBytes();
-  final iconBytes = await File('D:/flutter_sdk/bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf').readAsBytes();
-  final cjkLoader = FontLoader('Noto Sans SC')..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(cjkBytes))));
-  final monoLoader = FontLoader('JetBrainsMono')
-    ..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(monoBytes))))
-    ..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(cjkBytes))));
-  final iconLoader = FontLoader('MaterialIcons')..addFont(Future.value(ByteData.sublistView(Uint8List.fromList(iconBytes))));
-  await Future.wait([cjkLoader.load(), monoLoader.load(), iconLoader.load()]);
+  await loadPortableTestFontFamilies(const ['Noto Sans SC', 'JetBrainsMono']);
   final baseTheme = AppTheme.light(AppColors.brand);
   return baseTheme.copyWith(
     textTheme: baseTheme.textTheme.apply(fontFamily: 'Noto Sans SC'),

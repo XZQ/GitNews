@@ -16,12 +16,7 @@ void main() {
   late JsonSnapshotCacheDao cache;
   late _MockDio dio;
   late GitHubResourceCache resources;
-  final now = DateTime.utc(
-    2026,
-    7,
-    10,
-    10,
-  );
+  final now = DateTime.utc(2026, 7, 10, 10);
 
   setUpAll(() {
     registerFallbackValue(Options());
@@ -39,7 +34,13 @@ void main() {
 
   test('200 stores payload and ETag, then 304 reuses fresh cache', () async {
     var call = 0;
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((invocation) async {
       final options = invocation.namedArguments[#options] as Options;
       call++;
       if (call == 1) {
@@ -62,24 +63,27 @@ void main() {
   test('304 without a cached payload throws a cache error', () async {
     final key = GitHubResourceCache.cacheKey(scope: 'anonymous', method: 'GET', url: '/repos/openai/codex');
     await meta.writeEtag(key, 'W/"orphan"');
-    when(() => dio.get<Object?>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-          options: any(named: 'options'),
-        )).thenAnswer((_) async => _response(statusCode: 304));
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((_) async => _response(statusCode: 304));
 
     expect(() => resources.getObject(url: '/repos/openai/codex'), throwsA(isA<AppException>().having((error) => error.kind, 'kind', AppExceptionKind.cache)));
   });
 
   test('malformed cached payload is deleted and request omits ETag', () async {
     final key = GitHubResourceCache.cacheKey(scope: 'anonymous', method: 'GET', url: '/repos/openai/codex');
-    await cache.upsertWithEtag(
-      key: key,
-      payload: const {'kind': 'list', 'data': []},
-      etag: 'W/"wrong-kind"',
-      now: now,
-    );
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer((invocation) async {
+    await cache.upsertWithEtag(key: key, payload: const {'kind': 'list', 'data': []}, etag: 'W/"wrong-kind"', now: now);
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((invocation) async {
       final options = invocation.namedArguments[#options] as Options;
       expect(options.headers?['If-None-Match'], isNull);
       return _response(statusCode: 200, data: <String, Object?>{'id': 2}, etag: 'W/"repo-2"');
@@ -92,18 +96,18 @@ void main() {
   });
 
   test('list resources use a token-scoped URL and preserve list payloads', () async {
-    final scoped = GitHubResourceCache(
-      dio: dio,
-      cache: cache,
-      cacheScope: 'token_abcd',
-      token: 'secret',
-      now: () => now,
-    );
-    when(() => dio.get<Object?>(any(), queryParameters: any(named: 'queryParameters'), options: any(named: 'options'))).thenAnswer(
+    final scoped = GitHubResourceCache(dio: dio, cache: cache, cacheScope: 'token_abcd', token: 'secret', now: () => now);
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer(
       (_) async => _response(
         statusCode: 200,
         data: <Object?>[
-          <String, Object?>{'login': 'octocat'}
+          <String, Object?>{'login': 'octocat'},
         ],
       ),
     );
@@ -111,12 +115,7 @@ void main() {
     final result = await scoped.getList(url: '/repos/openai/codex/contributors', queryParameters: const {'per_page': 12});
 
     expect(result.data.single, {'login': 'octocat'});
-    final key = GitHubResourceCache.cacheKey(
-      scope: 'token_abcd',
-      method: 'GET',
-      url: '/repos/openai/codex/contributors',
-      queryParameters: const {'per_page': 12},
-    );
+    final key = GitHubResourceCache.cacheKey(scope: 'token_abcd', method: 'GET', url: '/repos/openai/codex/contributors', queryParameters: const {'per_page': 12});
     expect(await cache.read(key), isNotNull);
     expect(key, isNot(contains('secret')));
   });
@@ -128,7 +127,7 @@ Response<Object?> _response({required int statusCode, Object? data, String? etag
     statusCode: statusCode,
     data: data,
     headers: Headers.fromMap({
-      if (etag != null) 'etag': [etag]
+      if (etag != null) 'etag': [etag],
     }),
   );
 }

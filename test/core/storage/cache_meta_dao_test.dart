@@ -19,89 +19,28 @@ void main() {
     });
 
     test('upsert then lastFetched should return the stored time', () async {
-      final t = DateTime.utc(
-        2026,
-        6,
-        30,
-        10,
-      );
+      final t = DateTime.utc(2026, 6, 30, 10);
       await dao.upsert('k', t);
       expect(await dao.lastFetched('k'), t);
     });
 
     test('upsert should replace existing time for the same key', () async {
-      await dao.upsert(
-          'k',
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            10,
-          ));
-      await dao.upsert(
-          'k',
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            11,
-          ));
-      expect(
-          await dao.lastFetched('k'),
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            11,
-          ));
+      await dao.upsert('k', DateTime.utc(2026, 6, 30, 10));
+      await dao.upsert('k', DateTime.utc(2026, 6, 30, 11));
+      expect(await dao.lastFetched('k'), DateTime.utc(2026, 6, 30, 11));
     });
 
     test('delete should remove the key', () async {
-      await dao.upsert(
-          'k',
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            10,
-          ));
+      await dao.upsert('k', DateTime.utc(2026, 6, 30, 10));
       await dao.delete('k');
       expect(await dao.lastFetched('k'), isNull);
     });
 
     test('keys should be independent', () async {
-      await dao.upsert(
-          'a',
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            10,
-          ));
-      await dao.upsert(
-          'b',
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            11,
-          ));
-      expect(
-          await dao.lastFetched('a'),
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            10,
-          ));
-      expect(
-          await dao.lastFetched('b'),
-          DateTime.utc(
-            2026,
-            6,
-            30,
-            11,
-          ));
+      await dao.upsert('a', DateTime.utc(2026, 6, 30, 10));
+      await dao.upsert('b', DateTime.utc(2026, 6, 30, 11));
+      expect(await dao.lastFetched('a'), DateTime.utc(2026, 6, 30, 10));
+      expect(await dao.lastFetched('b'), DateTime.utc(2026, 6, 30, 11));
     });
   });
 
@@ -127,12 +66,7 @@ void main() {
     });
 
     test('writeEtag should preserve last_fetched_at', () async {
-      final t = DateTime.utc(
-        2026,
-        7,
-        6,
-        10,
-      );
+      final t = DateTime.utc(2026, 7, 6, 10);
       await dao.upsert('k', t);
       await dao.writeEtag('k', 'W/"abc"');
       expect(await dao.lastFetched('k'), t);
@@ -154,13 +88,7 @@ void main() {
 
     test('validators should round-trip ETag and Last-Modified together', () async {
       await dao.upsert('k', DateTime.utc(2026, 7, 19));
-      await dao.writeValidators(
-        'k',
-        const HttpCacheValidators(
-          etag: 'W/"feed-1"',
-          lastModified: 'Sat, 18 Jul 2026 04:47:25 GMT',
-        ),
-      );
+      await dao.writeValidators('k', const HttpCacheValidators(etag: 'W/"feed-1"', lastModified: 'Sat, 18 Jul 2026 04:47:25 GMT'));
 
       final validators = await dao.readValidators('k');
 

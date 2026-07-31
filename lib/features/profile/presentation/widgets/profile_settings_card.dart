@@ -58,7 +58,7 @@ class ProfileSettingsCard extends ConsumerWidget {
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/developer'),
             showIcon: !compact,
-          )
+          ),
         ],
       ),
     );

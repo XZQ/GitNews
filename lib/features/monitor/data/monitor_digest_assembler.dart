@@ -9,15 +9,11 @@ import 'monitor_alert_event_dao.dart';
 import 'monitor_observation_dao.dart';
 
 class MonitorDigestAssembler {
-  const MonitorDigestAssembler({
-    required MonitorObservationDao observationDao,
-    required MonitorAlertEventDao alertDao,
-    required MonitorRuleEvaluator evaluator,
-    required Set<String> enabledRuleIds,
-  })  : _observationDao = observationDao,
-        _alertDao = alertDao,
-        _evaluator = evaluator,
-        _enabledRuleIds = enabledRuleIds;
+  const MonitorDigestAssembler({required MonitorObservationDao observationDao, required MonitorAlertEventDao alertDao, required MonitorRuleEvaluator evaluator, required Set<String> enabledRuleIds})
+    : _observationDao = observationDao,
+      _alertDao = alertDao,
+      _evaluator = evaluator,
+      _enabledRuleIds = enabledRuleIds;
 
   final MonitorObservationDao _observationDao;
   final MonitorAlertEventDao _alertDao;
@@ -45,13 +41,7 @@ class MonitorDigestAssembler {
   Future<void> recordObservationsAndAlerts(List<GithubMonitorRemoteRepoItem> responses, DateTime now) async {
     final events = <MonitorAlertEvent>[];
     for (final item in responses) {
-      final current = MonitorObservation(
-        repoFullName: item.repo.fullName,
-        stars: item.repo.starCount,
-        forks: item.repo.forkCount,
-        openIssues: item.openIssues,
-        observedAt: now,
-      );
+      final current = MonitorObservation(repoFullName: item.repo.fullName, stars: item.repo.starCount, forks: item.repo.forkCount, openIssues: item.openIssues, observedAt: now);
       final previous = await _observationDao.latestBefore(repoFullName: current.repoFullName, observedAt: current.observedAt);
       events.addAll(_evaluator.evaluate(previous: previous, current: current, enabledRuleIds: _enabledRuleIds));
       await _observationDao.record(current);
@@ -82,7 +72,7 @@ class MonitorDigestAssembler {
     final value = switch (event.ruleId) {
       MonitorRuleIds.starDailyRate => '${event.value.toStringAsFixed(1)}%',
       MonitorRuleIds.issueHeatRatio => '${event.value.toStringAsFixed(1)}x',
-      _ => '+${event.value.round()}'
+      _ => '+${event.value.round()}',
     };
     return AlertEntity(
       id: event.id,

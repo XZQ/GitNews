@@ -23,9 +23,12 @@ class ProjectTrendOverview extends StatelessWidget {
           SectionHeader(title: l10n.tr('project.section.trend.title'), subtitle: l10n.tr('project.section.trend.subtitle')),
           const SizedBox(height: AppSpacing.md),
           StarTrendChart(
-            series: [ChartSeries(values: _safeTrend(digest.primaryTrend), color: Theme.of(context).colorScheme.primary), ChartSeries(values: _safeTrend(digest.secondaryTrend), color: AppColors.info)],
+            series: [
+              ChartSeries(values: _safeTrend(digest.primaryTrend), color: Theme.of(context).colorScheme.primary),
+              ChartSeries(values: _safeTrend(digest.secondaryTrend), color: AppColors.info),
+            ],
             height: 220,
-          )
+          ),
         ],
       ),
     );

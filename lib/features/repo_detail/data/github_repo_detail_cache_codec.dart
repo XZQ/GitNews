@@ -11,7 +11,7 @@ Map<String, Object?> repoDetailDigestToJson(RepoDetailDigest digest) {
     'relatedRepos': digest.relatedRepos.map(githubRepoEntityToJson).toList(),
     'primaryTrend': digest.primaryTrend,
     'compareTrend': digest.compareTrend,
-    'activities': repoActivitiesToJson(digest.activities)
+    'activities': repoActivitiesToJson(digest.activities),
   };
 }
 
@@ -32,9 +32,5 @@ Map<String, Object?> _contributorToJson(ContributorEntity contributor) {
 
 ContributorEntity _contributorFromJson(Object? raw) {
   final json = GitHubJson.map(raw);
-  return ContributorEntity(
-    login: GitHubJson.string(json['login']),
-    contributions: GitHubJson.intValue(json['contributions']),
-    avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']),
-  );
+  return ContributorEntity(login: GitHubJson.string(json['login']), contributions: GitHubJson.intValue(json['contributions']), avatarAccentArgb: GitHubJson.intValue(json['avatarAccentArgb']));
 }

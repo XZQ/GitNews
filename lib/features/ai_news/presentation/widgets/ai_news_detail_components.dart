@@ -13,11 +13,7 @@ const double aiNewsDetailMaxWidth = 760;
 * 详情页的居中纵向滚动容器。
 */
 class AiNewsDetailPageFrame extends StatelessWidget {
-  const AiNewsDetailPageFrame({
-    required this.child,
-    required this.scrollKey,
-    super.key,
-  });
+  const AiNewsDetailPageFrame({required this.child, required this.scrollKey, super.key});
 
   // 页面主体。
   final Widget child;
@@ -35,18 +31,11 @@ class AiNewsDetailPageFrame extends StatelessWidget {
           final horizontal = constraints.maxWidth < 600 ? AppSpacing.lg : AppSpacing.xxl;
           return SingleChildScrollView(
             key: scrollKey,
-            padding: EdgeInsets.fromLTRB(
-              horizontal,
-              AppSpacing.lg,
-              horizontal,
-              AppSpacing.xxl,
-            ),
+            padding: EdgeInsets.fromLTRB(horizontal, AppSpacing.lg, horizontal, AppSpacing.xxl),
             child: Align(
               alignment: Alignment.topCenter,
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxWidth: aiNewsDetailMaxWidth,
-                ),
+                constraints: const BoxConstraints(maxWidth: aiNewsDetailMaxWidth),
                 child: child,
               ),
             ),
@@ -70,20 +59,14 @@ class AiNewsDetailCategoryPill extends StatelessWidget {
   /* 构建设计稿中的琥珀色描边分类标签。 */
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.sm2,
-        vertical: AppSpacing.xxs,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(
         border: Border.all(color: AppColors.warning),
         borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
       child: Text(
         category.label,
-        style: AppTypography.labelSmall.copyWith(
-          color: AppColors.warning,
-          fontWeight: FontWeight.w600,
-        ),
+        style: AppTypography.labelSmall.copyWith(color: AppColors.warning, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -93,12 +76,7 @@ class AiNewsDetailCategoryPill extends StatelessWidget {
 *详情区块标题,统一图标、字号和间距。
 */
 class AiNewsDetailSectionTitle extends StatelessWidget {
-  const AiNewsDetailSectionTitle({
-    required this.icon,
-    required this.title,
-    this.trailing,
-    super.key,
-  });
+  const AiNewsDetailSectionTitle({required this.icon, required this.title, this.trailing, super.key});
 
   // 标题图标。
   final IconData icon;
@@ -118,10 +96,7 @@ class AiNewsDetailSectionTitle extends StatelessWidget {
         Icon(icon, size: 22, color: AppColors.brand),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
-          child: Text(
-            title,
-            style: AppTypography.titleLarge.copyWith(color: colors.onSurface),
-          ),
+          child: Text(title, style: AppTypography.titleLarge.copyWith(color: colors.onSurface)),
         ),
         if (trailing != null) trailing!,
       ],
@@ -133,14 +108,7 @@ class AiNewsDetailSectionTitle extends StatelessWidget {
 *原文或译文卡片。
 */
 class AiNewsDetailLanguageCard extends StatelessWidget {
-  const AiNewsDetailLanguageCard({
-    required this.icon,
-    required this.title,
-    required this.body,
-    this.tinted = false,
-    this.onOpenOriginal,
-    super.key,
-  });
+  const AiNewsDetailLanguageCard({required this.icon, required this.title, required this.body, this.tinted = false, this.onOpenOriginal, super.key});
 
   // 语种图标。
   final IconData icon;
@@ -161,11 +129,7 @@ class AiNewsDetailLanguageCard extends StatelessWidget {
   /* 构建双语阅读卡片。 */
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final background = tinted
-        ? AppColors.brandLight.withValues(
-            alpha: Theme.of(context).brightness == Brightness.light ? 0.24 : 0.08,
-          )
-        : colors.surface;
+    final background = tinted ? AppColors.brandLight.withValues(alpha: Theme.of(context).brightness == Brightness.light ? 0.24 : 0.08) : colors.surface;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -175,21 +139,13 @@ class AiNewsDetailLanguageCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
             color: background,
-            border: Border.all(
-              color: tinted ? AppColors.brand.withValues(alpha: 0.22) : colors.outlineVariant.withValues(alpha: 0.62),
-            ),
+            border: Border.all(color: tinted ? AppColors.brand.withValues(alpha: 0.22) : colors.outlineVariant.withValues(alpha: 0.62)),
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                body,
-                style: AppTypography.bodyLarge.copyWith(
-                  color: colors.onSurface,
-                  height: 1.72,
-                ),
-              ),
+              Text(body, style: AppTypography.bodyLarge.copyWith(color: colors.onSurface, height: 1.72)),
               if (onOpenOriginal != null) ...[
                 const SizedBox(height: AppSpacing.sm),
                 Align(
@@ -198,11 +154,7 @@ class AiNewsDetailLanguageCard extends StatelessWidget {
                     onPressed: onOpenOriginal,
                     iconAlignment: IconAlignment.end,
                     icon: const Icon(Icons.chevron_right_rounded, size: 18),
-                    label: Text(
-                      AppLocalizations.of(
-                        context,
-                      ).tr('ai_news.detail.view_original'),
-                    ),
+                    label: Text(AppLocalizations.of(context).tr('ai_news.detail.view_original')),
                   ),
                 ),
               ],
@@ -218,11 +170,7 @@ class AiNewsDetailLanguageCard extends StatelessWidget {
 *详情页的原始来源入口。
 */
 class AiNewsDetailSourceCard extends StatelessWidget {
-  const AiNewsDetailSourceCard({
-    required this.item,
-    this.onOpenOriginal,
-    super.key,
-  });
+  const AiNewsDetailSourceCard({required this.item, this.onOpenOriginal, super.key});
 
   // 当前资讯。
   final AiNewsItem item;
@@ -235,9 +183,7 @@ class AiNewsDetailSourceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final host = Uri.tryParse(
-      item.url.isNotEmpty ? item.url : item.permalink,
-    )?.host;
+    final host = Uri.tryParse(item.url.isNotEmpty ? item.url : item.permalink)?.host;
     final source = host == null || host.isEmpty ? item.source : host;
     return Material(
       color: colors.surface,
@@ -246,14 +192,9 @@ class AiNewsDetailSourceCard extends StatelessWidget {
         onTap: onOpenOriginal,
         borderRadius: BorderRadius.circular(AppRadius.lg),
         child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppSpacing.lg,
-            vertical: AppSpacing.md2,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md2),
           decoration: BoxDecoration(
-            border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: 0.62),
-            ),
+            border: Border.all(color: colors.outlineVariant.withValues(alpha: 0.62)),
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           child: Row(
@@ -266,32 +207,20 @@ class AiNewsDetailSourceCard extends StatelessWidget {
                   border: Border.all(color: colors.outlineVariant),
                   borderRadius: BorderRadius.circular(AppRadius.md),
                 ),
-                child: Icon(
-                  Icons.public_rounded,
-                  color: colors.onSurfaceVariant,
-                  size: 20,
-                ),
+                child: Icon(Icons.public_rounded, color: colors.onSurfaceVariant, size: 20),
               ),
               const SizedBox(width: AppSpacing.md2),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.tr('ai_news.detail.original_source'),
-                      style: AppTypography.reading(
-                        AppTypography.labelMicro,
-                      ).copyWith(color: aiNewsDetailMutedColor(context)),
-                    ),
+                    Text(l10n.tr('ai_news.detail.original_source'), style: AppTypography.reading(AppTypography.labelMicro).copyWith(color: aiNewsDetailMutedColor(context))),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
                       source,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.mono(AppTypography.bodyLarge).copyWith(
-                        color: colors.onSurface,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: AppTypography.mono(AppTypography.bodyLarge).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
@@ -303,11 +232,7 @@ class AiNewsDetailSourceCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: aiNewsDetailMutedColor(context),
-                size: 18,
-              ),
+              Icon(Icons.chevron_right_rounded, color: aiNewsDetailMutedColor(context), size: 18),
             ],
           ),
         ),
@@ -320,12 +245,7 @@ class AiNewsDetailSourceCard extends StatelessWidget {
 *热度与精选状态的紧凑指标胶囊。
 */
 class AiNewsDetailMetricPill extends StatelessWidget {
-  const AiNewsDetailMetricPill({
-    required this.icon,
-    required this.label,
-    this.positive = false,
-    super.key,
-  });
+  const AiNewsDetailMetricPill({required this.icon, required this.label, this.positive = false, super.key});
 
   // 指标图标。
   final IconData icon;
@@ -342,10 +262,7 @@ class AiNewsDetailMetricPill extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final accent = positive ? AppColors.success : AppColors.warning;
     return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.xs2,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs2),
       decoration: BoxDecoration(
         border: Border.all(color: colors.outlineVariant),
         borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -357,10 +274,7 @@ class AiNewsDetailMetricPill extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs2),
           Text(
             label,
-            style: AppTypography.labelMedium.copyWith(
-              color: accent,
-              fontWeight: FontWeight.w600,
-            ),
+            style: AppTypography.labelMedium.copyWith(color: accent, fontWeight: FontWeight.w600),
           ),
         ],
       ),

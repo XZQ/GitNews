@@ -10,12 +10,7 @@ class _MockDio extends Mock implements Dio {}
 void main() {
   late _MockDio dio;
   late SelfHostedServerClient client;
-  const connection = ServerConnectionState(
-    baseUrl: 'https://sync.example.com',
-    workspaceId: 'team-a',
-    memberId: 'desktop-a',
-    apiKey: 'secret',
-  );
+  const connection = ServerConnectionState(baseUrl: 'https://sync.example.com', workspaceId: 'team-a', memberId: 'desktop-a', apiKey: 'secret');
 
   setUp(() {
     dio = _MockDio();
@@ -56,9 +51,7 @@ void main() {
 
     expect(
       () => client.pushConfig(connection, const {}, version: 1),
-      throwsA(
-        isA<AppException>().having((error) => error.kind, 'kind', AppExceptionKind.unknown).having((error) => error.meta['reason'], 'reason', 'conflict'),
-      ),
+      throwsA(isA<AppException>().having((error) => error.kind, 'kind', AppExceptionKind.unknown).having((error) => error.meta['reason'], 'reason', 'conflict')),
     );
   });
 
@@ -77,11 +70,7 @@ void main() {
             'workspace_id': 'team-a',
             'namespace': 'app_config',
             'record_id': 'shared',
-            'payload': {
-              'app': 'github_news',
-              'version': 1,
-              'preferences': <String, Object?>{},
-            },
+            'payload': {'app': 'github_news', 'version': 1, 'preferences': <String, Object?>{}},
             'version': 42,
           },
         ],

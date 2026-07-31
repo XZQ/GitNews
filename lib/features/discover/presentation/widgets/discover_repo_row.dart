@@ -19,13 +19,7 @@ import '../../../../shared/widgets/data_provenance_badge.dart';
  *[badge] 用于 Agent Skills 榜展示「#排名 · 分类」。
  */
 class DiscoverMonitorRow extends ConsumerWidget {
-  const DiscoverMonitorRow({
-    required this.repo,
-    this.badge,
-    this.onTap,
-    this.embedded = false,
-    super.key,
-  });
+  const DiscoverMonitorRow({required this.repo, this.badge, this.onTap, this.embedded = false, super.key});
 
   final RepoEntity repo;
   final String? badge;
@@ -54,7 +48,10 @@ class DiscoverMonitorRow extends ConsumerWidget {
         Container(
           width: avatarSize,
           height: avatarSize,
-          decoration: BoxDecoration(color: avatarAccent.withValues(alpha: compact ? 0.14 : 0.16), borderRadius: BorderRadius.circular(compact ? AppRadius.md : AppRadius.sm)),
+          decoration: BoxDecoration(
+            color: avatarAccent.withValues(alpha: compact ? 0.14 : 0.16),
+            borderRadius: BorderRadius.circular(compact ? AppRadius.md : AppRadius.sm),
+          ),
           alignment: Alignment.center,
           child: Text(
             repo.language.isNotEmpty ? repo.language.characters.first.toUpperCase() : '?',
@@ -91,10 +88,7 @@ class DiscoverMonitorRow extends ConsumerWidget {
             ],
           ),
         ),
-        if (!compact) ...[
-          const SizedBox(width: AppSpacing.sm),
-          _MonitorButton(repo: repo, monitored: monitored, controller: controller, compact: false),
-        ],
+        if (!compact) ...[const SizedBox(width: AppSpacing.sm), _MonitorButton(repo: repo, monitored: monitored, controller: controller, compact: false)],
       ],
     );
 
@@ -220,11 +214,7 @@ class _MonitorButton extends StatelessWidget {
         final messenger = ScaffoldMessenger.of(context)..clearSnackBars();
         messenger.showSnackBar(
           SnackBar(
-            content: Text(
-              l10n.tr(
-                monitored ? 'discover.monitor_removed' : 'discover.monitor_added',
-              ),
-            ),
+            content: Text(l10n.tr(monitored ? 'discover.monitor_removed' : 'discover.monitor_added')),
             action: SnackBarAction(
               label: l10n.tr('common.undo'),
               onPressed: () {
@@ -257,13 +247,14 @@ class _TopLine extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-            child: Text(
-          fullName,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: (compact ? AppTypography.monoTitle : AppTypography.titleMedium).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: compact ? 1.3 : 1.35),
-        )),
-        if (badge != null) ...[const SizedBox(width: AppSpacing.sm), _Pill(text: badge!, color: colors.tertiary)]
+          child: Text(
+            fullName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: (compact ? AppTypography.monoTitle : AppTypography.titleMedium).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: compact ? 1.3 : 1.35),
+          ),
+        ),
+        if (badge != null) ...[const SizedBox(width: AppSpacing.sm), _Pill(text: badge!, color: colors.tertiary)],
       ],
     );
   }
@@ -280,7 +271,10 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.xs)),
-      child: Text(text, style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700)),
+      child: Text(
+        text,
+        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+      ),
     );
   }
 }
@@ -300,7 +294,10 @@ class _IconMetric extends StatelessWidget {
       children: [
         Icon(icon, size: 13, color: color),
         const SizedBox(width: AppSpacing.xxs),
-        Text(value, style: AppTypography.labelSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600))
+        Text(
+          value,
+          style: AppTypography.labelSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600),
+        ),
       ],
     );
   }
@@ -319,16 +316,16 @@ String _shortNumber(int v) {
 }
 
 Color _avatarAccent(String language, Color fallback) => switch (language.toLowerCase()) {
-      'markdown' => AppColors.brandDark,
-      'typescript' => AppColors.langTypeScript,
-      'python' => AppColors.success,
-      '' || 'unknown' => AppColors.accentPurple,
-      _ => fallback,
-    };
+  'markdown' => AppColors.brandDark,
+  'typescript' => AppColors.langTypeScript,
+  'python' => AppColors.success,
+  '' || 'unknown' => AppColors.accentPurple,
+  _ => fallback,
+};
 
 Color _metricAccent(String language, Color fallback, Color unknown) => switch (language.toLowerCase()) {
-      'markdown' || 'typescript' => AppColors.langTypeScript,
-      'python' => AppColors.langPython,
-      '' || 'unknown' => unknown,
-      _ => fallback,
-    };
+  'markdown' || 'typescript' => AppColors.langTypeScript,
+  'python' => AppColors.langPython,
+  '' || 'unknown' => unknown,
+  _ => fallback,
+};

@@ -14,7 +14,12 @@ void main() {
           localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('zh', 'CN'),
-          home: Scaffold(body: ErrorView(error: const AppException(kind: AppExceptionKind.network), onRetry: () => retried++)),
+          home: Scaffold(
+            body: ErrorView(
+              error: const AppException(kind: AppExceptionKind.network),
+              onRetry: () => retried++,
+            ),
+          ),
         ),
       );
       await tester.pump();
@@ -30,7 +35,11 @@ void main() {
           localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           locale: Locale('zh', 'CN'),
-          home: Scaffold(body: ErrorView(error: AppException(kind: AppExceptionKind.rateLimit, meta: {'retryAfter': 30}))),
+          home: Scaffold(
+            body: ErrorView(
+              error: AppException(kind: AppExceptionKind.rateLimit, meta: {'retryAfter': 30}),
+            ),
+          ),
         ),
       );
       await tester.pump();
@@ -45,7 +54,12 @@ void main() {
           localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           locale: const Locale('zh', 'CN'),
-          home: Scaffold(body: ErrorView(error: const AppException(kind: AppExceptionKind.unauthorized), onRetry: () => retried++)),
+          home: Scaffold(
+            body: ErrorView(
+              error: const AppException(kind: AppExceptionKind.unauthorized),
+              onRetry: () => retried++,
+            ),
+          ),
         ),
       );
       await tester.pump();
@@ -60,7 +74,9 @@ void main() {
           localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           locale: Locale('zh', 'CN'),
-          home: Scaffold(body: ErrorView(error: AppException(kind: AppExceptionKind.unknown))),
+          home: Scaffold(
+            body: ErrorView(error: AppException(kind: AppExceptionKind.unknown)),
+          ),
         ),
       );
       await tester.pump();

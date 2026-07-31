@@ -29,13 +29,7 @@ class AiNewsSourcesPage extends ConsumerWidget {
       subtitle: l10n.tr('common.secondary_page_subtitle'),
       icon: Icons.rss_feed_rounded,
       fallbackPath: '/profile',
-      actions: [
-        HeaderAction(
-          tooltip: l10n.tr('settings.ai_sources.restore'),
-          onPressed: () => _restoreDefaults(context, ref),
-          icon: Icons.restart_alt_rounded,
-        ),
-      ],
+      actions: [HeaderAction(tooltip: l10n.tr('settings.ai_sources.restore'), onPressed: () => _restoreDefaults(context, ref), icon: Icons.restart_alt_rounded)],
       body: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -50,11 +44,7 @@ class AiNewsSourcesPage extends ConsumerWidget {
                     SectionHeader(
                       title: l10n.tr('settings.ai_sources.summary'),
                       subtitle: l10n.tr('settings.ai_sources.enabled_count').replaceAll('{enabled}', '${sourceState.enabledCount}').replaceAll('{total}', '${sourceState.entries.length}'),
-                      trailing: FilledButton.icon(
-                        onPressed: () => _addSource(context, ref),
-                        icon: const Icon(Icons.add_rounded, size: 18),
-                        label: Text(l10n.tr('settings.ai_sources.add')),
-                      ),
+                      trailing: FilledButton.icon(onPressed: () => _addSource(context, ref), icon: const Icon(Icons.add_rounded, size: 18), label: Text(l10n.tr('settings.ai_sources.add'))),
                     ),
                     if (sourceState.degradedCount > 0) ...[
                       const SizedBox(height: AppSpacing.md),
@@ -72,9 +62,7 @@ class AiNewsSourcesPage extends ConsumerWidget {
                   contentPadding: EdgeInsets.zero,
                   secondary: const Icon(Icons.notifications_active_outlined),
                   title: Text(l10n.tr('settings.ai_sources.reminders')),
-                  subtitle: Text(
-                    l10n.tr('settings.ai_sources.reminders_note'),
-                  ),
+                  subtitle: Text(l10n.tr('settings.ai_sources.reminders_note')),
                   value: ref.watch(aiNewsReminderPreferencesProvider),
                   onChanged: (value) => ref.read(aiNewsReminderPreferencesProvider.notifier).setEnabled(value),
                 ),
@@ -145,11 +133,7 @@ class _SourceCard extends ConsumerWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          CircleAvatar(
-            backgroundColor: statusColor.withValues(alpha: 0.12),
-            foregroundColor: statusColor,
-            child: Icon(entry.isCustom ? Icons.rss_feed_rounded : Icons.verified_outlined),
-          ),
+          CircleAvatar(backgroundColor: statusColor.withValues(alpha: 0.12), foregroundColor: statusColor, child: Icon(entry.isCustom ? Icons.rss_feed_rounded : Icons.verified_outlined)),
           const SizedBox(width: AppSpacing.md),
           Expanded(
             child: Column(
@@ -164,18 +148,12 @@ class _SourceCard extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.xs),
                 SelectableText(entry.config.feedUrl, maxLines: 2, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
                 const SizedBox(height: AppSpacing.xs),
-                Text(
-                  _healthText(l10n, entry),
-                  style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-                ),
+                Text(_healthText(l10n, entry), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
               ],
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Switch(
-            value: entry.enabled,
-            onChanged: (value) => ref.read(aiNewsSourceControllerProvider.notifier).setEnabled(entry.config.id, value),
-          ),
+          Switch(value: entry.enabled, onChanged: (value) => ref.read(aiNewsSourceControllerProvider.notifier).setEnabled(entry.config.id, value)),
           if (entry.isCustom)
             IconButton(
               tooltip: l10n.tr('settings.ai_sources.delete'),
@@ -235,16 +213,20 @@ class _AddSourceDialogState extends State<_AddSourceDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: _nameController, decoration: InputDecoration(labelText: l10n.tr('settings.ai_sources.dialog.name'))),
+            TextField(
+              controller: _nameController,
+              decoration: InputDecoration(labelText: l10n.tr('settings.ai_sources.dialog.name')),
+            ),
             const SizedBox(height: AppSpacing.md),
-            TextField(controller: _urlController, decoration: InputDecoration(labelText: l10n.tr('settings.ai_sources.dialog.url'))),
+            TextField(
+              controller: _urlController,
+              decoration: InputDecoration(labelText: l10n.tr('settings.ai_sources.dialog.url')),
+            ),
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<String>(
               initialValue: _category,
               decoration: InputDecoration(labelText: l10n.tr('settings.ai_sources.dialog.category')),
-              items: [
-                for (final code in AiNewsSourcesConfig.supportedCategoryCodes) DropdownMenuItem(value: code, child: Text(l10n.tr('settings.ai_sources.category.$code'))),
-              ],
+              items: [for (final code in AiNewsSourcesConfig.supportedCategoryCodes) DropdownMenuItem(value: code, child: Text(l10n.tr('settings.ai_sources.category.$code')))],
               onChanged: (value) => setState(() => _category = value ?? _category),
             ),
           ],

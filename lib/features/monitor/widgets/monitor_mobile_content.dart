@@ -71,7 +71,9 @@ class _MonitorStatsRow extends StatelessWidget {
       children: [
         for (var index = 0; index < items.length; index++) ...[
           if (index != 0) const SizedBox(width: AppSpacing.sm),
-          Expanded(child: _StatCell(value: items[index].$1, label: items[index].$2, color: items[index].$3)),
+          Expanded(
+            child: _StatCell(value: items[index].$1, label: items[index].$2, color: items[index].$3),
+          ),
         ],
       ],
     );
@@ -97,7 +99,12 @@ class _StatCell extends StatelessWidget {
         children: [
           Text(value, style: AppTypography.monoDisplay.copyWith(color: value == '0' ? colors.onSurfaceVariant : color)),
           const SizedBox(height: AppSpacing.sm),
-          Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
+          ),
         ],
       ),
     );
@@ -149,20 +156,39 @@ class _MonitoredRepoRow extends StatelessWidget {
               height: AppSpacing.xxl,
               decoration: BoxDecoration(color: accent.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(AppRadius.md)),
               alignment: Alignment.center,
-              child: Text(_repoInitial(repo), style: AppTypography.titleSmall.copyWith(color: accent, fontWeight: FontWeight.w800)),
+              child: Text(
+                _repoInitial(repo),
+                style: AppTypography.titleSmall.copyWith(color: accent, fontWeight: FontWeight.w800),
+              ),
             ),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(repo.fullName, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.monoTitle.copyWith(color: colors.onSurface)),
+                  Text(
+                    repo.fullName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.monoTitle.copyWith(color: colors.onSurface),
+                  ),
                   const SizedBox(height: AppSpacing.xxs),
                   Row(
                     children: [
-                      Container(width: AppSpacing.xs2, height: AppSpacing.xs2, decoration: BoxDecoration(color: accent, shape: BoxShape.circle)),
+                      Container(
+                        width: AppSpacing.xs2,
+                        height: AppSpacing.xs2,
+                        decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
+                      ),
                       const SizedBox(width: AppSpacing.xs2),
-                      Flexible(child: Text(repo.language, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant))),
+                      Flexible(
+                        child: Text(
+                          repo.language,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
+                        ),
+                      ),
                       const SizedBox(width: AppSpacing.sm),
                       const Icon(Icons.star_rounded, size: 13, color: AppColors.starGold),
                       const SizedBox(width: AppSpacing.xxs),
@@ -173,7 +199,12 @@ class _MonitoredRepoRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            if (trend != null && trend.isNotEmpty) RepaintBoundary(child: Sparkline(values: trend, color: colors.primary, width: 64, height: 20)) else const SizedBox(width: 64, height: 20),
+            if (trend != null && trend.isNotEmpty)
+              RepaintBoundary(
+                child: Sparkline(values: trend, color: colors.primary, width: 64, height: 20),
+              )
+            else
+              const SizedBox(width: 64, height: 20),
             const SizedBox(width: AppSpacing.sm),
             SizedBox(
               width: 48,

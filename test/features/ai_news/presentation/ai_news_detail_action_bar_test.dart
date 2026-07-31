@@ -12,9 +12,7 @@ import 'package:github_news/features/ai_news/domain/ai_news_item_state.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_action_bar.dart';
 
 void main() {
-  testWidgets('selected feedback and bookmark use the active theme color', (
-    tester,
-  ) async {
+  testWidgets('selected feedback and bookmark use the active theme color', (tester) async {
     final item = _item();
     tester.view.physicalSize = const Size(375, 846);
     tester.view.devicePixelRatio = 1;
@@ -24,46 +22,25 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          aiNewsInterestProfileProvider.overrideWith(
-            (ref) async => AiNewsInterestProfile(
-              itemSignals: {item.id: AiNewsFeedbackSignal.more},
-              topicWeights: const {},
-            ),
-          ),
-          aiNewsItemStateProvider(item.id).overrideWith(
-            (ref) async => AiNewsItemState(
-              readLaterAt: DateTime(2026, 7, 17),
-            ),
-          ),
+          aiNewsInterestProfileProvider.overrideWith((ref) async => AiNewsInterestProfile(itemSignals: {item.id: AiNewsFeedbackSignal.more}, topicWeights: const {})),
+          aiNewsItemStateProvider(item.id).overrideWith((ref) async => AiNewsItemState(readLaterAt: DateTime(2026, 7, 17))),
         ],
         child: MaterialApp(
           locale: const Locale('zh', 'CN'),
           supportedLocales: AppLocalizations.supportedLocales,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
+          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
           theme: AppTheme.light(brand),
           home: Scaffold(
-            bottomNavigationBar: AiNewsDetailActionBar(
-              item: item,
-              onShare: () {},
-            ),
+            bottomNavigationBar: AiNewsDetailActionBar(item: item, onShare: () {}),
           ),
         ),
       ),
     );
     await tester.pumpAndSettle();
 
-    final likedIcon = tester.widget<Icon>(
-      find.byIcon(Icons.thumb_up_alt_rounded),
-    );
+    final likedIcon = tester.widget<Icon>(find.byIcon(Icons.thumb_up_alt_rounded));
     final savedIcon = tester.widget<Icon>(find.byIcon(Icons.bookmark_rounded));
-    final selectedColor = Theme.of(
-      tester.element(find.byIcon(Icons.thumb_up_alt_rounded)),
-    ).colorScheme.primary;
+    final selectedColor = Theme.of(tester.element(find.byIcon(Icons.thumb_up_alt_rounded))).colorScheme.primary;
 
     expect(find.text('赞'), findsOneWidget);
     expect(find.textContaining('75'), findsNothing);

@@ -12,11 +12,7 @@ import 'ai_news_detail_components.dart';
 *切换仅影响当前阅读会话,默认使用设计稿中的中英对照模式。
 */
 class AiNewsDetailLanguageSwitcher extends StatefulWidget {
-  const AiNewsDetailLanguageSwitcher({
-    required this.englishOriginal,
-    this.chineseTranslation,
-    super.key,
-  });
+  const AiNewsDetailLanguageSwitcher({required this.englishOriginal, this.chineseTranslation, super.key});
 
   // 英文原文。
   final String englishOriginal;
@@ -44,22 +40,13 @@ class _AiNewsDetailLanguageSwitcherState extends State<AiNewsDetailLanguageSwitc
     final showEnglish = _mode != _DetailLanguageMode.chinese;
     final showChinese = _mode != _DetailLanguageMode.english;
     final isComparison = _mode == _DetailLanguageMode.comparison;
-    final bodyStyle = AppTypography.reading(AppTypography.bodyLarge).copyWith(
-      fontSize: AppTypography.titleMedium.fontSize,
-      height: 1.9,
-      color: colors.onSurface,
-    );
+    final bodyStyle = AppTypography.reading(AppTypography.bodyLarge).copyWith(fontSize: AppTypography.titleMedium.fontSize, height: 1.9, color: colors.onSurface);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
-            Text(
-              l10n.tr('ai_news.detail.body'),
-              style: AppTypography.reading(
-                AppTypography.labelMicro,
-              ).copyWith(color: aiNewsDetailMutedColor(context)),
-            ),
+            Text(l10n.tr('ai_news.detail.body'), style: AppTypography.reading(AppTypography.labelMicro).copyWith(color: aiNewsDetailMutedColor(context))),
             const Spacer(),
             Container(
               decoration: BoxDecoration(
@@ -96,46 +83,21 @@ class _AiNewsDetailLanguageSwitcherState extends State<AiNewsDetailLanguageSwitc
         if (showEnglish) ...[
           const SizedBox(height: AppSpacing.lg),
           if (isComparison) ...[
-            Text(
-              'EN · ${l10n.tr('ai_news.detail.original')}',
-              style: AppTypography.reading(
-                AppTypography.labelMicro,
-              ).copyWith(color: aiNewsDetailMutedColor(context)),
-            ),
+            Text('EN · ${l10n.tr('ai_news.detail.original')}', style: AppTypography.reading(AppTypography.labelMicro).copyWith(color: aiNewsDetailMutedColor(context))),
             const SizedBox(height: AppSpacing.sm),
           ],
-          Text(
-            widget.englishOriginal,
-            style: bodyStyle.copyWith(
-              fontSize: 15.75,
-              height: 1.88,
-              color: isComparison ? aiNewsDetailSecondaryColor(context) : colors.onSurface,
-            ),
-          ),
+          Text(widget.englishOriginal, style: bodyStyle.copyWith(fontSize: 15.75, height: 1.88, color: isComparison ? aiNewsDetailSecondaryColor(context) : colors.onSurface)),
         ],
         if (showChinese) ...[
           const SizedBox(height: AppSpacing.lg),
           if (isComparison) ...[
-            Text(
-              '中 · ${l10n.tr('ai_news.detail.translation')}',
-              style: AppTypography.reading(
-                AppTypography.labelMicro,
-              ).copyWith(color: aiNewsDetailMutedColor(context)),
-            ),
+            Text('中 · ${l10n.tr('ai_news.detail.translation')}', style: AppTypography.reading(AppTypography.labelMicro).copyWith(color: aiNewsDetailMutedColor(context))),
             const SizedBox(height: AppSpacing.sm),
           ],
-          Text(
-            widget.chineseTranslation ?? l10n.tr('ai_news.detail.translation_unavailable'),
-            style: bodyStyle,
-          ),
+          Text(widget.chineseTranslation ?? l10n.tr('ai_news.detail.translation_unavailable'), style: bodyStyle),
         ],
         const SizedBox(height: AppSpacing.lg),
-        Text(
-          '// ${l10n.tr('ai_news.detail.translation_note')}',
-          style: AppTypography.reading(
-            AppTypography.labelSmall,
-          ).copyWith(color: aiNewsDetailMutedColor(context)),
-        ),
+        Text('// ${l10n.tr('ai_news.detail.translation_note')}', style: AppTypography.reading(AppTypography.labelSmall).copyWith(color: aiNewsDetailMutedColor(context))),
       ],
     );
   }
@@ -153,12 +115,7 @@ class _AiNewsDetailLanguageSwitcherState extends State<AiNewsDetailLanguageSwitc
 *正文语种分段中的单个按钮。
 */
 class _LanguageSegment extends StatelessWidget {
-  const _LanguageSegment({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    super.key,
-  });
+  const _LanguageSegment({required this.label, required this.selected, required this.onTap, super.key});
 
   // 按钮文案。
   final String label;
@@ -181,16 +138,10 @@ class _LanguageSegment extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpacing.md2,
-              vertical: AppSpacing.xs2,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md2, vertical: AppSpacing.xs2),
             child: Text(
               label,
-              style: AppTypography.labelMedium.copyWith(
-                color: selected ? colors.onPrimary : colors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
-              ),
+              style: AppTypography.labelMedium.copyWith(color: selected ? colors.onPrimary : colors.onSurfaceVariant, fontWeight: FontWeight.w600),
             ),
           ),
         ),

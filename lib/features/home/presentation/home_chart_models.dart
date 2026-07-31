@@ -55,14 +55,7 @@ enum HomeLegacyTab {
 }
 
 class HomeMetricSpec {
-  const HomeMetricSpec({
-    required this.title,
-    required this.value,
-    required this.delta,
-    required this.subtitle,
-    required this.icon,
-    this.accent,
-  });
+  const HomeMetricSpec({required this.title, required this.value, required this.delta, required this.subtitle, required this.icon, this.accent});
   final String title;
   final String value;
   final String delta;
@@ -116,13 +109,7 @@ List<HomeLegendItem> homeChartLegends(AppLocalizations l10n, HomeLegacyTab tab, 
   }
 }
 
-List<ChartSeries> homeSeriesForWindow(
-  int days,
-  HomeLegacyTab tab,
-  Color primary, {
-  List<double>? primaryTrend,
-  List<double>? secondaryTrend,
-}) {
+List<ChartSeries> homeSeriesForWindow(int days, HomeLegacyTab tab, Color primary, {List<double>? primaryTrend, List<double>? secondaryTrend}) {
   final dynamicPrimary = _windowedTrend(primaryTrend, days);
   final dynamicSecondary = _windowedTrend(secondaryTrend, days);
   if (tab == HomeLegacyTab.trending && dynamicPrimary.isNotEmpty) {
@@ -136,23 +123,47 @@ List<ChartSeries> homeSeriesForWindow(
   switch (tab) {
     case HomeLegacyTab.trending:
       return [
-        ChartSeries(values: DemoData.generateStarTrend(baseA, deltaA, count: days), color: primary),
-        ChartSeries(values: DemoData.generateStarTrend(baseB, deltaB, count: days), color: AppColors.info)
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseA, deltaA, count: days),
+          color: primary,
+        ),
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseB, deltaB, count: days),
+          color: AppColors.info,
+        ),
       ];
     case HomeLegacyTab.growth:
       return [
-        ChartSeries(values: DemoData.generateStarTrend(baseA, deltaA ~/ 2, count: days), color: AppColors.success),
-        ChartSeries(values: DemoData.generateStarTrend(baseB, deltaB, count: days), color: AppColors.warning)
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseA, deltaA ~/ 2, count: days),
+          color: AppColors.success,
+        ),
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseB, deltaB, count: days),
+          color: AppColors.warning,
+        ),
       ];
     case HomeLegacyTab.health:
       return [
-        ChartSeries(values: DemoData.generateStarTrend(baseA, deltaA, count: days), color: primary),
-        ChartSeries(values: DemoData.generateStarTrend(baseB, deltaB ~/ 2, count: days), color: AppColors.success)
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseA, deltaA, count: days),
+          color: primary,
+        ),
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseB, deltaB ~/ 2, count: days),
+          color: AppColors.success,
+        ),
       ];
     case HomeLegacyTab.starred:
       return [
-        ChartSeries(values: DemoData.generateStarTrend(baseA + 8000, deltaA, count: days), color: AppColors.starGold),
-        ChartSeries(values: DemoData.generateStarTrend(baseB + 6000, deltaB, count: days), color: AppColors.info)
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseA + 8000, deltaA, count: days),
+          color: AppColors.starGold,
+        ),
+        ChartSeries(
+          values: DemoData.generateStarTrend(baseB + 6000, deltaB, count: days),
+          color: AppColors.info,
+        ),
       ];
   }
 }

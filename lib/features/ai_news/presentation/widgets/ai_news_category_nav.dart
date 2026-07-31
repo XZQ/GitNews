@@ -43,15 +43,8 @@ class AiNewsCategoryNav extends StatelessWidget {
             ),
             for (final c in AiNewsCategory.values) ...[
               const SizedBox(width: AppSpacing.sm),
-              _NavChip(
-                label: c.label,
-                icon: aiNewsCategoryIcon(c),
-                isSelected: selected == c,
-                color: aiNewsCategoryColor(c),
-                compact: isCompact,
-                onTap: () => onSelected(c),
-              )
-            ]
+              _NavChip(label: c.label, icon: aiNewsCategoryIcon(c), isSelected: selected == c, color: aiNewsCategoryColor(c), compact: isCompact, onTap: () => onSelected(c)),
+            ],
           ],
         ),
       ),
@@ -60,14 +53,7 @@ class AiNewsCategoryNav extends StatelessWidget {
 }
 
 class _NavChip extends StatelessWidget {
-  const _NavChip({
-    required this.label,
-    required this.icon,
-    required this.isSelected,
-    required this.color,
-    required this.compact,
-    required this.onTap,
-  });
+  const _NavChip({required this.label, required this.icon, required this.isSelected, required this.color, required this.compact, required this.onTap});
 
   final String label;
   final IconData icon;
@@ -102,11 +88,11 @@ class _NavChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (!compact) ...[
-                Icon(icon, size: 14, color: fg),
-                const SizedBox(width: AppSpacing.xs2),
-              ],
-              Text(label, style: AppTypography.labelMedium.copyWith(color: fg, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600))
+              if (!compact) ...[Icon(icon, size: 14, color: fg), const SizedBox(width: AppSpacing.xs2)],
+              Text(
+                label,
+                style: AppTypography.labelMedium.copyWith(color: fg, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600),
+              ),
             ],
           ),
         ),

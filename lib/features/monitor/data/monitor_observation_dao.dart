@@ -61,7 +61,7 @@ class MonitorObservationDao {
       'stars': observation.stars,
       'forks': observation.forks,
       'openIssues': observation.openIssues,
-      'observedAt': observation.observedAt.toUtc().toIso8601String()
+      'observedAt': observation.observedAt.toUtc().toIso8601String(),
     };
   }
 

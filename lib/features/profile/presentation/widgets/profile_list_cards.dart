@@ -56,7 +56,12 @@ class _OverviewEntry extends StatelessWidget {
           children: [
             Icon(icon, size: 16, color: iconColor),
             const SizedBox(width: AppSpacing.lg),
-            Expanded(child: Text(label, style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700))),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+              ),
+            ),
             Text(count, style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
             const SizedBox(width: AppSpacing.sm),
             Icon(Icons.chevron_right_rounded, size: 16, color: colors.onSurfaceVariant),
@@ -93,7 +98,7 @@ class ProfileCollectListCard extends StatelessWidget {
             title: Text(l10n.tr('profile.section.developers'), style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/developers'),
-          )
+          ),
         ],
       ),
     );
@@ -126,7 +131,7 @@ class ProfileMonitorListCard extends StatelessWidget {
             title: Text(l10n.tr('profile.section.monitor_rules'), style: AppTypography.titleMedium),
             trailing: const Icon(Icons.chevron_right, size: 18),
             onTap: () => context.go('/profile/rules'),
-          )
+          ),
         ],
       ),
     );
@@ -142,14 +147,8 @@ class ProfileSettingsListCard extends StatelessWidget {
     return AppCard(
       child: ListTile(
         contentPadding: EdgeInsets.zero,
-        leading: Icon(
-          Icons.settings_outlined,
-          color: Theme.of(context).colorScheme.primary,
-        ),
-        title: Text(
-          l10n.tr('profile.mobile_settings.title'),
-          style: AppTypography.titleMedium,
-        ),
+        leading: Icon(Icons.settings_outlined, color: Theme.of(context).colorScheme.primary),
+        title: Text(l10n.tr('profile.mobile_settings.title'), style: AppTypography.titleMedium),
         subtitle: Text(l10n.tr('profile.mobile_settings.subtitle')),
         trailing: const Icon(Icons.chevron_right, size: 18),
         onTap: () => context.go('/profile/preferences'),

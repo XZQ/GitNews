@@ -33,23 +33,13 @@ class MonitorAlertEventDao {
 
   Future<void> markRead(String id, DateTime at) {
     return _guard('monitorAlert.markRead', () async {
-      await _db.update(
-        _table,
-        {'read_at': at.toUtc().millisecondsSinceEpoch},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await _db.update(_table, {'read_at': at.toUtc().millisecondsSinceEpoch}, where: 'id = ?', whereArgs: [id]);
     });
   }
 
   Future<void> markUnread(String id) {
     return _guard('monitorAlert.markUnread', () async {
-      await _db.update(
-        _table,
-        {'read_at': null},
-        where: 'id = ?',
-        whereArgs: [id],
-      );
+      await _db.update(_table, {'read_at': null}, where: 'id = ?', whereArgs: [id]);
     });
   }
 
@@ -57,12 +47,7 @@ class MonitorAlertEventDao {
     return _guard('monitorAlert.markAllRead', () async {
       final batch = _db.batch();
       for (final id in ids) {
-        batch.update(
-          _table,
-          {'read_at': at.toUtc().millisecondsSinceEpoch},
-          where: 'id = ?',
-          whereArgs: [id],
-        );
+        batch.update(_table, {'read_at': at.toUtc().millisecondsSinceEpoch}, where: 'id = ?', whereArgs: [id]);
       }
       await batch.commit(noResult: true);
     });
@@ -93,12 +78,7 @@ class MonitorAlertEventDao {
   }
 
   Future<void> _prune() async {
-    final overflow = await _db.query(
-      _table,
-      columns: ['id'],
-      orderBy: 'observed_at DESC, id DESC',
-      offset: monitorAlertEventMaxRows,
-    );
+    final overflow = await _db.query(_table, columns: ['id'], orderBy: 'observed_at DESC, id DESC', offset: monitorAlertEventMaxRows);
     if (overflow.isEmpty) {
       return;
     }
@@ -118,7 +98,7 @@ class MonitorAlertEventDao {
       'severity': event.severity.name,
       'observed_at': event.observedAt.toUtc().millisecondsSinceEpoch,
       'read_at': event.readAt?.toUtc().millisecondsSinceEpoch,
-      'archived_at': event.archivedAt?.toUtc().millisecondsSinceEpoch
+      'archived_at': event.archivedAt?.toUtc().millisecondsSinceEpoch,
     };
   }
 
@@ -148,12 +128,7 @@ class MonitorAlertEventDao {
     try {
       return await action();
     } catch (error, stack) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: error,
-        stack: stack,
-        meta: {'op': operation},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: error, stack: stack, meta: {'op': operation});
     }
   }
 }

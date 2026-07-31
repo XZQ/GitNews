@@ -55,25 +55,12 @@ class HomeMobileRadarOverview extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader(
-          title: l10n.tr('tech_hotspot.title'),
-          meta: l10n.tr('tech_hotspot.subtitle'),
-          onTap: () => context.push('/tech_hotspot'),
-          showChevron: false,
-        ),
+        SectionHeader(title: l10n.tr('tech_hotspot.title'), meta: l10n.tr('tech_hotspot.subtitle'), onTap: () => context.push('/tech_hotspot'), showChevron: false),
         const SizedBox(height: AppSpacing.sm),
         state.when(
-          data: (digest) => digest.topics.isEmpty
-              ? EmptyView(
-                  icon: Icons.radar_rounded,
-                  message: l10n.tr('tech_hotspot.empty'),
-                )
-              : _RadarSummarySections(digest: digest),
+          data: (digest) => digest.topics.isEmpty ? EmptyView(icon: Icons.radar_rounded, message: l10n.tr('tech_hotspot.empty')) : _RadarSummarySections(digest: digest),
           loading: () => const _RadarSummarySkeleton(),
-          error: (error, stack) => ErrorView(
-            error: error.asAppException(stack),
-            onRetry: () => _retry(ref),
-          ),
+          error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => _retry(ref)),
         ),
       ],
     );
@@ -100,19 +87,12 @@ class HomeMobileRadarTopicList extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SectionHeader(
-          title: l10n.tr('tech_hotspot.topics'),
-          subtitle: l10n.tr('tech_hotspot.subtitle'),
-          onTap: () => context.push('/tech_hotspot'),
-        ),
+        SectionHeader(title: l10n.tr('tech_hotspot.topics'), subtitle: l10n.tr('tech_hotspot.subtitle'), onTap: () => context.push('/tech_hotspot')),
         const SizedBox(height: AppSpacing.sm),
         state.when(
           data: (digest) => _RadarTopicCards(topics: digest.topics),
           loading: () => const _RadarTopicsSkeleton(),
-          error: (error, stack) => ErrorView(
-            error: error.asAppException(stack),
-            onRetry: () => _retry(ref),
-          ),
+          error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => _retry(ref)),
         ),
       ],
     );
@@ -153,29 +133,12 @@ class _RadarSummarySections extends ConsumerWidget {
           },
         ),
         const SizedBox(height: AppSpacing.md),
-        if (trending.hasValue)
-          TrendingTopicsPanel(
-            topics: trending.requireValue.topics,
-            onTap: () => context.push('/trending'),
-            compact: true,
-          )
-        else
-          const Skeleton(height: 150),
+        if (trending.hasValue) TrendingTopicsPanel(topics: trending.requireValue.topics, onTap: () => context.push('/trending'), compact: true) else const Skeleton(height: 150),
         const SizedBox(height: AppSpacing.md),
-        SizedBox(
-          height: 170,
-          child: TechHotspotHeatChart(
-            values: digest.heatTrend,
-            compact: true,
-          ),
-        ),
+        SizedBox(height: 170, child: TechHotspotHeatChart(values: digest.heatTrend, compact: true)),
         const SizedBox(height: AppSpacing.md),
         // 设计稿的语言占比列到 Top 8,比原先的 5 条多出长尾语言。
-        TechHotspotLanguagePanel(
-          languages: digest.languages,
-          maxItems: 8,
-          compact: true,
-        ),
+        TechHotspotLanguagePanel(languages: digest.languages, maxItems: 8, compact: true),
       ],
     );
   }
@@ -195,23 +158,14 @@ class _RadarTopicCards extends StatelessWidget {
   Widget build(BuildContext context) {
     final visibleTopics = topics.take(5).toList(growable: false);
     if (visibleTopics.isEmpty) {
-      return EmptyView(
-        icon: Icons.search_off_rounded,
-        message: AppLocalizations.of(context).tr('tech_hotspot.empty.topics'),
-      );
+      return EmptyView(icon: Icons.search_off_rounded, message: AppLocalizations.of(context).tr('tech_hotspot.empty.topics'));
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         for (var index = 0; index < visibleTopics.length; index++) ...[
           if (index != 0) const SizedBox(height: AppSpacing.sm),
-          TechHotspotTopicCard(
-            topic: visibleTopics[index],
-            compact: true,
-            onTap: () => context.push(
-              '/tech_hotspot/detail/${Uri.encodeComponent(visibleTopics[index].id)}',
-            ),
-          ),
+          TechHotspotTopicCard(topic: visibleTopics[index], compact: true, onTap: () => context.push('/tech_hotspot/detail/${Uri.encodeComponent(visibleTopics[index].id)}')),
         ],
       ],
     );

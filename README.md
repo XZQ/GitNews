@@ -4,6 +4,10 @@
 
 ## 界面预览
 
+当前 Windows Release 构建的 AI 动态页面（2026-07-31，1440 × 900）：
+
+![当前 AI 动态页面](docs/ui_design/desktop_ai_news_current.png)
+
 以下截图采集于 2026-06-27，保留为早期桌面版视觉记录；当前品牌、导航和部分页面布局已经演进，能力判断以“当前能力”和实际代码为准。
 
 | AI 动态 | GitHub 热榜 | AI 雷达 |
@@ -81,15 +85,16 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -Suite qui
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -Suite desktop
 ```
 
-`quick` 用于日常格式和静态分析反馈，`flutter` 增加全量测试，`desktop` 再增加
-Windows Release 构建与主窗口/托盘烟测。服务端使用 `-Suite server`，Windows
+`quick` 用于日常格式、可移植性和静态分析反馈，`flutter` 增加全量格式与测试，
+`desktop` 再增加 Windows Release 构建与主窗口/托盘烟测。服务端使用
+`-Suite server`，Windows
 发布前的全工程门禁使用 `-Suite all`。每次运行的摘要和逐步日志保存在忽略的
 `build/harness/`，详细说明见 [Agent Harness](docs/harness/README.md)。
 
 等价的底层命令为：
 
 ```bash
-dart format .
+dart format lib test
 flutter analyze
 flutter test
 flutter build windows --release
@@ -112,4 +117,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/windows_tray_smoke.ps1
 
 ## 当前状态
 
-当前开发基线为 `1.4.0+4` 加 `Unreleased` 改动。阶段一的多源聚合、资讯库和资讯↔GitHub 已经扩展到完整的阶段二客户端能力：独立 Settings、源管理、内置 Agnes 的逐条 AI 增强、事件聚类、FTS5、兴趣反馈、托盘与提醒均已落地。新的 `server/` 边界已经以可选、自托管方式实现定时采集、同步、协作、推送衔接和 GH Archive 分析；外部移动推送仍需部署者提供真实平台凭据，仓库不伪造已上线状态。
+当前开发基线为 `1.5.0+5` 加 `Unreleased` 改动。阶段一的多源聚合、资讯库和资讯↔GitHub 已经扩展到完整的阶段二客户端能力：独立 Settings、源管理、内置 Agnes 的逐条 AI 增强、事件聚类、FTS5、兴趣反馈、托盘与提醒均已落地。新的 `server/` 边界已经以可选、自托管方式实现定时采集、同步、协作、推送衔接和 GH Archive 分析；外部移动推送仍需部署者提供真实平台凭据，仓库不伪造已上线状态。

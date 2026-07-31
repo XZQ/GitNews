@@ -59,11 +59,7 @@ class AiHotDailyCodec {
     }
     return [
       for (final section in raw)
-        if (AiHotJson.object(section) case final Map<String, Object?> value)
-          AiHotDailySection(
-            label: AiHotJson.string(value['label']),
-            items: _items(value['items']),
-          ),
+        if (AiHotJson.object(section) case final Map<String, Object?> value) AiHotDailySection(label: AiHotJson.string(value['label']), items: _items(value['items'])),
     ];
   }
 

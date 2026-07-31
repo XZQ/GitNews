@@ -5,11 +5,7 @@ import '../errors/app_exception.dart';
 import 'github_api_support.dart';
 import 'github_resource_cache.dart';
 
-Future<DataResult<List<RepoActivityEvent>>> fetchGitHubRepoActivities({
-  required GitHubResourceCache resources,
-  required String fullName,
-  int perPage = 20,
-}) async {
+Future<DataResult<List<RepoActivityEvent>>> fetchGitHubRepoActivities({required GitHubResourceCache resources, required String fullName, int perPage = 20}) async {
   try {
     final result = await resources.getList(url: ApiEndpointsConfig.githubRepoEventsPath(fullName), queryParameters: {'per_page': perPage});
     return result.map((data) => data.map((raw) => parseGitHubRepoActivity(raw, fallbackRepoFullName: fullName)).toList(growable: false));
@@ -46,7 +42,7 @@ _ParsedActivity _parsePayload(String rawType, Map<String, Object?> payload, Stri
     'PullRequestEvent' => _parsePullRequest(payload),
     'ReleaseEvent' => _parseRelease(payload),
     'CreateEvent' => _parseCreate(payload),
-    _ => _ParsedActivity(type: RepoActivityType.other, title: rawType, htmlUrl: '${ApiEndpointsConfig.githubWebBaseUrl}/$repoFullName')
+    _ => _ParsedActivity(type: RepoActivityType.other, title: rawType, htmlUrl: '${ApiEndpointsConfig.githubWebBaseUrl}/$repoFullName'),
   };
 }
 

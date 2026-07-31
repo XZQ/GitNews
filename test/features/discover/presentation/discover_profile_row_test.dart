@@ -6,18 +6,18 @@ import 'package:github_news/features/discover/domain/discover_entities.dart';
 import 'package:github_news/features/discover/presentation/widgets/discover_profile_row.dart';
 
 DiscoverProfileEntity _profile({bool enriched = true}) => DiscoverProfileEntity(
-      login: 'karpathy',
-      name: 'Andrej',
-      type: 'User',
-      bio: enriched ? 'AI researcher' : '',
-      publicRepos: enriched ? 60 : 0,
-      followers: enriched ? 200000 : 0,
-      avatarUrl: '',
-      htmlUrl: '',
-      featuredRepoFullName: 'karpathy/nanoGPT',
-      kind: DiscoverProfileKind.people,
-      enriched: enriched,
-    );
+  login: 'karpathy',
+  name: 'Andrej',
+  type: 'User',
+  bio: enriched ? 'AI researcher' : '',
+  publicRepos: enriched ? 60 : 0,
+  followers: enriched ? 200000 : 0,
+  avatarUrl: '',
+  htmlUrl: '',
+  featuredRepoFullName: 'karpathy/nanoGPT',
+  kind: DiscoverProfileKind.people,
+  enriched: enriched,
+);
 
 void main() {
   testWidgets('enriched=false 时显示占位 —', (tester) async {

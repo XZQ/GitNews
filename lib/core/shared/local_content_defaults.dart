@@ -11,7 +11,7 @@ final List<String> defaultMonitoredRepos = [for (final repo in DemoData.trending
 final List<String> defaultFollowedDevelopers = {for (final contributor in DemoData.contributors) contributor.login}.toList();
 
 final Map<String, RepoEntity> _defaultRepoSnapshots = {
-  for (final repo in [...DemoData.trending, ...DemoData.recent]) repo.fullName: repo.toEntity()
+  for (final repo in [...DemoData.trending, ...DemoData.recent]) repo.fullName: repo.toEntity(),
 };
 
 final Map<String, ContributorEntity> _defaultDeveloperSnapshots = {for (final developer in DemoData.contributors) developer.login: developer.toEntity()};
@@ -24,6 +24,7 @@ Map<String, SavedRepoSnapshot> hydrateRepoSnapshots(Set<String> ids, Map<String,
 Map<String, SavedDeveloperSnapshot> hydrateDeveloperSnapshots(Set<String> ids, Map<String, SavedDeveloperSnapshot> stored) {
   final now = DateTime.now();
   return {
-    for (final id in ids) id: stored[id] ?? (_defaultDeveloperSnapshots[id] != null ? SavedDeveloperSnapshot.fromEntity(_defaultDeveloperSnapshots[id]!, now) : SavedDeveloperSnapshot.minimal(id, now))
+    for (final id in ids)
+      id: stored[id] ?? (_defaultDeveloperSnapshots[id] != null ? SavedDeveloperSnapshot.fromEntity(_defaultDeveloperSnapshots[id]!, now) : SavedDeveloperSnapshot.minimal(id, now)),
   };
 }

@@ -21,7 +21,7 @@ void main() {
             occurredAt: DateTime.now().toUtc(),
             htmlUrl: 'https://github.com/owner/repo/commit/abc',
             basis: MetricBasis.observed,
-          )
+          ),
         ],
       ),
     );
@@ -56,12 +56,7 @@ void main() {
         ),
     ];
 
-    await _pump(
-      tester,
-      SingleChildScrollView(
-        child: RepoDetailActivity(activities: activities),
-      ),
-    );
+    await _pump(tester, SingleChildScrollView(child: RepoDetailActivity(activities: activities)));
 
     expect(find.text('activity 7'), findsOneWidget);
     expect(find.text('activity 8'), findsNothing);

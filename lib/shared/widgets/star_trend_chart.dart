@@ -10,16 +10,7 @@ import '../../core/theme/app_typography.dart';
 *折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。
 */
 class StarTrendChart extends StatelessWidget {
-  const StarTrendChart({
-    required this.series,
-    this.height = 180,
-    this.showArea = true,
-    this.showGrid = true,
-    this.showLeftTitles = true,
-    this.curveSmoothness = 0.25,
-    this.xLabels,
-    super.key,
-  });
+  const StarTrendChart({required this.series, this.height = 180, this.showArea = true, this.showGrid = true, this.showLeftTitles = true, this.curveSmoothness = 0.25, this.xLabels, super.key});
 
   // 每条系列的颜色 + 数据点。
   final List<ChartSeries> series;
@@ -61,11 +52,7 @@ class StarTrendChart extends StatelessWidget {
                 show: showGrid,
                 drawVerticalLine: false,
                 horizontalInterval: yScale.interval,
-                getDrawingHorizontalLine: (_) => FlLine(
-                  color: colors.outlineVariant.withValues(alpha: 0.35),
-                  strokeWidth: 1,
-                  dashArray: [4, 4],
-                ),
+                getDrawingHorizontalLine: (_) => FlLine(color: colors.outlineVariant.withValues(alpha: 0.35), strokeWidth: 1, dashArray: [4, 4]),
               ),
               borderData: FlBorderData(show: false),
               titlesData: FlTitlesData(
@@ -79,15 +66,8 @@ class StarTrendChart extends StatelessWidget {
                     getTitlesWidget: (value, meta) => SideTitleWidget(
                       meta: meta,
                       space: AppSpacing.xs,
-                      fitInside: SideTitleFitInsideData.fromTitleMeta(
-                        meta,
-                        distanceFromEdge: AppSpacing.xxs,
-                      ),
-                      child: Text(
-                        _shortNumber(value, yScale.interval),
-                        maxLines: 1,
-                        style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-                      ),
+                      fitInside: SideTitleFitInsideData.fromTitleMeta(meta, distanceFromEdge: AppSpacing.xxs),
+                      child: Text(_shortNumber(value, yScale.interval), maxLines: 1, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
                     ),
                   ),
                 ),
@@ -107,15 +87,8 @@ class StarTrendChart extends StatelessWidget {
                       return SideTitleWidget(
                         meta: meta,
                         space: AppSpacing.xs2,
-                        fitInside: SideTitleFitInsideData.fromTitleMeta(
-                          meta,
-                          distanceFromEdge: AppSpacing.xxs,
-                        ),
-                        child: Text(
-                          label,
-                          maxLines: 1,
-                          style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-                        ),
+                        fitInside: SideTitleFitInsideData.fromTitleMeta(meta, distanceFromEdge: AppSpacing.xxs),
+                        child: Text(label, maxLines: 1, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
                       );
                     },
                   ),
@@ -125,9 +98,7 @@ class StarTrendChart extends StatelessWidget {
               lineBarsData: [
                 for (final item in nonEmptySeries)
                   LineChartBarData(
-                    spots: [
-                      for (var index = 0; index < item.values.length; index++) FlSpot(index.toDouble(), item.values[index]),
-                    ],
+                    spots: [for (var index = 0; index < item.values.length; index++) FlSpot(index.toDouble(), item.values[index])],
                     isCurved: curveSmoothness > 0,
                     curveSmoothness: curveSmoothness,
                     color: item.color,
@@ -136,14 +107,7 @@ class StarTrendChart extends StatelessWidget {
                     dotData: const FlDotData(show: false),
                     belowBarData: BarAreaData(
                       show: showArea,
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          item.color.withValues(alpha: 0.35),
-                          item.color.withValues(alpha: 0.0),
-                        ],
-                      ),
+                      gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [item.color.withValues(alpha: 0.35), item.color.withValues(alpha: 0.0)]),
                     ),
                   ),
               ],
@@ -195,8 +159,8 @@ class StarTrendChart extends StatelessWidget {
     final targetLabelCount = width < 280
         ? 3
         : width < 420
-            ? 4
-            : 5;
+        ? 4
+        : 5;
     return math.max(1, ((pointCount - 1) / (targetLabelCount - 1)).ceil());
   }
 
@@ -211,23 +175,23 @@ class StarTrendChart extends StatelessWidget {
       final decimals = interval < 10000
           ? 2
           : interval < 100000
-              ? 1
-              : 0;
+          ? 1
+          : 0;
       return '$sign${(absolute / 1000000).toStringAsFixed(decimals)}M';
     }
     if (absolute >= 1000) {
       final decimals = interval < 100
           ? 2
           : interval < 1000
-              ? 1
-              : 0;
+          ? 1
+          : 0;
       return '$sign${(absolute / 1000).toStringAsFixed(decimals)}k';
     }
     final decimals = interval < 0.1
         ? 2
         : interval < 1
-            ? 1
-            : 0;
+        ? 1
+        : 0;
     return v.toStringAsFixed(decimals);
   }
 }
@@ -268,10 +232,15 @@ class MiniBars extends StatelessWidget {
                 child: FractionallySizedBox(
                   heightFactor: (v / maxV).clamp(0.05, 1.0),
                   widthFactor: 1,
-                  child: Container(decoration: BoxDecoration(color: color.withValues(alpha: 0.6), borderRadius: const BorderRadius.vertical(top: Radius.circular(2)))),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.6),
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(2)),
+                    ),
+                  ),
                 ),
               ),
-            )
+            ),
         ],
       ),
     );
@@ -282,13 +251,7 @@ class MiniBars extends StatelessWidget {
 *极简面积趋势(行内用,无坐标轴)。
 */
 class Sparkline extends StatelessWidget {
-  const Sparkline({
-    required this.values,
-    this.color,
-    this.width = 64,
-    this.height = 20,
-    super.key,
-  });
+  const Sparkline({required this.values, this.color, this.width = 64, this.height = 20, super.key});
 
   final List<double> values;
   final Color? color;
@@ -301,7 +264,10 @@ class Sparkline extends StatelessWidget {
     if (values.isEmpty) {
       return SizedBox(width: width, height: height);
     }
-    return CustomPaint(size: Size(width, height), painter: _SparklinePainter(values: values, color: resolved));
+    return CustomPaint(
+      size: Size(width, height),
+      painter: _SparklinePainter(values: values, color: resolved),
+    );
   }
 }
 
@@ -318,11 +284,7 @@ class _SparklinePainter extends CustomPainter {
     final range = (maxV - minV) == 0 ? 1.0 : (maxV - minV);
     if (values.length == 1) {
       final y = size.height / 2;
-      canvas.drawCircle(
-        Offset(size.width / 2, y),
-        2,
-        Paint()..color = color,
-      );
+      canvas.drawCircle(Offset(size.width / 2, y), 2, Paint()..color = color);
       return;
     }
     final stepX = size.width / (values.length - 1);

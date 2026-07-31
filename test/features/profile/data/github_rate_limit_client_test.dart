@@ -51,8 +51,12 @@ void main() {
     });
 
     test('should map DioException to AppException', () async {
-      when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options')))
-          .thenThrow(DioException(type: DioExceptionType.connectionError, requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath)));
+      when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenThrow(
+        DioException(
+          type: DioExceptionType.connectionError,
+          requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
+        ),
+      );
 
       await expectLater(client.fetch(), throwsA(predicate<AppException>((e) => e.kind == AppExceptionKind.network)));
     });
@@ -60,14 +64,18 @@ void main() {
 }
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {
-  return Response<Map<String, Object?>>(requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath), statusCode: 200, data: body);
+  return Response<Map<String, Object?>>(
+    requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRateLimitPath),
+    statusCode: 200,
+    data: body,
+  );
 }
 
 Map<String, Object?> _body() {
   return <String, Object?>{
     'resources': <String, Object?>{
       'core': <String, Object?>{'limit': 60, 'remaining': 58, 'reset': 1783168200},
-      'search': <String, Object?>{'limit': 10, 'remaining': 9, 'reset': 1783168200}
-    }
+      'search': <String, Object?>{'limit': 10, 'remaining': 9, 'reset': 1783168200},
+    },
   };
 }

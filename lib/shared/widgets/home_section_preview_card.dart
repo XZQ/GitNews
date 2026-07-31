@@ -13,8 +13,17 @@ import '../../../../core/theme/app_typography.dart';
 *用于 AI 动态 / GitHub热榜 / 技术趋势 三栏 Top N 预览。
 */
 class HomeSectionPreviewCard<T> extends StatelessWidget {
-  const HomeSectionPreviewCard(
-      {required this.title, required this.subtitle, required this.accentColor, required this.icon, required this.path, required this.items, required this.tileBuilder, this.trailing, super.key});
+  const HomeSectionPreviewCard({
+    required this.title,
+    required this.subtitle,
+    required this.accentColor,
+    required this.icon,
+    required this.path,
+    required this.items,
+    required this.tileBuilder,
+    this.trailing,
+    super.key,
+  });
 
   final String title;
   final String subtitle;
@@ -29,8 +38,10 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
           Row(
             children: [
               Container(
@@ -45,24 +56,29 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700)),
+                    Text(
+                      title,
+                      style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
+                    ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
                       subtitle,
                       style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                    )
+                    ),
                   ],
                 ),
               ),
               if (trailing != null) ...[trailing!, const SizedBox(width: AppSpacing.sm)],
-              _MoreChip(path: path, accentColor: accentColor)
+              _MoreChip(path: path, accentColor: accentColor),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          for (var i = 0; i < items.length; i++) ...[if (i != 0) const SizedBox(height: AppSpacing.sm), tileBuilder(context, items[i], i)]
-        ]));
+          for (var i = 0; i < items.length; i++) ...[if (i != 0) const SizedBox(height: AppSpacing.sm), tileBuilder(context, items[i], i)],
+        ],
+      ),
+    );
   }
 }
 
@@ -90,8 +106,11 @@ class _MoreChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(l10n.tr('common.more'), style: AppTypography.labelSmall.copyWith(color: accentColor, fontWeight: FontWeight.w700)),
-              Icon(Icons.chevron_right_rounded, size: AppSpacing.md, color: accentColor)
+              Text(
+                l10n.tr('common.more'),
+                style: AppTypography.labelSmall.copyWith(color: accentColor, fontWeight: FontWeight.w700),
+              ),
+              Icon(Icons.chevron_right_rounded, size: AppSpacing.md, color: accentColor),
             ],
           ),
         ),
@@ -104,15 +123,7 @@ class _MoreChip extends StatelessWidget {
 *预览行通用样式:rank + 标题 + 副信息。
 */
 class PreviewRow extends StatelessWidget {
-  const PreviewRow({
-    required this.rank,
-    required this.rankColor,
-    required this.title,
-    required this.subtitle,
-    required this.meta,
-    required this.onTap,
-    super.key,
-  });
+  const PreviewRow({required this.rank, required this.rankColor, required this.title, required this.subtitle, required this.meta, required this.onTap, super.key});
 
   final String rank;
   final Color rankColor;
@@ -138,7 +149,10 @@ class PreviewRow extends StatelessWidget {
                 height: 22,
                 decoration: BoxDecoration(color: rankColor.withValues(alpha: 0.16), borderRadius: BorderRadius.circular(AppRadius.xs)),
                 alignment: Alignment.center,
-                child: Text(rank, style: AppTypography.labelSmall.copyWith(color: rankColor, fontWeight: FontWeight.w700)),
+                child: Text(
+                  rank,
+                  style: AppTypography.labelSmall.copyWith(color: rankColor, fontWeight: FontWeight.w700),
+                ),
               ),
               const SizedBox(width: AppSpacing.sm2),
               Expanded(
@@ -157,12 +171,15 @@ class PreviewRow extends StatelessWidget {
                       style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                    )
+                    ),
                   ],
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Text(meta, style: AppTypography.labelSmall.copyWith(color: rankColor, fontWeight: FontWeight.w700))
+              Text(
+                meta,
+                style: AppTypography.labelSmall.copyWith(color: rankColor, fontWeight: FontWeight.w700),
+              ),
             ],
           ),
         ),

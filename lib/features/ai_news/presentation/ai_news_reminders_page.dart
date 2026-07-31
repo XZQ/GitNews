@@ -51,10 +51,7 @@ class _AiNewsRemindersPageState extends ConsumerState<AiNewsRemindersPage> {
         body: reminders.when(
           data: _buildContent,
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (error, _) => ErrorView(
-            error: error.asAppException(),
-            onRetry: () => ref.invalidate(aiNewsRemindersProvider),
-          ),
+          error: (error, _) => ErrorView(error: error.asAppException(), onRetry: () => ref.invalidate(aiNewsRemindersProvider)),
         ),
       ),
     );
@@ -63,32 +60,18 @@ class _AiNewsRemindersPageState extends ConsumerState<AiNewsRemindersPage> {
   Widget _buildContent(List<AiNewsReminder> items) {
     final l10n = AppLocalizations.of(context);
     if (items.isEmpty) {
-      return EmptyView(
-        icon: Icons.notifications_none_rounded,
-        message: l10n.tr('ai_news.reminders.empty'),
-      );
+      return EmptyView(icon: Icons.notifications_none_rounded, message: l10n.tr('ai_news.reminders.empty'));
     }
     final filtered = _unreadOnly ? items.where((item) => !item.isRead).toList(growable: false) : items;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.sm,
-            AppSpacing.lg,
-            AppSpacing.sm,
-          ),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.sm),
           child: SegmentedButton<bool>(
             segments: [
-              ButtonSegment(
-                value: false,
-                label: Text(l10n.tr('ai_news.reminders.all')),
-              ),
-              ButtonSegment(
-                value: true,
-                label: Text(l10n.tr('ai_news.reminders.filter_unread')),
-              ),
+              ButtonSegment(value: false, label: Text(l10n.tr('ai_news.reminders.all'))),
+              ButtonSegment(value: true, label: Text(l10n.tr('ai_news.reminders.filter_unread'))),
             ],
             selected: {_unreadOnly},
             showSelectedIcon: false,
@@ -97,25 +80,14 @@ class _AiNewsRemindersPageState extends ConsumerState<AiNewsRemindersPage> {
         ),
         Expanded(
           child: filtered.isEmpty
-              ? EmptyView(
-                  icon: Icons.mark_email_read_outlined,
-                  message: l10n.tr('ai_news.reminders.no_unread'),
-                )
+              ? EmptyView(icon: Icons.mark_email_read_outlined, message: l10n.tr('ai_news.reminders.no_unread'))
               : ListView.separated(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.xs,
-                    AppSpacing.lg,
-                    AppSpacing.xxxl,
-                  ),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.xxxl),
                   itemCount: filtered.length,
                   separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, index) {
                     final reminder = filtered[index];
-                    return _ReminderCard(
-                      reminder: reminder,
-                      onTap: () => _open(reminder.itemId),
-                    );
+                    return _ReminderCard(reminder: reminder, onTap: () => _open(reminder.itemId));
                   },
                 ),
         ),
@@ -151,16 +123,9 @@ class _ReminderCard extends StatelessWidget {
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppRadius.md),
-            ),
+            decoration: BoxDecoration(color: accent.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.md)),
             alignment: Alignment.center,
-            child: Icon(
-              reminder.isRead ? Icons.notifications_none_rounded : Icons.notifications_active_rounded,
-              size: 20,
-              color: accent,
-            ),
+            child: Icon(reminder.isRead ? Icons.notifications_none_rounded : Icons.notifications_active_rounded, size: 20, color: accent),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -171,20 +136,14 @@ class _ReminderCard extends StatelessWidget {
                   reminder.title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.titleSmall.copyWith(
-                    color: colors.onSurface,
-                    fontWeight: reminder.isRead ? FontWeight.w600 : FontWeight.w700,
-                    height: 1.4,
-                  ),
+                  style: AppTypography.titleSmall.copyWith(color: colors.onSurface, fontWeight: reminder.isRead ? FontWeight.w600 : FontWeight.w700, height: 1.4),
                 ),
                 const SizedBox(height: AppSpacing.xs2),
                 Text(
                   '${reminder.source} · ${formatRelativeTime(l10n, reminder.publishedAt)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
+                  style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
                 ),
               ],
             ),
@@ -194,10 +153,7 @@ class _ReminderCard extends StatelessWidget {
             Container(
               width: 8,
               height: 8,
-              decoration: BoxDecoration(
-                color: colors.primary,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: colors.primary, shape: BoxShape.circle),
             ),
           ],
         ],

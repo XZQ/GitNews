@@ -10,12 +10,13 @@
       ]
     },
     "quick": {
-      "description": "Fast Flutter feedback loop with incremental formatting and no tests.",
+      "description": "Fast Flutter feedback loop with incremental formatting, portability checks, and no tests.",
       "includes": [
         "docs"
       ],
       "steps": [
         "flutter.changed-format-check",
+        "repo.portability-check",
         "flutter.analyze"
       ]
     },
@@ -30,17 +31,14 @@
       ]
     },
     "ci-windows": {
-      "description": "Incremental formatting, complete tests, and Windows release build for CI while baseline format debt remains visible.",
+      "description": "Complete Flutter gate and Windows release build for headless CI.",
       "platforms": [
         "windows"
       ],
       "includes": [
-        "quick"
+        "windows-build"
       ],
-      "steps": [
-        "flutter.test",
-        "desktop.release-build"
-      ]
+      "steps": []
     },
     "windows-build": {
       "description": "Complete Flutter gate plus a Windows release build; safe for headless CI.",
@@ -112,6 +110,16 @@
       ],
       "workingDirectory": ".",
       "timeoutSeconds": 300
+    },
+    "repo.portability-check": {
+      "description": "Reject machine-local test paths and duplicate Xcode object definitions.",
+      "kind": "powershell",
+      "script": "tools/check_repository_portability.ps1",
+      "arguments": [
+        "."
+      ],
+      "workingDirectory": ".",
+      "timeoutSeconds": 120
     },
     "flutter.format-check": {
       "description": "Verify Dart formatting without mutating source files.",

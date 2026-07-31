@@ -33,14 +33,8 @@ class RepoDetailPage extends ConsumerWidget {
     final content = ref.watch(localContentControllerProvider);
     final decodedFullName = Uri.decodeComponent(fullName);
     final actionRepo = state.asData?.value.data.repo;
-    final title = state.maybeWhen(
-      data: (result) => result.data.repo.fullName,
-      orElse: () => l10n.tr('repo_detail.title'),
-    );
-    final subtitle = state.maybeWhen(
-      data: (result) => result.data.repo.description,
-      orElse: () => l10n.tr('common.secondary_page_subtitle'),
-    );
+    final title = state.maybeWhen(data: (result) => result.data.repo.fullName, orElse: () => l10n.tr('repo_detail.title'));
+    final subtitle = state.maybeWhen(data: (result) => result.data.repo.description, orElse: () => l10n.tr('common.secondary_page_subtitle'));
     final actions = [
       HeaderAction(
         icon: content.isBookmarked(decodedFullName) ? Icons.bookmark : Icons.bookmark_border,
@@ -59,22 +53,28 @@ class RepoDetailPage extends ConsumerWidget {
       ),
     ];
     return SecondaryPageScaffold(
-        title: title,
-        subtitle: subtitle,
-        icon: Icons.code_rounded,
-        fallbackPath: '/home',
-        actions: actions,
-        body: state.when(
-            data: (result) {
-              final digest = result.data;
-              return ResponsiveLayout(
-                compact: (_) => _Mobile(digest: digest, freshness: result.freshness),
-                medium: (_) => CenteredContent(child: _Desktop(digest: digest, freshness: result.freshness)),
-                expanded: (_) => CenteredContent(child: _Desktop(digest: digest, freshness: result.freshness)),
-              );
-            },
-            loading: () => const RepoDetailSkeleton(),
-            error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(repoDetailResultProvider(fullName)))));
+      title: title,
+      subtitle: subtitle,
+      icon: Icons.code_rounded,
+      fallbackPath: '/home',
+      actions: actions,
+      body: state.when(
+        data: (result) {
+          final digest = result.data;
+          return ResponsiveLayout(
+            compact: (_) => _Mobile(digest: digest, freshness: result.freshness),
+            medium: (_) => CenteredContent(
+              child: _Desktop(digest: digest, freshness: result.freshness),
+            ),
+            expanded: (_) => CenteredContent(
+              child: _Desktop(digest: digest, freshness: result.freshness),
+            ),
+          );
+        },
+        loading: () => const RepoDetailSkeleton(),
+        error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(repoDetailResultProvider(fullName))),
+      ),
+    );
   }
 }
 
@@ -87,12 +87,7 @@ class _Mobile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         RepoDetailHeader(repo: digest.repo, freshness: freshness, compact: true),
         const SizedBox(height: AppSpacing.lg),
@@ -102,7 +97,7 @@ class _Mobile extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         RepoDetailContributors(contributors: digest.contributors),
         const SizedBox(height: AppSpacing.lg),
-        RepoDetailActivity(activities: digest.activities)
+        RepoDetailActivity(activities: digest.activities),
       ],
     );
   }
@@ -123,8 +118,12 @@ class _Desktop extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [Expanded(flex: 8, child: _Left(digest: digest)), const SizedBox(width: AppSpacing.lg), Expanded(flex: 4, child: _Right(relatedRepos: digest.relatedRepos))],
-        )
+          children: [
+            Expanded(flex: 8, child: _Left(digest: digest)),
+            const SizedBox(width: AppSpacing.lg),
+            Expanded(flex: 4, child: _Right(relatedRepos: digest.relatedRepos)),
+          ],
+        ),
       ],
     );
   }
@@ -145,7 +144,7 @@ class _Left extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         RepoDetailContributors(contributors: digest.contributors),
         const SizedBox(height: AppSpacing.lg),
-        RepoDetailActivity(activities: digest.activities)
+        RepoDetailActivity(activities: digest.activities),
       ],
     );
   }
@@ -164,7 +163,7 @@ class _Right extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         const RepoDetailTopicsCard(),
         const SizedBox(height: AppSpacing.lg),
-        RepoDetailRelatedReposCard(repos: relatedRepos)
+        RepoDetailRelatedReposCard(repos: relatedRepos),
       ],
     );
   }

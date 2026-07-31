@@ -30,7 +30,7 @@ const Set<String> _kReservedOwners = {
   'settings',
   'sponsors',
   'topics',
-  'trending'
+  'trending',
 };
 
 final RegExp _kRepoPattern = RegExp(r'github\.com/([A-Za-z0-9][A-Za-z0-9-]*)/([A-Za-z0-9._-]+)', caseSensitive: false);

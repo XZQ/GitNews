@@ -27,29 +27,28 @@ class LanguageTrendPage extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(trendingDigestProvider);
     return SecondaryPageScaffold(
-        title: l10n.tr('trending.language_trend.title'),
-        subtitle: l10n.tr('common.secondary_page_subtitle'),
-        icon: Icons.code_rounded,
-        fallbackPath: '/trending',
-        body: state.when(
-            data: (digest) {
-              if (digest.languages.isEmpty) {
-                return EmptyView(icon: Icons.code_rounded, message: l10n.tr('trending.language_trend.empty'));
-              }
-              return ResponsiveLayout(
-                compact: (_) => _Body(digest: digest),
-                medium: (_) => CenteredContent(child: _Body(digest: digest)),
-                expanded: (_) => CenteredContent(child: _Body(digest: digest)),
-              );
-            },
-            loading: () => const _PageSkeleton(),
-            error: (error, stackTrace) => ErrorView(
-                error: AppException(
-                  kind: AppExceptionKind.unknown,
-                  cause: error,
-                  stack: stackTrace,
-                ),
-                onRetry: () => ref.invalidate(trendingDigestProvider))));
+      title: l10n.tr('trending.language_trend.title'),
+      subtitle: l10n.tr('common.secondary_page_subtitle'),
+      icon: Icons.code_rounded,
+      fallbackPath: '/trending',
+      body: state.when(
+        data: (digest) {
+          if (digest.languages.isEmpty) {
+            return EmptyView(icon: Icons.code_rounded, message: l10n.tr('trending.language_trend.empty'));
+          }
+          return ResponsiveLayout(
+            compact: (_) => _Body(digest: digest),
+            medium: (_) => CenteredContent(child: _Body(digest: digest)),
+            expanded: (_) => CenteredContent(child: _Body(digest: digest)),
+          );
+        },
+        loading: () => const _PageSkeleton(),
+        error: (error, stackTrace) => ErrorView(
+          error: AppException(kind: AppExceptionKind.unknown, cause: error, stack: stackTrace),
+          onRetry: () => ref.invalidate(trendingDigestProvider),
+        ),
+      ),
+    );
   }
 }
 
@@ -63,12 +62,7 @@ class _Body extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final isLight = Theme.of(context).brightness == Brightness.light;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.sm,
-        AppSpacing.lg,
-        AppSpacing.xl,
-      ),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
         AppCard(
           child: Column(
@@ -78,15 +72,7 @@ class _Body extends StatelessWidget {
               const SizedBox(height: AppSpacing.lg),
               LanguageDonutChart(data: digest.languages, holeColor: isLight ? AppColors.surfaceLight : AppColors.surfaceDark),
               const SizedBox(height: AppSpacing.lg),
-              for (final l in digest.languages) ...[
-                LanguageDistributionRow(
-                  name: l.name,
-                  percent: l.percent,
-                  delta: l.delta,
-                  color: Color(l.accentArgb),
-                ),
-                const SizedBox(height: AppSpacing.sm2)
-              ]
+              for (final l in digest.languages) ...[LanguageDistributionRow(name: l.name, percent: l.percent, delta: l.delta, color: Color(l.accentArgb)), const SizedBox(height: AppSpacing.sm2)],
             ],
           ),
         ),
@@ -97,10 +83,10 @@ class _Body extends StatelessWidget {
             children: [
               SectionHeader(title: l10n.tr('trending.language_trend.growth_title'), subtitle: l10n.tr('trending.language_trend.growth_subtitle')),
               const SizedBox(height: AppSpacing.md),
-              LanguageGrowthBars(languages: digest.languages)
+              LanguageGrowthBars(languages: digest.languages),
             ],
           ),
-        )
+        ),
       ],
     );
   }
@@ -111,6 +97,15 @@ class _PageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(padding: EdgeInsets.all(AppSpacing.lg), child: Column(children: [Skeleton(height: 360), SizedBox(height: AppSpacing.lg), Skeleton(height: 240)]));
+    return const Padding(
+      padding: EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        children: [
+          Skeleton(height: 360),
+          SizedBox(height: AppSpacing.lg),
+          Skeleton(height: 240),
+        ],
+      ),
+    );
   }
 }

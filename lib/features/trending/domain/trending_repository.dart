@@ -10,7 +10,11 @@ enum TrendingWindow {
   month;
 
   static TrendingWindow fromValue(String value) {
-    return switch (value) { 'week' => TrendingWindow.week, 'month' => TrendingWindow.month, _ => TrendingWindow.today };
+    return switch (value) {
+      'week' => TrendingWindow.week,
+      'month' => TrendingWindow.month,
+      _ => TrendingWindow.today,
+    };
   }
 }
 
@@ -25,11 +29,23 @@ enum TrendingBoard {
   newRepos;
 
   static TrendingBoard fromValue(String value) {
-    return switch (value) { 'agent' => TrendingBoard.agent, 'mcp' => TrendingBoard.mcp, 'ai_coding' => TrendingBoard.aiCoding, 'new_repos' => TrendingBoard.newRepos, _ => TrendingBoard.all };
+    return switch (value) {
+      'agent' => TrendingBoard.agent,
+      'mcp' => TrendingBoard.mcp,
+      'ai_coding' => TrendingBoard.aiCoding,
+      'new_repos' => TrendingBoard.newRepos,
+      _ => TrendingBoard.all,
+    };
   }
 
   String get value {
-    return switch (this) { TrendingBoard.all => 'all', TrendingBoard.agent => 'agent', TrendingBoard.mcp => 'mcp', TrendingBoard.aiCoding => 'ai_coding', TrendingBoard.newRepos => 'new_repos' };
+    return switch (this) {
+      TrendingBoard.all => 'all',
+      TrendingBoard.agent => 'agent',
+      TrendingBoard.mcp => 'mcp',
+      TrendingBoard.aiCoding => 'ai_coding',
+      TrendingBoard.newRepos => 'new_repos',
+    };
   }
 }
 
@@ -51,12 +67,7 @@ class TrendingQuery {
 * GitHub 热榜中的高频仓库主题统计。
 */
 class TrendingTopicEntity {
-  const TrendingTopicEntity({
-    required this.name,
-    required this.repoCount,
-    required this.starCount,
-    this.basis = MetricBasis.seed,
-  });
+  const TrendingTopicEntity({required this.name, required this.repoCount, required this.starCount, this.basis = MetricBasis.seed});
 
   // GitHub repository topic 名称。
   final String name;

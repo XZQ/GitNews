@@ -15,20 +15,18 @@ class ProfileDataRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-      child: Row(children: [Expanded(child: Text(label, style: AppTypography.bodyMedium)), Text(value, style: AppTypography.labelMedium)]),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: AppTypography.bodyMedium)),
+          Text(value, style: AppTypography.labelMedium),
+        ],
+      ),
     );
   }
 }
 
 class ProfileSettingRow extends StatelessWidget {
-  const ProfileSettingRow({
-    required this.icon,
-    required this.label,
-    required this.trailing,
-    this.onTap,
-    this.showIcon = true,
-    super.key,
-  });
+  const ProfileSettingRow({required this.icon, required this.label, required this.trailing, this.onTap, this.showIcon = true, super.key});
 
   final IconData icon;
   final String label;
@@ -46,12 +44,9 @@ class ProfileSettingRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm2),
         child: Row(
           children: [
-            if (showIcon) ...[
-              Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant),
-              const SizedBox(width: AppSpacing.md),
-            ],
+            if (showIcon) ...[Icon(icon, size: 18, color: Theme.of(context).colorScheme.onSurfaceVariant), const SizedBox(width: AppSpacing.md)],
             Expanded(child: Text(label, style: AppTypography.bodyMedium)),
-            trailing
+            trailing,
           ],
         ),
       ),
@@ -69,20 +64,19 @@ class ProfileAboutRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: Row(
-        children: [Expanded(child: Text(label, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant))), Text(value, style: AppTypography.labelMedium)],
+        children: [
+          Expanded(
+            child: Text(label, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
+          Text(value, style: AppTypography.labelMedium),
+        ],
       ),
     );
   }
 }
 
 class ProfileDetailRow extends StatelessWidget {
-  const ProfileDetailRow({
-    required this.icon,
-    required this.iconColor,
-    required this.label,
-    required this.value,
-    super.key,
-  });
+  const ProfileDetailRow({required this.icon, required this.iconColor, required this.label, required this.value, super.key});
 
   final IconData icon;
   final Color iconColor;
@@ -99,7 +93,7 @@ class ProfileDetailRow extends StatelessWidget {
           Icon(icon, size: 18, color: iconColor),
           const SizedBox(width: AppSpacing.md),
           Expanded(child: Text(label, style: AppTypography.bodyMedium)),
-          Text(value, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant))
+          Text(value, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
         ],
       ),
     );

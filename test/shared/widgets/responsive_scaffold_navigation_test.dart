@@ -84,7 +84,12 @@ GoRouter _router() {
           _branch(
             '/home',
             const _RootPage(title: '今日一级页', actionLabel: '打开今日详情', target: '/home/detail/repo'),
-            routes: [GoRoute(path: 'detail/:id', builder: (_, __) => const _DetailPage(title: '今日详情'))],
+            routes: [
+              GoRoute(
+                path: 'detail/:id',
+                builder: (_, __) => const _DetailPage(title: '今日详情'),
+              ),
+            ],
           ),
           _branch('/ai_news', const _RootPage(title: 'AI 一级页')),
           _branch('/trending', const _RootPage(title: '热榜页')),
@@ -92,7 +97,12 @@ GoRouter _router() {
           _branch(
             '/discover',
             const _RootPage(title: '发现一级页', actionLabel: '打开发现详情', target: '/discover/detail/repo'),
-            routes: [GoRoute(path: 'detail/:id', builder: (_, __) => const _DetailPage(title: '发现详情'))],
+            routes: [
+              GoRoute(
+                path: 'detail/:id',
+                builder: (_, __) => const _DetailPage(title: '发现详情'),
+              ),
+            ],
           ),
           _branch('/monitor', const _RootPage(title: '监控一级页')),
           _branch('/project', const _RootPage(title: '报告页')),
@@ -128,12 +138,7 @@ class _TestApp extends StatelessWidget {
       overrides: [if (preferences != null) sharedPreferencesProvider.overrideWithValue(preferences!)],
       child: MaterialApp.router(
         locale: const Locale('zh', 'CN'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         routerConfig: router,
       ),

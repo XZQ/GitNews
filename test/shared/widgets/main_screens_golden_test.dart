@@ -39,139 +39,115 @@ void main() {
         localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         locale: const Locale('zh', 'CN'),
-        home: Scaffold(backgroundColor: const Color(0xFFF7F5F0), body: SizedBox(width: 1200, height: 800, child: SingleChildScrollView(child: body))),
+        home: Scaffold(
+          backgroundColor: const Color(0xFFF7F5F0),
+          body: SizedBox(width: 1200, height: 800, child: SingleChildScrollView(child: body)),
+        ),
       ),
     );
     await tester.pumpAndSettle(const Duration(milliseconds: 50));
   }
 
-  Widget headerConfig(
-    BuildContext context,
-    String titleKey,
-    String subtitleKey,
-    IconData icon,
-  ) {
+  Widget headerConfig(BuildContext context, String titleKey, String subtitleKey, IconData icon) {
     final l10n = AppLocalizations.of(context);
     return PageHeader(
-        icon: icon,
-        title: l10n.tr(titleKey),
-        subtitle: l10n.tr(subtitleKey),
-        searchHint: l10n.tr('common.search'),
-        searchValue: '',
-        onSearchChanged: (_) {},
-        onSearchSubmitted: (_) {},
-        pills: const [HeaderStatPill(icon: Icons.circle, label: '12', color: Colors.green)],
-        actions: [IconButton(tooltip: l10n.tr('common.refresh'), onPressed: () {}, icon: const Icon(Icons.add_circle_outline_rounded, size: 20))],
-        onRefresh: () {});
+      icon: icon,
+      title: l10n.tr(titleKey),
+      subtitle: l10n.tr(subtitleKey),
+      searchHint: l10n.tr('common.search'),
+      searchValue: '',
+      onSearchChanged: (_) {},
+      onSearchSubmitted: (_) {},
+      pills: const [HeaderStatPill(icon: Icons.circle, label: '12', color: Colors.green)],
+      actions: [IconButton(tooltip: l10n.tr('common.refresh'), onPressed: () {}, icon: const Icon(Icons.add_circle_outline_rounded, size: 20))],
+      onRefresh: () {},
+    );
   }
 
   group('Windows golden baselines', () {
     testWidgets('Main screen header — Home golden', (tester) async {
-      await pumpHeader(
-          tester,
-          Builder(
-              builder: (context) => headerConfig(
-                    context,
-                    'home.title',
-                    'home.subtitle',
-                    Icons.dashboard_outlined,
-                  )));
+      await pumpHeader(tester, Builder(builder: (context) => headerConfig(context, 'home.title', 'home.subtitle', Icons.dashboard_outlined)));
       await expectLater(find.byType(PageHeader), matchesGoldenFile('goldens/main_header_home.png'));
     });
 
     testWidgets('Main screen header — AI News golden', (tester) async {
-      await pumpHeader(
-          tester,
-          Builder(
-              builder: (context) => headerConfig(
-                    context,
-                    'ai_news.title',
-                    'ai_news.subtitle',
-                    Icons.auto_awesome_rounded,
-                  )));
+      await pumpHeader(tester, Builder(builder: (context) => headerConfig(context, 'ai_news.title', 'ai_news.subtitle', Icons.auto_awesome_rounded)));
       await expectLater(find.byType(PageHeader), matchesGoldenFile('goldens/main_header_ai_news.png'));
     });
 
     testWidgets('Main screen header — Trending golden', (tester) async {
-      await pumpHeader(
-          tester,
-          Builder(
-              builder: (context) => headerConfig(
-                    context,
-                    'trending.title',
-                    'trending.page_header.subtitle',
-                    Icons.trending_up_rounded,
-                  )));
+      await pumpHeader(tester, Builder(builder: (context) => headerConfig(context, 'trending.title', 'trending.page_header.subtitle', Icons.trending_up_rounded)));
       await expectLater(find.byType(PageHeader), matchesGoldenFile('goldens/main_header_trending.png'));
     });
 
     testWidgets('Main screen header — Tech Hotspot golden', (tester) async {
-      await pumpHeader(
-          tester,
-          Builder(
-              builder: (context) => headerConfig(
-                    context,
-                    'tech_hotspot.title',
-                    'tech_hotspot.subtitle',
-                    Icons.device_hub_rounded,
-                  )));
+      await pumpHeader(tester, Builder(builder: (context) => headerConfig(context, 'tech_hotspot.title', 'tech_hotspot.subtitle', Icons.device_hub_rounded)));
       await expectLater(find.byType(PageHeader), matchesGoldenFile('goldens/main_header_tech_hotspot.png'));
     });
 
     testWidgets('Main screen header — Monitor golden', (tester) async {
-      await pumpHeader(
-          tester,
-          Builder(
-              builder: (context) => headerConfig(
-                    context,
-                    'monitor.title',
-                    'monitor.subtitle',
-                    Icons.radar_rounded,
-                  )));
+      await pumpHeader(tester, Builder(builder: (context) => headerConfig(context, 'monitor.title', 'monitor.subtitle', Icons.radar_rounded)));
       await expectLater(find.byType(PageHeader), matchesGoldenFile('goldens/main_header_monitor.png'));
     });
   }, skip: !Platform.isWindows);
 
   group('Windows golden baselines — full screen chrome', () {
     testWidgets('Main screen body — header + metrics + cards + skeleton', (tester) async {
-      await pumpScreen(tester, Builder(builder: (context) {
-        final l10n = AppLocalizations.of(context);
-        return Padding(
-          padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              PageHeader(
-                icon: Icons.dashboard_outlined,
-                title: l10n.tr('home.title'),
-                subtitle: l10n.tr('home.subtitle'),
-                searchHint: l10n.tr('common.search'),
-                pills: const [HeaderStatPill(icon: Icons.circle, label: '12', color: Colors.green)],
-                actions: [IconButton(tooltip: l10n.tr('common.refresh'), onPressed: () {}, icon: const Icon(Icons.refresh_rounded, size: 20))],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    SectionHeader(title: l10n.tr('trending.page.repos'), subtitle: l10n.tr('trending.list.subtitle.short')),
-                    const SizedBox(height: AppSpacing.md),
-                    const Row(
+      await pumpScreen(
+        tester,
+        Builder(
+          builder: (context) {
+            final l10n = AppLocalizations.of(context);
+            return Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  PageHeader(
+                    icon: Icons.dashboard_outlined,
+                    title: l10n.tr('home.title'),
+                    subtitle: l10n.tr('home.subtitle'),
+                    searchHint: l10n.tr('common.search'),
+                    pills: const [HeaderStatPill(icon: Icons.circle, label: '12', color: Colors.green)],
+                    actions: [IconButton(tooltip: l10n.tr('common.refresh'), onPressed: () {}, icon: const Icon(Icons.refresh_rounded, size: 20))],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(child: MetricCard(icon: Icons.star_rounded, title: 'Star 增长', value: '1.2k')),
-                        SizedBox(width: AppSpacing.md),
-                        Expanded(child: MetricCard(icon: Icons.fork_right, title: 'Fork', value: '180'))
+                        SectionHeader(title: l10n.tr('trending.page.repos'), subtitle: l10n.tr('trending.list.subtitle.short')),
+                        const SizedBox(height: AppSpacing.md),
+                        const Row(
+                          children: [
+                            Expanded(
+                              child: MetricCard(icon: Icons.star_rounded, title: 'Star 增长', value: '1.2k'),
+                            ),
+                            SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: MetricCard(icon: Icons.fork_right, title: 'Fork', value: '180'),
+                            ),
+                          ],
+                        ),
                       ],
-                    )
-                  ],
-                ),
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  const AppCard(
+                    child: Column(
+                      children: [
+                        Skeleton(height: 72),
+                        SizedBox(height: AppSpacing.md),
+                        Skeleton(height: 72),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: AppSpacing.lg),
-              const AppCard(child: Column(children: [Skeleton(height: 72), SizedBox(height: AppSpacing.md), Skeleton(height: 72)]))
-            ],
-          ),
-        );
-      }));
+            );
+          },
+        ),
+      );
       await expectLater(find.byType(SingleChildScrollView), matchesGoldenFile('goldens/main_screen_full_chrome.png'));
     });
   }, skip: !Platform.isWindows);

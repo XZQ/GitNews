@@ -10,12 +10,7 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         locale: const Locale('zh', 'CN'),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
+        localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
         supportedLocales: AppLocalizations.supportedLocales,
         home: MobileDoubleBackExit(
           onExit: () async => exitCount++,

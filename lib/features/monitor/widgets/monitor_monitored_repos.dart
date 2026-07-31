@@ -26,31 +26,24 @@ class MonitorMonitoredRepos extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.md,
-                AppSpacing.lg,
-                AppSpacing.xs,
-              ),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
               child: SectionHeader(title: l10n.tr('monitor.monitored_repos.title'), subtitle: l10n.tr('monitor.monitored_repos.subtitle')),
             ),
           ),
           if (repos.isEmpty)
-            SliverFillRemaining(hasScrollBody: false, child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('monitor.monitored_repos.empty')))
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('monitor.monitored_repos.empty')),
+            )
           else
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.md,
-                AppSpacing.xs,
-                AppSpacing.md,
-                AppSpacing.md,
-              ),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
               sliver: SliverList.separated(
                 itemCount: repos.length,
                 separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
                 itemBuilder: (context, i) => MonitorMonitoredRow(repo: repos[i]),
               ),
-            )
+            ),
         ],
       ),
     );
@@ -90,7 +83,10 @@ class _StatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: AppSpacing.xxs),
       decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.sm)),
-      child: Text(text, style: AppTypography.labelSmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600)),
+      child: Text(
+        text,
+        style: AppTypography.labelSmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
+      ),
     );
   }
 }

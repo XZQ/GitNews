@@ -38,21 +38,10 @@ class AiNewsCacheDao {
   */
   Future<List<AiNewsItem>> readAll({AiNewsCategory? category}) async {
     try {
-      final rows = await _db.query(
-        _table,
-        where: category == null ? null : 'category = ?',
-        whereArgs: category == null ? null : [category.code],
-        orderBy: 'published_at DESC',
-        limit: _readLimit,
-      );
+      final rows = await _db.query(_table, where: category == null ? null : 'category = ?', whereArgs: category == null ? null : [category.code], orderBy: 'published_at DESC', limit: _readLimit);
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'readAll'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'readAll'});
     }
   }
 
@@ -65,11 +54,7 @@ class AiNewsCacheDao {
   *与 [readAll] 不同,这里不受 [_readLimit] 的「首屏渲染」定位约束,
   *面向的是沉淀在本地的全部历史条目。`%`/`_`/转义符做 ESCAPE 处理。
   */
-  Future<List<AiNewsItem>> searchAll(
-    String query, {
-    AiNewsCategory? category,
-    AiNewsLibraryFilter filter = const AiNewsLibraryFilter(),
-  }) async {
+  Future<List<AiNewsItem>> searchAll(String query, {AiNewsCategory? category, AiNewsLibraryFilter filter = const AiNewsLibraryFilter()}) async {
     final keyword = query.trim();
     try {
       final where = <String>[];
@@ -116,30 +101,17 @@ class AiNewsCacheDao {
       );
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'searchAll'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'searchAll'});
     }
   }
 
   /* 返回资讯库中可用于过滤的来源列表。 */
   Future<List<String>> sources() async {
     try {
-      final rows = await _db.rawQuery(
-        'SELECT DISTINCT source FROM $_table WHERE source != ? ORDER BY source',
-        [''],
-      );
+      final rows = await _db.rawQuery('SELECT DISTINCT source FROM $_table WHERE source != ? ORDER BY source', ['']);
       return rows.map((row) => row['source'] as String).toList(growable: false);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'sources'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'sources'});
     }
   }
 
@@ -148,23 +120,13 @@ class AiNewsCacheDao {
   */
   Future<AiNewsItem?> readById(String id) async {
     try {
-      final rows = await _db.query(
-        _table,
-        where: 'id = ?',
-        whereArgs: [id],
-        limit: 1,
-      );
+      final rows = await _db.query(_table, where: 'id = ?', whereArgs: [id], limit: 1);
       if (rows.isEmpty) {
         return null;
       }
       return _rowToItem(rows.first);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'readById'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'readById'});
     }
   }
 
@@ -174,59 +136,40 @@ class AiNewsCacheDao {
   *- 使用 INSERT OR REPLACE,使旧条目被新值覆盖
   *- 同条目再次入库时 `cached_at` 会被刷新,延长其容量清理豁免期
   */
-  Future<void> upsertPage({
-    required AiNewsCategory? category,
-    required String? cursor,
-    required AiNewsDigest digest,
-    required DateTime now,
-  }) async {
+  Future<void> upsertPage({required AiNewsCategory? category, required String? cursor, required AiNewsDigest digest, required DateTime now}) async {
     final cachedAt = now.millisecondsSinceEpoch;
     try {
       final batch = _db.batch();
       for (final item in digest.items) {
-        batch.insert(
-          _table,
-          {
-            'id': item.id,
-            'category': item.category.code,
-            'title': item.title,
-            'title_en': item.titleEn,
-            'summary': item.summary,
-            'source': item.source,
-            'url': item.url,
-            'permalink': item.permalink,
-            'published_at': item.publishedAt.millisecondsSinceEpoch,
-            'score': item.score,
-            'selected': item.selected ? 1 : 0,
-            'author': item.author,
-            'content': item.content,
-            'attribution_source': item.attributionSource,
-            'cached_at': cachedAt
-          },
-          conflictAlgorithm: ConflictAlgorithm.replace,
-        );
+        batch.insert(_table, {
+          'id': item.id,
+          'category': item.category.code,
+          'title': item.title,
+          'title_en': item.titleEn,
+          'summary': item.summary,
+          'source': item.source,
+          'url': item.url,
+          'permalink': item.permalink,
+          'published_at': item.publishedAt.millisecondsSinceEpoch,
+          'score': item.score,
+          'selected': item.selected ? 1 : 0,
+          'author': item.author,
+          'content': item.content,
+          'attribution_source': item.attributionSource,
+          'cached_at': cachedAt,
+        }, conflictAlgorithm: ConflictAlgorithm.replace);
       }
       await batch.commit(noResult: true);
       await _meta.upsert(cacheKey(category: category, cursor: cursor), now);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'upsertPage'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'upsertPage'});
     }
   }
 
   /* 
   *缓存是否还新鲜:`true` = 距上次拉取不足 [ttl]。
   */
-  Future<bool> isFresh({
-    required AiNewsCategory? category,
-    required String? cursor,
-    required Duration ttl,
-    required DateTime now,
-  }) async {
+  Future<bool> isFresh({required AiNewsCategory? category, required String? cursor, required Duration ttl, required DateTime now}) async {
     final last = await _meta.lastFetched(cacheKey(category: category, cursor: cursor));
     if (last == null) {
       return false;
@@ -242,12 +185,7 @@ class AiNewsCacheDao {
     try {
       await _db.delete(_table);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'clear'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'clear'});
     }
   }
 

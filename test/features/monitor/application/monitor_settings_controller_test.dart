@@ -7,7 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() {
   test('keeps only the supported in-app alert-center switch', () async {
     SharedPreferences.setMockInitialValues({
-      'monitor_notification_settings': ['0', '1', '1', '1', '1', '1', '1']
+      'monitor_notification_settings': ['0', '1', '1', '1', '1', '1', '1'],
     });
     final container = await _container();
     addTearDown(container.dispose);

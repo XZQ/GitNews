@@ -129,11 +129,17 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
           if (compact)
             Row(
               children: [
-                Expanded(child: OutlinedButton(onPressed: _clearing ? null : _onClear, child: Text(_clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear')))),
+                Expanded(
+                  child: OutlinedButton(onPressed: _clearing ? null : _onClear, child: Text(_clearing ? l10n.tr('profile.data.clearing') : l10n.tr('profile.data.clear'))),
+                ),
                 const SizedBox(width: AppSpacing.sm),
-                Expanded(child: OutlinedButton(onPressed: _exporting || _importing ? null : _onExport, child: Text(l10n.tr('config.export_button')))),
+                Expanded(
+                  child: OutlinedButton(onPressed: _exporting || _importing ? null : _onExport, child: Text(l10n.tr('config.export_button'))),
+                ),
                 const SizedBox(width: AppSpacing.sm),
-                Expanded(child: OutlinedButton(onPressed: _exporting || _importing ? null : _onImport, child: Text(l10n.tr('config.import_button')))),
+                Expanded(
+                  child: OutlinedButton(onPressed: _exporting || _importing ? null : _onImport, child: Text(l10n.tr('config.import_button'))),
+                ),
               ],
             )
           else ...[
@@ -149,19 +155,11 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _exporting || _importing ? null : _onExport,
-                    icon: const Icon(Icons.upload_outlined, size: 16),
-                    label: Text(l10n.tr('config.export_button')),
-                  ),
+                  child: OutlinedButton.icon(onPressed: _exporting || _importing ? null : _onExport, icon: const Icon(Icons.upload_outlined, size: 16), label: Text(l10n.tr('config.export_button'))),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: _exporting || _importing ? null : _onImport,
-                    icon: const Icon(Icons.download_outlined, size: 16),
-                    label: Text(l10n.tr('config.import_button')),
-                  ),
+                  child: OutlinedButton.icon(onPressed: _exporting || _importing ? null : _onImport, icon: const Icon(Icons.download_outlined, size: 16), label: Text(l10n.tr('config.import_button'))),
                 ),
               ],
             ),

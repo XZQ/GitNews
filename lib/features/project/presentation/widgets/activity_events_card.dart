@@ -25,25 +25,25 @@ class ActivityEventsCard extends StatelessWidget {
       return EmptyView(icon: Icons.history_toggle_off_rounded, message: l10n.tr('project.activity.empty'));
     }
     return AppCard(
-        padding: EdgeInsets.zero,
-        child: Column(children: [
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.md,
-              AppSpacing.lg,
-              AppSpacing.xs,
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
             child: Row(
               children: [
-                Expanded(child: SectionHeader(title: l10n.tr('project.activity.recent_7d'), subtitle: l10n.tr('project.activity.recent_7d.subtitle'))),
+                Expanded(
+                  child: SectionHeader(title: l10n.tr('project.activity.recent_7d'), subtitle: l10n.tr('project.activity.recent_7d.subtitle')),
+                ),
                 const SizedBox(width: AppSpacing.sm),
-                MetricBasisBadge(basis: activities.first.basis)
+                MetricBasisBadge(basis: activities.first.basis),
               ],
             ),
           ),
-          for (var index = 0; index < activities.length; index++) ...[if (index != 0) const Divider(height: 1), _EventTile(activity: activities[index])]
-        ]));
+          for (var index = 0; index < activities.length; index++) ...[if (index != 0) const Divider(height: 1), _EventTile(activity: activities[index])],
+        ],
+      ),
+    );
   }
 }
 
@@ -93,10 +93,10 @@ class _EventTile extends StatelessWidget {
                         style: AppTypography.labelSmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                      )
+                      ),
                     ],
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -113,7 +113,7 @@ _ActivityVisual _visualFor(BuildContext context, RepoActivityType type) {
     RepoActivityType.pullRequest => const _ActivityVisual(icon: Icons.merge_type_rounded, color: AppColors.info),
     RepoActivityType.release => const _ActivityVisual(icon: Icons.new_releases_outlined, color: AppColors.brand),
     RepoActivityType.create => _ActivityVisual(icon: Icons.add_circle_outline, color: Theme.of(context).colorScheme.primary),
-    RepoActivityType.other => _ActivityVisual(icon: Icons.history_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant)
+    RepoActivityType.other => _ActivityVisual(icon: Icons.history_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
   };
 }
 

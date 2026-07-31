@@ -45,12 +45,10 @@ class LocalDatabase {
     sqfliteFfiInit();
     final dir = await getApplicationSupportDirectory();
     final dbPath = p.join(dir.path, kDatabaseFileName);
-    final db = await databaseFactoryFfi.openDatabase(dbPath,
-        options: OpenDatabaseOptions(
-          version: _kCurrentVersion,
-          onCreate: bootstrapSchema,
-          onUpgrade: onUpgradeSchema,
-        ));
+    final db = await databaseFactoryFfi.openDatabase(
+      dbPath,
+      options: OpenDatabaseOptions(version: _kCurrentVersion, onCreate: bootstrapSchema, onUpgrade: onUpgradeSchema),
+    );
     return LocalDatabase._(db, dbPath);
   }
 
@@ -61,12 +59,10 @@ class LocalDatabase {
   static Future<LocalDatabase> openInMemory() async {
     sqfliteFfiInit();
     const name = ':memory:';
-    final db = await databaseFactoryFfi.openDatabase(name,
-        options: OpenDatabaseOptions(
-          version: _kCurrentVersion,
-          onCreate: bootstrapSchema,
-          onUpgrade: onUpgradeSchema,
-        ));
+    final db = await databaseFactoryFfi.openDatabase(
+      name,
+      options: OpenDatabaseOptions(version: _kCurrentVersion, onCreate: bootstrapSchema, onUpgrade: onUpgradeSchema),
+    );
     return LocalDatabase._(db, name);
   }
 
@@ -101,12 +97,7 @@ class LocalDatabase {
       }
       await _db.execute('VACUUM');
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'clearAll'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'clearAll'});
     }
   }
 

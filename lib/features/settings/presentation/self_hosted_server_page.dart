@@ -44,22 +44,10 @@ class SelfHostedServerPage extends ConsumerWidget {
               AppCard(
                 child: Column(
                   children: [
-                    _ConnectionRow(
-                      label: l10n.tr('settings.server.base_url'),
-                      value: connection.baseUrl,
-                    ),
-                    _ConnectionRow(
-                      label: l10n.tr('settings.server.workspace'),
-                      value: connection.workspaceId,
-                    ),
-                    _ConnectionRow(
-                      label: l10n.tr('settings.server.member'),
-                      value: connection.memberId,
-                    ),
-                    _ConnectionRow(
-                      label: l10n.tr('settings.server.api_key'),
-                      value: connection.configured ? connection.maskedKey : l10n.tr('settings.server.not_configured'),
-                    ),
+                    _ConnectionRow(label: l10n.tr('settings.server.base_url'), value: connection.baseUrl),
+                    _ConnectionRow(label: l10n.tr('settings.server.workspace'), value: connection.workspaceId),
+                    _ConnectionRow(label: l10n.tr('settings.server.member'), value: connection.memberId),
+                    _ConnectionRow(label: l10n.tr('settings.server.api_key'), value: connection.configured ? connection.maskedKey : l10n.tr('settings.server.not_configured')),
                   ],
                 ),
               ),
@@ -68,10 +56,7 @@ class SelfHostedServerPage extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SectionHeader(
-                      title: l10n.tr('settings.server.sync_title'),
-                      subtitle: l10n.tr('settings.server.sync_note'),
-                    ),
+                    SectionHeader(title: l10n.tr('settings.server.sync_title'), subtitle: l10n.tr('settings.server.sync_note')),
                     const SizedBox(height: AppSpacing.md),
                     Wrap(
                       spacing: AppSpacing.sm,
@@ -94,18 +79,10 @@ class SelfHostedServerPage extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    if (status.busy) ...[
-                      const SizedBox(height: AppSpacing.md),
-                      const LinearProgressIndicator(),
-                    ],
+                    if (status.busy) ...[const SizedBox(height: AppSpacing.md), const LinearProgressIndicator()],
                     if (status.messageKey != null) ...[
                       const SizedBox(height: AppSpacing.md),
-                      Text(
-                        l10n.tr(status.messageKey!),
-                        style: AppTypography.bodySmall.copyWith(
-                          color: status.error ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
+                      Text(l10n.tr(status.messageKey!), style: AppTypography.bodySmall.copyWith(color: status.error ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.primary)),
                     ],
                   ],
                 ),
@@ -117,11 +94,7 @@ class SelfHostedServerPage extends ConsumerWidget {
     );
   }
 
-  Future<void> _edit(
-    BuildContext context,
-    WidgetRef ref,
-    ServerConnectionState current,
-  ) async {
+  Future<void> _edit(BuildContext context, WidgetRef ref, ServerConnectionState current) async {
     final draft = await showDialog<_ServerDraft>(
       context: context,
       builder: (_) => _ServerConnectionDialog(current: current),
@@ -130,17 +103,10 @@ class SelfHostedServerPage extends ConsumerWidget {
       return;
     }
     try {
-      await ref.read(serverConnectionControllerProvider.notifier).save(
-            baseUrl: draft.baseUrl,
-            workspaceId: draft.workspaceId,
-            memberId: draft.memberId,
-            apiKey: draft.apiKey,
-          );
+      await ref.read(serverConnectionControllerProvider.notifier).save(baseUrl: draft.baseUrl, workspaceId: draft.workspaceId, memberId: draft.memberId, apiKey: draft.apiKey);
     } on FormatException {
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context).tr('settings.server.invalid'))),
-        );
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).tr('settings.server.invalid'))));
       }
     }
   }
@@ -207,16 +173,22 @@ class _ServerConnectionDialogState extends State<_ServerConnectionDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: _url, decoration: InputDecoration(labelText: l10n.tr('settings.server.base_url'))),
-            TextField(controller: _workspace, decoration: InputDecoration(labelText: l10n.tr('settings.server.workspace'))),
-            TextField(controller: _member, decoration: InputDecoration(labelText: l10n.tr('settings.server.member'))),
+            TextField(
+              controller: _url,
+              decoration: InputDecoration(labelText: l10n.tr('settings.server.base_url')),
+            ),
+            TextField(
+              controller: _workspace,
+              decoration: InputDecoration(labelText: l10n.tr('settings.server.workspace')),
+            ),
+            TextField(
+              controller: _member,
+              decoration: InputDecoration(labelText: l10n.tr('settings.server.member')),
+            ),
             TextField(
               controller: _key,
               obscureText: true,
-              decoration: InputDecoration(
-                labelText: l10n.tr('settings.server.api_key'),
-                hintText: widget.current.configured ? l10n.tr('settings.server.keep_key') : null,
-              ),
+              decoration: InputDecoration(labelText: l10n.tr('settings.server.api_key'), hintText: widget.current.configured ? l10n.tr('settings.server.keep_key') : null),
             ),
           ],
         ),
@@ -226,12 +198,7 @@ class _ServerConnectionDialogState extends State<_ServerConnectionDialog> {
         FilledButton(
           onPressed: () => Navigator.pop(
             context,
-            _ServerDraft(
-              baseUrl: _url.text,
-              workspaceId: _workspace.text,
-              memberId: _member.text,
-              apiKey: _key.text.trim().isEmpty ? widget.current.apiKey ?? '' : _key.text,
-            ),
+            _ServerDraft(baseUrl: _url.text, workspaceId: _workspace.text, memberId: _member.text, apiKey: _key.text.trim().isEmpty ? widget.current.apiKey ?? '' : _key.text),
           ),
           child: Text(l10n.tr('common.save')),
         ),

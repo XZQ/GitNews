@@ -38,12 +38,7 @@ class MobilePageHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.sm,
-              AppSpacing.sm2,
-              0,
-            ),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.sm2, 0),
             child: Row(
               children: [
                 if (inlineSearch)
@@ -62,24 +57,12 @@ class MobilePageHeader extends StatelessWidget {
                       style: AppTypography.headlineLarge.copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
                     ),
                   ),
-                if (inlineSearch && search != null) ...[
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(child: search!),
-                ],
+                if (inlineSearch && search != null) ...[const SizedBox(width: AppSpacing.md), Expanded(child: search!)],
                 ...actions,
               ],
             ),
           ),
-          if (search != null && !inlineSearch)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.sm,
-                AppSpacing.lg,
-                0,
-              ),
-              child: search!,
-            ),
+          if (search != null && !inlineSearch) Padding(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0), child: search!),
           if (bottom != null) ...[const SizedBox(height: AppSpacing.xs), bottom!],
           const SizedBox(height: AppSpacing.sm),
         ],

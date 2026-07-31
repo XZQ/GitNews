@@ -54,21 +54,29 @@ void main() {
     final result = await client.fetchItems(category: 'industry', selectedOnly: true);
 
     expect(result.data.items.single.toDomain().attributionSource, 'AI HOT');
-    final captured = verify(
-      () => resources.getObject(
-        url: ApiEndpointsConfig.aiNewsItemsPath,
-        ttl: any(named: 'ttl'),
-        queryParameters: captureAny(named: 'queryParameters'),
-        force: false,
-      ),
-    ).captured.single as Map<String, Object?>;
+    final captured =
+        verify(
+              () => resources.getObject(
+                url: ApiEndpointsConfig.aiNewsItemsPath,
+                ttl: any(named: 'ttl'),
+                queryParameters: captureAny(named: 'queryParameters'),
+                force: false,
+              ),
+            ).captured.single
+            as Map<String, Object?>;
     expect(captured, containsPair('mode', 'selected'));
     expect(captured, containsPair('take', 50));
     expect(captured, containsPair('category', 'industry'));
   });
 
   test('hot-topics maps multi-source and signal counts', () async {
-    when(() => resources.getObject(url: ApiEndpointsConfig.aiHotTopicsPath, ttl: any(named: 'ttl'), force: false)).thenAnswer(
+    when(
+      () => resources.getObject(
+        url: ApiEndpointsConfig.aiHotTopicsPath,
+        ttl: any(named: 'ttl'),
+        force: false,
+      ),
+    ).thenAnswer(
       (_) async => const DataResult(
         data: {
           'count': 1,
@@ -113,10 +121,20 @@ void main() {
       ],
       'flashes': <Object?>[],
     };
-    when(() => resources.getObject(url: ApiEndpointsConfig.aiHotDailyPath, ttl: any(named: 'ttl'), force: false))
-        .thenAnswer((_) async => const DataResult(data: report, freshness: DataFreshness.live));
-    when(() => resources.getObject(url: ApiEndpointsConfig.aiHotDailyByDatePath('2026-07-18'), ttl: any(named: 'ttl'), force: false))
-        .thenAnswer((_) async => const DataResult(data: report, freshness: DataFreshness.live));
+    when(
+      () => resources.getObject(
+        url: ApiEndpointsConfig.aiHotDailyPath,
+        ttl: any(named: 'ttl'),
+        force: false,
+      ),
+    ).thenAnswer((_) async => const DataResult(data: report, freshness: DataFreshness.live));
+    when(
+      () => resources.getObject(
+        url: ApiEndpointsConfig.aiHotDailyByDatePath('2026-07-18'),
+        ttl: any(named: 'ttl'),
+        force: false,
+      ),
+    ).thenAnswer((_) async => const DataResult(data: report, freshness: DataFreshness.live));
     when(
       () => resources.getObject(
         url: ApiEndpointsConfig.aiHotDailiesPath,
@@ -142,13 +160,20 @@ void main() {
   });
 
   test('fingerprint and version map polling metadata', () async {
-    when(() => resources.getObject(url: ApiEndpointsConfig.aiHotFingerprintPath, ttl: any(named: 'ttl'), force: false)).thenAnswer(
-      (_) async => const DataResult(
-        data: {'selected': 'f1-selected', 'all': 'f1-all'},
-        freshness: DataFreshness.live,
+    when(
+      () => resources.getObject(
+        url: ApiEndpointsConfig.aiHotFingerprintPath,
+        ttl: any(named: 'ttl'),
+        force: false,
       ),
-    );
-    when(() => resources.getObject(url: ApiEndpointsConfig.aiHotVersionPath, ttl: any(named: 'ttl'), force: false)).thenAnswer(
+    ).thenAnswer((_) async => const DataResult(data: {'selected': 'f1-selected', 'all': 'f1-all'}, freshness: DataFreshness.live));
+    when(
+      () => resources.getObject(
+        url: ApiEndpointsConfig.aiHotVersionPath,
+        ttl: any(named: 'ttl'),
+        force: false,
+      ),
+    ).thenAnswer(
       (_) async => const DataResult(
         data: {'apiVersion': '1.4.0', 'skillVersion': '0.3.6', 'updatedAt': '2026-07-15', 'changelogUrl': 'https://aihot.virxact.com/changelog', 'recentChanges': <Object?>[]},
         freshness: DataFreshness.live,
@@ -161,6 +186,12 @@ void main() {
 
   test('invalid daily date is rejected before requesting the network', () async {
     await expectLater(client.fetchDaily('../items'), throwsA(isA<AppException>().having((error) => error.kind, 'kind', AppExceptionKind.parse)));
-    verifyNever(() => resources.getObject(url: any(named: 'url'), ttl: any(named: 'ttl'), force: any(named: 'force')));
+    verifyNever(
+      () => resources.getObject(
+        url: any(named: 'url'),
+        ttl: any(named: 'ttl'),
+        force: any(named: 'force'),
+      ),
+    );
   });
 }

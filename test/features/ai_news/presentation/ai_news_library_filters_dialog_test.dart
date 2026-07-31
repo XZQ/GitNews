@@ -17,16 +17,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          aiNewsLibrarySourcesProvider.overrideWith((ref) async => [longSource])
+          aiNewsLibrarySourcesProvider.overrideWith((ref) async => [longSource]),
         ],
         child: MaterialApp(
           locale: const Locale('zh', 'CN'),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-          ],
+          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
           supportedLocales: AppLocalizations.supportedLocales,
           home: Builder(
             builder: (context) => Scaffold(

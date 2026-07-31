@@ -43,9 +43,9 @@ Suite 分层如下：
 | Suite | 用途 | 内容 |
 |---|---|---|
 | `docs` | 文档或非运行时代码 | `git diff --check`、本地 Markdown 链接 |
-| `quick` | 日常 Flutter 快速反馈 | `docs`、改动 Dart 文件格式、静态分析 |
+| `quick` | 日常 Flutter 快速反馈 | `docs`、改动 Dart 文件格式、仓库可移植性、静态分析 |
 | `flutter` | Flutter 完整门禁 | `quick`、`lib/test` 全量格式、全量测试 |
-| `ci-windows` | 当前增量 CI | `quick`、全量测试、Windows Release 构建 |
+| `ci-windows` | 无交互 Windows CI | `windows-build` 的完整质量边界 |
 | `windows-build` | 无交互 Windows CI | `flutter`、Windows Release 构建 |
 | `desktop` | 可见桌面的发布验证 | `windows-build`、主窗口与托盘烟测 |
 | `server` | 可选服务端完整门禁 | `docs`、Ruff、pytest、本地 Uvicorn 往返 |
@@ -85,10 +85,9 @@ CI 解析。清单不得包含 Token、密码或其他敏感参数，Harness 也
 
 ## CI 与本机边界
 
-GitHub Actions 直接调用同一个 Harness。当前 Windows 任务运行 `ci-windows`：对
-PR 基线以来的 Dart 改动执行格式检查，并运行全量测试与 Release 构建；完整
-`lib/test` 格式债务仍由 `flutter`/`windows-build` 明确暴露。Linux 服务任务运行
-`server`。可见主窗口和关闭后托盘存活需要真实 Windows 桌面会话，因此保留在
+GitHub Actions 直接调用同一个 Harness。当前 Windows 任务运行 `ci-windows`：
+执行完整 `lib/test` 格式、可移植性、analyzer、全量测试与 Release 构建。Linux
+服务任务运行 `server`。可见主窗口和关闭后托盘存活需要真实 Windows 桌面会话，因此保留在
 本机 `desktop` suite，不把无交互 CI 结果伪装成 UI 已验证。CI 无论成功失败都会
 上传 `build/harness/` 作为诊断证据。
 
@@ -99,8 +98,8 @@ PR 基线以来的 Dart 改动执行格式检查，并运行全量测试与 Rele
 - 架构依赖方向主要依靠目录约定、代码评审和 analyzer；尚未有专门的 Dart
   结构测试阻止所有跨层导入。
 - 文档检查能发现本地断链，但还不能自动判断内容是否陈旧。
-- 当前 Dart 3.12 全量格式检查会报告 299 个既有文件需要格式化；增量 CI 阻止新
-  改动继续增加债务，但完整 `flutter` gate 在单独完成格式基线迁移前保持失败。
+- 仓库可移植性检查会阻止测试重新引用机器本地字体/Flutter 路径，并阻止 Xcode
+  工程对象重复定义；它不替代在 macOS 真机上的 Xcode 构建。
 
 这些限制记录在质量记分卡中，后续应依据真实失败频率逐项机械化，而不是一次
 加入大量暂时没有反馈价值的流程。

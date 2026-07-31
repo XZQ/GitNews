@@ -45,46 +45,22 @@ class TrendingCacheDao {
       final json = jsonDecode(payload) as Map<String, Object?>;
       return _snapshotFromJson(json);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.readSnapshot'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.readSnapshot'});
     }
   }
 
-  Future<void> upsertSnapshot({
-    required TrendingQuery query,
-    String scope = 'anonymous',
-    required TrendingDataSnapshot snapshot,
-    required DateTime now,
-  }) async {
+  Future<void> upsertSnapshot({required TrendingQuery query, String scope = 'anonymous', required TrendingDataSnapshot snapshot, required DateTime now}) async {
     final key = cacheKey(query, scope: scope);
     final cachedAt = now.millisecondsSinceEpoch;
     try {
-      await _db.insert(
-        _table,
-        {'cache_key': key, 'payload_json': jsonEncode(_snapshotToJson(snapshot)), 'cached_at': cachedAt},
-        conflictAlgorithm: ConflictAlgorithm.replace,
-      );
+      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(_snapshotToJson(snapshot)), 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
       await _meta.upsert(key, now);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.upsertSnapshot'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.upsertSnapshot'});
     }
   }
 
-  Future<bool> isFresh({
-    required TrendingQuery query,
-    String scope = 'anonymous',
-    required Duration ttl,
-    required DateTime now,
-  }) async {
+  Future<bool> isFresh({required TrendingQuery query, String scope = 'anonymous', required Duration ttl, required DateTime now}) async {
     final last = await _meta.lastFetched(cacheKey(query, scope: scope));
     if (last == null) {
       return false;
@@ -96,12 +72,7 @@ class TrendingCacheDao {
     try {
       await _db.delete(_table);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.clear'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.clear'});
     }
   }
 
@@ -111,12 +82,7 @@ class TrendingCacheDao {
       await _db.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
       await _meta.delete(key);
     } catch (e, st) {
-      throw AppException(
-        kind: AppExceptionKind.cache,
-        cause: e,
-        stack: st,
-        meta: {'op': 'trending.deleteSnapshot'},
-      );
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.deleteSnapshot'});
     }
   }
 
@@ -146,23 +112,13 @@ class TrendingCacheDao {
 
   /* 把热榜主题统计编码为缓存 JSON。 */
   Map<String, Object?> _topicToJson(TrendingTopicEntity topic) {
-    return {
-      'name': topic.name,
-      'repoCount': topic.repoCount,
-      'starCount': topic.starCount,
-      'basis': topic.basis.name,
-    };
+    return {'name': topic.name, 'repoCount': topic.repoCount, 'starCount': topic.starCount, 'basis': topic.basis.name};
   }
 
   /* 从缓存 JSON 恢复热榜主题统计。 */
   TrendingTopicEntity _topicFromJson(Object? raw) {
     final json = _map(raw);
-    return TrendingTopicEntity(
-      name: _string(json['name']),
-      repoCount: _int(json['repoCount']),
-      starCount: _int(json['starCount']),
-      basis: _basisFromJson(json, 'basis', 'provenance'),
-    );
+    return TrendingTopicEntity(name: _string(json['name']), repoCount: _int(json['repoCount']), starCount: _int(json['starCount']), basis: _basisFromJson(json, 'basis', 'provenance'));
   }
 
   Map<String, Object?> _repoToJson(RepoEntity repo) {
@@ -176,7 +132,7 @@ class TrendingCacheDao {
       'accentArgb': repo.accentArgb,
       'valueBasis': repo.valueBasis.name,
       'trendBasis': repo.trendBasis.name,
-      'trend': repo.trend
+      'trend': repo.trend,
     };
   }
 

@@ -9,11 +9,7 @@ import '../../domain/discover_entities.dart';
 import 'discover_profile_metrics.dart';
 
 class DiscoverProfileRow extends StatelessWidget {
-  const DiscoverProfileRow({
-    required this.profile,
-    this.onTap,
-    super.key,
-  });
+  const DiscoverProfileRow({required this.profile, this.onTap, super.key});
 
   final DiscoverProfileEntity profile;
   final VoidCallback? onTap;
@@ -49,7 +45,10 @@ class _CardProfileRow extends StatelessWidget {
         borderRadius: radius,
         child: Container(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          decoration: BoxDecoration(borderRadius: radius, border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1))),
+          decoration: BoxDecoration(
+            borderRadius: radius,
+            border: Border.all(color: colors.outlineVariant.withValues(alpha: isLight ? 0.58 : 1)),
+          ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -76,7 +75,7 @@ class _CardProfileRow extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: AppSpacing.sm),
-                        DiscoverProfileMetricPill(text: label, color: accent)
+                        DiscoverProfileMetricPill(text: label, color: accent),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.xs),
@@ -88,10 +87,10 @@ class _CardProfileRow extends StatelessWidget {
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.55),
-                      )
+                      ),
                     ] else if (!profile.enriched) ...[
                       const SizedBox(height: AppSpacing.sm),
-                      Text('—', style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.5), height: 1.55))
+                      Text('—', style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant.withValues(alpha: 0.5), height: 1.55)),
                     ],
                     const SizedBox(height: AppSpacing.md),
                     Wrap(
@@ -109,14 +108,14 @@ class _CardProfileRow extends StatelessWidget {
                           icon: Icons.folder_rounded,
                           value: l10n.tr('discover.profile.repos').replaceAll('{n}', placeholderOrNumber(profile.publicRepos, profile.enriched)),
                           color: colors.secondary,
-                        )
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Icon(Icons.chevron_right_rounded, size: 18, color: colors.onSurfaceVariant)
+              Icon(Icons.chevron_right_rounded, size: 18, color: colors.onSurfaceVariant),
             ],
           ),
         ),

@@ -37,38 +37,35 @@ class _RepoDetailActivityState extends State<RepoDetailActivity> {
     final isCollapsible = isCompact && activities.length > _compactPreviewCount;
     final visibleActivities = isCollapsible && !_expanded ? activities.take(_compactPreviewCount).toList(growable: false) : activities;
     return AppCard(
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: SectionHeader(title: l10n.tr('repo_detail.section.activity'), subtitle: l10n.tr('repo_detail.section.activity.subtitle'))),
-          const SizedBox(width: AppSpacing.sm),
-          MetricBasisBadge(basis: activities.first.basis)
-        ],
-      ),
-      const SizedBox(height: AppSpacing.md),
-      for (var index = 0; index < visibleActivities.length; index++) ...[
-        if (index != 0) const Divider(height: 1),
-        _ActivityTile(activity: visibleActivities[index]),
-      ],
-      if (isCollapsible) ...[
-        const Divider(height: 1),
-        Align(
-          alignment: Alignment.center,
-          child: TextButton.icon(
-            onPressed: () => setState(() => _expanded = !_expanded),
-            iconAlignment: IconAlignment.end,
-            icon: Icon(
-              _expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded,
-            ),
-            label: Text(
-              l10n.tr(
-                _expanded ? 'repo_detail.activity.collapse' : 'repo_detail.activity.expand',
+          Row(
+            children: [
+              Expanded(
+                child: SectionHeader(title: l10n.tr('repo_detail.section.activity'), subtitle: l10n.tr('repo_detail.section.activity.subtitle')),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              MetricBasisBadge(basis: activities.first.basis),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          for (var index = 0; index < visibleActivities.length; index++) ...[if (index != 0) const Divider(height: 1), _ActivityTile(activity: visibleActivities[index])],
+          if (isCollapsible) ...[
+            const Divider(height: 1),
+            Align(
+              alignment: Alignment.center,
+              child: TextButton.icon(
+                onPressed: () => setState(() => _expanded = !_expanded),
+                iconAlignment: IconAlignment.end,
+                icon: Icon(_expanded ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded),
+                label: Text(l10n.tr(_expanded ? 'repo_detail.activity.collapse' : 'repo_detail.activity.expand')),
               ),
             ),
-          ),
-        ),
-      ],
-    ]));
+          ],
+        ],
+      ),
+    );
   }
 }
 
@@ -99,12 +96,7 @@ class _ActivityTile extends StatelessWidget {
             decoration: BoxDecoration(color: visual.color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.sm)),
             child: Icon(visual.icon, color: visual.color, size: 18),
           ),
-          title: Text(
-            activity.title,
-            style: AppTypography.titleSmall,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
+          title: Text(activity.title, style: AppTypography.titleSmall, maxLines: 2, overflow: TextOverflow.ellipsis),
           subtitle: Text('$actor$time', style: AppTypography.labelSmall),
         ),
       ),
@@ -126,7 +118,7 @@ _ActivityVisual _visualFor(BuildContext context, RepoActivityType type) {
     RepoActivityType.pullRequest => const _ActivityVisual(icon: Icons.merge_type_rounded, color: AppColors.info),
     RepoActivityType.release => const _ActivityVisual(icon: Icons.new_releases_outlined, color: AppColors.brand),
     RepoActivityType.create => _ActivityVisual(icon: Icons.add_circle_outline, color: Theme.of(context).colorScheme.primary),
-    RepoActivityType.other => _ActivityVisual(icon: Icons.history_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant)
+    RepoActivityType.other => _ActivityVisual(icon: Icons.history_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
   };
 }
 

@@ -21,7 +21,7 @@ class GitHubApiSupport {
       'X-GitHub-Api-Version': apiVersion,
       'User-Agent': userAgent,
       if (trimmed != null && trimmed.isNotEmpty) 'Authorization': 'Bearer $trimmed',
-      if (etag != null && etag.isNotEmpty) 'If-None-Match': etag
+      if (etag != null && etag.isNotEmpty) 'If-None-Match': etag,
     };
   }
 
@@ -65,7 +65,7 @@ class GitHubApiSupport {
       'java' => 0xFFB07219,
       'c++' => 0xFFF34B7D,
       'c#' => 0xFF178600,
-      _ => 0xFF64748B
+      _ => 0xFF64748B,
     };
   }
 

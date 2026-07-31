@@ -28,7 +28,7 @@ void main() {
         'ai_news_fts',
         'ai_news_enrichment',
         'ai_news_feedback',
-        'ai_news_reminder'
+        'ai_news_reminder',
       ];
       for (final table in expected) {
         expect(names, contains(table), reason: '$table 必须存在,否则对应 DAO 会运行时报错');
@@ -71,10 +71,18 @@ void main() {
         'published_at': 0,
         'score': 1,
         'selected': 0,
-        'cached_at': 0
+        'cached_at': 0,
       });
-      await db.executor.insert('monitor_alert_event',
-          {'id': 'alert-1', 'repo_full_name': 'owner/repo', 'rule_id': 'star_daily_delta', 'metric': 'stars', 'value': 200, 'threshold': 200, 'severity': 'success', 'observed_at': 1});
+      await db.executor.insert('monitor_alert_event', {
+        'id': 'alert-1',
+        'repo_full_name': 'owner/repo',
+        'rule_id': 'star_daily_delta',
+        'metric': 'stars',
+        'value': 200,
+        'threshold': 200,
+        'severity': 'success',
+        'observed_at': 1,
+      });
       await db.clearAll();
       expect(await db.executor.query('cache_meta'), isEmpty);
       expect(await db.executor.query('ai_news_item'), isEmpty);

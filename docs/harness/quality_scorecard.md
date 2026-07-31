@@ -1,6 +1,6 @@
 # Agent Harness 质量记分卡
 
-更新时间：2026-07-20
+更新时间：2026-07-31
 
 等级含义：`A` 表示已有机器执行且有证据；`B` 表示边界清楚但仍依赖部分人工
 判断；`C` 表示已有入口但可观察性或执行力不足。记分卡描述当前能力，不是对
@@ -12,13 +12,13 @@
 | 可恢复计划 | A | `.agent/PLANS.md` 定义适用条件、必备章节和完成标准 | 需要在下一项复杂功能中继续验证可用性 |
 | 命令与失败语义 | A | `tools/harness.json` + `tools/harness.ps1` 提供分层 suite、超时、非零退出与 dry-run | 尚无独立 PowerShell 单元测试框架 |
 | 运行证据 | A | 每次运行生成清单哈希、Git 状态、逐步日志与 `summary.json` | 暂未聚合跨运行趋势 |
-| Flutter 质量门禁 | B | 增量格式、全量格式、analyzer 和全量测试均在清单中 | Dart 3.12 全量格式基线仍有 299 个既有文件待迁移 |
+| Flutter 质量门禁 | A | Dart 3.12 全量格式基线、可移植性、analyzer 和全量测试均由 Harness 执行 | 仍需持续维护跨平台测试 fixture |
 | Windows 发布门禁 | B | Release 构建、可见窗口和托盘烟测均在 `desktop` suite | 无交互 CI 只能执行到 `windows-build` |
 | 服务端质量门禁 | A | Ruff、pytest 和真实本地 Uvicorn 往返共享统一入口 | 联网 feed smoke 仍是显式可选检查 |
 | 架构边界 | B | feature-first 规则、共享配置边界与 analyzer 已存在 | 缺少跨层 import 的专门结构测试 |
-| UI 可读性 | C | 存在历史截图、Golden 和窗口生命周期烟测 | 没有自动当前截图、视频或 Agent 可查询日志 |
+| UI 可读性 | B | 存在当前 Windows Release 截图、Golden、可访问性树和窗口生命周期烟测 | 当前截图仍需在真实桌面会话中人工刷新 |
 | 并行工作区隔离 | B | 运行产物按 run id 隔离，命令从脚本位置解析仓库根 | 应用进程名和部分本地端口仍可能在并行运行时冲突 |
-| CI 机械执行 | B | `.github/workflows/harness.yml` 调用 `ci-windows`/`server` 并上传证据 | Windows CI 暂用增量格式门禁；桌面交互烟测仍需本机环境 |
+| CI 机械执行 | B | `.github/workflows/harness.yml` 调用完整 `ci-windows`/`server` 并上传证据 | 桌面交互烟测仍需本机环境 |
 
 ## 下一批提升触发条件
 

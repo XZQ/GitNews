@@ -26,43 +26,42 @@ class TrendingList extends StatelessWidget {
     if (repos.isEmpty) {
       return Stack(
         children: [
-          AppCard(child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('trending.list.empty'))),
-          if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating'))
+          AppCard(
+            child: EmptyView(icon: Icons.search_off_rounded, message: l10n.tr('trending.list.empty')),
+          ),
+          if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating')),
         ],
       );
     }
 
-    return Stack(children: [
-      AppCard(
+    return Stack(
+      children: [
+        AppCard(
           padding: EdgeInsets.zero,
-          child: CustomScrollView(slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.md,
-                  AppSpacing.lg,
-                  AppSpacing.xs,
+          child: CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.xs),
+                  child: SectionHeader(title: l10n.tr('trending.page.repos'), subtitle: l10n.tr('trending.list.subtitle.short')),
                 ),
-                child: SectionHeader(title: l10n.tr('trending.page.repos'), subtitle: l10n.tr('trending.list.subtitle.short')),
               ),
-            ),
-            SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.xs,
-                  AppSpacing.md,
-                  AppSpacing.md,
-                ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.md),
                 sliver: SliverList.separated(
-                    itemCount: repos.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, i) {
-                      return RepoTile(repo: repos[i], rank: i + 1, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repos[i].fullName)}'));
-                    }))
-          ])),
-      if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating'))
-    ]);
+                  itemCount: repos.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                  itemBuilder: (context, i) {
+                    return RepoTile(repo: repos[i], rank: i + 1, onTap: () => context.go('/trending/detail/${Uri.encodeComponent(repos[i].fullName)}'));
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        if (isLoading) _TrendingListLoadingOverlay(message: l10n.tr('trending.list.updating')),
+      ],
+    );
   }
 }
 
@@ -91,13 +90,9 @@ class _TrendingListLoadingOverlay extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
+                    const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
                     const SizedBox(width: AppSpacing.sm),
-                    Text(message)
+                    Text(message),
                   ],
                 ),
               ),
