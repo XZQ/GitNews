@@ -117,4 +117,4 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/windows_tray_smoke.ps1
 
 ## 当前状态
 
-当前开发基线为 `1.5.0+5` 加 `Unreleased` 改动。阶段一的多源聚合、资讯库和资讯↔GitHub 已经扩展到完整的阶段二客户端能力：独立 Settings、源管理、内置 Agnes 的逐条 AI 增强、事件聚类、FTS5、兴趣反馈、托盘与提醒均已落地。新的 `server/` 边界已经以可选、自托管方式实现定时采集、同步、协作、推送衔接和 GH Archive 分析；外部移动推送仍需部署者提供真实平台凭据，仓库不伪造已上线状态。
+当前开发基线为 `1.6.0+6`。阶段一的多源聚合、资讯库和资讯↔GitHub 已经扩展到完整的阶段二客户端能力：独立 Settings、源管理、内置 Agnes 的逐条 AI 增强、事件聚类、FTS5、兴趣反馈、托盘与提醒均已落地。新的 `server/` 边界已经以可选、自托管方式实现定时采集、同步、协作、推送衔接和 GH Archive 分析；外部移动推送仍需部署者提供真实平台凭据，仓库不伪造已上线状态。

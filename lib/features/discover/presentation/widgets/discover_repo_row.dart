@@ -10,6 +10,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/breakpoint.dart';
 import '../../../../shared/widgets/data_provenance_badge.dart';
+import 'discover_profile_metrics.dart';
 
 /*
  *发现页仓库卡片:仓库信息 + 行尾监控开关。
@@ -80,9 +81,9 @@ class DiscoverMonitorRow extends ConsumerWidget {
                   runSpacing: AppSpacing.xs,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    _Pill(text: repo.language, color: accent),
-                    _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
-                    _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.secondary),
+                    DiscoverProfileMetricPill(text: repo.language, color: accent),
+                    DiscoverProfileIconMetric(icon: Icons.star_rounded, value: shortNumber(repo.starCount), color: AppColors.starGold),
+                    DiscoverProfileIconMetric(icon: Icons.call_split_rounded, value: shortNumber(repo.forkCount), color: colors.secondary),
                   ],
                 ),
             ],
@@ -151,8 +152,8 @@ class _MobileMetrics extends StatelessWidget {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           _LanguageMetric(language: repo.language, color: accent),
-          _IconMetric(icon: Icons.star_rounded, value: _shortNumber(repo.starCount), color: AppColors.starGold),
-          _IconMetric(icon: Icons.call_split_rounded, value: _shortNumber(repo.forkCount), color: colors.primary),
+          DiscoverProfileIconMetric(icon: Icons.star_rounded, value: shortNumber(repo.starCount), color: AppColors.starGold),
+          DiscoverProfileIconMetric(icon: Icons.call_split_rounded, value: shortNumber(repo.forkCount), color: colors.primary),
           MetricBasisBadge(basis: repo.trendBasis),
         ],
       ),
@@ -254,65 +255,10 @@ class _TopLine extends StatelessWidget {
             style: (compact ? AppTypography.monoTitle : AppTypography.titleMedium).copyWith(color: colors.onSurface, fontWeight: FontWeight.w700, height: compact ? 1.3 : 1.35),
           ),
         ),
-        if (badge != null) ...[const SizedBox(width: AppSpacing.sm), _Pill(text: badge!, color: colors.tertiary)],
+        if (badge != null) ...[const SizedBox(width: AppSpacing.sm), DiscoverProfileMetricPill(text: badge!, color: colors.tertiary)],
       ],
     );
   }
-}
-
-class _Pill extends StatelessWidget {
-  const _Pill({required this.text, required this.color});
-
-  final String text;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.xs)),
-      child: Text(
-        text,
-        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
-      ),
-    );
-  }
-}
-
-class _IconMetric extends StatelessWidget {
-  const _IconMetric({required this.icon, required this.value, required this.color});
-
-  final IconData icon;
-  final String value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 13, color: color),
-        const SizedBox(width: AppSpacing.xxs),
-        Text(
-          value,
-          style: AppTypography.labelSmall.copyWith(color: colors.onSurface, fontWeight: FontWeight.w600),
-        ),
-      ],
-    );
-  }
-}
-
-String _shortNumber(int v) {
-  final abs = v.abs();
-  final prefix = v < 0 ? '-' : '';
-  if (abs >= 1000000) {
-    return '$prefix${(abs / 1000000).toStringAsFixed(1)}M';
-  }
-  if (abs >= 1000) {
-    return '$prefix${(abs / 1000).toStringAsFixed(1)}k';
-  }
-  return v.toString();
 }
 
 Color _avatarAccent(String language, Color fallback) => switch (language.toLowerCase()) {

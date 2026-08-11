@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [1.6.0+6] - 2026-08-10
+
 ### Added
 
 - 新增 BestBlogs.dev 内置资讯源(AI 分类精选 RSS,官方公开端点,2026-07-16 核验);可在设置页停用。
@@ -23,6 +25,15 @@
 - TTL 内有效缓存不再显示口径徽章，过期缓存、在线数据、种子与估算口径仍按信任风险显式标记。
 - AI HOT 请求保存 ETag/Last-Modified 并支持 `304` 复用；桌面轮询由每 15 分钟全量读取改为每 30 分钟先比较精选流指纹。
 - 资讯列表重设计为「标题优先」的安静排版(参照 Apple News / Google News / 少数派范式):标题不再被分类彩标和徽章挤压;来源/分类/相对时间收进底部一行小字,分类改为颜色点;精选与热度合并为行尾小元素;移除左侧时间线槽(占约 15% 行宽且与相对时间重复),改为留白 + 细分隔线;相对时间与「精选」文案接入 i18n,消除组件内硬编码中文。
+- 按 AGENTS.md 的 300 行约束拆分 5 个超标文件:`star_trend_chart.dart` 抽出
+  `mini_charts.dart`(MiniBars/Sparkline),`ai_news_providers.dart` 抽出
+  `ai_news_items_notifier.dart`,`home_mobile_trending_overview.dart` 拆为热门仓库卡与
+  Star 增长卡,`ai_news_feed_parser.dart` 抽出 `feed_date_parser.dart`;原文件保留
+  `export` 转发,现有调用方无需改动。
+- `discover_repo_row.dart` 改为复用 `discover_profile_metrics.dart` 的
+  `DiscoverProfileMetricPill`/`DiscoverProfileIconMetric`/`shortNumber`,移除本地重复实现。
+- 文档治理:`docs/plans/` 下 4 份计划补状态头(已完成快照 / 活跃维护),一次性设计走查
+  记录归档为 `docs/audits/ai_news_detail_design_qa.md`。
 
 ## [1.5.0+5] - 2026-07-16
 
