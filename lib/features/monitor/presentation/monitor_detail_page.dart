@@ -144,6 +144,7 @@ class _MonitorHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return GradientHeroHeader(
       accent: Color(repo.accentArgb),
       title: repo.fullName,
@@ -152,9 +153,9 @@ class _MonitorHero extends StatelessWidget {
         HeroBadge(label: repo.language, icon: Icons.bolt_rounded),
         HeroBadge(label: '★ ${_shortNumber(repo.starCount)}', icon: Icons.star_rounded),
         HeroBadge(label: '⑂ ${_shortNumber(repo.forkCount)}', icon: Icons.call_split_rounded),
-        MetricBasisBadge(basis: repo.trendBasis, compact: compact, inverse: true),
+        MetricBasisBadge(basis: repo.trendBasis, compact: compact),
       ],
-      trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92))),
+      trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant)),
     );
   }
 }

@@ -23,7 +23,7 @@ class AiNewsPageHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final query = ref.watch(aiNewsSearchQueryProvider);
+    final query = ref.watch(aiNewsSearchDraftProvider);
     final readLaterOnly = ref.watch(aiNewsReadLaterOnlyProvider);
     final libraryFilter = ref.watch(aiNewsLibraryFilterProvider);
     final unreadReminders = ref.watch(aiNewsUnreadReminderCountProvider);
@@ -153,7 +153,7 @@ class AiNewsCompactSearchBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final query = ref.watch(aiNewsSearchQueryProvider);
+    final query = ref.watch(aiNewsSearchDraftProvider);
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.sm),
       child: HeaderSearchField(

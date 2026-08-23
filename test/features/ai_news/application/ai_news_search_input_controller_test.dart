@@ -16,6 +16,7 @@ void main() {
     // 未到 250ms 间歇即继续输入,前缀不应单独提交。
     await Future<void>.delayed(const Duration(milliseconds: 120));
     controller.update('openai');
+    expect(container.read(aiNewsSearchDraftProvider), 'openai');
     expect(container.read(aiNewsSearchQueryProvider), '');
 
     await Future<void>.delayed(const Duration(milliseconds: 400));
@@ -28,10 +29,22 @@ void main() {
     final controller = container.read(aiNewsSearchInputControllerProvider);
 
     controller.update('agent', immediate: true);
+    expect(container.read(aiNewsSearchDraftProvider), 'agent');
     expect(container.read(aiNewsSearchQueryProvider), 'agent');
 
     controller.update('');
+    expect(container.read(aiNewsSearchDraftProvider), '');
     expect(container.read(aiNewsSearchQueryProvider), '');
+  });
+
+  test('外部查询写入会同步搜索框草稿', () {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    expect(container.read(aiNewsSearchDraftProvider), '');
+    container.read(aiNewsSearchQueryProvider.notifier).state = 'route-query';
+
+    expect(container.read(aiNewsSearchDraftProvider), 'route-query');
   });
 
   test('与当前关键词相同的输入不重复提交', () async {

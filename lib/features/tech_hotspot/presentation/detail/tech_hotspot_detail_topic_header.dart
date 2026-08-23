@@ -60,15 +60,16 @@ class _MetricTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: Colors.white.withValues(alpha: 0.9)),
+        Icon(icon, size: 16, color: colors.onSurfaceVariant),
         const SizedBox(width: AppSpacing.xs),
-        Text('$label · ', style: AppTypography.labelMedium.copyWith(color: Colors.white.withValues(alpha: 0.7))),
+        Text('$label · ', style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
         Text(
           value,
-          style: AppTypography.labelMedium.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+          style: AppTypography.labelMedium.copyWith(color: colors.onSurface, fontWeight: FontWeight.w700),
         ),
       ],
     );

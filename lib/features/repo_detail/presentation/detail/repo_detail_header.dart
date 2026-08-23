@@ -20,6 +20,7 @@ class RepoDetailHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
     return GradientHeroHeader(
       accent: Color(repo.accentArgb),
       title: repo.fullName,
@@ -28,10 +29,10 @@ class RepoDetailHeader extends StatelessWidget {
         HeroBadge(label: repo.language, icon: Icons.bolt_rounded),
         HeroBadge(label: l10n.tr('repo_detail.badge.public'), color: AppColors.info),
         HeroBadge(label: l10n.tr('repo_detail.badge.monitored'), color: AppColors.success),
-        DataFreshnessBadge(freshness: freshness, compact: false, inverse: true),
-        MetricBasisBadge(basis: repo.valueBasis, compact: false, inverse: true),
+        DataFreshnessBadge(freshness: freshness, compact: false),
+        MetricBasisBadge(basis: repo.valueBasis, compact: false),
       ],
-      trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: Colors.white.withValues(alpha: 0.92))),
+      trailing: Text(repo.description, style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant)),
     );
   }
 }

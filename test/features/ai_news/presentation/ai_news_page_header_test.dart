@@ -7,7 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/theme/app_colors.dart';
 import 'package:github_news/core/theme/app_theme.dart';
+import 'package:github_news/features/ai_news/application/ai_news_library_providers.dart';
+import 'package:github_news/features/ai_news/application/ai_news_providers.dart';
 import 'package:github_news/features/ai_news/application/ai_news_reminder_providers.dart';
+import 'package:github_news/features/ai_news/application/ai_news_search_input_controller.dart';
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_page_header.dart';
 import 'package:github_news/shared/widgets/header_search_field.dart';
 import 'package:github_news/shared/widgets/page_header.dart';
@@ -72,5 +75,41 @@ void main() {
     if (Platform.isWindows) {
       await expectLater(find.byType(Scaffold), matchesGoldenFile('goldens/ai_news_page_header_compact.png'));
     }
+  });
+
+  testWidgets('AI 搜索防抖期间父级重建不会覆盖输入', (tester) async {
+    tester.view.physicalSize = const Size(1200, 200);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final container = ProviderContainer(overrides: [aiNewsUnreadReminderCountProvider.overrideWithValue(0)]);
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: MaterialApp(
+          locale: const Locale('zh', 'CN'),
+          localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
+          supportedLocales: AppLocalizations.supportedLocales,
+          theme: AppTheme.light(AppColors.brand),
+          home: const Scaffold(body: AiNewsPageHeader()),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'openai');
+    await tester.pump();
+    expect(container.read(aiNewsSearchDraftProvider), 'openai');
+    expect(container.read(aiNewsSearchQueryProvider), '');
+
+    container.read(aiNewsReadLaterOnlyProvider.notifier).state = true;
+    await tester.pump();
+    expect(tester.widget<TextField>(find.byType(TextField)).controller?.text, 'openai');
+    expect(container.read(aiNewsSearchQueryProvider), '');
+
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(container.read(aiNewsSearchQueryProvider), 'openai');
   });
 }

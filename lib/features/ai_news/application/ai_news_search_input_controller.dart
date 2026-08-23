@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import 'ai_news_providers.dart';
 
@@ -17,6 +18,9 @@ final aiNewsSearchInputControllerProvider = Provider<AiNewsSearchInputController
   return controller;
 });
 
+// 搜索框即时草稿;远端/路由写入查询时同步,键入期间不触发昂贵的数据筛选。
+final aiNewsSearchDraftProvider = StateProvider<String>((ref) => ref.watch(aiNewsSearchQueryProvider));
+
 class AiNewsSearchInputController {
   AiNewsSearchInputController(this._ref);
 
@@ -28,6 +32,9 @@ class AiNewsSearchInputController {
 
   // 键入防抖;[immediate] 用于提交、清空与路由跳转等一次性完整关键词。
   void update(String value, {bool immediate = false}) {
+    if (_ref.read(aiNewsSearchDraftProvider) != value) {
+      _ref.read(aiNewsSearchDraftProvider.notifier).state = value;
+    }
     if (immediate || value.isEmpty) {
       cancelPending();
       _commit(value);

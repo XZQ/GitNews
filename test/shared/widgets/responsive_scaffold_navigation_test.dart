@@ -71,6 +71,24 @@ void main() {
     expect(tester.getTopRight(find.byType(AppSidebar)).dx, tester.getTopLeft(find.byType(SafeArea)).dx);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('矮窗口中栏导航可滚动且不溢出', (tester) async {
+    tester.view.physicalSize = const Size(800, 400);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final router = _router();
+    addTearDown(router.dispose);
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    await tester.pumpWidget(_TestApp(router: router, preferences: preferences));
+    await tester.pumpAndSettle();
+
+    final rail = tester.widget<NavigationRail>(find.byType(NavigationRail));
+    expect(rail.scrollable, isTrue);
+    expect(tester.takeException(), isNull);
+  });
 }
 
 /* 创建覆盖八个桌面分支与五个移动目的地的最小路由。 */

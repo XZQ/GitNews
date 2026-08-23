@@ -5,11 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
+import 'package:github_news/core/theme/app_colors.dart';
+import 'package:github_news/core/theme/app_theme.dart';
 import 'package:github_news/features/monitor/application/monitor_providers.dart';
 import 'package:github_news/features/monitor/domain/entities.dart';
 import 'package:github_news/features/monitor/domain/monitor_repository.dart';
 import 'package:github_news/features/monitor/presentation/monitor_detail_page.dart';
 import 'package:github_news/features/monitor/widgets/monitor_status_row.dart';
+import 'package:github_news/shared/widgets/data_provenance_badge.dart';
 
 void main() {
   const repo = RepoEntity(
@@ -78,6 +81,20 @@ void main() {
     expect(alertTitle.dx, greaterThan(trendTitle.dx));
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('监控详情浅色标题区说明文字使用主题前景色', (tester) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1280, 900);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const _MonitorTestApp(repo: repo));
+    await tester.pumpAndSettle();
+
+    final description = tester.widget<Text>(find.text(repo.description));
+    expect(description.style?.color, AppTheme.light(AppColors.brand).colorScheme.onSurfaceVariant);
+    expect(tester.widget<MetricBasisBadge>(find.byType(MetricBasisBadge)).inverse, isFalse);
+  });
 }
 
 class _StatusTestApp extends StatelessWidget {
@@ -123,6 +140,7 @@ class _MonitorTestApp extends StatelessWidget {
         locale: const Locale('zh', 'CN'),
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
+        theme: AppTheme.light(AppColors.brand),
         home: MonitorDetailPage(repoFullName: repo.fullName),
       ),
     );
