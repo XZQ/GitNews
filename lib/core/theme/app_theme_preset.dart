@@ -29,6 +29,6 @@ enum AppThemePreset {
         return p;
       }
     }
-    return AppThemePreset.teal;
+    return AppThemePreset.slate;
   }
 }

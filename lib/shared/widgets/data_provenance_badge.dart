@@ -82,7 +82,7 @@ class _TrustBadge extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: AppTypography.labelMicro.copyWith(color: inverse ? Colors.white : color, fontWeight: FontWeight.w700, letterSpacing: 0),
+          style: AppTypography.labelMicro.copyWith(color: inverse ? Colors.white : color, fontWeight: FontWeight.w600, letterSpacing: 0),
         ),
       ),
     );

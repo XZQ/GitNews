@@ -61,8 +61,9 @@ class _MonitorStatsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
     final items = <(String, String, Color)>[
-      ('${stats.monitoredCount}', l10n.tr('monitor.status.monitored'), AppColors.brand),
+      ('${stats.monitoredCount}', l10n.tr('monitor.status.monitored'), colors.primary),
       ('${stats.unreadAlertCount}', l10n.tr('monitor.status.unread'), AppColors.warning),
       ('${stats.triggeredTodayCount}', l10n.tr('monitor.status.triggered_today'), AppColors.info),
       ('${stats.totalAlertCount}', l10n.tr('monitor.status.total_alerts'), AppColors.success),

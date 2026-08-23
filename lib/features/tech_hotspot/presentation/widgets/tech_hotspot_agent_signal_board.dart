@@ -86,7 +86,7 @@ class _AgentSignalItem extends StatelessWidget {
     final isLight = Theme.of(context).brightness == Brightness.light;
     final accent = switch (rank) {
       1 => AppColors.danger,
-      2 => AppColors.brand,
+      2 => colors.primary,
       _ => AppColors.info,
     };
     return Container(

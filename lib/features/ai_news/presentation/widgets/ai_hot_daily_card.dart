@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/domain/data_freshness.dart';
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
@@ -70,7 +69,7 @@ class _DailyContent extends ConsumerWidget {
       children: [
         Row(
           children: [
-            const Icon(Icons.auto_stories_rounded, size: 20, color: AppColors.brand),
+            Icon(Icons.auto_stories_rounded, size: 20, color: colors.primary),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Column(
@@ -95,28 +94,36 @@ class _DailyContent extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xs2),
           Text(
             summary,
-            maxLines: 3,
+            maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.55),
           ),
         ],
         const SizedBox(height: AppSpacing.md),
+        // 元信息一行化:条数 / 日期 / API 版本 / 出处全部收进同一行小字,
+        // CTA 降级为安静的文本链接,卡片只保留标题一个视觉重心。
         Wrap(
           spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
+          runSpacing: AppSpacing.xs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             Text(l10n.tr('ai_news.official_daily.items').replaceAll('{count}', '${report.itemCount}'), style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
             Text('${report.date}${version == null ? '' : ' · API v$version'}', style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
-            FilledButton.tonalIcon(
+            Text(l10n.tr('ai_news.official_daily.attribution'), style: AppTypography.labelSmall.copyWith(color: colors.outline)),
+            TextButton.icon(
               onPressed: () => context.go('/ai_news/daily/${report.date}'),
-              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 16),
               label: Text(l10n.tr('ai_news.official_daily.view')),
+              style: TextButton.styleFrom(
+                foregroundColor: colors.primary,
+                textStyle: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w600),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                minimumSize: const Size(0, 28),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: AppSpacing.sm),
-        Text(l10n.tr('ai_news.official_daily.attribution'), style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
       ],
     );
   }

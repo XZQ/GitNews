@@ -57,21 +57,23 @@ class AppColors {
   static const int dangerValue = 0xFFE5464D;
   static const int infoValue = 0xFF4CB5FF;
 
-  // 浅色(默认)。中性灰基调:边框与背景不带蓝味,让主色成为画面里唯一的彩色。
-  static const Color bgLight = Color(0xFFF6F6F8);
+  // 浅色(默认)。Slate 冷灰基调:背景与卡片拉开明度差,边框是能看清的
+  // hairline,文字三级层次取自 Tailwind slate 色阶,主色只做小面积强调。
+  static const Color bgLight = Color(0xFFF8FAFC); // slate-50
   static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceLightAlt = Color(0xFFEFEFF3);
-  static const Color borderLight = Color(0xFFE3E4E9);
-  static const Color textPrimaryLight = Color(0xFF17181C);
-  static const Color textSecondaryLight = Color(0xFF5C5F6B);
-  static const Color textMutedLight = Color(0xFF9AA0AB);
+  static const Color surfaceLightAlt = Color(0xFFF1F5F9); // slate-100
+  static const Color borderLight = Color(0xFFE2E8F0); // slate-200
+  static const Color textPrimaryLight = Color(0xFF0F172A); // slate-900
+  static const Color textSecondaryLight = Color(0xFF475569); // slate-600
+  static const Color textMutedLight = Color(0xFF94A3B8); // slate-400
 
-  // 深色。同样走中性灰,与浅色形成对称的三级文字层次。
-  static const Color bgDark = Color(0xFF0B0C0F);
-  static const Color surfaceDark = Color(0xFF131418);
-  static const Color surfaceDarkAlt = Color(0xFF1A1C22);
-  static const Color borderDark = Color(0xFF23252D);
-  static const Color textPrimaryDark = Color(0xFFEDEEF2);
-  static const Color textSecondaryDark = Color(0xFF9A9DA8);
-  static const Color textMutedDark = Color(0xFF5E6270);
+  // 深色。与浅色对称的冷灰阶,参照 GitHub Dark 的表面分层:背景最暗,
+  // 卡片略亮,弹层再亮一档,边框保持可见但不发光。
+  static const Color bgDark = Color(0xFF0D1117);
+  static const Color surfaceDark = Color(0xFF161B22);
+  static const Color surfaceDarkAlt = Color(0xFF1C2129);
+  static const Color borderDark = Color(0xFF262C36);
+  static const Color textPrimaryDark = Color(0xFFE6E9EF);
+  static const Color textSecondaryDark = Color(0xFF9BA1AD);
+  static const Color textMutedDark = Color(0xFF646B78);
 }

@@ -71,7 +71,7 @@ void main() {
     addTearDown(container.dispose);
 
     expect(container.read(themeModeControllerProvider), ThemeMode.light);
-    expect(container.read(themePresetControllerProvider), AppThemePreset.teal);
+    expect(container.read(themePresetControllerProvider), AppThemePreset.slate);
     expect(container.read(localeControllerProvider), const Locale('zh', 'CN'));
     expect(container.read(startupTabControllerProvider), 'home');
     expect(container.read(trendingDataSourceModeControllerProvider), TrendingDataSourceMode.local);

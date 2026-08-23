@@ -10,6 +10,8 @@ import 'ai_news_category_style.dart';
 
 /* 
 *分类导航条(顶部 chips)。
+*工具风基线:分类身份用 6px 颜色点表达,选中态用中性底 + 一级文字
+*对比,不再整块染成分类色;移动端同样告别实心主色胶囊。
 */
 class AiNewsCategoryNav extends StatelessWidget {
   const AiNewsCategoryNav({required this.selected, required this.onSelected, super.key});
@@ -23,27 +25,20 @@ class AiNewsCategoryNav extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final isCompact = Breakpoints.isCompact(context);
     return Container(
-      height: isCompact ? 42 : 52,
+      height: isCompact ? 42 : 48,
       decoration: BoxDecoration(
         color: isCompact ? Theme.of(context).scaffoldBackgroundColor : theme.colorScheme.surface,
         border: isCompact ? null : Border(bottom: BorderSide(color: theme.colorScheme.outlineVariant, width: 1)),
       ),
-      padding: EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, isCompact ? AppSpacing.lg : AppSpacing.lg, AppSpacing.xs),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            _NavChip(
-              label: l10n.tr('ai_news.category.all'),
-              icon: Icons.dashboard_rounded,
-              isSelected: selected == null,
-              color: theme.colorScheme.onSurfaceVariant,
-              compact: isCompact,
-              onTap: () => onSelected(null),
-            ),
+            _NavChip(label: l10n.tr('ai_news.category.all'), dotColor: null, isSelected: selected == null, compact: isCompact, onTap: () => onSelected(null)),
             for (final c in AiNewsCategory.values) ...[
               const SizedBox(width: AppSpacing.sm),
-              _NavChip(label: c.label, icon: aiNewsCategoryIcon(c), isSelected: selected == c, color: aiNewsCategoryColor(c), compact: isCompact, onTap: () => onSelected(c)),
+              _NavChip(label: c.label, dotColor: aiNewsCategoryColor(c), isSelected: selected == c, compact: isCompact, onTap: () => onSelected(c)),
             ],
           ],
         ),
@@ -53,25 +48,22 @@ class AiNewsCategoryNav extends StatelessWidget {
 }
 
 class _NavChip extends StatelessWidget {
-  const _NavChip({required this.label, required this.icon, required this.isSelected, required this.color, required this.compact, required this.onTap});
+  const _NavChip({required this.label, required this.dotColor, required this.isSelected, required this.compact, required this.onTap});
 
   final String label;
-  final IconData icon;
+
+  // 分类身份色,仅用于 6px 圆点;null 表示"全部"(无圆点)。
+  final Color? dotColor;
   final bool isSelected;
-  final Color color;
-
-  // 是否使用设计稿中的移动端大号胶囊。
   final bool compact;
-
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final accent = compact ? theme.colorScheme.primary : color;
-    final bg = compact ? (isSelected ? accent : theme.colorScheme.surface) : (isSelected ? accent.withValues(alpha: 0.14) : Colors.transparent);
-    final fg = compact ? (isSelected ? theme.colorScheme.onPrimary : theme.colorScheme.onSurfaceVariant) : (isSelected ? accent : theme.colorScheme.onSurfaceVariant);
-    final radius = BorderRadius.circular(compact ? AppRadius.sm : AppRadius.pill);
+    final colors = Theme.of(context).colorScheme;
+    final bg = isSelected ? colors.surfaceContainerHighest : Colors.transparent;
+    final fg = isSelected ? colors.onSurface : colors.onSurfaceVariant;
+    final radius = BorderRadius.circular(AppRadius.pill);
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -79,19 +71,26 @@ class _NavChip extends StatelessWidget {
         borderRadius: radius,
         child: Container(
           height: compact ? 30 : null,
-          padding: EdgeInsets.symmetric(horizontal: compact ? AppSpacing.md2 : AppSpacing.md, vertical: compact ? AppSpacing.xs : AppSpacing.xs2),
+          padding: EdgeInsets.symmetric(horizontal: compact ? AppSpacing.md : AppSpacing.md, vertical: compact ? AppSpacing.xs : AppSpacing.xs2),
           decoration: BoxDecoration(
             color: bg,
-            border: Border.all(color: compact && isSelected ? accent : (isSelected ? accent.withValues(alpha: 0.38) : theme.colorScheme.outlineVariant)),
+            border: Border.all(color: isSelected ? colors.outline : colors.outlineVariant),
             borderRadius: radius,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (!compact) ...[Icon(icon, size: 14, color: fg), const SizedBox(width: AppSpacing.xs2)],
+              if (dotColor != null) ...[
+                Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
+                ),
+                const SizedBox(width: AppSpacing.xs2),
+              ],
               Text(
                 label,
-                style: AppTypography.labelMedium.copyWith(color: fg, fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600),
+                style: AppTypography.labelMedium.copyWith(color: fg, fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500),
               ),
             ],
           ),

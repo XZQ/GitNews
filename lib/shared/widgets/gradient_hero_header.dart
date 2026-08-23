@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 
 /* 
-*渐变英雄头:用于详情页顶部。
-*通过 [accent] 控制主色调,组件自动生成 brand↔accent↔black 的对角渐变,
-*保证所有二级/三级详情页视觉统一。
+*详情页顶部头(扁平、安静版)。
+*工具风基线:不再用对角渐变 + 白字(那是"营销 Banner"观感),改为低饱和
+*强调色薄底 + hairline 边框 + 一级文字,与全局冷静工具风一致。
 */
 class GradientHeroHeader extends StatelessWidget {
   const GradientHeroHeader({required this.accent, required this.title, this.badges = const [], this.trailing, this.titleStyle, this.compact = false, super.key});
@@ -24,6 +23,8 @@ class GradientHeroHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isLight = colors.brightness == Brightness.light;
     final resolvedTitleStyle = titleStyle ?? (compact ? AppTypography.headlineMedium : AppTypography.headlineLarge);
     final trailingContent = trailing == null
         ? null
@@ -33,7 +34,8 @@ class GradientHeroHeader extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color.lerp(accent, AppColors.brand, 0.18)!, Color.lerp(accent, Colors.black, 0.46)!]),
+        color: accent.withValues(alpha: isLight ? 0.08 : 0.16),
+        border: Border.all(color: accent.withValues(alpha: isLight ? 0.22 : 0.34)),
       ),
       padding: EdgeInsets.all(compact ? AppSpacing.lg : AppSpacing.xl),
       child: Column(
@@ -44,7 +46,7 @@ class GradientHeroHeader extends StatelessWidget {
             title,
             maxLines: compact ? 3 : null,
             overflow: compact ? TextOverflow.ellipsis : null,
-            style: resolvedTitleStyle.copyWith(color: Colors.white, height: 1.25),
+            style: resolvedTitleStyle.copyWith(color: colors.onSurface, height: 1.25),
           ),
           if (trailingContent != null) ...[SizedBox(height: compact ? AppSpacing.md : AppSpacing.lg), trailingContent],
         ],
@@ -54,7 +56,7 @@ class GradientHeroHeader extends StatelessWidget {
 }
 
 /* 
-*渐变头部使用的半透明胶囊标签。
+*头部用的中性胶囊标签。
 */
 class HeroBadge extends StatelessWidget {
   const HeroBadge({required this.label, this.color, this.icon, super.key});
@@ -65,12 +67,13 @@ class HeroBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final tinted = color ?? Colors.white;
+    final colors = Theme.of(context).colorScheme;
+    final tinted = color ?? colors.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs2),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+        color: tinted.withValues(alpha: 0.1),
+        border: Border.all(color: tinted.withValues(alpha: 0.26)),
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Row(
@@ -79,7 +82,7 @@ class HeroBadge extends StatelessWidget {
           if (icon != null) ...[Icon(icon, size: 12, color: tinted), const SizedBox(width: AppSpacing.xs)],
           Text(
             label,
-            style: AppTypography.labelSmall.copyWith(color: Colors.white, fontWeight: FontWeight.w700),
+            style: AppTypography.labelSmall.copyWith(color: tinted, fontWeight: FontWeight.w600),
           ),
         ],
       ),

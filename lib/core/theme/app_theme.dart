@@ -12,9 +12,9 @@ import 'app_typography.dart';
 class AppTheme {
   const AppTheme._();
 
-  // 当前主题色 seed(默认 Slate)。由 app.dart 从
+  // 默认主题色 seed(Slate,冷静工具风基线)。由 app.dart 从
   // `themePresetControllerProvider` 注入,UI 不应直接读此值。
-  static const Color defaultSeed = Color(0xFF0D9488);
+  static const Color defaultSeed = Color(0xFF64748B);
 
   /* 
   *以指定 seed 构造浅色主题。
@@ -108,7 +108,7 @@ class AppTheme {
         shadowColor: Colors.black.withValues(alpha: isLight ? 0.03 : 0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.card),
-          side: BorderSide(color: border.withValues(alpha: isLight ? 0.54 : 0.9), width: 1),
+          side: BorderSide(color: border.withValues(alpha: isLight ? 0.72 : 1), width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -143,16 +143,18 @@ class AppTheme {
         elevation: 0,
         surfaceTintColor: Colors.transparent,
       ),
+      // 导航窄栏走单色:选中态靠中性底 + 一级文字对比表达,不消耗主色,
+      // 让主色只出现在真正需要引导视线的小面积元素上。
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: surface,
-        indicatorColor: colorScheme.primary.withValues(alpha: 0.12),
-        selectedIconTheme: IconThemeData(color: colorScheme.primary, size: 22),
-        unselectedIconTheme: IconThemeData(color: textSecondary, size: 22),
-        selectedLabelTextStyle: AppTypography.labelMedium.copyWith(color: colorScheme.primary, fontWeight: FontWeight.w600),
+        indicatorColor: surfaceAlt,
+        selectedIconTheme: IconThemeData(color: textPrimary, size: 22),
+        unselectedIconTheme: IconThemeData(color: textMuted, size: 22),
+        selectedLabelTextStyle: AppTypography.labelMedium.copyWith(color: textPrimary, fontWeight: FontWeight.w600),
         unselectedLabelTextStyle: AppTypography.labelMedium.copyWith(color: textSecondary),
         labelType: NavigationRailLabelType.none,
         useIndicator: true,
-        indicatorShape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(AppRadius.md))),
+        indicatorShape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(AppRadius.sm))),
         elevation: 0,
       ),
       dividerTheme: DividerThemeData(
@@ -178,12 +180,14 @@ class AppTheme {
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
       ),
+      // 实心按钮是全局唯一允许的大面积主色元素,只留给真正的主行动点;
+      // 圆角与内边距收紧,避免"营销页大色块"观感。
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: colorScheme.primary,
           foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.md),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
           textStyle: AppTypography.labelLarge,
         ),
       ),
@@ -191,8 +195,8 @@ class AppTheme {
         style: OutlinedButton.styleFrom(
           foregroundColor: textPrimary,
           side: BorderSide(color: border),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -200,10 +204,66 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: isLight ? surface : surfaceAlt,
+        selectedColor: colorScheme.primary.withValues(alpha: isLight ? 0.08 : 0.16),
         side: BorderSide(color: border),
-        labelStyle: AppTypography.labelSmall.copyWith(color: textPrimary),
+        labelStyle: AppTypography.labelSmall.copyWith(color: textSecondary),
+        secondaryLabelStyle: AppTypography.labelSmall.copyWith(color: colorScheme.primary),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.pill)),
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? colorScheme.primary.withValues(alpha: isLight ? 0.08 : 0.16) : Colors.transparent),
+          foregroundColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? colorScheme.primary : textSecondary),
+          side: WidgetStateProperty.all(BorderSide(color: border)),
+          textStyle: WidgetStateProperty.all(AppTypography.labelMedium),
+          shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm))),
+          visualDensity: VisualDensity.compact,
+        ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: textPrimary,
+        unselectedLabelColor: textMuted,
+        labelStyle: AppTypography.labelLarge,
+        unselectedLabelStyle: AppTypography.labelLarge,
+        indicatorColor: colorScheme.primary,
+        indicatorSize: TabBarIndicatorSize.label,
+        dividerColor: border,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          side: BorderSide(color: border.withValues(alpha: isLight ? 0.7 : 1)),
+        ),
+        titleTextStyle: AppTypography.titleMedium.copyWith(color: textPrimary),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: isLight ? textPrimary : surfaceAlt,
+        contentTextStyle: AppTypography.bodyMedium.copyWith(color: isLight ? surface : textPrimary),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.sm)),
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: isLight ? textPrimary : surfaceAlt,
+          borderRadius: BorderRadius.circular(AppRadius.xs),
+          border: isLight ? null : Border.all(color: border),
+        ),
+        textStyle: AppTypography.labelSmall.copyWith(color: isLight ? surface : textPrimary),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: surface,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          side: BorderSide(color: border.withValues(alpha: isLight ? 0.7 : 1)),
+        ),
+        labelTextStyle: WidgetStateProperty.all(AppTypography.bodyMedium.copyWith(color: textPrimary)),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((s) => s.contains(WidgetState.selected) ? colorScheme.primary : textMuted),

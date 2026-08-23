@@ -152,13 +152,13 @@ class _CategoryChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: 1),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        border: Border.all(color: color.withValues(alpha: 0.34)),
+        color: color.withValues(alpha: 0.08),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
         borderRadius: BorderRadius.circular(AppRadius.xs),
       ),
       child: Text(
         label,
-        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+        style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600),
       ),
     );
   }

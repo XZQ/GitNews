@@ -98,9 +98,10 @@ class PageHeader extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final narrow = hasSearch && constraints.maxWidth < 1040;
+        final effectiveAccent = iconAccent == AppColors.brand ? null : iconAccent;
         final leadingWidgets = [
           if (leading != null) ...[leading!, const SizedBox(width: AppSpacing.sm)],
-          if (icon != null) ...[PageHeaderIcon(icon: icon!, accent: iconAccent), const SizedBox(width: AppSpacing.md)],
+          if (icon != null) ...[PageHeaderIcon(icon: icon!, accent: effectiveAccent), const SizedBox(width: AppSpacing.md)],
         ];
         return Container(
           height: narrow ? 112 : 64,
@@ -172,8 +173,8 @@ class HeaderStatPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs2),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.14),
-        border: Border.all(color: color.withValues(alpha: 0.4)),
+        color: color.withValues(alpha: 0.08),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Row(
@@ -183,7 +184,7 @@ class HeaderStatPill extends StatelessWidget {
           const SizedBox(width: AppSpacing.xs),
           Text(
             label,
-            style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w700),
+            style: AppTypography.labelSmall.copyWith(color: color, fontWeight: FontWeight.w600),
           ),
         ],
       ),

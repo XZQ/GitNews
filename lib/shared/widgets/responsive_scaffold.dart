@@ -187,7 +187,8 @@ class _SideRail extends StatelessWidget {
       onDestinationSelected: onTap,
       extended: false,
       minExtendedWidth: 80,
-      labelType: NavigationRailLabelType.selected,
+      // 全部显示标签:8 个裸图标语义不清,标签常显让每个目的地可读。
+      labelType: NavigationRailLabelType.all,
       destinations: [for (final spec in appTabs) NavigationRailDestination(icon: Icon(spec.icon), selectedIcon: Icon(spec.selectedIcon), label: Text(l10n.tr(spec.labelKey)))],
     );
   }

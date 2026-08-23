@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
@@ -21,6 +20,7 @@ class HomeTopicsPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
     final topics = ref.watch(techHotspotDigestProvider).maybeWhen(data: (digest) => digest.hotTags.take(10).toList(), orElse: () => _fallbackTopics(l10n));
     final contributors = ref.watch(projectDigestProvider).maybeWhen(data: (digest) => digest.contributors.take(5).toList(), orElse: () => const <ContributorEntity>[]);
     return AppCard(
@@ -43,8 +43,8 @@ class HomeTopicsPanel extends ConsumerWidget {
               dense: true,
               leading: CircleAvatar(
                 radius: 16,
-                backgroundColor: AppColors.brandLight,
-                child: Text(c.login[0].toUpperCase(), style: AppTypography.labelMedium.copyWith(color: AppColors.brandDark)),
+                backgroundColor: colors.primary.withValues(alpha: 0.12),
+                child: Text(c.login[0].toUpperCase(), style: AppTypography.labelMedium.copyWith(color: colors.primary)),
               ),
               title: Text(c.login, style: AppTypography.titleSmall),
               subtitle: Text('+${c.contributions} ${l10n.tr('home.contrib.week')}'),
