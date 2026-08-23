@@ -42,23 +42,46 @@ class BootstrapResult {
 }
 
 Future<BootstrapResult> initializeApplication({SharedPreferencesLoader? sharedPreferencesLoader, DatabaseOpener? databaseOpener, AuthRepositoryLoader? authRepositoryLoader}) async {
+  // 三项初始化互不依赖,同时启动并行执行缩短冷启动;错误类型与串行版保持一致。
+  LocalDatabase? openedDatabase;
+  final preferencesFuture = (sharedPreferencesLoader ?? SharedPreferences.getInstance)();
+  final databaseFuture = (databaseOpener ?? LocalDatabase.open)().then<LocalDatabase>((db) => openedDatabase = db);
+  final authFuture = _openAuthRepository(authRepositoryLoader);
+  // prefs 失败时 databaseFuture 不再被 await,预挂兜底监听避免晚到的错误成为未处理异步错误。
+  databaseFuture.ignore();
   try {
-    final preferences = await (sharedPreferencesLoader ?? SharedPreferences.getInstance)();
-    final database = await (databaseOpener ?? LocalDatabase.open)();
+    final preferences = await preferencesFuture;
+    final database = await databaseFuture;
+    final authRepository = await authFuture;
     try {
       await CacheMetaDao(database.executor).pruneStale(now: DateTime.now(), retainFor: const Duration(days: 2));
     } catch (_) {
       // 缓存元数据清理是最佳努力，不阻断应用启动。
     }
-    AuthRepository authRepository;
-    try {
-      authRepository = await (authRepositoryLoader ?? initializeAuthRepository)(defaultSecureStorage);
-    } catch (_) {
-      authRepository = const UnavailableAuthRepository(AuthCapabilities(isConfigured: true));
-    }
     return BootstrapResult.success(preferences, database, authRepository);
   } catch (error, stackTrace) {
+    // prefs 先失败时数据库可能仍在打开中;等它落定后再关闭,避免 sqlite 连接泄漏。
+    // 错误已被上方 ignore() 吞掉,这里的 await 不会再抛。
+    try {
+      await databaseFuture;
+    } catch (_) {
+      // 打开失败无需清理。
+    }
+    try {
+      await openedDatabase?.close();
+    } catch (_) {
+      // 关闭失败不掩盖原始启动错误。
+    }
     return BootstrapResult.failure(error, stackTrace);
+  }
+}
+
+// 认证初始化独立兜底:失败降级为不可用仓库,不阻断本地优先启动。
+Future<AuthRepository> _openAuthRepository(AuthRepositoryLoader? loader) async {
+  try {
+    return await (loader ?? initializeAuthRepository)(defaultSecureStorage);
+  } catch (_) {
+    return const UnavailableAuthRepository(AuthCapabilities(isConfigured: true));
   }
 }
 

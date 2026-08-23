@@ -158,6 +158,12 @@ class _FlatEntry {
 }
 
 class _ItemListState extends ConsumerState<_ItemList> {
+  // 聚类管线(排序 + O(n^2) 聚类 + 分组)只依赖 items 与兴趣画像;
+  // 兴趣画像异步就绪、freshness 等无关重建不应重复整段计算,按引用相等缓存结果。
+  List<_FlatEntry>? _flatCache;
+  List<AiNewsItem>? _cachedItems;
+  AiNewsInterestProfile? _cachedProfile;
+
   /* 监听内层列表剩余距离,不抢占 [NestedScrollView] 提供的滚动控制器。 */
   bool _onScrollNotification(ScrollNotification notification) {
     if (widget.staticList || widget.query.trim().isNotEmpty) {
@@ -170,6 +176,26 @@ class _ItemListState extends ConsumerState<_ItemList> {
       ref.read(aiNewsItemsNotifierProvider.notifier).loadMore();
     }
     return false;
+  }
+
+  List<_FlatEntry> _flatEntriesFor(AiNewsInterestProfile profile) {
+    final items = widget.items;
+    final cached = _flatCache;
+    if (cached != null && identical(items, _cachedItems) && identical(profile, _cachedProfile)) {
+      return cached;
+    }
+    final ranked = rankAiNewsByInterest(items, profile);
+    final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
+    final flat = <_FlatEntry>[
+      for (final g in groups) ...[
+        _FlatEntry.header(g.key, g.value.length),
+        for (var i = 0; i < g.value.length; i++) _FlatEntry.item(g.value[i], isFirstInGroup: i == 0, isLastInGroup: i == g.value.length - 1),
+      ],
+    ];
+    _flatCache = flat;
+    _cachedItems = items;
+    _cachedProfile = profile;
+    return flat;
   }
 
   @override
@@ -190,15 +216,7 @@ class _ItemListState extends ConsumerState<_ItemList> {
     final showPagingFooter = !widget.staticList && query.isEmpty;
     final profile = ref.watch(aiNewsInterestProfileProvider).value ?? AiNewsInterestProfile.empty;
     final isCompact = Breakpoints.isCompact(context);
-    final ranked = rankAiNewsByInterest(widget.items, profile);
-    final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
-    // 扁平化分组为 (header / row) 序列,SliverList 按 index lazy build。
-    final flat = <_FlatEntry>[
-      for (final g in groups) ...[
-        _FlatEntry.header(g.key, g.value.length),
-        for (var i = 0; i < g.value.length; i++) _FlatEntry.item(g.value[i], isFirstInGroup: i == 0, isLastInGroup: i == g.value.length - 1),
-      ],
-    ];
+    final flat = _flatEntriesFor(profile);
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
       child: CustomScrollView(

@@ -11,6 +11,7 @@ import '../../../../shared/widgets/page_header.dart';
 import '../../application/ai_news_library_providers.dart';
 import '../../application/ai_news_providers.dart';
 import '../../application/ai_news_reminder_providers.dart';
+import '../../application/ai_news_search_input_controller.dart';
 import 'ai_news_library_filters_dialog.dart';
 
 /* 
@@ -50,8 +51,8 @@ class AiNewsPageHeader extends ConsumerWidget {
       subtitle: l10n.tr('ai_news.subtitle'),
       searchHint: l10n.tr('ai_news.search_hint'),
       searchValue: query,
-      onSearchChanged: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
-      onSearchSubmitted: (v) => ref.read(aiNewsSearchQueryProvider.notifier).state = v,
+      onSearchChanged: (v) => ref.read(aiNewsSearchInputControllerProvider).update(v),
+      onSearchSubmitted: (v) => ref.read(aiNewsSearchInputControllerProvider).update(v, immediate: true),
       actions: actions,
       showBottomDivider: false,
     );
@@ -158,8 +159,8 @@ class AiNewsCompactSearchBar extends ConsumerWidget {
       child: HeaderSearchField(
         hintText: l10n.tr('ai_news.search_hint'),
         value: query,
-        onChanged: (value) => ref.read(aiNewsSearchQueryProvider.notifier).state = value,
-        onSubmitted: (value) => ref.read(aiNewsSearchQueryProvider.notifier).state = value,
+        onChanged: (value) => ref.read(aiNewsSearchInputControllerProvider).update(value),
+        onSubmitted: (value) => ref.read(aiNewsSearchInputControllerProvider).update(value, immediate: true),
         height: 40,
         outlined: true,
         fillColor: colors.surface,
