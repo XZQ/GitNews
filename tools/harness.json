@@ -232,7 +232,8 @@
       "command": "uv",
       "arguments": [
         "run",
-        "pytest"
+        "pytest",
+        "--basetemp=../build/harness/pytest-tmp"
       ],
       "workingDirectory": "server",
       "timeoutSeconds": 1800
