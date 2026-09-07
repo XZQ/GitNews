@@ -3,6 +3,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_item_state.dart';
+import '../domain/ai_news_library_filter.dart';
 
 /*
 *AI 资讯用户状态 DAO(已读 / 稍后读)。
@@ -61,13 +62,44 @@ class AiNewsStateDao {
   /*
   *稍后读列表(按加入时间倒序),从快照直接重建条目。
   */
-  Future<List<AiNewsItem>> readLaterItems() async {
+  Future<List<AiNewsItem>> readLaterItems({String query = '', AiNewsCategory? category, AiNewsLibraryFilter filter = const AiNewsLibraryFilter()}) async {
     try {
-      final rows = await _db.query(_table, where: 'read_later_at IS NOT NULL', orderBy: 'read_later_at DESC');
+      final where = <String>['read_later_at IS NOT NULL'];
+      final args = <Object?>[];
+      for (final word in query.trim().toLowerCase().split(RegExp(r'\s+')).where((word) => word.isNotEmpty)) {
+        where.add('(instr(lower(title), ?) > 0 OR instr(lower(title_en), ?) > 0 OR instr(lower(summary), ?) > 0 OR instr(lower(source), ?) > 0)');
+        args.addAll(List.filled(4, word));
+      }
+      final selectedCategory = filter.category ?? category;
+      if (selectedCategory != null) {
+        where.add('category = ?');
+        args.add(selectedCategory.code);
+      }
+      if (filter.source?.trim().isNotEmpty ?? false) {
+        where.add('source = ?');
+        args.add(filter.source!.trim());
+      }
+      if (filter.publishedAfter != null) {
+        where.add('published_at >= ?');
+        args.add(filter.publishedAfter!.millisecondsSinceEpoch);
+      }
+      if (filter.publishedBefore != null) {
+        where.add('published_at < ?');
+        args.add(filter.publishedBefore!.millisecondsSinceEpoch);
+      }
+      if (filter.read != AiNewsReadFilter.all) {
+        where.add(filter.read == AiNewsReadFilter.read ? 'read_at IS NOT NULL' : 'read_at IS NULL');
+      }
+      final rows = await _db.query(_table, where: where.join(' AND '), whereArgs: args, orderBy: 'read_later_at DESC, item_id ASC');
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'readLaterItems'});
     }
+  }
+
+  Future<List<String>> readLaterSources() async {
+    final rows = await _db.rawQuery('SELECT DISTINCT source FROM $_table WHERE read_later_at IS NOT NULL AND source != ? ORDER BY source', ['']);
+    return rows.map((row) => row['source'] as String).toList(growable: false);
   }
 
   /*

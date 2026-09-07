@@ -38,7 +38,7 @@ class _AiNewsLibraryFiltersDialogState extends ConsumerState<AiNewsLibraryFilter
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final sources = ref.watch(aiNewsLibrarySourcesProvider).value ?? const [];
+    final sources = {if (_source != null) _source!, ...?ref.watch(aiNewsLibrarySourcesProvider).value}.toList()..sort();
     return AlertDialog(
       title: Text(l10n.tr('ai_news.filters.title')),
       content: SizedBox(

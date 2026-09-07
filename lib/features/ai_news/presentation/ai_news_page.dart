@@ -75,8 +75,11 @@ class _Body extends ConsumerWidget {
       final async = ref.watch(aiNewsReadLaterItemsProvider);
       return async.when(
         data: (items) => items.isEmpty
-            ? EmptyView(icon: Icons.bookmark_border_rounded, message: AppLocalizations.of(context).tr('ai_news.read_later_empty'))
-            : AiNewsItemList(items: items, category: category, query: '', staticList: true, header: category == null ? const AiNewsOverviewHeader() : null),
+            ? EmptyView(
+                icon: Icons.bookmark_border_rounded,
+                message: AppLocalizations.of(context).tr(query.isNotEmpty || category != null || libraryFilter.isActive ? 'ai_news.read_later_no_matches' : 'ai_news.read_later_empty'),
+              )
+            : AiNewsItemList(items: items, category: category, query: query, staticList: true, searchResults: true),
         loading: () => const AiNewsListSkeleton(),
         error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsReadLaterItemsProvider)),
       );

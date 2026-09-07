@@ -174,6 +174,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'ai_news.feed_stale': '部分来源未更新，保留已有资讯',
   'ai_news.feed_seed': '离线示例资讯 · 尚未获取远端内容',
   'ai_news.example': '离线示例',
+  'ai_news.read_later_no_matches': '没有符合当前筛选条件的稍后读资讯',
   'ai_news.feed_checked': '最近完整验证：{time}',
   'ai_news.no_more': '没有更多数据了',
   'ai_news.empty_search': '未找到与「{query}」相关的 AI 资讯',

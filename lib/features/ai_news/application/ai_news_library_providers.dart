@@ -6,6 +6,7 @@ import '../data/ai_news_state_dao.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_item_state.dart';
 import '../domain/ai_news_library_filter.dart';
+import 'ai_news_library_search_notifier.dart';
 import 'ai_news_providers.dart';
 
 export 'ai_news_library_search_notifier.dart';
@@ -23,10 +24,16 @@ final aiNewsReadLaterOnlyProvider = StateProvider<bool>((ref) => false);
 // 资讯库来源/时间/已读过滤器；分类仍复用页面主分类导航。
 final aiNewsLibraryFilterProvider = StateProvider<AiNewsLibraryFilter>((ref) => const AiNewsLibraryFilter());
 
-final aiNewsLibrarySourcesProvider = FutureProvider.autoDispose<List<String>>((ref) => ref.watch(aiNewsCacheDaoProvider).sources());
+final aiNewsLibrarySourcesProvider = FutureProvider.autoDispose<List<String>>((ref) {
+  return ref.watch(aiNewsReadLaterOnlyProvider) ? ref.watch(aiNewsStateDaoProvider).readLaterSources() : ref.watch(aiNewsCacheDaoProvider).sources();
+});
 
 // 稍后读列表(实体快照重建,清缓存不受影响)。
-final aiNewsReadLaterItemsProvider = FutureProvider.autoDispose<List<AiNewsItem>>((ref) => ref.watch(aiNewsStateDaoProvider).readLaterItems());
+final aiNewsReadLaterItemsProvider = FutureProvider.autoDispose<List<AiNewsItem>>((ref) {
+  return ref
+      .watch(aiNewsStateDaoProvider)
+      .readLaterItems(query: ref.watch(aiNewsSearchQueryProvider), category: ref.watch(aiNewsCategoryFilterProvider), filter: ref.watch(aiNewsLibraryFilterProvider));
+});
 
 // 单条已读/稍后读状态(详情页动作按钮)。
 final aiNewsItemStateProvider = FutureProvider.autoDispose.family<AiNewsItemState, String>((ref, id) => ref.watch(aiNewsStateDaoProvider).stateOf(id));
@@ -48,7 +55,10 @@ class AiNewsLibraryController {
     try {
       final now = _ref.read(clockProvider)();
       await _ref.read(aiNewsStateDaoProvider).markRead(item, now: now);
+      if (!_ref.mounted) return;
       _ref.invalidate(aiNewsItemStateProvider(item.id));
+      _ref.invalidate(aiNewsReadLaterItemsProvider);
+      _ref.invalidate(aiNewsLibrarySearchProvider);
     } catch (_) {
       // 已读标记是尽力而为的本地增强,不打断阅读主流程。
     }
@@ -60,8 +70,10 @@ class AiNewsLibraryController {
   Future<bool> toggleReadLater(AiNewsItem item) async {
     final now = _ref.read(clockProvider)();
     final added = await _ref.read(aiNewsStateDaoProvider).toggleReadLater(item, now: now);
+    if (!_ref.mounted) return added;
     _ref.invalidate(aiNewsItemStateProvider(item.id));
     _ref.invalidate(aiNewsReadLaterItemsProvider);
+    _ref.invalidate(aiNewsLibrarySourcesProvider);
     return added;
   }
 }

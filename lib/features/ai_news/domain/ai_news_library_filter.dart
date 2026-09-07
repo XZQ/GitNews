@@ -15,7 +15,7 @@ class AiNewsLibraryFilter {
   final DateTime? publishedBefore;
   final AiNewsReadFilter read;
 
-  bool get isActive => source != null || publishedAfter != null || publishedBefore != null || read != AiNewsReadFilter.all;
+  bool get isActive => category != null || source != null || publishedAfter != null || publishedBefore != null || read != AiNewsReadFilter.all;
 
   AiNewsLibraryFilter copyWith({
     AiNewsCategory? category,

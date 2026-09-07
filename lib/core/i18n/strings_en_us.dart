@@ -175,6 +175,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'ai_news.feed_stale': 'Some sources could not update; saved news is available',
   'ai_news.feed_seed': 'Offline examples · Remote news has not loaded',
   'ai_news.example': 'Offline example',
+  'ai_news.read_later_no_matches': 'No saved articles match the current filters',
   'ai_news.feed_checked': 'Last complete validation: {time}',
   'ai_news.no_more': 'No more data',
   'ai_news.empty_search': 'No AI news matching "{query}"',
