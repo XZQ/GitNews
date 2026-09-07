@@ -68,7 +68,7 @@ class AiHotResourceCache {
     }
     final now = _now().toUtc();
     if (!force && cached != null && await _cache.isFresh(key: key, ttl: ttl, now: now)) {
-      return DataResult(data: cached, freshness: DataFreshness.freshCache);
+      return DataResult(data: cached, freshness: DataFreshness.freshCache, validatedAt: entry.validatedAt);
     }
 
     try {
@@ -91,29 +91,36 @@ class AiHotResourceCache {
           validators: _responseValidators(response, fallback: entry.validators),
           now: now,
         );
-        return DataResult(data: cached, freshness: DataFreshness.freshCache);
+        return DataResult(data: cached, freshness: DataFreshness.freshCache, validatedAt: now, revalidated: true);
       }
       if (response.statusCode != 200) {
         throw AppException(kind: AppExceptionKind.server, meta: {'statusCode': response.statusCode});
       }
       final data = decode(response.data);
       await _cache.upsertWithValidators(key: key, payload: {'kind': kind, 'data': data}, validators: _responseValidators(response), now: now);
-      return DataResult(data: data, freshness: DataFreshness.live);
+      return DataResult(data: data, freshness: DataFreshness.live, validatedAt: now, revalidated: true);
     } on DioException catch (error) {
+      await _cache.markValidationFailed(key);
       if (cached != null) {
-        return DataResult(data: cached, freshness: DataFreshness.staleCache);
+        return DataResult(data: cached, freshness: DataFreshness.staleCache, validatedAt: entry.validatedAt);
       }
       throw AiHotApiSupport.toAppException(error);
     } on FormatException catch (error, stack) {
+      await _cache.markValidationFailed(key);
       if (cached != null) {
-        return DataResult(data: cached, freshness: DataFreshness.staleCache);
+        return DataResult(data: cached, freshness: DataFreshness.staleCache, validatedAt: entry.validatedAt);
       }
       throw AppException(kind: AppExceptionKind.parse, cause: error, stack: stack);
     } on TypeError catch (error, stack) {
+      await _cache.markValidationFailed(key);
       if (cached != null) {
-        return DataResult(data: cached, freshness: DataFreshness.staleCache);
+        return DataResult(data: cached, freshness: DataFreshness.staleCache, validatedAt: entry.validatedAt);
       }
       throw AppException(kind: AppExceptionKind.parse, cause: error, stack: stack);
+    } on AppException {
+      await _cache.markValidationFailed(key);
+      if (cached != null) return DataResult(data: cached, freshness: DataFreshness.staleCache, validatedAt: entry.validatedAt);
+      rethrow;
     }
   }
 

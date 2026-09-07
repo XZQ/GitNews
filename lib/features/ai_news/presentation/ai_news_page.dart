@@ -11,6 +11,7 @@ import '../application/ai_news_providers.dart';
 import '../application/ai_news_refresh_controller.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_category_nav.dart';
+import 'widgets/ai_news_feed_status.dart';
 import 'widgets/ai_news_item_list.dart';
 import 'widgets/ai_news_list_skeleton.dart';
 import 'widgets/ai_news_overview_header.dart';
@@ -88,7 +89,15 @@ class _Body extends ConsumerWidget {
 
     final async = ref.watch(aiNewsItemsNotifierProvider);
     return async.when(
-      data: (items) => AiNewsItemList(items: items, category: category, query: '', header: category == null ? const AiNewsOverviewHeader() : null),
+      data: (items) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const AiNewsFeedStatus(),
+          Expanded(
+            child: AiNewsItemList(items: items, category: category, query: '', header: category == null ? const AiNewsOverviewHeader() : null),
+          ),
+        ],
+      ),
       loading: () => const AiNewsListSkeleton(),
       error: (e, _) => ErrorView(error: e.asAppException(), onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider)),
     );

@@ -4,12 +4,15 @@ import 'package:github_news/core/domain/repo_entity.dart';
 
 void main() {
   test('DataResult maps data without losing freshness', () {
-    const source = DataResult<int>(data: 2, freshness: DataFreshness.staleCache);
+    final time = DateTime.utc(2026, 9, 7);
+    final source = DataResult<int>(data: 2, freshness: DataFreshness.staleCache, validatedAt: time, revalidated: true);
 
     final mapped = source.map((value) => '$value');
 
     expect(mapped.data, '2');
     expect(mapped.freshness, DataFreshness.staleCache);
+    expect(mapped.validatedAt, time);
+    expect(mapped.revalidated, isTrue);
   });
 
   test('unknown enum names use safe seed defaults', () {

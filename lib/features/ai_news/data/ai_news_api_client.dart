@@ -42,7 +42,7 @@ class AiNewsApiClient {
       if (cursor != null && cursor.isNotEmpty) 'cursor': cursor,
     };
     final result = await _resources.getObject(url: ApiEndpointsConfig.aiNewsItemsPath, queryParameters: parameters, ttl: CacheTtlConfig.aiNews, force: force);
-    return DataResult(data: AiNewsListResponseDto.fromJson(result.data), freshness: result.freshness);
+    return result.map(AiNewsListResponseDto.fromJson);
   }
 
   /* 读取当前多信源热点。 */

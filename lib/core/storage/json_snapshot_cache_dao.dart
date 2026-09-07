@@ -43,8 +43,10 @@ class JsonSnapshotCacheDao {
     if (last == null) {
       return false;
     }
-    return now.difference(last) < ttl;
+    return now.difference(last) < ttl && !await _meta.hasFailedValidation(key);
   }
+
+  Future<void> markValidationFailed(String key) => _meta.markValidationFailed(key);
 
   Future<void> delete(String key) async {
     try {
@@ -78,7 +80,7 @@ class JsonSnapshotCacheDao {
   Future<ValidatedCacheEntry> readWithValidators(String key) async {
     final payload = await read(key);
     final validators = await _meta.readValidators(key);
-    return ValidatedCacheEntry(payload: payload, validators: validators);
+    return ValidatedCacheEntry(payload: payload, validators: validators, validatedAt: await _meta.lastFetched(key));
   }
 
   /* 同时写入 payload 与完整 HTTP 校验器。 */
@@ -101,11 +103,12 @@ class EtaggedEntry {
 *快照缓存与完整 HTTP 校验器。
 */
 class ValidatedCacheEntry {
-  const ValidatedCacheEntry({this.payload, this.validators = const HttpCacheValidators()});
+  const ValidatedCacheEntry({this.payload, this.validators = const HttpCacheValidators(), this.validatedAt});
 
   // 已解码的缓存快照。
   final Map<String, Object?>? payload;
 
   // 用于下次条件请求的校验器。
   final HttpCacheValidators validators;
+  final DateTime? validatedAt;
 }

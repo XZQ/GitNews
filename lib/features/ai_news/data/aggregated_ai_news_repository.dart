@@ -1,5 +1,6 @@
 import '../../../core/config/ai_news_sources_config.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/errors/app_exception.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_repository.dart';
 import 'ai_news_merge.dart';
@@ -56,11 +57,13 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
     }
 
     final merged = mergeAiNewsItems(primary: primaryDigest?.items ?? const [], extras: extras);
-    final sourceFreshness = [
-      if (primaryOutcome.value != null) primaryOutcome.value!.freshness,
+    final results = <DataResult<Object>>[
+      if (primaryOutcome.value != null) primaryOutcome.value!,
       for (final outcome in rssOutcomes)
-        if (outcome.value != null) outcome.value!.freshness,
+        if (outcome.value != null) outcome.value!,
     ];
+    final incomplete = primaryOutcome.error != null || rssOutcomes.any((outcome) => outcome.error != null);
+    final times = results.map((result) => result.validatedAt).whereType<DateTime>().toList()..sort();
     return DataResult(
       data: AiNewsDigest(
         items: merged,
@@ -69,7 +72,9 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
         hasNext: primaryDigest?.hasNext ?? false,
         nextCursor: primaryDigest?.nextCursor,
       ),
-      freshness: _combinedFreshness(sourceFreshness),
+      freshness: incomplete ? DataFreshness.staleCache : _combinedFreshness(results.map((result) => result.freshness).toList()),
+      validatedAt: !incomplete && times.length == results.length ? times.first : null,
+      revalidated: !incomplete && results.every((result) => result.revalidated),
     );
   }
 
@@ -84,7 +89,11 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
   Future<_Outcome<DataResult<List<AiNewsItem>>>> _fetchSource(AiNewsSourceConfig source, DateTime now, {bool force = false}) async {
     try {
       final items = await _rssClient.fetchSource(source, now: now, force: force);
-      await _reportSuccess(source.id, now);
+      if (items.freshness == DataFreshness.staleCache || items.freshness == DataFreshness.seed) {
+        await _reportFailure(source.id, now, const AppException(kind: AppExceptionKind.network));
+      } else if (items.revalidated) {
+        await _reportSuccess(source.id, items.validatedAt ?? now);
+      }
       return _Outcome(value: items);
     } catch (error) {
       await _reportFailure(source.id, now, error);
@@ -93,14 +102,14 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
   }
 
   static DataFreshness _combinedFreshness(List<DataFreshness> values) {
+    if (values.contains(DataFreshness.staleCache) || values.contains(DataFreshness.seed)) {
+      return values.every((value) => value == DataFreshness.seed) ? DataFreshness.seed : DataFreshness.staleCache;
+    }
     if (values.contains(DataFreshness.live)) {
       return DataFreshness.live;
     }
     if (values.contains(DataFreshness.freshCache)) {
       return DataFreshness.freshCache;
-    }
-    if (values.contains(DataFreshness.staleCache)) {
-      return DataFreshness.staleCache;
     }
     return DataFreshness.seed;
   }

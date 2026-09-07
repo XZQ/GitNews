@@ -26,15 +26,15 @@ class AiNewsRssClient {
     if (body.trim().isEmpty) {
       throw AppException(kind: AppExceptionKind.parse, meta: {'source': source.id, 'reason': 'empty body'});
     }
-    final items = parseAiNewsFeed(body, source: source, fallbackTime: now);
+    final items = parseAiNewsFeed(body, source: source, fallbackTime: result.validatedAt ?? now);
     final cutoff = now.toUtc().subtract(AiNewsSourcesConfig.recencyWindow);
     final recent = [
       for (final item in items)
         if (item.publishedAt.isAfter(cutoff)) item,
     ]..sort((left, right) => right.publishedAt.compareTo(left.publishedAt));
     if (recent.length <= AiNewsSourcesConfig.maxItemsPerSource) {
-      return DataResult(data: recent, freshness: result.freshness);
+      return result.map((_) => recent);
     }
-    return DataResult(data: recent.sublist(0, AiNewsSourcesConfig.maxItemsPerSource), freshness: result.freshness);
+    return result.map((_) => recent.sublist(0, AiNewsSourcesConfig.maxItemsPerSource));
   }
 }

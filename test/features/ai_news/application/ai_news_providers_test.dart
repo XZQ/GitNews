@@ -20,6 +20,8 @@ class _MockAiNewsRepository implements AiNewsRepository {
   int callCount = 0;
   final List<bool> forces = [];
   Completer<DataResult<AiNewsDigest>>? pending;
+  DataFreshness freshness = DataFreshness.live;
+  DateTime? validatedAt;
 
   @override
   Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false}) async {
@@ -29,7 +31,8 @@ class _MockAiNewsRepository implements AiNewsRepository {
     lastCategoryArg = category;
     return DataResult(
       data: AiNewsDigest(items: _stub, count: _stub.length, hasNext: false),
-      freshness: DataFreshness.live,
+      freshness: freshness,
+      validatedAt: validatedAt,
     );
   }
 }
@@ -195,6 +198,58 @@ void main() {
 
     expect(repo2.callCount, 1);
     expect(items.length, 2);
+  });
+
+  test('stale repository results preserve validation time and remain stale after reopening', () async {
+    final original = DateTime.utc(2026, 6, 30, 10);
+    await dao.upsertPage(
+      category: null,
+      cursor: null,
+      digest: AiNewsDigest(items: [_item('a')], count: 1, hasNext: false),
+      now: original,
+    );
+    final staleRepo = _MockAiNewsRepository([_item('a')])
+      ..freshness = DataFreshness.staleCache
+      ..validatedAt = original;
+    final later = original.add(const Duration(minutes: 10));
+    final container = makeContainer(staleRepo, clock: () => later);
+    await _pumpUntilSettled(container);
+    expect(await dao.lastValidatedAt(), original);
+    expect((await db.executor.query('ai_news_item')).single['cached_at'], original.millisecondsSinceEpoch);
+    expect(container.read(aiNewsLastValidatedAtProvider), original);
+    final reopened = makeContainer(staleRepo, clock: () => later);
+    await _pumpUntilSettled(reopened);
+    expect(staleRepo.callCount, 2);
+    expect(readFreshness(reopened), DataFreshness.staleCache);
+  });
+
+  test('resource cache time is not extended by rebuilding the item cache', () async {
+    final original = DateTime.utc(2026, 6, 30, 10);
+    final repo = _MockAiNewsRepository([_item('a')])
+      ..freshness = DataFreshness.freshCache
+      ..validatedAt = original;
+    final container = makeContainer(repo, clock: () => original.add(const Duration(minutes: 4)));
+    await _pumpUntilSettled(container);
+    expect(await dao.lastValidatedAt(), original);
+    expect(await dao.isFresh(category: null, cursor: null, ttl: aiNewsCacheTtl, now: original.add(const Duration(minutes: 6))), isFalse);
+  });
+
+  test('failed refresh inside TTL does not become fresh on reopen', () async {
+    final original = DateTime.utc(2026, 6, 30, 10);
+    await dao.upsertPage(
+      category: null,
+      cursor: null,
+      digest: AiNewsDigest(items: [_item('a')], count: 1, hasNext: false),
+      now: original,
+    );
+    final container = makeContainer(_ThrowingAiNewsRepository(), clock: () => original);
+    container.listen(aiNewsItemsNotifierProvider, (_, _) {});
+    await _pumpUntilSettled(container);
+    await container.read(aiNewsItemsNotifierProvider.notifier).refresh();
+    final reopened = makeContainer(_ThrowingAiNewsRepository(), clock: () => original);
+    await _pumpUntilSettled(reopened);
+    expect(readFreshness(reopened), DataFreshness.staleCache);
+    expect(await dao.lastValidatedAt(), original);
   });
 
   test('setting category filter should propagate code to the repository', () async {

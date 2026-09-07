@@ -77,10 +77,13 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
 
     // Phase A:优先读缓存,瞬间出列表
     final cached = await dao.readAll(category: _category);
+    final lastValidated = await dao.lastValidatedAt(category: _category);
+    final fresh = await dao.isFresh(category: _category, cursor: null, ttl: aiNewsCacheTtl, now: now);
     if (!ref.mounted || gen != _generation) {
       return const [];
     }
     if (cached.isNotEmpty) {
+      freshness.state = fresh ? DataFreshness.freshCache : DataFreshness.staleCache;
       _buffer = cached;
       // 缓存里没有分页游标信息;乐观认为远端可能还有更多,
       // 让 loadMore 在 buffer 耗尽时尝试拉远端(走 head 刷新路径)
@@ -89,7 +92,7 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
     }
 
     // Phase B:缓存仍新鲜就不发请求,否则后台静默刷新
-    final fresh = await dao.isFresh(category: _category, cursor: null, ttl: aiNewsCacheTtl, now: now);
+    ref.read(aiNewsLastValidatedAtProvider.notifier).state = lastValidated;
     if (!ref.mounted || gen != _generation) {
       return const [];
     }
@@ -183,22 +186,29 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
       final nextCursor = digest.nextCursor?.trim();
       _nextCursor = nextCursor == null || nextCursor.isEmpty ? null : nextCursor;
       _hasApiMore = digest.hasNext && _nextCursor != null;
-      freshness.state = result.freshness;
-      // 落盘 + 更新 head meta。
+      // A successful later page cannot erase a stale head query's warning.
+      if (isHead || result.freshness == DataFreshness.staleCache) freshness.state = result.freshness;
+      // Cache reads carry their original validation time, never the current time.
       final dao = ref.read(aiNewsCacheDaoProvider);
       final now = ref.read(clockProvider)();
+      final validatedAt = result.validatedAt ?? (result.freshness == DataFreshness.live ? now : null);
+      final validated = validatedAt != null && (result.freshness == DataFreshness.live || result.freshness == DataFreshness.freshCache);
       await dao.upsertPage(
         category: _category,
         // 分页按实际 cursor 落盘；新鲜度判断仍只读取 head 的 meta。
         cursor: requestCursor,
         digest: digest,
-        now: now,
+        now: validatedAt ?? now,
+        validated: validated,
       );
+      if (ref.mounted && gen == _generation && isHead && validated) ref.read(aiNewsLastValidatedAtProvider.notifier).state = validatedAt;
     } catch (e) {
       if (!ref.mounted || gen != _generation) {
         return;
       }
       _fetching = false;
+      await ref.read(aiNewsCacheDaoProvider).markValidationFailed(category: _category, cursor: requestCursor);
+      if (!ref.mounted || gen != _generation) return;
       // 后台刷新失败容忍:已有缓存数据就不报错,标记为陈旧缓存兜底
       if (state.value != null) {
         freshness.state = DataFreshness.staleCache;

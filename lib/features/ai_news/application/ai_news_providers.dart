@@ -151,3 +151,6 @@ List<AiNewsItem> selectRelatedAiNewsItems(List<AiNewsItem> items, {required AiNe
 // 由 [AiNewsItemsNotifier] 在关键决策点写入,供页头与首页预览展示 badge,
 // 让用户清楚当前看到的是实时、缓存还是种子兜底数据。
 final aiNewsFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.live);
+
+/// Oldest validation time covering the complete current head query.
+final aiNewsLastValidatedAtProvider = StateProvider<DateTime?>((ref) => null);

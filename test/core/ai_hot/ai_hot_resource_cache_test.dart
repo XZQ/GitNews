@@ -134,6 +134,42 @@ void main() {
       ),
     ).called(1);
   });
+
+  test('failed forced check preserves timestamps and disables TTL until successful revalidation', () async {
+    var current = now;
+    var call = 0;
+    resources = AiHotResourceCache(dio: dio, cache: cache, now: () => current);
+    when(
+      () => dio.get<Object?>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((_) async {
+      call++;
+      if (call == 1) return _response(statusCode: 200, data: <String, Object?>{'id': 1});
+      if (call == 2) {
+        throw DioException(
+          requestOptions: RequestOptions(path: '/test'),
+          type: DioExceptionType.connectionError,
+        );
+      }
+      return _response(statusCode: 304);
+    });
+    final first = await resources.getObject(url: '/test', ttl: const Duration(hours: 1));
+    current = now.add(const Duration(minutes: 1));
+    final hit = await resources.getObject(url: '/test', ttl: const Duration(hours: 1));
+    expect(hit.validatedAt, first.validatedAt);
+    expect(hit.revalidated, isFalse);
+    final stale = await resources.getObject(url: '/test', ttl: const Duration(hours: 1), force: true);
+    expect(stale.validatedAt, now);
+    expect(stale.freshness, DataFreshness.staleCache);
+    current = now.add(const Duration(minutes: 2));
+    final recovered = await resources.getObject(url: '/test', ttl: const Duration(hours: 1));
+    expect(call, 3);
+    expect(recovered.validatedAt, current);
+    expect(recovered.revalidated, isTrue);
+  });
 }
 
 Response<Object?> _response({required int statusCode, Object? data, String? etag, String? lastModified}) {

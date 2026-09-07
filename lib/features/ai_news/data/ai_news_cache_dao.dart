@@ -27,7 +27,7 @@ class AiNewsCacheDao {
   static String cacheKey({AiNewsCategory? category, String? cursor}) {
     final cat = category?.code ?? 'all';
     final cur = (cursor == null || cursor.isEmpty) ? 'head' : cursor;
-    return 'ai_news:v3:mode=selected:category=$cat:cursor=$cur';
+    return 'ai_news:v4:mode=selected:category=$cat:cursor=$cur';
   }
 
   /* 
@@ -136,17 +136,16 @@ class AiNewsCacheDao {
   }
 
   /* 
-  *写入一批远端返回的条目,并把对应 [cacheKey] 的 last_fetched_at 更新。
-  *- 若 [digest.items] 为空,仍会更新 meta(避免「空响应也算新鲜」)
-  *- 使用 INSERT OR REPLACE,使旧条目被新值覆盖
-  *- 同条目再次入库时 `cached_at` 会被刷新,延长其容量清理豁免期
+  *写入条目；[now] 是来源验证时间，[validated] 为 false 时只保存内容。
+  *失败回退不得重置查询成功时间，也不延长已有条目的保留时间。
+  *成功的空响应仍记录验证时间，避免重复请求空列表。
   */
-  Future<void> upsertPage({required AiNewsCategory? category, required String? cursor, required AiNewsDigest digest, required DateTime now}) async {
+  Future<void> upsertPage({required AiNewsCategory? category, required String? cursor, required AiNewsDigest digest, required DateTime now, bool validated = true}) async {
     final cachedAt = now.millisecondsSinceEpoch;
     try {
       final batch = _db.batch();
       for (final item in digest.items) {
-        batch.insert(_table, {
+        final values = <String, Object?>{
           'id': item.id,
           'category': item.category.code,
           'title': item.title,
@@ -162,10 +161,19 @@ class AiNewsCacheDao {
           'content': item.content,
           'attribution_source': item.attributionSource,
           'cached_at': cachedAt,
-        }, conflictAlgorithm: ConflictAlgorithm.replace);
+        };
+        batch.insert(_table, values, conflictAlgorithm: validated ? ConflictAlgorithm.replace : ConflictAlgorithm.ignore);
+        if (!validated) {
+          // Retain the original retention timestamp when reusing stale rows.
+          batch.update(_table, {...values}..remove('cached_at'), where: 'id = ?', whereArgs: [item.id]);
+        }
       }
       await batch.commit(noResult: true);
-      await _meta.upsert(cacheKey(category: category, cursor: cursor), now);
+      if (validated) {
+        await _meta.upsert(cacheKey(category: category, cursor: cursor), now);
+      } else {
+        await markValidationFailed(category: category, cursor: cursor);
+      }
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'upsertPage'});
     }
@@ -179,8 +187,15 @@ class AiNewsCacheDao {
     if (last == null) {
       return false;
     }
-    return now.difference(last) < ttl;
+    return now.difference(last) < ttl && !await _meta.hasFailedValidation(cacheKey(category: category, cursor: cursor));
   }
+
+  Future<DateTime?> lastValidatedAt({AiNewsCategory? category, String? cursor}) async {
+    final last = await _meta.lastFetched(cacheKey(category: category, cursor: cursor));
+    return last == null || last.millisecondsSinceEpoch == 0 ? null : last;
+  }
+
+  Future<void> markValidationFailed({AiNewsCategory? category, String? cursor}) => _meta.markValidationFailed(cacheKey(category: category, cursor: cursor));
 
   /* 
   *清空所有 AI 资讯条目(不动 meta)。

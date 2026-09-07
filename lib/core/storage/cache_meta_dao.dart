@@ -45,16 +45,25 @@ class CacheMetaDao {
       if (existing.isEmpty) {
         await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': at.millisecondsSinceEpoch});
       } else {
-        await _db.update(_table, {'last_fetched_at': at.millisecondsSinceEpoch}, where: 'cache_key = ?', whereArgs: [cacheKey]);
+        await _db.update(_table, {'last_fetched_at': at.millisecondsSinceEpoch, 'ext2': null}, where: 'cache_key = ?', whereArgs: [cacheKey]);
       }
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'upsert', 'cacheKey': cacheKey});
     }
   }
 
-  /* 
-  *删除单条 cache_key 的 meta(例如该查询被显式失效时)。
-  */
+  /// Failed validation is separate from the last successful fetch timestamp.
+  Future<void> markValidationFailed(String cacheKey) async {
+    await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': 0}, conflictAlgorithm: ConflictAlgorithm.ignore);
+    await _db.update(_table, {'ext2': 'validation_failed'}, where: 'cache_key = ?', whereArgs: [cacheKey]);
+  }
+
+  Future<bool> hasFailedValidation(String cacheKey) async {
+    final rows = await _db.query(_table, columns: ['ext2'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
+    return rows.isNotEmpty && rows.first['ext2'] == 'validation_failed';
+  }
+
+  /* 删除单条 cache_key 的 meta(例如该查询被显式失效时)。 */
   Future<void> delete(String cacheKey) async {
     try {
       await _db.delete(_table, where: 'cache_key = ?', whereArgs: [cacheKey]);

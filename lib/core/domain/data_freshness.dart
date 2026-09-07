@@ -36,12 +36,18 @@ enum MetricBasis {
 }
 
 class DataResult<T> {
-  const DataResult({required this.data, required this.freshness});
+  const DataResult({required this.data, required this.freshness, this.validatedAt, this.revalidated = false});
 
   final T data;
   final DataFreshness freshness;
 
+  /// Last successful remote validation; a cache read must not advance this time.
+  final DateTime? validatedAt;
+
+  /// True only when this operation successfully checked the remote resource.
+  final bool revalidated;
+
   DataResult<R> map<R>(R Function(T value) convert) {
-    return DataResult<R>(data: convert(data), freshness: freshness);
+    return DataResult<R>(data: convert(data), freshness: freshness, validatedAt: validatedAt, revalidated: revalidated);
   }
 }
