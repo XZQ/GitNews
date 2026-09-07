@@ -12,8 +12,8 @@ class RemoteAiNewsRepository implements AiNewsRepository {
   final AiNewsApiClient _client;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
-    final response = await _client.fetchItems(category: category?.code, since: since, query: query, cursor: cursor, selectedOnly: selectedOnly);
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false}) async {
+    final response = await _client.fetchItems(category: category?.code, since: since, query: query, cursor: cursor, selectedOnly: selectedOnly, force: force);
     return DataResult(data: response.data.toDomain(), freshness: response.freshness);
   }
 }

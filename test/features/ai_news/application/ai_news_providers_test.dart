@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
@@ -16,10 +18,14 @@ class _MockAiNewsRepository implements AiNewsRepository {
   final List<AiNewsItem> _stub;
   AiNewsCategory? lastCategoryArg;
   int callCount = 0;
+  final List<bool> forces = [];
+  Completer<DataResult<AiNewsDigest>>? pending;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false}) async {
     callCount++;
+    forces.add(force);
+    if (pending != null) return pending!.future;
     lastCategoryArg = category;
     return DataResult(
       data: AiNewsDigest(items: _stub, count: _stub.length, hasNext: false),
@@ -36,7 +42,7 @@ class _PagedAiNewsRepository implements AiNewsRepository {
   final List<bool> selectedOnlyValues = [];
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false}) async {
     cursors.add(cursor);
     selectedOnlyValues.add(selectedOnly);
     return DataResult(
@@ -127,6 +133,51 @@ void main() {
     expect(items.length, 1);
     expect(repo2.callCount, 0); // 未触发远端
     expect(readFreshness(c2), DataFreshness.freshCache);
+  });
+
+  test('manual refresh bypasses fresh cache and waits for the remote check', () async {
+    final now = DateTime.utc(2026, 6, 30, 10);
+    await dao.upsertPage(
+      category: null,
+      cursor: null,
+      digest: AiNewsDigest(items: [_item('cached')], count: 1, hasNext: false),
+      now: now,
+    );
+    final repo = _MockAiNewsRepository([])..pending = Completer<DataResult<AiNewsDigest>>();
+    final container = makeContainer(repo, clock: () => now);
+    container.listen(aiNewsItemsNotifierProvider, (_, _) {});
+    await _pumpUntilSettled(container);
+    expect(repo.callCount, 0);
+    var completed = false;
+    final refresh = container.read(aiNewsItemsNotifierProvider.notifier).refresh().then((_) => completed = true);
+    await Future<void>.delayed(const Duration(milliseconds: 30));
+    expect(repo.forces, [true]);
+    expect(completed, isFalse);
+    expect(container.read(aiNewsItemsNotifierProvider).value!.single.id, 'cached');
+    repo.pending!.complete(
+      DataResult(
+        data: AiNewsDigest(items: [_item('new')], count: 1, hasNext: false),
+        freshness: DataFreshness.live,
+      ),
+    );
+    await refresh;
+    expect(container.read(aiNewsItemsNotifierProvider).value!.map((item) => item.id), ['new', 'cached']);
+  });
+
+  test('failed manual refresh retains cached reading content', () async {
+    final now = DateTime.utc(2026, 6, 30, 10);
+    await dao.upsertPage(
+      category: null,
+      cursor: null,
+      digest: AiNewsDigest(items: [_item('cached')], count: 1, hasNext: false),
+      now: now,
+    );
+    final container = makeContainer(_ThrowingAiNewsRepository(), clock: () => now);
+    container.listen(aiNewsItemsNotifierProvider, (_, _) {});
+    await _pumpUntilSettled(container);
+    await container.read(aiNewsItemsNotifierProvider.notifier).refresh();
+    expect(container.read(aiNewsItemsNotifierProvider).value!.single.id, 'cached');
+    expect(container.read(aiNewsFreshnessProvider), DataFreshness.staleCache);
   });
 
   test('缓存过期:应在后台静默刷新', () async {
@@ -254,7 +305,7 @@ DataFreshness readFreshness(ProviderContainer container) => container.read(aiNew
 
 class _ThrowingAiNewsRepository implements AiNewsRepository {
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false}) async {
     throw Exception('network unavailable');
   }
 }

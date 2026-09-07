@@ -9,7 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/header_search_field.dart';
 import '../../../../shared/widgets/page_header.dart';
 import '../../application/ai_news_library_providers.dart';
-import '../../application/ai_news_providers.dart';
+import '../../application/ai_news_refresh_controller.dart';
 import '../../application/ai_news_reminder_providers.dart';
 import '../../application/ai_news_search_input_controller.dart';
 import 'ai_news_library_filters_dialog.dart';
@@ -43,7 +43,7 @@ class AiNewsPageHeader extends ConsumerWidget {
         tooltip: l10n.tr(readLaterOnly ? 'ai_news.read_later_show_all' : 'ai_news.read_later_filter'),
         onPressed: () => ref.read(aiNewsReadLaterOnlyProvider.notifier).state = !readLaterOnly,
       ),
-      HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => ref.invalidate(aiNewsItemsNotifierProvider)),
+      HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => ref.read(aiNewsRefreshControllerProvider).refresh()),
     ];
 
     return PageHeader(

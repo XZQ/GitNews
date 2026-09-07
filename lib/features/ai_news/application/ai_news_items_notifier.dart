@@ -41,8 +41,28 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
   // 代际令牌:每次 build 自增,用于让未完成的旧请求在 resolve 后识别「我已被新分类覆盖」。
   int _generation = 0;
 
+  bool _forceNextBuild = false;
+  Future<List<AiNewsItem>>? _pendingLoad;
+  Future<void>? _refreshTask;
+
   @override
-  Future<List<AiNewsItem>> build() async {
+  Future<List<AiNewsItem>> build() {
+    final force = _forceNextBuild;
+    _forceNextBuild = false;
+    return _pendingLoad = _load(force: force);
+  }
+
+  /// Rebuilds this query and waits for revalidation even if cached rows render early.
+  Future<void> refresh() => _refreshTask ??= _refreshHead().whenComplete(() => _refreshTask = null);
+
+  Future<void> _refreshHead() async {
+    _forceNextBuild = true;
+    ref.invalidateSelf();
+    await future;
+    await _pendingLoad;
+  }
+
+  Future<List<AiNewsItem>> _load({required bool force}) async {
     _generation++;
     final gen = _generation;
     _category = ref.watch(aiNewsCategoryFilterProvider);
@@ -73,13 +93,13 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
     if (!ref.mounted || gen != _generation) {
       return const [];
     }
-    if (fresh) {
+    if (fresh && !force) {
       // 缓存命中且未过期:无需远端
       freshness.state = DataFreshness.freshCache;
       return _currentSlice();
     }
 
-    await _fetchNextPage(generation: gen);
+    await _fetchNextPage(generation: gen, force: force);
     if (!ref.mounted || gen != _generation) {
       return const [];
     }
@@ -142,7 +162,7 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
 
   List<AiNewsItem> _currentSlice() => _buffer.sublist(0, _buffer.length.clamp(0, aiNewsPageSize));
 
-  Future<void> _fetchNextPage({int? generation}) async {
+  Future<void> _fetchNextPage({int? generation, bool force = false}) async {
     final gen = generation ?? _generation;
     if (!ref.mounted || (_fetching && gen == _generation)) {
       return;
@@ -154,7 +174,7 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
     final requestCursor = _nextCursor;
     final isHead = requestCursor == null;
     try {
-      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: requestCursor, selectedOnly: true);
+      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: requestCursor, selectedOnly: true, force: force);
       final digest = result.data;
       if (!ref.mounted || gen != _generation) {
         return;

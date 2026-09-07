@@ -13,6 +13,7 @@ abstract interface class AiNewsRepository {
   *- [query]:关键词(服务端 ILIKE)
   *- [cursor]:分页游标(上一页返回的 [AiNewsDigest.nextCursor])
   *- [selectedOnly]:true=仅精选(默认);false=`mode=all`
+  *- [force]:显式刷新，跳过 TTL，保留 ETag/Last-Modified 条件验证与失败缓存回退
   */
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true});
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false});
 }

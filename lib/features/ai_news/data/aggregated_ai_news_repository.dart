@@ -25,11 +25,11 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
   final Future<void> Function(String sourceId, DateTime at, Object error)? onSourceFailure;
 
   @override
-  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true}) async {
+  Future<DataResult<AiNewsDigest>> fetchItems({AiNewsCategory? category, DateTime? since, String? query, String? cursor, bool selectedOnly = true, bool force = false}) async {
     final isHead = cursor == null || cursor.isEmpty;
     final hasQuery = query != null && query.trim().isNotEmpty;
     if (!isHead || hasQuery) {
-      return _primary.fetchItems(category: category, since: since, query: query, cursor: cursor, selectedOnly: selectedOnly);
+      return _primary.fetchItems(category: category, since: since, query: query, cursor: cursor, selectedOnly: selectedOnly, force: force);
     }
 
     final now = clock();
@@ -39,8 +39,8 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
         if (category == null || s.categoryCode == category.code) s,
     ];
 
-    final primaryFuture = _guard(() => _primary.fetchItems(category: category, since: since, selectedOnly: selectedOnly));
-    final rssFutures = [for (final source in applicable) _fetchSource(source, now)];
+    final primaryFuture = _guard(() => _primary.fetchItems(category: category, since: since, selectedOnly: selectedOnly, force: force));
+    final rssFutures = [for (final source in applicable) _fetchSource(source, now, force: force)];
 
     final primaryOutcome = await primaryFuture;
     final rssOutcomes = await Future.wait(rssFutures);
@@ -81,9 +81,9 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
     }
   }
 
-  Future<_Outcome<DataResult<List<AiNewsItem>>>> _fetchSource(AiNewsSourceConfig source, DateTime now) async {
+  Future<_Outcome<DataResult<List<AiNewsItem>>>> _fetchSource(AiNewsSourceConfig source, DateTime now, {bool force = false}) async {
     try {
-      final items = await _rssClient.fetchSource(source, now: now);
+      final items = await _rssClient.fetchSource(source, now: now, force: force);
       await _reportSuccess(source.id, now);
       return _Outcome(value: items);
     } catch (error) {

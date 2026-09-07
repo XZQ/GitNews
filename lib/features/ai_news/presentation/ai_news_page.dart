@@ -8,6 +8,7 @@ import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/ai_news_library_providers.dart';
 import '../application/ai_news_providers.dart';
+import '../application/ai_news_refresh_controller.dart';
 import '../domain/ai_news_item.dart';
 import 'widgets/ai_news_category_nav.dart';
 import 'widgets/ai_news_item_list.dart';
@@ -48,25 +49,12 @@ class AiNewsPage extends ConsumerWidget {
     );
     return Scaffold(
       appBar: const AiNewsCompactAppBar(),
-      body: RefreshIndicator.adaptive(onRefresh: () => _refreshAiNews(ref), notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical, child: content),
+      body: RefreshIndicator.adaptive(
+        onRefresh: () => ref.read(aiNewsRefreshControllerProvider).refresh(),
+        notificationPredicate: (notification) => notification.metrics.axis == Axis.vertical,
+        child: content,
+      ),
     );
-  }
-
-  /* 下拉刷新当前移动端视图,避免刷新与当前搜索/稍后读状态脱节。 */
-  Future<void> _refreshAiNews(WidgetRef ref) async {
-    if (ref.read(aiNewsReadLaterOnlyProvider)) {
-      ref.invalidate(aiNewsReadLaterItemsProvider);
-      await ref.read(aiNewsReadLaterItemsProvider.future);
-      return;
-    }
-    final query = ref.read(aiNewsSearchQueryProvider).trim();
-    if (query.isNotEmpty || ref.read(aiNewsLibraryFilterProvider).isActive) {
-      ref.invalidate(aiNewsLibrarySearchProvider(query));
-      await ref.read(aiNewsLibrarySearchProvider(query).future);
-      return;
-    }
-    ref.invalidate(aiNewsItemsNotifierProvider);
-    await ref.read(aiNewsItemsNotifierProvider.future);
   }
 }
 
