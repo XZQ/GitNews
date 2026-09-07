@@ -5,40 +5,41 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../domain/trending_repository.dart';
 
 /* 
 *顶部四宫格核心指标。
 */
 class TrendingHeroMetrics extends StatelessWidget {
-  const TrendingHeroMetrics({super.key});
+  const TrendingHeroMetrics({required this.digest, super.key});
+
+  final TrendingDigest digest;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        Expanded(
-          child: TrendingMetric(value: '42.8K', label: l10n.tr('trending.metric.total_stars'), delta: '+7.2%'),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: TrendingMetric(value: '1.20K', label: l10n.tr('trending.metric.active_repos'), delta: '+12.4%'),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: TrendingMetric(value: '10.6K', label: l10n.tr('trending.metric.new_forks'), delta: '+5.1%'),
-        ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: TrendingMetric(value: '623', label: l10n.tr('trending.metric.hot_topics'), delta: '+3.4%'),
-        ),
-      ],
+    final repos = digest.allRepos;
+    final metrics = [
+      TrendingMetric(value: '${repos.fold<int>(0, (sum, repo) => sum + repo.starCount)}', label: l10n.tr('trending.metric.total_stars')),
+      TrendingMetric(value: '${repos.length}', label: l10n.tr('trending.metric.active_repos')),
+      TrendingMetric(value: '${repos.fold<int>(0, (sum, repo) => sum + repo.forkCount)}', label: l10n.tr('trending.metric.new_forks')),
+      TrendingMetric(value: '${digest.topics.length}', label: l10n.tr('trending.metric.hot_topics')),
+    ];
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = constraints.maxWidth < 600 ? 2 : 4;
+        return Wrap(
+          spacing: AppSpacing.md,
+          runSpacing: AppSpacing.md,
+          children: [for (final metric in metrics) SizedBox(width: (constraints.maxWidth - (columns - 1) * AppSpacing.md) / columns, child: metric)],
+        );
+      },
     );
   }
 }
 
 class TrendingMetric extends StatelessWidget {
-  const TrendingMetric({super.key, required this.value, required this.label, required this.delta});
+  const TrendingMetric({super.key, required this.value, required this.label, this.delta = ''});
 
   final String value;
   final String label;
@@ -53,11 +54,12 @@ class TrendingMetric extends StatelessWidget {
         Text(value, style: AppTypography.headlineMedium),
         const SizedBox(height: AppSpacing.xxs),
         Text(label, style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
-        const SizedBox(height: AppSpacing.xxs),
-        Text(
-          delta,
-          style: AppTypography.labelSmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
-        ),
+        if (delta.isNotEmpty) const SizedBox(height: AppSpacing.xxs),
+        if (delta.isNotEmpty)
+          Text(
+            delta,
+            style: AppTypography.labelSmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
+          ),
       ],
     );
   }

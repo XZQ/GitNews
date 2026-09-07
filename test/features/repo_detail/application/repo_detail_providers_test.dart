@@ -31,8 +31,8 @@ void main() {
       expect(digest.repo.fullName, 'denoland/deno');
       expect(digest.contributors, isNotEmpty);
       expect(digest.relatedRepos, isNotEmpty);
-      expect(digest.primaryTrend, isNotEmpty);
-      expect(digest.compareTrend, isNotEmpty);
+      expect(digest.primaryTrend, isEmpty);
+      expect(digest.compareTrend, isEmpty);
     });
 
     test('should propagate error when repository throws on unknown repo', () async {

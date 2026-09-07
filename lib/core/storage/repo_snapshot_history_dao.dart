@@ -26,7 +26,7 @@ class RepoSnapshotHistoryDao {
     if (points.length < 2) {
       return null;
     }
-    return RepoTrendSnapshot(values: [for (final point in points) point.stars.toDouble()], basis: MetricBasis.observed);
+    return RepoTrendSnapshot(values: [for (final point in points) point.stars.toDouble()], dates: [for (final point in points) DateTime.parse('${point.day}T00:00:00Z')], basis: MetricBasis.observed);
   }
 
   Future<RepoTrendSnapshot?> forkTrend(String fullName) async {
@@ -34,7 +34,7 @@ class RepoSnapshotHistoryDao {
     if (points.length < 2) {
       return null;
     }
-    return RepoTrendSnapshot(values: [for (final point in points) point.forks.toDouble()], basis: MetricBasis.observed);
+    return RepoTrendSnapshot(values: [for (final point in points) point.forks.toDouble()], dates: [for (final point in points) DateTime.parse('${point.day}T00:00:00Z')], basis: MetricBasis.observed);
   }
 
   Future<List<RepoSnapshotPoint>> _pointsFor(String fullName) async {
@@ -59,9 +59,10 @@ class RepoSnapshotHistoryDao {
 }
 
 class RepoTrendSnapshot {
-  const RepoTrendSnapshot({required this.values, required this.basis});
+  const RepoTrendSnapshot({required this.values, required this.dates, required this.basis});
 
   final List<double> values;
+  final List<DateTime> dates;
   final MetricBasis basis;
 }
 

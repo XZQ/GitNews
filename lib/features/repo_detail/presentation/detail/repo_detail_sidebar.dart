@@ -4,14 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/providers/app_search_query_provider.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/repo_star_change.dart';
 import '../../../../shared/widgets/section_header.dart';
-import 'repo_detail_helpers.dart';
 
 class RepoDetailAboutCard extends StatelessWidget {
   const RepoDetailAboutCard({super.key});
@@ -97,7 +96,7 @@ class RepoDetailRelatedReposCard extends StatelessWidget {
                 child: Text(r.language.isNotEmpty ? r.language[0] : '?', style: AppTypography.labelSmall.copyWith(color: Color(r.accentArgb))),
               ),
               title: Text(r.fullName, style: AppTypography.titleSmall),
-              trailing: Text('+${shortNumber(r.starDelta)}', style: AppTypography.labelSmall.copyWith(color: AppColors.success)),
+              trailing: RepoStarChange(repo: r),
             ),
           ],
         ],

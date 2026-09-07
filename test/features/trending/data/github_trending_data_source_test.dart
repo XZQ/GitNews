@@ -134,9 +134,12 @@ void main() {
       expect(snapshot.trendingRepos.first.fullName, 'openai/codex');
       expect(snapshot.trendingRepos.first.language, 'Python');
       expect(snapshot.trendingRepos.first.starCount, 12000);
-      expect(snapshot.trendingRepos.first.starDelta, greaterThan(0));
+      expect(snapshot.trendingRepos.first.starDelta, 0);
+      expect(snapshot.trendingRepos.first.hasObservedTrend, isFalse);
       expect(snapshot.languages.first.name, 'Python');
-      expect(snapshot.primaryTrend, hasLength(7));
+      expect(snapshot.primaryTrend, isEmpty);
+      expect(snapshot.secondaryTrend, isEmpty);
+      expect(snapshot.tertiaryTrend, isEmpty);
       expect(snapshot.topics.first.name, 'ai-agents');
       expect(snapshot.topics.first.repoCount, 2);
       expect(snapshot.topics.first.basis, MetricBasis.observed);
@@ -158,7 +161,8 @@ void main() {
       expect(repo.starDelta, 100);
       expect(repo.trend, [11900, 12000]);
       expect(repo.trendBasis, MetricBasis.observed);
-      expect(snapshot.primaryTrend, [11900, 12000]);
+      expect(snapshot.primaryTrend, [0, 100]);
+      expect(repo.trendDates, [DateTime.utc(2026, 6, 29), DateTime.utc(2026, 7, 4)]);
     });
 
     test('should throw parse AppException when items field is missing', () async {

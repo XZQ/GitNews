@@ -3,13 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../../shared/widgets/star_trend_chart.dart';
 import '../application/trending_providers.dart';
 import '../domain/trending_repository.dart';
 import 'trending_metrics.dart';
@@ -59,16 +58,17 @@ class TrendingMobileView extends ConsumerWidget {
                   const SizedBox(height: AppSpacing.md),
                   TrendingWindowSegmented(value: window, onChanged: (v) => ref.read(trendingWindowFilterProvider.notifier).state = v),
                   const SizedBox(height: AppSpacing.md),
-                  const TrendingHeroMetrics(),
+                  TrendingHeroMetrics(digest: digest),
                   const SizedBox(height: AppSpacing.md),
                   // 图表隔离重绘:滚动时不再连带整页 repaint。
                   RepaintBoundary(
-                    child: StarTrendChart(
-                      series: [
-                        ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary),
-                        ChartSeries(values: digest.secondaryTrend, color: AppColors.success),
-                      ],
-                      height: 200,
+                    child: RepoGrowthChart(
+                      repos: digest.allRepos,
+                      days: window == 'today'
+                          ? 1
+                          : window == 'week'
+                          ? 7
+                          : 30,
                     ),
                   ),
                 ],

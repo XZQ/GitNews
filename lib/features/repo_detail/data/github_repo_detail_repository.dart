@@ -109,14 +109,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final contributors = results[0] as List<ContributorEntity>;
     final relatedRepos = results[1] as List<RepoEntity>;
     final activities = results[2] as List<RepoActivityEvent>;
-    return RepoDetailDigest(
-      repo: repo,
-      contributors: contributors,
-      relatedRepos: relatedRepos,
-      primaryTrend: repo.trend ?? estimatedRepoTrend(repo.starCount, 1),
-      compareTrend: estimatedRepoTrend(repo.starCount, 0.72),
-      activities: activities,
-    );
+    return RepoDetailDigest(repo: repo, contributors: contributors, relatedRepos: relatedRepos, primaryTrend: repo.trend ?? const [], compareTrend: const [], activities: activities);
   }
 
   Future<RepoEntity> _withHistoryTrend(RepoEntity repo, DateTime now) async {
@@ -132,6 +125,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     return repo.copyWith(
       starDelta: _observedDelta(starTrend.values, fallback: repo.starDelta),
       trend: starTrend.values,
+      trendDates: starTrend.dates,
       trendBasis: starTrend.basis,
     );
   }
@@ -141,7 +135,7 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
       return fallback;
     }
     final delta = values.last - values.first;
-    return delta.round().clamp(0, 999999);
+    return delta.round();
   }
 
   Future<RepoEntity> _fetchRepo(String fullName, DateTime now) async {
@@ -197,19 +191,17 @@ class GithubRepoDetailRepository implements RepoDetailRepository {
     final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
     final stars = GitHubJson.intValue(json['stargazers_count']);
     final forks = GitHubJson.intValue(json['forks_count']);
-    final issues = GitHubJson.intValue(json['open_issues_count']);
-    final pushedAt = DateTime.tryParse(GitHubJson.string(json['pushed_at']))?.toUtc();
     return RepoEntity(
       fullName: fullName,
       description: GitHubJson.nullableString(json['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: repoDetailActivityScore(stars: stars, forks: forks, issues: issues, pushedAt: pushedAt, now: now),
+      starDelta: 0,
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
       valueBasis: MetricBasis.observed,
-      trendBasis: MetricBasis.estimated,
-      trend: estimatedRepoTrend(stars, 1),
+      trendBasis: MetricBasis.unavailable,
+      trend: const [],
     );
   }
 

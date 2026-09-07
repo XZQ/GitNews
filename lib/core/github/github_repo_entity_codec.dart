@@ -14,6 +14,8 @@ Map<String, Object?> githubRepoEntityToJson(RepoEntity repo) {
     'valueBasis': repo.valueBasis.name,
     'trendBasis': repo.trendBasis.name,
     'trend': repo.trend,
+    'trendDates': repo.trendDates.map((date) => date.toUtc().toIso8601String()).toList(),
+    'starDeltaDays': repo.starDeltaDays,
   };
 }
 
@@ -21,8 +23,8 @@ RepoEntity githubRepoEntityFromJson(Object? raw) {
   final json = GitHubJson.map(raw);
   return RepoEntity(
     fullName: GitHubJson.string(json['fullName']),
-    description: GitHubJson.string(json['description']),
-    language: GitHubJson.string(json['language']),
+    description: GitHubJson.nullableString(json['description']) ?? '',
+    language: GitHubJson.nullableString(json['language']) ?? 'Unknown',
     starCount: GitHubJson.intValue(json['starCount']),
     starDelta: GitHubJson.intValue(json['starDelta']),
     forkCount: GitHubJson.intValue(json['forkCount']),
@@ -30,6 +32,8 @@ RepoEntity githubRepoEntityFromJson(Object? raw) {
     valueBasis: _basisFromJson(json, 'valueBasis', 'valueProvenance'),
     trendBasis: _basisFromJson(json, 'trendBasis', 'trendProvenance'),
     trend: json['trend'] == null ? null : GitHubJson.doubleList(json['trend']),
+    trendDates: json['trendDates'] == null ? const [] : [for (final date in GitHubJson.list(json['trendDates'])) DateTime.parse(GitHubJson.string(date)).toUtc()],
+    starDeltaDays: json['starDeltaDays'] == null ? 30 : GitHubJson.intValue(json['starDeltaDays']),
   );
 }
 

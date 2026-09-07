@@ -6,8 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../shared/widgets/star_trend_chart.dart';
-import '../../../trending/application/trending_providers.dart';
+import '../../../../shared/widgets/repo_growth_chart.dart';
+import '../../../monitor/application/monitor_providers.dart';
 
 class DevIntelChartCard extends ConsumerStatefulWidget {
   const DevIntelChartCard({super.key});
@@ -24,14 +24,7 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final digest = ref.watch(trendingDigestProvider).value;
-    final primary = _sliceWindow(digest?.primaryTrend ?? const <double>[]);
-    final secondary = _sliceWindow(digest?.secondaryTrend ?? const <double>[]);
-    final series = <ChartSeries>[
-      ChartSeries(values: secondary.isEmpty ? primary : secondary, color: AppColors.success.withValues(alpha: 0.35)),
-      ChartSeries(values: primary, color: AppColors.success),
-    ];
-    final labels = _labels(l10n, primary.length);
+    final digest = ref.watch(monitorDigestProvider).value;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -59,42 +52,10 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          SizedBox(
-            height: 240,
-            child: StarTrendChart(series: series, xLabels: labels, height: 240),
-          ),
+          RepoGrowthChart(repos: digest?.monitoredRepos ?? const [], days: _window, height: 180),
         ],
       ),
     );
-  }
-
-  List<double> _sliceWindow(List<double> values) {
-    if (values.isEmpty) {
-      return const [0, 0, 0, 0, 0, 0, 0];
-    }
-    final target = _window == 7 ? 7 : values.length;
-    if (values.length <= target) {
-      return values;
-    }
-    return values.sublist(values.length - target);
-  }
-
-  List<String> _labels(AppLocalizations l10n, int count) {
-    if (count <= 0) {
-      return const [];
-    }
-    if (_window == 7) {
-      return [l10n.tr('devintel.chart.label.mon'), '', l10n.tr('devintel.chart.label.wed'), '', l10n.tr('devintel.chart.label.fri'), '', l10n.tr('common.today')];
-    }
-    return List<String>.generate(count, (index) {
-      if (index == 0) {
-        return l10n.tr('devintel.chart.label.start');
-      }
-      if (index == count - 1) {
-        return l10n.tr('common.today');
-      }
-      return index % 4 == 0 ? '+$index' : '';
-    });
   }
 }
 

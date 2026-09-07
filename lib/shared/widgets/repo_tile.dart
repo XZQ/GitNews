@@ -6,15 +6,14 @@ import '../../core/theme/app_radius.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/theme/app_typography.dart';
 import 'data_provenance_badge.dart';
-import 'star_trend_chart.dart';
+import 'repo_star_change.dart';
 
 /*
 *仓库条目 — 全局统一的卡片式列表项。
-*统一结构:[排名角标?][语言头像][名称/描述/指标] … [趋势或增量][尾部插槽?]
+*统一结构:[排名角标?][语言头像][名称/描述/指标] … [观测净变化][尾部插槽?]
 *设计约定:
 *- 卡片 = 细边框 + md 圆角 + 悬停水波,列表间距由调用方用 SizedBox(sm) 控制
-*- 右侧曲线只在 [RepoEntity.trend] 有真实数据时绘制;没有观测历史时
-*  展示醒目的 Star 增量,不再用合成曲线充数(口径诚实,消除千篇一律)
+*- 净变化按日期计算；历史不足显示占位，悬浮可查看实际观测区间。
 *- `card: false` 保持无边框扁平行,供需要自行包裹容器的场景
 *- `dense: true` 为移动端紧凑密度:小头像、单行描述、收紧内边距
 */
@@ -86,14 +85,14 @@ class RepoTile extends StatelessWidget {
                       Text(_shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold)),
                     ],
                   ),
-                  MetricBasisBadge(basis: repo.trendBasis),
+                  MetricBasisBadge(basis: repo.valueBasis),
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(width: AppSpacing.md),
-        _TrendCell(repo: repo, showTrend: showTrend),
+        SizedBox(width: 64, child: RepoStarChange(repo: repo)),
         if (trailing != null) ...[const SizedBox(width: AppSpacing.sm), trailing!],
       ],
     );
@@ -124,62 +123,6 @@ class RepoTile extends StatelessWidget {
           child: row,
         ),
       ),
-    );
-  }
-}
-
-/*
-*右侧趋势区:有真实观测曲线画 Sparkline + 增量;
-*否则只展示增量数字,保持与曲线区等宽以对齐列表。
-*/
-class _TrendCell extends StatelessWidget {
-  const _TrendCell({required this.repo, required this.showTrend});
-
-  final RepoEntity repo;
-  final bool showTrend;
-
-  @override
-  Widget build(BuildContext context) {
-    final delta = repo.starDelta;
-    final deltaColor = delta > 0
-        ? AppColors.trendUp
-        : delta < 0
-        ? AppColors.trendDown
-        : Theme.of(context).colorScheme.onSurfaceVariant;
-    final deltaText = Text(delta == 0 ? '—' : '${delta > 0 ? '+' : '-'}${_shortNumber(delta.abs())}', style: AppTypography.monoMetric.copyWith(color: deltaColor));
-    final trend = repo.trend;
-    if (!showTrend || trend == null || trend.isEmpty) {
-      // 无增量信息时不再渲染「+0 ↗」噪声,给一个安静的占位。
-      if (delta == 0) {
-        return SizedBox(
-          width: 40,
-          child: Text(
-            '—',
-            textAlign: TextAlign.right,
-            style: AppTypography.monoMetric.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
-          ),
-        );
-      }
-      return SizedBox(
-        width: 64,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            deltaText,
-            Icon(delta >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded, size: 14, color: deltaColor),
-          ],
-        ),
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        RepaintBoundary(
-          child: Sparkline(values: trend, color: deltaColor, width: 64, height: 24),
-        ),
-        const SizedBox(height: AppSpacing.xxs),
-        deltaText,
-      ],
     );
   }
 }

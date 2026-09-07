@@ -1,6 +1,12 @@
 // 中文(zh-CN)字符串表。
 // 按 feature/页面分组组织。新加 key 时遵循 `<分组>.<语义>` 命名。
 const Map<String, String> stringsZhCN = <String, String>{
+  'growth.empty': '历史数据积累中\n所选时段内需要同一批仓库至少两个共同观测日。',
+  'growth.caption': '样本仓库累计 Star 净变化 · {sample}/{total} 个仓库\n{start} — {end}（UTC）；首日为基准，仅连接观测点。',
+  'growth.title': 'Star 观测净变化',
+  'growth.subtitle': '同一批仓库在真实观测日期上的变化',
+  'growth.pending': '待积累',
+
   // bootstrap
   'bootstrap.loading': '正在准备本地数据',
   'bootstrap.failure.title': '本地数据初始化失败',
@@ -123,7 +129,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'home.topic.cloud_native': '云原生',
   'home.topic.data_infra': '数据基建',
   'home.chart.title': 'Star 增长趋势',
-  'home.chart.subtitle': '监控仓库聚合增长',
+  'home.chart.subtitle': '监控列表内仓库的真实观测净变化',
   'home.chart.window_7': '7 天',
   'home.chart.window_30': '30 天',
   'home.monitoring.title': '仓库监控状态',
@@ -150,7 +156,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'home.repo_table.col_repo': '仓库',
   'home.repo_table.col_category': '分类',
   'home.repo_table.col_lang': '语言',
-  'home.repo_table.col_new_stars': '新增 Star',
+  'home.repo_table.col_new_stars': '观测净变化',
   'home.repo_table.col_total': '总 Star',
 
   // ai_news
@@ -272,9 +278,9 @@ const Map<String, String> stringsZhCN = <String, String>{
   'trending.window.today': '今日',
   'trending.window.week': '本周',
   'trending.window.month': '本月',
-  'trending.metric.total_stars': 'Star 增长总量',
-  'trending.metric.active_repos': '周活跃仓库',
-  'trending.metric.new_forks': '新增 Fork',
+  'trending.metric.total_stars': 'Star 总量',
+  'trending.metric.active_repos': '样本仓库',
+  'trending.metric.new_forks': 'Fork 总量',
   'trending.metric.hot_topics': '热门话题',
   'trending.page.overview': '总览',
   'trending.page.language': '语言趋势',
@@ -474,7 +480,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'project.section.trend.title': '趋势对比',
   'project.section.trend.subtitle': '最近 7 天 vs 上周',
   'project.section.popular.title': '本周热门',
-  'project.section.popular.subtitle': '按 Star 增速排序',
+  'project.section.popular.subtitle': '按当前 Star 总量排序',
   'project.section.recent.title': '最近活跃',
   'project.section.recent.subtitle': '近期有更新的仓库',
   'project.activity.title': '活动速览',
@@ -893,8 +899,8 @@ const Map<String, String> stringsZhCN = <String, String>{
   'common.done': '完成',
 
   // trending mobile view
-  'trending.mobile.star_growth_rank': 'Star 增长榜',
-  'trending.mobile.tracking_subtitle': '追踪 {window} · Star 增速排名',
+  'trending.mobile.star_growth_rank': 'Star 观测净变化',
+  'trending.mobile.tracking_subtitle': '{window}查询样本 · 本地观测历史',
   'trending.mobile.repos_count': '{window} · {count} 个项目',
   'trending.mobile.time_window': '时间窗',
   'trending.mobile.language': '语言',
@@ -906,11 +912,11 @@ const Map<String, String> stringsZhCN = <String, String>{
   'trending.hot_repos.empty': '暂无热门仓库',
   'trending.hot_repos.empty_search': '未找到与「{query}」相关的仓库',
   'trending.hot_repos.list_title': '热门仓库 · 完整列表',
-  'trending.hot_repos.list_subtitle': '按 Star 增速排序 · 共 {count} 个',
+  'trending.hot_repos.list_subtitle': '按当前 Star 总量排序 · 共 {count} 个',
   'trending.hot_repos.notes_title': '说明',
   'trending.hot_repos.notes_subtitle': '数据来源与刷新策略',
   'trending.hot_repos.note1': 'GitHub Trending 与社区聚合 · 每 5 分钟刷新',
-  'trending.hot_repos.note2': 'Star 增速以最近 24h 为基准 · 含历史对比',
+  'trending.hot_repos.note2': '净变化仅使用本机观测历史；悬浮数字查看实际日期',
   'trending.hot_repos.note3': '点击仓库进入详情页,查看 30 天 Star 历史',
 
   // trending language trend page
@@ -923,7 +929,7 @@ const Map<String, String> stringsZhCN = <String, String>{
 
   // trending list
   'trending.list.empty': '没有匹配的热门仓库',
-  'trending.list.subtitle.short': '按 Star 增速排序',
+  'trending.list.subtitle.short': '按当前 Star 总量排序',
   'trending.list.updating': '正在更新热榜',
 
   // project repo lists

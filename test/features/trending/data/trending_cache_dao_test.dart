@@ -55,6 +55,7 @@ void main() {
       expect(cached, isNotNull);
       expect(cached?.trendingRepos.first.fullName, 'rust-lang/rust');
       expect(cached?.topics.single.name, 'ai-agents');
+      expect(cached?.trendingRepos.first.trendDates, [DateTime.utc(2026, 7, 1), DateTime.utc(2026, 7, 3), DateTime.utc(2026, 7, 4)]);
       expect(cached?.topics.single.basis, MetricBasis.observed);
       expect(
         await dao.isFresh(
@@ -206,7 +207,17 @@ void main() {
 TrendingDataSnapshot _snapshot(String fullName) {
   return TrendingDataSnapshot(
     trendingRepos: [
-      RepoEntity(fullName: fullName, description: 'desc', language: 'Python', starCount: 1200, starDelta: 32, forkCount: 80, accentArgb: 0xFF3572A5, trend: const [1, 2, 3]),
+      RepoEntity(
+        fullName: fullName,
+        description: 'desc',
+        language: 'Python',
+        starCount: 1200,
+        starDelta: 32,
+        forkCount: 80,
+        accentArgb: 0xFF3572A5,
+        trend: const [1, 2, 3],
+        trendDates: [DateTime.utc(2026, 7, 1), DateTime.utc(2026, 7, 3), DateTime.utc(2026, 7, 4)],
+      ),
     ],
     recentRepos: const [],
     languages: const [LanguageEntity(name: 'Python', percent: 100, delta: 0, accentArgb: 0xFF3572A5)],

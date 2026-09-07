@@ -22,6 +22,8 @@ class RepoEntity {
     this.valueBasis = MetricBasis.seed,
     this.trendBasis = MetricBasis.seed,
     this.trend,
+    this.trendDates = const [],
+    this.starDeltaDays = 30,
   });
 
   // `owner/name` 形式。
@@ -30,7 +32,7 @@ class RepoEntity {
   final String language;
   final int starCount;
 
-  // 今日/本周新增 Star。
+  // 查询窗口内首末观测的 Star 净变化；无历史时为 0。
   final int starDelta;
   final int forkCount;
 
@@ -44,6 +46,10 @@ class RepoEntity {
   final MetricBasis trendBasis;
 
   final List<double>? trend;
+  final List<DateTime> trendDates;
+  final int starDeltaDays;
+
+  bool get hasObservedTrend => trendBasis == MetricBasis.observed && trend != null && trend!.length >= 2 && trendDates.length == trend!.length;
 
   RepoEntity copyWith({
     String? fullName,
@@ -56,6 +62,8 @@ class RepoEntity {
     MetricBasis? valueBasis,
     MetricBasis? trendBasis,
     List<double>? trend,
+    List<DateTime>? trendDates,
+    int? starDeltaDays,
   }) {
     return RepoEntity(
       fullName: fullName ?? this.fullName,
@@ -68,6 +76,8 @@ class RepoEntity {
       valueBasis: valueBasis ?? this.valueBasis,
       trendBasis: trendBasis ?? this.trendBasis,
       trend: trend ?? this.trend,
+      trendDates: trendDates ?? this.trendDates,
+      starDeltaDays: starDeltaDays ?? this.starDeltaDays,
     );
   }
 }

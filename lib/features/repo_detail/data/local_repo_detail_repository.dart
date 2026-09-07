@@ -21,8 +21,8 @@ class LocalRepoDetailRepository implements RepoDetailRepository {
         repo: repo,
         contributors: DemoData.contributors.map((e) => e.toEntity()).toList(),
         relatedRepos: relatedRepos,
-        primaryTrend: DemoData.generateStarTrend(repo.starCount - 5000, 5000),
-        compareTrend: DemoData.generateStarTrend(repo.starCount - 8000, 3500),
+        primaryTrend: const [],
+        compareTrend: const [],
         activities: const [],
       ),
     );

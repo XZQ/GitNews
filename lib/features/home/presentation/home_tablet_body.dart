@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../../shared/widgets/star_trend_chart.dart';
 import '../../trending/application/trending_providers.dart';
 import '../widgets/home_ai_hot_topics_card.dart';
 import '../widgets/home_topics_panel.dart';
@@ -71,11 +71,6 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final digest = ref.watch(trendingDigestProvider).value;
-    final series = homeSeriesForWindow(_chartWindow, widget.tab, Theme.of(context).colorScheme.primary, primaryTrend: digest?.primaryTrend, secondaryTrend: digest?.secondaryTrend);
-    final windowLabel = '近 $_chartWindow 天';
-    final title = homeChartTitle(l10n, widget.tab);
-    final subtitle = homeChartSubtitle(l10n, widget.tab, windowLabel);
-    final legends = homeChartLegends(l10n, widget.tab, Theme.of(context).colorScheme.primary);
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,19 +78,13 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
           Row(
             children: [
               Expanded(
-                child: SectionHeader(title: title, subtitle: subtitle),
+                child: SectionHeader(title: l10n.tr('growth.title'), subtitle: l10n.tr('growth.subtitle')),
               ),
               ChartWindowSegmented(value: _chartWindow, onChanged: (v) => setState(() => _chartWindow = v)),
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Row(
-            children: [
-              for (var i = 0; i < legends.length; i++) ...[HomeLegendDot(color: legends[i].color, label: legends[i].label), if (i != legends.length - 1) const SizedBox(width: AppSpacing.md)],
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          StarTrendChart(series: series, height: 280),
+          RepoGrowthChart(repos: digest?.allRepos ?? const [], days: _chartWindow, height: 180),
         ],
       ),
     );

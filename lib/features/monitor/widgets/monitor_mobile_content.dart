@@ -8,8 +8,8 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/repo_star_change.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../../shared/widgets/star_trend_chart.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
 import 'monitor_recent_alerts.dart';
@@ -145,7 +145,6 @@ class _MonitoredRepoRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final accent = Color(repo.accentArgb);
-    final trend = repo.trend;
     return InkWell(
       onTap: () => context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
       child: Padding(
@@ -200,21 +199,7 @@ class _MonitoredRepoRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            if (trend != null && trend.isNotEmpty)
-              RepaintBoundary(
-                child: Sparkline(values: trend, color: colors.primary, width: 64, height: 20),
-              )
-            else
-              const SizedBox(width: 64, height: 20),
-            const SizedBox(width: AppSpacing.sm),
-            SizedBox(
-              width: 48,
-              child: Text(
-                '${repo.starDelta > 0 ? '+' : ''}${_shortNumber(repo.starDelta)}',
-                textAlign: TextAlign.right,
-                style: AppTypography.monoMetric.copyWith(color: repo.starDelta >= 0 ? AppColors.trendUp : AppColors.trendDown),
-              ),
-            ),
+            SizedBox(width: 64, child: RepoStarChange(repo: repo)),
           ],
         ),
       ),

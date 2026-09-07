@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/adaptive_metric_grid.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../../../shared/widgets/repo_star_change.dart';
 import 'repo_detail_helpers.dart';
 
 class RepoDetailStats extends StatelessWidget {
@@ -21,7 +22,7 @@ class RepoDetailStats extends StatelessWidget {
     return AdaptiveMetricGrid(
       children: [
         _StatCard(label: l10n.tr('repo_detail.metric.total_stars'), value: shortNumber(repo.starCount), icon: Icons.star_rounded, color: AppColors.starGold),
-        _StatCard(label: l10n.tr('repo_detail.metric.today_stars'), value: '+${shortNumber(repo.starDelta)}', icon: Icons.trending_up_rounded, color: AppColors.success),
+        _StatCard(label: l10n.tr('growth.title'), value: repoStarChangeText(repo), icon: Icons.trending_up_rounded, color: AppColors.success),
         _StatCard(label: 'Fork', value: shortNumber(repo.forkCount), icon: Icons.call_split_rounded, color: AppColors.info),
         _StatCard(label: l10n.tr('repo_detail.metric.contributors'), value: '$contributorCount', icon: Icons.people_outline, color: Theme.of(context).colorScheme.primary),
       ],

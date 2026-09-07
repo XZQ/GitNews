@@ -12,11 +12,11 @@ import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/gradient_hero_header.dart';
+import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
-import '../../../shared/widgets/star_trend_chart.dart';
 import '../application/monitor_providers.dart';
 import '../domain/entities.dart';
 import '../widgets/monitor_alert_list_tile.dart';
@@ -172,24 +172,13 @@ class _TrendCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final trend = repo.trend;
-    final hasTrend = trend != null && trend.isNotEmpty;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SectionHeader(title: l10n.tr('monitor.section.realtime_trend'), subtitle: '${l10n.tr('monitor.section.realtime_trend.subtitle')} · ${l10n.tr(repo.trendBasis.labelKey)}'),
           const SizedBox(height: AppSpacing.md),
-          if (hasTrend)
-            StarTrendChart(
-              series: [ChartSeries(values: trend, color: Theme.of(context).colorScheme.primary)],
-              height: 220,
-            )
-          else
-            SizedBox(
-              height: 180,
-              child: EmptyView(icon: Icons.show_chart_rounded, message: l10n.tr('monitor.section.realtime_trend.empty')),
-            ),
+          RepoGrowthChart(repos: [repo]),
         ],
       ),
     );

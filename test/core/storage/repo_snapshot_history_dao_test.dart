@@ -32,6 +32,7 @@ void main() {
     final trend = await dao.starTrend('openai/codex');
 
     expect(trend?.values, [100, 120]);
+    expect(trend?.dates, [DateTime.utc(2026, 7, 1), DateTime.utc(2026, 7, 2)]);
     expect(trend?.basis, MetricBasis.observed);
   });
 

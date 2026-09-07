@@ -107,7 +107,7 @@ void main() {
     await tester.pumpWidget(_RouterTestApp(router: router));
     await tester.pumpAndSettle();
 
-    const orderedLabels = ['Agent 榜观察', '热门仓库', 'Star 增长榜', 'AI雷达', '雷达标签', '话题趋势', '本周信号热度', '语言占比'];
+    const orderedLabels = ['Agent 榜观察', '热门仓库', 'Star 观测净变化', 'AI雷达', '雷达标签', '话题趋势', '本周信号热度', '语言占比'];
     final verticalPositions = [for (final label in orderedLabels) tester.getTopLeft(find.textContaining(label).first).dy];
 
     for (var index = 1; index < verticalPositions.length; index++) {

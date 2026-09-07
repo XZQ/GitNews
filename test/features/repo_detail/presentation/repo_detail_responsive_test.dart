@@ -72,7 +72,7 @@ void main() {
 
     expect(find.text('7天'), findsOneWidget);
     expect(find.text('30天'), findsOneWidget);
-    expect(find.text('90天'), findsOneWidget);
+    expect(find.text('90天'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

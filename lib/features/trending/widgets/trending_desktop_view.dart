@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/theme/app_colors.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../../shared/widgets/star_trend_chart.dart';
 import '../application/trending_providers.dart';
 import '../domain/trending_repository.dart';
 import 'trending_board_selector.dart';
@@ -25,6 +25,8 @@ class TrendingDesktopView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final window = ref.watch(trendingWindowFilterProvider);
     final lang = ref.watch(trendingLanguageFilterProvider);
     final board = ref.watch(trendingBoardFilterProvider);
     return Column(
@@ -43,16 +45,17 @@ class TrendingDesktopView extends ConsumerWidget {
                     children: [
                       TrendingBoardSelector(value: board, onChanged: (value) => ref.read(trendingBoardFilterProvider.notifier).state = value),
                       const SizedBox(height: AppSpacing.lg),
-                      const SectionHeader(title: 'Star 增长趋势', subtitle: '追踪时间窗内的新增 Star 总量 · 包含所有语言'),
+                      SectionHeader(title: l10n.tr('growth.title'), subtitle: l10n.tr('growth.subtitle')),
                       const SizedBox(height: AppSpacing.md),
                       RepaintBoundary(
-                        child: StarTrendChart(
-                          series: [
-                            ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary),
-                            ChartSeries(values: digest.secondaryTrend, color: AppColors.info),
-                            ChartSeries(values: digest.tertiaryTrend, color: AppColors.success),
-                          ],
-                          height: 280,
+                        child: RepoGrowthChart(
+                          repos: digest.allRepos,
+                          days: window == 'today'
+                              ? 1
+                              : window == 'week'
+                              ? 7
+                              : 30,
+                          height: 180,
                         ),
                       ),
                     ],

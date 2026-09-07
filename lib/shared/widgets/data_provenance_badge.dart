@@ -49,11 +49,13 @@ class MetricBasisBadge extends StatelessWidget {
     final keys = switch (basis) {
       MetricBasis.observed => ('basis.observed', 'basis.observed.full', 'basis.observed.tooltip'),
       MetricBasis.estimated => ('provenance.estimated', 'provenance.estimated.full', 'provenance.estimated.tooltip'),
+      MetricBasis.unavailable => ('growth.pending', 'growth.pending', 'growth.empty'),
       MetricBasis.seed => ('provenance.seed', 'provenance.seed.full', 'provenance.seed.tooltip'),
     };
     final color = switch (basis) {
       MetricBasis.observed => AppColors.success,
       MetricBasis.estimated => AppColors.accentPurple,
+      MetricBasis.unavailable => Theme.of(context).colorScheme.onSurfaceVariant,
       MetricBasis.seed => Theme.of(context).colorScheme.outline,
     };
     return _TrustBadge(label: l10n.tr(compact ? keys.$1 : keys.$2), tooltip: l10n.tr(keys.$3), color: color, compact: compact, inverse: inverse);

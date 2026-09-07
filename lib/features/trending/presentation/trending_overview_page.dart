@@ -1,18 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/domain/observed_repo_growth.dart';
+import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
-import '../../../shared/widgets/star_trend_chart.dart';
 import '../../project/application/project_providers.dart';
 
 /* 
@@ -67,75 +68,36 @@ class _DigestView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(title: '总体 Star 增长趋势', subtitle: '最近 30 天 · 所有语言聚合'),
+              const SectionHeader(title: 'Star 观测净变化', subtitle: '最近 30 天 · 当前项目样本'),
               const SizedBox(height: AppSpacing.md),
-              StarTrendChart(
-                series: [
-                  ChartSeries(values: digest.primaryTrend, color: Theme.of(context).colorScheme.primary),
-                  ChartSeries(values: digest.secondaryTrend, color: AppColors.info),
-                ],
-                height: 260,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  _LegendDot(color: Theme.of(context).colorScheme.primary, label: '本周'),
-                  const _LegendDot(color: AppColors.info, label: '上周'),
-                ],
-              ),
+              RepoGrowthChart(repos: digest.repos),
             ],
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        const AppCard(
+        AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: '按时间窗统计', subtitle: '不同时段的 Star 增长总量'),
-              SizedBox(height: AppSpacing.md),
-              _WindowStatsTable(),
+              const SectionHeader(title: '按时间窗统计', subtitle: '所选时段内首末共同观测的净变化'),
+              const SizedBox(height: AppSpacing.md),
+              _WindowStatsTable(repos: digest.repos),
             ],
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _LegendDot extends StatelessWidget {
-  const _LegendDot({required this.color, required this.label});
-  final Color color;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: AppSpacing.sm,
-          height: AppSpacing.sm,
-          decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(AppRadius.dot)),
-        ),
-        const SizedBox(width: AppSpacing.xs2),
-        Text(label, style: AppTypography.labelSmall),
       ],
     );
   }
 }
 
 class _WindowStatsTable extends StatelessWidget {
-  const _WindowStatsTable();
+  const _WindowStatsTable({required this.repos});
+  final List<RepoEntity> repos;
 
   @override
   Widget build(BuildContext context) {
     final rows = [
-      ['今日', '+18.5%', '4,231', '128'],
-      ['本周', '+12.4%', '28,420', '1,082'],
-      ['本月', '+9.6%', '124,830', '4,210'],
-      ['本季', '+15.7%', '372,140', '11,920'],
+      for (final days in [1, 7, 30]) _row(days),
     ];
     return Table(
       columnWidths: const {0: FlexColumnWidth(1.5), 1: FlexColumnWidth(1.2), 2: FlexColumnWidth(1.5), 3: FlexColumnWidth(1)},
@@ -144,19 +106,22 @@ class _WindowStatsTable extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
           ),
-          children: const [_Th('时间窗'), _Th('增长率'), _Th('新增 Star'), _Th('活跃仓库')],
+          children: const [_Th('时间窗'), _Th('净变化'), _Th('实际日期 UTC'), _Th('样本覆盖')],
         ),
-        for (final r in rows)
-          TableRow(
-            children: [
-              _Td(r[0]),
-              _Td(r[1], color: AppColors.success),
-              _Td(r[2]),
-              _Td(r[3]),
-            ],
-          ),
+        for (final r in rows) TableRow(children: [_Td(r[0]), _Td(r[1]), _Td(r[2]), _Td(r[3])]),
       ],
     );
+  }
+
+  List<String> _row(int days) {
+    final growth = ObservedRepoGrowth.fromRepos(repos, days: days);
+    final delta = growth.netChange;
+    return [
+      '近 $days 天',
+      delta == null ? '待积累' : '${delta >= 0 ? '+' : ''}$delta',
+      growth.isEmpty ? '—' : '${growth.dates.first.toIso8601String().substring(0, 10)} — ${growth.dates.last.toIso8601String().substring(0, 10)}',
+      '${growth.sampleCount}/${growth.totalCount}',
+    ];
   }
 }
 
@@ -174,18 +139,14 @@ class _Th extends StatelessWidget {
 }
 
 class _Td extends StatelessWidget {
-  const _Td(this.text, {this.color});
+  const _Td(this.text);
   final String text;
-  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm2),
-      child: Text(
-        text,
-        style: AppTypography.bodyMedium.copyWith(color: color ?? Theme.of(context).colorScheme.onSurface, fontWeight: color != null ? FontWeight.w600 : FontWeight.w400),
-      ),
+      child: Text(text, style: AppTypography.bodyMedium.copyWith(color: Theme.of(context).colorScheme.onSurface)),
     );
   }
 }

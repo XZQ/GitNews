@@ -21,9 +21,9 @@ class LocalTrendingDataSource implements TrendingDataSource {
       trendingRepos: _filterRepos(trendingRepos, query),
       recentRepos: _filterRepos(recentRepos, query),
       languages: DemoData.languages.map((e) => e.toEntity()).toList(),
-      primaryTrend: _trendFor(query.window, 38000, 4200),
-      secondaryTrend: _trendFor(query.window, 35200, 3100),
-      tertiaryTrend: _trendFor(query.window, 32000, 2800),
+      primaryTrend: const [],
+      secondaryTrend: const [],
+      tertiaryTrend: const [],
       topics: const [
         TrendingTopicEntity(name: 'ai-agents', repoCount: 4, starCount: 128000),
         TrendingTopicEntity(name: 'developer-tools', repoCount: 3, starCount: 96000),
@@ -62,14 +62,5 @@ class LocalTrendingDataSource implements TrendingDataSource {
 
   bool _containsAny(String text, List<String> keywords) {
     return keywords.any(text.contains);
-  }
-
-  List<double> _trendFor(TrendingWindow window, int base, int variance) {
-    final scale = switch (window) {
-      TrendingWindow.today => 1.0,
-      TrendingWindow.week => 1.18,
-      TrendingWindow.month => 1.36,
-    };
-    return DemoData.generateStarTrend((base * scale).round(), (variance * scale).round());
   }
 }

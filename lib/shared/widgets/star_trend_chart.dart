@@ -12,7 +12,20 @@ export 'mini_charts.dart';
 *折线 / 面积图(Star 趋势),支持双系列(当前 vs 昨日)。
 */
 class StarTrendChart extends StatelessWidget {
-  const StarTrendChart({required this.series, this.height = 180, this.showArea = true, this.showGrid = true, this.showLeftTitles = true, this.curveSmoothness = 0.25, this.xLabels, super.key});
+  const StarTrendChart({
+    required this.series,
+    this.height = 180,
+    this.showArea = true,
+    this.showGrid = true,
+    this.showLeftTitles = true,
+    this.curveSmoothness = 0.25,
+    this.xLabels,
+    this.xValues,
+    this.xLabelBuilder,
+    this.tooltipLabel,
+    this.showDots = false,
+    super.key,
+  });
 
   // 每条系列的颜色 + 数据点。
   final List<ChartSeries> series;
@@ -24,6 +37,10 @@ class StarTrendChart extends StatelessWidget {
 
   // 自定义 X 轴标签(按数据点 index 取值)。null 时默认显示 `'${i}d'`。
   final List<String>? xLabels;
+  final List<double>? xValues;
+  final String Function(double)? xLabelBuilder;
+  final String Function(double, double)? tooltipLabel;
+  final bool showDots;
 
   @override
   Widget build(BuildContext context) {
@@ -37,13 +54,13 @@ class StarTrendChart extends StatelessWidget {
     final rawMax = allValues.reduce((a, b) => a > b ? a : b);
     final yScale = _buildYScale(rawMin, rawMax);
     final pointCount = nonEmptySeries.map((item) => item.values.length).reduce(math.max);
-    final maxX = math.max(1, pointCount - 1).toDouble();
+    final maxX = math.max(1, xValues?.last ?? pointCount - 1).toDouble();
 
     return SizedBox(
       height: height,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          final xLabelStep = _xLabelStep(pointCount, constraints.maxWidth);
+          final xLabelStep = _xLabelStep(maxX.ceil() + 1, constraints.maxWidth);
           return LineChart(
             LineChartData(
               minY: yScale.minY,
@@ -81,11 +98,11 @@ class StarTrendChart extends StatelessWidget {
                     getTitlesWidget: (value, meta) {
                       final index = value.round();
                       final isInteger = (value - index).abs() < 0.001;
-                      final isLastPoint = index == pointCount - 1;
-                      if (!isInteger || index < 0 || index >= pointCount || (index % xLabelStep != 0 && !isLastPoint)) {
+                      final isLastPoint = index == maxX.round();
+                      if (!isInteger || index < 0 || index > maxX || (index % xLabelStep != 0 && !isLastPoint)) {
                         return const SizedBox.shrink();
                       }
-                      final label = xLabels != null && index < xLabels!.length ? xLabels![index] : '${index}d';
+                      final label = xLabelBuilder?.call(value) ?? (xLabels != null && index < xLabels!.length ? xLabels![index] : '${index}d');
                       return SideTitleWidget(
                         meta: meta,
                         space: AppSpacing.xs2,
@@ -96,17 +113,22 @@ class StarTrendChart extends StatelessWidget {
                   ),
                 ),
               ),
-              lineTouchData: const LineTouchData(enabled: false),
+              lineTouchData: LineTouchData(
+                enabled: tooltipLabel != null,
+                touchTooltipData: LineTouchTooltipData(
+                  getTooltipItems: (spots) => [for (final spot in spots) LineTooltipItem(tooltipLabel?.call(spot.x, spot.y) ?? '', AppTypography.labelSmall.copyWith(color: colors.onInverseSurface))],
+                ),
+              ),
               lineBarsData: [
                 for (final item in nonEmptySeries)
                   LineChartBarData(
-                    spots: [for (var index = 0; index < item.values.length; index++) FlSpot(index.toDouble(), item.values[index])],
+                    spots: [for (var index = 0; index < item.values.length; index++) FlSpot(xValues?[index] ?? index.toDouble(), item.values[index])],
                     isCurved: curveSmoothness > 0,
                     curveSmoothness: curveSmoothness,
                     color: item.color,
                     barWidth: 2.2,
                     isStrokeCapRound: true,
-                    dotData: const FlDotData(show: false),
+                    dotData: FlDotData(show: showDots),
                     belowBarData: BarAreaData(
                       show: showArea,
                       gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [item.color.withValues(alpha: 0.35), item.color.withValues(alpha: 0.0)]),

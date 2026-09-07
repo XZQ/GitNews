@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/observed_repo_growth.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
@@ -9,12 +10,7 @@ import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
-/* 
-*GitHub REST Search API 数据源。
-*GitHub Search 不直接返回 Star 增量,这里的 [RepoEntity.starDelta] 暂用
-*search score + stars/forks 生成动量代理值。真实本周趋势需要接入本地快照
-*或 GH Archive 后再替换为真实增量。
-*/
+/// GitHub snapshots plus dated local observations; Search itself has no Star delta.
 class GithubTrendingDataSource implements TrendingDataSource {
   GithubTrendingDataSource({required Dio dio, String? token, DateTime Function()? now, RepoSnapshotHistoryDao? snapshotHistory})
     : _dio = dio,
@@ -46,9 +42,9 @@ class GithubTrendingDataSource implements TrendingDataSource {
         trendingRepos: repos.take(12).toList(growable: false),
         recentRepos: repos.skip(12).take(8).toList(growable: false),
         languages: _buildLanguages(repos),
-        primaryTrend: _buildTrend(repos, 1.0),
-        secondaryTrend: _buildTrend(repos, 0.78),
-        tertiaryTrend: _buildTrend(repos, 0.56),
+        primaryTrend: ObservedRepoGrowth.fromRepos(repos, days: _windowDuration(query.window).inDays, now: _now()).values,
+        secondaryTrend: const [],
+        tertiaryTrend: const [],
         topics: _buildTopics(data),
       );
     } on DioException catch (e) {
@@ -107,18 +103,18 @@ class GithubTrendingDataSource implements TrendingDataSource {
     final language = GitHubJson.nullableString(raw['language']) ?? 'Unknown';
     final stars = GitHubJson.intValue(raw['stargazers_count']);
     final forks = GitHubJson.intValue(raw['forks_count']);
-    final score = GitHubJson.doubleValue(raw['score']);
     return RepoEntity(
       fullName: fullName,
       description: GitHubJson.nullableString(raw['description']) ?? 'No description',
       language: language,
       starCount: stars,
-      starDelta: _momentumScore(stars: stars, forks: forks, score: score, window: query.window),
+      starDelta: 0,
+      starDeltaDays: _windowDuration(query.window).inDays,
       forkCount: forks,
       accentArgb: GitHubApiSupport.languageColor(language),
       valueBasis: MetricBasis.observed,
-      trendBasis: MetricBasis.estimated,
-      trend: _repoTrend(stars, query.window),
+      trendBasis: MetricBasis.unavailable,
+      trend: const [],
     );
   }
 
@@ -139,54 +135,9 @@ class GithubTrendingDataSource implements TrendingDataSource {
       return repo;
     }
 
-    final values = _recentObservedValues(trend.values, window);
-    return repo.copyWith(
-      starDelta: _observedDelta(values, fallback: repo.starDelta),
-      trend: values,
-      trendBasis: trend.basis,
-    );
-  }
-
-  List<double> _recentObservedValues(List<double> values, TrendingWindow window) {
-    final maxPoints = switch (window) {
-      TrendingWindow.today => 2,
-      TrendingWindow.week => 7,
-      TrendingWindow.month => 30,
-    };
-    if (values.length <= maxPoints) {
-      return values;
-    }
-    return values.sublist(values.length - maxPoints);
-  }
-
-  int _observedDelta(List<double> values, {required int fallback}) {
-    if (values.length < 2) {
-      return fallback;
-    }
-    final delta = values.last - values.first;
-    return delta.round().clamp(0, 999999);
-  }
-
-  int _momentumScore({required int stars, required int forks, required double score, required TrendingWindow window}) {
-    final divisor = switch (window) {
-      TrendingWindow.today => 160,
-      TrendingWindow.week => 90,
-      TrendingWindow.month => 52,
-    };
-    final value = (stars / divisor) + (forks / 24) + score;
-    return value.clamp(1, 9999).round();
-  }
-
-  List<double> _repoTrend(int stars, TrendingWindow window) {
-    final base = stars / 120;
-    final scale = switch (window) {
-      TrendingWindow.today => 0.8,
-      TrendingWindow.week => 1.0,
-      TrendingWindow.month => 1.22,
-    };
-    return List<double>.generate(7, (index) {
-      return (base * scale * (0.74 + index * 0.055)).roundToDouble();
-    });
+    final observed = repo.copyWith(trend: trend.values, trendDates: trend.dates, trendBasis: trend.basis);
+    final growth = ObservedRepoGrowth.fromRepos([observed], days: _windowDuration(window).inDays, now: capturedAt);
+    return observed.copyWith(starDelta: growth.netChange ?? 0, starDeltaDays: _windowDuration(window).inDays);
   }
 
   List<LanguageEntity> _buildLanguages(List<RepoEntity> repos) {
@@ -246,29 +197,5 @@ class GithubTrendingDataSource implements TrendingDataSource {
         return starOrder != 0 ? starOrder : left.compareTo(right);
       });
     return [for (final name in names.take(10)) TrendingTopicEntity(name: name, repoCount: counts[name]!, starCount: stars[name]!, basis: MetricBasis.observed)];
-  }
-
-  List<double> _buildTrend(List<RepoEntity> repos, double scale) {
-    if (repos.isEmpty) {
-      return const [];
-    }
-    final observed = [
-      for (final repo in repos)
-        if (repo.trendBasis == MetricBasis.observed && repo.trend != null && repo.trend!.length >= 2) repo.trend!,
-    ];
-    if (observed.isNotEmpty) {
-      final pointCount = observed.fold<int>(observed.first.length, (count, trend) => trend.length < count ? trend.length : count);
-      return List<double>.generate(pointCount, (index) {
-        final sum = observed.fold<double>(0, (total, trend) {
-          return total + trend[trend.length - pointCount + index];
-        });
-        return (sum * scale).roundToDouble();
-      });
-    }
-    final total = repos.fold<int>(0, (sum, repo) => sum + repo.starDelta);
-    return List<double>.generate(7, (index) {
-      final factor = 0.68 + index * 0.06;
-      return (total * scale * factor).roundToDouble();
-    });
   }
 }

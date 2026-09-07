@@ -58,7 +58,7 @@ void main() {
       expect(digest.trendingRepos, isNotEmpty);
       expect(digest.recentRepos, isNotEmpty);
       expect(digest.languages, isNotEmpty);
-      expect(digest.primaryTrend, isNotEmpty);
+      expect(digest.primaryTrend, isEmpty);
       expect(digest.isEmpty, isFalse);
     });
 

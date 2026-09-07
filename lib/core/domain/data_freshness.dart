@@ -12,6 +12,7 @@ enum DataFreshness {
 enum MetricBasis {
   observed,
   estimated,
+  unavailable,
   seed;
 
   static MetricBasis fromName(String? name) {
@@ -29,6 +30,7 @@ enum MetricBasis {
   String get labelKey => switch (this) {
     MetricBasis.observed => 'basis.observed.full',
     MetricBasis.estimated => 'provenance.estimated.full',
+    MetricBasis.unavailable => 'growth.pending',
     MetricBasis.seed => 'provenance.seed.full',
   };
 }

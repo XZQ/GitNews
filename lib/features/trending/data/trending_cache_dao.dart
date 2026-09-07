@@ -5,6 +5,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/github/github_repo_entity_codec.dart';
 import '../../../core/storage/cache_meta_dao.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
@@ -88,8 +89,8 @@ class TrendingCacheDao {
 
   Map<String, Object?> _snapshotToJson(TrendingDataSnapshot snapshot) {
     return {
-      'trendingRepos': snapshot.trendingRepos.map(_repoToJson).toList(),
-      'recentRepos': snapshot.recentRepos.map(_repoToJson).toList(),
+      'trendingRepos': snapshot.trendingRepos.map(githubRepoEntityToJson).toList(),
+      'recentRepos': snapshot.recentRepos.map(githubRepoEntityToJson).toList(),
       'languages': snapshot.languages.map(_languageToJson).toList(),
       'primaryTrend': snapshot.primaryTrend,
       'secondaryTrend': snapshot.secondaryTrend,
@@ -100,8 +101,8 @@ class TrendingCacheDao {
 
   TrendingDataSnapshot _snapshotFromJson(Map<String, Object?> json) {
     return TrendingDataSnapshot(
-      trendingRepos: _list(json['trendingRepos']).map(_repoFromJson).toList(),
-      recentRepos: _list(json['recentRepos']).map(_repoFromJson).toList(),
+      trendingRepos: _list(json['trendingRepos']).map(githubRepoEntityFromJson).toList(),
+      recentRepos: _list(json['recentRepos']).map(githubRepoEntityFromJson).toList(),
       languages: _list(json['languages']).map(_languageFromJson).toList(),
       primaryTrend: _doubleList(json['primaryTrend']),
       secondaryTrend: _doubleList(json['secondaryTrend']),
@@ -119,37 +120,6 @@ class TrendingCacheDao {
   TrendingTopicEntity _topicFromJson(Object? raw) {
     final json = _map(raw);
     return TrendingTopicEntity(name: _string(json['name']), repoCount: _int(json['repoCount']), starCount: _int(json['starCount']), basis: _basisFromJson(json, 'basis', 'provenance'));
-  }
-
-  Map<String, Object?> _repoToJson(RepoEntity repo) {
-    return {
-      'fullName': repo.fullName,
-      'description': repo.description,
-      'language': repo.language,
-      'starCount': repo.starCount,
-      'starDelta': repo.starDelta,
-      'forkCount': repo.forkCount,
-      'accentArgb': repo.accentArgb,
-      'valueBasis': repo.valueBasis.name,
-      'trendBasis': repo.trendBasis.name,
-      'trend': repo.trend,
-    };
-  }
-
-  RepoEntity _repoFromJson(Object? raw) {
-    final json = _map(raw);
-    return RepoEntity(
-      fullName: _string(json['fullName']),
-      description: _string(json['description']),
-      language: _string(json['language']),
-      starCount: _int(json['starCount']),
-      starDelta: _int(json['starDelta']),
-      forkCount: _int(json['forkCount']),
-      accentArgb: _int(json['accentArgb']),
-      valueBasis: _basisFromJson(json, 'valueBasis', 'valueProvenance'),
-      trendBasis: _basisFromJson(json, 'trendBasis', 'trendProvenance'),
-      trend: json['trend'] == null ? null : _doubleList(json['trend']),
-    );
   }
 
   Map<String, Object?> _languageToJson(LanguageEntity language) {

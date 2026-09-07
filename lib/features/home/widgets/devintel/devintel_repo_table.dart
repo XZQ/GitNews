@@ -4,10 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/repo_star_change.dart';
 import '../../../trending/application/trending_providers.dart';
 
 class DevIntelRepoTable extends ConsumerWidget {
@@ -117,14 +117,7 @@ class _RepoRowTile extends StatelessWidget {
                 style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
               ),
             ),
-            SizedBox(
-              width: 90,
-              child: Text(
-                '+${_compactNumber(repo.starDelta)}',
-                textAlign: TextAlign.right,
-                style: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700, color: AppColors.success),
-              ),
-            ),
+            SizedBox(width: 90, child: RepoStarChange(repo: repo)),
             SizedBox(
               width: 70,
               child: Text(

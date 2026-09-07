@@ -8,6 +8,7 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/repo_star_change.dart';
 
 /*
 *热门仓库 — 单卡内嵌三行榜单。
@@ -148,7 +149,7 @@ class _HotRepoRow extends StatelessWidget {
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            Text('${repo.starDelta > 0 ? '+' : ''}${_shortNumber(repo.starDelta)}', style: AppTypography.monoMetric.copyWith(color: repo.starDelta >= 0 ? AppColors.trendUp : AppColors.trendDown)),
+            RepoStarChange(repo: repo),
           ],
         ),
       ),

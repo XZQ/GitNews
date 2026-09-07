@@ -2,6 +2,12 @@
 // 与 [stringsZhCN] 一一对应。任何 zh 表新增的 key 都必须在此处补译文,
 // 否则 `AppLocalizations.tr` 会回落到 key 本身。
 const Map<String, String> stringsEnUS = <String, String>{
+  'growth.empty': 'Collecting history\nAt least two shared observation dates are needed within this window.',
+  'growth.caption': 'Cumulative net Star change · {sample}/{total} repositories\n{start} — {end} (UTC); relative to the first date, observed points only.',
+  'growth.title': 'Observed Star change',
+  'growth.subtitle': 'A fixed repository cohort on actual observation dates',
+  'growth.pending': 'Pending history',
+
   // bootstrap
   'bootstrap.loading': 'Preparing local data',
   'bootstrap.failure.title': 'Local data initialization failed',
@@ -124,7 +130,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'home.topic.cloud_native': 'Cloud native',
   'home.topic.data_infra': 'Data infra',
   'home.chart.title': 'Star growth trend',
-  'home.chart.subtitle': 'Aggregated monitor repo growth',
+  'home.chart.subtitle': 'Observed net change of monitored repositories',
   'home.chart.window_7': '7d',
   'home.chart.window_30': '30d',
   'home.monitoring.title': 'Monitor status',
@@ -151,7 +157,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'home.repo_table.col_repo': 'Repo',
   'home.repo_table.col_category': 'Category',
   'home.repo_table.col_lang': 'Lang',
-  'home.repo_table.col_new_stars': 'New stars',
+  'home.repo_table.col_new_stars': 'Net change',
   'home.repo_table.col_total': 'Total stars',
 
   // ai_news
@@ -273,9 +279,9 @@ const Map<String, String> stringsEnUS = <String, String>{
   'trending.window.today': 'Today',
   'trending.window.week': 'This week',
   'trending.window.month': 'This month',
-  'trending.metric.total_stars': 'Total stars gained',
-  'trending.metric.active_repos': 'Weekly active repos',
-  'trending.metric.new_forks': 'New forks',
+  'trending.metric.total_stars': 'Total stars',
+  'trending.metric.active_repos': 'Sample repos',
+  'trending.metric.new_forks': 'Total forks',
   'trending.metric.hot_topics': 'Hot topics',
   'trending.page.overview': 'Overview',
   'trending.page.language': 'Language trends',
@@ -475,7 +481,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'project.section.trend.title': 'Trend comparison',
   'project.section.trend.subtitle': 'Last 7 days vs last week',
   'project.section.popular.title': 'This week',
-  'project.section.popular.subtitle': 'Sorted by Star growth',
+  'project.section.popular.subtitle': 'Sorted by current total stars',
   'project.section.recent.title': 'Recently active',
   'project.section.recent.subtitle': 'Repos with recent updates',
   'project.activity.title': 'Activity feed',
@@ -894,8 +900,8 @@ const Map<String, String> stringsEnUS = <String, String>{
   'common.done': 'Done',
 
   // trending mobile view
-  'trending.mobile.star_growth_rank': 'Star Growth Ranking',
-  'trending.mobile.tracking_subtitle': 'Tracking {window} · Star growth ranking',
+  'trending.mobile.star_growth_rank': 'Observed Star change',
+  'trending.mobile.tracking_subtitle': '{window} query sample · local observations',
   'trending.mobile.repos_count': '{window} · {count} items',
   'trending.mobile.time_window': 'Time Window',
   'trending.mobile.language': 'Language',
@@ -907,11 +913,11 @@ const Map<String, String> stringsEnUS = <String, String>{
   'trending.hot_repos.empty': 'No popular repos yet',
   'trending.hot_repos.empty_search': 'No repos matching "{query}"',
   'trending.hot_repos.list_title': 'Popular Repos · Full List',
-  'trending.hot_repos.list_subtitle': 'Sorted by Star growth · {count} total',
+  'trending.hot_repos.list_subtitle': 'Sorted by current total stars · {count} total',
   'trending.hot_repos.notes_title': 'Notes',
   'trending.hot_repos.notes_subtitle': 'Data source and refresh strategy',
   'trending.hot_repos.note1': 'GitHub Trending + community aggregation · refreshed every 5 minutes',
-  'trending.hot_repos.note2': 'Star growth based on last 24h · with historical comparison',
+  'trending.hot_repos.note2': 'Net changes use local observations; hover to see actual dates',
   'trending.hot_repos.note3': 'Tap a repo to view 30-day Star history',
 
   // trending language trend page
@@ -924,7 +930,7 @@ const Map<String, String> stringsEnUS = <String, String>{
 
   // trending list
   'trending.list.empty': 'No matching popular repos',
-  'trending.list.subtitle.short': 'Sorted by Star growth',
+  'trending.list.subtitle.short': 'Sorted by current total stars',
   'trending.list.updating': 'Updating trending list',
 
   // project repo lists

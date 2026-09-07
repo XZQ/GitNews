@@ -175,6 +175,7 @@ class GithubMonitorRepository implements MonitorRepository {
       repo: item.repo.copyWith(
         starDelta: _observedDelta(starTrend.values, fallback: item.repo.starDelta),
         trend: starTrend.values,
+        trendDates: starTrend.dates,
         trendBasis: starTrend.basis,
       ),
     );
@@ -184,7 +185,7 @@ class GithubMonitorRepository implements MonitorRepository {
     if (values.length < 2) {
       return fallback;
     }
-    return (values.last - values.first).round().clamp(0, 999999);
+    return (values.last - values.first).round();
   }
 
   GithubMonitorRemoteRepoItem _parseRepo(Map<String, Object?> json, DateTime now) {
@@ -200,12 +201,12 @@ class GithubMonitorRepository implements MonitorRepository {
         description: GitHubJson.nullableString(json['description']) ?? 'No description',
         language: language,
         starCount: stars,
-        starDelta: githubMonitorActivityScore(stars: stars, forks: forks, openIssues: openIssues, pushedAt: pushedAt, now: now),
+        starDelta: 0,
         forkCount: forks,
         accentArgb: GitHubApiSupport.languageColor(language),
         valueBasis: MetricBasis.observed,
-        trendBasis: MetricBasis.estimated,
-        trend: githubMonitorEstimatedRepoTrend(stars),
+        trendBasis: MetricBasis.unavailable,
+        trend: const [],
       ),
       openIssues: openIssues,
       pushedAt: pushedAt,

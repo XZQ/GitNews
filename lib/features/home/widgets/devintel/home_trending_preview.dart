@@ -6,6 +6,7 @@ import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
+import '../../../../shared/widgets/repo_star_change.dart';
 import '../../../trending/application/trending_providers.dart';
 
 /* 
@@ -30,19 +31,9 @@ class HomeTrendingPreview extends ConsumerWidget {
         rankColor: Color(item.accentArgb),
         title: item.fullName,
         subtitle: item.description,
-        meta: '+${_compactNumber(item.starDelta)}',
+        meta: repoStarChangeText(item),
         onTap: () => context.go('/home/detail/${Uri.encodeComponent(item.fullName)}'),
       ),
     );
-  }
-
-  String _compactNumber(int value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)}M';
-    }
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return value.toString();
   }
 }
