@@ -14,6 +14,7 @@ import 'core/auth/supabase_auth_repository.dart';
 import 'core/di/provider_retry_policy.dart';
 import 'core/di/providers.dart';
 import 'core/i18n/app_localizations.dart';
+import 'core/platform/startup_probe.dart';
 import 'core/storage/cache_meta_dao.dart';
 import 'core/storage/local_database.dart';
 import 'core/storage/storage_providers.dart';
@@ -53,6 +54,8 @@ Future<BootstrapResult> initializeApplication({SharedPreferencesLoader? sharedPr
     final preferences = await preferencesFuture;
     final database = await databaseFuture;
     final authRepository = await authFuture;
+    // 在接受初始化结果前验证主资讯表可读，损坏/不完整迁移进入恢复页。
+    await database.executor.rawQuery('SELECT COUNT(*) AS item_count FROM ai_news_item');
     try {
       await CacheMetaDao(database.executor).pruneStale(now: DateTime.now(), retainFor: const Duration(days: 2));
     } catch (_) {
@@ -95,11 +98,13 @@ Future<bool> openApplicationDataDirectory() async {
 }
 
 class BootstrapApp extends StatefulWidget {
-  const BootstrapApp({this.initializer, this.openDataDirectory, this.successBuilder, super.key});
+  const BootstrapApp({this.initializer, this.openDataDirectory, this.successBuilder, this.startupReporter = reportStartupProbe, super.key});
 
   final Future<BootstrapResult> Function()? initializer;
   final DataDirectoryOpener? openDataDirectory;
   final BootstrapSuccessBuilder? successBuilder;
+  // 只有成功主壳的首帧完成后才能报告 ready；失败页永不报告就绪。
+  final StartupReporter startupReporter;
 
   @override
   State<BootstrapApp> createState() => _BootstrapAppState();
@@ -107,6 +112,7 @@ class BootstrapApp extends StatefulWidget {
 
 class _BootstrapAppState extends State<BootstrapApp> {
   late Future<BootstrapResult> _result;
+  bool _readyScheduled = false;
 
   @override
   void initState() {
@@ -115,7 +121,36 @@ class _BootstrapAppState extends State<BootstrapApp> {
   }
 
   void _start() {
-    _result = (widget.initializer ?? initializeApplication)();
+    _readyScheduled = false;
+    _result = _initializeAndReport();
+  }
+
+  /* 把初始化的真实结果交给受控探针，保留恢复页面的重试路径。 */
+  Future<BootstrapResult> _initializeAndReport() async {
+    await widget.startupReporter('initializing');
+    BootstrapResult result;
+    try {
+      result = await (widget.initializer ?? initializeApplication)();
+    } catch (error, stack) {
+      result = BootstrapResult.failure(error, stack);
+    }
+    if (!result.isSuccess) {
+      await widget.startupReporter('failed', error: result.error);
+    }
+    return result;
+  }
+
+  /* 等待成功页面绘制，再为本次启动报告就绪。 */
+  void _reportReadyAfterFrame() {
+    if (_readyScheduled) {
+      return;
+    }
+    _readyScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        await widget.startupReporter('ready');
+      }
+    });
   }
 
   void _retry() {
@@ -129,6 +164,7 @@ class _BootstrapAppState extends State<BootstrapApp> {
       builder: (context, snapshot) {
         final result = snapshot.data;
         if (result?.isSuccess ?? false) {
+          _reportReadyAfterFrame();
           if (widget.successBuilder case final successBuilder?) {
             return successBuilder(result!);
           }

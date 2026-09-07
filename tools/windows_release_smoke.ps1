@@ -3,7 +3,9 @@ param(
     [string]$ReleaseDir,
 
     [ValidateRange(1, 120)]
-    [int]$TimeoutSeconds = 15
+    [int]$TimeoutSeconds = 15,
+
+    [switch]$ArtifactsOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,6 +13,8 @@ $releasePath = (Resolve-Path -LiteralPath $ReleaseDir).Path
 $logPath = Join-Path $releasePath 'smoke-test.log'
 $process = $null
 $exitCode = 0
+$reportPath = Join-Path $releasePath ("startup-probe-{0}.json" -f [guid]::NewGuid().ToString('N'))
+$previousReportPath = $env:GITHUB_NEWS_STARTUP_REPORT
 
 function Write-SmokeLog {
     param([string]$Message)
@@ -35,17 +39,7 @@ function Write-FailureDiagnostics {
     Get-ChildItem -LiteralPath $releasePath -Recurse -Force |
         ForEach-Object { Write-SmokeLog $_.FullName }
 
-    try {
-        Write-SmokeLog 'Recent Application Error events:'
-        Get-WinEvent -FilterHashtable @{
-            LogName = 'Application'
-            Level = 2
-            StartTime = (Get-Date).AddMinutes(-10)
-        } -MaxEvents 10 -ErrorAction Stop |
-            ForEach-Object { Write-SmokeLog "$($_.TimeCreated) $($_.ProviderName): $($_.Message)" }
-    } catch {
-        Write-SmokeLog "Application event log unavailable: $($_.Exception.Message)"
-    }
+    # Do not collect other applications' event logs or unsanitized exceptions.
 }
 
 try {
@@ -53,7 +47,9 @@ try {
     $requiredFiles = @(
         'github_news.exe',
         'flutter_windows.dll',
-        'data\app.so'
+        'data\app.so',
+        'sqlite3.dll',
+        'data\flutter_assets\NativeAssetsManifest.json'
     )
     $requiredDirectories = @('data\flutter_assets')
 
@@ -70,12 +66,23 @@ try {
         }
     }
 
+    $manifest = Get-Content -LiteralPath (Join-Path $releasePath 'data\flutter_assets\NativeAssetsManifest.json') -Raw | ConvertFrom-Json
+    $sqliteAsset = $manifest.'native-assets'.windows_x64.'package:sqlite3/src/ffi/libsqlite3.g.dart'
+    if ($null -eq $sqliteAsset -or $sqliteAsset.Count -ne 2 -or $sqliteAsset[1] -ne 'sqlite3.dll') {
+        throw 'SQLite native asset binding is missing or not portable. Regenerate the stale Flutter build cache and rebuild Release.'
+    }
+    if ($ArtifactsOnly) {
+        Write-SmokeLog 'Release artifact bindings verified; application startup was not tested.'
+        return
+    }
+
     $executable = Join-Path $releasePath 'github_news.exe'
+    $env:GITHUB_NEWS_STARTUP_REPORT = $reportPath
     Write-SmokeLog "Starting $executable"
     $process = Start-Process `
         -FilePath $executable `
         -WorkingDirectory $releasePath `
-        -WindowStyle Minimized `
+        -WindowStyle Hidden `
         -PassThru
 
     $passed = $false
@@ -86,21 +93,33 @@ try {
         if ($process.HasExited) {
             throw "Application exited before opening a window. Exit code: $($process.ExitCode)"
         }
-        if ($process.MainWindowHandle -ne 0) {
-            Write-SmokeLog "Smoke test passed. MainWindowHandle=$($process.MainWindowHandle)"
+        $startup = $null
+        if (Test-Path -LiteralPath $reportPath -PathType Leaf) {
+            try {
+                $startup = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
+            } catch {
+                # The writer may still be flushing; check again on the next poll.
+            }
+        }
+        if ($null -ne $startup -and $startup.pid -eq $process.Id -and $startup.status -eq 'failed') {
+            throw "Application initialization failed: $($startup.failureCode)"
+        }
+        if ($process.MainWindowHandle -ne 0 -and $null -ne $startup -and $startup.pid -eq $process.Id -and $startup.status -eq 'ready') {
+            Write-SmokeLog "Smoke test passed. Storage readable, app frame ready. MainWindowHandle=$($process.MainWindowHandle)"
             $passed = $true
             break
         }
     } while ([DateTime]::UtcNow -lt $deadline)
 
     if (-not $passed) {
-        throw "Application did not expose a main window within $TimeoutSeconds seconds."
+        throw "Application did not report storage and app-frame readiness within $TimeoutSeconds seconds."
     }
 } catch {
     Write-SmokeLog "Smoke test failed: $($_.Exception.Message)"
     Write-FailureDiagnostics -FailedProcess $process
     $exitCode = 1
 } finally {
+    $env:GITHUB_NEWS_STARTUP_REPORT = $previousReportPath
     if ($null -ne $process) {
         $process.Refresh()
         if (-not $process.HasExited) {

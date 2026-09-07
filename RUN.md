@@ -88,7 +88,8 @@ flutter build windows --release --obfuscate --split-debug-info=build/symbols
 - `build/symbols/` 用于还原混淆后的崩溃栈，必须与发布版本对应保存。
 - 版本来自 `pubspec.yaml`，无需手改 `windows/runner/Runner.rc`。
 - Windows Runner 声明支持 Windows 10/11。
-- 启动烟测检查完整产物结构、存活进程和可见主窗口；托盘烟测进一步发送窗口关闭请求，并确认进程仍存活后再清理测试进程。
+- 启动烟测检查完整产物结构、存活进程、主窗口，以及本次进程报告的存储可读与主壳首帧就绪；初始化恢复页不能通过。探针通过临时环境变量启用，只记录 PID、状态、时间与受控错误分类。托盘烟测进一步发送窗口关闭请求，并确认进程仍存活后再清理测试进程。
+- SQLite DLL 与 `NativeAssetsManifest.json` 中的可移植绑定必须同时存在。如果 DLL 存在而绑定为空，应备份并移除本工作区 `.dart_tool/flutter_build/` 下对应的失效编译缓存，再重新构建；不要复制 Debug 的生成清单，也不要删除应用数据。烟测 `-ArtifactsOnly` 只检查打包结构，不能替代真实启动验证。
 
 ## 5. 其他平台
 

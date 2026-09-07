@@ -10,7 +10,7 @@ if (-not (Test-Path -LiteralPath $exe)) {
   throw "Release executable not found: $exe"
 }
 
-$process = Start-Process -FilePath $exe -WorkingDirectory $resolvedRelease -PassThru
+$process = Start-Process -FilePath $exe -WorkingDirectory $resolvedRelease -WindowStyle Hidden -PassThru
 try {
   $deadline = [DateTime]::UtcNow.AddSeconds($StartupTimeoutSeconds)
   do {

@@ -8,6 +8,35 @@ import 'package:github_news/core/storage/local_database.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
+  testWidgets('startup probe never marks a recovery page as ready', (tester) async {
+    final states = <String>[];
+    await tester.pumpWidget(
+      BootstrapApp(initializer: () async => BootstrapResult.failure(StateError('private detail'), StackTrace.empty), startupReporter: (status, {error}) async => states.add(status)),
+    );
+    await tester.pumpAndSettle();
+    expect(states, ['initializing', 'failed']);
+    expect(find.byIcon(Icons.restart_alt_rounded), findsOneWidget);
+  });
+
+  testWidgets('startup probe reports ready only after the successful app frame', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    final preferences = await SharedPreferences.getInstance();
+    final database = await tester.runAsync(LocalDatabase.openInMemory);
+    addTearDown(database!.close);
+    final states = <String>[];
+    await tester.pumpWidget(
+      BootstrapApp(
+        initializer: () async => BootstrapResult.success(preferences, database),
+        startupReporter: (status, {error}) async => states.add(status),
+        successBuilder: (_) => const MaterialApp(home: Text('app ready')),
+      ),
+    );
+    expect(states, ['initializing']);
+    await tester.pumpAndSettle();
+    expect(find.text('app ready'), findsOneWidget);
+    expect(states, ['initializing', 'ready']);
+  });
+
   test('initializer converts dependency failures into a recovery result', () async {
     final result = await initializeApplication(sharedPreferencesLoader: () async => throw StateError('prefs failed'), databaseOpener: LocalDatabase.openInMemory);
 

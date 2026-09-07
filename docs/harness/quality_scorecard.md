@@ -13,7 +13,7 @@
 | 命令与失败语义 | A | `tools/harness.json` + `tools/harness.ps1` 提供分层 suite、超时、非零退出与 dry-run | 尚无独立 PowerShell 单元测试框架 |
 | 运行证据 | A | 每次运行生成清单哈希、Git 状态、逐步日志与 `summary.json` | 暂未聚合跨运行趋势 |
 | Flutter 质量门禁 | A | Dart 3.12 全量格式基线、可移植性、analyzer 和全量测试均由 Harness 执行 | 仍需持续维护跨平台测试 fixture |
-| Windows 发布门禁 | B | Release 构建、可见窗口和托盘烟测均在 `desktop` suite | 无交互 CI 只能执行到 `windows-build` |
+| Windows 发布门禁 | B | Release 构建、真实存储及主壳首帧就绪探针、窗口和托盘烟测均在 `desktop` suite | 无交互 CI 只能执行到 `windows-build`，页面内容与视觉需另验收 |
 | 服务端质量门禁 | A | Ruff、pytest 和真实本地 Uvicorn 往返共享统一入口 | 联网 feed smoke 仍是显式可选检查 |
 | 架构边界 | B | feature-first 规则、共享配置边界与 analyzer 已存在 | 缺少跨层 import 的专门结构测试 |
 | UI 可读性 | B | 存在当前 Windows Release 截图、Golden、可访问性树和窗口生命周期烟测 | 当前截图仍需在真实桌面会话中人工刷新 |
