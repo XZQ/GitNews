@@ -8,6 +8,10 @@ const Map<String, String> stringsEnUS = <String, String>{
   'growth.subtitle': 'A fixed repository cohort on actual observation dates',
   'growth.pending': 'Pending history',
 
+  'ai_news.search.loaded': 'Local library · {count} articles loaded',
+  'ai_news.search.load_more': 'Load more results',
+  'ai_news.search.retry': 'Loading failed — retry',
+
   // bootstrap
   'bootstrap.loading': 'Preparing local data',
   'bootstrap.failure.title': 'Local data initialization failed',

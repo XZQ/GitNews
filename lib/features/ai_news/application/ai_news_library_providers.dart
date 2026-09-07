@@ -8,6 +8,8 @@ import '../domain/ai_news_item_state.dart';
 import '../domain/ai_news_library_filter.dart';
 import 'ai_news_providers.dart';
 
+export 'ai_news_library_search_notifier.dart';
+
 /*
 *资讯库(本地沉淀内容)相关 provider:全库搜索、已读、稍后读。
 *与 ai_news_providers.dart 的「远端流 + 分页缓存」职责分离。
@@ -22,14 +24,6 @@ final aiNewsReadLaterOnlyProvider = StateProvider<bool>((ref) => false);
 final aiNewsLibraryFilterProvider = StateProvider<AiNewsLibraryFilter>((ref) => const AiNewsLibraryFilter());
 
 final aiNewsLibrarySourcesProvider = FutureProvider.autoDispose<List<String>>((ref) => ref.watch(aiNewsCacheDaoProvider).sources());
-
-// 全库搜索:关键词非空时查询 SQLite 沉淀的全部历史条目,
-// 不再只过滤内存中已加载的分页 buffer。跟随当前分类筛选。
-final aiNewsLibrarySearchProvider = FutureProvider.autoDispose.family<List<AiNewsItem>, String>((ref, query) {
-  final category = ref.watch(aiNewsCategoryFilterProvider);
-  final filter = ref.watch(aiNewsLibraryFilterProvider);
-  return ref.watch(aiNewsCacheDaoProvider).searchAll(query, category: category, filter: filter);
-});
 
 // 稍后读列表(实体快照重建,清缓存不受影响)。
 final aiNewsReadLaterItemsProvider = FutureProvider.autoDispose<List<AiNewsItem>>((ref) => ref.watch(aiNewsStateDaoProvider).readLaterItems());

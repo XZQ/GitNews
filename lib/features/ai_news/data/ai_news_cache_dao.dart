@@ -45,24 +45,29 @@ class AiNewsCacheDao {
     }
   }
 
-  // 单次搜索返回上限。
-  static const int _searchLimit = 100;
-
   /*
-  *资讯库全库搜索:FTS5 匹配标题/英文标题/摘要/来源,并支持来源、时间、
-  *分类、已读状态过滤。非空查询按 BM25 相关性优先,同分按时间倒序。
+  *资讯库分页搜索：英文用 FTS5，含汉字或纯符号的查询按字面子串匹配，
+  *避免 unicode61 把连续中文当一个 token。支持来源、日期、分类、已读过滤。
   *与 [readAll] 不同,这里不受 [_readLimit] 的「首屏渲染」定位约束,
-  *面向的是沉淀在本地的全部历史条目。`%`/`_`/转义符做 ESCAPE 处理。
+  *英文按 BM25 排序，子串匹配按日期排序；id 保证分页顺序稳定。
   */
-  Future<List<AiNewsItem>> searchAll(String query, {AiNewsCategory? category, AiNewsLibraryFilter filter = const AiNewsLibraryFilter()}) async {
+  Future<List<AiNewsItem>> searchAll(String query, {AiNewsCategory? category, AiNewsLibraryFilter filter = const AiNewsLibraryFilter(), int limit = 100, int offset = 0}) async {
+    if (limit <= 0 || offset < 0) throw ArgumentError('Invalid search page');
     final keyword = query.trim();
+    final substringSearch = _needsSubstringSearch(keyword);
+    final useFts = keyword.isNotEmpty && !substringSearch;
     try {
       final where = <String>[];
       final args = <Object?>[];
       final selectedCategory = filter.category ?? category;
-      if (keyword.isNotEmpty) {
+      if (useFts) {
         where.add('ai_news_fts MATCH ?');
         args.add(_ftsQuery(keyword));
+      } else if (keyword.isNotEmpty) {
+        for (final token in keyword.toLowerCase().split(RegExp(r'\s+'))) {
+          where.add('(instr(lower(i.title), ?) > 0 OR instr(lower(i.title_en), ?) > 0 OR instr(lower(i.summary), ?) > 0 OR instr(lower(i.source), ?) > 0)');
+          args.addAll(List.filled(4, token));
+        }
       }
       if (selectedCategory != null) {
         where.add('i.category = ?');
@@ -92,12 +97,12 @@ class AiNewsCacheDao {
           break;
       }
       final rows = await _db.rawQuery(
-        'SELECT i.* FROM ${keyword.isEmpty ? 'ai_news_item i' : 'ai_news_fts JOIN ai_news_item i ON i.id = ai_news_fts.item_id'} '
+        'SELECT i.* FROM ${useFts ? 'ai_news_fts JOIN ai_news_item i ON i.id = ai_news_fts.item_id' : 'ai_news_item i'} '
         'LEFT JOIN ai_news_state s ON s.item_id = i.id '
         '${where.isEmpty ? '' : 'WHERE ${where.join(' AND ')}'} '
-        'ORDER BY ${keyword.isEmpty ? '' : 'bm25(ai_news_fts), '}i.published_at DESC '
-        'LIMIT $_searchLimit',
-        args,
+        'ORDER BY ${useFts ? 'bm25(ai_news_fts), ' : ''}i.published_at DESC, i.id ASC '
+        'LIMIT ? OFFSET ?',
+        [...args, limit, offset],
       );
       return rows.map(_rowToItem).toList(growable: false);
     } catch (e, st) {
@@ -211,5 +216,10 @@ class AiNewsCacheDao {
   static String _ftsQuery(String query) {
     final tokens = query.trim().split(RegExp(r'\s+')).where((token) => token.isNotEmpty).map((token) => '"${token.replaceAll('"', '""')}"*');
     return tokens.join(' AND ');
+  }
+
+  static bool _needsSubstringSearch(String query) {
+    return query.runes.any((rune) => (rune >= 0x3400 && rune <= 0x9fff) || (rune >= 0xf900 && rune <= 0xfaff) || (rune >= 0x20000 && rune <= 0x323af)) ||
+        !RegExp(r'[a-z0-9]', caseSensitive: false).hasMatch(query);
   }
 }

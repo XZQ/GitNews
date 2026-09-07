@@ -7,6 +7,10 @@ const Map<String, String> stringsZhCN = <String, String>{
   'growth.subtitle': '同一批仓库在真实观测日期上的变化',
   'growth.pending': '待积累',
 
+  'ai_news.search.loaded': '本地资讯库 · 已加载 {count} 篇',
+  'ai_news.search.load_more': '加载更多结果',
+  'ai_news.search.retry': '加载失败，重试',
+
   // bootstrap
   'bootstrap.loading': '正在准备本地数据',
   'bootstrap.failure.title': '本地数据初始化失败',
