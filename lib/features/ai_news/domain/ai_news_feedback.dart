@@ -36,8 +36,10 @@ String aiNewsTopicKey(AiNewsItem item) => item.category.code;
 List<AiNewsItem> rankAiNewsByInterest(List<AiNewsItem> items, AiNewsInterestProfile profile) {
   final ranked = [...items];
   ranked.sort((left, right) {
-    final leftDay = DateTime(left.publishedAt.year, left.publishedAt.month, left.publishedAt.day);
-    final rightDay = DateTime(right.publishedAt.year, right.publishedAt.month, right.publishedAt.day);
+    final leftLocal = left.publishedAt.toLocal();
+    final rightLocal = right.publishedAt.toLocal();
+    final leftDay = DateTime(leftLocal.year, leftLocal.month, leftLocal.day);
+    final rightDay = DateTime(rightLocal.year, rightLocal.month, rightLocal.day);
     final dayOrder = rightDay.compareTo(leftDay);
     if (dayOrder != 0) {
       return dayOrder;

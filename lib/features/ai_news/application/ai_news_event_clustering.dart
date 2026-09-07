@@ -1,4 +1,13 @@
+import '../domain/ai_news_feedback.dart';
 import '../domain/ai_news_item.dart';
+
+/// Apply interest after event formation so clustering cannot undo the ranking.
+List<AiNewsEventCluster> clusterAndRankAiNewsEvents(List<AiNewsItem> items, AiNewsInterestProfile profile) {
+  final clusters = clusterAiNewsEvents(items);
+  final byId = {for (final cluster in clusters) cluster.primary.id: cluster};
+  final ranked = rankAiNewsByInterest(clusters.map((cluster) => cluster.primary).toList(), profile);
+  return [for (final item in ranked) byId[item.id]!];
+}
 
 class AiNewsEventCluster {
   const AiNewsEventCluster({required this.primary, required this.items});

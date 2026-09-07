@@ -97,10 +97,6 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
 
   List<_FlatEntry> _flatEntriesFor(AiNewsInterestProfile profile) {
     final items = widget.items;
-    final cached = _flatCache;
-    if (cached != null && identical(items, _cachedItems) && identical(profile, _cachedProfile)) {
-      return cached;
-    }
     // Search hits retain database relevance order and remain individually accessible.
     if (widget.searchResults) {
       return [
@@ -112,8 +108,11 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
           ),
       ];
     }
-    final ranked = rankAiNewsByInterest(items, profile);
-    final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
+    final cached = _flatCache;
+    if (cached != null && identical(items, _cachedItems) && identical(profile, _cachedProfile)) {
+      return cached;
+    }
+    final groups = _groupEventsByDay(clusterAndRankAiNewsEvents(items, profile));
     final flat = <_FlatEntry>[
       for (final g in groups) ...[
         _FlatEntry.header(g.key, g.value.length, examples: g.value.every((cluster) => isAiNewsExample(cluster.primary))),

@@ -10,6 +10,59 @@ import 'package:github_news/features/ai_news/presentation/widgets/ai_news_item_l
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_timeline_row.dart';
 
 void main() {
+  testWidgets('interest changes reorder clustered events but switching to search restores input order', (tester) async {
+    final items = [
+      AiNewsItem(
+        id: 'newest',
+        category: AiNewsCategory.industry,
+        title: 'Robots learn dexterous manipulation',
+        titleEn: '',
+        summary: '',
+        source: 'Robotics',
+        url: '',
+        permalink: '',
+        publishedAt: DateTime(2026, 9, 7, 12),
+        score: 99,
+        selected: true,
+      ),
+      AiNewsItem(
+        id: 'older',
+        category: AiNewsCategory.aiModels,
+        title: 'Language benchmark tests long context',
+        titleEn: '',
+        summary: '',
+        source: 'Models',
+        url: '',
+        permalink: '',
+        publishedAt: DateTime(2026, 9, 7, 10),
+        score: 70,
+        selected: true,
+      ),
+    ];
+    var profile = AiNewsInterestProfile.empty;
+    final container = ProviderContainer(overrides: [aiNewsInterestProfileProvider.overrideWith((ref) async => profile), aiNewsItemStateProvider.overrideWith((ref, id) async => AiNewsItemState.none)]);
+    addTearDown(container.dispose);
+    Widget app({bool search = false}) => UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(
+        home: Scaffold(
+          body: AiNewsItemList(items: items, category: null, query: '', staticList: true, searchResults: search),
+        ),
+      ),
+    );
+    Iterable<String> ids() => tester.widgetList<AiNewsTimelineRow>(find.byType(AiNewsTimelineRow)).map((row) => row.item.id);
+    await tester.pumpWidget(app());
+    await tester.pumpAndSettle();
+    expect(ids(), ['newest', 'older']);
+    profile = const AiNewsInterestProfile(itemSignals: {'newest': AiNewsFeedbackSignal.less, 'older': AiNewsFeedbackSignal.more});
+    container.invalidate(aiNewsInterestProfileProvider);
+    await tester.pumpAndSettle();
+    expect(ids(), ['older', 'newest']);
+    await tester.pumpWidget(app(search: true));
+    await tester.pumpAndSettle();
+    expect(ids(), ['newest', 'older']);
+  });
+
   testWidgets('search keeps each hit accessible in database order despite similar titles', (tester) async {
     final items = [
       for (final id in ['second', 'first'])
