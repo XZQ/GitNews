@@ -21,6 +21,7 @@ import '../domain/ai_hot_status.dart';
 import '../domain/ai_hot_topic.dart';
 import '../domain/ai_news_item.dart';
 import '../domain/ai_news_repository.dart';
+import 'ai_news_example_items.dart';
 
 export 'ai_news_items_notifier.dart';
 
@@ -111,20 +112,22 @@ String _aiNewsSearchText(AiNewsItem item) {
 // 资讯详情读取:详情页只依赖本地数据,避免再次请求远端或打开不稳定外站。
 // 优先条目缓存;缓存被清理后回退稍后读的实体快照(ai_news_state)。
 final aiNewsItemDetailProvider = FutureProvider.autoDispose.family<AiNewsItem?, String>((ref, id) async {
+  final stateDao = AiNewsStateDao(ref.watch(appDatabaseProvider).executor);
   final cached = await ref.watch(aiNewsCacheDaoProvider).readById(id);
   if (cached != null) {
     return cached;
   }
-  return AiNewsStateDao(ref.watch(appDatabaseProvider).executor).snapshotOf(id);
+  return await stateDao.snapshotOf(id) ?? aiNewsExampleItemById(id);
 });
 
 // 详情页相关推荐只读取本机缓存,不因打开详情额外请求远端。
 final aiNewsRelatedItemsProvider = FutureProvider.autoDispose.family<List<AiNewsItem>, String>((ref, id) async {
+  final cacheDao = ref.watch(aiNewsCacheDaoProvider);
   final current = await ref.watch(aiNewsItemDetailProvider(id).future);
   if (current == null) {
     return const [];
   }
-  final items = await ref.watch(aiNewsCacheDaoProvider).readAll();
+  final items = await cacheDao.readAll();
   return selectRelatedAiNewsItems(items, current: current);
 });
 

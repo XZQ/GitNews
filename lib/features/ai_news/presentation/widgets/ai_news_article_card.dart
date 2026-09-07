@@ -8,6 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/breakpoint.dart';
 import '../../../../shared/widgets/app_card.dart';
+import '../../application/ai_news_example_items.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_category_style.dart';
 
@@ -92,7 +93,7 @@ class _CompactArticleCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.sm),
                 _CategoryChip(label: item.category.label, color: accent),
                 const Spacer(),
-                Text(formatRelativeTime(l10n, item.publishedAt), style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
+                Text(isAiNewsExample(item) ? l10n.tr('ai_news.example') : formatRelativeTime(l10n, item.publishedAt), style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
                 IconButton(
                   tooltip: l10n.tr(isBookmarked ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
                   onPressed: onBookmarkTap,
@@ -216,7 +217,7 @@ class _DesktopArticleCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.xs2),
               Flexible(
                 child: Text(
-                  '${item.source} · ${item.category.label} · ${formatRelativeTime(l10n, item.publishedAt)}',
+                  '${item.source} · ${item.category.label} · ${isAiNewsExample(item) ? l10n.tr('ai_news.example') : formatRelativeTime(l10n, item.publishedAt)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),

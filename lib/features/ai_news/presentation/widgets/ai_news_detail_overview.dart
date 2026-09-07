@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../application/ai_news_example_items.dart';
 import '../../domain/ai_news_enrichment.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_detail_components.dart';
@@ -41,7 +42,10 @@ class AiNewsDetailOverview extends StatelessWidget {
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             AiNewsDetailCategoryPill(category: item.category),
-            Text('${formatAiNewsDetailDate(item.publishedAt)} · ${item.source}', style: AppTypography.mono(AppTypography.bodySmall).copyWith(color: aiNewsDetailMutedColor(context))),
+            Text(
+              '${isAiNewsExample(item) ? l10n.tr('ai_news.example') : formatAiNewsDetailDate(item.publishedAt)} · ${item.source}',
+              style: AppTypography.mono(AppTypography.bodySmall).copyWith(color: aiNewsDetailMutedColor(context)),
+            ),
             if (item.author.trim().isNotEmpty && item.author.trim() != item.source.trim())
               Text(item.author, style: AppTypography.mono(AppTypography.bodySmall).copyWith(color: aiNewsDetailMutedColor(context))),
           ],
@@ -74,13 +78,13 @@ class AiNewsDetailOverview extends StatelessWidget {
           spacing: AppSpacing.sm2,
           runSpacing: AppSpacing.sm,
           children: [
-            AiNewsDetailMetricPill(icon: Icons.local_fire_department_rounded, label: '${l10n.tr('ai_news.detail_score')} ${item.score}'),
-            if (item.selected) AiNewsDetailMetricPill(icon: Icons.check_circle_outline_rounded, label: l10n.tr('ai_news.detail_selected'), positive: true),
+            if (!isAiNewsExample(item)) AiNewsDetailMetricPill(icon: Icons.local_fire_department_rounded, label: '${l10n.tr('ai_news.detail_score')} ${item.score}'),
+            if (item.selected && !isAiNewsExample(item)) AiNewsDetailMetricPill(icon: Icons.check_circle_outline_rounded, label: l10n.tr('ai_news.detail_selected'), positive: true),
             if (item.attributionSource.isNotEmpty) AiNewsDetailMetricPill(icon: Icons.verified_outlined, label: item.attributionSource),
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
-        AiNewsDetailSourceCard(item: item, onOpenOriginal: onOpenOriginal),
+        if (isAiNewsExample(item)) Text(l10n.tr('ai_news.feed_seed'), style: AppTypography.bodySmall) else AiNewsDetailSourceCard(item: item, onOpenOriginal: onOpenOriginal),
       ],
     );
   }

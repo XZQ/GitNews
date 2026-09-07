@@ -7,6 +7,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/breakpoint.dart';
 import '../../../../shared/widgets/empty_view.dart';
 import '../../application/ai_news_event_clustering.dart';
+import '../../application/ai_news_example_items.dart';
 import '../../application/ai_news_feedback_providers.dart';
 import '../../application/ai_news_providers.dart';
 import '../../domain/ai_news_feedback.dart';
@@ -49,15 +50,16 @@ class AiNewsItemList extends ConsumerStatefulWidget {
 *扁平化分组后的列表项(header / row)。
 */
 class _FlatEntry {
-  const _FlatEntry._({this.date, this.count, this.cluster, this.isFirstInGroup = false, this.isLastInGroup = false});
+  const _FlatEntry._({this.date, this.count, this.cluster, this.examples = false, this.isFirstInGroup = false, this.isLastInGroup = false});
 
-  factory _FlatEntry.header(DateTime date, int count) => _FlatEntry._(date: date, count: count);
+  factory _FlatEntry.header(DateTime date, int count, {bool examples = false}) => _FlatEntry._(date: date, count: count, examples: examples);
   factory _FlatEntry.item(AiNewsEventCluster cluster, {required bool isFirstInGroup, required bool isLastInGroup}) =>
       _FlatEntry._(cluster: cluster, isFirstInGroup: isFirstInGroup, isLastInGroup: isLastInGroup);
 
   final DateTime? date;
   final int? count;
   final AiNewsEventCluster? cluster;
+  final bool examples;
 
   // 当天分组内的首条,用于让列表卡收出顶部圆角。
   final bool isFirstInGroup;
@@ -114,7 +116,7 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
     final groups = _groupEventsByDay(clusterAiNewsEvents(ranked));
     final flat = <_FlatEntry>[
       for (final g in groups) ...[
-        _FlatEntry.header(g.key, g.value.length),
+        _FlatEntry.header(g.key, g.value.length, examples: g.value.every((cluster) => isAiNewsExample(cluster.primary))),
         for (var i = 0; i < g.value.length; i++) _FlatEntry.item(g.value[i], isFirstInGroup: i == 0, isLastInGroup: i == g.value.length - 1),
       ],
     ];
@@ -158,7 +160,7 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
                   final cluster = e.cluster;
                   return RepaintBoundary(
                     child: e.isHeader
-                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!)
+                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!, labelOverride: e.examples ? l10n.tr('ai_news.example') : null)
                         : AiNewsTimelineRow(
                             item: cluster!.primary,
                             eventSources: cluster.sources,

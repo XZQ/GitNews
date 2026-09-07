@@ -210,12 +210,13 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
       await ref.read(aiNewsCacheDaoProvider).markValidationFailed(category: _category, cursor: requestCursor);
       if (!ref.mounted || gen != _generation) return;
       // 后台刷新失败容忍:已有缓存数据就不报错,标记为陈旧缓存兜底
-      if (state.value != null) {
+      if (_buffer.isNotEmpty) {
         freshness.state = DataFreshness.staleCache;
         return;
       }
       // 没有任何缓存且远端不可用:回退到本地种子数据,保证首启可渲染。
-      _buffer = AiNewsSeedData.items;
+      _buffer = AiNewsSeedData.items.where((item) => _category == null || item.category == _category).toList(growable: false);
+      _hasApiMore = false;
       freshness.state = DataFreshness.seed;
       state = AsyncData(_currentSlice());
     }

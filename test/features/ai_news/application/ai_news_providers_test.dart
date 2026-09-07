@@ -338,6 +338,33 @@ void main() {
     expect(container.read(aiNewsFreshnessProvider), DataFreshness.seed);
   });
 
+  test('every offline example opens through the detail provider without populating remote cache', () async {
+    final container = makeContainer(_ThrowingAiNewsRepository());
+    final items = await _pumpUntilSettled(container);
+    for (final item in items) {
+      expect((await container.read(aiNewsItemDetailProvider(item.id).future))?.title, item.title);
+    }
+    expect(await dao.readAll(), isEmpty);
+    expect(await dao.lastValidatedAt(), isNull);
+    expect(await container.read(aiNewsItemDetailProvider('missing-item').future), isNull);
+  });
+
+  test('offline examples obey the active category and have no phantom next page', () async {
+    final container = makeContainer(_ThrowingAiNewsRepository());
+    container.listen(aiNewsItemsNotifierProvider, (_, _) {});
+    container.read(aiNewsCategoryFilterProvider.notifier).state = AiNewsCategory.paper;
+    final items = await _pumpUntilSettled(container);
+    expect(items, isNotEmpty);
+    expect(items.every((item) => item.category == AiNewsCategory.paper), isTrue);
+    expect(container.read(aiNewsItemsNotifierProvider.notifier).hasMore, isFalse);
+    expect(container.read(aiNewsFreshnessProvider), DataFreshness.seed);
+    container.read(aiNewsCategoryFilterProvider.notifier).state = AiNewsCategory.aiModels;
+    final next = await _pumpUntilSettled(container);
+    expect(next, isNotEmpty);
+    expect(next.every((item) => item.category == AiNewsCategory.aiModels), isTrue);
+    expect(container.read(aiNewsFreshnessProvider), DataFreshness.seed);
+  });
+
   test('缓存命中但远端失败:应保留缓存并标记陈旧缓存', () async {
     final now = DateTime.utc(2026, 6, 30, 10);
     // 预热

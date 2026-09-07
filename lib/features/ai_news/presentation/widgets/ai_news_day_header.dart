@@ -10,10 +10,11 @@ import '../../../../core/utils/breakpoint.dart';
 *一天分组头:`今天 / 昨天 / M月d日` + 条目数。
 */
 class AiNewsDayHeader extends StatelessWidget {
-  const AiNewsDayHeader({required this.date, required this.itemCount, super.key});
+  const AiNewsDayHeader({required this.date, required this.itemCount, this.labelOverride, super.key});
 
   final DateTime date;
   final int itemCount;
+  final String? labelOverride;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class AiNewsDayHeader extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
           ],
           Text(
-            label,
+            labelOverride ?? label,
             style: (isCompact ? AppTypography.titleLarge : AppTypography.titleSmall).copyWith(color: colors.onSurface, fontWeight: FontWeight.w800),
           ),
           const SizedBox(width: AppSpacing.sm),

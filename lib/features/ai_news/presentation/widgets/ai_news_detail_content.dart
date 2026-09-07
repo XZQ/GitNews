@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/app_spacing.dart';
 import '../../application/ai_news_enrichment_providers.dart';
+import '../../application/ai_news_example_items.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_detail_components.dart';
 import 'ai_news_detail_extended.dart';
@@ -38,7 +39,8 @@ class AiNewsDetailContent extends ConsumerWidget {
   @override
   /* 构建一个可上下滚动的完整详情页。 */
   Widget build(BuildContext context, WidgetRef ref) {
-    final enrichment = showEnrichment ? ref.watch(aiNewsEnrichmentProvider(item.id)).value : null;
+    final canEnrich = showEnrichment && !isAiNewsExample(item);
+    final enrichment = canEnrich ? ref.watch(aiNewsEnrichmentProvider(item.id)).value : null;
     return AiNewsDetailPageFrame(
       scrollKey: const PageStorageKey('ai-news-detail-scroll'),
       child: Column(
@@ -46,7 +48,7 @@ class AiNewsDetailContent extends ConsumerWidget {
         children: [
           AiNewsDetailOverview(item: item, enrichment: enrichment, onOpenOriginal: onOpenOriginal),
           const SizedBox(height: AppSpacing.lg),
-          AiNewsDetailInsights(item: item, showEnrichment: showEnrichment),
+          if (!isAiNewsExample(item)) AiNewsDetailInsights(item: item, showEnrichment: canEnrich),
           const SizedBox(height: AppSpacing.lg),
           AiNewsDetailExtended(relatedItems: relatedItems, onOpenRelated: onOpenRelated, onViewMore: onViewMore),
         ],

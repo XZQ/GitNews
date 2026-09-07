@@ -103,5 +103,6 @@ class AiNewsSeedData {
     ),
   ];
 
-  static final DateTime _now = DateTime.now();
+  // Internal ordering sentinel; examples have no publication date in the UI.
+  static final DateTime _now = DateTime.fromMillisecondsSinceEpoch(0, isUtc: true);
 }
