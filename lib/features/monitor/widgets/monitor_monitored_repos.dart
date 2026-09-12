@@ -1,21 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/domain/repo_check_status.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
-import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
+import '../../../shared/widgets/repo_check_status_view.dart';
 import '../../../shared/widgets/repo_tile.dart';
 import '../../../shared/widgets/section_header.dart';
 
 class MonitorMonitoredRepos extends StatelessWidget {
-  const MonitorMonitoredRepos({required this.repos, super.key});
+  const MonitorMonitoredRepos({required this.repos, this.checks = const {}, super.key});
 
   final List<RepoEntity> repos;
+
+  // 仓库检查元数据。
+  final Map<String, RepoCheckStatus> checks;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,7 @@ class MonitorMonitoredRepos extends StatelessWidget {
               sliver: SliverList.separated(
                 itemCount: repos.length,
                 separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                itemBuilder: (context, i) => MonitorMonitoredRow(repo: repos[i]),
+                itemBuilder: (context, i) => MonitorMonitoredRow(repo: repos[i], check: checks[repos[i].fullName]),
               ),
             ),
         ],
@@ -51,42 +53,30 @@ class MonitorMonitoredRepos extends StatelessWidget {
 }
 
 /*
-*监控仓库条目:统一的 [RepoTile] 卡片 + 尾部健康状态徽章。
+*监控仓库条目:统一卡片下展示真实检查状态。
 */
 class MonitorMonitoredRow extends StatelessWidget {
-  const MonitorMonitoredRow({required this.repo, this.dense = false, super.key});
+  const MonitorMonitoredRow({required this.repo, this.dense = false, this.check, super.key});
 
   final RepoEntity repo;
 
   // 紧凑密度(移动端)。
   final bool dense;
 
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return RepoTile(
-      repo: repo,
-      dense: dense,
-      trailing: _StatusPill(text: l10n.tr('monitor.monitored_repos.status_ok')),
-      onTap: () => context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}'),
-    );
-  }
-}
-
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({required this.text});
-
-  final String text;
+  // 独立于仓库指标的检查状态。
+  final RepoCheckStatus? check;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: AppSpacing.xxs),
-      decoration: BoxDecoration(color: AppColors.success.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.sm)),
-      child: Text(
-        text,
-        style: AppTypography.labelSmall.copyWith(color: AppColors.success, fontWeight: FontWeight.w600),
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        RepoTile(repo: repo, dense: dense, onTap: () => context.go('/monitor/detail/${Uri.encodeComponent(repo.fullName)}')),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.sm),
+          child: RepoCheckStatusView(check: check),
+        ),
+      ],
     );
   }
 }

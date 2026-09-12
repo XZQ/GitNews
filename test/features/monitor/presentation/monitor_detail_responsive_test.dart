@@ -135,7 +135,7 @@ class _MonitorTestApp extends StatelessWidget {
       stats: const MonitorStats(monitoredCount: 1, monitoredDelta: 0, unreadAlertCount: 0, unreadAlertDelta: 0, triggeredTodayCount: 0, triggeredTodayDelta: 0, totalAlertCount: 0, totalAlertDelta: 0),
     );
     return ProviderScope(
-      overrides: [visibleMonitorDigestProvider.overrideWith((ref) async => digest)],
+      overrides: [visibleMonitorDigestProvider.overrideWith((ref) async => digest), monitorRefreshInProgressProvider.overrideWithValue(false)],
       child: MaterialApp(
         locale: const Locale('zh', 'CN'),
         supportedLocales: AppLocalizations.supportedLocales,

@@ -65,9 +65,41 @@ final localMonitorRepositoryProvider = Provider<MonitorRepository>((ref) {
   return const LocalMonitorRepository();
 });
 
-final monitorDigestResultProvider = FutureProvider<DataResult<MonitorDigest>>((ref) {
-  return ref.watch(monitorRepositoryProvider).getDigest();
-});
+final monitorDigestResultProvider = AsyncNotifierProvider<MonitorDigestNotifier, DataResult<MonitorDigest>>(MonitorDigestNotifier.new);
+
+final monitorRefreshInProgressProvider = Provider<bool>((ref) => ref.watch(monitorDigestResultProvider).isLoading);
+
+/*
+*刷新直接发布本次结果，避免刷新后失效 provider 再请求一次。
+*/
+class MonitorDigestNotifier extends AsyncNotifier<DataResult<MonitorDigest>> {
+  // 下一次构建是否绕过 TTL。
+  bool _forceNextBuild = false;
+
+  // 多个入口共享同一次刷新。
+  Future<void>? _refreshTask;
+
+  @override
+  /* Riverpod 在仓库集合变更时隔离旧请求的结果。 */
+  Future<DataResult<MonitorDigest>> build() {
+    final force = _forceNextBuild;
+    _forceNextBuild = false;
+    return ref.watch(monitorRepositoryProvider).getDigest(force: force);
+  }
+
+  /* 合并重复点击并等待实际检查结果。 */
+  Future<void> refresh() => _refreshTask ??= _refresh().whenComplete(() => _refreshTask = null);
+
+  /* 由 provider 自身重建，保留已显示的数据直到新结果到达。 */
+  Future<void> _refresh() async {
+    _forceNextBuild = true;
+    ref.invalidateSelf();
+    await future;
+    if (ref.mounted) {
+      ref.invalidate(monitorAlertEventsProvider);
+    }
+  }
+}
 
 final monitorDigestProvider = FutureProvider<MonitorDigest>((ref) async {
   return (await ref.watch(monitorDigestResultProvider.future)).data;
@@ -102,12 +134,13 @@ Set<String> _enabledRuleIds(List<bool> toggles) {
   };
 }
 
+/* 页面点击等待检查；异常由 provider 的错误状态展示，避免异步回调再次抛出。 */
 Future<void> forceRefreshMonitor(WidgetRef ref) async {
-  await ref.read(monitorRepositoryProvider).getDigest(force: true);
-  ref.invalidate(monitorDigestResultProvider);
-  ref.invalidate(monitorDigestProvider);
-  ref.invalidate(monitorAlertEventsProvider);
-  ref.invalidate(visibleMonitorDigestProvider);
+  try {
+    await ref.read(monitorDigestResultProvider.notifier).refresh();
+  } catch (_) {
+    // monitorDigestResultProvider 已保留失败，页面显示错误与重试入口。
+  }
 }
 
 MonitorDigest applyMonitorAlertEvents(MonitorDigest digest, Iterable<MonitorAlertEvent> events, DateTime now) {

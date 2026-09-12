@@ -30,6 +30,7 @@ class MonitorPageHeader extends ConsumerWidget {
       onSearchChanged: (v) => ref.read(monitorSearchQueryProvider.notifier).state = v,
       onSearchSubmitted: (v) => ref.read(monitorSearchQueryProvider.notifier).state = v,
       onRefresh: () => forceRefreshMonitor(ref),
+      isRefreshing: ref.watch(monitorRefreshInProgressProvider),
       pills: [HeaderStatPill(icon: Icons.circle, label: l10n.tr('monitor.unread_count').replaceAll('{n}', stats.unreadAlertCount.toString()), color: AppColors.success)],
       actions: [HeaderAction(icon: Icons.add_circle_outline_rounded, tooltip: l10n.tr('a11y.add_monitor'), onPressed: () => context.go('/profile/monitor'))],
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/domain/data_freshness.dart';
 import '../../core/domain/repo_entity.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_radius.dart';
@@ -82,7 +83,7 @@ class RepoTile extends StatelessWidget {
                     children: [
                       const Icon(Icons.star_rounded, size: 12, color: AppColors.starGold),
                       const SizedBox(width: AppSpacing.xxs),
-                      Text(_shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold)),
+                      Text(repo.valueBasis == MetricBasis.unavailable ? '—' : _shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold)),
                     ],
                   ),
                   MetricBasisBadge(basis: repo.valueBasis),

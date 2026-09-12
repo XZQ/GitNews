@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/domain/repo_check_status.dart';
 import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/widgets/repo_check_status_view.dart';
 import '../../../monitor/application/monitor_providers.dart';
 
 class DevIntelMonitoringStatus extends ConsumerWidget {
@@ -17,7 +19,9 @@ class DevIntelMonitoringStatus extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final repos = ref.watch(visibleMonitorDigestProvider).maybeWhen(data: (digest) => digest.monitoredRepos.take(4).toList(), orElse: () => const <RepoEntity>[]);
+    final state = ref.watch(visibleMonitorDigestProvider);
+    final digest = state.value;
+    final repos = digest?.monitoredRepos.take(4).toList() ?? const <RepoEntity>[];
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -26,7 +30,10 @@ class DevIntelMonitoringStatus extends ConsumerWidget {
         children: [
           Text(l10n.tr('home.monitoring.title'), style: AppTypography.titleMedium.copyWith(color: colors.onSurface)),
           const SizedBox(height: AppSpacing.lg),
-          for (var i = 0; i < repos.length; i++) ...[_StatusTile(repo: repos[i]), if (i != repos.length - 1) const SizedBox(height: AppSpacing.md)],
+          if (state.isLoading && digest == null) const LinearProgressIndicator(),
+          if (state.hasError && digest == null) Text(l10n.tr('monitor.check.failed.unknown')),
+          if (!state.isLoading && !state.hasError && repos.isEmpty) Text(l10n.tr('monitor.empty')),
+          for (var i = 0; i < repos.length; i++) ...[_StatusTile(repo: repos[i], check: digest?.checks[repos[i].fullName]), if (i != repos.length - 1) const SizedBox(height: AppSpacing.md)],
           const SizedBox(height: AppSpacing.lg),
           const _ConfigureButton(),
         ],
@@ -36,60 +43,28 @@ class DevIntelMonitoringStatus extends ConsumerWidget {
 }
 
 class _StatusTile extends StatelessWidget {
-  const _StatusTile({required this.repo});
+  const _StatusTile({required this.repo, this.check});
 
   final RepoEntity repo;
 
+  // 仓库真实检查状态，不从增长指标推断。
+  final RepoCheckStatus? check;
+
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final statusColor = _statusColor(repo);
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+        Text(
+          repo.fullName,
+          style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
+          overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(width: AppSpacing.md),
-        Expanded(
-          child: Text(
-            repo.fullName,
-            style: AppTypography.titleSmall.copyWith(color: colors.onSurface),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xs),
-          decoration: BoxDecoration(color: statusColor.withValues(alpha: 0.14), borderRadius: const BorderRadius.all(Radius.circular(AppRadius.xs))),
-          child: Text(
-            _status(l10n, repo),
-            style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w700, color: statusColor),
-          ),
-        ),
+        const SizedBox(height: AppSpacing.xs),
+        RepoCheckStatusView(check: check),
       ],
     );
-  }
-
-  String _status(AppLocalizations l10n, RepoEntity repo) {
-    if (repo.starDelta >= 500) {
-      return l10n.tr('devintel.status.active');
-    }
-    if (repo.starDelta >= 120) {
-      return l10n.tr('devintel.status.syncing');
-    }
-    return l10n.tr('devintel.status.stable');
-  }
-
-  Color _statusColor(RepoEntity repo) {
-    if (repo.starDelta >= 500) {
-      return AppColors.warning;
-    }
-    if (repo.starDelta >= 120) {
-      return AppColors.info;
-    }
-    return AppColors.success;
   }
 }
 

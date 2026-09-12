@@ -12,6 +12,7 @@ import '../../../shared/widgets/data_provenance_badge.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/gradient_hero_header.dart';
+import '../../../shared/widgets/repo_check_status_view.dart';
 import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/secondary_page_scaffold.dart';
@@ -52,16 +53,35 @@ class MonitorDetailPage extends ConsumerWidget {
             return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty.not_in_list'));
           }
           final repoAlerts = digest.alerts.where((alert) => alert.repoFullName == repo.fullName).take(5).toList(growable: false);
-          return ResponsiveLayout(
-            compact: (_) => _Mobile(repo: repo, alerts: repoAlerts),
-            medium: (_) => CenteredContent(
-              maxWidth: 900,
-              padding: EdgeInsets.zero,
-              child: _Mobile(repo: repo, alerts: repoAlerts),
-            ),
-            expanded: (_) => CenteredContent(
-              child: _Desktop(repo: repo, alerts: repoAlerts),
-            ),
+          return Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.xs),
+                child: Row(
+                  children: [
+                    Expanded(child: RepoCheckStatusView(check: digest.checks[repo.fullName])),
+                    IconButton(
+                      tooltip: l10n.tr('monitor.check.refresh_all'),
+                      onPressed: ref.watch(monitorRefreshInProgressProvider) ? null : () => forceRefreshMonitor(ref),
+                      icon: const Icon(Icons.refresh_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: ResponsiveLayout(
+                  compact: (_) => _Mobile(repo: repo, alerts: repoAlerts),
+                  medium: (_) => CenteredContent(
+                    maxWidth: 900,
+                    padding: EdgeInsets.zero,
+                    child: _Mobile(repo: repo, alerts: repoAlerts),
+                  ),
+                  expanded: (_) => CenteredContent(
+                    child: _Desktop(repo: repo, alerts: repoAlerts),
+                  ),
+                ),
+              ),
+            ],
           );
         },
         loading: () => const _DetailSkeleton(),

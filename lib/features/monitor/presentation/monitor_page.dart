@@ -6,7 +6,6 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/breakpoint.dart';
-import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/skeleton.dart';
@@ -37,15 +36,22 @@ class MonitorPage extends ConsumerWidget {
       appBar: isCompact
           ? AppBar(
               title: Text(l10n.tr('monitor.title'), style: AppTypography.headlineLarge.copyWith(color: Theme.of(context).colorScheme.onSurface)),
+              actions: [
+                IconButton(
+                  tooltip: l10n.tr('monitor.check.refresh_all'),
+                  onPressed: ref.watch(monitorRefreshInProgressProvider) ? null : () => forceRefreshMonitor(ref),
+                  icon: const Icon(Icons.refresh_rounded),
+                ),
+              ],
             )
           : null,
       body: state.when(
         data: (digest) {
-          if (digest.isEmpty) {
-            return EmptyView(icon: Icons.visibility_off_outlined, message: l10n.tr('monitor.empty'));
-          }
           return ResponsiveLayout(
-            compact: (_) => MonitorMobileContent(digest: digest),
+            compact: (_) => RefreshIndicator(
+              onRefresh: () => forceRefreshMonitor(ref),
+              child: MonitorMobileContent(digest: digest),
+            ),
             medium: (_) => _Desktop(digest: digest),
             expanded: (_) => _Desktop(digest: digest),
           );
@@ -82,7 +88,10 @@ class _Desktop extends ConsumerWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(flex: 8, child: MonitorMonitoredRepos(repos: digest.monitoredRepos)),
+                      Expanded(
+                        flex: 8,
+                        child: MonitorMonitoredRepos(repos: digest.monitoredRepos, checks: digest.checks),
+                      ),
                       const SizedBox(width: AppSpacing.lg),
                       Expanded(
                         flex: 4,

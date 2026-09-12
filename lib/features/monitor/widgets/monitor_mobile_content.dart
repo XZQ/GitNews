@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_check_status.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_colors.dart';
@@ -8,6 +10,7 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/repo_check_status_view.dart';
 import '../../../shared/widgets/repo_star_change.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../domain/entities.dart';
@@ -28,6 +31,7 @@ class MonitorMobileContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
@@ -41,7 +45,9 @@ class MonitorMobileContent extends StatelessWidget {
         ),
         SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          sliver: SliverToBoxAdapter(child: _MonitoredRepoGroup(repos: digest.monitoredRepos)),
+          sliver: SliverToBoxAdapter(
+            child: _MonitoredRepoGroup(repos: digest.monitoredRepos, checks: digest.checks),
+          ),
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xl),
@@ -114,9 +120,12 @@ class _StatCell extends StatelessWidget {
 
 /* 分组监控仓库卡片。 */
 class _MonitoredRepoGroup extends StatelessWidget {
-  const _MonitoredRepoGroup({required this.repos});
+  const _MonitoredRepoGroup({required this.repos, required this.checks});
 
   final List<RepoEntity> repos;
+
+  // 与桌面端使用相同的仓库检查结果。
+  final Map<String, RepoCheckStatus> checks;
 
   @override
   Widget build(BuildContext context) {
@@ -125,9 +134,17 @@ class _MonitoredRepoGroup extends StatelessWidget {
       padding: EdgeInsets.zero,
       child: Column(
         children: [
+          if (repos.isEmpty) Padding(padding: const EdgeInsets.all(AppSpacing.lg), child: Text(AppLocalizations.of(context).tr('monitor.monitored_repos.empty'))),
           for (var index = 0; index < repos.length; index++) ...[
             if (index != 0) Divider(height: 1, indent: AppSpacing.lg, endIndent: AppSpacing.lg, color: colors.outlineVariant),
             _MonitoredRepoRow(repo: repos[index]),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: RepoCheckStatusView(check: checks[repos[index].fullName]),
+              ),
+            ),
           ],
         ],
       ),
@@ -192,7 +209,7 @@ class _MonitoredRepoRow extends StatelessWidget {
                       const SizedBox(width: AppSpacing.sm),
                       const Icon(Icons.star_rounded, size: 13, color: AppColors.starGold),
                       const SizedBox(width: AppSpacing.xxs),
-                      Text(_shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold)),
+                      Text(repo.valueBasis == MetricBasis.unavailable ? '—' : _shortNumber(repo.starCount), style: AppTypography.monoMeta.copyWith(color: AppColors.starGold)),
                     ],
                   ),
                 ],

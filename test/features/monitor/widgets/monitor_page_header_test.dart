@@ -21,7 +21,7 @@ void main() {
     const stats = MonitorStats(monitoredCount: 0, monitoredDelta: 0, unreadAlertCount: 0, unreadAlertDelta: 0, triggeredTodayCount: 0, triggeredTodayDelta: 0, totalAlertCount: 0, totalAlertDelta: 0);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [monitorFreshnessProvider.overrideWithValue(const AsyncData<DataFreshness>(DataFreshness.live))],
+        overrides: [monitorFreshnessProvider.overrideWithValue(const AsyncData<DataFreshness>(DataFreshness.live)), monitorRefreshInProgressProvider.overrideWithValue(false)],
         child: const MaterialApp(
           locale: Locale('zh', 'CN'),
           localizationsDelegates: [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
