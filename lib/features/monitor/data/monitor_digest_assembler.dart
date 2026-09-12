@@ -1,4 +1,5 @@
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_check_status.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_observation.dart';
@@ -22,14 +23,11 @@ class MonitorDigestAssembler {
   final MonitorRuleEvaluator _evaluator;
   final Set<String> _enabledRuleIds;
 
-  MonitorDigest fromResponses(List<GithubMonitorRemoteRepoItem> responses) {
-    return fromRepos(responses.map((item) => item.repo).toList(growable: false));
-  }
-
   /* 基于完整仓库集合构建摘要，告警随后从持久存储合并。 */
-  MonitorDigest fromRepos(List<RepoEntity> repos) {
+  MonitorDigest fromRepos(List<RepoEntity> repos, {Map<String, RepoCheckStatus> checks = const {}}) {
     return MonitorDigest(
       monitoredRepos: repos,
+      checks: checks,
       alerts: const [],
       stats: MonitorStats(
         monitoredCount: repos.length,
@@ -60,6 +58,7 @@ class MonitorDigestAssembler {
     final visible = stored.where((event) => !event.isArchived).toList();
     return MonitorDigest(
       monitoredRepos: digest.monitoredRepos,
+      checks: digest.checks,
       alerts: [for (final event in visible) _toAlertEntity(event, now)],
       stats: MonitorStats(
         monitoredCount: digest.monitoredRepos.length,

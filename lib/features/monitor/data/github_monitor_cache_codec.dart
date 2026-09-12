@@ -1,10 +1,16 @@
+import '../../../core/domain/repo_check_status.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/github/github_repo_entity_codec.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_repository.dart';
 
 Map<String, Object?> monitorDigestToJson(MonitorDigest digest) {
-  return {'repos': digest.monitoredRepos.map(githubRepoEntityToJson).toList(), 'alerts': digest.alerts.map(_alertToJson).toList(), 'stats': _statsToJson(digest.stats)};
+  return {
+    'repos': digest.monitoredRepos.map(githubRepoEntityToJson).toList(),
+    'alerts': digest.alerts.map(_alertToJson).toList(),
+    'stats': _statsToJson(digest.stats),
+    'checks': {for (final entry in digest.checks.entries) entry.key: _checkToJson(entry.value)},
+  };
 }
 
 MonitorDigest monitorDigestFromJson(Map<String, Object?> json) {
@@ -12,8 +18,23 @@ MonitorDigest monitorDigestFromJson(Map<String, Object?> json) {
     monitoredRepos: GitHubJson.list(json['repos']).map(githubRepoEntityFromJson).toList(),
     alerts: GitHubJson.list(json['alerts']).map(_alertFromJson).toList(),
     stats: _statsFromJson(GitHubJson.map(json['stats'])),
+    checks: {for (final entry in (json['checks'] == null ? <String, Object?>{} : GitHubJson.map(json['checks'])).entries) entry.key: _checkFromJson(GitHubJson.map(entry.value))},
   );
 }
+
+/* 检查状态独立于指标，兼容没有该字段的旧缓存。 */
+Map<String, Object?> _checkToJson(RepoCheckStatus check) => {
+  'attemptedAt': check.attemptedAt?.toUtc().toIso8601String(),
+  'validatedAt': check.validatedAt?.toUtc().toIso8601String(),
+  'failure': check.failure?.name,
+};
+
+/* 未知失败码保持失败，缺失时间不生成成功观测。 */
+RepoCheckStatus _checkFromJson(Map<String, Object?> json) => RepoCheckStatus(
+  attemptedAt: DateTime.tryParse(json['attemptedAt'] as String? ?? ''),
+  validatedAt: DateTime.tryParse(json['validatedAt'] as String? ?? ''),
+  failure: json['failure'] == null ? null : RepoCheckFailure.values.firstWhere((value) => value.name == json['failure'], orElse: () => RepoCheckFailure.unknown),
+);
 
 Map<String, Object?> _alertToJson(AlertEntity alert) {
   return {'repoFullName': alert.repoFullName, 'metric': alert.metric, 'value': alert.value, 'time': alert.time, 'severity': alert.severity.name};

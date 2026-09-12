@@ -131,6 +131,7 @@ MonitorDigest applyMonitorAlertEvents(MonitorDigest digest, Iterable<MonitorAler
 
   return MonitorDigest(
     monitoredRepos: digest.monitoredRepos,
+    checks: digest.checks,
     alerts: alerts,
     stats: MonitorStats(
       monitoredCount: digest.monitoredRepos.length,
@@ -170,7 +171,7 @@ MonitorDigest filterMonitorDigest(MonitorDigest digest, String query) {
     return digest;
   }
 
-  return MonitorDigest(monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword), alerts: filterMonitorAlerts(digest.alerts, keyword), stats: digest.stats);
+  return MonitorDigest(monitoredRepos: filterMonitorRepos(digest.monitoredRepos, keyword), alerts: filterMonitorAlerts(digest.alerts, keyword), stats: digest.stats, checks: digest.checks);
 }
 
 List<RepoEntity> filterMonitorRepos(List<RepoEntity> repos, String query) {

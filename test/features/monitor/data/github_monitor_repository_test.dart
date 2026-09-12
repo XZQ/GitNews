@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/config/api_endpoints_config.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
+import 'package:github_news/core/domain/repo_check_status.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/json_snapshot_cache_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
@@ -38,8 +39,18 @@ void main() {
 
   tearDown(() => database.close());
 
-  GithubMonitorRepository buildRepository({required DateTime now, List<String> repos = const ['owner/repo']}) {
-    return GithubMonitorRepository(dio: dio, cache: cache, observationDao: observations, alertDao: alerts, enabledRuleIds: MonitorRuleIds.all, now: () => now, repos: repos, cacheKey: 'monitor:test');
+  GithubMonitorRepository buildRepository({required DateTime now, List<String> repos = const ['owner/repo'], bool rateLimited = false}) {
+    return GithubMonitorRepository(
+      dio: dio,
+      cache: cache,
+      observationDao: observations,
+      alertDao: alerts,
+      enabledRuleIds: MonitorRuleIds.all,
+      now: () => now,
+      repos: repos,
+      cacheKey: 'monitor:test',
+      isRateLimited: () => rateLimited,
+    );
   }
 
   test('fresh cache never records observations or creates alerts', () async {
@@ -98,7 +109,8 @@ void main() {
     final result = await buildRepository(now: later).getDigest(force: true);
     expect(result.freshness, DataFreshness.staleCache);
     expect(result.data.monitoredRepos.single.starCount, 1234);
-    expect(await cache.read('monitor:test'), before);
+    expect((await cache.read('monitor:test'))!['repos'], before!['repos']);
+    expect(result.validatedAt, now);
     expect(await cache.isFresh(key: 'monitor:test', ttl: monitorRemoteCacheTtl, now: later), isFalse);
     final reopened = await buildRepository(now: later).getDigest();
     expect(reopened.freshness, DataFreshness.staleCache);
@@ -118,7 +130,7 @@ void main() {
     expect(result.data.monitoredRepos.map((repo) => repo.fullName), ['user/first', 'user/second']);
     expect(result.data.stats.monitoredCount, 2);
     expect(result.data.monitoredRepos.every((repo) => repo.valueBasis == MetricBasis.unavailable), isTrue);
-    expect(await cache.read('monitor:test'), isNull);
+    expect(monitorDigestFromJson((await cache.read('monitor:test'))!).checks.values.every((check) => check.validatedAt == null), isTrue);
     expect(await alerts.list(includeArchived: true), isEmpty);
   });
 
@@ -127,6 +139,96 @@ void main() {
     expect(result.data.monitoredRepos, isEmpty);
     expect(result.data.stats.monitoredCount, 0);
     verifyNever(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options')));
+  });
+
+  test('partial failure preserves every repository and its last real observation after recreation', () async {
+    final firstAt = DateTime.utc(2026, 9, 10, 12);
+    const repos = ['owner/first', 'owner/second'];
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((call) async {
+      final name = (call.positionalArguments.single as String).substring('/repos/'.length);
+      return okResponse(stars: 100, forks: 10, issues: 1, fullName: name);
+    });
+    await buildRepository(now: firstAt, repos: repos).getDigest();
+    final nextAt = firstAt.add(const Duration(days: 1));
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((call) async {
+      final path = call.positionalArguments.single as String;
+      if (path.endsWith('/second')) {
+        throw DioException(
+          type: DioExceptionType.connectionError,
+          requestOptions: RequestOptions(path: path),
+        );
+      }
+      return okResponse(stars: 110, forks: 10, issues: 1, fullName: 'owner/first');
+    });
+    final result = await buildRepository(now: nextAt, repos: repos).getDigest(force: true);
+    expect(result.freshness, DataFreshness.staleCache);
+    expect(result.validatedAt, firstAt);
+    expect(result.data.monitoredRepos.map((repo) => repo.fullName), repos);
+    expect(result.data.monitoredRepos.map((repo) => repo.starCount), [110, 100]);
+    expect(result.data.stats.monitoredCount, 2);
+    expect(result.data.checks['owner/second']?.failure, RepoCheckFailure.network);
+    expect(result.data.checks['owner/second']?.validatedAt, firstAt);
+    expect(result.data.checks['owner/second']?.attemptedAt, nextAt);
+    expect(result.data.checks['owner/first']?.validatedAt, nextAt);
+    expect(await observations.read('owner/first'), hasLength(2));
+    expect(await observations.read('owner/second'), hasLength(1));
+    expect(await cache.isFresh(key: 'monitor:test', ttl: monitorRemoteCacheTtl, now: nextAt), isFalse);
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenThrow(StateError('offline'));
+    final reopened = await buildRepository(now: nextAt, repos: repos).getDigest();
+    expect(reopened.data.monitoredRepos.map((repo) => repo.starCount), [110, 100]);
+    expect(reopened.data.checks['owner/second']?.validatedAt, firstAt);
+    expect(reopened.data.checks['owner/first']?.validatedAt, nextAt);
+    expect(reopened.validatedAt, firstAt);
+  });
+
+  test('first partial response persists pending repositories without invented metrics or timestamps', () async {
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((call) async {
+      final path = call.positionalArguments.single as String;
+      if (path.endsWith('/second')) {
+        throw StateError('offline');
+      }
+      return okResponse(stars: 100, forks: 10, issues: 1, fullName: 'owner/first');
+    });
+    final result = await buildRepository(now: DateTime.utc(2026, 9, 12), repos: ['owner/first', 'owner/second']).getDigest();
+    expect(result.freshness, DataFreshness.staleCache);
+    expect(result.validatedAt, isNull);
+    expect(result.data.monitoredRepos.last.valueBasis, MetricBasis.unavailable);
+    expect(result.data.checks['owner/second']?.validatedAt, isNull);
+    expect(result.data.stats.monitoredCount, 2);
+    expect(await observations.read('owner/second'), isEmpty);
+  });
+
+  test('rate limit gate preserves checked timestamps and makes no network requests', () async {
+    final result = await buildRepository(now: DateTime.utc(2026, 9, 12), rateLimited: true).getDigest(force: true);
+    expect(result.data.checks['owner/repo']?.failure, RepoCheckFailure.rateLimit);
+    expect(result.data.checks['owner/repo']?.validatedAt, isNull);
+    verifyNever(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options')));
+  });
+
+  for (final (code, failure) in [(401, RepoCheckFailure.unauthorized), (404, RepoCheckFailure.notFound), (429, RepoCheckFailure.rateLimit)]) {
+    test('persists controlled failure reason for HTTP $code', () async {
+      final options = RequestOptions(path: ApiEndpointsConfig.githubRepoPath('owner/repo'));
+      when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenThrow(
+        DioException(
+          type: DioExceptionType.badResponse,
+          requestOptions: options,
+          response: Response(requestOptions: options, statusCode: code),
+        ),
+      );
+      final result = await buildRepository(now: DateTime.utc(2026, 9, 12)).getDigest(force: true);
+      expect(result.data.checks['owner/repo']?.failure, failure);
+      expect(monitorDigestFromJson((await cache.read('monitor:test'))!).checks['owner/repo']?.failure, failure);
+    });
+  }
+
+  test('repository redirect retains the monitored subscription identity', () async {
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => okResponse(stars: 9999, forks: 1, issues: 1, fullName: 'other/repo'));
+    final result = await buildRepository(now: DateTime.utc(2026, 9, 12)).getDigest(force: true);
+    expect(result.data.monitoredRepos.single.fullName, 'owner/repo');
+    expect(result.data.monitoredRepos.single.starCount, 9999);
+    expect(result.data.checks['owner/repo']?.failure, isNull);
+    expect(await observations.read('owner/repo'), hasLength(1));
+    expect(await observations.read('other/repo'), isEmpty);
   });
 }
 
@@ -138,18 +240,10 @@ MonitorDigest emptyDigest() {
   );
 }
 
-Response<Map<String, Object?>> okResponse({required int stars, required int forks, required int issues}) {
+Response<Map<String, Object?>> okResponse({required int stars, required int forks, required int issues, String fullName = 'owner/repo'}) {
   return Response<Map<String, Object?>>(
-    requestOptions: RequestOptions(path: '/repos/owner/repo'),
+    requestOptions: RequestOptions(path: ApiEndpointsConfig.githubRepoPath(fullName)),
     statusCode: 200,
-    data: {
-      'full_name': 'owner/repo',
-      'description': 'Repository',
-      'language': 'Dart',
-      'stargazers_count': stars,
-      'forks_count': forks,
-      'open_issues_count': issues,
-      'pushed_at': '2026-07-02T08:00:00Z',
-    },
+    data: {'full_name': fullName, 'description': 'Repository', 'language': 'Dart', 'stargazers_count': stars, 'forks_count': forks, 'open_issues_count': issues, 'pushed_at': '2026-07-02T08:00:00Z'},
   );
 }

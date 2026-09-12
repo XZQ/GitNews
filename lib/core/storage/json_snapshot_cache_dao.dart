@@ -29,10 +29,16 @@ class JsonSnapshotCacheDao {
     }
   }
 
-  Future<void> upsert({required String key, required Map<String, Object?> payload, required DateTime now}) async {
+  /* 更新快照；部分失败仅保存内容和失败状态，不推进成功验证时间。 */
+  Future<void> upsert({required String key, required Map<String, Object?> payload, required DateTime now, bool validated = true}) async {
     try {
-      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(payload), 'cached_at': now.millisecondsSinceEpoch}, conflictAlgorithm: ConflictAlgorithm.replace);
-      await _meta.upsert(key, now);
+      final cachedAt = validated ? now.millisecondsSinceEpoch : (await _meta.lastFetched(key))?.millisecondsSinceEpoch ?? 0;
+      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(payload), 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
+      if (validated) {
+        await _meta.upsert(key, now);
+      } else {
+        await _meta.markValidationFailed(key);
+      }
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.upsert', 'key': key});
     }

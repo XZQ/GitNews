@@ -3,10 +3,10 @@ import 'package:dio/dio.dart';
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_check_status.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/github/github_api_support.dart';
-import '../../../core/network/parallel.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
@@ -19,6 +19,7 @@ import 'github_monitor_remote_repo_item.dart';
 import 'monitor_alert_event_dao.dart';
 import 'monitor_digest_assembler.dart';
 import 'monitor_observation_dao.dart';
+import 'monitor_refresh_batch.dart';
 
 const Duration monitorRemoteCacheTtl = CacheTtlConfig.monitor;
 
@@ -59,41 +60,51 @@ class GithubMonitorRepository implements MonitorRepository {
 
   @override
   Future<DataResult<MonitorDigest>> getDigest({bool force = false}) async {
-    final now = _now();
-    final cached = await _readCached();
+    final now = _now().toUtc();
+    final snapshot = await _readCached();
+    final cached = snapshot.digest;
     final fresh = cached != null && await _isFresh(now);
 
     if (!force && fresh) {
-      return DataResult(data: await _assembler.withStoredAlerts(cached, now), freshness: DataFreshness.freshCache);
+      return DataResult(data: await _assembler.withStoredAlerts(cached, now), freshness: DataFreshness.freshCache, validatedAt: snapshot.validatedAt);
     }
     if (_isRateLimited?.call() ?? false) {
-      return _fallbackResult(cached, now);
+      return _fallbackResult(cached, now, snapshot.validatedAt, RepoCheckFailure.rateLimit);
     }
     try {
-      final responses = await _fetchRepos(now);
-      final digest = _assembler.fromResponses(responses);
-      await _assembler.recordObservationsAndAlerts(responses, now);
-      await _cache.upsert(key: cacheKey, payload: monitorDigestToJson(digest), now: now);
-      return DataResult(data: await _assembler.withStoredAlerts(digest, now), freshness: DataFreshness.live);
+      final batch = await MonitorRefreshBatch.fetch(repos: repos, previous: cached?.checks ?? const {}, now: now, fetchRepo: (name) => _fetchRepo(name, now));
+      final observed = {for (final item in batch.responses) item.repo.fullName.toLowerCase(): item.repo};
+      final previous = {for (final repo in cached?.monitoredRepos ?? <RepoEntity>[]) repo.fullName.toLowerCase(): repo};
+      final digest = _assembler.fromRepos([for (final name in repos) observed[name.toLowerCase()] ?? previous[name.toLowerCase()] ?? pendingMonitorRepo(name)], checks: batch.checks);
+      // 失败仓库绝不被重新记成今天的观测，也不参与告警计算。
+      await _assembler.recordObservationsAndAlerts(batch.responses, now);
+      await _cache.upsert(key: cacheKey, payload: monitorDigestToJson(digest), now: now, validated: !batch.hasFailures);
+      return DataResult(
+        data: await _assembler.withStoredAlerts(digest, now),
+        freshness: batch.hasFailures ? DataFreshness.staleCache : DataFreshness.live,
+        validatedAt: batch.hasFailures ? snapshot.validatedAt : now,
+        revalidated: !batch.hasFailures,
+      );
     } catch (error) {
       _maybeReportRateLimit(error);
       AppLogger.warn('githubMonitorFallback', meta: {'error': error.runtimeType.toString()});
-      return _fallbackResult(cached, now);
+      return _fallbackResult(cached, now, snapshot.validatedAt, monitorCheckFailure(error));
     }
   }
 
-  Future<DataResult<MonitorDigest>> _fallbackResult(MonitorDigest? cached, DateTime now) async {
-    // 强刷只绕过 TTL；失败保留磁盘快照，并让重建 provider 后仍展示过期状态。
+  /* 限流或本地处理失败时，保留已观测值并持久化本次失败。 */
+  Future<DataResult<MonitorDigest>> _fallbackResult(MonitorDigest? cached, DateTime now, DateTime? validatedAt, RepoCheckFailure failure) async {
+    final previous = {for (final repo in cached?.monitoredRepos ?? <RepoEntity>[]) repo.fullName: repo};
+    final digest = _assembler.fromRepos(
+      [for (final name in repos) previous[name] ?? pendingMonitorRepo(name)],
+      checks: {for (final name in repos) name: RepoCheckStatus(attemptedAt: now, validatedAt: cached?.checks[name]?.validatedAt, failure: failure)},
+    );
     try {
-      await _cache.markValidationFailed(cacheKey);
+      await _cache.upsert(key: cacheKey, payload: monitorDigestToJson(digest), now: now, validated: false);
     } catch (error) {
       AppLogger.warn('githubMonitorCacheStatus', meta: {'error': error.runtimeType.toString()});
     }
-    if (cached != null) {
-      return DataResult(data: await _assembler.withStoredAlerts(cached, now), freshness: DataFreshness.staleCache);
-    }
-    final pending = _assembler.fromRepos([for (final fullName in repos) pendingMonitorRepo(fullName)]);
-    return DataResult(data: await _assembler.withStoredAlerts(pending, now), freshness: DataFreshness.staleCache);
+    return DataResult(data: await _assembler.withStoredAlerts(digest, now), freshness: DataFreshness.staleCache, validatedAt: validatedAt);
   }
 
   Future<bool> _isFresh(DateTime now) async {
@@ -118,22 +129,21 @@ class GithubMonitorRepository implements MonitorRepository {
     }
   }
 
-  Future<MonitorDigest?> _readCached() async {
+  /* 读取真实验证时间；旧缓存缺少逐仓库时间时保持未知。 */
+  Future<({MonitorDigest? digest, DateTime? validatedAt})> _readCached() async {
     try {
-      final json = await _cache.read(cacheKey);
+      final entry = await _cache.readWithValidators(cacheKey);
+      final json = entry.payload;
       if (json == null) {
-        return null;
+        return (digest: null, validatedAt: null);
       }
-      return monitorDigestFromJson(json);
+      final validatedAt = entry.validatedAt;
+      return (digest: monitorDigestFromJson(json), validatedAt: validatedAt?.millisecondsSinceEpoch == 0 ? null : validatedAt);
     } catch (error) {
       AppLogger.warn('githubMonitorCacheParse', meta: {'error': error.runtimeType.toString()});
       await _safeDeleteCache();
-      return null;
+      return (digest: null, validatedAt: null);
     }
-  }
-
-  Future<List<GithubMonitorRemoteRepoItem>> _fetchRepos(DateTime now) {
-    return gatherAll<GithubMonitorRemoteRepoItem>([for (final repo in repos) _fetchRepo(repo, now)], tag: 'githubMonitorFetch');
   }
 
   Future<GithubMonitorRemoteRepoItem> _fetchRepo(String fullName, DateTime now) async {
@@ -147,7 +157,8 @@ class GithubMonitorRepository implements MonitorRepository {
         throw const AppException(kind: AppExceptionKind.parse);
       }
       final item = _parseRepo(data, now);
-      return _withSnapshotTrend(item, now);
+      // GitHub 仓库迁移可能重定向到新名称，订阅和检查状态仍按用户保存的标识关联。
+      return _withSnapshotTrend(item.copyWith(repo: item.repo.copyWith(fullName: fullName)), now);
     } on DioException catch (error) {
       final exception = GitHubApiSupport.toAppException(error, now: _now);
       _maybeReportRateLimit(exception);
