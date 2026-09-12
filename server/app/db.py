@@ -47,6 +47,13 @@ def parse_json(value: str) -> Any:
 
 
 _SCHEMA = """
+CREATE TABLE IF NOT EXISTS ai_enrichment_usage (
+  day TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  requests INTEGER NOT NULL,
+  PRIMARY KEY(day, subject)
+);
+
 CREATE TABLE IF NOT EXISTS news_items (
   id TEXT PRIMARY KEY,
   title TEXT NOT NULL,

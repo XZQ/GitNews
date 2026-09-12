@@ -1,80 +1,43 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/network/ai_enrichment_api_support.dart';
+import '../domain/ai_news_item.dart';
 
 /*
-*内置 Agnes Chat Completions 客户端。
-*端点和模型固定使用应用内置值;失败以 [AppException] 抛出,
-*绝不返回伪造的摘要文本。Key 只出现在请求头,不写日志。
+*调用发布方的受限资讯增强接口，不接受任意提示词或模型密钥。
 */
 class AiDigestLlmClient {
-  const AiDigestLlmClient(this._dio);
+  const AiDigestLlmClient(this._dio, {required this.serviceUrl});
 
+  // 不配置自动重试，避免重复计费。
   final Dio _dio;
 
-  /*
-  *执行一次补全,返回首个 choice 的文本。
-  */
-  Future<String> complete({required String apiKey, required String systemPrompt, required String userPrompt}) async {
-    final Response<Map<String, Object?>> resp;
+  // 公开服务地址。
+  final String serviceUrl;
+
+  /* 只提交文章字段与用户会话，禁止重定向携带认证头。 */
+  Future<String> enrich({required String accessToken, required AiNewsItem item}) async {
+    if (!AiEnrichmentApiSupport.isAllowedServiceUrl(serviceUrl) || accessToken.trim().isEmpty) {
+      throw const AppException(kind: AppExceptionKind.unauthorized);
+    }
     try {
-      resp = await _dio.post<Map<String, Object?>>(
-        ApiEndpointsConfig.aiDigestChatCompletionsUrl,
-        data: {
-          'model': ApiEndpointsConfig.aiDigestDefaultModel,
-          'messages': [
-            {'role': 'system', 'content': systemPrompt},
-            {'role': 'user', 'content': userPrompt},
-          ],
-        },
-        options: Options(
-          headers: {'Authorization': 'Bearer $apiKey', 'Content-Type': 'application/json'},
-          // LLM 生成耗时远超普通 API,单独放宽接收超时。
-          receiveTimeout: const Duration(seconds: 90),
-        ),
+      final response = await _dio.post<Map<String, Object?>>(
+        Uri.parse(serviceUrl.trim()).resolve(ApiEndpointsConfig.aiEnrichmentPath).toString(),
+        data: {'title': item.title, 'title_en': item.titleEn, 'summary': item.summary, 'source': item.source, 'url': item.url},
+        options: Options(headers: AiEnrichmentApiSupport.headers(accessToken), followRedirects: false, maxRedirects: 0),
       );
-    } on DioException catch (e) {
-      throw e.toAppException();
-    }
-    final data = resp.data;
-    if (data == null) {
-      throw const AppException(kind: AppExceptionKind.parse);
-    }
-    try {
-      final choices = data['choices'] as List?;
-      final first = choices?.first as Map<String, Object?>?;
-      final message = first?['message'] as Map<String, Object?>?;
-      final content = _extractContent(message?['content']);
-      if (content == null || content.trim().isEmpty) {
+      final data = response.data;
+      if (data == null || data['model'] != ApiEndpointsConfig.aiDigestDefaultModel || data['enrichment'] is! Map) {
         throw const AppException(kind: AppExceptionKind.parse);
       }
-      return content.trim();
-    } on AppException {
-      rethrow;
-    } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
+      return jsonEncode(data['enrichment']);
+    } on DioException catch (error) {
+      // 不保留携带用户认证头的原始网络异常。
+      throw AppException(kind: error.toAppException().kind);
     }
-  }
-
-  /*
-  *兼容字符串正文与部分服务商返回的文本分段数组。
-  */
-  static String? _extractContent(Object? raw) {
-    if (raw is String) {
-      return raw;
-    }
-    if (raw is! List) {
-      return null;
-    }
-    final parts = <String>[];
-    for (final part in raw) {
-      if (part is String) {
-        parts.add(part);
-      } else if (part is Map<String, Object?> && part['text'] is String) {
-        parts.add(part['text']! as String);
-      }
-    }
-    return parts.join();
   }
 }

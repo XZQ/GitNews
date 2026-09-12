@@ -49,7 +49,7 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
       data: (value) => value == null
           ? const SizedBox.shrink()
           : _EnrichmentSurface(
-              child: _EnrichmentContent(enrichment: value, working: _working, onRegenerate: () => _generate(force: true)),
+              child: _EnrichmentContent(enrichment: value, working: _working, onRegenerate: configured ? () => _generate(force: true) : null),
             ),
       loading: () => const SizedBox.shrink(),
       error: (_, __) => const SizedBox.shrink(),
@@ -129,7 +129,7 @@ class _EnrichmentContent extends StatelessWidget {
   final bool working;
 
   // 重新生成操作。
-  final VoidCallback onRegenerate;
+  final VoidCallback? onRegenerate;
 
   @override
   /* 构建深度解读三行卡片。 */

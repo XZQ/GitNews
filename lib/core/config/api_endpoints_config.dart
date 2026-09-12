@@ -35,21 +35,14 @@ class ApiEndpointsConfig {
   // AI HOT 精选 RSS。
   static const String aiHotSelectedFeedUrl = '$aiNewsBaseUrl/feed.xml';
 
-  // 资讯深度解读唯一内置的 Agnes OpenAI 兼容端点。
-  static const String aiDigestDefaultBaseUrl = 'https://apihub.agnes-ai.com/v1';
+  // 发布方公开代理地址，不包含共享模型密钥。
+  static const String aiEnrichmentProxyBaseUrl = String.fromEnvironment('AI_ENRICHMENT_PROXY_URL');
 
-  // Agnes OpenAI 兼容 Chat Completions 路径。
-  static const String aiDigestChatCompletionsPath = '/chat/completions';
-
-  // Agnes Chat Completions 完整端点。
-  static const String aiDigestChatCompletionsUrl = '$aiDigestDefaultBaseUrl$aiDigestChatCompletionsPath';
+  // 只接收资讯字段的服务端增强接口。
+  static const String aiEnrichmentPath = '/v1/ai/enrichment';
 
   // 资讯深度解读唯一内置的 Agnes 文本模型。
   static const String aiDigestDefaultModel = 'agnes-2.0-flash';
-
-  // 发布构建可注入 Agnes Key；首次加载后迁移到系统安全存储。
-  // 用 --dart-define-from-file=env.json 注入（env.json 已在 .gitignore）。
-  static const String aiDigestDefaultApiKey = String.fromEnvironment('AI_ENRICHMENT_AGNES_API_KEY');
 
   // GitHub REST API 默认 baseUrl。
   static const String githubBaseUrl = 'https://api.github.com';

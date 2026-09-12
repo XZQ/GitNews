@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/auth/auth_repository.dart';
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/preferences/ai_digest_config_controller.dart';
 import '../../../core/storage/storage_providers.dart';
@@ -34,37 +35,31 @@ class AiNewsEnrichmentController {
 
   Future<AiNewsEnrichment?> enrich(AiNewsItem item, {bool force = false}) async {
     final dao = _ref.read(aiNewsEnrichmentDaoProvider);
+    final config = _ref.read(aiDigestConfigControllerProvider);
+    final auth = _ref.read(authRepositoryProvider);
+    final client = _ref.read(aiDigestLlmClientProvider);
+    final clock = _ref.read(clockProvider);
     if (!force) {
       final cached = await dao.read(item.id);
       if (cached?.model == ApiEndpointsConfig.aiDigestDefaultModel) {
         return cached;
       }
     }
-    final config = _ref.read(aiDigestConfigControllerProvider);
     if (!config.configured) {
       return null;
     }
-    final raw = await _ref.read(aiDigestLlmClientProvider).complete(apiKey: config.apiKey!, systemPrompt: _systemPrompt, userPrompt: _prompt(item));
-    final enrichment = parseAiNewsEnrichment(raw, itemId: item.id, model: ApiEndpointsConfig.aiDigestDefaultModel, now: _ref.read(clockProvider)());
+    final accessToken = await auth.serviceAccessToken();
+    if (accessToken == null) {
+      return null;
+    }
+    final raw = await client.enrich(accessToken: accessToken, item: item);
+    final enrichment = parseAiNewsEnrichment(raw, itemId: item.id, model: ApiEndpointsConfig.aiDigestDefaultModel, now: clock());
     await dao.upsert(enrichment);
-    _ref.invalidate(aiNewsEnrichmentProvider(item.id));
+    if (_ref.mounted) {
+      _ref.invalidate(aiNewsEnrichmentProvider(item.id));
+    }
     return enrichment;
   }
-
-  static const _systemPrompt =
-      '你是 AI 资讯编辑。只输出一个 JSON 对象，不要 Markdown。字段必须是:'
-      'generated_summary(不超过120字的中文摘要)、translated_title(中文标题)、'
-      'translated_summary(中文翻译)、importance_score(0到100数字)、entities。'
-      'entities 必须含 models、companies、repositories 三个字符串数组。只依据原文。';
-
-  static String _prompt(AiNewsItem item) =>
-      '''
-title: ${item.title}
-title_en: ${item.titleEn}
-summary: ${item.summary}
-source: ${item.source}
-url: ${item.url}
-''';
 }
 
 AiNewsEnrichment parseAiNewsEnrichment(String raw, {required String itemId, required String model, required DateTime now}) {

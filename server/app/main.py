@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from .ai_enrichment_service import AiEnrichmentService
 from .collaboration_service import CollaborationService
 from .config import Settings
 from .db import Database
@@ -13,7 +14,7 @@ from .feeds import FeedIngestor
 from .gharchive_service import GhArchiveService
 from .models import HealthResponse
 from .push_service import PushService
-from .routers import collaboration, gharchive, news, push, sync
+from .routers import ai_enrichment, collaboration, gharchive, news, push, sync
 from .runtime import IngestionService, Scheduler
 from .sync_service import SyncService
 
@@ -55,6 +56,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.state.collaboration = CollaborationService(database)
     app.state.gharchive = GhArchiveService(database, resolved.request_timeout_seconds)
     app.state.scheduler = scheduler
+    app.state.ai_enrichment = AiEnrichmentService(database, resolved)
 
     @app.get("/health", response_model=HealthResponse, tags=["operations"])
     def health(request: Request) -> HealthResponse:
@@ -64,7 +66,14 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             scheduler_enabled=resolved.scheduler_enabled,
         )
 
-    for router in (news.router, sync.router, collaboration.router, push.router, gharchive.router):
+    for router in (
+        news.router,
+        sync.router,
+        collaboration.router,
+        push.router,
+        gharchive.router,
+        ai_enrichment.router,
+    ):
         app.include_router(router)
     return app
 

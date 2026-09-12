@@ -1,22 +1,27 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../auth/auth_session_controller.dart';
 import '../config/api_endpoints_config.dart';
 import '../di/providers.dart';
+import '../network/ai_enrichment_api_support.dart';
 
 /*
-*内置 Agnes 深度解读的凭据状态。
-*Key 只由发布构建注入并进入系统安全存储,不向最终用户暴露配置入口。
+*发布方 AI 代理的可用状态，仅保存公开地址和登录状态。
 */
 class AiDigestConfigState {
-  const AiDigestConfigState({this.apiKey});
+  const AiDigestConfigState({this.serviceUrl = '', this.isAuthenticated = false});
 
-  final String? apiKey;
+  // 发布方的公开服务 origin。
+  final String serviceUrl;
 
-  bool get configured => apiKey != null && apiKey!.trim().isNotEmpty;
+  // 当前用户已登录；Token 不进入本状态。
+  final bool isAuthenticated;
+
+  bool get configured => isAuthenticated && AiEnrichmentApiSupport.isAllowedServiceUrl(serviceUrl);
 }
 
 /*
-*加载发布方注入的 Agnes Key,并清理旧版用户可编辑的服务商配置。
+*清理旧版客户端共享密钥，只保留服务端代理配置。
 */
 class AiDigestConfigController extends Notifier<AiDigestConfigState> {
   static const _kAgnesSecureKey = 'ai_enrichment_agnes_api_key';
@@ -26,27 +31,22 @@ class AiDigestConfigController extends Notifier<AiDigestConfigState> {
 
   @override
   AiDigestConfigState build() {
-    _load();
-    return AiDigestConfigState(apiKey: _defaultApiKey);
+    _removeLegacyConfig();
+    return AiDigestConfigState(serviceUrl: ApiEndpointsConfig.aiEnrichmentProxyBaseUrl.trim(), isAuthenticated: ref.watch(authSessionControllerProvider).isAuthenticated);
   }
 
-  Future<void> _load() async {
+  /* 不读取旧密钥内容；清理失败不影响公开资讯。 */
+  Future<void> _removeLegacyConfig() async {
     final prefs = ref.read(sharedPreferencesProvider);
     final secure = ref.read(secureStorageProvider);
-    final storedKey = await secure.read(key: _kAgnesSecureKey);
-    final key = storedKey ?? _defaultApiKey;
-    if (storedKey == null && key != null) {
-      await secure.write(key: _kAgnesSecureKey, value: key);
+    try {
+      await secure.delete(key: _kAgnesSecureKey);
+      await secure.delete(key: _kLegacySecureKey);
+      await prefs.remove(_kLegacyBaseUrlKey);
+      await prefs.remove(_kLegacyModelKey);
+    } catch (_) {
+      // 旧密钥不再用于请求；下次加载会再次尝试清理。
     }
-    await secure.delete(key: _kLegacySecureKey);
-    await prefs.remove(_kLegacyBaseUrlKey);
-    await prefs.remove(_kLegacyModelKey);
-    state = AiDigestConfigState(apiKey: key);
-  }
-
-  static String? get _defaultApiKey {
-    final value = ApiEndpointsConfig.aiDigestDefaultApiKey.trim();
-    return value.isEmpty ? null : value;
   }
 }
 

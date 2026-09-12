@@ -64,4 +64,7 @@ class FakeAuthRepository implements AuthRepository {
 
   /* 关闭测试流。 */
   Future<void> dispose() => _controller.close();
+
+  @override
+  Future<String?> serviceAccessToken() async => identity == null ? null : 'test-user-session';
 }

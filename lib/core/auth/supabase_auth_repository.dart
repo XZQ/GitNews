@@ -75,6 +75,20 @@ class SupabaseAuthRepository implements AuthRepository {
   @override
   Future<void> signOut() => _guard(() => _client.auth.signOut(scope: SignOutScope.local));
 
+  @override
+  /* 由 SDK 刷新过期会话；账号切换期间不返回之前账号的凭据。 */
+  Future<String?> serviceAccessToken() async {
+    final session = _client.auth.currentSession;
+    if (session == null) {
+      return null;
+    }
+    if (session.isExpired) {
+      await _guard(() => _client.auth.refreshSession());
+    }
+    final current = _client.auth.currentSession;
+    return current?.user.id == session.user.id ? current?.accessToken : null;
+  }
+
   /* 确保验证码校验后确实产生了可用用户。 */
   AppIdentity _requireIdentity(User? user) {
     final identity = _identityFromUser(user);

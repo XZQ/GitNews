@@ -21,6 +21,9 @@ abstract interface class AuthRepository {
   Future<void> signInWithProvider(AppAuthProvider provider);
 
   Future<void> signOut();
+
+  /* 为应用服务临时提供用户会话，不放入页面身份或偏好状态。 */
+  Future<String?> serviceAccessToken();
 }
 
 /*
@@ -52,6 +55,9 @@ class UnconfiguredAuthRepository implements AuthRepository {
   @override
   Future<void> signOut() async {}
 
+  @override
+  Future<String?> serviceAccessToken() async => null;
+
   /* 统一生成未配置失败。 */
   Future<T> _fail<T>() async => throw const AppAuthFailure(AppAuthFailureKind.unconfigured);
 }
@@ -82,6 +88,9 @@ class UnavailableAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {}
+
+  @override
+  Future<String?> serviceAccessToken() async => null;
 
   /* 统一生成服务不可用失败。 */
   Future<T> _fail<T>() async => throw const AppAuthFailure(AppAuthFailureKind.serviceUnavailable);

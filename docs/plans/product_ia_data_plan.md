@@ -107,7 +107,7 @@ Star 历史携带 UTC 日期。1/7/30 天窗口按日期筛选；跨仓库趋势
 
 - SQLite：远端缓存、FTS5 索引、LLM 增强、兴趣反馈、资讯提醒、仓库/主题每日快照、监控告警事件。
 - SharedPreferences：收藏、关注、监控列表、规则、主题、语言和其他非敏感偏好。
-- FlutterSecureStorage：GitHub Token、发布方注入的 Agnes Key、自托管服务 API Key；Windows 使用 DPAPI，macOS 使用 Keychain。最终用户不配置 AI 模型，Agnes 生成失败时详情页隐藏 AI 深度解读。
+- FlutterSecureStorage：GitHub Token、应用账号会话、自托管服务 API Key；Windows 使用 DPAPI，macOS 使用 Keychain。模型 Key 仅在服务端环境变量中，旧客户端存储项会被清理。AI 代理逐次验证应用账号会话，按用户和全局每日额度限制生成，只接受有长度上限的资讯字段；最终用户不配置模型，代理失败不影响公开资讯和已有离线缓存。
 - Token 不进入日志、测试 fixture、导出报告或源码。
 - OAuth Client ID 只通过 `GITHUB_OAUTH_CLIENT_ID` 构建配置注入；未配置构建不暴露失效登录入口。
 - 配置导出使用非敏感白名单，导入先完整校验并在写入失败时回滚。

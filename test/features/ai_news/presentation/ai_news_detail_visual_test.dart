@@ -23,8 +23,12 @@ import '../../../support/test_fonts.dart';
 Future<ThemeData>? _goldenThemeFuture;
 
 class _StaticAiDigestConfigController extends AiDigestConfigController {
+  _StaticAiDigestConfigController(this.authenticated);
+
+  final bool authenticated;
+
   @override
-  AiDigestConfigState build() => const AiDigestConfigState();
+  AiDigestConfigState build() => AiDigestConfigState(serviceUrl: 'https://proxy.example', isAuthenticated: authenticated);
 }
 
 void main() {
@@ -110,7 +114,7 @@ Widget _visualApp(
         (ref) async => feedbackSignal == null ? AiNewsInterestProfile.empty : AiNewsInterestProfile(itemSignals: {item.id: feedbackSignal}, topicWeights: const {}),
       ),
       aiNewsItemStateProvider(item.id).overrideWith((ref) async => itemState),
-      aiDigestConfigControllerProvider.overrideWith(_StaticAiDigestConfigController.new),
+      aiDigestConfigControllerProvider.overrideWith(() => _StaticAiDigestConfigController(showEnrichmentResult)),
       aiNewsEnrichmentProvider.overrideWith((ref, itemId) async => showEnrichmentResult ? _enrichment(itemId) : null),
     ],
     child: MaterialApp(

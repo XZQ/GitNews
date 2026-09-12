@@ -39,7 +39,9 @@ flutter build windows --release --dart-define=GITHUB_OAUTH_CLIENT_ID=your_client
 
 没有该构建配置时，界面会明确引导到 Personal Access Token，不会尝试无效 OAuth 请求。
 
-AI 页默认展示无需 Key 的 AI HOT 官方日报；总览顶部展示同样无需 Key 的当前热点。“我的 AI 日报”和最终用户模型配置入口均已移除。资讯详情只使用内置 Agnes `https://apihub.agnes-ai.com/v1` 与 `agnes-2.0-flash`：真实生成并解析成功才展示 AI 深度解读，未注入 Key、网络失败、鉴权失败或响应无效时整块隐藏。发布方通过忽略的 `env.json` 写入 `AI_ENRICHMENT_AGNES_API_KEY`，再使用 `--dart-define-from-file=env.json` 构建；不要把真实 Key 写入源码、文档、脚本或提交记录。
+AI 页默认展示无需 Key 的 AI HOT 官方日报；总览当前热点与本地阅读也无需登录。“我的 AI 日报”和最终用户模型配置入口均已移除。新的资讯摘要/翻译通过发布方代理生成：客户端构建只配置公开的 `AI_ENRICHMENT_PROXY_URL` 服务 origin（HTTPS，或本机调试地址），并使用下方的 Supabase 应用账号配置。登录用户的短期会话只发送到该代理，不发送共享模型密钥；未配置代理、未登录或生成失败时隐藏新的 AI 内容，已有缓存仍可离线阅读。
+
+发布方按 [服务端指南](server/README.md#ai-enrichment-proxy) 配置模型 Key、账号校验和额度。`AI_ENRICHMENT_AGNES_API_KEY` 只属于服务端环境变量，不再放入 Flutter 的 `env.json` 或 `--dart-define`。升级会清理旧版客户端安全存储中的模型 Key；已随旧安装包分发的共享 Key 应由发布方在服务商侧撤销并轮换。此仓库的本地门禁不验证外部代理已部署或真实模型调用已成功。
 
 ## 3. 质量检查
 

@@ -1,20 +1,35 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/errors/app_exception.dart';
 import 'package:github_news/features/ai_news/data/ai_digest_llm_client.dart';
+import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockDio extends Mock implements Dio {}
 
 void main() {
+  final item = AiNewsItem(
+    id: 'article',
+    category: AiNewsCategory.industry,
+    title: 'Title',
+    titleEn: '',
+    summary: 'Summary',
+    source: 'Source',
+    url: 'https://news.example/article',
+    permalink: '',
+    publishedAt: DateTime.utc(2026),
+    score: 1,
+    selected: true,
+  );
   late _MockDio dio;
-  late AiDigestLlmClient client;
-
+  setUpAll(() => registerFallbackValue(Options()));
   setUp(() {
     dio = _MockDio();
-    client = AiDigestLlmClient(dio);
   });
 
-  test('请求不固定 temperature 并兼容文本分段响应', () async {
+  test('sends only article fields to the proxy with a user session and no redirects', () async {
     when(
       () => dio.post<Map<String, Object?>>(
         any(),
@@ -22,37 +37,59 @@ void main() {
         options: any(named: 'options'),
       ),
     ).thenAnswer(
-      (_) async => Response<Map<String, Object?>>(
-        requestOptions: RequestOptions(path: '/chat/completions'),
-        statusCode: 200,
+      (_) async => Response(
+        requestOptions: RequestOptions(path: '/v1/ai/enrichment'),
         data: {
-          'choices': [
-            {
-              'message': {
-                'content': [
-                  {'type': 'text', 'text': '第一段'},
-                  {'type': 'text', 'text': '第二段'},
-                ],
-              },
-            },
-          ],
+          'model': 'agnes-2.0-flash',
+          'enrichment': {'generated_summary': '摘要'},
         },
       ),
     );
+    final client = AiDigestLlmClient(dio, serviceUrl: 'https://proxy.example');
+    final raw = await client.enrich(accessToken: 'user-session-fixture', item: item);
+    final captured = verify(
+      () => dio.post<Map<String, Object?>>(
+        'https://proxy.example/v1/ai/enrichment',
+        data: captureAny(named: 'data'),
+        options: captureAny(named: 'options'),
+      ),
+    ).captured;
+    expect((captured[0] as Map).keys.toSet(), {'title', 'title_en', 'summary', 'source', 'url'});
+    final options = captured[1] as Options;
+    expect(options.headers?['Authorization'], 'Bearer user-session-fixture');
+    expect(options.followRedirects, isFalse);
+    expect(options.maxRedirects, 0);
+    expect((jsonDecode(raw) as Map<String, Object?>)['generated_summary'], '摘要');
+  });
 
-    final result = await client.complete(apiKey: 'secret', systemPrompt: 'system', userPrompt: 'user');
-    final captured =
-        verify(
-              () => dio.post<Map<String, Object?>>(
-                'https://apihub.agnes-ai.com/v1/chat/completions',
-                data: captureAny(named: 'data'),
-                options: any(named: 'options'),
-              ),
-            ).captured.single
-            as Map<String, Object?>;
+  for (final address in ['http://remote.example', 'https://user:password@proxy.example', 'https://proxy.example?token=fixture', 'https://proxy.example/path']) {
+    test('rejects unsafe proxy origin $address before sending a user session', () async {
+      final client = AiDigestLlmClient(dio, serviceUrl: address);
+      await expectLater(client.enrich(accessToken: 'user-session-fixture', item: item), throwsA(isA<AppException>()));
+      verifyNever(
+        () => dio.post<Map<String, Object?>>(
+          any(),
+          data: any(named: 'data'),
+          options: any(named: 'options'),
+        ),
+      );
+    });
+  }
 
-    expect(result, '第一段第二段');
-    expect(captured.containsKey('temperature'), isFalse);
-    expect(captured['model'], 'agnes-2.0-flash');
+  test('transport failure does not retain request headers in the surfaced exception', () async {
+    when(
+      () => dio.post<Map<String, Object?>>(
+        any(),
+        data: any(named: 'data'),
+        options: any(named: 'options'),
+      ),
+    ).thenThrow(
+      DioException(
+        type: DioExceptionType.connectionError,
+        requestOptions: RequestOptions(path: '/v1/ai/enrichment', headers: {'Authorization': 'user-session-fixture'}),
+      ),
+    );
+    final client = AiDigestLlmClient(dio, serviceUrl: 'https://proxy.example');
+    await expectLater(client.enrich(accessToken: 'user-session-fixture', item: item), throwsA(isA<AppException>().having((error) => error.cause, 'cause', isNull)));
   });
 }

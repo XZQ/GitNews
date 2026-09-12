@@ -22,11 +22,11 @@ class _StaticAiDigestConfigController extends AiDigestConfigController {
 
   /* 返回固定配置状态。 */
   @override
-  AiDigestConfigState build() => AiDigestConfigState(apiKey: _configured ? 'test-key' : null);
+  AiDigestConfigState build() => AiDigestConfigState(serviceUrl: 'https://proxy.example', isAuthenticated: _configured);
 
   /* 模拟安全存储异步读取完成后更新配置。 */
   void updateConfigured(bool configured) {
-    state = AiDigestConfigState(apiKey: configured ? 'test-key' : null);
+    state = AiDigestConfigState(serviceUrl: 'https://proxy.example', isAuthenticated: configured);
   }
 }
 
@@ -79,7 +79,7 @@ void main() {
     expect(find.text(result.generatedSummary), findsOneWidget);
   });
 
-  testWidgets('构建未注入 Agnes Key 时隐藏 AI 深度解读', (tester) async {
+  testWidgets('未配置代理或未登录时隐藏新的 AI 生成', (tester) async {
     final item = _item();
     var callCount = 0;
 
@@ -103,6 +103,35 @@ void main() {
     expect(callCount, 0);
     expect(find.text('AI 深度解读'), findsNothing);
     expect(find.byType(OutlinedButton), findsNothing);
+  });
+
+  testWidgets('退出登录后保留缓存阅读并关闭重新生成入口', (tester) async {
+    final item = _item();
+    final result = _enrichment(item.id);
+    late _StaticAiDigestConfigController config;
+    var callCount = 0;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          aiDigestConfigControllerProvider.overrideWith(() => config = _StaticAiDigestConfigController(true)),
+          aiNewsEnrichmentProvider.overrideWith((ref, id) async => result),
+          aiNewsEnrichmentGeneratorProvider.overrideWith((ref) {
+            return (AiNewsItem requested, {bool force = false}) async {
+              callCount++;
+              return result;
+            };
+          }),
+        ],
+        child: _TestApp(item: item),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.refresh_rounded), findsOneWidget);
+    config.updateConfigured(false);
+    await tester.pumpAndSettle();
+    expect(find.text(result.generatedSummary), findsOneWidget);
+    expect(find.byIcon(Icons.refresh_rounded), findsNothing);
+    expect(callCount, 0);
   });
 
   testWidgets('Agnes 请求失败时隐藏 AI 深度解读', (tester) async {

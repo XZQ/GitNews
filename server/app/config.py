@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 
@@ -13,6 +13,11 @@ class Settings:
     ingest_interval_seconds: int
     push_interval_seconds: int
     request_timeout_seconds: float
+    ai_enrichment_key: str = field(default="", repr=False)
+    supabase_url: str = ""
+    supabase_publishable_key: str = field(default="", repr=False)
+    ai_user_daily_limit: int = 20
+    ai_global_daily_limit: int = 500
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -31,6 +36,11 @@ class Settings:
             ingest_interval_seconds=max(60, int(os.getenv("GITHUB_NEWS_INGEST_INTERVAL", "900"))),
             push_interval_seconds=max(10, int(os.getenv("GITHUB_NEWS_PUSH_INTERVAL", "30"))),
             request_timeout_seconds=max(5, float(os.getenv("GITHUB_NEWS_REQUEST_TIMEOUT", "30"))),
+            ai_enrichment_key=os.getenv("AI_ENRICHMENT_AGNES_API_KEY", "").strip(),
+            supabase_url=os.getenv("SUPABASE_URL", "").strip().rstrip("/"),
+            supabase_publishable_key=os.getenv("SUPABASE_PUBLISHABLE_KEY", "").strip(),
+            ai_user_daily_limit=max(1, int(os.getenv("AI_ENRICHMENT_USER_DAILY_LIMIT", "20"))),
+            ai_global_daily_limit=max(1, int(os.getenv("AI_ENRICHMENT_GLOBAL_DAILY_LIMIT", "500"))),
         )
 
 
