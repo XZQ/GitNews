@@ -172,6 +172,46 @@ void main() {
     await first;
     verify(() => news.fetchItems(selectedOnly: true, force: true)).called(1);
   });
+
+  test('background cache uses source validation time instead of poll time', () async {
+    final validatedAt = now.subtract(const Duration(minutes: 3));
+    response = DataResult(data: response.data, freshness: DataFreshness.freshCache, validatedAt: validatedAt, revalidated: true);
+    await refresher.refresh();
+    final cache = container.read(aiNewsCacheDaoProvider);
+    expect(await cache.lastValidatedAt(), validatedAt);
+    final rows = await db.executor.query('ai_news_item');
+    expect(rows.single['cached_at'], validatedAt.millisecondsSinceEpoch);
+    expect(prefs.getString('ai_hot_selected_fingerprint_v1'), 'new');
+  });
+
+  test('stale background response retains timestamps and persists failed validation', () async {
+    final cache = container.read(aiNewsCacheDaoProvider);
+    final validatedAt = now.subtract(const Duration(minutes: 3));
+    await cache.upsertPage(category: null, cursor: null, digest: response.data, now: validatedAt);
+    response = DataResult(data: response.data, freshness: DataFreshness.staleCache, validatedAt: validatedAt);
+    await refresher.refresh();
+    expect(await cache.lastValidatedAt(), validatedAt);
+    final rows = await db.executor.query('ai_news_item');
+    expect(rows.single['cached_at'], validatedAt.millisecondsSinceEpoch);
+    container.invalidate(aiNewsCacheDaoProvider);
+    expect(await container.read(aiNewsCacheDaoProvider).isFresh(category: null, cursor: null, ttl: const Duration(hours: 1), now: now), isFalse);
+  });
+
+  test('undated stale response cannot invent a successful validation time', () async {
+    response = DataResult(data: response.data, freshness: DataFreshness.staleCache);
+    await refresher.refresh();
+    expect(await container.read(aiNewsCacheDaoProvider).lastValidatedAt(), isNull);
+    final rows = await db.executor.query('ai_news_item');
+    expect(rows.single['cached_at'], 0);
+  });
+
+  test('background seed response does not enter remote cache or checkpoints', () async {
+    response = DataResult(data: response.data, freshness: DataFreshness.seed);
+    await refresher.refresh();
+    expect(await container.read(aiNewsCacheDaoProvider).readAll(), isEmpty);
+    expect(await container.read(aiNewsCacheDaoProvider).lastValidatedAt(), isNull);
+    expect(prefs.getString('ai_hot_selected_fingerprint_v1'), 'old');
+  });
 }
 
 /* 最小公开资讯，不含网络或账户信息。 */

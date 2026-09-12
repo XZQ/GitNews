@@ -61,7 +61,15 @@ class AiNewsBackgroundRefresher {
       final result = await newsRepository.fetchItems(selectedOnly: true, force: true);
       final now = clock().toUtc();
       final items = result.data.items;
-      await cache.upsertPage(category: null, cursor: null, digest: result.data, now: now);
+      if (result.freshness == DataFreshness.seed) return;
+      final validatedAt = result.validatedAt ?? (result.freshness == DataFreshness.live ? now : null);
+      await cache.upsertPage(
+        category: null,
+        cursor: null,
+        digest: result.data,
+        now: validatedAt ?? await cache.lastValidatedAt() ?? DateTime.fromMillisecondsSinceEpoch(0, isUtc: true),
+        validated: validatedAt != null && _successfullyChecked(result),
+      );
       if (!_successfullyChecked(result)) {
         return;
       }
