@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/domain/observed_repo_growth.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -13,11 +14,8 @@ import '../../../project/application/project_providers.dart';
 import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../trending/application/trending_providers.dart';
 
-/* 
-*首页情报总览入口行:5 个栏目跳转入口卡。
-*视觉:5 张独立的浮动卡片,16px 间距,每张卡顶部一条 4px 语义色装饰条。
-*替代旧版"5 个 tile 拼在一个共享外框里"的方案 —— 拼框视觉过重、且
-*5 个 entry 之间没有真正的分隔需求。
+/*
+*首页五个栏目入口，按可用宽度和字号换行，指标只描述已加载样本。
 */
 class HomeSectionEntryRow extends ConsumerWidget {
   const HomeSectionEntryRow({super.key});
@@ -25,61 +23,89 @@ class HomeSectionEntryRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final specs = _buildSpecs(ref, context);
-    return SizedBox(
-      height: 168,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < specs.length; i++) ...[if (i > 0) const SizedBox(width: AppSpacing.lg), Expanded(child: _EntryTile(spec: specs[i]))],
-        ],
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // 五个轻量入口按行等高；不限制高度，让大字号与指标说明自然增长。
+        final minWidth = MediaQuery.textScalerOf(context).scale(200);
+        final columns = ((constraints.maxWidth + AppSpacing.lg) / (minWidth + AppSpacing.lg)).floor().clamp(1, specs.length);
+        return Column(
+          children: [
+            for (var start = 0; start < specs.length; start += columns) ...[
+              if (start > 0) const SizedBox(height: AppSpacing.lg),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (var offset = 0; offset < columns; offset++) ...[
+                      if (offset > 0) const SizedBox(width: AppSpacing.lg),
+                      Expanded(
+                        child: start + offset < specs.length ? _EntryTile(key: ValueKey(specs[start + offset].path), spec: specs[start + offset]) : const SizedBox.shrink(),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 
   List<_EntrySpec> _buildSpecs(WidgetRef ref, BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final aiItems = ref.watch(aiNewsItemsNotifierProvider).value;
-    final trending = ref.watch(trendingDigestProvider).value;
-    final hotspot = ref.watch(techHotspotDigestProvider).value;
-    final monitor = ref.watch(visibleMonitorDigestProvider).value;
-    final project = ref.watch(projectDigestProvider).value;
+    final aiState = ref.watch(aiNewsItemsNotifierProvider);
+    final trendingState = ref.watch(trendingDigestProvider);
+    final hotspotState = ref.watch(techHotspotDigestProvider);
+    final monitorState = ref.watch(visibleMonitorDigestProvider);
+    final projectState = ref.watch(projectDigestProvider);
+    final aiItems = aiState.value;
+    final trending = trendingState.value;
+    final hotspot = hotspotState.value;
+    final monitor = monitorState.value;
+    final project = projectState.value;
+    final growth = trending == null ? null : ObservedRepoGrowth.fromRepos(trending.allRepos, now: ref.watch(trendingClockProvider)());
     return [
       _EntrySpec(
         label: l10n.tr('home.entry.ai_news.label'),
-        kpi: '${aiItems?.length ?? 0} ${l10n.tr('home.entry.ai_news.kpi_suffix')}',
-        delta: _scoreDelta(l10n, aiItems?.fold<int>(0, (sum, e) => sum + e.score)),
+        kpi: _count(l10n, aiItems?.length, 'ai_news'),
+        delta: _context(
+          l10n,
+          aiState,
+          l10n.tr('home.entry.ai_news.sources').replaceAll('{count}', '${aiItems?.map((item) => item.source.trim().toLowerCase()).where((source) => source.isNotEmpty).toSet().length ?? 0}'),
+        ),
         icon: Icons.auto_awesome_rounded,
         color: AppColors.brand,
         path: '/ai_news',
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.trending.label'),
-        kpi: '${trending?.allRepos.length ?? 0} ${l10n.tr('home.entry.trending.kpi_suffix')}',
-        delta: '+${_compactNumber(trending?.trendingRepos.fold<int>(0, (sum, e) => sum + e.starDelta) ?? 0)}★',
+        kpi: _count(l10n, growth?.totalCount, 'trending'),
+        delta: _context(l10n, trendingState, _growthText(l10n, growth)),
         icon: Icons.local_fire_department_rounded,
         color: AppColors.warning,
         path: '/trending',
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.hotspot.label'),
-        kpi: '${hotspot?.topics.length ?? 0} ${l10n.tr('home.entry.hotspot.kpi_suffix')}',
-        delta: _signedPercent(hotspot?.topics.fold<double>(0, (sum, e) => sum + e.growth) ?? 0),
+        kpi: _count(l10n, hotspot?.topics.length, 'hotspot'),
+        delta: _context(l10n, hotspotState, l10n.tr('home.entry.current_sample')),
         icon: Icons.device_hub_rounded,
         color: AppColors.brand,
         path: '/tech_hotspot',
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.monitor.label'),
-        kpi: '${monitor?.stats.monitoredCount ?? 0} ${l10n.tr('home.entry.monitor.kpi_suffix')}',
-        delta: '${monitor?.stats.unreadAlertCount ?? 0} ${l10n.tr('home.entry.monitor.delta_suffix')}',
+        kpi: _count(l10n, monitor?.stats.monitoredCount, 'monitor'),
+        delta: _context(l10n, monitorState, '${monitor?.stats.unreadAlertCount ?? 0} ${l10n.tr('home.entry.monitor.delta_suffix')}'),
         icon: Icons.notifications_rounded,
         color: AppColors.info,
         path: '/monitor',
       ),
       _EntrySpec(
         label: l10n.tr('home.entry.report.label'),
-        kpi: '${project?.repos.length ?? 0} ${l10n.tr('home.entry.report.kpi_suffix')}',
-        delta: '${project?.contributors.length ?? 0} ${l10n.tr('home.entry.report.delta_suffix')}',
+        kpi: _count(l10n, project?.repos.length, 'report'),
+        delta: _context(l10n, projectState, '${project?.contributors.length ?? 0} ${l10n.tr('home.entry.report.delta_suffix')}'),
         icon: Icons.insights_rounded,
         color: AppColors.success,
         path: '/project',
@@ -87,25 +113,26 @@ class HomeSectionEntryRow extends ConsumerWidget {
     ];
   }
 
-  String _scoreDelta(AppLocalizations l10n, int? score) {
-    if (score == null || score == 0) {
-      return l10n.tr('home.entry.syncing');
-    }
-    return '+${_compactNumber(score)}';
+  /* 尚未取得数据时保留未知值，成功的空集合才显示零。 */
+  String _count(AppLocalizations l10n, int? value, String section) => value == null ? '—' : '$value ${l10n.tr('home.entry.$section.kpi_suffix')}';
+
+  /* 保留已有样本，同时说明刷新或失败状态。 */
+  String _context(AppLocalizations l10n, AsyncValue<Object?> state, String detail) {
+    final status = state.hasError ? l10n.tr('home.entry.unavailable') : l10n.tr('home.entry.syncing');
+    if (!state.hasValue) return status;
+    return state.isLoading || state.hasError ? '$detail · $status' : detail;
   }
 
-  String _signedPercent(double value) {
-    return '${value > 0 ? '+' : ''}${value.toStringAsFixed(1)}%';
-  }
-
-  String _compactNumber(int value) {
-    if (value >= 1000000) {
-      return '${(value / 1000000).toStringAsFixed(1)}M';
-    }
-    if (value >= 1000) {
-      return '${(value / 1000).toStringAsFixed(1)}K';
-    }
-    return value.toString();
+  /* 只展示共同 UTC 日期下同一组仓库的净变化。 */
+  String _growthText(AppLocalizations l10n, ObservedRepoGrowth? growth) {
+    if (growth == null || growth.isEmpty) return l10n.tr('home.entry.growth_pending');
+    final value = growth.netChange!;
+    return l10n
+        .tr('home.entry.growth_observed')
+        .replaceAll('{value}', '${value > 0 ? '+' : ''}$value')
+        .replaceAll('{sample}', '${growth.sampleCount}/${growth.totalCount}')
+        .replaceAll('{start}', growth.dates.first.toIso8601String().substring(0, 10))
+        .replaceAll('{end}', growth.dates.last.toIso8601String().substring(0, 10));
   }
 }
 
@@ -121,7 +148,7 @@ class _EntrySpec {
 }
 
 class _EntryTile extends StatelessWidget {
-  const _EntryTile({required this.spec});
+  const _EntryTile({required this.spec, super.key});
 
   final _EntrySpec spec;
 
@@ -151,6 +178,7 @@ class _EntryTile extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.lg),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
@@ -178,12 +206,9 @@ class _EntryTile extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: 3),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs2, vertical: AppSpacing.xs),
                         decoration: BoxDecoration(color: spec.color.withValues(alpha: 0.14), borderRadius: BorderRadius.circular(AppRadius.xs)),
-                        child: Text(
-                          spec.delta,
-                          style: AppTypography.labelSmall.copyWith(color: spec.color, fontWeight: FontWeight.w700),
-                        ),
+                        child: Text(spec.delta, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
                       ),
                     ],
                   ),
