@@ -1,3 +1,5 @@
+import '../../../core/domain/data_freshness.dart';
+import '../../../core/domain/repo_entity.dart';
 import '../domain/entities.dart';
 import '../domain/monitor_observation.dart';
 import '../domain/monitor_repository.dart';
@@ -21,7 +23,11 @@ class MonitorDigestAssembler {
   final Set<String> _enabledRuleIds;
 
   MonitorDigest fromResponses(List<GithubMonitorRemoteRepoItem> responses) {
-    final repos = responses.map((item) => item.repo).toList(growable: false);
+    return fromRepos(responses.map((item) => item.repo).toList(growable: false));
+  }
+
+  /* 基于完整仓库集合构建摘要，告警随后从持久存储合并。 */
+  MonitorDigest fromRepos(List<RepoEntity> repos) {
     return MonitorDigest(
       monitoredRepos: repos,
       alerts: const [],
@@ -94,3 +100,16 @@ class MonitorDigestAssembler {
     return local.year == today.year && local.month == today.month && local.day == today.day;
   }
 }
+
+/* 无远端快照时保留用户选择的仓库；数值明确标为尚未观测。 */
+RepoEntity pendingMonitorRepo(String fullName) => RepoEntity(
+  fullName: fullName,
+  description: '',
+  language: 'Unknown',
+  starCount: 0,
+  starDelta: 0,
+  forkCount: 0,
+  accentArgb: 0xff8b949e,
+  valueBasis: MetricBasis.unavailable,
+  trendBasis: MetricBasis.unavailable,
+);

@@ -28,7 +28,7 @@ class MonitorDigest {
 /* 
 *监控数据仓库。
 *当前实现默认读取 GitHub Repository API 并使用本地快照缓存;远端失败时可
-*回退过期缓存或本地监控种子数据。
+*回退过期快照；无快照时保留用户选择的仓库并标记数值未观测。
 */
 abstract interface class MonitorRepository {
   Future<DataResult<MonitorDigest>> getDigest({bool force = false});

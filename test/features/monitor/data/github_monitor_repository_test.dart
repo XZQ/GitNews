@@ -38,17 +38,8 @@ void main() {
 
   tearDown(() => database.close());
 
-  GithubMonitorRepository buildRepository({required DateTime now}) {
-    return GithubMonitorRepository(
-      dio: dio,
-      cache: cache,
-      observationDao: observations,
-      alertDao: alerts,
-      enabledRuleIds: MonitorRuleIds.all,
-      now: () => now,
-      repos: const ['owner/repo'],
-      cacheKey: 'monitor:test',
-    );
+  GithubMonitorRepository buildRepository({required DateTime now, List<String> repos = const ['owner/repo']}) {
+    return GithubMonitorRepository(dio: dio, cache: cache, observationDao: observations, alertDao: alerts, enabledRuleIds: MonitorRuleIds.all, now: () => now, repos: repos, cacheKey: 'monitor:test');
   }
 
   test('fresh cache never records observations or creates alerts', () async {
@@ -95,6 +86,47 @@ void main() {
     expect(result.freshness, DataFreshness.staleCache);
     expect(await alerts.list(includeArchived: true), isEmpty);
     expect(await observations.read('owner/repo'), isEmpty);
+  });
+
+  test('failed force refresh retains the durable snapshot across repository recreation', () async {
+    final now = DateTime.utc(2026, 9, 12, 12);
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => okResponse(stars: 1234, forks: 12, issues: 1));
+    await buildRepository(now: now).getDigest();
+    final before = await cache.read('monitor:test');
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenThrow(StateError('simulated offline'));
+    final later = now.add(const Duration(minutes: 1));
+    final result = await buildRepository(now: later).getDigest(force: true);
+    expect(result.freshness, DataFreshness.staleCache);
+    expect(result.data.monitoredRepos.single.starCount, 1234);
+    expect(await cache.read('monitor:test'), before);
+    expect(await cache.isFresh(key: 'monitor:test', ttl: monitorRemoteCacheTtl, now: later), isFalse);
+    final reopened = await buildRepository(now: later).getDigest();
+    expect(reopened.freshness, DataFreshness.staleCache);
+    expect(reopened.data.monitoredRepos.single.fullName, 'owner/repo');
+    expect(reopened.data.monitoredRepos.single.starCount, 1234);
+    expect(await observations.read('owner/repo'), hasLength(1));
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => okResponse(stars: 1250, forks: 12, issues: 1));
+    final recovered = await buildRepository(now: later).getDigest(force: true);
+    expect(recovered.freshness, DataFreshness.live);
+    expect(monitorDigestFromJson((await cache.read('monitor:test'))!).monitoredRepos.single.starCount, 1250);
+    expect(await cache.isFresh(key: 'monitor:test', ttl: monitorRemoteCacheTtl, now: later), isTrue);
+  });
+
+  test('first offline load keeps the requested repositories without demo metrics', () async {
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenThrow(StateError('simulated offline'));
+    final result = await buildRepository(now: DateTime.utc(2026, 9, 12), repos: ['user/first', 'user/second']).getDigest(force: true);
+    expect(result.data.monitoredRepos.map((repo) => repo.fullName), ['user/first', 'user/second']);
+    expect(result.data.stats.monitoredCount, 2);
+    expect(result.data.monitoredRepos.every((repo) => repo.valueBasis == MetricBasis.unavailable), isTrue);
+    expect(await cache.read('monitor:test'), isNull);
+    expect(await alerts.list(includeArchived: true), isEmpty);
+  });
+
+  test('empty monitor selection does not request remote or show demo repositories', () async {
+    final result = await buildRepository(now: DateTime.utc(2026, 9, 12), repos: []).getDigest(force: true);
+    expect(result.data.monitoredRepos, isEmpty);
+    expect(result.data.stats.monitoredCount, 0);
+    verifyNever(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options')));
   });
 }
 

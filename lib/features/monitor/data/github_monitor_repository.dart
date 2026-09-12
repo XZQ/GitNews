@@ -16,7 +16,6 @@ import '../domain/monitor_rule_evaluator.dart';
 import 'github_monitor_cache_codec.dart';
 import 'github_monitor_config.dart';
 import 'github_monitor_remote_repo_item.dart';
-import 'local_monitor_repository.dart';
 import 'monitor_alert_event_dao.dart';
 import 'monitor_digest_assembler.dart';
 import 'monitor_observation_dao.dart';
@@ -34,7 +33,6 @@ class GithubMonitorRepository implements MonitorRepository {
     Set<String> enabledRuleIds = MonitorRuleIds.all,
     String? token,
     DateTime Function()? now,
-    MonitorRepository fallback = const LocalMonitorRepository(),
     bool Function()? isRateLimited,
     void Function(int retryAfterSeconds)? onRateLimited,
     this.repos = githubMonitorDefaultRepos,
@@ -45,7 +43,6 @@ class GithubMonitorRepository implements MonitorRepository {
        _snapshotHistory = snapshotHistory,
        _token = token,
        _now = now ?? DateTime.now,
-       _fallback = fallback,
        _isRateLimited = isRateLimited,
        _onRateLimited = onRateLimited;
 
@@ -55,7 +52,6 @@ class GithubMonitorRepository implements MonitorRepository {
   final RepoSnapshotHistoryDao? _snapshotHistory;
   final String? _token;
   final DateTime Function() _now;
-  final MonitorRepository _fallback;
   final bool Function()? _isRateLimited;
   final void Function(int retryAfterSeconds)? _onRateLimited;
   final List<String> repos;
@@ -73,10 +69,6 @@ class GithubMonitorRepository implements MonitorRepository {
     if (_isRateLimited?.call() ?? false) {
       return _fallbackResult(cached, now);
     }
-    if (force) {
-      await _safeDeleteCache();
-    }
-
     try {
       final responses = await _fetchRepos(now);
       final digest = _assembler.fromResponses(responses);
@@ -91,11 +83,17 @@ class GithubMonitorRepository implements MonitorRepository {
   }
 
   Future<DataResult<MonitorDigest>> _fallbackResult(MonitorDigest? cached, DateTime now) async {
+    // 强刷只绕过 TTL；失败保留磁盘快照，并让重建 provider 后仍展示过期状态。
+    try {
+      await _cache.markValidationFailed(cacheKey);
+    } catch (error) {
+      AppLogger.warn('githubMonitorCacheStatus', meta: {'error': error.runtimeType.toString()});
+    }
     if (cached != null) {
       return DataResult(data: await _assembler.withStoredAlerts(cached, now), freshness: DataFreshness.staleCache);
     }
-    final fallback = await _fallback.getDigest();
-    return DataResult(data: await _assembler.withStoredAlerts(fallback.data, now), freshness: fallback.freshness);
+    final pending = _assembler.fromRepos([for (final fullName in repos) pendingMonitorRepo(fullName)]);
+    return DataResult(data: await _assembler.withStoredAlerts(pending, now), freshness: DataFreshness.staleCache);
   }
 
   Future<bool> _isFresh(DateTime now) async {
