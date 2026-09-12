@@ -68,6 +68,9 @@ class _FlatEntry {
   final bool isLastInGroup;
 
   bool get isHeader => date != null;
+
+  // 防止偏好排序后把一个事件的展开状态复用到另一个事件。
+  Key get key => ValueKey(isHeader ? 'day:${date!.toIso8601String()}' : 'event:${cluster!.primary.id}');
 }
 
 class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
@@ -144,6 +147,7 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
     final profile = ref.watch(aiNewsInterestProfileProvider).value ?? AiNewsInterestProfile.empty;
     final isCompact = Breakpoints.isCompact(context);
     final flat = _flatEntriesFor(profile);
+    final indices = {for (var index = 0; index < flat.length; index++) flat[index].key: index};
     return NotificationListener<ScrollNotification>(
       onNotification: _onScrollNotification,
       child: CustomScrollView(
@@ -153,24 +157,30 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
           SliverPadding(
             padding: EdgeInsets.fromLTRB(AppSpacing.lg, isCompact ? AppSpacing.xs : AppSpacing.md, isCompact ? AppSpacing.lg : AppSpacing.xl, AppSpacing.xxxl),
             sliver: SliverList(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                if (index < flat.length) {
-                  final e = flat[index];
-                  final cluster = e.cluster;
-                  return RepaintBoundary(
-                    child: e.isHeader
-                        ? AiNewsDayHeader(date: e.date!, itemCount: e.count!, labelOverride: e.examples ? l10n.tr('ai_news.example') : null)
-                        : AiNewsTimelineRow(
-                            item: cluster!.primary,
-                            eventSources: cluster.sources,
-                            isFirstInGroup: e.isFirstInGroup,
-                            isLastInGroup: e.isLastInGroup,
-                            onTap: () => _openDetail(context, cluster.primary),
-                          ),
-                  );
-                }
-                return widget.pagingFooter ?? (hasMore ? const AiNewsLoadMoreIndicator() : AiNewsEndOfListFooter(label: l10n.tr('ai_news.no_more')));
-              }, childCount: flat.length + (showPagingFooter ? 1 : 0)),
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  if (index < flat.length) {
+                    final e = flat[index];
+                    final cluster = e.cluster;
+                    return RepaintBoundary(
+                      key: e.key,
+                      child: e.isHeader
+                          ? AiNewsDayHeader(date: e.date!, itemCount: e.count!, labelOverride: e.examples ? l10n.tr('ai_news.example') : null)
+                          : AiNewsTimelineRow(
+                              item: cluster!.primary,
+                              eventItems: cluster.items,
+                              onOpenReport: (item) => _openDetail(context, item),
+                              isFirstInGroup: e.isFirstInGroup,
+                              isLastInGroup: e.isLastInGroup,
+                              onTap: () => _openDetail(context, cluster.primary),
+                            ),
+                    );
+                  }
+                  return widget.pagingFooter ?? (hasMore ? const AiNewsLoadMoreIndicator() : AiNewsEndOfListFooter(label: l10n.tr('ai_news.no_more')));
+                },
+                childCount: flat.length + (showPagingFooter ? 1 : 0),
+                findChildIndexCallback: (key) => indices[key],
+              ),
             ),
           ),
         ],

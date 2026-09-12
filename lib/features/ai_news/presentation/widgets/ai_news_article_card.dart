@@ -11,14 +11,15 @@ import '../../../../shared/widgets/app_card.dart';
 import '../../application/ai_news_example_items.dart';
 import '../../domain/ai_news_item.dart';
 import 'ai_news_category_style.dart';
+import 'ai_news_event_reports.dart';
 
 /*
 *AI 动态列表条目。
 *
-*移动端使用设计稿的缩略图横向资讯卡;桌面端继续保持标题优先的高密度排版。
+*两端均以标题、摘要和来源为主，相关报道按需展开。
 */
 class AiNewsArticleCard extends StatelessWidget {
-  const AiNewsArticleCard({required this.item, required this.onTap, this.eventSources = const [], this.isBookmarked = false, this.onBookmarkTap, super.key});
+  const AiNewsArticleCard({required this.item, required this.onTap, this.eventItems = const [], this.onOpenReport, this.isBookmarked = false, this.onBookmarkTap, super.key});
 
   // 资讯实体。
   final AiNewsItem item;
@@ -26,8 +27,9 @@ class AiNewsArticleCard extends StatelessWidget {
   // 打开资讯详情。
   final VoidCallback onTap;
 
-  // 同一事件的来源集合。
-  final List<String> eventSources;
+  // 聚类成员仍逐篇可访问。
+  final List<AiNewsItem> eventItems;
+  final ValueChanged<AiNewsItem>? onOpenReport;
 
   // 当前条目是否已加入稍后读。
   final bool isBookmarked;
@@ -37,10 +39,11 @@ class AiNewsArticleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final reports = eventItems.length > 1 && onOpenReport != null ? AiNewsEventReports(items: eventItems, onOpenReport: onOpenReport!) : null;
     if (Breakpoints.isCompact(context)) {
-      return _CompactArticleCard(item: item, onTap: onTap, isBookmarked: isBookmarked, onBookmarkTap: onBookmarkTap);
+      return _CompactArticleCard(item: item, onTap: onTap, isBookmarked: isBookmarked, onBookmarkTap: onBookmarkTap, reports: reports);
     }
-    return _DesktopArticleCard(item: item, onTap: onTap, eventSources: eventSources);
+    return _DesktopArticleCard(item: item, onTap: onTap, reports: reports);
   }
 }
 
@@ -54,7 +57,7 @@ class AiNewsArticleCard extends StatelessWidget {
 *  才能读成一张列表而不是一摞卡片。
 */
 class _CompactArticleCard extends StatelessWidget {
-  const _CompactArticleCard({required this.item, required this.onTap, required this.isBookmarked, required this.onBookmarkTap});
+  const _CompactArticleCard({required this.item, required this.onTap, required this.isBookmarked, required this.onBookmarkTap, required this.reports});
 
   // 资讯实体。
   final AiNewsItem item;
@@ -67,6 +70,9 @@ class _CompactArticleCard extends StatelessWidget {
 
   // 切换稍后读状态。
   final VoidCallback? onBookmarkTap;
+
+  // 可展开的全部相关报道。
+  final Widget? reports;
 
   @override
   Widget build(BuildContext context) {
@@ -82,24 +88,24 @@ class _CompactArticleCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Flexible(
-                  child: Text(
-                    item.source,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant),
+                Expanded(
+                  child: Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.xs,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Text(item.source, style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
+                      _CategoryChip(label: item.category.label, color: accent),
+                      Text(isAiNewsExample(item) ? l10n.tr('ai_news.example') : formatRelativeTime(l10n, item.publishedAt), style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
+                    ],
                   ),
                 ),
-                const SizedBox(width: AppSpacing.sm),
-                _CategoryChip(label: item.category.label, color: accent),
-                const Spacer(),
-                Text(isAiNewsExample(item) ? l10n.tr('ai_news.example') : formatRelativeTime(l10n, item.publishedAt), style: AppTypography.monoMeta.copyWith(color: colors.onSurfaceVariant)),
                 IconButton(
                   tooltip: l10n.tr(isBookmarked ? 'ai_news.read_later_remove' : 'ai_news.read_later_add'),
                   onPressed: onBookmarkTap,
                   icon: Icon(isBookmarked ? Icons.bookmark_rounded : Icons.bookmark_border_rounded, size: 17),
                   color: isBookmarked ? colors.primary : colors.onSurfaceVariant,
-                  constraints: const BoxConstraints.tightFor(width: 36, height: 36),
+                  constraints: const BoxConstraints(minWidth: kMinInteractiveDimension, minHeight: kMinInteractiveDimension),
                   padding: EdgeInsets.zero,
                   visualDensity: VisualDensity.compact,
                 ),
@@ -127,6 +133,7 @@ class _CompactArticleCard extends StatelessWidget {
                 ),
               ),
             ],
+            if (reports != null) ...[const SizedBox(height: AppSpacing.sm), reports!],
           ],
         ),
       ),
@@ -169,7 +176,7 @@ class _CategoryChip extends StatelessWidget {
 *桌面端标题优先资讯卡:保留原有扫描密度与多来源信息。
 */
 class _DesktopArticleCard extends StatelessWidget {
-  const _DesktopArticleCard({required this.item, required this.onTap, required this.eventSources});
+  const _DesktopArticleCard({required this.item, required this.onTap, required this.reports});
 
   // 资讯实体。
   final AiNewsItem item;
@@ -177,8 +184,8 @@ class _DesktopArticleCard extends StatelessWidget {
   // 打开详情。
   final VoidCallback onTap;
 
-  // 同一事件的来源集合。
-  final List<String> eventSources;
+  // 相关报道按需展开。
+  final Widget? reports;
 
   @override
   Widget build(BuildContext context) {
@@ -201,70 +208,41 @@ class _DesktopArticleCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs2),
             Text(
               item.summary,
-              style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant, height: 1.5),
+              style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.5),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
           const SizedBox(height: AppSpacing.sm),
-          Row(
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Container(
                 width: 6,
                 height: 6,
                 decoration: BoxDecoration(color: accent, shape: BoxShape.circle),
               ),
-              const SizedBox(width: AppSpacing.xs2),
-              Flexible(
-                child: Text(
-                  '${item.source} · ${item.category.label} · ${isAiNewsExample(item) ? l10n.tr('ai_news.example') : formatRelativeTime(l10n, item.publishedAt)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant),
-                ),
+              Text(
+                '${item.source} · ${item.category.label} · ${isAiNewsExample(item) ? l10n.tr('ai_news.example') : formatRelativeTime(l10n, item.publishedAt)}',
+                style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant),
               ),
-              const Spacer(),
-              if (item.selected) ...[const Icon(Icons.star_rounded, size: 13, color: AppColors.starGold), const SizedBox(width: AppSpacing.xxs)],
-              if (item.score > 0)
-                Text(
-                  '${item.score}',
-                  style: AppTypography.labelSmall.copyWith(color: item.selected ? AppColors.starGold : colors.onSurfaceVariant, fontWeight: FontWeight.w700),
+              if (item.selected)
+                Tooltip(
+                  message: l10n.tr('ai_news.detail_selected'),
+                  child: const Icon(Icons.star_rounded, size: 16, color: AppColors.starGold),
+                ),
+              if (item.score > 0 && !isAiNewsExample(item))
+                Tooltip(
+                  message: l10n.tr('ai_news.detail.score_context'),
+                  child: Text('${l10n.tr('ai_news.source_score')} ${item.score}', style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
                 ),
             ],
           ),
-          if (eventSources.length > 1) ...[const SizedBox(height: AppSpacing.xs2), _EventSources(sources: eventSources)],
+          if (reports != null) ...[const SizedBox(height: AppSpacing.sm), reports!],
         ],
       ),
-    );
-  }
-}
-
-/*
-*桌面端多来源事件说明。
-*/
-class _EventSources extends StatelessWidget {
-  const _EventSources({required this.sources});
-
-  // 聚类后的来源名称。
-  final List<String> sources;
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final l10n = AppLocalizations.of(context);
-    return Row(
-      children: [
-        Icon(Icons.hub_rounded, size: 12, color: colors.primary),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: Text(
-            '${l10n.tr('ai_news.event_sources').replaceAll('{count}', '${sources.length}')} · ${sources.join(' · ')}',
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.labelSmall.copyWith(color: colors.primary),
-          ),
-        ),
-      ],
     );
   }
 }

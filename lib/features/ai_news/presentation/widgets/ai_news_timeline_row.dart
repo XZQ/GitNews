@@ -16,14 +16,16 @@ import 'ai_news_article_card.dart';
 *  天的连续条目拼成一张列表卡;[isLastInGroup] 为真时省略分隔线并补上
 *  底部圆角,让分组末尾收口。
 *桌面端:维持原先「一条一卡 + 卡间距」的高密度排版。
-*保持原 API(item/onTap/eventSources)不变,调用方零改动。
+*保留聚类成员，允许逐篇打开相关报道。
 */
 class AiNewsTimelineRow extends ConsumerWidget {
-  const AiNewsTimelineRow({required this.item, required this.onTap, this.eventSources = const [], this.isFirstInGroup = false, this.isLastInGroup = false, super.key});
+  const AiNewsTimelineRow({required this.item, required this.onTap, this.eventItems = const [], this.onOpenReport, this.isFirstInGroup = false, this.isLastInGroup = false, super.key});
 
   final AiNewsItem item;
   final VoidCallback onTap;
-  final List<String> eventSources;
+  // 当前事件的全部报道和详情入口。
+  final List<AiNewsItem> eventItems;
+  final ValueChanged<AiNewsItem>? onOpenReport;
 
   // 是否为当天分组的首条,决定顶部圆角。
   final bool isFirstInGroup;
@@ -34,7 +36,7 @@ class AiNewsTimelineRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isBookmarked = ref.watch(aiNewsItemStateProvider(item.id)).value?.isReadLater ?? false;
-    final card = AiNewsArticleCard(item: item, onTap: onTap, eventSources: eventSources, isBookmarked: isBookmarked, onBookmarkTap: () => _toggleBookmark(context, ref));
+    final card = AiNewsArticleCard(item: item, onTap: onTap, eventItems: eventItems, onOpenReport: onOpenReport, isBookmarked: isBookmarked, onBookmarkTap: () => _toggleBookmark(context, ref));
     if (!Breakpoints.isCompact(context)) {
       return Padding(
         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
