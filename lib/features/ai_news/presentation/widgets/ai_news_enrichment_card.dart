@@ -14,10 +14,7 @@ import '../../domain/ai_news_enrichment.dart';
 import '../../domain/ai_news_item.dart';
 
 /*
-*资讯详情的 AI 深度解读卡片。
-*
-*保留本地生成与重新生成能力,并把结构化增强结果映射为参考稿里的
-*核心观点、值得关注和关联线索三段信息。
+*资讯详情的 AI 摘要与翻译，按实际生成字段展示并说明来源。
 */
 class AiNewsEnrichmentCard extends ConsumerStatefulWidget {
   const AiNewsEnrichmentCard({required this.item, super.key});
@@ -92,7 +89,7 @@ class _AiNewsEnrichmentCardState extends ConsumerState<AiNewsEnrichmentCard> {
 }
 
 /*
-*深度解读的中性卡片外层。
+*生成内容的中性卡片外层。
 */
 class _EnrichmentSurface extends StatelessWidget {
   const _EnrichmentSurface({required this.child});
@@ -117,7 +114,7 @@ class _EnrichmentSurface extends StatelessWidget {
 }
 
 /*
-*增强成功后的三段结构化解读。
+*完整显示摘要、中文翻译、实体与重要性估计。
 */
 class _EnrichmentContent extends StatelessWidget {
   const _EnrichmentContent({required this.enrichment, required this.working, required this.onRegenerate});
@@ -132,15 +129,17 @@ class _EnrichmentContent extends StatelessWidget {
   final VoidCallback? onRegenerate;
 
   @override
-  /* 构建深度解读三行卡片。 */
+  /* 不把摘要与翻译表述成深度分析，不截断生成正文。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final signals = enrichment.entities.all;
-    final signalText = signals.isEmpty ? '${enrichment.model} · ${enrichment.importanceScore.round()}/100' : signals.join(' · ');
+    final signalText = signals.isEmpty ? l10n.tr('ai_news.enrichment.no_entities') : signals.join(' · ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _EnrichmentHeader(working: working, onRegenerate: onRegenerate),
+        const SizedBox(height: AppSpacing.sm),
+        Text(l10n.tr('ai_news.enrichment.note').replaceAll('{model}', enrichment.model), style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
         const SizedBox(height: AppSpacing.lg),
         Container(
           decoration: BoxDecoration(
@@ -150,13 +149,18 @@ class _EnrichmentContent extends StatelessWidget {
           ),
           child: Column(
             children: [
-              _InsightRow(icon: Icons.my_location_rounded, title: l10n.tr('ai_news.detail.core_view'), body: enrichment.generatedSummary),
+              _InsightRow(icon: Icons.summarize_outlined, title: l10n.tr('ai_news.enrichment.summary'), body: enrichment.generatedSummary),
               const Divider(height: 1),
-              _InsightRow(icon: Icons.visibility_outlined, title: l10n.tr('ai_news.detail.why_it_matters'), body: enrichment.translatedSummary),
+              _InsightRow(icon: Icons.translate_rounded, title: l10n.tr('ai_news.enrichment.translation'), body: enrichment.translatedSummary),
               const Divider(height: 1),
-              _InsightRow(icon: Icons.extension_outlined, title: l10n.tr('ai_news.detail.use_cases'), body: signalText),
+              _InsightRow(icon: Icons.label_outline_rounded, title: l10n.tr('ai_news.enrichment.entities'), body: signalText),
             ],
           ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          l10n.tr('ai_news.enrichment.importance').replaceAll('{score}', '${enrichment.importanceScore.round()}'),
+          style: AppTypography.bodySmall.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
         ),
       ],
     );
@@ -164,7 +168,7 @@ class _EnrichmentContent extends StatelessWidget {
 }
 
 /*
-*深度解读标题与重新生成操作。
+*AI 内容标题与重新生成操作。
 */
 class _EnrichmentHeader extends StatelessWidget {
   const _EnrichmentHeader({required this.working, required this.onRegenerate});
@@ -188,7 +192,7 @@ class _EnrichmentHeader extends StatelessWidget {
           child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 16),
         ),
         const SizedBox(width: AppSpacing.sm),
-        Expanded(child: Text(l10n.tr('ai_news.detail.deep_read'), style: AppTypography.titleMedium)),
+        Expanded(child: Text(l10n.tr('ai_news.enrichment.title'), style: AppTypography.titleMedium)),
         if (onRegenerate != null)
           IconButton(
             tooltip: l10n.tr('ai_news.enrichment.regenerate'),
@@ -201,7 +205,7 @@ class _EnrichmentHeader extends StatelessWidget {
 }
 
 /*
-*深度解读中的单条观点。
+*生成结果中的一个命名字段。
 */
 class _InsightRow extends StatelessWidget {
   const _InsightRow({required this.icon, required this.title, required this.body});
@@ -237,12 +241,7 @@ class _InsightRow extends StatelessWidget {
               children: [
                 Text(title, style: AppTypography.titleMedium.copyWith(color: colors.onSurface)),
                 const SizedBox(height: AppSpacing.xs),
-                Text(
-                  body,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.62),
-                ),
+                Text(body, style: AppTypography.bodyMedium.copyWith(color: colors.onSurfaceVariant, height: 1.62)),
               ],
             ),
           ),

@@ -42,16 +42,19 @@ class AiNewsDetailContent extends ConsumerWidget {
     final canEnrich = showEnrichment && !isAiNewsExample(item);
     final enrichment = canEnrich ? ref.watch(aiNewsEnrichmentProvider(item.id)).value : null;
     return AiNewsDetailPageFrame(
-      scrollKey: const PageStorageKey('ai-news-detail-scroll'),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          AiNewsDetailOverview(item: item, enrichment: enrichment, onOpenOriginal: onOpenOriginal),
-          const SizedBox(height: AppSpacing.lg),
-          if (!isAiNewsExample(item)) AiNewsDetailInsights(item: item, showEnrichment: canEnrich),
-          const SizedBox(height: AppSpacing.lg),
-          AiNewsDetailExtended(relatedItems: relatedItems, onOpenRelated: onOpenRelated, onViewMore: onViewMore),
-        ],
+      scrollKey: PageStorageKey('ai-news-detail-scroll-${item.id}'),
+      child: SelectionArea(
+        key: ValueKey(item.id),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            AiNewsDetailOverview(item: item, enrichment: enrichment, onOpenOriginal: onOpenOriginal),
+            const SizedBox(height: AppSpacing.lg),
+            if (!isAiNewsExample(item)) AiNewsDetailInsights(item: item, showEnrichment: canEnrich),
+            const SizedBox(height: AppSpacing.lg),
+            AiNewsDetailExtended(relatedItems: relatedItems, onOpenRelated: onOpenRelated, onViewMore: onViewMore),
+          ],
+        ),
       ),
     );
   }

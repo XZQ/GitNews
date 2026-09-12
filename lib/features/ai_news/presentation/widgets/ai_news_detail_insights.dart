@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -9,7 +10,7 @@ import 'ai_news_detail_components.dart';
 import 'ai_news_enrichment_card.dart';
 
 /*
-*详情页中的 AI 深度解读与关联仓库区块。
+*详情页中的 AI 摘要、翻译与关联仓库入口。
 */
 class AiNewsDetailInsights extends StatelessWidget {
   const AiNewsDetailInsights({required this.item, required this.showEnrichment, super.key});
@@ -57,9 +58,11 @@ class _RelatedTags extends StatelessWidget {
           runSpacing: AppSpacing.sm,
           children: [
             for (final repo in repos)
-              Chip(
+              ActionChip(
+                key: ValueKey('ai-news-repo-$repo'),
                 avatar: const Icon(Icons.code_rounded, size: 16, color: AppColors.brand),
                 label: Text(repo),
+                onPressed: () => context.pushNamed('ai_news_repo_detail', pathParameters: {'fullName': repo}),
                 side: BorderSide(color: AppColors.brand.withValues(alpha: 0.28)),
                 backgroundColor: AppColors.brandLight.withValues(alpha: 0.2),
               ),

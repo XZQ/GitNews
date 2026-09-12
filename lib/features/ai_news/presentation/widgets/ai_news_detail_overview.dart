@@ -78,7 +78,11 @@ class AiNewsDetailOverview extends StatelessWidget {
           spacing: AppSpacing.sm2,
           runSpacing: AppSpacing.sm,
           children: [
-            if (!isAiNewsExample(item)) AiNewsDetailMetricPill(icon: Icons.local_fire_department_rounded, label: '${l10n.tr('ai_news.detail_score')} ${item.score}'),
+            if (!isAiNewsExample(item))
+              Tooltip(
+                message: l10n.tr('ai_news.detail.score_context'),
+                child: AiNewsDetailMetricPill(icon: Icons.local_fire_department_rounded, label: '${l10n.tr('ai_news.source_score')} ${item.score}'),
+              ),
             if (item.selected && !isAiNewsExample(item)) AiNewsDetailMetricPill(icon: Icons.check_circle_outline_rounded, label: l10n.tr('ai_news.detail_selected'), positive: true),
             if (item.attributionSource.isNotEmpty) AiNewsDetailMetricPill(icon: Icons.verified_outlined, label: item.attributionSource),
           ],

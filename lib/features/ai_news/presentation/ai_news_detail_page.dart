@@ -16,7 +16,7 @@ import 'widgets/ai_news_detail_action_bar.dart';
 import 'widgets/ai_news_detail_content.dart';
 
 /*
-*AI 资讯三页详情阅读器。
+*AI 资讯连续阅读器。
 *
 *保持详情在应用壳内,正文只读取本机缓存;原文通过系统浏览器打开。
 */
@@ -27,7 +27,7 @@ class AiNewsDetailPage extends ConsumerWidget {
   final String id;
 
   @override
-  /* 构建详情加载、空、错误与三页内容状态。 */
+  /* 构建详情加载、空、错误与连续阅读状态。 */
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final async = ref.watch(aiNewsItemDetailProvider(id));
@@ -52,6 +52,11 @@ class AiNewsDetailPage extends ConsumerWidget {
             tooltip: l10n.tr('common.more'),
             onSelected: (action) => _handleMenuAction(context, item, action),
             itemBuilder: (context) => [
+              PopupMenuItem(
+                value: _DetailMenuAction.copyBody,
+                enabled: item.content.trim().isNotEmpty || item.summary.trim().isNotEmpty,
+                child: ListTile(leading: const Icon(Icons.content_copy_rounded), title: Text(l10n.tr('ai_news.detail.copy_body')), contentPadding: EdgeInsets.zero),
+              ),
               PopupMenuItem(
                 value: _DetailMenuAction.copyLink,
                 child: ListTile(leading: const Icon(Icons.link_rounded), title: Text(l10n.tr('webview.copy_link')), contentPadding: EdgeInsets.zero),
@@ -108,12 +113,24 @@ class AiNewsDetailPage extends ConsumerWidget {
   /* 处理顶部更多菜单。 */
   Future<void> _handleMenuAction(BuildContext context, AiNewsItem item, _DetailMenuAction action) async {
     switch (action) {
+      case _DetailMenuAction.copyBody:
+        await _copyBody(context, item);
+        return;
       case _DetailMenuAction.copyLink:
         await _copyLink(context, item);
         return;
       case _DetailMenuAction.openOriginal:
         await _openOriginal(context, item);
         return;
+    }
+  }
+
+  /* 复制来源已收录的正文；未提供正文时复制摘要，不混入 AI 生成内容。 */
+  Future<void> _copyBody(BuildContext context, AiNewsItem item) async {
+    final body = item.content.trim().isNotEmpty ? item.content : item.summary;
+    await Clipboard.setData(ClipboardData(text: body));
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).tr('ai_news.detail.body_copied'))));
     }
   }
 
@@ -147,6 +164,9 @@ class AiNewsDetailPage extends ConsumerWidget {
 *详情顶部更多菜单动作。
 */
 enum _DetailMenuAction {
+  // 复制已收录正文或摘要。
+  copyBody,
+
   // 复制原文链接。
   copyLink,
 

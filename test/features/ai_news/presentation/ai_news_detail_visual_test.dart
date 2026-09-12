@@ -90,7 +90,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('对照'), findsOneWidget);
-    expect(find.text('AI 深度解读'), findsNothing);
+    expect(find.text('AI 摘要与翻译'), findsNothing);
     expect(find.text('去配置 →'), findsNothing);
     expect(find.text('相关文章'), findsOneWidget);
     expect(tester.takeException(), isNull);
@@ -181,6 +181,7 @@ Future<ThemeData> _loadGoldenTheme() async {
   return baseTheme.copyWith(
     textTheme: baseTheme.textTheme.apply(fontFamily: 'Noto Sans SC'),
     primaryTextTheme: baseTheme.primaryTextTheme.apply(fontFamily: 'Noto Sans SC'),
+    chipTheme: baseTheme.chipTheme.copyWith(labelStyle: baseTheme.chipTheme.labelStyle?.copyWith(fontFamily: 'Noto Sans SC')),
     appBarTheme: baseTheme.appBarTheme.copyWith(titleTextStyle: baseTheme.appBarTheme.titleTextStyle?.copyWith(fontFamily: 'Noto Sans SC')),
     textButtonTheme: TextButtonThemeData(
       style: baseTheme.textButtonTheme.style?.copyWith(textStyle: WidgetStatePropertyAll(baseTheme.textTheme.labelLarge?.copyWith(fontFamily: 'Noto Sans SC'))),

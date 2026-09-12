@@ -44,18 +44,20 @@ class _AiNewsDetailLanguageSwitcherState extends State<AiNewsDetailLanguageSwitc
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: AppSpacing.lg,
+          runSpacing: AppSpacing.sm,
           children: [
             Text(l10n.tr('ai_news.detail.body'), style: AppTypography.reading(AppTypography.labelMicro).copyWith(color: aiNewsDetailMutedColor(context))),
-            const Spacer(),
             Container(
               decoration: BoxDecoration(
                 border: Border.all(color: colors.outlineVariant),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
               ),
               clipBehavior: Clip.antiAlias,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Wrap(
                 children: [
                   _LanguageSegment(
                     key: const ValueKey('ai-news-language-chinese'),

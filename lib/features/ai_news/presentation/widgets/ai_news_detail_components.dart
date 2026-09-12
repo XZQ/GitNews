@@ -272,9 +272,11 @@ class AiNewsDetailMetricPill extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: accent),
           const SizedBox(width: AppSpacing.xs2),
-          Text(
-            label,
-            style: AppTypography.labelMedium.copyWith(color: accent, fontWeight: FontWeight.w600),
+          Flexible(
+            child: Text(
+              label,
+              style: AppTypography.labelMedium.copyWith(color: accent, fontWeight: FontWeight.w600),
+            ),
           ),
         ],
       ),

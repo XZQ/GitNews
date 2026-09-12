@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/core/preferences/ai_digest_config_controller.dart';
+import 'package:github_news/core/theme/app_colors.dart';
+import 'package:github_news/core/theme/app_theme.dart';
 import 'package:github_news/features/ai_news/application/ai_news_enrichment_providers.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_enrichment.dart';
 import 'package:github_news/features/ai_news/domain/ai_news_item.dart';
@@ -31,7 +33,7 @@ class _StaticAiDigestConfigController extends AiDigestConfigController {
 }
 
 void main() {
-  testWidgets('Agnes 返回有效数据后才显示 AI 深度解读', (tester) async {
+  testWidgets('Agnes 返回有效数据后才显示 AI 摘要与翻译', (tester) async {
     final item = _item();
     final result = _enrichment(item.id);
     final completion = Completer<AiNewsEnrichment?>();
@@ -69,7 +71,7 @@ void main() {
     await tester.pump();
 
     expect(callCount, 1);
-    expect(find.text('AI 深度解读'), findsNothing);
+    expect(find.text('AI 摘要与翻译'), findsNothing);
 
     completion.complete(result);
     await tester.pump();
@@ -101,7 +103,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(callCount, 0);
-    expect(find.text('AI 深度解读'), findsNothing);
+    expect(find.text('AI 摘要与翻译'), findsNothing);
     expect(find.byType(OutlinedButton), findsNothing);
   });
 
@@ -134,7 +136,7 @@ void main() {
     expect(callCount, 0);
   });
 
-  testWidgets('Agnes 请求失败时隐藏 AI 深度解读', (tester) async {
+  testWidgets('Agnes 请求失败时隐藏 AI 摘要与翻译', (tester) async {
     final item = _item();
     var callCount = 0;
 
@@ -156,19 +158,52 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(callCount, 1);
-    expect(find.text('AI 深度解读'), findsNothing);
+    expect(find.text('AI 摘要与翻译'), findsNothing);
     expect(find.text('重试'), findsNothing);
   });
+
+  for (final brightness in Brightness.values) {
+    testWidgets('AI 字段标注准确且长文完整显示 $brightness', (tester) async {
+      tester.view.physicalSize = const Size(390, 700);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final item = _item();
+      final result = _enrichment(item.id, longContent: true);
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [aiDigestConfigControllerProvider.overrideWith(() => _StaticAiDigestConfigController(false)), aiNewsEnrichmentProvider.overrideWith((ref, id) async => result)],
+          child: _TestApp(item: item, brightness: brightness),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('AI 摘要与翻译'), findsOneWidget);
+      expect(find.text('生成摘要'), findsOneWidget);
+      expect(find.text('摘要中文翻译'), findsOneWidget);
+      expect(find.text('识别实体'), findsOneWidget);
+      expect(find.textContaining('请核对原文'), findsOneWidget);
+      expect(find.text('未识别到实体'), findsOneWidget);
+      expect(find.text('核心观点'), findsNothing);
+      final body = tester.widget<Text>(find.text(result.translatedSummary));
+      expect(body.maxLines, isNull);
+      expect(body.overflow, isNot(TextOverflow.ellipsis));
+      await tester.ensureVisible(find.text('AI 重要性估计 88/100（非可信度）'));
+      await tester.pumpAndSettle();
+      expect(find.text('AI 重要性估计 88/100（非可信度）').hitTestable(), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 }
 
 /*
 *提供详情增强卡所需的本地化与 Material 上下文。
 */
 class _TestApp extends StatelessWidget {
-  const _TestApp({required this.item});
+  const _TestApp({required this.item, this.brightness = Brightness.light});
 
   // 当前测试资讯。
   final AiNewsItem item;
+  final Brightness brightness;
 
   @override
   Widget build(BuildContext context) {
@@ -176,7 +211,10 @@ class _TestApp extends StatelessWidget {
       locale: const Locale('zh', 'CN'),
       localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate, GlobalWidgetsLocalizations.delegate],
       supportedLocales: AppLocalizations.supportedLocales,
-      home: Scaffold(body: AiNewsEnrichmentCard(item: item)),
+      theme: AppTheme.fromSeed(brightness, AppColors.brand),
+      home: Scaffold(
+        body: SingleChildScrollView(child: AiNewsEnrichmentCard(item: item)),
+      ),
     );
   }
 }
@@ -199,12 +237,12 @@ AiNewsItem _item() {
 }
 
 /* 创建测试增强结果。 */
-AiNewsEnrichment _enrichment(String itemId) {
+AiNewsEnrichment _enrichment(String itemId, {bool longContent = false}) {
   return AiNewsEnrichment(
     itemId: itemId,
     generatedSummary: '自动生成的增强摘要',
     translatedTitle: '自动增强',
-    translatedSummary: '详情页打开后无需点击。',
+    translatedSummary: longContent ? List.filled(12, '这是来自文章摘要的中文翻译，应当完整显示并允许核对原文。').join() : '详情页打开后无需点击。',
     importanceScore: 88,
     entities: const AiNewsEntities(),
     model: 'agnes-2.0-flash',

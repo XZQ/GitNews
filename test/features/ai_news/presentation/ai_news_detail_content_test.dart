@@ -10,6 +10,34 @@ import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail
 import 'package:github_news/features/ai_news/presentation/widgets/ai_news_detail_language_switcher.dart';
 
 void main() {
+  for (final brightness in Brightness.values) {
+    for (final language in ['zh', 'en']) {
+      testWidgets('reading and language selection fit 320px at scale 2 $brightness $language', (tester) async {
+        tester.view.physicalSize = const Size(320, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        await tester.pumpWidget(
+          _app(
+            AiNewsDetailContent(item: _item(), showEnrichment: false),
+            theme: AppTheme.fromSeed(brightness, AppColors.brand),
+            language: language,
+            scale: 2,
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(SelectionArea), findsOneWidget);
+        for (final mode in ['chinese', 'english', 'comparison']) {
+          await tester.ensureVisible(find.byKey(ValueKey('ai-news-language-$mode')));
+          await tester.pumpAndSettle();
+          await tester.tap(find.byKey(ValueKey('ai-news-language-$mode')));
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+        }
+      });
+    }
+  }
+
   testWidgets('article detail centers the reading column on desktop', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1;
@@ -123,13 +151,17 @@ void main() {
   });
 }
 
-Widget _app(Widget home, {ThemeData? theme}) {
+Widget _app(Widget home, {ThemeData? theme, String language = 'zh', double scale = 1}) {
   return ProviderScope(
     child: MaterialApp(
-      locale: const Locale('zh', 'CN'),
+      locale: Locale(language),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [AppLocalizations.delegate, GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       theme: theme,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(scale)),
+        child: child!,
+      ),
       home: Scaffold(body: home),
     ),
   );
