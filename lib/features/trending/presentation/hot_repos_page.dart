@@ -140,15 +140,13 @@ class _PageSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(AppSpacing.lg),
-      child: Column(
-        children: [
-          Skeleton(height: 280),
-          SizedBox(height: AppSpacing.lg),
-          Skeleton(height: 120),
-        ],
-      ),
+    return ListView(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: const [
+        Skeleton(height: 280),
+        SizedBox(height: AppSpacing.lg),
+        Skeleton(height: 120),
+      ],
     );
   }
 }
