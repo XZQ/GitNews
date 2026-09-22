@@ -38,12 +38,15 @@ class OnboardingDialog extends ConsumerStatefulWidget {
 class _OnboardingDialogState extends ConsumerState<OnboardingDialog> {
   int _step = 0;
 
-  static const _steps = [
-    _OnboardingStep(icon: Icons.insights_rounded, color: AppColors.brand),
-    _OnboardingStep(icon: Icons.auto_awesome_rounded, color: AppColors.brand),
-    _OnboardingStep(icon: Icons.local_fire_department_rounded, color: AppColors.warning),
-    _OnboardingStep(icon: Icons.notifications_rounded, color: AppColors.info),
-  ];
+  List<_OnboardingStep> get _steps {
+    final primary = Theme.of(context).colorScheme.primary;
+    return [
+      _OnboardingStep(icon: Icons.insights_rounded, color: primary),
+      _OnboardingStep(icon: Icons.auto_awesome_rounded, color: primary),
+      const _OnboardingStep(icon: Icons.local_fire_department_rounded, color: AppColors.warning),
+      const _OnboardingStep(icon: Icons.notifications_rounded, color: AppColors.info),
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {

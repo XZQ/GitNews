@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/preferences/ai_digest_config_controller.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -231,8 +230,8 @@ class _InsightRow extends StatelessWidget {
           Container(
             width: 46,
             height: 46,
-            decoration: BoxDecoration(color: AppColors.brandLight.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(AppRadius.lg)),
-            child: Icon(icon, color: AppColors.brand, size: 24),
+            decoration: BoxDecoration(color: colors.primary.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.lg)),
+            child: Icon(icon, color: colors.primary, size: 24),
           ),
           const SizedBox(width: AppSpacing.md),
           Expanded(

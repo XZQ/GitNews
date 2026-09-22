@@ -93,7 +93,7 @@ class AiNewsDetailSectionTitle extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Icon(icon, size: 22, color: AppColors.brand),
+        Icon(icon, size: 22, color: colors.primary),
         const SizedBox(width: AppSpacing.sm),
         Expanded(
           child: Text(title, style: AppTypography.titleLarge.copyWith(color: colors.onSurface)),
@@ -129,7 +129,7 @@ class AiNewsDetailLanguageCard extends StatelessWidget {
   /* 构建双语阅读卡片。 */
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final background = tinted ? AppColors.brandLight.withValues(alpha: Theme.of(context).brightness == Brightness.light ? 0.24 : 0.08) : colors.surface;
+    final background = tinted ? colors.primary.withValues(alpha: Theme.of(context).brightness == Brightness.light ? 0.08 : 0.05) : colors.surface;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -139,7 +139,7 @@ class AiNewsDetailLanguageCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.lg),
           decoration: BoxDecoration(
             color: background,
-            border: Border.all(color: tinted ? AppColors.brand.withValues(alpha: 0.22) : colors.outlineVariant.withValues(alpha: 0.62)),
+            border: Border.all(color: tinted ? colors.primary.withValues(alpha: 0.28) : colors.outlineVariant.withValues(alpha: 0.62)),
             borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           child: Column(

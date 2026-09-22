@@ -116,7 +116,7 @@ _ActivityVisual _visualFor(BuildContext context, RepoActivityType type) {
     RepoActivityType.push => const _ActivityVisual(icon: Icons.commit, color: AppColors.success),
     RepoActivityType.issues => const _ActivityVisual(icon: Icons.bug_report_outlined, color: AppColors.warning),
     RepoActivityType.pullRequest => const _ActivityVisual(icon: Icons.merge_type_rounded, color: AppColors.info),
-    RepoActivityType.release => const _ActivityVisual(icon: Icons.new_releases_outlined, color: AppColors.brand),
+    RepoActivityType.release => _ActivityVisual(icon: Icons.new_releases_outlined, color: Theme.of(context).colorScheme.primary),
     RepoActivityType.create => _ActivityVisual(icon: Icons.add_circle_outline, color: Theme.of(context).colorScheme.primary),
     RepoActivityType.other => _ActivityVisual(icon: Icons.history_rounded, color: Theme.of(context).colorScheme.onSurfaceVariant),
   };

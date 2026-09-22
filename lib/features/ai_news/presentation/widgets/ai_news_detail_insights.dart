@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../domain/ai_news_item.dart';
 import '../../domain/github_repo_link_extractor.dart';
@@ -48,6 +47,7 @@ class _RelatedTags extends StatelessWidget {
   /* 构建可扫描的仓库标签行。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -60,11 +60,11 @@ class _RelatedTags extends StatelessWidget {
             for (final repo in repos)
               ActionChip(
                 key: ValueKey('ai-news-repo-$repo'),
-                avatar: const Icon(Icons.code_rounded, size: 16, color: AppColors.brand),
+                avatar: Icon(Icons.code_rounded, size: 16, color: colors.primary),
                 label: Text(repo),
                 onPressed: () => context.pushNamed('ai_news_repo_detail', pathParameters: {'fullName': repo}),
-                side: BorderSide(color: AppColors.brand.withValues(alpha: 0.28)),
-                backgroundColor: AppColors.brandLight.withValues(alpha: 0.2),
+                side: BorderSide(color: colors.primary.withValues(alpha: 0.28)),
+                backgroundColor: colors.primary.withValues(alpha: 0.08),
               ),
           ],
         ),

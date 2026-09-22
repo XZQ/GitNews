@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
 import '../../../ai_news/application/ai_news_providers.dart';
@@ -26,7 +25,7 @@ class HomeAiNewsPreview extends ConsumerWidget {
     return HomeSectionPreviewCard<AiNewsItem>(
       title: l10n.tr('home.section.ai_news.title'),
       subtitle: l10n.tr('home.section.ai_news.subtitle'),
-      accentColor: AppColors.brand,
+      accentColor: Theme.of(context).colorScheme.primary,
       icon: Icons.auto_awesome_rounded,
       path: '/ai_news',
       trailing: DataFreshnessBadge(freshness: freshness),

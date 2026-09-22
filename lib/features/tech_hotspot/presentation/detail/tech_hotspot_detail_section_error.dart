@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/errors/app_exception.dart';
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 
@@ -39,7 +38,7 @@ class TechHotspotDetailSectionError extends StatelessWidget {
           ),
           TextButton(
             onPressed: onRetry,
-            style: TextButton.styleFrom(foregroundColor: AppColors.brand),
+            style: TextButton.styleFrom(foregroundColor: colors.primary),
             child: Text(l10n.tr('common.retry')),
           ),
         ],

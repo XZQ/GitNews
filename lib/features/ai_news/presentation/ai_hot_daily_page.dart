@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -259,10 +258,11 @@ class _Attribution extends StatelessWidget {
   /* 构建聚合方署名与 canonical 入口。 */
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
     final attribution = report.attribution;
     return Row(
       children: [
-        const Icon(Icons.verified_outlined, size: 18, color: AppColors.brand),
+        Icon(Icons.verified_outlined, size: 18, color: colors.primary),
         const SizedBox(width: AppSpacing.sm),
         Expanded(child: Text(l10n.tr('ai_news.official_daily.attribution'))),
         if (attribution != null) TextButton(onPressed: () => _openWeb(context, attribution.canonical, '${l10n.tr('ai_news.daily.page_title')} ${report.date}'), child: Text(attribution.source)),

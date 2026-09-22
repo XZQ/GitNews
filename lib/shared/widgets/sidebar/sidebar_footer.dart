@@ -130,10 +130,7 @@ class SidebarProfileAvatar extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [colors.primaryContainer, colors.primary]),
-              borderRadius: BorderRadius.circular(AppRadius.pill),
-            ),
+            decoration: BoxDecoration(color: colors.primary, borderRadius: BorderRadius.circular(AppRadius.pill)),
             alignment: Alignment.center,
             child: Icon(Icons.person_rounded, size: 18, color: colors.onPrimary),
           ),

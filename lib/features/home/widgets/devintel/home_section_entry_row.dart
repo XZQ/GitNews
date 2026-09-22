@@ -54,6 +54,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
 
   List<_EntrySpec> _buildSpecs(WidgetRef ref, BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final accent = Theme.of(context).colorScheme.primary;
     final aiState = ref.watch(aiNewsItemsNotifierProvider);
     final trendingState = ref.watch(trendingDigestProvider);
     final hotspotState = ref.watch(techHotspotDigestProvider);
@@ -75,7 +76,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
           l10n.tr('home.entry.ai_news.sources').replaceAll('{count}', '${aiItems?.map((item) => item.source.trim().toLowerCase()).where((source) => source.isNotEmpty).toSet().length ?? 0}'),
         ),
         icon: Icons.auto_awesome_rounded,
-        color: AppColors.brand,
+        color: accent,
         path: '/ai_news',
       ),
       _EntrySpec(
@@ -91,7 +92,7 @@ class HomeSectionEntryRow extends ConsumerWidget {
         kpi: _count(l10n, hotspot?.topics.length, 'hotspot'),
         delta: _context(l10n, hotspotState, l10n.tr('home.entry.current_sample')),
         icon: Icons.device_hub_rounded,
-        color: AppColors.brand,
+        color: accent,
         path: '/tech_hotspot',
       ),
       _EntrySpec(
