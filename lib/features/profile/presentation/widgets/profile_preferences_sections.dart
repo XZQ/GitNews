@@ -109,7 +109,7 @@ class ThemeColorPreference extends ConsumerWidget {
               Icon(Icons.palette_outlined, size: 18, color: colors.onSurfaceVariant),
               const SizedBox(width: AppSpacing.md),
               Expanded(child: Text(l10n.tr('profile.settings.theme_color'), style: AppTypography.bodyMedium)),
-              Text(current.name, style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
+              Text(l10n.tr('profile.settings.theme_color.preset.${current.id}'), style: AppTypography.labelMedium.copyWith(color: colors.onSurfaceVariant)),
             ],
           ),
           const SizedBox(height: AppSpacing.sm2),
@@ -137,9 +137,10 @@ class _ColorSwatch extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     return Semantics(
-      label: preset.name,
+      label: l10n.tr('profile.settings.theme_color.preset.${preset.id}'),
       selected: selected,
       button: true,
       child: InkWell(

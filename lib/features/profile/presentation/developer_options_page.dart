@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -13,9 +14,10 @@ class DeveloperOptionsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return SecondaryPageScaffold(
-      title: '开发者选项',
-      subtitle: 'API 与本地实验能力',
+      title: l10n.tr('profile.dev_options.title'),
+      subtitle: l10n.tr('profile.dev_options.subtitle'),
       icon: Icons.developer_mode_rounded,
       fallbackPath: '/profile',
       body: ResponsiveLayout(
@@ -32,34 +34,35 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
-      children: const [
+      children: [
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: 'API 调试', subtitle: '开发者工具'),
-              SizedBox(height: AppSpacing.md),
-              _Row(label: 'GitHub API 端点', value: 'api.github.com'),
-              _Row(label: '请求超时', value: '10s'),
-              _Row(label: '重试次数', value: '2'),
-              _Row(label: '当前主题', value: '浅色'),
+              SectionHeader(title: l10n.tr('profile.dev_options.api_debug.title'), subtitle: l10n.tr('profile.dev_options.api_debug.subtitle')),
+              const SizedBox(height: AppSpacing.md),
+              _Row(label: l10n.tr('profile.dev_options.api_debug.endpoint'), value: 'api.github.com'),
+              _Row(label: l10n.tr('profile.dev_options.api_debug.timeout'), value: '10s'),
+              _Row(label: l10n.tr('profile.dev_options.api_debug.retries'), value: '2'),
+              _Row(label: l10n.tr('profile.dev_options.api_debug.theme'), value: l10n.tr('profile.dev_options.api_debug.theme_light')),
             ],
           ),
         ),
-        SizedBox(height: AppSpacing.lg),
-        GitHubTokenCard(),
-        SizedBox(height: AppSpacing.lg),
+        const SizedBox(height: AppSpacing.lg),
+        const GitHubTokenCard(),
+        const SizedBox(height: AppSpacing.lg),
         AppCard(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: '实验功能', subtitle: '可能不稳定'),
-              SizedBox(height: AppSpacing.md),
-              _Row(label: '新缓存策略', value: 'OFF'),
-              _Row(label: '实时趋势', value: 'OFF'),
-              _Row(label: 'AI 总结', value: 'BETA'),
+              SectionHeader(title: l10n.tr('profile.dev_options.experiments.title'), subtitle: l10n.tr('profile.dev_options.experiments.subtitle')),
+              const SizedBox(height: AppSpacing.md),
+              _Row(label: l10n.tr('profile.dev_options.experiments.cache_strategy'), value: 'OFF'),
+              _Row(label: l10n.tr('profile.dev_options.experiments.realtime_trending'), value: 'OFF'),
+              _Row(label: l10n.tr('profile.dev_options.experiments.ai_summary'), value: 'BETA'),
             ],
           ),
         ),

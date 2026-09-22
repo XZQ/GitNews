@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/domain/observed_repo_growth.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../shared/widgets/app_card.dart';
@@ -24,10 +25,11 @@ class TrendingOverviewPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final state = ref.watch(projectDigestProvider);
     return SecondaryPageScaffold(
-      title: 'Star 增长趋势',
-      subtitle: '跨仓库趋势总览',
+      title: l10n.tr('trending.overview.title'),
+      subtitle: l10n.tr('trending.overview.subtitle'),
       icon: Icons.show_chart_rounded,
       fallbackPath: '/home',
       body: ResponsiveLayout(
@@ -46,8 +48,9 @@ class _Body extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     return state.when(
-      data: (digest) => digest.isEmpty ? const EmptyView(icon: Icons.show_chart_rounded, message: '暂无趋势数据') : _DigestView(digest: digest),
+      data: (digest) => digest.isEmpty ? EmptyView(icon: Icons.show_chart_rounded, message: l10n.tr('trending.overview.empty')) : _DigestView(digest: digest),
       loading: () => const _OverviewSkeleton(),
       error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(projectDigestProvider)),
     );
@@ -61,6 +64,7 @@ class _DigestView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return ListView(
       padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xl),
       children: [
@@ -68,7 +72,7 @@ class _DigestView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(title: 'Star 观测净变化', subtitle: '最近 30 天 · 当前项目样本'),
+              SectionHeader(title: l10n.tr('trending.overview.net_change.title'), subtitle: l10n.tr('trending.overview.net_change.subtitle')),
               const SizedBox(height: AppSpacing.md),
               RepoGrowthChart(repos: digest.repos),
             ],
@@ -79,7 +83,7 @@ class _DigestView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader(title: '按时间窗统计', subtitle: '所选时段内首末共同观测的净变化'),
+              SectionHeader(title: l10n.tr('trending.overview.window.title'), subtitle: l10n.tr('trending.overview.window.subtitle')),
               const SizedBox(height: AppSpacing.md),
               _WindowStatsTable(repos: digest.repos),
             ],
@@ -96,8 +100,9 @@ class _WindowStatsTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final rows = [
-      for (final days in [1, 7, 30]) _row(days),
+      for (final days in [1, 7, 30]) _row(l10n, days),
     ];
     return Table(
       columnWidths: const {0: FlexColumnWidth(1.5), 1: FlexColumnWidth(1.2), 2: FlexColumnWidth(1.5), 3: FlexColumnWidth(1)},
@@ -106,19 +111,24 @@ class _WindowStatsTable extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
           ),
-          children: const [_Th('时间窗'), _Th('净变化'), _Th('实际日期 UTC'), _Th('样本覆盖')],
+          children: [
+            _Th(l10n.tr('trending.overview.window.col.window')),
+            _Th(l10n.tr('trending.overview.window.col.delta')),
+            _Th(l10n.tr('trending.overview.window.col.dates')),
+            _Th(l10n.tr('trending.overview.window.col.coverage')),
+          ],
         ),
         for (final r in rows) TableRow(children: [_Td(r[0]), _Td(r[1]), _Td(r[2]), _Td(r[3])]),
       ],
     );
   }
 
-  List<String> _row(int days) {
+  List<String> _row(AppLocalizations l10n, int days) {
     final growth = ObservedRepoGrowth.fromRepos(repos, days: days);
     final delta = growth.netChange;
     return [
-      '近 $days 天',
-      delta == null ? '待积累' : '${delta >= 0 ? '+' : ''}$delta',
+      l10n.tr('trending.overview.window.days').replaceAll('{n}', '$days'),
+      delta == null ? l10n.tr('trending.overview.window.pending') : '${delta >= 0 ? '+' : ''}$delta',
       growth.isEmpty ? '—' : '${growth.dates.first.toIso8601String().substring(0, 10)} — ${growth.dates.last.toIso8601String().substring(0, 10)}',
       '${growth.sampleCount}/${growth.totalCount}',
     ];
