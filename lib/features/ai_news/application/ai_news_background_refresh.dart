@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/platform/desktop_integration_service.dart';
@@ -119,7 +120,7 @@ List<AiNewsItem> detectNewAiNewsItems(List<AiNewsItem> items, {required Set<Stri
   if (!(hasBaseline ?? seenIds.isNotEmpty)) {
     return const [];
   }
-  final oldest = now.subtract(const Duration(days: 2));
+  final oldest = now.subtract(CacheTtlConfig.newsRetention);
   return [
     for (final item in items)
       if (!seenIds.contains(item.id) && !item.publishedAt.isBefore(oldest)) item,

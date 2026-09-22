@@ -51,4 +51,7 @@ class CacheTtlConfig {
 
   // Agent Skills 排行榜(第三方源每日更新)。
   static const Duration skills = Duration(hours: 24);
+
+  // 资讯与缓存元数据的保留窗口(后台去重裁剪与启动清理共用)。
+  static const Duration newsRetention = Duration(days: 2);
 }

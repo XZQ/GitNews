@@ -6,8 +6,12 @@ const String serverBaseUrlPreferenceKey = 'self_hosted_server_base_url';
 const String serverWorkspacePreferenceKey = 'self_hosted_server_workspace';
 const String serverMemberPreferenceKey = 'self_hosted_server_member';
 
+const String kDefaultServerBaseUrl = 'http://127.0.0.1:8080';
+const String kDefaultWorkspaceId = 'personal';
+const String kDefaultMemberId = 'desktop';
+
 class ServerConnectionState {
-  const ServerConnectionState({this.baseUrl = 'http://127.0.0.1:8080', this.workspaceId = 'personal', this.memberId = 'desktop', this.apiKey});
+  const ServerConnectionState({this.baseUrl = kDefaultServerBaseUrl, this.workspaceId = kDefaultWorkspaceId, this.memberId = kDefaultMemberId, this.apiKey});
 
   final String baseUrl;
   final String workspaceId;
@@ -33,9 +37,9 @@ class ServerConnectionController extends Notifier<ServerConnectionState> {
     _load();
     final preferences = ref.read(sharedPreferencesProvider);
     return ServerConnectionState(
-      baseUrl: preferences.getString(serverBaseUrlPreferenceKey) ?? 'http://127.0.0.1:8080',
-      workspaceId: preferences.getString(serverWorkspacePreferenceKey) ?? 'personal',
-      memberId: preferences.getString(serverMemberPreferenceKey) ?? 'desktop',
+      baseUrl: preferences.getString(serverBaseUrlPreferenceKey) ?? kDefaultServerBaseUrl,
+      workspaceId: preferences.getString(serverWorkspacePreferenceKey) ?? kDefaultWorkspaceId,
+      memberId: preferences.getString(serverMemberPreferenceKey) ?? kDefaultMemberId,
     );
   }
 

@@ -11,6 +11,7 @@ import 'app.dart';
 import 'core/auth/auth_models.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/supabase_auth_repository.dart';
+import 'core/config/cache_ttl_config.dart';
 import 'core/di/provider_retry_policy.dart';
 import 'core/di/providers.dart';
 import 'core/i18n/app_localizations.dart';
@@ -57,7 +58,7 @@ Future<BootstrapResult> initializeApplication({SharedPreferencesLoader? sharedPr
     // 在接受初始化结果前验证主资讯表可读，损坏/不完整迁移进入恢复页。
     await database.executor.rawQuery('SELECT COUNT(*) AS item_count FROM ai_news_item');
     try {
-      await CacheMetaDao(database.executor).pruneStale(now: DateTime.now(), retainFor: const Duration(days: 2));
+      await CacheMetaDao(database.executor).pruneStale(now: DateTime.now(), retainFor: CacheTtlConfig.newsRetention);
     } catch (_) {
       // 缓存元数据清理是最佳努力，不阻断应用启动。
     }
