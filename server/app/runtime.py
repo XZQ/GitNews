@@ -7,7 +7,7 @@ import uuid
 from .config import Settings
 from .db import Database
 from .feeds import FeedIngestor
-from .models import IngestResult, PushEventInput
+from .models import IngestResult, NewsItem, PushEventInput
 from .push_service import PushService
 
 
@@ -26,17 +26,7 @@ class IngestionService:
             started = _now()
             try:
                 items, errors = await self.feeds.fetch_all()
-                new_items = self.feeds.persist(items)
-                if new_items:
-                    self.push.enqueue_all_workspaces(
-                        PushEventInput(
-                            event_type="news.items.created",
-                            payload={
-                                "count": len(new_items),
-                                "items": [item.model_dump() for item in new_items[:20]],
-                            },
-                        )
-                    )
+                self._persist_and_enqueue(items)
                 status = "partial" if errors else "ok"
                 result = IngestResult(
                     run_id=run_id,
@@ -53,6 +43,24 @@ class IngestionService:
                 )
             self._record_run(result, started)
             return result
+
+    def _persist_and_enqueue(self, items: list[NewsItem]) -> None:
+        with self.database.connection() as connection:
+            # Also serializes multiple service instances: only the transaction
+            # inserting a previously unseen article creates its notifications.
+            connection.execute("BEGIN IMMEDIATE")
+            new_items = self.feeds.persist_in_transaction(items, connection)
+            if new_items:
+                self.push.enqueue_all_workspaces(
+                    PushEventInput(
+                        event_type="news.items.created",
+                        payload={
+                            "count": len(new_items),
+                            "items": [item.model_dump() for item in new_items[:20]],
+                        },
+                    ),
+                    connection=connection,
+                )
 
     def _record_run(self, result: IngestResult, started: int) -> None:
         with self.database.connection() as connection:

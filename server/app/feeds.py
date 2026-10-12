@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import html
 import re
+import sqlite3
 import time
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass
@@ -52,42 +53,47 @@ class FeedIngestor:
     def persist(self, items: list[NewsItem]) -> list[NewsItem]:
         if not items:
             return []
-        now = int(time.time() * 1000)
         with self.database.connection() as connection:
-            existing = {
-                row["id"]
-                for row in connection.execute(
-                    f"SELECT id FROM news_items WHERE id IN ({','.join('?' for _ in items)})",
-                    [item.id for item in items],
-                )
-            }
-            for item in items:
-                content_hash = hashlib.sha256(
-                    f"{item.title}\n{item.summary}\n{item.url}".encode()
-                ).hexdigest()
-                connection.execute(
-                    """
-                    INSERT INTO news_items(
-                      id,title,summary,source,category,url,published_at,content_hash,updated_at
-                    ) VALUES(?,?,?,?,?,?,?,?,?)
-                    ON CONFLICT(id) DO UPDATE SET
-                      title=excluded.title, summary=excluded.summary, source=excluded.source,
-                      category=excluded.category, url=excluded.url,
-                      published_at=excluded.published_at, content_hash=excluded.content_hash,
-                      updated_at=excluded.updated_at
-                    """,
-                    (
-                        item.id,
-                        item.title,
-                        item.summary,
-                        item.source,
-                        item.category,
-                        item.url,
-                        item.published_at,
-                        content_hash,
-                        now,
-                    ),
-                )
+            connection.execute("BEGIN IMMEDIATE")
+            return self.persist_in_transaction(items, connection)
+
+    def persist_in_transaction(self, items: list[NewsItem], connection: sqlite3.Connection) -> list[NewsItem]:
+        """Use the caller's write transaction when news and outbox must commit together."""
+        if not items:
+            return []
+        now = int(time.time() * 1000)
+        existing = {
+            row["id"]
+            for row in connection.execute(
+                f"SELECT id FROM news_items WHERE id IN ({','.join('?' for _ in items)})",
+                [item.id for item in items],
+            )
+        }
+        for item in items:
+            content_hash = hashlib.sha256(f"{item.title}\n{item.summary}\n{item.url}".encode()).hexdigest()
+            connection.execute(
+                """
+                INSERT INTO news_items(
+                  id,title,summary,source,category,url,published_at,content_hash,updated_at
+                ) VALUES(?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(id) DO UPDATE SET
+                  title=excluded.title, summary=excluded.summary, source=excluded.source,
+                  category=excluded.category, url=excluded.url,
+                  published_at=excluded.published_at, content_hash=excluded.content_hash,
+                  updated_at=excluded.updated_at
+                """,
+                (
+                    item.id,
+                    item.title,
+                    item.summary,
+                    item.source,
+                    item.category,
+                    item.url,
+                    item.published_at,
+                    content_hash,
+                    now,
+                ),
+            )
         return [item for item in items if item.id not in existing]
 
     def list_items(self, *, limit: int, source: str | None, since: int | None) -> list[NewsItem]:

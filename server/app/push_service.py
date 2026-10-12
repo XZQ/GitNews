@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import sqlite3
 import time
 import uuid
 
@@ -50,43 +51,55 @@ class PushService:
         return {"workspace_id": workspace_id, **value.model_dump(), "enabled": True, "created_at": now}
 
     def enqueue(self, workspace_id: str, event: PushEventInput) -> int:
+        with self.database.connection() as connection:
+            return self._enqueue_in_transaction(workspace_id, event, connection)
+
+    def _enqueue_in_transaction(
+        self, workspace_id: str, event: PushEventInput, connection: sqlite3.Connection
+    ) -> int:
         now = _now()
         count = 0
-        with self.database.connection() as connection:
-            subscriptions = connection.execute(
-                "SELECT id FROM push_subscriptions WHERE workspace_id=? AND enabled=1",
-                (workspace_id,),
-            ).fetchall()
-            for subscription in subscriptions:
-                connection.execute(
-                    """
-                    INSERT INTO push_outbox(
-                      id,workspace_id,subscription_id,event_type,payload_json,status,
-                      attempts,next_attempt_at,created_at
-                    ) VALUES(?,?,?,?,?,'pending',0,?,?)
-                    """,
-                    (
-                        uuid.uuid4().hex,
-                        workspace_id,
-                        subscription["id"],
-                        event.event_type,
-                        json_text(event.payload),
-                        now,
-                        now,
-                    ),
-                )
-                count += 1
+        subscriptions = connection.execute(
+            "SELECT id FROM push_subscriptions WHERE workspace_id=? AND enabled=1",
+            (workspace_id,),
+        ).fetchall()
+        for subscription in subscriptions:
+            connection.execute(
+                """
+                INSERT INTO push_outbox(
+                  id,workspace_id,subscription_id,event_type,payload_json,status,
+                  attempts,next_attempt_at,created_at
+                ) VALUES(?,?,?,?,?,'pending',0,?,?)
+                """,
+                (
+                    uuid.uuid4().hex,
+                    workspace_id,
+                    subscription["id"],
+                    event.event_type,
+                    json_text(event.payload),
+                    now,
+                    now,
+                ),
+            )
+            count += 1
         return count
 
-    def enqueue_all_workspaces(self, event: PushEventInput) -> int:
-        with self.database.connection() as connection:
-            workspace_ids = [
-                row["workspace_id"]
-                for row in connection.execute(
-                    "SELECT DISTINCT workspace_id FROM push_subscriptions WHERE enabled=1"
-                )
-            ]
-        return sum(self.enqueue(workspace_id, event) for workspace_id in workspace_ids)
+    def enqueue_all_workspaces(
+        self, event: PushEventInput, *, connection: sqlite3.Connection | None = None
+    ) -> int:
+        """Reuse an ingestion transaction instead of opening nested SQLite writers."""
+        if connection is None:
+            with self.database.connection() as owned_connection:
+                return self.enqueue_all_workspaces(event, connection=owned_connection)
+        workspace_ids = [
+            row["workspace_id"]
+            for row in connection.execute(
+                "SELECT DISTINCT workspace_id FROM push_subscriptions WHERE enabled=1"
+            )
+        ]
+        return sum(
+            self._enqueue_in_transaction(workspace_id, event, connection) for workspace_id in workspace_ids
+        )
 
     def outbox(self, workspace_id: str, *, status: str, limit: int) -> list[dict[str, object]]:
         with self.database.connection() as connection:
