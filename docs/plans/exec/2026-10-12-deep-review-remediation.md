@@ -1,6 +1,6 @@
 # 深度审查与可靠性修复
 
-状态：Active
+状态：Complete
 
 本计划遵循 `.agent/PLANS.md`。用户已授权深度 review、列出规划、逐项完成并 push；当前分支为 `main`，审查基线 `78ab162`，初始工作树干净。
 
@@ -30,8 +30,9 @@
 - [x] (2026-10-12 22:31Z) 服务端 R07–R10 分项提交：6184095、8848546、3a0492d、b180e5d。
 - [x] (2026-10-12 22:37Z) 完整 Flutter Harness 7/7 通过：599 项测试、全量 analyze、lib/test 格式、增量格式、可移植性、diff 与文档链接检查。
 - [x] (2026-10-12 22:38Z) 客户端 R01–R06、R11、R13 分项提交；完整代码范围为 6184095..eabca1d，共 12 个 Fix 提交。
-- [ ] push 与远端 CI 验收。
-- [ ] R12 文档、独立复核、完整适用门禁、分项提交与 push。
+- [x] (2026-10-12 22:54Z) 代码与首轮文档正常 push main，提交 6d6044a；本地/远端 SHA 一致，工作树干净。
+- [x] (2026-10-12 22:54Z) GitHub Actions 38317808095 全部 success：server 6/6，ci-windows 8/8，包含 Windows Release 构建；已读取最终日志确认。
+- [x] R12 文档、独立复核、完整适用门禁、分项提交与 push。
 
 ## Surprises & Discoveries
 
@@ -75,9 +76,9 @@
 
 ## Outcomes & Retrospective
 
-12 组明确缺陷及 CI 可重复性问题已实现并有回归。本机完整 Flutter 599 项与服务端 42 项测试通过，完整适用 Harness 通过，依赖锁文件未改。12 项 Fix 分项提交已完成，push 与 Windows CI 验收进行中。独立复核补获旧同步排序、换地址留空凭据与 legacy 清理失败三个遗漏；用正式回归收敛后再执行全量门禁。
+12 组明确缺陷及 CI 可重复性问题已实现并有回归。本机完整 Flutter 599 项与服务端 42 项测试通过，完整适用 Harness 通过，依赖锁文件未改。12 项 Fix 分项提交及首轮文档已 push main，6d6044a 的服务端和 Windows CI 全部成功，Windows Release 构建已验证。独立复核补获旧同步排序、换地址留空凭据与 legacy 清理失败三个遗漏；用正式回归收敛后再执行全量门禁。
 
-本机缺失 Visual Studio 和 plugin symlink 权限，未运行真实 Windows Release 构建、可见主窗口/托盘交互烟测；Release 构建交由 Windows CI。没有执行真实账号认证、外部推送送达、公网/TLS 部署或联网全量 feed 验证。Mock/channel/widget 测试不替代这些边界。
+本机缺失 Visual Studio 和 plugin symlink 权限，未运行本机 Windows Release 构建、可见主窗口/托盘交互烟测；Release 构建由 Windows CI 完成，原生交互烟测仍未执行。没有执行真实账号认证、外部推送送达、公网/TLS 部署或联网全量 feed 验证。Mock/channel/widget 测试不替代这些边界。
 
 ## Context and Orientation
 
@@ -129,7 +130,13 @@
 - 服务端全量：`build/harness/20261012T151554315Z-20652/summary.json`（6/6，42 tests + live smoke）。
 - 首轮失败保留在 `20261012T151009582Z-9240` 与 `20261012T151251712Z-16752`，不覆盖失败证据。
 
-代码提交范围 `6184095..eabca1d`，最后一项代码提交 `eabca1d`；最终补充 push 与 CI 链接。构建产物和本地临时库不提交。
+代码提交范围 `6184095..eabca1d`，最后一项代码提交 `eabca1d`；首轮完整交付提交 `6d6044a3d10cd675e921836908b942f52a8b5ca9`。构建产物和本地临时库不提交。
+
+- [完整交付 CI](https://github.com/XZQ/GitNews/actions/runs/38317808095)：最终 conclusion=success，两个 job 都 success。
+- Windows 证据：`build/harness/20261012T224144332Z-2928/summary.json` 位于该 run 上传的 `harness-flutter-windows` artifact；最终日志确认 ci-windows 8/8，Release build success。
+- 服务端证据：`build/harness/20261012T223847134Z-2178/summary.json` 位于 `harness-server-linux` artifact，server 6/6。
+
+本计划的最后更新仅记录已完成验收，不改变已通过 CI 的运行代码；按文档范围执行 docs Harness 后提交推送。
 
 ## Interfaces and Dependencies
 
