@@ -31,12 +31,25 @@ class CollaborationService:
 
     def upsert_annotation(self, workspace_id: str, annotation: AnnotationInput) -> dict[str, object]:
         with self.database.connection() as connection:
+            # Lock before reading so another writer cannot invalidate ownership
+            # or the version check before this transaction applies its update.
+            connection.execute("BEGIN IMMEDIATE")
             existing = connection.execute(
-                "SELECT version FROM annotations WHERE id=? AND workspace_id=?",
-                (annotation.id, workspace_id),
+                "SELECT * FROM annotations WHERE id=?",
+                (annotation.id,),
             ).fetchone()
-            if existing is not None and existing["version"] > annotation.version:
-                raise ValueError("annotation version conflict")
+            if existing is not None:
+                if existing["workspace_id"] != workspace_id:
+                    raise ValueError("annotation id belongs to another workspace")
+                if existing["version"] > annotation.version:
+                    raise ValueError("annotation version conflict")
+                if existing["version"] == annotation.version:
+                    if any(
+                        existing[field] != getattr(annotation, field)
+                        for field in ("item_id", "author_id", "body")
+                    ):
+                        raise ValueError("annotation version conflict")
+                    return dict(existing)
             connection.execute(
                 """
                 INSERT INTO annotations(id,workspace_id,item_id,author_id,body,version,updated_at)
