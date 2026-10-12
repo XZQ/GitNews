@@ -74,24 +74,43 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     );
   }
 
+  /* 保存完成后清空输入；持久化失败保留输入供重试。 */
   Future<void> _save() async {
-    await ref.read(githubTokenControllerProvider.notifier).setToken(_controller.text);
-    _controller.clear();
+    try {
+      await ref.read(githubTokenControllerProvider.notifier).setToken(_controller.text);
+    } catch (_) {
+      _showPersistenceFailure();
+      return;
+    }
     if (!mounted) {
       return;
     }
+    _controller.clear();
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.token.saved'))));
   }
 
+  /* 清除失败保留已有状态，避免界面宣告未持久化的成功。 */
   Future<void> _clear() async {
-    await ref.read(githubTokenControllerProvider.notifier).clear();
-    _controller.clear();
+    try {
+      await ref.read(githubTokenControllerProvider.notifier).clear();
+    } catch (_) {
+      _showPersistenceFailure();
+      return;
+    }
     if (!mounted) {
       return;
     }
+    _controller.clear();
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.token.cleared'))));
+  }
+
+  /* 使用通用失败文案，不展示可能含凭据的插件异常。 */
+  void _showPersistenceFailure() {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).tr('error_view.unknown'))));
+    }
   }
 
   Future<void> _checkQuota() async {

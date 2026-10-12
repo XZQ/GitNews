@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../di/providers.dart';
+import '../utils/app_logger.dart';
 
 /* 
 *本地 GitHub token 配置状态。
@@ -48,46 +53,88 @@ class GitHubTokenController extends Notifier<GitHubTokenState> {
   static const _kKey = 'github_personal_access_token';
   static const _kLegacyKey = 'github_personal_access_token';
 
+  // 在一次控制器生命周期内依次完成初始化、设置和清除。
+  Future<void> _pending = Future<void>.value();
+
+  // 异步操作在开始前捕获存储，不在 await 后读取可能已经销毁的 Ref。
+  late FlutterSecureStorage _secure;
+  late SharedPreferences _preferences;
+
   @override
   GitHubTokenState build() {
-    _migrateFromPrefsIfNeeded();
+    _secure = ref.read(secureStorageProvider);
+    _preferences = ref.read(sharedPreferencesProvider);
+    unawaited(
+      _enqueue(_migrateFromPrefsIfNeeded).catchError((Object error) {
+        AppLogger.warn('githubTokenLoad', meta: {'error': error.runtimeType.toString()});
+      }),
+    );
     return const GitHubTokenState();
   }
+
+  /* 等待当前已经排入队列的凭据操作。 */
+  Future<void> get ready => _pending;
 
   /* 
   *异步加载:从 secure storage 读取 Token,同时检查旧版 SharedPreferences 迁移。
   */
   Future<void> _migrateFromPrefsIfNeeded() async {
-    final secure = ref.read(secureStorageProvider);
-    final stored = await secure.read(key: _kKey);
+    final stored = await _secure.read(key: _kKey);
     if (stored != null && stored.isNotEmpty) {
-      state = GitHubTokenState(token: stored);
+      await _removeLegacyToken();
+      _publish(GitHubTokenState(token: stored));
       return;
     }
     // 迁移:如果 secure storage 为空,检查旧版 SharedPreferences
-    final prefs = ref.read(sharedPreferencesProvider);
-    final legacy = prefs.getString(_kLegacyKey);
+    final legacy = _preferences.getString(_kLegacyKey);
     if (legacy != null && legacy.isNotEmpty) {
-      await secure.write(key: _kKey, value: legacy);
-      await prefs.remove(_kLegacyKey);
-      state = GitHubTokenState(token: legacy);
+      await _secure.write(key: _kKey, value: legacy);
+      await _removeLegacyToken();
+      _publish(GitHubTokenState(token: legacy));
     }
   }
 
-  Future<void> setToken(String value) async {
+  /* 串行保存 Token；只有安全存储完成后才更新可用状态。 */
+  Future<void> setToken(String value) {
     final token = value.trim();
     if (token.isEmpty) {
       return clear();
     }
-    state = GitHubTokenState(token: token);
-    final secure = ref.read(secureStorageProvider);
-    await secure.write(key: _kKey, value: token);
+    return _enqueue(() async {
+      await _removeLegacyToken();
+      await _secure.write(key: _kKey, value: token);
+      _publish(GitHubTokenState(token: token));
+    });
   }
 
-  Future<void> clear() async {
-    state = const GitHubTokenState();
-    final secure = ref.read(secureStorageProvider);
-    await secure.delete(key: _kKey);
+  /* 先清理旧明文，再删除安全存储，避免重启后重新迁移被清除的 Token。 */
+  Future<void> clear() {
+    return _enqueue(() async {
+      await _removeLegacyToken();
+      await _secure.delete(key: _kKey);
+      _publish(const GitHubTokenState());
+    });
+  }
+
+  /* 清理旧版明文项，并把持久化失败交给调用方。 */
+  Future<void> _removeLegacyToken() async {
+    if (_preferences.containsKey(_kLegacyKey) && !await _preferences.remove(_kLegacyKey)) {
+      throw StateError('Failed to remove legacy GitHub credential');
+    }
+  }
+
+  /* 操作失败不会阻断后续重试；每位调用者仍收到自己的失败。 */
+  Future<void> _enqueue(Future<void> Function() action) {
+    final operation = _pending.then((_) => action());
+    _pending = operation.then<void>((_) {}, onError: (Object _, StackTrace _) {});
+    return operation;
+  }
+
+  /* 已销毁的控制器只完成持久化，不继续发布界面状态。 */
+  void _publish(GitHubTokenState next) {
+    if (ref.mounted) {
+      state = next;
+    }
   }
 }
 
