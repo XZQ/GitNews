@@ -89,7 +89,10 @@ GitHub Actions 直接调用同一个 Harness。当前 Windows 任务运行 `ci-w
 执行完整 `lib/test` 格式、可移植性、analyzer、全量测试与 Release 构建。Linux
 服务任务运行 `server`。可见主窗口和关闭后托盘存活需要真实 Windows 桌面会话，因此保留在
 本机 `desktop` suite，不把无交互 CI 结果伪装成 UI 已验证。CI 无论成功失败都会
-上传 `build/harness/` 作为诊断证据。
+上传 `build/harness/` 作为诊断证据。Windows CI 固定 Flutter `3.44.9` / Dart
+`3.12.2`，依赖解析使用 `flutter pub get --enforce-lockfile`；服务端使用
+`uv sync --locked --all-groups`。SDK 升级作为独立改动验收，避免滚动 stable
+自动改写依赖和格式/视觉基线。
 
 ## 当前限制
 

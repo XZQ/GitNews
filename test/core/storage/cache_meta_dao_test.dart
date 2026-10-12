@@ -42,6 +42,22 @@ void main() {
       expect(await dao.lastFetched('a'), DateTime.utc(2026, 6, 30, 10));
       expect(await dao.lastFetched('b'), DateTime.utc(2026, 6, 30, 11));
     });
+
+    test('prune retains recent validation metadata', () async {
+      final now = DateTime.utc(2026, 10, 12);
+      await dao.upsert('expired', now.subtract(const Duration(days: 3)));
+      await dao.upsert('recent', now.subtract(const Duration(hours: 1)));
+
+      expect(await dao.pruneStale(now: now, retainFor: const Duration(days: 2)), 1);
+      expect(await dao.lastFetched('expired'), isNull);
+      expect(await dao.lastFetched('recent'), now.subtract(const Duration(hours: 1)));
+    });
+
+    test('prune tolerates asynchronous database deletion failures', () async {
+      await db.close();
+
+      expect(await dao.pruneStale(now: DateTime.utc(2026, 10, 12), retainFor: const Duration(days: 2)), 0);
+    });
   });
 
   group('CacheMetaDao ETag', () {

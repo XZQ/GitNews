@@ -158,7 +158,7 @@ class GithubMonitorRepository implements MonitorRepository {
       }
       final item = _parseRepo(data, now);
       // GitHub 仓库迁移可能重定向到新名称，订阅和检查状态仍按用户保存的标识关联。
-      return _withSnapshotTrend(item.copyWith(repo: item.repo.copyWith(fullName: fullName)), now);
+      return await _withSnapshotTrend(item.copyWith(repo: item.repo.copyWith(fullName: fullName)), now);
     } on DioException catch (error) {
       final exception = GitHubApiSupport.toAppException(error, now: _now);
       _maybeReportRateLimit(exception);

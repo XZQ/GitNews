@@ -1,12 +1,14 @@
 # AI资讯启动与发布指南
 
-当前开发基线为 `1.5.0+5` 加 `Unreleased` 改动。Windows 桌面端是发布验证目标；紧凑窗口和移动端使用总览、AI、发现、监控、我的 5 Tab 导航。提交或发布前必须通过格式化、静态分析和全量测试；桌面影响改动还必须通过 Windows Release 构建和真实启动烟测。
+当前开发基线为 `1.6.0+6` 加 `Unreleased` 改动。Windows 桌面端是发布验证目标；紧凑窗口和移动端使用总览、AI、发现、监控、我的 5 Tab 导航。提交或发布前必须通过格式化、静态分析和全量测试；桌面影响改动还必须通过 Windows Release 构建和真实启动烟测。
 
 ## 1. 环境检查
 
+可重复验证使用 Flutter `3.44.9` / Dart `3.12.2`；Windows CI 固定同一 SDK，并用锁文件解析依赖。SDK 升级应单独更新并验收格式、测试与视觉基线。
+
 ```bash
 flutter doctor -v
-flutter pub get
+flutter pub get --enforce-lockfile
 ```
 
 若仓库缺少 Windows 平台目录，再执行：
@@ -151,7 +153,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/harness.ps1 -Suite ser
 
 ```bash
 cd server
-uv sync --all-groups
+uv sync --locked --all-groups
 uv run ruff check .
 uv run ruff format --check .
 uv run pytest

@@ -92,7 +92,7 @@ Future<AuthRepository> _openAuthRepository(AuthRepositoryLoader? loader) async {
 Future<bool> openApplicationDataDirectory() async {
   try {
     final directory = await getApplicationSupportDirectory();
-    return launchUrl(Uri.directory(directory.path), mode: LaunchMode.externalApplication);
+    return await launchUrl(Uri.directory(directory.path), mode: LaunchMode.externalApplication);
   } catch (_) {
     return false;
   }

@@ -139,7 +139,7 @@ class CacheMetaDao {
   Future<int> pruneStale({required DateTime now, required Duration retainFor}) async {
     try {
       final threshold = now.toUtc().millisecondsSinceEpoch - retainFor.inMilliseconds;
-      return _db.delete(_table, where: 'last_fetched_at < ?', whereArgs: [threshold]);
+      return await _db.delete(_table, where: 'last_fetched_at < ?', whereArgs: [threshold]);
     } catch (e) {
       AppLogger.warn('cacheMetaPrune', meta: {'error': e.runtimeType.toString()});
       return 0;

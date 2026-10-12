@@ -27,10 +27,11 @@ jobs:
         uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           channel: stable
+          flutter-version: '3.44.9'
           cache: true
 
       - name: Resolve Flutter dependencies
-        run: flutter pub get
+        run: flutter pub get --enforce-lockfile
 
       - name: Run Windows build harness
         shell: pwsh
@@ -64,7 +65,7 @@ jobs:
 
       - name: Resolve server dependencies
         working-directory: server
-        run: uv sync --all-groups
+        run: uv sync --locked --all-groups
 
       - name: Run server harness
         shell: pwsh

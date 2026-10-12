@@ -6,6 +6,7 @@ import 'package:github_news/core/domain/repo_check_status.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/json_snapshot_cache_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
+import 'package:github_news/core/storage/repo_snapshot_history_dao.dart';
 import 'package:github_news/features/monitor/data/github_monitor_cache_codec.dart';
 import 'package:github_news/features/monitor/data/github_monitor_repository.dart';
 import 'package:github_news/features/monitor/data/monitor_alert_event_dao.dart';
@@ -229,6 +230,36 @@ void main() {
     expect(result.data.checks['owner/repo']?.failure, isNull);
     expect(await observations.read('owner/repo'), hasLength(1));
     expect(await observations.read('other/repo'), isEmpty);
+  });
+
+  test('asynchronous history parse failures keep their controlled failure reason', () async {
+    final now = DateTime.utc(2026, 10, 12);
+    await cache.upsert(
+      key: 'repo_snapshot_history:v1:owner/repo',
+      payload: {
+        'points': [
+          {'day': '2026-10-11', 'stars': 100, 'forks': 1, 'capturedAt': 'invalid'},
+        ],
+      },
+      now: now,
+    );
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => okResponse(stars: 101, forks: 1, issues: 1));
+    final repository = GithubMonitorRepository(
+      dio: dio,
+      cache: cache,
+      observationDao: observations,
+      alertDao: alerts,
+      snapshotHistory: RepoSnapshotHistoryDao(cache),
+      repos: const ['owner/repo'],
+      cacheKey: 'monitor:test',
+      now: () => now,
+    );
+
+    final result = await repository.getDigest(force: true);
+
+    expect(result.freshness, DataFreshness.staleCache);
+    expect(result.data.checks['owner/repo']?.failure, RepoCheckFailure.parse);
+    expect(await observations.read('owner/repo'), isEmpty);
   });
 }
 
