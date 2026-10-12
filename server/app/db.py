@@ -16,6 +16,33 @@ class Database:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.connection() as connection:
             connection.executescript(_SCHEMA)
+            self._migrate_sync_revisions(connection)
+
+    def _migrate_sync_revisions(self, connection: sqlite3.Connection) -> None:
+        """Keep legacy records and assign durable, server-owned sync cursors."""
+        connection.execute("BEGIN IMMEDIATE")
+        columns = {row["name"] for row in connection.execute("PRAGMA table_info(sync_records)")}
+        if "revision" not in columns:
+            connection.execute("ALTER TABLE sync_records ADD COLUMN revision INTEGER NOT NULL DEFAULT 0")
+        revision = connection.execute(
+            "SELECT MAX(COALESCE((SELECT MAX(revision) FROM sync_records),0),"
+            "COALESCE((SELECT revision FROM sync_clock WHERE singleton=1),0))"
+        ).fetchone()[0]
+        legacy = connection.execute(
+            "SELECT rowid FROM sync_records WHERE revision=0 "
+            "ORDER BY updated_at,workspace_id,namespace,record_id"
+        ).fetchall()
+        for row in legacy:
+            revision += 1
+            connection.execute("UPDATE sync_records SET revision=? WHERE rowid=?", (revision, row[0]))
+        connection.execute(
+            "INSERT INTO sync_clock(singleton,revision) VALUES(1,?) "
+            "ON CONFLICT(singleton) DO UPDATE SET revision=MAX(sync_clock.revision,excluded.revision)",
+            (revision,),
+        )
+        connection.execute(
+            "CREATE INDEX IF NOT EXISTS idx_sync_revision ON sync_records(workspace_id,revision)"
+        )
 
     @contextmanager
     def connection(self) -> Iterator[sqlite3.Connection]:
@@ -76,9 +103,15 @@ CREATE TABLE IF NOT EXISTS sync_records (
   version INTEGER NOT NULL,
   deleted INTEGER NOT NULL DEFAULT 0,
   updated_at INTEGER NOT NULL,
+  revision INTEGER NOT NULL DEFAULT 0,
   PRIMARY KEY(workspace_id, namespace, record_id)
 );
 CREATE INDEX IF NOT EXISTS idx_sync_updated ON sync_records(workspace_id, updated_at);
+
+CREATE TABLE IF NOT EXISTS sync_clock (
+  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+  revision INTEGER NOT NULL CHECK(revision>=0)
+);
 
 CREATE TABLE IF NOT EXISTS workspace_members (
   workspace_id TEXT NOT NULL,

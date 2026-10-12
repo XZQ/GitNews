@@ -37,6 +37,8 @@ class SyncPushRequest(BaseModel):
 
 class SyncRecord(SyncRecordInput):
     workspace_id: str
+    revision: int
+    cursor: str
 
 
 class SyncPushResult(BaseModel):
