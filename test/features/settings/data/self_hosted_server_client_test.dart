@@ -81,5 +81,38 @@ void main() {
 
     expect(record?.version, 42);
     expect(record?.payload['app'], 'github_news');
+    final queries = verify(
+      () => dio.get<List<Object?>>(
+        'https://sync.example.com/v1/sync/pull',
+        queryParameters: captureAny(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).captured;
+    expect(queries.single, {'since': 0, 'limit': 1, 'namespace': 'app_config', 'record_id': 'shared'});
+  });
+
+  test('pull config does not restore a deleted shared record', () async {
+    when(
+      () => dio.get<List<Object?>>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer(
+      (_) async => Response(
+        requestOptions: RequestOptions(path: '/v1/sync/pull'),
+        data: [
+          {
+            'namespace': 'app_config',
+            'record_id': 'shared',
+            'deleted': true,
+            'payload': {'app': 'github_news', 'preferences': <String, Object?>{}},
+            'version': 43,
+          },
+        ],
+      ),
+    );
+
+    expect(await client.pullConfig(connection), isNull);
   });
 }

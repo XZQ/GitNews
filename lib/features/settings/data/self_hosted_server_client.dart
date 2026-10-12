@@ -63,14 +63,18 @@ class SelfHostedServerClient {
 
   Future<RemoteConfigRecord?> pullConfig(ServerConnectionState connection) async {
     try {
-      final response = await _dio.get<List<Object?>>('${connection.baseUrl}/v1/sync/pull', queryParameters: {'since': 0, 'limit': 1000}, options: _options(connection));
+      final response = await _dio.get<List<Object?>>(
+        '${connection.baseUrl}/v1/sync/pull',
+        queryParameters: const {'since': 0, 'limit': 1, 'namespace': 'app_config', 'record_id': 'shared'},
+        options: _options(connection),
+      );
       final rows = response.data ?? const [];
       for (final raw in rows.reversed) {
         if (raw is! Map) {
           continue;
         }
         final row = raw.cast<String, Object?>();
-        if (row['namespace'] != 'app_config' || row['record_id'] != 'shared' || row['payload'] is! Map) {
+        if (row['namespace'] != 'app_config' || row['record_id'] != 'shared' || row['deleted'] == true || row['payload'] is! Map) {
           continue;
         }
         return RemoteConfigRecord(payload: (row['payload'] as Map).cast<String, Object?>(), version: row['version'] as int);
