@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
+import '../../../core/utils/app_logger.dart';
 import '../data/ai_news_seed_data.dart';
 import '../domain/ai_news_item.dart';
 import 'ai_news_providers.dart';
@@ -37,6 +38,8 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
   bool _hasApiMore = true;
   // 仅用于阻止「同 cursor 的并发请求」,不阻塞 loadMore 从已有 buffer 切片。
   bool _fetching = false;
+  // 翻页失败保留游标与已载内容，供列表显示显式重试入口。
+  Object? _loadMoreError;
   AiNewsCategory? _category;
   // 代际令牌:每次 build 自增,用于让未完成的旧请求在 resolve 后识别「我已被新分类覆盖」。
   int _generation = 0;
@@ -70,6 +73,7 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
     _nextCursor = null;
     _hasApiMore = true;
     _fetching = false;
+    _loadMoreError = null;
 
     final dao = ref.read(aiNewsCacheDaoProvider);
     final now = ref.read(clockProvider)();
@@ -117,7 +121,7 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
   *  初次请求或后续预取请求打架。
   */
   Future<void> loadMore() async {
-    if (state.hasError) {
+    if (state.hasError || !hasMore) {
       return;
     }
     final shown = state.value?.length ?? 0;
@@ -131,12 +135,18 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
     if (_fetching) {
       return;
     }
+    final generation = _generation;
+    _loadMoreError = null;
+    state = AsyncData(List<AiNewsItem>.of(state.value ?? const []));
     while (_hasApiMore && (state.value?.length ?? 0) >= _buffer.length) {
       final previousCursor = _nextCursor;
       final previousBufferLength = _buffer.length;
-      await _fetchNextPage();
-      if (!ref.mounted) {
+      final succeeded = await _fetchNextPage(generation: generation, paging: true);
+      if (!ref.mounted || generation != _generation) {
         return;
+      }
+      if (!succeeded) {
+        break;
       }
       if (_buffer.length > previousBufferLength || !_hasApiMore) {
         break;
@@ -163,65 +173,84 @@ class AiNewsItemsNotifier extends AsyncNotifier<List<AiNewsItem>> {
     return shown < _buffer.length || _hasApiMore;
   }
 
+  /* 当前翻页错误；重试或切换查询后清除。 */
+  Object? get loadMoreError => _loadMoreError;
+
   List<AiNewsItem> _currentSlice() => _buffer.sublist(0, _buffer.length.clamp(0, aiNewsPageSize));
 
-  Future<void> _fetchNextPage({int? generation, bool force = false}) async {
+  /* 返回请求是否成功，避免把失败后保留的游标误判为分页结束。 */
+  Future<bool> _fetchNextPage({int? generation, bool force = false, bool paging = false}) async {
     final gen = generation ?? _generation;
-    if (!ref.mounted || (_fetching && gen == _generation)) {
-      return;
+    if (!ref.mounted || gen != _generation || _fetching) {
+      return false;
     }
     _fetching = true;
     final freshness = ref.read(aiNewsFreshnessProvider.notifier);
     // 关键不变量:cursor=null 表示「拉 head 页」(初始化或刷新),
     // 用新结果覆盖 buffer;cursor 非空表示「翻下一页」,追加到 buffer。
     final requestCursor = _nextCursor;
+    final requestCategory = _category;
     final isHead = requestCursor == null;
     try {
-      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(category: _category, cursor: requestCursor, selectedOnly: true, force: force);
+      final result = await ref.read(aiNewsRepositoryProvider).fetchItems(category: requestCategory, cursor: requestCursor, selectedOnly: true, force: force);
       final digest = result.data;
       if (!ref.mounted || gen != _generation) {
-        return;
+        return false;
       }
-      _buffer = _mergeUnique(isHead ? [...digest.items, ..._buffer] : [..._buffer, ...digest.items]);
-      final nextCursor = digest.nextCursor?.trim();
-      _nextCursor = nextCursor == null || nextCursor.isEmpty ? null : nextCursor;
-      _hasApiMore = digest.hasNext && _nextCursor != null;
-      // A successful later page cannot erase a stale head query's warning.
-      if (isHead || result.freshness == DataFreshness.staleCache) freshness.state = result.freshness;
       // Cache reads carry their original validation time, never the current time.
       final dao = ref.read(aiNewsCacheDaoProvider);
       final now = ref.read(clockProvider)();
       final validatedAt = result.validatedAt ?? (result.freshness == DataFreshness.live ? now : null);
       final validated = validatedAt != null && (result.freshness == DataFreshness.live || result.freshness == DataFreshness.freshCache);
       await dao.upsertPage(
-        category: _category,
+        category: requestCategory,
         // 分页按实际 cursor 落盘；新鲜度判断仍只读取 head 的 meta。
         cursor: requestCursor,
         digest: digest,
         now: validatedAt ?? now,
         validated: validated,
       );
-      if (ref.mounted && gen == _generation && isHead && validated) ref.read(aiNewsLastValidatedAtProvider.notifier).state = validatedAt;
+      if (!ref.mounted || gen != _generation) {
+        return false;
+      }
+      // 缓存保存完成后才推进游标，写入失败仍能重试原页。
+      _buffer = _mergeUnique(isHead ? [...digest.items, ..._buffer] : [..._buffer, ...digest.items]);
+      final nextCursor = digest.nextCursor?.trim();
+      _nextCursor = nextCursor == null || nextCursor.isEmpty ? null : nextCursor;
+      _hasApiMore = digest.hasNext && _nextCursor != null;
+      // A successful later page cannot erase a stale head query's warning.
+      if (isHead || result.freshness == DataFreshness.staleCache) freshness.state = result.freshness;
+      if (isHead && validated) ref.read(aiNewsLastValidatedAtProvider.notifier).state = validatedAt;
+      return true;
     } catch (e) {
       if (!ref.mounted || gen != _generation) {
-        return;
+        return false;
       }
-      _fetching = false;
-      await ref.read(aiNewsCacheDaoProvider).markValidationFailed(category: _category, cursor: requestCursor);
-      if (!ref.mounted || gen != _generation) return;
+      try {
+        await ref.read(aiNewsCacheDaoProvider).markValidationFailed(category: requestCategory, cursor: requestCursor);
+      } catch (error) {
+        AppLogger.warn('aiNewsPageValidationStatus', meta: {'error': error.runtimeType.toString()});
+      }
+      if (!ref.mounted || gen != _generation) return false;
       // 后台刷新失败容忍:已有缓存数据就不报错,标记为陈旧缓存兜底
       if (_buffer.isNotEmpty) {
         freshness.state = DataFreshness.staleCache;
-        return;
+        if (paging) {
+          _loadMoreError = e;
+          state = AsyncData(List<AiNewsItem>.of(state.value ?? const []));
+        }
+        return false;
       }
       // 没有任何缓存且远端不可用:回退到本地种子数据,保证首启可渲染。
       _buffer = AiNewsSeedData.items.where((item) => _category == null || item.category == _category).toList(growable: false);
       _hasApiMore = false;
       freshness.state = DataFreshness.seed;
       state = AsyncData(_currentSlice());
-    }
-    if (gen == _generation) {
-      _fetching = false;
+      return false;
+    } finally {
+      if (gen == _generation) {
+        _fetching = false;
+      }
     }
   }
 

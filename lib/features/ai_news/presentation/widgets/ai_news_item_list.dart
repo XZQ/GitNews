@@ -93,7 +93,10 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
       return false;
     }
     if (notification.metrics.extentAfter < aiNewsLoadMoreScrollPixels) {
-      ref.read(aiNewsItemsNotifierProvider.notifier).loadMore();
+      final notifier = ref.read(aiNewsItemsNotifierProvider.notifier);
+      if (notifier.loadMoreError == null) {
+        notifier.loadMore();
+      }
     }
     return false;
   }
@@ -142,7 +145,9 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
             : l10n.tr('ai_news.empty_category').replaceAll('{cat}', widget.category!.label),
       );
     }
-    final hasMore = !widget.staticList && query.isEmpty && ref.read(aiNewsItemsNotifierProvider.notifier).hasMore;
+    final notifier = !widget.staticList && query.isEmpty ? ref.read(aiNewsItemsNotifierProvider.notifier) : null;
+    final hasMore = notifier?.hasMore ?? false;
+    final loadMoreError = notifier?.loadMoreError;
     final showPagingFooter = widget.pagingFooter != null || (!widget.staticList && query.isEmpty);
     final profile = ref.watch(aiNewsInterestProfileProvider).value ?? AiNewsInterestProfile.empty;
     final isCompact = Breakpoints.isCompact(context);
@@ -176,7 +181,14 @@ class _AiNewsItemListState extends ConsumerState<AiNewsItemList> {
                             ),
                     );
                   }
-                  return widget.pagingFooter ?? (hasMore ? const AiNewsLoadMoreIndicator() : AiNewsEndOfListFooter(label: l10n.tr('ai_news.no_more')));
+                  return widget.pagingFooter ??
+                      (loadMoreError != null
+                          ? Center(
+                              child: TextButton.icon(onPressed: () => notifier!.loadMore(), icon: const Icon(Icons.refresh), label: Text(l10n.tr('ai_news.search.retry'))),
+                            )
+                          : hasMore
+                          ? const AiNewsLoadMoreIndicator()
+                          : AiNewsEndOfListFooter(label: l10n.tr('ai_news.no_more')));
                 },
                 childCount: flat.length + (showPagingFooter ? 1 : 0),
                 findChildIndexCallback: (key) => indices[key],
