@@ -1,8 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import AfterValidator, BaseModel, Field, field_validator
+
+from .gharchive_hour import normalize_hour
+
+GhArchiveHour = Annotated[
+    str,
+    Field(pattern=r"^\d{4}-\d{2}-\d{2}-\d{1,2}$"),
+    AfterValidator(normalize_hour),
+]
 
 
 class NewsItem(BaseModel):
@@ -82,7 +90,7 @@ class PushEventInput(BaseModel):
 
 
 class GhArchiveIngestRequest(BaseModel):
-    hour: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}-\d{1,2}$")
+    hour: GhArchiveHour
 
 
 class GhArchiveTrend(BaseModel):

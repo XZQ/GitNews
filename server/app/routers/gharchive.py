@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 
 from ..auth import RequestContext, require_context
 from ..deps import gharchive
+from ..gharchive_hour import normalize_hour
 from ..gharchive_service import GhArchiveService
 from ..models import GhArchiveIngestRequest, GhArchiveTrend
 
@@ -26,4 +27,8 @@ def trends(
     _: RequestContext = Depends(require_context),
     service: GhArchiveService = Depends(gharchive),
 ) -> list[GhArchiveTrend]:
-    return service.trends(since_hour=since_hour, event_type=event_type, limit=limit)
+    try:
+        normalized = normalize_hour(since_hour)
+    except ValueError as error:
+        raise HTTPException(status_code=422, detail=str(error)) from error
+    return service.trends(since_hour=normalized, event_type=event_type, limit=limit)
