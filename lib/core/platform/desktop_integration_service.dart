@@ -14,32 +14,35 @@ import 'package:window_manager/window_manager.dart';
 class DesktopIntegrationService with WindowListener, TrayListener {
   DesktopIntegrationService._();
 
+  /* 创建独立生命周期实例，测试不会污染生产单例。 */
+  @visibleForTesting
+  DesktopIntegrationService.forTesting();
+
   static final instance = DesktopIntegrationService._();
 
   bool _initialized = false;
   bool _quitting = false;
   bool _notificationsReady = false;
+
+  // 只有窗口插件和完整托盘入口都可用时，关闭才可以隐藏窗口。
+  bool _hideOnClose = false;
   final List<LocalNotification> _activeNotifications = [];
 
   bool get supported => !kIsWeb && (Platform.isWindows || Platform.isMacOS || Platform.isLinux);
 
-  bool get active => supported && _initialized;
+  bool get active => supported && _hideOnClose;
 
+  /* 先建立可恢复的托盘入口，再接管窗口关闭；失败时保留默认关闭。 */
   Future<void> initialize() async {
     if (!supported || _initialized) {
       return;
     }
     _initialized = true;
+    var windowReady = false;
     try {
       await windowManager.ensureInitialized();
-      unawaited(
-        windowManager.waitUntilReadyToShow(const WindowOptions(title: 'AI资讯', titleBarStyle: TitleBarStyle.hidden, windowButtonVisibility: false), () async {
-          await windowManager.show();
-          await windowManager.focus();
-        }),
-      );
-      await windowManager.setPreventClose(true);
-      windowManager.addListener(this);
+      windowReady = true;
+      unawaited(_showInitialWindow());
     } catch (_) {
       // 窗口插件不可用时保留系统默认关闭行为。
     }
@@ -56,14 +59,44 @@ class DesktopIntegrationService with WindowListener, TrayListener {
         ),
       );
       trayManager.addListener(this);
+      if (windowReady) {
+        await windowManager.setPreventClose(true);
+        windowManager.addListener(this);
+        _hideOnClose = true;
+      }
     } catch (_) {
-      // 托盘不可用时应用仍可正常以前台窗口运行。
+      _hideOnClose = false;
+      windowManager.removeListener(this);
+      trayManager.removeListener(this);
+      try {
+        await trayManager.destroy();
+      } catch (_) {
+        // 尽力移除不完整的托盘入口。
+      }
+      if (windowReady) {
+        try {
+          await windowManager.setPreventClose(false);
+        } catch (_) {
+          // 没有注册关闭监听，不会主动隐藏仍可见的窗口。
+        }
+      }
     }
     try {
       await localNotifier.setup(appName: 'AI资讯', shortcutPolicy: ShortcutPolicy.requireCreate);
       _notificationsReady = true;
     } catch (_) {
       _notificationsReady = false;
+    }
+  }
+
+  /* 保持首帧前的非阻塞窗口展示，并在插件异步失败时保留可见窗口。 */
+  Future<void> _showInitialWindow() async {
+    try {
+      await windowManager.waitUntilReadyToShow(const WindowOptions(title: 'AI资讯', titleBarStyle: TitleBarStyle.hidden, windowButtonVisibility: false), () {
+        unawaited(showWindow());
+      });
+    } catch (_) {
+      // Flutter Runner 仍负责首帧窗口展示。
     }
   }
 
@@ -99,29 +132,29 @@ class DesktopIntegrationService with WindowListener, TrayListener {
 
   @override
   void onWindowClose() {
-    if (_quitting) {
+    if (_quitting || !_hideOnClose) {
       return;
     }
-    windowManager.hide();
+    unawaited(windowManager.hide().catchError((Object _) {}));
   }
 
   @override
   void onTrayIconMouseDown() {
-    showWindow();
+    unawaited(showWindow());
   }
 
   @override
   void onTrayIconRightMouseUp() {
-    trayManager.popUpContextMenu();
+    unawaited(trayManager.popUpContextMenu().catchError((Object _) {}));
   }
 
   @override
   void onTrayMenuItemClick(MenuItem menuItem) {
     switch (menuItem.key) {
       case 'show_window':
-        showWindow();
+        unawaited(showWindow());
       case 'exit_app':
-        _quit();
+        unawaited(_quit());
     }
   }
 
