@@ -59,6 +59,22 @@ The persistent database is stored in the `github-news-data` volume. Put a TLS re
 
 The built-in scheduler runs feed ingestion and webhook dispatch. Run one scheduler-enabled replica; additional API replicas should set `GITHUB_NEWS_SCHEDULER_ENABLED=false` to avoid duplicate jobs. FCM/APNs/WNS entries intentionally remain in the outbox until a credentialed delivery gateway reads and acknowledges them—provider credentials are never fabricated or committed.
 
+## Sync and durable writes
+
+Sync writes check versions while holding a SQLite write transaction. A higher version replaces the record; an equal version is accepted only when its payload and tombstone match the stored record, and this retry does not change the stored timestamp or server revision. A lower version, or an equal version with different content, returns the existing record in `conflicts`. Annotation updates follow the same version rule and reject IDs already owned by another workspace with HTTP 409.
+
+`GET /v1/sync/pull` keeps the list response and the existing `since`/`limit` arguments. Optional `namespace` and `record_id` arguments filter records independently or together, including tombstones. To retrieve the shared client configuration, use `since=0&limit=1&namespace=app_config&record_id=shared`; a deleted result must not be imported.
+
+Each returned record also carries a monotonically increasing server `revision` and an opaque, workspace-scoped `cursor`. For reliable paging and incremental sync, explicitly start with `cursor=start`, retain the last record's `cursor` only after applying the page, and send that opaque cursor on the next pull. Both the initial `start` checkpoint and later cursors read records in server revision order and ignore `since`, so records whose client clocks repeat or move backwards remain reachable. Keep the same filters while paging; changing the workspace or filters requires a fresh `cursor=start` pull. Continue until an empty page, and keep the last successful cursor for later polls. Invalid or other-workspace opaque cursors return HTTP 400.
+
+Without `cursor`, the legacy `since` filter and `updated_at, namespace, record_id` ordering remain unchanged. Timestamp-only paging cannot guarantee incremental delivery when client clocks repeat or move backwards. Do not switch from a legacy timestamp page to its returned revision cursor midway through a scan; begin a new scan with `cursor=start` to opt into revision paging from the first page.
+
+Startup upgrades older SQLite databases in place by adding `sync_records.revision` and a single-row `sync_clock` counter, assigning revisions to existing records without changing their payloads, client versions, timestamps or tombstones. Migration and concurrent sync writes are serialized; revisions and checkpoints survive service restart. The sync endpoint returns current record snapshots rather than every historical edit.
+
+Feed ingestion writes article changes and notifications for all subscribed workspaces in one transaction. An outbox failure rolls back those article changes so a later ingestion can retry; concurrent ingestion instances create one notification for a newly persisted article. Webhook delivery remains an at-least-once external boundary, so receivers should handle retries idempotently.
+
+GH Archive accepts actual calendar hours with one or two hour digits, stores new hours with two digits, and compares hours chronologically. Existing rows with unpadded hours remain readable; when older data contains both representations of the same repository/event/hour, trends use the most recently updated row. Reingestion replaces both representations of the same hour. Downloads keep GH Archive's unpadded filename format.
+
 ## Security and operations
 
 - Change the default master key before any non-local run.
