@@ -94,6 +94,7 @@ class SelfHostedServerPage extends ConsumerWidget {
     );
   }
 
+  /* 编辑并持久保存连接，校验与存储失败均在页面内反馈。 */
   Future<void> _edit(BuildContext context, WidgetRef ref, ServerConnectionState current) async {
     final draft = await showDialog<_ServerDraft>(
       context: context,
@@ -107,6 +108,10 @@ class SelfHostedServerPage extends ConsumerWidget {
     } on FormatException {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).tr('settings.server.invalid'))));
+      }
+    } catch (_) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).tr('settings.server.failed'))));
       }
     }
   }
@@ -146,6 +151,18 @@ class _ServerConnectionDialogState extends State<_ServerConnectionDialog> {
   late final TextEditingController _member;
   final _key = TextEditingController();
 
+  /* 仅规范化后地址相同的连接允许沿用已有 Key。 */
+  bool get _canKeepExistingKey {
+    if (!widget.current.configured) {
+      return false;
+    }
+    try {
+      return normalizeServerBaseUrl(_url.text) == normalizeServerBaseUrl(widget.current.baseUrl);
+    } on FormatException {
+      return false;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -175,6 +192,7 @@ class _ServerConnectionDialogState extends State<_ServerConnectionDialog> {
           children: [
             TextField(
               controller: _url,
+              onChanged: (_) => setState(() {}),
               decoration: InputDecoration(labelText: l10n.tr('settings.server.base_url')),
             ),
             TextField(
@@ -188,7 +206,7 @@ class _ServerConnectionDialogState extends State<_ServerConnectionDialog> {
             TextField(
               controller: _key,
               obscureText: true,
-              decoration: InputDecoration(labelText: l10n.tr('settings.server.api_key'), hintText: widget.current.configured ? l10n.tr('settings.server.keep_key') : null),
+              decoration: InputDecoration(labelText: l10n.tr('settings.server.api_key'), hintText: _canKeepExistingKey ? l10n.tr('settings.server.keep_key') : null),
             ),
           ],
         ),
@@ -198,7 +216,7 @@ class _ServerConnectionDialogState extends State<_ServerConnectionDialog> {
         FilledButton(
           onPressed: () => Navigator.pop(
             context,
-            _ServerDraft(baseUrl: _url.text, workspaceId: _workspace.text, memberId: _member.text, apiKey: _key.text.trim().isEmpty ? widget.current.apiKey ?? '' : _key.text),
+            _ServerDraft(baseUrl: _url.text, workspaceId: _workspace.text, memberId: _member.text, apiKey: _key.text.trim().isEmpty ? (_canKeepExistingKey ? widget.current.apiKey! : '') : _key.text),
           ),
           child: Text(l10n.tr('common.save')),
         ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:github_news/core/preferences/ai_news_source_controller.dart';
 import 'package:github_news/core/preferences/config_service.dart';
 import 'package:github_news/core/preferences/link_open_mode_controller.dart';
 import 'package:github_news/core/preferences/locale_controller.dart';
+import 'package:github_news/core/preferences/server_connection_controller.dart';
 import 'package:github_news/core/preferences/startup_tab_controller.dart';
 import 'package:github_news/core/preferences/trending_data_source_mode_controller.dart';
 import 'package:github_news/core/shared/local_content_controller.dart';
@@ -17,6 +19,8 @@ import 'package:github_news/core/theme/theme_mode_controller.dart';
 import 'package:github_news/core/theme/theme_preset_controller.dart';
 import 'package:github_news/features/monitor/application/monitor_settings_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../support/controlled_secure_storage.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -111,6 +115,81 @@ void main() {
     expect(container.read(aiNewsReminderPreferencesProvider), isFalse);
     expect(container.read(localContentControllerProvider).monitorRules, [false, true, true, false]);
     expect(container.read(monitorSettingsControllerProvider), [false]);
+  });
+
+  test('import migrates the original server credential before switching addresses and never rebinds it on restart', () async {
+    const serverA = 'https://sync-a.example.com';
+    const serverB = 'https://sync-b.example.com';
+    SharedPreferences.setMockInitialValues({serverBaseUrlPreferenceKey: serverA});
+    final prefs = await SharedPreferences.getInstance();
+    final secure = ControlledSecureStorage({'self_hosted_server_api_key': 'key-a'});
+    final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs), secureStorageProvider.overrideWithValue(secure)]);
+    addTearDown(container.dispose);
+
+    await container.read(configServiceProvider).importText(_config({serverBaseUrlPreferenceKey: serverB}));
+
+    expect(container.read(serverConnectionControllerProvider).baseUrl, serverB);
+    expect(container.read(serverConnectionControllerProvider).configured, isFalse);
+    expect(secure.values.containsKey('self_hosted_server_api_key'), isFalse);
+    final credential = jsonDecode(secure.values['self_hosted_server_connection_v2']!) as Map<String, Object?>;
+    expect(credential['base_url'], serverA);
+    container.invalidate(serverConnectionControllerProvider);
+    await container.read(serverConnectionControllerProvider.notifier).ready;
+    expect(container.read(serverConnectionControllerProvider).configured, isFalse);
+  });
+
+  test('same normalized server import preserves its credential and updates workspace', () async {
+    SharedPreferences.setMockInitialValues({serverBaseUrlPreferenceKey: 'https://SYNC.example.com:443/api/'});
+    final prefs = await SharedPreferences.getInstance();
+    final secure = ControlledSecureStorage({'self_hosted_server_api_key': 'server-key'});
+    final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs), secureStorageProvider.overrideWithValue(secure)]);
+    addTearDown(container.dispose);
+
+    await container.read(configServiceProvider).importText(_config({serverBaseUrlPreferenceKey: 'https://sync.example.com/api', serverWorkspacePreferenceKey: 'other'}));
+
+    expect(container.read(serverConnectionControllerProvider).apiKey, 'server-key');
+    expect(container.read(serverConnectionControllerProvider).workspaceId, 'other');
+  });
+
+  test('failed original credential migration prevents all imported preference writes', () async {
+    SharedPreferences.setMockInitialValues({serverBaseUrlPreferenceKey: 'https://sync-a.example.com', 'theme_mode': 'light'});
+    final prefs = await SharedPreferences.getInstance();
+    final secure = ControlledSecureStorage({'self_hosted_server_api_key': 'key-a'})..failWrite = true;
+    final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs), secureStorageProvider.overrideWithValue(secure)]);
+    addTearDown(container.dispose);
+
+    await expectLater(container.read(configServiceProvider).importText(_config({'theme_mode': 'dark', serverBaseUrlPreferenceKey: 'https://sync-b.example.com'})), throwsStateError);
+
+    expect(prefs.getString(serverBaseUrlPreferenceKey), 'https://sync-a.example.com');
+    expect(prefs.getString('theme_mode'), 'light');
+    expect(secure.values['self_hosted_server_api_key'], 'key-a');
+  });
+
+  test('configuration import waits for an in-flight connection save and keeps its key bound to that server', () async {
+    SharedPreferences.setMockInitialValues({serverBaseUrlPreferenceKey: 'https://sync-a.example.com'});
+    final prefs = await SharedPreferences.getInstance();
+    final secure = ControlledSecureStorage({'self_hosted_server_api_key': 'key-a'});
+    final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs), secureStorageProvider.overrideWithValue(secure)]);
+    addTearDown(container.dispose);
+    final controller = container.read(serverConnectionControllerProvider.notifier);
+    await controller.ready;
+    final gate = Completer<void>();
+    final started = Completer<void>();
+    secure
+      ..nextWriteGate = gate
+      ..nextWriteStarted = started;
+    final saving = controller.save(baseUrl: 'https://sync-b.example.com', workspaceId: 'personal', memberId: 'desktop', apiKey: 'key-b');
+    await started.future;
+    final importing = container.read(configServiceProvider).importText(_config({serverBaseUrlPreferenceKey: 'https://sync-c.example.com'}));
+    gate.complete();
+    await saving;
+    await importing;
+
+    expect(container.read(serverConnectionControllerProvider).baseUrl, 'https://sync-c.example.com');
+    expect(container.read(serverConnectionControllerProvider).configured, isFalse);
+    final credential = jsonDecode(secure.values['self_hosted_server_connection_v2']!) as Map<String, Object?>;
+    expect(credential['base_url'], 'https://sync-b.example.com');
+    expect(credential['api_key'], 'key-b');
   });
 }
 

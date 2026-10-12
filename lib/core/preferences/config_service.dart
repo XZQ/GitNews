@@ -111,22 +111,28 @@ class ConfigService {
   Future<int> importText(String text) async {
     final preferences = _decodeAndValidate(text);
     final store = _ref.read(configPreferenceStoreProvider);
-    final oldValues = <String, Object?>{for (final key in preferences.keys) key: store.get(key)};
 
-    try {
-      for (final entry in preferences.entries) {
-        final written = await store.setValue(entry.key, entry.value);
-        if (!written) {
-          throw StateError('Failed to write preference: ${entry.key}');
+    /* 先完成整个偏好事务，服务器相关导入另外与凭据迁移、保存串行。 */
+    Future<int> writePreferences() async {
+      final oldValues = <String, Object?>{for (final key in preferences.keys) key: store.get(key)};
+      try {
+        for (final entry in preferences.entries) {
+          final written = await store.setValue(entry.key, entry.value);
+          if (!written) {
+            throw StateError('Failed to write preference: ${entry.key}');
+          }
         }
+      } catch (_) {
+        await _rollback(store, oldValues);
+        rethrow;
       }
-    } catch (_) {
-      await _rollback(store, oldValues);
-      rethrow;
+      return preferences.length;
     }
 
+    final changesConnection = preferences.containsKey(serverBaseUrlPreferenceKey) || preferences.containsKey(serverWorkspacePreferenceKey);
+    final count = changesConnection ? await _ref.read(serverConnectionControllerProvider.notifier).importPreferences(writePreferences) : await writePreferences();
     _refreshPreferenceProviders();
-    return preferences.length;
+    return count;
   }
 
   Map<String, Object> _decodeAndValidate(String text) {
@@ -238,7 +244,6 @@ class ConfigService {
       ..invalidate(linkOpenModeControllerProvider)
       ..invalidate(aiNewsSourceControllerProvider)
       ..invalidate(aiNewsReminderPreferencesProvider)
-      ..invalidate(serverConnectionControllerProvider)
       ..invalidate(localContentControllerProvider)
       ..invalidate(monitorSettingsControllerProvider);
   }
