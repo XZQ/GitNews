@@ -1,6 +1,6 @@
 # 全项目审查发现的分批整改与验证
 
-状态：Active
+状态：Complete
 
 本计划遵循 `.agent/PLANS.md`，执行期间必须保持内容与实际状态一致。
 用户明确要求：逐个确认发现、完善修复、提交并推送到 `origin/main`。
@@ -48,8 +48,13 @@
 - [x] (2026-11-07 03:54Z) 第五轮 CI：`server` job success；`ci-windows` 前 6 步
   全通过（含修复后的单文件格式检查、analyzer、全量格式），`flutter.test`
   609 通过 / 1 失败，失败项为合成行为测试的路径边界依赖，与修复无关。
-- [ ] 收敛合成行为测试、加固 root 规范化后推送第六轮，确认两个 job 全绿并
-  把本计划标记为 Complete。
+- [x] (2026-11-07 04:00Z) 收敛合成行为测试为静态契约、加固 root 规范化，
+  经 Git Data API 发布 `e154d0b` / `d39432c`，本地与远端 SHA 一致。
+- [x] (2026-11-07 04:15Z) 第六轮 CI：run 42336774824 两个 job 均 success；
+  `ci-windows` 8 步全 passed（含 `flutter.test` 609 全过、
+  `desktop.release-build` Windows Release 构建成功），`server` 6/6 通过。
+- [x] (2026-11-07 04:20Z) 本计划标记为 Complete；最终状态提交仅改本文件并带
+  `[skip ci]`，不改任何被门禁检查的代码或配置，最终代码状态仍为 `d39432c`。
 
 ## Surprises & Discoveries
 
@@ -163,8 +168,10 @@
 ## Outcomes & Retrospective
 
 代码与本机可执行的静态校验已全部完成；本机**没有**执行 Flutter / uv / pytest
-门禁，仅用独立 Dart 3.12.2 SDK 执行过 `dart format` 与改动文件格式检查，
-完整验证交由 GitHub Actions。本计划在读取 CI 结论、补录证据前保持 Active。
+门禁，仅用独立 Dart 3.12.2 SDK 执行过 `dart format` 与改动文件格式检查。
+完整验证已由 GitHub Actions 完成：第六轮 run 42336774824 的 `ci-windows`
+与 `server` 两个 job 均 success，其中 `ci-windows` 8 个步骤全部 passed，
+`flutter.test` 609 个测试全过，Windows Release 构建成功。
 
 已确认排除的两类误报：`clearAll` 只清 4 张可再生存量表是刻意设计(仅改名与注释)；
 服务端 FCM/APNs/WNS 只入 outbox 是留给外部网关的设计。
@@ -226,6 +233,8 @@ Windows 构建只能由 CI 暴露后修复。静态契约测试与完整 `flutte
 - `git status --short` 为空，本地 HEAD 与 `origin/main` SHA 一致。
 - 计划 `Progress` 全部勾选、`Outcomes & Retrospective` 写明未执行项与剩余风险后
   才能标记 Complete。
+- 最终验收已达成：run 42336774824 两个 job success；`git status -sb` 为
+  `## main...origin/main`，本地 HEAD 与 `origin/main` 一致；Progress 全部勾选。
 
 ## Idempotence and Recovery
 
@@ -248,7 +257,12 @@ Windows 构建只能由 CI 暴露后修复。静态契约测试与完整 `flutte
 - 第五轮 CI：https://github.com/XZQ/GitNews/actions/runs/42335699507
   （`server` success；`ci-windows` 前 6 步通过，含修复后单文件格式检查与
   analyzer；`flutter.test` 609 通过 / 1 失败，失败项为合成行为测试）。
-- 第六轮 CI 链接在结论确认后补入本节。
+- 第六轮 CI（最终验收）：https://github.com/XZQ/GitNews/actions/runs/42336774824
+  （两个 job 均 success；artifact `harness-flutter-windows` 的
+  `20261107T040627502Z-5136/summary.json` 记录 8/8 passed、
+  `609 tests passed`、`desktop.release-build` passed）。
+- 最终被验证的代码状态为 `d39432c`；之后的 Complete 状态提交只改本计划文件，
+  带 `[skip ci]`，避免为纯记录改动重复跑一次 12 分钟的完整 Windows 构建。
 - `build/harness/` 为忽略目录；本轮本机 `-Suite docs -DryRun` 产生过一份计划摘要，
   该目录仍被忽略、不进入提交。
 
