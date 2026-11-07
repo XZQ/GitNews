@@ -31,7 +31,9 @@
   `ci-windows` 的格式、链接、可移植性均通过，`flutter.analyze` 报 6 个 error。
 - [x] (2026-11-07 03:12Z) 修复 6 个 error(泛型 const 3 处、RegExp 非 const 构造、
   可空 apiKey 类型)，本地 Dart 3.12.2 复检 25 文件 `0 changed`。
-- [ ] 推送 analyzer 修复，读取第三轮 CI 完整结论并把本计划标记为 Complete。
+- [x] (2026-11-07 03:13Z) 第三轮 CI：`server` 全绿；`ci-windows` 的 analyzer 仅剩
+  1 个 `use_super_parameters` info，但门禁仍判失败。已局部抑制并写明父类私有形参原因。
+- [ ] 推送 lint 修复，读取第四轮 CI 完整结论并把本计划标记为 Complete。
 
 ## Surprises & Discoveries
 
@@ -179,7 +181,9 @@
   的 run id `20261107T025445312Z-1268/summary.json`）。
 - 第二轮 CI：https://github.com/XZQ/GitNews/actions/runs/42332010580
   （`server` 6/6 通过；`ci-windows` 到 `flutter.analyze` 为止，6 个 error 已定位）。
-- 第三轮 CI 链接在结论确认后补入本节。
+- 第三轮 CI：https://github.com/XZQ/GitNews/actions/runs/42332593462
+  （`server` 6/6；`ci-windows` 到 `flutter.analyze`，仅剩 1 个 info）。
+- 第四轮 CI 链接在结论确认后补入本节。
 - `build/harness/` 为忽略目录，本轮本机不产生。
 
 ## Interfaces and Dependencies

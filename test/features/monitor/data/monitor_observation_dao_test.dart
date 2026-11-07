@@ -83,6 +83,8 @@ MonitorObservation observation({int day = 1, int hour = 12, int stars = 100}) {
 
 /* 模拟存储层的临时故障(非 payload 损坏),用于验证不会用空历史覆盖写回。 */
 class _ReadFailingCache extends JsonSnapshotCacheDao {
+  // 父类构造使用私有字段形参,子类无法跨库用 super parameters 转发。
+  // ignore: use_super_parameters
   _ReadFailingCache(DatabaseExecutor db, CacheMetaDao meta) : super(db, meta);
 
   int upsertCalls = 0;
