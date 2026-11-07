@@ -9,7 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
-import '../../application/github_rate_limit_providers.dart';
+import '../../application/github_rate_limit_check_controller.dart';
 import '../../domain/github_rate_limit.dart';
 
 class GitHubTokenCard extends ConsumerStatefulWidget {
@@ -20,8 +20,8 @@ class GitHubTokenCard extends ConsumerStatefulWidget {
 }
 
 class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
+  // 仅承载输入框这类页面私有且短命的 UI 状态;配额等业务状态在 provider 中。
   late final TextEditingController _controller;
-  AsyncValue<GitHubRateLimitSnapshot>? _rateLimit;
 
   @override
   void initState() {
@@ -39,6 +39,7 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final tokenState = ref.watch(githubTokenControllerProvider);
+    final rateLimit = ref.watch(githubRateLimitCheckProvider);
     final colors = Theme.of(context).colorScheme;
     return AppCard(
       child: Column(
@@ -65,10 +66,10 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
               const SizedBox(width: AppSpacing.sm),
               OutlinedButton.icon(onPressed: tokenState.hasToken ? _clear : null, icon: const Icon(Icons.delete_outline, size: 16), label: Text(l10n.tr('profile.token.clear'))),
               const SizedBox(width: AppSpacing.sm),
-              OutlinedButton.icon(onPressed: _rateLimit?.isLoading == true ? null : _checkQuota, icon: const Icon(Icons.speed_rounded, size: 16), label: Text(l10n.tr('profile.token.check_quota'))),
+              OutlinedButton.icon(onPressed: rateLimit?.isLoading == true ? null : _checkQuota, icon: const Icon(Icons.speed_rounded, size: 16), label: Text(l10n.tr('profile.token.check_quota'))),
             ],
           ),
-          if (_rateLimit != null) ...[const SizedBox(height: AppSpacing.md), _RateLimitStatus(value: _rateLimit!)],
+          if (rateLimit != null) ...[const SizedBox(height: AppSpacing.md), _RateLimitStatus(value: rateLimit)],
         ],
       ),
     );
@@ -85,6 +86,8 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     if (!mounted) {
       return;
     }
+    // token 已变更,旧的配额结果不再可信。
+    ref.read(githubRateLimitCheckProvider.notifier).reset();
     _controller.clear();
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.token.saved'))));
@@ -101,6 +104,8 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     if (!mounted) {
       return;
     }
+    // 已清除 token,配额胶囊必须一起消失,避免展示上一个凭据的结果。
+    ref.read(githubRateLimitCheckProvider.notifier).reset();
     _controller.clear();
     final l10n = AppLocalizations.of(context);
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('profile.token.cleared'))));
@@ -113,22 +118,7 @@ class _GitHubTokenCardState extends ConsumerState<GitHubTokenCard> {
     }
   }
 
-  Future<void> _checkQuota() async {
-    setState(() => _rateLimit = const AsyncLoading());
-    try {
-      final token = ref.read(githubTokenControllerProvider).token;
-      final snapshot = await ref.read(githubRateLimitClientProvider).fetch(token: token);
-      if (!mounted) {
-        return;
-      }
-      setState(() => _rateLimit = AsyncData(snapshot));
-    } catch (e, st) {
-      if (!mounted) {
-        return;
-      }
-      setState(() => _rateLimit = AsyncError(e, st));
-    }
-  }
+  Future<void> _checkQuota() => ref.read(githubRateLimitCheckProvider.notifier).check();
 }
 
 class _RateLimitStatus extends StatelessWidget {
