@@ -65,7 +65,11 @@ if ($dartFiles.Count -eq 0) {
 
 $argumentLength = ($dartFiles | ForEach-Object { $_.Length + 3 } | Measure-Object -Sum).Sum
 $useFullBaseline = $dartFiles.Count -gt 80 -or $argumentLength -gt 7000
-$formatTargets = if ($useFullBaseline) { @('lib', 'test') } else { $dartFiles }
+# PowerShell unwraps the single element emitted by an `if` expression into a scalar
+# string. Splatting a scalar string into a native command passes one argument per
+# character, so dart format would receive "t", "e", "s", "t", ... instead of one
+# path when exactly one Dart file changed. Keep array semantics explicitly.
+[string[]]$formatTargets = if ($useFullBaseline) { @('lib', 'test') } else { $dartFiles }
 
 Push-Location -LiteralPath $rootPath
 try {
