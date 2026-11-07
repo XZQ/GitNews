@@ -6,8 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
-import '../../../tech_hotspot/domain/tech_hotspot_models.dart';
+import '../../../../features/tech_hotspot/application/tech_hotspot_providers.dart';
+import '../../../../features/tech_hotspot/domain/tech_hotspot_models.dart';
 
 class DevIntelHotspotList extends ConsumerWidget {
   const DevIntelHotspotList({super.key});

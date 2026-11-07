@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../features/trending/application/trending_providers.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
 import '../../../../shared/widgets/repo_star_change.dart';
-import '../../../trending/application/trending_providers.dart';
 
 /* 
 *首页 GitHub热榜 Top N 预览。

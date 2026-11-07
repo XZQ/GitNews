@@ -5,19 +5,19 @@ import 'package:go_router/go_router.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../features/tech_hotspot/application/tech_hotspot_providers.dart';
+import '../../../features/tech_hotspot/domain/tech_hotspot_models.dart';
+import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_agent_signal_board.dart';
+import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_heat_chart.dart';
+import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_language_panel.dart';
+import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_tags_cloud.dart';
+import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_topic_card.dart';
+import '../../../features/trending/application/trending_providers.dart';
+import '../../../features/trending/widgets/trending_topics_panel.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
-import '../../tech_hotspot/application/tech_hotspot_providers.dart';
-import '../../tech_hotspot/domain/tech_hotspot_models.dart';
-import '../../tech_hotspot/presentation/widgets/tech_hotspot_agent_signal_board.dart';
-import '../../tech_hotspot/presentation/widgets/tech_hotspot_heat_chart.dart';
-import '../../tech_hotspot/presentation/widgets/tech_hotspot_language_panel.dart';
-import '../../tech_hotspot/presentation/widgets/tech_hotspot_tags_cloud.dart';
-import '../../tech_hotspot/presentation/widgets/tech_hotspot_topic_card.dart';
-import '../../trending/application/trending_providers.dart';
-import '../../trending/widgets/trending_topics_panel.dart';
 
 class HomeMobileAgentOverview extends ConsumerWidget {
   const HomeMobileAgentOverview({super.key});

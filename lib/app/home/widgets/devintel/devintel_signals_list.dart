@@ -4,9 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../ai_news/application/ai_news_providers.dart';
-import '../../../ai_news/domain/ai_news_item.dart';
-import '../../../ai_news/presentation/widgets/ai_news_category_style.dart';
+import '../../../../features/ai_news/application/ai_news_providers.dart';
+import '../../../../features/ai_news/domain/ai_news_item.dart';
+import '../../../../features/ai_news/presentation/widgets/ai_news_category_style.dart';
 
 class DevIntelSignalsList extends ConsumerWidget {
   const DevIntelSignalsList({super.key});

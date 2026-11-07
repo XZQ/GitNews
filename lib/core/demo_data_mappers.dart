@@ -1,6 +1,6 @@
 import '../features/monitor/domain/entities.dart';
-import '../features/repo_detail/domain/entities.dart';
 import 'demo_data.dart';
+import 'domain/contributor_entity.dart';
 import 'domain/repo_entity.dart';
 
 /* 

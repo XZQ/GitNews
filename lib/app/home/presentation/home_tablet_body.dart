@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../features/trending/application/trending_providers.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../trending/application/trending_providers.dart';
 import '../widgets/home_ai_hot_topics_card.dart';
 import '../widgets/home_topics_panel.dart';
 import 'home_chart_models.dart';

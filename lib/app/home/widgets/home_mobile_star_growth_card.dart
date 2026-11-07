@@ -4,11 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../features/trending/application/trending_providers.dart';
+import '../../../features/trending/domain/trending_repository.dart';
+import '../../../features/trending/widgets/trending_metrics.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/repo_growth_chart.dart';
-import '../../trending/application/trending_providers.dart';
-import '../../trending/domain/trending_repository.dart';
-import '../../trending/widgets/trending_metrics.dart';
 
 /*
 *移动总览中的 GitHub 热榜正文。

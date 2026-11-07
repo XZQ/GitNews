@@ -5,10 +5,10 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../features/trending/application/trending_providers.dart';
+import '../../../features/trending/domain/trending_repository.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/skeleton.dart';
-import '../../trending/application/trending_providers.dart';
-import '../../trending/domain/trending_repository.dart';
 import 'home_mobile_hot_repos_card.dart';
 import 'home_mobile_star_growth_card.dart';
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/domain/contributor_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/section_header.dart';
-import '../../domain/entities.dart';
 
 class RepoDetailContributors extends StatelessWidget {
   const RepoDetailContributors({required this.contributors, super.key});

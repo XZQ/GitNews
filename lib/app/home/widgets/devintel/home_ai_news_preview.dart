@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
+import '../../../../features/ai_news/application/ai_news_providers.dart';
+import '../../../../features/ai_news/domain/ai_news_item.dart';
+import '../../../../features/ai_news/presentation/widgets/ai_news_category_style.dart';
 import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/home_section_preview_card.dart';
-import '../../../ai_news/application/ai_news_providers.dart';
-import '../../../ai_news/domain/ai_news_item.dart';
-import '../../../ai_news/presentation/widgets/ai_news_category_style.dart';
 
 /* 
 *首页 AI 动态 Top N 预览。

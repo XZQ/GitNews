@@ -8,11 +8,11 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../ai_news/application/ai_news_providers.dart';
-import '../../../monitor/application/monitor_providers.dart';
-import '../../../project/application/project_providers.dart';
-import '../../../tech_hotspot/application/tech_hotspot_providers.dart';
-import '../../../trending/application/trending_providers.dart';
+import '../../../../features/ai_news/application/ai_news_providers.dart';
+import '../../../../features/monitor/application/monitor_providers.dart';
+import '../../../../features/project/application/project_providers.dart';
+import '../../../../features/tech_hotspot/application/tech_hotspot_providers.dart';
+import '../../../../features/trending/application/trending_providers.dart';
 
 /*
 *首页五个栏目入口，按可用宽度和字号换行，指标只描述已加载样本。

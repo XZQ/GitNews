@@ -15,21 +15,21 @@ import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/secondary_page_scaffold.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../../../shared/widgets/skeleton.dart';
-import '../../project/application/project_providers.dart';
+import '../application/project_providers.dart';
 
 /* 
 *二级页 1:Star 增长趋势(全量)。
 */
-class TrendingOverviewPage extends ConsumerWidget {
-  const TrendingOverviewPage({super.key});
+class StarGrowthPage extends ConsumerWidget {
+  const StarGrowthPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final state = ref.watch(projectDigestProvider);
     return SecondaryPageScaffold(
-      title: l10n.tr('trending.overview.title'),
-      subtitle: l10n.tr('trending.overview.subtitle'),
+      title: l10n.tr('project.star_growth.title'),
+      subtitle: l10n.tr('project.star_growth.subtitle'),
       icon: Icons.show_chart_rounded,
       fallbackPath: '/home',
       body: ResponsiveLayout(
@@ -50,7 +50,7 @@ class _Body extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     return state.when(
-      data: (digest) => digest.isEmpty ? EmptyView(icon: Icons.show_chart_rounded, message: l10n.tr('trending.overview.empty')) : _DigestView(digest: digest),
+      data: (digest) => digest.isEmpty ? EmptyView(icon: Icons.show_chart_rounded, message: l10n.tr('project.star_growth.empty')) : _DigestView(digest: digest),
       loading: () => const _OverviewSkeleton(),
       error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => ref.invalidate(projectDigestProvider)),
     );
@@ -72,7 +72,7 @@ class _DigestView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: l10n.tr('trending.overview.net_change.title'), subtitle: l10n.tr('trending.overview.net_change.subtitle')),
+              SectionHeader(title: l10n.tr('project.star_growth.net_change.title'), subtitle: l10n.tr('project.star_growth.net_change.subtitle')),
               const SizedBox(height: AppSpacing.md),
               RepoGrowthChart(repos: digest.repos),
             ],
@@ -83,7 +83,7 @@ class _DigestView extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SectionHeader(title: l10n.tr('trending.overview.window.title'), subtitle: l10n.tr('trending.overview.window.subtitle')),
+              SectionHeader(title: l10n.tr('project.star_growth.window.title'), subtitle: l10n.tr('project.star_growth.window.subtitle')),
               const SizedBox(height: AppSpacing.md),
               _WindowStatsTable(repos: digest.repos),
             ],
@@ -112,10 +112,10 @@ class _WindowStatsTable extends StatelessWidget {
             border: Border(bottom: BorderSide(color: Theme.of(context).dividerColor)),
           ),
           children: [
-            _Th(l10n.tr('trending.overview.window.col.window')),
-            _Th(l10n.tr('trending.overview.window.col.delta')),
-            _Th(l10n.tr('trending.overview.window.col.dates')),
-            _Th(l10n.tr('trending.overview.window.col.coverage')),
+            _Th(l10n.tr('project.star_growth.window.col.window')),
+            _Th(l10n.tr('project.star_growth.window.col.delta')),
+            _Th(l10n.tr('project.star_growth.window.col.dates')),
+            _Th(l10n.tr('project.star_growth.window.col.coverage')),
           ],
         ),
         for (final r in rows) TableRow(children: [_Td(r[0]), _Td(r[1]), _Td(r[2]), _Td(r[3])]),
@@ -127,8 +127,8 @@ class _WindowStatsTable extends StatelessWidget {
     final growth = ObservedRepoGrowth.fromRepos(repos, days: days);
     final delta = growth.netChange;
     return [
-      l10n.tr('trending.overview.window.days').replaceAll('{n}', '$days'),
-      delta == null ? l10n.tr('trending.overview.window.pending') : '${delta >= 0 ? '+' : ''}$delta',
+      l10n.tr('project.star_growth.window.days').replaceAll('{n}', '$days'),
+      delta == null ? l10n.tr('project.star_growth.window.pending') : '${delta >= 0 ? '+' : ''}$delta',
       growth.isEmpty ? '—' : '${growth.dates.first.toIso8601String().substring(0, 10)} — ${growth.dates.last.toIso8601String().substring(0, 10)}',
       '${growth.sampleCount}/${growth.totalCount}',
     ];

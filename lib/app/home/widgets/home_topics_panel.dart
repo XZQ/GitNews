@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/domain/contributor_entity.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../features/project/application/project_providers.dart';
+import '../../../features/tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/section_header.dart';
-import '../../project/application/project_providers.dart';
-import '../../repo_detail/domain/entities.dart';
-import '../../tech_hotspot/application/tech_hotspot_providers.dart';
 
 /* 
 *话题 / 推荐主题(手机首页底栏 + 桌面尾栏共用)。

@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'app.dart';
+import 'app/app.dart';
 import 'core/auth/auth_models.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/supabase_auth_repository.dart';

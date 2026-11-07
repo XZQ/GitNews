@@ -1,7 +1,7 @@
+import '../../../core/domain/contributor_entity.dart';
 import '../../../core/github/github_api_support.dart';
 import '../../../core/github/github_repo_activity_codec.dart';
 import '../../../core/github/github_repo_entity_codec.dart';
-import '../domain/entities.dart';
 import '../domain/repo_detail_repository.dart';
 
 Map<String, Object?> repoDetailDigestToJson(RepoDetailDigest digest) {

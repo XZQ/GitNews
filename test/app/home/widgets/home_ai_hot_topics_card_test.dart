@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/app/home/widgets/home_ai_hot_topics_card.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/features/ai_news/application/ai_news_providers.dart';
 import 'package:github_news/features/ai_news/domain/ai_hot_topic.dart';
-import 'package:github_news/features/home/widgets/home_ai_hot_topics_card.dart';
 import 'package:go_router/go_router.dart';
 
 void main() {

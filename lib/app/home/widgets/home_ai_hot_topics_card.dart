@@ -8,10 +8,10 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../features/ai_news/application/ai_news_providers.dart';
+import '../../../features/ai_news/domain/ai_hot_topic.dart';
 import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/data_provenance_badge.dart';
-import '../../ai_news/application/ai_news_providers.dart';
-import '../../ai_news/domain/ai_hot_topic.dart';
 
 /*
 *总览顶部的 AI HOT 当前热点卡。

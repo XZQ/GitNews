@@ -7,8 +7,8 @@ import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../features/trending/application/trending_providers.dart';
 import '../../../../shared/widgets/repo_star_change.dart';
-import '../../../trending/application/trending_providers.dart';
 
 class DevIntelRepoTable extends ConsumerWidget {
   const DevIntelRepoTable({super.key});

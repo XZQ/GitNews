@@ -1,7 +1,7 @@
+import '../../../core/domain/contributor_entity.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/domain/repo_entity.dart';
-import 'entities.dart';
 
 /* 
 *仓库详情页需要的一组本地情报数据。

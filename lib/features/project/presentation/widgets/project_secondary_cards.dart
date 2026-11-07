@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/domain/contributor_entity.dart';
 import '../../../../core/domain/repo_entity.dart';
 import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/shared/local_content_controller.dart';
@@ -11,7 +12,6 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/repo_tile.dart';
 import '../../../../shared/widgets/section_header.dart';
-import '../../../repo_detail/domain/entities.dart';
 import '../../application/project_providers.dart';
 
 class ProjectRepoListCard extends StatelessWidget {

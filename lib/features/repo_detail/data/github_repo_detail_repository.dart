@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/config/cache_ttl_config.dart';
+import '../../../core/domain/contributor_entity.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/domain/repo_activity_event.dart';
 import '../../../core/domain/repo_entity.dart';
@@ -12,7 +13,6 @@ import '../../../core/github/github_resource_cache.dart';
 import '../../../core/storage/json_snapshot_cache_dao.dart';
 import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../../../core/utils/app_logger.dart';
-import '../domain/entities.dart';
 import '../domain/repo_detail_repository.dart';
 import 'github_repo_detail_cache_codec.dart';
 import 'github_repo_detail_helpers.dart';

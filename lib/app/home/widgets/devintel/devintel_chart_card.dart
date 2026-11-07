@@ -6,8 +6,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../features/monitor/application/monitor_providers.dart';
 import '../../../../shared/widgets/repo_growth_chart.dart';
-import '../../../monitor/application/monitor_providers.dart';
 
 class DevIntelChartCard extends ConsumerStatefulWidget {
   const DevIntelChartCard({super.key});
