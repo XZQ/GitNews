@@ -22,3 +22,25 @@ def test_parse_rss_and_persist_deduplicates(settings):
     assert len(ingestor.persist(items)) == 1
     assert ingestor.persist(items) == []
     assert ingestor.list_items(limit=10, source="Example", since=None)[0].title == "AI release"
+
+
+def test_missing_or_invalid_published_time_is_not_treated_as_now():
+    source = FeedSource("example", "Example", "https://example.com/feed", "industry")
+    payload = b"""
+    <rss><channel>
+      <item>
+        <title>Undated item</title>
+        <description>old article without a date</description>
+        <link>https://example.com/undated</link>
+      </item>
+      <item>
+        <title>Invalid date item</title>
+        <description>old article with an unparseable date</description>
+        <link>https://example.com/invalid-date</link>
+        <pubDate>not-a-date</pubDate>
+      </item>
+    </channel></rss>
+    """
+    items = parse_feed(payload, source)
+    assert len(items) == 2
+    assert {item.published_at for item in items} == {0}

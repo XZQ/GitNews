@@ -201,6 +201,31 @@ void main() {
 
       expect(result.freshness, DataFreshness.staleCache);
     });
+
+    test('rate limited without cache falls back to seed and never calls remote', () async {
+      const query = TrendingQuery();
+      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'));
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now, ttl: const Duration(minutes: 5), isRateLimited: () => true);
+
+      final result = await dataSource.fetchTrendingResult(query);
+
+      expect(result.freshness, DataFreshness.seed);
+      expect(result.data.trendingRepos, isNotEmpty);
+      expect(remote.calls, 0);
+    });
+
+    test('rate limited with expired cache returns the cached snapshot', () async {
+      const query = TrendingQuery();
+      await dao.upsertSnapshot(query: query, snapshot: _snapshot('stale/repo'), now: now);
+      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'));
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now.add(const Duration(minutes: 6)), ttl: const Duration(minutes: 5), isRateLimited: () => true);
+
+      final result = await dataSource.fetchTrendingResult(query);
+
+      expect(result.freshness, DataFreshness.staleCache);
+      expect(result.data.trendingRepos.first.fullName, 'stale/repo');
+      expect(remote.calls, 0);
+    });
   });
 }
 

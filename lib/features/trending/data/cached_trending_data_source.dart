@@ -2,6 +2,7 @@ import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
 import '../domain/trending_repository.dart';
+import 'local_trending_data_source.dart';
 import 'trending_cache_dao.dart';
 import 'trending_data_source.dart';
 
@@ -44,7 +45,9 @@ class CachedTrendingDataSource implements TrendingDataSource, FreshnessTrendingD
       if (cached != null) {
         return DataResult(data: cached, freshness: DataFreshness.staleCache);
       }
-      return DataResult(data: await remote.fetchTrending(query), freshness: DataFreshness.live);
+      // 限流中且无任何缓存:与其它仓库一致,回退种子数据并明确标注口径,
+      // 绝不继续消耗已受限的 GitHub 配额,也不把失败伪装成实时远端数据。
+      return DataResult(data: await const LocalTrendingDataSource().fetchTrending(query), freshness: DataFreshness.seed);
     }
 
     try {

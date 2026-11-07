@@ -159,13 +159,19 @@ def _clean(value: str) -> str:
 
 
 def _parse_time(value: str) -> int:
+    if not value:
+        return 0
     try:
         parsed = parsedate_to_datetime(value)
     except (TypeError, ValueError):
+        parsed = None
+    if parsed is None:
         try:
             parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-        except ValueError:
-            parsed = datetime.now(UTC)
+        except (AttributeError, TypeError, ValueError):
+            # 缺少或无法解析的发布时间不能用"当前时间"顶替:那会把旧文章
+            # 顶到 /v1/news 最前,并被 since 增量反复当作新文章返回。
+            return 0
     if parsed.tzinfo is None:
         parsed = parsed.replace(tzinfo=UTC)
     return int(parsed.timestamp() * 1000)
