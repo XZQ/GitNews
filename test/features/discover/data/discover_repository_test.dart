@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/storage/cache_meta_dao.dart';
 import 'package:github_news/core/storage/json_snapshot_cache_dao.dart';
 import 'package:github_news/core/storage/local_database.dart';
@@ -21,6 +22,44 @@ class _StubAdapter implements HttpClientAdapter {
   @override
   Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
     final payload = _responder(options);
+    return ResponseBody.fromString(
+      jsonEncode(payload),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/json'],
+      },
+    );
+  }
+}
+
+/* 让指定白名单 login 返回 500,用于验证「部分成功」的降级标注。 */
+class _PartialFailureAdapter implements HttpClientAdapter {
+  _PartialFailureAdapter({required this.failingLogin});
+
+  final String failingLogin;
+
+  @override
+  void close({bool force = false}) {}
+
+  @override
+  Future<ResponseBody> fetch(RequestOptions options, Stream<Uint8List>? requestStream, Future<void>? cancelFuture) async {
+    final path = options.path;
+    if (path.endsWith('/users/$failingLogin')) {
+      return ResponseBody.fromString(
+        jsonEncode({'message': 'boom'}),
+        500,
+        headers: {
+          Headers.contentTypeHeader: ['application/json'],
+        },
+      );
+    }
+    final Object payload = path.contains('/search/users')
+        ? {
+            'items': [
+              {'login': 'some-new-org', 'avatar_url': '', 'html_url': '', 'type': 'Organization'},
+            ],
+          }
+        : {'login': path.split('/').last, 'name': path.split('/').last, 'type': 'Organization', 'bio': 'bio', 'public_repos': 5, 'followers': 10, 'avatar_url': '', 'html_url': ''};
     return ResponseBody.fromString(
       jsonEncode(payload),
       200,
@@ -80,6 +119,19 @@ void main() {
       final searchHit = result.data.last;
       expect(searchHit.login, 'some-new-org');
       expect(searchHit.enriched, isFalse);
+      expect(result.freshness, DataFreshness.live);
+    });
+
+    test('白名单条目部分失败时 freshness 降级为 partial', () async {
+      final dio = Dio();
+      dio.httpClientAdapter = _PartialFailureAdapter(failingLogin: 'openai');
+      final repo = buildRepo(dio);
+
+      final result = await repo.fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+
+      expect(result.freshness, DataFreshness.partial);
+      expect(result.data.any((p) => p.login == 'openai'), isFalse);
+      expect(result.data.where((p) => p.enriched).length, DiscoverQueries.officialLogins.length - 1);
     });
 
     test('page=2 只返回搜索结果,不含白名单', () async {

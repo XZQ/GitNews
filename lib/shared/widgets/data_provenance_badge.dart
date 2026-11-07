@@ -22,12 +22,14 @@ class DataFreshnessBadge extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final keys = switch (freshness) {
       DataFreshness.live => ('provenance.live', 'provenance.live.full', 'provenance.live.tooltip'),
+      DataFreshness.partial => ('provenance.partial', 'provenance.partial.full', 'provenance.partial.tooltip'),
       DataFreshness.freshCache => throw StateError('Valid cache badges are intentionally hidden'),
       DataFreshness.staleCache => ('provenance.stale_cache', 'provenance.stale_cache.full', 'provenance.stale_cache.tooltip'),
       DataFreshness.seed => ('provenance.seed', 'provenance.seed.full', 'provenance.seed.tooltip'),
     };
     final color = switch (freshness) {
       DataFreshness.live => AppColors.success,
+      DataFreshness.partial => AppColors.warning,
       DataFreshness.freshCache => throw StateError('Valid cache badges are intentionally hidden'),
       DataFreshness.staleCache => AppColors.warning,
       DataFreshness.seed => Theme.of(context).colorScheme.outline,

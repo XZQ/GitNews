@@ -1,5 +1,7 @@
 enum DataFreshness {
   live,
+  // 主体来自远端实时结果,但其中一部分条目拉取失败,不能整体宣称实时。
+  partial,
   freshCache,
   staleCache,
   seed;
@@ -21,7 +23,7 @@ enum MetricBasis {
 
   static MetricBasis fromLegacyName(String? name) {
     return switch (name) {
-      'live' || 'freshCache' || 'staleCache' || 'observed' => MetricBasis.observed,
+      'live' || 'freshCache' || 'staleCache' || 'partial' || 'observed' => MetricBasis.observed,
       'estimated' => MetricBasis.estimated,
       _ => MetricBasis.seed,
     };

@@ -15,6 +15,20 @@ import 'discover_users_search_client.dart';
 typedef DiscoverProfileReport = void Function(Object error);
 
 /*
+ *白名单抓取结果:成功实体与失败条目数一起返回。
+ *
+ *调用方需要知道「抓到了几条、还差几条」,否则部分失败会被误标成实时。
+ */
+class DiscoverProfileWhitelist {
+  const DiscoverProfileWhitelist({required this.profiles, required this.failedCount});
+
+  final List<DiscoverProfileEntity> profiles;
+  final int failedCount;
+
+  bool get isPartial => failedCount > 0;
+}
+
+/*
  *仅 page==1 时,在搜索结果前置白名单(enriched),并对与白名单重复的 login 去重。
  */
 Future<DataResult<List<DiscoverProfileEntity>>> composeProfilesWithWhitelist({
@@ -29,32 +43,36 @@ Future<DataResult<List<DiscoverProfileEntity>>> composeProfilesWithWhitelist({
     return DataResult(data: searchResult, freshness: searchFreshness ?? DataFreshness.live);
   }
   final whitelist = await fetchProfileWhitelist(profileClient, kind);
-  final whitelistLogins = whitelist.map((p) => p.login).toSet();
+  final whitelistLogins = whitelist.profiles.map((p) => p.login).toSet();
   final dedupedSearch = searchResult.where((p) => !whitelistLogins.contains(p.login)).toList();
   final DataFreshness freshness;
-  if (whitelist.isEmpty && searchResult.isEmpty) {
+  if (whitelist.profiles.isEmpty && searchResult.isEmpty) {
     freshness = DataFreshness.seed;
   } else if (fromCache) {
     freshness = DataFreshness.freshCache;
   } else {
-    freshness = searchFreshness ?? DataFreshness.live;
+    final base = searchFreshness ?? DataFreshness.live;
+    // 白名单有缺失条目时,这一页并不是完整的实时结果,降级为 partial。
+    freshness = base == DataFreshness.live && whitelist.isPartial ? DataFreshness.partial : base;
   }
-  return DataResult(data: [...whitelist, ...dedupedSearch], freshness: freshness);
+  return DataResult(data: [...whitelist.profiles, ...dedupedSearch], freshness: freshness);
 }
 
-Future<List<DiscoverProfileEntity>> fetchProfileWhitelist(DiscoverProfileClient profileClient, DiscoverProfileKind kind) async {
+Future<DiscoverProfileWhitelist> fetchProfileWhitelist(DiscoverProfileClient profileClient, DiscoverProfileKind kind) async {
   final logins = DiscoverQueries.profileLogins(kind);
   final results = <DiscoverProfileEntity>[];
+  var failedCount = 0;
   for (final login in logins) {
     try {
       final r = await profileClient.fetch(login, kind);
       results.add(r.data);
     } catch (_) {
-      // 单条失败不阻断白名单整体返回;跳过,但留下缺口线索。
+      // 单条失败不阻断白名单整体返回;计数交给上层降级标注。
+      failedCount += 1;
       AppLogger.warn('discover.profileWhitelistEntryFailed', meta: {'kind': kind.name});
     }
   }
-  return results;
+  return DiscoverProfileWhitelist(profiles: results, failedCount: failedCount);
 }
 
 /*
