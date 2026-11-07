@@ -4,6 +4,7 @@ import '../di/providers.dart';
 import '../domain/contributor_entity.dart';
 import '../domain/repo_entity.dart';
 import '../i18n/app_localizations.dart';
+import '../utils/app_logger.dart';
 import 'local_content_defaults.dart';
 import 'local_content_snapshots.dart';
 
@@ -91,6 +92,11 @@ class LocalContentState {
 }
 
 class LocalContentController extends Notifier<LocalContentState> {
+  // 原始快照文本存在无法解析的内容时,禁止把 hydrate 后的占位数据整体写回,
+  // 以免覆盖其它仍可恢复的快照。下次启动会重新尝试解码。
+  bool _repoSnapshotsCorrupted = false;
+  bool _developerSnapshotsCorrupted = false;
+
   static const _bookmarksKey = 'local_content_bookmarked_repos';
   static const _monitorsKey = 'local_content_monitored_repos';
   static const _skillsKey = 'local_content_monitored_skills';
@@ -107,14 +113,21 @@ class LocalContentController extends Notifier<LocalContentState> {
     final bookmarks = _readSet(prefs.getStringList(_bookmarksKey), defaultBookmarkedRepos);
     final monitors = _readSet(prefs.getStringList(_monitorsKey), defaultMonitoredRepos);
     final developers = _readSet(prefs.getStringList(_developersKey), defaultFollowedDevelopers);
+    final repoDecoded = decodeRepoSnapshotsWithStatus(prefs.getString(_repoSnapshotsKey));
+    final developerDecoded = decodeDeveloperSnapshotsWithStatus(prefs.getString(_developerSnapshotsKey));
+    _repoSnapshotsCorrupted = repoDecoded.corrupted;
+    _developerSnapshotsCorrupted = developerDecoded.corrupted;
+    if (_repoSnapshotsCorrupted || _developerSnapshotsCorrupted) {
+      AppLogger.warn('localContent.snapshotsCorrupted', meta: {'repo': _repoSnapshotsCorrupted, 'developer': _developerSnapshotsCorrupted});
+    }
     return LocalContentState(
       bookmarkedRepos: bookmarks,
       monitoredRepos: monitors,
       monitoredSkills: _readSet(prefs.getStringList(_skillsKey), const []),
       followedDevelopers: developers,
       monitorRules: _readRules(prefs.getStringList(_rulesKey)),
-      repoSnapshots: hydrateRepoSnapshots({...bookmarks, ...monitors}, decodeRepoSnapshots(prefs.getString(_repoSnapshotsKey))),
-      developerSnapshots: hydrateDeveloperSnapshots(developers, decodeDeveloperSnapshots(prefs.getString(_developerSnapshotsKey))),
+      repoSnapshots: hydrateRepoSnapshots({...bookmarks, ...monitors}, repoDecoded.values),
+      developerSnapshots: hydrateDeveloperSnapshots(developers, developerDecoded.values),
       cachedUserName: prefs.getString(_userNameKey),
       cachedAvatarUrl: prefs.getString(_userAvatarKey),
     );
@@ -249,10 +262,18 @@ class LocalContentController extends Notifier<LocalContentState> {
   }
 
   Future<void> _persistRepoSnapshots(Map<String, SavedRepoSnapshot> snapshots) {
+    if (_repoSnapshotsCorrupted) {
+      AppLogger.warn('localContent.skipSnapshotWrite', meta: {'target': 'repo', 'reason': 'corruptedSource'});
+      return Future<void>.value();
+    }
     return ref.read(sharedPreferencesProvider).setString(_repoSnapshotsKey, encodeRepoSnapshots(snapshots));
   }
 
   Future<void> _persistDeveloperSnapshots(Map<String, SavedDeveloperSnapshot> snapshots) {
+    if (_developerSnapshotsCorrupted) {
+      AppLogger.warn('localContent.skipSnapshotWrite', meta: {'target': 'developer', 'reason': 'corruptedSource'});
+      return Future<void>.value();
+    }
     return ref.read(sharedPreferencesProvider).setString(_developerSnapshotsKey, encodeDeveloperSnapshots(snapshots));
   }
 }

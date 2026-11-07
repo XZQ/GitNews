@@ -104,11 +104,32 @@ class SavedDeveloperSnapshot {
 }
 
 Map<String, SavedRepoSnapshot> decodeRepoSnapshots(String? raw) {
+  return decodeRepoSnapshotsWithStatus(raw).values;
+}
+
+SnapshotDecodeResult<SavedRepoSnapshot> decodeRepoSnapshotsWithStatus(String? raw) {
   return _decodeSnapshots(raw, SavedRepoSnapshot.fromJson, (item) => item.fullName);
 }
 
 Map<String, SavedDeveloperSnapshot> decodeDeveloperSnapshots(String? raw) {
+  return decodeDeveloperSnapshotsWithStatus(raw).values;
+}
+
+SnapshotDecodeResult<SavedDeveloperSnapshot> decodeDeveloperSnapshotsWithStatus(String? raw) {
   return _decodeSnapshots(raw, SavedDeveloperSnapshot.fromJson, (item) => item.login);
+}
+
+/*
+*快照解码结果。
+*corrupted 表示原始文本里有无法完整解析的内容。此时 hydrate 会用演示数据或
+*minimal 快照补齐内存 state 以保证界面可用,但调用方**不得**把补齐结果整体
+*写回持久化,否则原本可恢复的其它快照会被占位数据覆盖。
+*/
+class SnapshotDecodeResult<T> {
+  const SnapshotDecodeResult({required this.values, required this.corrupted});
+
+  final Map<String, T> values;
+  final bool corrupted;
 }
 
 String encodeRepoSnapshots(Map<String, SavedRepoSnapshot> snapshots) {
@@ -119,18 +140,20 @@ String encodeDeveloperSnapshots(Map<String, SavedDeveloperSnapshot> snapshots) {
   return _encodeSnapshots(snapshots, (item) => item.toJson());
 }
 
-Map<String, T> _decodeSnapshots<T>(String? raw, T Function(Map<String, Object?>) decode, String Function(T) idOf) {
+SnapshotDecodeResult<T> _decodeSnapshots<T>(String? raw, T Function(Map<String, Object?>) decode, String Function(T) idOf) {
   if (raw == null || raw.trim().isEmpty) {
-    return <String, T>{};
+    return const SnapshotDecodeResult<T>(values: {}, corrupted: false);
   }
   try {
     final decoded = jsonDecode(raw);
     if (decoded is! List) {
-      return <String, T>{};
+      return const SnapshotDecodeResult<T>(values: {}, corrupted: true);
     }
     final result = <String, T>{};
+    var corrupted = false;
     for (final value in decoded) {
       if (value is! Map) {
+        corrupted = true;
         continue;
       }
       try {
@@ -138,14 +161,16 @@ Map<String, T> _decodeSnapshots<T>(String? raw, T Function(Map<String, Object?>)
         final id = idOf(item).trim();
         if (id.isNotEmpty) {
           result[id] = item;
+        } else {
+          corrupted = true;
         }
       } catch (_) {
-        continue;
+        corrupted = true;
       }
     }
-    return result;
+    return SnapshotDecodeResult<T>(values: result, corrupted: corrupted);
   } catch (_) {
-    return <String, T>{};
+    return const SnapshotDecodeResult<T>(values: {}, corrupted: true);
   }
 }
 

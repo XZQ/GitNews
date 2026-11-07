@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/core/di/providers.dart';
 import 'package:github_news/core/domain/contributor_entity.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/core/shared/local_content_controller.dart';
+import 'package:github_news/core/shared/local_content_snapshots.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -80,6 +83,46 @@ void main() {
 
     await notifier.removeMonitor(_remoteRepo.fullName);
     expect(container.read(localContentControllerProvider).repoSnapshots, isNot(contains(_remoteRepo.fullName)));
+  });
+
+  test('a corrupt snapshot payload is never overwritten by later edits', () async {
+    const corrupt = '{not-json';
+    SharedPreferences.setMockInitialValues({'local_content_repo_snapshots_v1': corrupt});
+    final container = await _container();
+    addTearDown(container.dispose);
+
+    final notifier = container.read(localContentControllerProvider.notifier);
+    await notifier.toggleBookmark(_remoteRepo);
+
+    expect(container.read(localContentControllerProvider).isBookmarked(_remoteRepo.fullName), isTrue);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('local_content_repo_snapshots_v1'), corrupt);
+  });
+
+  test('a partially corrupt snapshot payload keeps the original text until repaired', () async {
+    final valid = SavedRepoSnapshot.minimal('ok/repo', DateTime.utc(2026, 1, 1)).toJson();
+    final corrupt = jsonEncode([valid, {'broken': true}]);
+    SharedPreferences.setMockInitialValues({'local_content_repo_snapshots_v1': corrupt});
+    final container = await _container();
+    addTearDown(container.dispose);
+
+    await container.read(localContentControllerProvider.notifier).addMonitor(_remoteRepo);
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getString('local_content_repo_snapshots_v1'), corrupt);
+  });
+
+  test('healthy snapshot payloads are still persisted normally', () async {
+    SharedPreferences.setMockInitialValues({});
+    final container = await _container();
+    addTearDown(container.dispose);
+
+    await container.read(localContentControllerProvider.notifier).toggleBookmark(_remoteRepo);
+
+    final prefs = await SharedPreferences.getInstance();
+    final restored = decodeRepoSnapshotsWithStatus(prefs.getString('local_content_repo_snapshots_v1'));
+    expect(restored.corrupted, isFalse);
+    expect(restored.values[_remoteRepo.fullName]?.description, _remoteRepo.description);
   });
 }
 
