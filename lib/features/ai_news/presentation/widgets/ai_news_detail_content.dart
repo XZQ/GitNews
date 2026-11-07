@@ -5,10 +5,10 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../application/ai_news_enrichment_providers.dart';
 import '../../application/ai_news_example_items.dart';
 import '../../domain/ai_news_item.dart';
-import 'ai_news_detail_components.dart';
 import 'ai_news_detail_extended.dart';
 import 'ai_news_detail_insights.dart';
 import 'ai_news_detail_overview.dart';
+import 'ai_news_detail_page_frame.dart';
 
 /*
 *AI 资讯详情的单页纵向阅读流。

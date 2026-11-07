@@ -20,6 +20,7 @@ class AiNewsFeedStatus extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final label = switch (freshness) {
       DataFreshness.live => 'ai_news.feed_live',
+      DataFreshness.partial => 'ai_news.feed_partial',
       DataFreshness.freshCache => 'ai_news.feed_cached',
       DataFreshness.staleCache => 'ai_news.feed_stale',
       DataFreshness.seed => 'ai_news.feed_seed',

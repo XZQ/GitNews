@@ -4,7 +4,7 @@ import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import 'ai_news_detail_components.dart';
+import 'ai_news_detail_tokens.dart';
 
 /*
 *资讯详情的双语正文切换器。

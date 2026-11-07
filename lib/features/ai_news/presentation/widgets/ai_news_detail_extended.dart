@@ -6,7 +6,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
-import 'ai_news_detail_components.dart';
+import 'ai_news_detail_tokens.dart';
 
 /*
 *详情页底部的相关文章列表。

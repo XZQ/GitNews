@@ -1,108 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/i18n/app_localizations.dart';
-import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/ai_news_item.dart';
-
-const double aiNewsDetailMaxWidth = 760;
-
-/*
-* 详情页的居中纵向滚动容器。
-*/
-class AiNewsDetailPageFrame extends StatelessWidget {
-  const AiNewsDetailPageFrame({required this.child, required this.scrollKey, super.key});
-
-  // 页面主体。
-  final Widget child;
-
-  // 用于测试并保存详情页滚动位置。
-  final Key scrollKey;
-
-  @override
-  /* 构建按窗口宽度收敛边距的详情滚动区。 */
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final horizontal = constraints.maxWidth < 600 ? AppSpacing.lg : AppSpacing.xxl;
-          return SingleChildScrollView(
-            key: scrollKey,
-            padding: EdgeInsets.fromLTRB(horizontal, AppSpacing.lg, horizontal, AppSpacing.xxl),
-            child: Align(
-              alignment: Alignment.topCenter,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: aiNewsDetailMaxWidth),
-                child: child,
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-/*
-*资讯分类胶囊。
-*/
-class AiNewsDetailCategoryPill extends StatelessWidget {
-  const AiNewsDetailCategoryPill({required this.category, super.key});
-
-  // 当前资讯分类。
-  final AiNewsCategory category;
-
-  @override
-  /* 构建设计稿中的琥珀色描边分类标签。 */
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm2, vertical: AppSpacing.xxs),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.warning),
-        borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
-      child: Text(
-        category.label,
-        style: AppTypography.labelSmall.copyWith(color: AppColors.warning, fontWeight: FontWeight.w600),
-      ),
-    );
-  }
-}
-
-/*
-*详情区块标题,统一图标、字号和间距。
-*/
-class AiNewsDetailSectionTitle extends StatelessWidget {
-  const AiNewsDetailSectionTitle({required this.icon, required this.title, this.trailing, super.key});
-
-  // 标题图标。
-  final IconData icon;
-
-  // 标题文案。
-  final String title;
-
-  // 可选尾部操作。
-  final Widget? trailing;
-
-  @override
-  /* 构建详情区块标题行。 */
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    return Row(
-      children: [
-        Icon(icon, size: 22, color: colors.primary),
-        const SizedBox(width: AppSpacing.sm),
-        Expanded(
-          child: Text(title, style: AppTypography.titleLarge.copyWith(color: colors.onSurface)),
-        ),
-        if (trailing != null) trailing!,
-      ],
-    );
-  }
-}
+import 'ai_news_detail_section_title.dart';
+import 'ai_news_detail_tokens.dart';
 
 /*
 *原文或译文卡片。
@@ -239,64 +143,4 @@ class AiNewsDetailSourceCard extends StatelessWidget {
       ),
     );
   }
-}
-
-/*
-*热度与精选状态的紧凑指标胶囊。
-*/
-class AiNewsDetailMetricPill extends StatelessWidget {
-  const AiNewsDetailMetricPill({required this.icon, required this.label, this.positive = false, super.key});
-
-  // 指标图标。
-  final IconData icon;
-
-  // 指标文案。
-  final String label;
-
-  // 是否使用成功语义色。
-  final bool positive;
-
-  @override
-  /* 构建品牌色指标胶囊。 */
-  Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final accent = positive ? AppColors.success : AppColors.warning;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs2),
-      decoration: BoxDecoration(
-        border: Border.all(color: colors.outlineVariant),
-        borderRadius: BorderRadius.circular(AppRadius.sm),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: accent),
-          const SizedBox(width: AppSpacing.xs2),
-          Flexible(
-            child: Text(
-              label,
-              style: AppTypography.labelMedium.copyWith(color: accent, fontWeight: FontWeight.w600),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/* 将资讯时间格式化为详情页使用的本地时间。 */
-String formatAiNewsDetailDate(DateTime date) {
-  final local = date.toLocal();
-  String two(int value) => value.toString().padLeft(2, '0');
-  return '${local.year}-${two(local.month)}-${two(local.day)} ${two(local.hour)}:${two(local.minute)}';
-}
-
-/* 返回设计稿中的二级文字色。 */
-Color aiNewsDetailSecondaryColor(BuildContext context) {
-  return Theme.of(context).brightness == Brightness.light ? AppColors.textSecondaryLight : AppColors.textSecondaryDark;
-}
-
-/* 返回设计稿中的弱化文字色。 */
-Color aiNewsDetailMutedColor(BuildContext context) {
-  return Theme.of(context).brightness == Brightness.light ? AppColors.textMutedLight : AppColors.textMutedDark;
 }

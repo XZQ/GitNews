@@ -6,9 +6,11 @@ import '../../../../core/theme/app_typography.dart';
 import '../../application/ai_news_example_items.dart';
 import '../../domain/ai_news_enrichment.dart';
 import '../../domain/ai_news_item.dart';
-import 'ai_news_detail_components.dart';
+import 'ai_news_detail_cards.dart';
 import 'ai_news_detail_language_content.dart';
 import 'ai_news_detail_language_switcher.dart';
+import 'ai_news_detail_pills.dart';
+import 'ai_news_detail_tokens.dart';
 
 /*
 *详情页顶部阅读区。

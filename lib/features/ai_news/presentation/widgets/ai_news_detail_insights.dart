@@ -5,7 +5,7 @@ import '../../../../core/i18n/app_localizations.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../domain/ai_news_item.dart';
 import '../../domain/github_repo_link_extractor.dart';
-import 'ai_news_detail_components.dart';
+import 'ai_news_detail_section_title.dart';
 import 'ai_news_enrichment_card.dart';
 
 /*
