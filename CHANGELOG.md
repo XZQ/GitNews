@@ -6,10 +6,14 @@
 
 ### Added
 
+- GitHub OAuth 设备登录入口在注入 `GITHUB_OAUTH_CLIENT_ID` 的构建中接入应用账号登录页;未配置构建仍只提供 Personal Access Token 路径。
+- 新增跨层 import 基线结构测试,阻止展示层直接依赖 feature data,并冻结跨 feature 展示层引用的增量(当前基线 9 处)。
 - 设置页主题色预设名称接入 i18n(zh/en 各 10 个 key),英文环境不再显示中文预设名;新增开发者选项页、趋势总览页、看板选择器与监控规则示例文案的完整英译。
 
 ### Changed
 
+- 自托管服务请求路径与请求头集中到 `ApiEndpointsConfig` / `SelfHostedApiSupport`;可清理缓存表清单改名为 `_kClearableCacheTables` 并写清用户数据的甄别标准。
+- 桌面托盘与窗口控制、认证初始化、后台资讯刷新、发现白名单、未匹配路由等关键失败路径统一走 `AppLogger` 留痕;修复三处编码损坏的中文注释。
 - 固定 Harness CI 使用 Flutter 3.44.9 / Dart 3.12.2，Flutter 与服务端依赖解析严格使用现有锁文件。
 - 主题基线收敛为冷静工具风(Slate 低饱和色阶、发丝边框、扁平化共享组件与导航)。
 - 按 300 行约束拆分超大文件(star_trend_chart / ai_news_providers / home_mobile_trending_overview / ai_news_feed_parser),并升级依赖基线。
@@ -20,6 +24,10 @@
 
 ### Fixed
 
+- 快照文本损坏时不再把 hydrate 后的占位数据整体写回;观测历史读取失败(非数据损坏)时保留原 payload,避免用空历史覆盖持久化数据。
+- 热榜在 GitHub 限流且无缓存时回退种子数据并标注示例口径,不再继续消耗受限配额或伪装成实时数据。
+- 服务端 feed 缺少或无法解析发布时间时不再用当前时间顶替,避免旧文章排到最前并被 `since` 增量反复返回。
+- 配置导出失败改用自己的 zh/en 提示文案,不再误报「导入失败」。
 - 自托管 API Key 绑定服务器地址，配置导入与凭据迁移/保存串行；GitHub Token 清除旧明文，避免重启恢复与初始化覆盖新设置。
 - 托盘初始化失败恢复普通窗口关闭，避免窗口隐藏后无法重新打开。
 - AI HOT 条件请求保留重验证状态；普通资讯翻页失败保留游标并提供重试，缓存写失败不推进页码。

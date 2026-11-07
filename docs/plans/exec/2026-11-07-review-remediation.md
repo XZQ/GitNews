@@ -1,0 +1,162 @@
+# 全项目审查发现的分批整改与验证
+
+状态：Active
+
+本计划遵循 `.agent/PLANS.md`，执行期间必须保持内容与实际状态一致。
+用户明确要求：逐个确认发现、完善修复、提交并推送到 `origin/main`。
+
+## Purpose / Big Picture
+
+把 2026-11-07 全项目梳理确认的真实缺陷修掉，让降级路径不再覆盖用户数据、
+限流与服务端时间语义一致、Device Flow 与 README 承诺一致、关键失败可观测，
+并用结构与回归测试卡住增量。观察方式：新增回归测试通过、CI 的
+`ci-windows` 与 `server` 两个 job 均 success、远端 SHA 与本地一致。
+
+## Progress
+
+- [x] (2026-11-07 02:30Z) 逐条复核梳理结论；确认两处为刻意设计、不修改行为。
+- [x] (2026-11-07 02:30Z) 探测本机工具链：flutter / dart / uv / pytest 均不可用。
+- [x] (2026-11-07 03:10Z) 批次 A：快照与观测历史的「降级读 → 全量写回」数据丢失，含 5 个回归。
+- [x] (2026-11-07 03:10Z) 批次 B：趋势限流回退种子、服务端 feed 时间兜底改为 0，含 3 个回归。
+- [x] (2026-11-07 03:10Z) 批次 C：Device Flow 按 `githubOAuthConfigured` 接入登录页，README 表述对齐。
+- [x] (2026-11-07 03:10Z) 批次 D：桌面/窗口/认证/后台刷新/发现/路由补日志，导出失败文案与 i18n。
+- [x] (2026-11-07 03:10Z) 批次 E：缓存表清单改名、自托管路径与请求头集中、3 处乱码注释修复、跨层 import 基线测试。
+- [x] (2026-11-07 03:10Z) 本机静态校验：`git diff --check`、Python `py_compile`、相对 import 存在性、import 排序、i18n 双边一致、行宽均通过。
+- [ ] 分项提交、push、读取 GitHub Actions 的 `ci-windows` / `server` 结论并补录本计划。
+
+## Surprises & Discoveries
+
+- Observation: 本机没有 Flutter / Dart SDK，`flutter`、`dart`、`uv` 均不在 PATH，
+  工作区也没有 `.dart_tool/` 或 `build/`；`python` 3.13 可用但无 pytest。
+  Evidence: `flutter --version` / `dart --version` / `uv --version` 均 command not found；
+  PowerShell 全盘 depth-5 搜索 `flutter.bat` 无结果。
+- Observation: `local_database.clearAll()` 只清 4 张表是刻意设计，不是漏维护。
+  Evidence: `database_schema.dart:54-56,143` 明确把 ai_news_state / ai_news_reminder
+  标为用户数据；monitor_alert_event、ai_news_feedback 亦为用户数据；
+  ai_news_enrichment 是「结果按条目和模型持久缓存」的离线内容。仅改命名与注释。
+- Observation: Device Flow controller 已完整实现（写安全存储 token、拉 /user 回填），
+  UI 186 行也完整，只是零引用。因此接线优于删链。
+  Evidence: `github_device_flow_controller.dart:146-162`；`device_flow_content.dart`。
+- Observation: 服务端 FCM/APNs/WNS 只入 outbox 是刻意留给外部网关，非桩实现。
+  Evidence: `server/README.md:60` 与 `routers/push.py` 的 /outbox/ack 接口。
+- Observation: 初步梳理把 `enforceCap()` 与 `homeSeriesForWindow` 判为「零引用死代码」，
+  复核发现二者均有测试引用，因此本轮不删除任何被认为零引用的文件。
+  Evidence: `test/core/storage/local_database_test.dart:49,53`、
+  `test/features/home/home_providers_test.dart:147-198`。
+- Observation: `lib/shared/widgets/mobile_page_header.dart:25` 与
+  `lib/features/trending/application/trending_providers.dart:97-98` 存在 UTF-8 被误按
+  GBK 解码的乱码注释，已按语义重写。原始字节已不可精确还原(含替换字符)。
+  Evidence: Python 还原脚本对三段文本均无法 encode('gbk')。
+
+## Decision Log
+
+- Decision: 不本机运行 Flutter/Harness 门禁，改由 GitHub Actions 作为完整验证门，
+  push 后读取 CI 结论；本机只执行可做的静态校验（Python 语法编译、Dart import
+  路径与括号/JSON 结构检查、git diff --check）。
+  Rationale: 仓库既有先例（2026-10-12 计划同样因本机缺 Visual Studio 靠 CI 验证）。
+  Date: 2026-11-07
+- Decision: 批次 A 采用「损坏标志 + 禁止覆盖写回」，不改 LocalContentState 公开 API。
+  Rationale: 保留 UI 可用性与现有测试构造，改动最小且可逆。
+  Date: 2026-11-07
+- Decision: 限流无缓存时不打远端，抛 AppException(rateLimit) 交给上层统一降级。
+  Rationale: 与其余 6 个仓库的 gate.isBlocked 语义一致。
+  Date: 2026-11-07
+- Decision: Device Flow 在登录页按 githubOAuthConfigured 条件渲染卡片，不新建路由。
+  Rationale: 编译期常量决定可用性，登录页本就是 ListView；避免改动路由表。
+  Date: 2026-11-07
+- Decision: 47 处 feature→feature import 本轮只加基线结构测试卡增量，不做全量搬迁。
+  Rationale: 属重构级改动，在无编译反馈的环境下全量搬迁风险不可控；home 聚合页
+  本就需要组合各 feature 卡片，收益低于风险。
+  Date: 2026-11-07
+- Decision: 服务端时间解析失败返回 0（epoch）而非当前时间。
+  Rationale: 旧文章排到末尾、不会被 since 反复当新文章；保持返回 int 的签名不变。
+  Date: 2026-11-07
+- Decision: 本轮不删除零引用文件、不拆 302 行组件、不把 github_token_card 改 provider、
+  不做 47 处跨 feature import 全量搬迁，也不改 `discover` 部分成功时的 freshness 语义。
+  Rationale: 均属重构或语义变更，在本机无编译反馈的前提下风险高于收益；
+  用新增结构测试先卡住增量，后续有 Flutter SDK 时按专题处理。
+  Date: 2026-11-07
+
+## Outcomes & Retrospective
+
+代码与本机可执行的静态校验已全部完成；本机**没有**执行任何 Flutter / Dart / uv / pytest
+门禁，完整验证交由 GitHub Actions。本计划在读取 CI 结论、补录证据前保持 Active。
+
+已确认排除的两类误报：`clearAll` 只清 4 张可再生存量表是刻意设计(仅改名与注释)；
+服务端 FCM/APNs/WNS 只入 outbox 是留给外部网关的设计。
+
+本轮未处理的重构项见 Decision Log，均已在交付说明中列出。剩余风险：
+本机无法执行 `dart format --set-exit-if-changed`、`flutter analyze`、`flutter test`
+与 Release 构建，格式或编译问题只能由 CI 暴露后修复。
+
+## Context and Orientation
+
+- `lib/core/shared/`：收藏/监控/关注实体的本地快照（`local_content_snapshots.dart`
+  编解码、`local_content_defaults.dart` 默认值补齐、`local_content_controller.dart`
+  Riverpod Notifier 与持久化）。
+- `lib/features/monitor/data/monitor_observation_dao.dart`：每日 Star/Fork 观测，
+  读写 `json_snapshot_cache`。
+- `lib/features/trending/data/cached_trending_data_source.dart`：热榜缓存 + 限流门。
+- `lib/features/profile/presentation/login_page.dart` 与 `widgets/`：应用账号登录。
+- `server/app/feeds.py`：RSS/Atom 解析，`_parse_time` 产出毫秒时间戳。
+- `lib/core/utils/app_logger.dart`：唯一日志门面，`warn(tag, meta: {...})`。
+- 测试位于 `test/` 与 `server/tests/`；门禁定义在 `tools/harness.json`，
+  CI 在 `.github/workflows/harness.yml`（ci-windows + server 两个 job）。
+
+## Plan of Work
+
+1. 批次 A：`decode*Snapshots` 返回损坏标志；controller 持有标志，`_persist*` 在
+   损坏时跳过写回并 warn；`MonitorObservationDao` 增加 `readWithStatus`，
+   `record()` 在损坏时跳过写入以保住原历史。补 4 个回归。
+2. 批次 B：限流分支抛 `AppException`；`_parse_time` 兜底改为 0 并记录；补回归。
+3. 批次 C：登录页条件渲染 Device Flow 卡片；修正 README 表述。
+4. 批次 D：桌面集成、窗口服务、认证初始化、后台刷新、discover 白名单、
+   profile 导出文案等静默 catch 补日志或修正文案。
+5. 批次 E：`_kBusinessTables` 改名并写清甄别标准；自托管路径集中；
+   删除零引用死代码；302 行组件拆分；新增跨层 import 基线结构测试。
+6. 验证与交付：`git diff --check`、Python 编译检查、Dart import 静态校验，
+   分项 `Fix(scope):中文描述` commit，push origin/main，核对 SHA 与 CI。
+
+## Concrete Steps
+
+工作目录均为仓库根 `D:\BaiduSyncdisk\workspace\GitNews`，服务端命令在 `server/`。
+本机可执行的检查：
+- `python -m py_compile server/app/feeds.py`（预期退出 0）
+- `python tools/check_dart_imports.py` 风格的只读静态校验（临时脚本，不落盘）
+- `git diff --check`（预期无输出）
+- `git diff --stat`、`git status --short`（确认改动范围）
+
+本机**无法执行**（须如实记录，不得表述为通过）：
+`dart format`、`flutter analyze`、`flutter test`、`flutter build windows --release`、
+`uv run ruff check .`、`uv run ruff format --check .`、`uv run pytest`、
+`uv run python tools/live_smoke.py`、Harness 各 suite、桌面交互烟测。
+替代验证：push 后 `.github/workflows/harness.yml` 的 `ci-windows` 与 `server`。
+
+## Validation and Acceptance
+
+- 新增回归覆盖：快照整体损坏 / 单条损坏时不覆盖持久数据；观测历史损坏时
+  `record()` 不覆盖原 payload；限流且无缓存时不发远端请求；feed 缺时间不排到最前。
+- CI 两个 job 均 success；若失败，修复根因后重新推送并再次读取结论。
+- `git status --short` 为空，本地 HEAD 与 `origin/main` SHA 一致。
+- 计划 `Progress` 全部勾选、`Outcomes & Retrospective` 写明未执行项与剩余风险后
+  才能标记 Complete。
+
+## Idempotence and Recovery
+
+所有改动为源码内可逆编辑；不删用户库、不改生产凭据、不 force push。
+失败时按 commit 粒度 `git revert`，无需迁移脚本。重跑测试不会修改持久数据。
+推送前确认 `git status -sb` 与远端一致；推送后如 CI 失败，只追加修复提交。
+
+## Artifacts and Notes
+
+- 梳理结论存于 `.workbuddy/memory/2026-11-07.md`（本地记忆，不提交）。
+- CI 证据链接在完成后补入本节。
+- `build/harness/` 为忽略目录，本轮本机不产生。
+
+## Interfaces and Dependencies
+
+不新增运行时依赖，不改 pubspec / uv.lock / pubspec.lock。
+`decodeRepoSnapshots` / `decodeDeveloperSnapshots` 保持返回 Map 的旧签名，
+新增 `hasCorrupt*Snapshots(String? raw)` 只读探测函数；
+`MonitorObservationDao` 新增 `readWithStatus`，`read` 行为保持不变。
+`DeviceFlowContent` 由死文件变为登录页条件渲染的子组件，公开构造不变。
