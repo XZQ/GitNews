@@ -79,6 +79,12 @@ CI 解析。清单不得包含 Token、密码或其他敏感参数，Harness 也
 5. 运行 `-Doctor`、`-DryRun` 和至少一个真实包含该步骤的 suite。
 6. 更新本文和 [质量记分卡](quality_scorecard.md)，说明新增保障或仍存在的缺口。
 
+`flutter.changed-format-check` 对「恰好 1 个改动 Dart 文件」的边界有专门的
+契约与行为回归测试（`test/tooling/changed_dart_format_contract_test.dart`）：
+它先固定 splat 目标的 `[string[]]` 数组类型，再在 Windows 上构造只含一个
+改动文件的临时 Git 仓库执行真实脚本，防止 PowerShell 把单元素数组退化成标量
+后按字符传参。
+
 重复出现的 Agent 失败不应靠追加泛化提示解决。优先把它归类为缺失知识、缺失
 工具、不可见运行状态或未机械执行的边界，然后分别补进文档、脚本、测试或
 静态检查。清单与运行器的修改必须保持小步、可回退，并用运行产物证明效果。
@@ -101,8 +107,9 @@ GitHub Actions 直接调用同一个 Harness。当前 Windows 任务运行 `ci-w
   不写探针文件，探针不记录异常原文或用户内容。它不替代页面内容与视觉验收。
 - 目前没有自动采集当前 UI 截图或视频；托盘烟测证明窗口关闭后进程存活，
   不证明通知实际送达。
-- 架构依赖方向主要依靠目录约定、代码评审和 analyzer；尚未有专门的 Dart
-  结构测试阻止所有跨层导入。
+- 架构依赖方向已有 `test/core/architecture/layer_imports_test.dart` 固定跨层
+  import 基线，但只覆盖展示层→feature data 与跨 feature 展示层引用；历史遗留
+  的跨 feature import 与更细的领域边界仍依靠目录约定、代码评审和 analyzer。
 - 文档检查能发现本地断链，但还不能自动判断内容是否陈旧。
 - 仓库可移植性检查会阻止测试重新引用机器本地字体/Flutter 路径，并阻止 Xcode
   工程对象重复定义；它不替代在 macOS 真机上的 Xcode 构建。

@@ -33,7 +33,16 @@
   可空 apiKey 类型)，本地 Dart 3.12.2 复检 25 文件 `0 changed`。
 - [x] (2026-11-07 03:13Z) 第三轮 CI：`server` 全绿；`ci-windows` 的 analyzer 仅剩
   1 个 `use_super_parameters` info，但门禁仍判失败。已局部抑制并写明父类私有形参原因。
-- [ ] 推送 lint 修复，读取第四轮 CI 完整结论并把本计划标记为 Complete。
+- [x] (2026-11-07 03:14Z) 推送 lint 修复 `b2f6143`，本地与远端 SHA 一致。
+- [x] (2026-11-07 03:20Z) 第四轮 CI：`server` 6/6 通过；`ci-windows` 停在
+  `flutter.changed-format-check`，失败与 Dart 代码格式无关，是 Harness 单文件边界 bug。
+- [x] (2026-11-07 03:35Z) 本机用 Dart 3.12.2 精确复现 `No file or directory found at "t"`
+  与 `/System Volume Information\*`；定位为 `if` 表达式把单元素数组 unwrap 成标量，
+  `@formatTargets` splat 标量后按字符传参。
+- [x] (2026-11-07 03:40Z) 修脚本为 `[string[]]$formatTargets`，新增契约与 Windows
+  行为回归测试；本机两种单文件场景均 `passed for 1 file(s)`，Harness `-List` 与
+  `docs -DryRun` 通过。
+- [ ] 推送本轮 Harness 修复，读取第五轮 CI 完整结论并把本计划标记为 Complete。
 
 ## Surprises & Discoveries
 
@@ -73,6 +82,17 @@
 - Observation: `ServerConnectionState.apiKey` 是 `String?`；把请求头集中到 support
   类时必须接收可空值，并避免生成看似有效的 `Bearer` 头。
   Evidence: `lib/core/preferences/server_connection_controller.dart:28`。
+- Observation: 第四轮 `flutter.changed-format-check` 失败与 Dart 代码格式无关。
+  PowerShell 的 `if` 表达式赋值会把单元素数组 unwrap 成 `System.String`；
+  `@formatTargets` 对标量 splatting 给原生 exe 时按字符逐个传参，`dart format`
+  因此收到 `t`/`e`/`s`/`t`/... 并把根目录字符参数展开到 `/System Volume Information\*`。
+  Evidence: run 42333112096 的逐步日志；`git diff 6bf1b5d...HEAD -- lib test` 仅 1 个
+  Dart 文件；本机用独立 Dart 3.12.2 SDK 复现得到逐字一致的报错。
+- Observation: 修复后用 CI 等价行宽（`analysis_options.yaml` 临时屏蔽无法解析的
+  include，try/finally 字节级还原）在本机验证：真实仓库 `Formatted 1 file (0 changed)`
+  与临时仓库单文件场景均返回 `passed for 1 file(s)`。
+  Evidence: 本机 PowerShell + Dart SDK 执行输出；`harness.ps1 -List` 与
+  `-Suite docs -DryRun` 均退出 0。
 
 ## Decision Log
 
@@ -102,18 +122,26 @@
   Rationale: 均属重构或语义变更，在本机无编译反馈的前提下风险高于收益；
   用新增结构测试先卡住增量，后续有 Flutter SDK 时按专题处理。
   Date: 2026-11-07
+- Decision: 修复 `tools/check_changed_dart_format.ps1` 这一窄组件，不改 CI 清单、
+  不跳过该步骤、不把改动检查降级为全量基线，并把边界固化为契约与行为回归测试。
+  Rationale: 遵循 `docs/harness/README.md`「把重复失败提升为测试」；根因可精确复现，
+  修复面只有一处显式数组类型声明，绕开只会掩盖真实边界缺陷。
+  Date: 2026-11-07
 
 ## Outcomes & Retrospective
 
-代码与本机可执行的静态校验已全部完成；本机**没有**执行任何 Flutter / Dart / uv / pytest
-门禁，完整验证交由 GitHub Actions。本计划在读取 CI 结论、补录证据前保持 Active。
+代码与本机可执行的静态校验已全部完成；本机**没有**执行 Flutter / uv / pytest
+门禁，仅用独立 Dart 3.12.2 SDK 执行过 `dart format` 与改动文件格式检查，
+完整验证交由 GitHub Actions。本计划在读取 CI 结论、补录证据前保持 Active。
 
 已确认排除的两类误报：`clearAll` 只清 4 张可再生存量表是刻意设计(仅改名与注释)；
 服务端 FCM/APNs/WNS 只入 outbox 是留给外部网关的设计。
 
 本轮未处理的重构项见 Decision Log，均已在交付说明中列出。剩余风险：
-本机无法执行 `dart format --set-exit-if-changed`、`flutter analyze`、`flutter test`
-与 Release 构建，格式或编译问题只能由 CI 暴露后修复。
+本机已能用独立 Dart 3.12.2 SDK 精确执行 `dart format --set-exit-if-changed`，
+但仍无法执行 `flutter analyze`、`flutter test` 与 Release 构建；编译、全量测试与
+Windows 构建只能由 CI 暴露后修复。新增的行为回归测试也只能在 Windows CI 上
+真正执行（本机无 `flutter test`）。
 
 ## Context and Orientation
 
@@ -183,8 +211,11 @@
   （`server` 6/6 通过；`ci-windows` 到 `flutter.analyze` 为止，6 个 error 已定位）。
 - 第三轮 CI：https://github.com/XZQ/GitNews/actions/runs/42332593462
   （`server` 6/6；`ci-windows` 到 `flutter.analyze`，仅剩 1 个 info）。
-- 第四轮 CI 链接在结论确认后补入本节。
-- `build/harness/` 为忽略目录，本轮本机不产生。
+- 第四轮 CI：https://github.com/XZQ/GitNews/actions/runs/42333112096
+  （`server` 6/6；`ci-windows` 停在 `flutter.changed-format-check`，单文件 splatting bug）。
+- 第五轮 CI 链接在结论确认后补入本节。
+- `build/harness/` 为忽略目录；本轮本机 `-Suite docs -DryRun` 产生过一份计划摘要，
+  该目录仍被忽略、不进入提交。
 
 ## Interfaces and Dependencies
 
