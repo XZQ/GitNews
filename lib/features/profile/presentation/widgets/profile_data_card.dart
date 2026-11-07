@@ -82,7 +82,7 @@ class _ProfileDataCardState extends ConsumerState<ProfileDataCard> {
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('config.import_failed'))));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('config.export_failed'))));
     } finally {
       if (mounted) {
         setState(() => _exporting = false);

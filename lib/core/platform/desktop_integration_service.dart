@@ -7,6 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '../utils/app_logger.dart';
+
 /*
 *桌面生命周期:关闭窗口时隐藏到托盘，托盘可恢复或彻底退出。
 *所有插件调用均为最佳努力，初始化失败不会阻断主应用启动。
@@ -109,7 +111,7 @@ class DesktopIntegrationService with WindowListener, TrayListener {
       await windowManager.focus();
       await windowManager.setSkipTaskbar(false);
     } catch (_) {
-      // no-op
+      AppLogger.warn('desktop.showWindowFailed', meta: {'op': 'show'});
     }
   }
 
@@ -127,6 +129,7 @@ class DesktopIntegrationService with WindowListener, TrayListener {
       await notification.show();
     } catch (_) {
       // 系统通知失败不影响应用内提醒落库。
+      AppLogger.warn('desktop.notificationFailed', meta: {'op': 'show'});
     }
   }
 
@@ -135,7 +138,9 @@ class DesktopIntegrationService with WindowListener, TrayListener {
     if (_quitting || !_hideOnClose) {
       return;
     }
-    unawaited(windowManager.hide().catchError((Object _) {}));
+    unawaited(windowManager.hide().catchError((Object _) {
+      AppLogger.warn('desktop.hideFailed', meta: {'op': 'hide'});
+    }));
   }
 
   @override
@@ -145,7 +150,9 @@ class DesktopIntegrationService with WindowListener, TrayListener {
 
   @override
   void onTrayIconRightMouseUp() {
-    unawaited(trayManager.popUpContextMenu().catchError((Object _) {}));
+    unawaited(trayManager.popUpContextMenu().catchError((Object _) {
+      AppLogger.warn('desktop.trayMenuFailed', meta: {'op': 'contextMenu'});
+    }));
   }
 
   @override
@@ -165,6 +172,7 @@ class DesktopIntegrationService with WindowListener, TrayListener {
       await trayManager.destroy();
       await windowManager.destroy();
     } catch (_) {
+      AppLogger.warn('desktop.quitFailed', meta: {'op': 'destroy'});
       exit(0);
     }
   }

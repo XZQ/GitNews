@@ -21,6 +21,7 @@ import 'core/storage/local_database.dart';
 import 'core/storage/storage_providers.dart';
 import 'core/theme/app_spacing.dart';
 import 'core/theme/app_typography.dart';
+import 'core/utils/app_logger.dart';
 import 'shared/widgets/window_title_bar.dart';
 
 typedef SharedPreferencesLoader = Future<SharedPreferences> Function();
@@ -85,6 +86,8 @@ Future<AuthRepository> _openAuthRepository(AuthRepositoryLoader? loader) async {
   try {
     return await (loader ?? initializeAuthRepository)(defaultSecureStorage);
   } catch (_) {
+    // 不阻断本地优先启动,但认证初始化失败必须可诊断。
+    AppLogger.warn('bootstrap.authInitFailed', meta: {'op': 'auth'});
     return const UnavailableAuthRepository(AuthCapabilities(isConfigured: true));
   }
 }

@@ -7,6 +7,7 @@ import '../../../core/di/providers.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/platform/desktop_integration_service.dart';
 import '../../../core/preferences/ai_news_reminder_preferences.dart';
+import '../../../core/utils/app_logger.dart';
 import '../domain/ai_news_item.dart';
 import 'ai_news_library_providers.dart';
 import 'ai_news_providers.dart';
@@ -103,6 +104,8 @@ class AiNewsBackgroundRefresher {
       }
     } catch (_) {
       // 失败不推进尚未完成的检查点；下一轮仍可重放，前台继续读取原缓存。
+      // 长期失败必须留痕，否则新资讯提醒会静默失效。
+      AppLogger.warn('aiNews.backgroundRefreshFailed', meta: {'op': 'refresh'});
     } finally {
       _refreshing = false;
     }

@@ -50,7 +50,8 @@ Future<List<DiscoverProfileEntity>> fetchProfileWhitelist(DiscoverProfileClient 
       final r = await profileClient.fetch(login, kind);
       results.add(r.data);
     } catch (_) {
-      // 单条失败不阻断白名单整体返回;跳过。
+      // 单条失败不阻断白名单整体返回;跳过,但留下缺口线索。
+      AppLogger.warn('discover.profileWhitelistEntryFailed', meta: {'kind': kind.name});
     }
   }
   return results;

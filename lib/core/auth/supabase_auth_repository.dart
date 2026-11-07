@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../utils/app_logger.dart';
 import 'auth_config.dart';
 import 'auth_models.dart';
 import 'auth_repository.dart';
@@ -15,6 +16,7 @@ Future<AuthRepository> initializeAuthRepository(FlutterSecureStorage secureStora
   const capabilities = AuthCapabilities(isConfigured: true);
   final uri = Uri.tryParse(AuthConfig.supabaseUrl.trim());
   if (uri == null || !uri.hasScheme || !uri.hasAuthority || (uri.scheme != 'https' && uri.scheme != 'http')) {
+    AppLogger.warn('auth.invalidConfig', meta: {'op': 'initialize'});
     return const UnavailableAuthRepository(capabilities);
   }
   try {
@@ -25,6 +27,8 @@ Future<AuthRepository> initializeAuthRepository(FlutterSecureStorage secureStora
     );
     return SupabaseAuthRepository(instance.client, capabilities: capabilities);
   } catch (_) {
+    // 降级为不可用仓库以保证本地优先启动,但必须留下诊断线索。
+    AppLogger.warn('auth.initializeFailed', meta: {'op': 'initialize'});
     return const UnavailableAuthRepository(capabilities);
   }
 }

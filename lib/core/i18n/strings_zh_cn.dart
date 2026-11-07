@@ -885,6 +885,7 @@ const Map<String, String> stringsZhCN = <String, String>{
   'config.exported': '配置已导出到剪贴板',
   'config.imported': '配置已导入',
   'config.import_failed': '导入失败:格式不正确',
+  'config.export_failed': '配置导出失败,请稍后重试',
   'config.export_button': '导出配置',
   'config.import_button': '导入配置',
 

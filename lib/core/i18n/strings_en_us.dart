@@ -886,6 +886,7 @@ const Map<String, String> stringsEnUS = <String, String>{
   'config.exported': 'Config exported to clipboard',
   'config.imported': 'Config imported',
   'config.import_failed': 'Import failed: invalid format',
+  'config.export_failed': 'Export failed, please retry',
   'config.export_button': 'Export',
   'config.import_button': 'Import',
 

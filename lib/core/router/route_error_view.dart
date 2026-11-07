@@ -4,13 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../i18n/app_localizations.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
+import '../utils/app_logger.dart';
 
 /* 
 *未匹配路由兜底页。
 *设计要点(对应 CLAUDE.md §九):
 *- 静态展示错误页,**不**自动跳首页 —— 让用户能识别深链失效,而不是被默默重定向。
 *- 不渲染 `error.toString()`(可能含内部路径 / URL / 异常类型,信息泄露)。
-*仅在 debug 模式下走 `debugPrint`(release 被 strip)。
+*仅通过 AppLogger 留痕(release 下 no-op),不打印异常内容。
 */
 class RouteErrorView extends StatelessWidget {
   const RouteErrorView({required this.error, super.key});
@@ -21,7 +22,7 @@ class RouteErrorView extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (error != null) {
-      debugPrint('RouteErrorView: $error');
+      AppLogger.warn('router.unmatchedRoute', meta: {'hasError': true});
     }
     final theme = Theme.of(context);
     return Scaffold(

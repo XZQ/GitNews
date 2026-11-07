@@ -1,5 +1,7 @@
 import 'package:flutter/services.dart';
 
+import '../utils/app_logger.dart';
+
 /* 
 *Windows 平台窗口控制桥接。
 *通过 `github_news/window` MethodChannel 调用 native 端实现的
@@ -14,9 +16,10 @@ class WindowService {
     try {
       await _channel.invokeMethod<void>('minimize');
     } on PlatformException {
-      // 非 Windows 平台或 channel 未注册,静默忽略。
+      // 非 Windows 平台或 channel 未注册,保持 no-op 但留下可诊断痕迹。
+      AppLogger.warn('window.channelFailed', meta: {'op': 'minimize'});
     } on MissingPluginException {
-      // 同上。
+      AppLogger.warn('window.channelFailed', meta: {'op': 'minimize', 'missing': true});
     }
   }
 
@@ -24,9 +27,9 @@ class WindowService {
     try {
       await _channel.invokeMethod<void>('maximize');
     } on PlatformException {
-      // ignore
+      AppLogger.warn('window.channelFailed', meta: {'op': 'maximize'});
     } on MissingPluginException {
-      // ignore
+      AppLogger.warn('window.channelFailed', meta: {'op': 'maximize', 'missing': true});
     }
   }
 
@@ -34,9 +37,9 @@ class WindowService {
     try {
       await _channel.invokeMethod<void>('close');
     } on PlatformException {
-      // ignore
+      AppLogger.warn('window.channelFailed', meta: {'op': 'close'});
     } on MissingPluginException {
-      // ignore
+      AppLogger.warn('window.channelFailed', meta: {'op': 'close', 'missing': true});
     }
   }
 
