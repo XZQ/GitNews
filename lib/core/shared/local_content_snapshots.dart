@@ -142,12 +142,12 @@ String encodeDeveloperSnapshots(Map<String, SavedDeveloperSnapshot> snapshots) {
 
 SnapshotDecodeResult<T> _decodeSnapshots<T>(String? raw, T Function(Map<String, Object?>) decode, String Function(T) idOf) {
   if (raw == null || raw.trim().isEmpty) {
-    return const SnapshotDecodeResult<T>(values: {}, corrupted: false);
+    return SnapshotDecodeResult<T>(values: <String, T>{}, corrupted: false);
   }
   try {
     final decoded = jsonDecode(raw);
     if (decoded is! List) {
-      return const SnapshotDecodeResult<T>(values: {}, corrupted: true);
+      return SnapshotDecodeResult<T>(values: <String, T>{}, corrupted: true);
     }
     final result = <String, T>{};
     var corrupted = false;
@@ -170,7 +170,7 @@ SnapshotDecodeResult<T> _decodeSnapshots<T>(String? raw, T Function(Map<String, 
     }
     return SnapshotDecodeResult<T>(values: result, corrupted: corrupted);
   } catch (_) {
-    return const SnapshotDecodeResult<T>(values: {}, corrupted: true);
+    return SnapshotDecodeResult<T>(values: <String, T>{}, corrupted: true);
   }
 }
 

@@ -27,7 +27,11 @@
   `flutter.changed-format-check` 失败(5 个 Dart 文件)，后续 analyze/test/build 未执行。
 - [x] (2026-11-07 03:08Z) 下载与 CI 同版本的 Dart 3.12.2 SDK，精确复现格式判定后格式化
   这 5 个文件，本地复检 25 个改动文件 `0 changed`。
-- [ ] 推送格式修复，读取第二轮 CI 完整结论并把本计划标记为 Complete。
+- [x] (2026-11-07 03:05Z) 第二轮 CI：`server` 全绿(ruff / pytest / live-smoke)；
+  `ci-windows` 的格式、链接、可移植性均通过，`flutter.analyze` 报 6 个 error。
+- [x] (2026-11-07 03:12Z) 修复 6 个 error(泛型 const 3 处、RegExp 非 const 构造、
+  可空 apiKey 类型)，本地 Dart 3.12.2 复检 25 文件 `0 changed`。
+- [ ] 推送 analyzer 修复，读取第三轮 CI 完整结论并把本计划标记为 Complete。
 
 ## Surprises & Discoveries
 
@@ -60,6 +64,13 @@
 - Observation: 首轮 CI 的 `server` job 已 success，说明 `feeds.py` 改动与新增测试
   通过了 Ruff 与 pytest；Flutter 侧当时尚未执行到 analyze/test。
   Evidence: run 42331315470 的 jobs 结论。
+- Observation: Dart 3.12 不允许 const 构造使用类型参数作为类型实参
+  (`const_with_type_parameters`)，且 `RegExp` 构造函数并非 const；纯静态检查
+  无法发现，由 CI 的 `flutter.analyze` 暴露。
+  Evidence: run 42332010580 的 `04-flutter.analyze.log`，6 个 error 全部有明确行号。
+- Observation: `ServerConnectionState.apiKey` 是 `String?`；把请求头集中到 support
+  类时必须接收可空值，并避免生成看似有效的 `Bearer` 头。
+  Evidence: `lib/core/preferences/server_connection_controller.dart:28`。
 
 ## Decision Log
 
@@ -166,7 +177,9 @@
 - 首轮 CI：https://github.com/XZQ/GitNews/actions/runs/42331315470
   （`server` success；`ci-windows` 格式步骤失败，证据 artifact `harness-flutter-windows`
   的 run id `20261107T025445312Z-1268/summary.json`）。
-- 第二轮 CI 链接在结论确认后补入本节。
+- 第二轮 CI：https://github.com/XZQ/GitNews/actions/runs/42332010580
+  （`server` 6/6 通过；`ci-windows` 到 `flutter.analyze` 为止，6 个 error 已定位）。
+- 第三轮 CI 链接在结论确认后补入本节。
 - `build/harness/` 为忽略目录，本轮本机不产生。
 
 ## Interfaces and Dependencies

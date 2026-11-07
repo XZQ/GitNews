@@ -31,7 +31,7 @@ void main() {
   });
 }
 
-const RegExp _importPattern = RegExp(r'''^\s*(?:import|export)\s+['"]([^'"]+)['"]''', multiLine: true);
+final RegExp _importPattern = RegExp(r'''^\s*(?:import|export)\s+['"]([^'"]+)['"]''', multiLine: true);
 
 int _dartFiles() {
   return Directory('lib').listSync(recursive: true).whereType<File>().where((file) => file.path.endsWith('.dart')).length;
