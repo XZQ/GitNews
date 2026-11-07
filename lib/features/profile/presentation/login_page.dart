@@ -64,10 +64,7 @@ class _LoginBody extends ConsumerWidget {
         const LoginAlternativesCard(),
         // Device Flow 需要发布方在构建时注入 OAuth App client_id;
         // 未配置的构建不暴露入口,仍可在设置页使用 Personal Access Token。
-        if (ApiEndpointsConfig.githubOAuthConfigured) ...[
-          const SizedBox(height: AppSpacing.md),
-          const _DeviceFlowCard(),
-        ],
+        if (ApiEndpointsConfig.githubOAuthConfigured) ...[const SizedBox(height: AppSpacing.md), const _DeviceFlowCard()],
       ],
     );
   }

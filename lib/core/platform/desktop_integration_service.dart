@@ -138,9 +138,11 @@ class DesktopIntegrationService with WindowListener, TrayListener {
     if (_quitting || !_hideOnClose) {
       return;
     }
-    unawaited(windowManager.hide().catchError((Object _) {
-      AppLogger.warn('desktop.hideFailed', meta: {'op': 'hide'});
-    }));
+    unawaited(
+      windowManager.hide().catchError((Object _) {
+        AppLogger.warn('desktop.hideFailed', meta: {'op': 'hide'});
+      }),
+    );
   }
 
   @override
@@ -150,9 +152,11 @@ class DesktopIntegrationService with WindowListener, TrayListener {
 
   @override
   void onTrayIconRightMouseUp() {
-    unawaited(trayManager.popUpContextMenu().catchError((Object _) {
-      AppLogger.warn('desktop.trayMenuFailed', meta: {'op': 'contextMenu'});
-    }));
+    unawaited(
+      trayManager.popUpContextMenu().catchError((Object _) {
+        AppLogger.warn('desktop.trayMenuFailed', meta: {'op': 'contextMenu'});
+      }),
+    );
   }
 
   @override

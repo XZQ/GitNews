@@ -27,11 +27,7 @@ void main() {
   test('cross-feature presentation imports must not grow', () {
     const baseline = 9;
     final violations = _collect()['crossPresentation']!;
-    expect(
-      violations.length,
-      lessThanOrEqualTo(baseline),
-      reason: '跨 feature 引用其它 feature 的展示层 widget 只允许减少,不允许新增: $violations',
-    );
+    expect(violations.length, lessThanOrEqualTo(baseline), reason: '跨 feature 引用其它 feature 的展示层 widget 只允许减少,不允许新增: $violations');
   });
 }
 

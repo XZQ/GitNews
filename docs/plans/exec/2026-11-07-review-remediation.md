@@ -22,7 +22,12 @@
 - [x] (2026-11-07 03:10Z) 批次 D：桌面/窗口/认证/后台刷新/发现/路由补日志，导出失败文案与 i18n。
 - [x] (2026-11-07 03:10Z) 批次 E：缓存表清单改名、自托管路径与请求头集中、3 处乱码注释修复、跨层 import 基线测试。
 - [x] (2026-11-07 03:10Z) 本机静态校验：`git diff --check`、Python `py_compile`、相对 import 存在性、import 排序、i18n 双边一致、行宽均通过。
-- [ ] 分项提交、push、读取 GitHub Actions 的 `ci-windows` / `server` 结论并补录本计划。
+- [x] (2026-11-07 02:55Z) 6 个分项提交并 push 至 `origin/main`(`33cd916`)，本地与远端 SHA 一致。
+- [x] (2026-11-07 02:56Z) 首轮 CI：`server` job success；`ci-windows` 在
+  `flutter.changed-format-check` 失败(5 个 Dart 文件)，后续 analyze/test/build 未执行。
+- [x] (2026-11-07 03:08Z) 下载与 CI 同版本的 Dart 3.12.2 SDK，精确复现格式判定后格式化
+  这 5 个文件，本地复检 25 个改动文件 `0 changed`。
+- [ ] 推送格式修复，读取第二轮 CI 完整结论并把本计划标记为 Complete。
 
 ## Surprises & Discoveries
 
@@ -47,6 +52,14 @@
   `lib/features/trending/application/trending_providers.dart:97-98` 存在 UTF-8 被误按
   GBK 解码的乱码注释，已按语义重写。原始字节已不可精确还原(含替换字符)。
   Evidence: Python 还原脚本对三段文本均无法 encode('gbk')。
+- Observation: 本机虽无 Flutter，但可从 Google Storage 单独下载 Dart SDK(214 MB)；
+  临时屏蔽 `analysis_options.yaml` 中因缺少 package_config 而无法解析的 include 后，
+  `dart format` 即可精确复现 CI 判定(同样 25 文件 / 5 changed)，无需完整 Flutter 或 VS。
+  Evidence: 首轮 artifact 里 `03-flutter.changed-format-check.log`，与本地 Dart 3.12.2
+  输出逐文件一致；临时改动用 try/finally 即时还原，未进入提交。
+- Observation: 首轮 CI 的 `server` job 已 success，说明 `feeds.py` 改动与新增测试
+  通过了 Ruff 与 pytest；Flutter 侧当时尚未执行到 analyze/test。
+  Evidence: run 42331315470 的 jobs 结论。
 
 ## Decision Log
 
@@ -150,7 +163,10 @@
 ## Artifacts and Notes
 
 - 梳理结论存于 `.workbuddy/memory/2026-11-07.md`（本地记忆，不提交）。
-- CI 证据链接在完成后补入本节。
+- 首轮 CI：https://github.com/XZQ/GitNews/actions/runs/42331315470
+  （`server` success；`ci-windows` 格式步骤失败，证据 artifact `harness-flutter-windows`
+  的 run id `20261107T025445312Z-1268/summary.json`）。
+- 第二轮 CI 链接在结论确认后补入本节。
 - `build/harness/` 为忽略目录，本轮本机不产生。
 
 ## Interfaces and Dependencies

@@ -101,7 +101,10 @@ void main() {
 
   test('a partially corrupt snapshot payload keeps the original text until repaired', () async {
     final valid = SavedRepoSnapshot.minimal('ok/repo', DateTime.utc(2026, 1, 1)).toJson();
-    final corrupt = jsonEncode([valid, {'broken': true}]);
+    final corrupt = jsonEncode([
+      valid,
+      {'broken': true},
+    ]);
     SharedPreferences.setMockInitialValues({'local_content_repo_snapshots_v1': corrupt});
     final container = await _container();
     addTearDown(container.dispose);

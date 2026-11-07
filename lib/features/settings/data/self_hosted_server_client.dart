@@ -88,6 +88,8 @@ class SelfHostedServerClient {
   }
 
   Options _options(ServerConnectionState connection) {
-    return Options(headers: SelfHostedApiSupport.headers(apiKey: connection.apiKey, workspaceId: connection.workspaceId));
+    return Options(
+      headers: SelfHostedApiSupport.headers(apiKey: connection.apiKey, workspaceId: connection.workspaceId),
+    );
   }
 }
