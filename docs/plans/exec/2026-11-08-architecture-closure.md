@@ -1,6 +1,6 @@
 # 架构边界收口与残余重构落地
 
-状态：Active
+状态：Complete
 
 本计划遵循 `.agent/PLANS.md`，执行期间必须保持内容与实际状态一致。
 用户明确要求：把上一轮标记为「未做 / 剩余边界」的整改项全部做完，然后 commit and push。
@@ -48,7 +48,9 @@
 - [x] (2026-11-08 06:16Z) `flutter test` 全绿：`All tests passed!`，612 个用例，exit 0。
 - [x] (2026-11-08 06:18Z) `dart format --output=none --set-exit-if-changed lib test`：527 文件 0 changed，exit 0。
 - [x] (2026-11-08 06:19Z) `check_markdown_links` / `check_repository_portability` / `git diff --check` 全部通过。
-- [ ] 提交、推送、读取 CI 双 job 结论。
+- [x] (2026-11-08 06:23Z) 分 6 个提交推送 `origin/main`（`db19646..6b14bf8`）；
+      CI run 42419798846 在第 1 次尝试即双 job success（`ci-windows` 8 步、
+      `server` 13 步全 passed）。
 
 ## Surprises & Discoveries
 
@@ -144,6 +146,13 @@
 | `check_repository_portability.ps1 .` | passed |
 | `git diff --check` | clean |
 
+CI（run [42419798846](https://github.com/XZQ/GitNews/actions/runs/42419798846)，sha `6b14bf8`，attempt 1）：
+
+| job | 结论 | 步骤 |
+| --- | --- | --- |
+| `Flutter and Windows release build`（`ci-windows`） | success | 8/8 passed（含 `Run Windows build harness` 与 `Upload harness evidence`） |
+| `Self-hosted server`（`server`） | success | 13/13 passed |
+
 复盘：
 
 - 「无编译反馈就先不做重构」是对的直觉，但代价评估错了——装一个与 CI 同版本的 SDK
@@ -209,7 +218,11 @@ Flutter SDK 装在系统临时目录，不进入仓库、不进入 `PATH` 持久
 ## Artifacts and Notes
 
 - Flutter SDK：`C:\Users\24491\AppData\Local\Temp\flutter3449\flutter`（不入库）。
-- 本计划的 CI 链接与 artifact 在结论确认后补入。
+- CI：[run 42419798846](https://github.com/XZQ/GitNews/actions/runs/42419798846)，
+  被验证的代码状态 `6b14bf8`，两个 job 均 success，Harness 证据随 run 上传。
+- 提交序列：`1ba75f1`（组合根 + import 归零）、`851ee0d`（组件拆分）、
+  `ba54c07`（配额 provider）、`6d25726`（partial 语义）、`75037f2`（死代码）、
+  `6b14bf8`（文档同步）。
 
 ## Interfaces and Dependencies
 
