@@ -5,7 +5,9 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$rootPath = (Resolve-Path -LiteralPath $Root).Path
+# Normalize the resolved root with the same API used for candidate paths, so the
+# containment check below also holds when -Root points outside the checkout.
+$rootPath = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $Root).Path)
 $paths = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
 
 function Invoke-GitPathQuery {
