@@ -22,7 +22,7 @@ class MobilePageHeader extends StatelessWidget {
   // 细搜索栏(如 HeaderSearchField)。
   final Widget? search;
 
-  // 灏嗘悳绱㈡涓庢爣棰樻斁鍦ㄥ悓涓€琛岋紝閫傚悎浠ュ揩閫熸绱负棣栬浠诲姟鐨勯〉闈€銆?
+  // 将搜索框与标题放在同一行，适合以快速检索为首要任务的页面。
   final bool inlineSearch;
 
   // 标题/搜索下方的插槽(分类 chips 等)。

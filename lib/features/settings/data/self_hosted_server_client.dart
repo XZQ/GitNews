@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 
+import '../../../core/config/api_endpoints_config.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/network/self_hosted_api_support.dart';
 import '../../../core/preferences/server_connection_controller.dart';
 
 class RemoteConfigRecord {
@@ -17,7 +19,7 @@ class SelfHostedServerClient {
 
   Future<void> checkHealth(ServerConnectionState connection) async {
     try {
-      final response = await _dio.get<Map<String, Object?>>('${connection.baseUrl}/health');
+      final response = await _dio.get<Map<String, Object?>>('${connection.baseUrl}${ApiEndpointsConfig.serverHealthPath}');
       if (response.data?['status'] != 'ok') {
         // 统一异常边界:presentation 只应见到 AppException。
         throw const AppException(kind: AppExceptionKind.parse, meta: {'reason': 'unexpected health payload'});
@@ -30,7 +32,7 @@ class SelfHostedServerClient {
   Future<void> registerMember(ServerConnectionState connection) async {
     try {
       await _dio.put<Map<String, Object?>>(
-        '${connection.baseUrl}/v1/collaboration/members/${Uri.encodeComponent(connection.memberId)}',
+        '${connection.baseUrl}${ApiEndpointsConfig.serverCollaborationMemberPath(connection.memberId)}',
         data: {'member_id': connection.memberId, 'display_name': connection.memberId, 'role': 'owner'},
         options: _options(connection),
       );
@@ -42,7 +44,7 @@ class SelfHostedServerClient {
   Future<void> pushConfig(ServerConnectionState connection, Map<String, Object?> payload, {required int version}) async {
     try {
       final response = await _dio.post<Map<String, Object?>>(
-        '${connection.baseUrl}/v1/sync/push',
+        '${connection.baseUrl}${ApiEndpointsConfig.serverSyncPushPath}',
         data: {
           'records': [
             {'namespace': 'app_config', 'record_id': 'shared', 'payload': payload, 'version': version, 'updated_at': version},
@@ -64,7 +66,7 @@ class SelfHostedServerClient {
   Future<RemoteConfigRecord?> pullConfig(ServerConnectionState connection) async {
     try {
       final response = await _dio.get<List<Object?>>(
-        '${connection.baseUrl}/v1/sync/pull',
+        '${connection.baseUrl}${ApiEndpointsConfig.serverSyncPullPath}',
         queryParameters: const {'since': 0, 'limit': 1, 'namespace': 'app_config', 'record_id': 'shared'},
         options: _options(connection),
       );
@@ -86,6 +88,6 @@ class SelfHostedServerClient {
   }
 
   Options _options(ServerConnectionState connection) {
-    return Options(headers: {'Authorization': 'Bearer ${connection.apiKey}', 'X-Workspace-ID': connection.workspaceId, 'Content-Type': 'application/json'});
+    return Options(headers: SelfHostedApiSupport.headers(apiKey: connection.apiKey, workspaceId: connection.workspaceId));
   }
 }

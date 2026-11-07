@@ -97,6 +97,12 @@ class ApiEndpointsConfig {
 
   static bool get githubOAuthConfigured => githubOAuthClientId.trim().isNotEmpty;
 
+  // 可选自托管服务的请求路径。baseUrl 由用户在设置页配置,不在此固定。
+  static const String serverHealthPath = '/health';
+  static const String serverSyncPushPath = '/v1/sync/push';
+  static const String serverSyncPullPath = '/v1/sync/pull';
+  static String serverCollaborationMemberPath(String memberId) => '/v1/collaboration/members/${Uri.encodeComponent(memberId)}';
+
   // 第三方 Agent Skills 排行榜数据源 baseUrl(raw.githubusercontent.com)。
   // 注意:该端点未验证可用(jaychempan/Agent-Skills-Leaderboard 路径 2026-07 核查 404),
   // 当前 discover 模块以 GitHub Search API(topic:agent-skills 等)为主数据源,

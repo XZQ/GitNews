@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../errors/app_exception.dart';
+import '../utils/app_logger.dart';
 import 'database_schema.dart';
 
 // 数据库文件名。
@@ -77,22 +78,27 @@ class LocalDatabase {
       }
       return f.lengthSync();
     } catch (_) {
+      AppLogger.warn('database.sizeFailed', meta: {'op': 'stat'});
       return 0;
     }
   }
 
-  // 所有业务表名清单。新增表只需在此列表追加一行,`clearAll` 自动覆盖。
-  static const List<String> _kBusinessTables = ['ai_news_item', 'trending_snapshot_cache', 'json_snapshot_cache', 'cache_meta'];
+  /*
+  *仅收录「可再生、不含用户状态」的远端快照缓存表。
+  *ai_news_state / ai_news_reminder / ai_news_feedback / monitor_alert_event
+  *属于用户数据,ai_news_enrichment 是可离线阅读的持久增强结果,
+  *均不得加入此清单。只有新增可再生缓存表时才在这里追加一行。
+  */
+  static const List<String> _kClearableCacheTables = ['ai_news_item', 'trending_snapshot_cache', 'json_snapshot_cache', 'cache_meta'];
 
-  /* 
-  *清空所有业务表 + VACUUM。
-  *通用清理入口:遍历 [_kBusinessTables] 逐表 DELETE,新增表只需在
-  *列表中追加即可,无需修改此方法。不直接 DROP 是为了保留 schema,
+  /*
+  *清空可再生的缓存表 + VACUUM。
+  *遍历 [_kClearableCacheTables] 逐表 DELETE,不直接 DROP 以保留 schema,
   *清理后立刻可以重新写入。
   */
   Future<void> clearAll() async {
     try {
-      for (final table in _kBusinessTables) {
+      for (final table in _kClearableCacheTables) {
         await _db.delete(table);
       }
       await _db.execute('VACUUM');

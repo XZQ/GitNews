@@ -94,8 +94,8 @@ final trendingDigestProvider = FutureProvider<TrendingDigest>((ref) async {
   return (await ref.watch(trendingDigestResultProvider.future)).data;
 });
 
-// 绉诲姩銆屼粖鏃ャ€嶉〉闈㈢殑绋冲畾鍩虹嚎锛氱儹闂ㄤ粨搴撳拰璇濋瓒嬪娍濮嬬粓鎸夊綋鏃ュ彛寰勫睍绀恒€?
-// 鍒囨崲 Star 鍥捐〃鏃堕棿绐楁椂涓嶄細璁╄繖浜涗笉鐩稿叧鍖哄潡涓€璧烽噸鏂拌姹傘€?
+// 移动「今日」页面的稳定基线：热门仓库和话题趋势始终按当日口径展示。
+// 切换 Star 图表时间窗时不会让这些不相关区块一起重新请求。
 final trendingHomeDigestResultProvider = FutureProvider<DataResult<TrendingDigest>>((ref) {
   return ref.watch(trendingRepositoryProvider).getDigest();
 });
