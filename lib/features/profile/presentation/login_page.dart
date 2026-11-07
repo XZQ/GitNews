@@ -3,10 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/auth/auth_session_controller.dart';
+import '../../../core/config/api_endpoints_config.dart';
+import '../../../core/github/github_device_flow_controller.dart';
 import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
+import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/responsive_layout.dart';
 import '../../../shared/widgets/secondary_page_scaffold.dart';
+import '../../../shared/widgets/section_header.dart';
+import 'widgets/device_flow_content.dart';
 import 'widgets/login_alternatives_card.dart';
 import 'widgets/otp_verification_card.dart';
 
@@ -53,6 +58,37 @@ class _LoginBody extends ConsumerWidget {
     if (state.pendingEmail != null && (state.operation == AuthOperation.codeSent || state.operation == AuthOperation.verifyingCode)) {
       return const OtpVerificationCard();
     }
-    return ListView(padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xxxl), children: const [LoginAlternativesCard()]);
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.xxxl),
+      children: [
+        const LoginAlternativesCard(),
+        // Device Flow 需要发布方在构建时注入 OAuth App client_id;
+        // 未配置的构建不暴露入口,仍可在设置页使用 Personal Access Token。
+        if (ApiEndpointsConfig.githubOAuthConfigured) ...[
+          const SizedBox(height: AppSpacing.md),
+          const _DeviceFlowCard(),
+        ],
+      ],
+    );
+  }
+}
+
+class _DeviceFlowCard extends ConsumerWidget {
+  const _DeviceFlowCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final state = ref.watch(githubDeviceFlowProvider);
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SectionHeader(title: l10n.tr('device_flow.title'), subtitle: l10n.tr('device_flow.subtitle')),
+          const SizedBox(height: AppSpacing.md),
+          DeviceFlowContent(state: state),
+        ],
+      ),
+    );
   }
 }
