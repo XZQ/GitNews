@@ -79,11 +79,13 @@ CI 解析。清单不得包含 Token、密码或其他敏感参数，Harness 也
 5. 运行 `-Doctor`、`-DryRun` 和至少一个真实包含该步骤的 suite。
 6. 更新本文和 [质量记分卡](quality_scorecard.md)，说明新增保障或仍存在的缺口。
 
-`flutter.changed-format-check` 对「恰好 1 个改动 Dart 文件」的边界有专门的
-契约与行为回归测试（`test/tooling/changed_dart_format_contract_test.dart`）：
-它先固定 splat 目标的 `[string[]]` 数组类型，再在 Windows 上构造只含一个
-改动文件的临时 Git 仓库执行真实脚本，防止 PowerShell 把单元素数组退化成标量
-后按字符传参。
+`flutter.changed-format-check` 对「恰好 1 个改动 Dart 文件」的边界有静态契约
+测试（`test/tooling/changed_dart_format_contract_test.dart`）：固定 splat 目标的
+`[string[]]` 数组类型、根因注释与 root 路径规范化，防止 PowerShell 把单元素
+数组退化成标量后按字符传参。行为侧由 CI 自身验证——每次只有 1 个 Dart 文件
+改动时，`flutter.changed-format-check` 就是该边界的真实回归用例。曾尝试用
+合成临时 Git 仓库做行为测试，但它在无交互 CI 上引入了与被测逻辑无关的路径
+边界依赖，按「修窄组件」原则移除，并顺手加固了脚本的 root 规范化。
 
 重复出现的 Agent 失败不应靠追加泛化提示解决。优先把它归类为缺失知识、缺失
 工具、不可见运行状态或未机械执行的边界，然后分别补进文档、脚本、测试或

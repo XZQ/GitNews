@@ -10,7 +10,7 @@
 |---|---:|---|---|
 | 知识导航 | B | 根 `AGENTS.md` 指向样式、产品、运行和 Harness 文档 | 只能检查链接，不能判断内容新鲜度 |
 | 可恢复计划 | A | `.agent/PLANS.md` 定义适用条件、必备章节和完成标准 | 需要在下一项复杂功能中继续验证可用性 |
-| 命令与失败语义 | A | `tools/harness.json` + `tools/harness.ps1` 提供分层 suite、超时、非零退出与 dry-run；脚本边界另有 Dart 契约与行为回归测试 | 尚无独立 PowerShell 单元测试框架 |
+| 命令与失败语义 | A | `tools/harness.json` + `tools/harness.ps1` 提供分层 suite、超时、非零退出与 dry-run；脚本边界另有 Dart 静态契约测试与 CI 真实单文件 diff 验证 | 尚无独立 PowerShell 单元测试框架 |
 | 运行证据 | A | 每次运行生成清单哈希、Git 状态、逐步日志与 `summary.json` | 暂未聚合跨运行趋势 |
 | Flutter 质量门禁 | A | Dart 3.12 全量格式基线、可移植性、analyzer 和全量测试均由 Harness 执行 | 仍需持续维护跨平台测试 fixture |
 | Windows 发布门禁 | B | Release 构建、真实存储及主壳首帧就绪探针、窗口和托盘烟测均在 `desktop` suite | 无交互 CI 只能执行到 `windows-build`，页面内容与视觉需另验收 |

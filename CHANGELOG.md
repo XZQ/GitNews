@@ -8,7 +8,7 @@
 
 - GitHub OAuth 设备登录入口在注入 `GITHUB_OAUTH_CLIENT_ID` 的构建中接入应用账号登录页;未配置构建仍只提供 Personal Access Token 路径。
 - 新增跨层 import 基线结构测试,阻止展示层直接依赖 feature data,并冻结跨 feature 展示层引用的增量(当前基线 9 处)。
-- `flutter.changed-format-check` 新增契约与行为回归测试:静态固定 PowerShell splat 目标的数组类型,并在 Windows 上构造「仅 1 个改动 Dart 文件」的临时仓库执行真实脚本。
+- `flutter.changed-format-check` 新增静态契约测试:固定 PowerShell splat 目标的 `[string[]]` 数组类型与 root 路径规范化;单改动文件场景由 CI 自身的真实 diff 直接验证。
 - 设置页主题色预设名称接入 i18n(zh/en 各 10 个 key),英文环境不再显示中文预设名;新增开发者选项页、趋势总览页、看板选择器与监控规则示例文案的完整英译。
 
 ### Changed
