@@ -15,15 +15,15 @@
 | Flutter 质量门禁 | A | Dart 3.12 全量格式基线、可移植性、analyzer 和全量测试均由 Harness 执行 | 仍需持续维护跨平台测试 fixture |
 | Windows 发布门禁 | B | Release 构建、真实存储及主壳首帧就绪探针、窗口和托盘烟测均在 `desktop` suite | 无交互 CI 只能执行到 `windows-build`，页面内容与视觉需另验收 |
 | 服务端质量门禁 | A | Ruff、pytest 和真实本地 Uvicorn 往返共享统一入口 | 联网 feed smoke 仍是显式可选检查 |
-| 架构边界 | B | feature-first 规则、共享配置边界、analyzer 与 `test/core/architecture/layer_imports_test.dart` 跨层 import 基线测试 | 历史遗留的跨 feature import 与更细的领域边界仍靠评审 |
+| 架构边界 | A | feature-first 规则、`lib/app/` 组合根边界与 `test/core/architecture/layer_imports_test.dart` 把「feature 互不引用」「展示层不碰 data」「组合根不碰 data」全部锁死为 0 | `lib/core/di` 与 `lib/core/router` 仍需装配 feature，更细的领域边界靠评审 |
 | UI 可读性 | B | 存在当前 Windows Release 截图、Golden、可访问性树和窗口生命周期烟测 | 当前截图仍需在真实桌面会话中人工刷新 |
 | 并行工作区隔离 | B | 运行产物按 run id 隔离，命令从脚本位置解析仓库根 | 应用进程名和部分本地端口仍可能在并行运行时冲突 |
 | CI 机械执行 | B | `.github/workflows/harness.yml` 固定 Flutter 3.44.9、强制锁文件，调用完整 `ci-windows`/`server` 并上传证据 | 桌面交互烟测仍需本机环境 |
 
 ## 下一批提升触发条件
 
-只有出现真实重复失败或明确产品风险时再升级对应项：跨层导入基线被突破时先
-修复再收紧基线；视觉回归无法靠现有证据判断时增加当前截图流程；并行工作树
+只有出现真实重复失败或明确产品风险时再升级对应项：跨层导入从零回退时先
+修复而不是调低断言；视觉回归无法靠现有证据判断时增加当前截图流程；并行工作树
 发生端口或进程冲突时再引入资源分配器。每次升级都应修改一个可归因的
 Harness 组件，并对比升级前后的失败证据。单文件改动格式检查曾因 PowerShell
 splatting 退化反复失败，现已按此原则把边界固化为契约与行为回归测试。

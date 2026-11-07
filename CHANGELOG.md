@@ -7,7 +7,8 @@
 ### Added
 
 - GitHub OAuth 设备登录入口在注入 `GITHUB_OAUTH_CLIENT_ID` 的构建中接入应用账号登录页;未配置构建仍只提供 Personal Access Token 路径。
-- 新增跨层 import 基线结构测试,阻止展示层直接依赖 feature data,并冻结跨 feature 展示层引用的增量(当前基线 9 处)。
+- 新增 `lib/app/` 组合根:首页迁入 `lib/app/home/`,根 widget 迁入 `lib/app/app.dart`;结构测试从「跨 feature 展示层引用基线 9」升级为「feature 之间互相 import 必须为 0」,并新增「组合根不得触达 feature `data/` 层」与「首页必须留在 `lib/app/home/`」断言。
+- `DataFreshness` 新增 `partial`;发现页白名单条目部分拉取失败时降级标注「部分实时」(zh/en),不再把不完整结果标成实时。
 - `flutter.changed-format-check` 新增静态契约测试:固定 PowerShell splat 目标的 `[string[]]` 数组类型与 root 路径规范化;单改动文件场景由 CI 自身的真实 diff 直接验证。
 - 设置页主题色预设名称接入 i18n(zh/en 各 10 个 key),英文环境不再显示中文预设名;新增开发者选项页、趋势总览页、看板选择器与监控规则示例文案的完整英译。
 
@@ -17,11 +18,17 @@
 - 桌面托盘与窗口控制、认证初始化、后台资讯刷新、发现白名单、未匹配路由等关键失败路径统一走 `AppLogger` 留痕;修复三处编码损坏的中文注释。
 - 固定 Harness CI 使用 Flutter 3.44.9 / Dart 3.12.2，Flutter 与服务端依赖解析严格使用现有锁文件。
 - 主题基线收敛为冷静工具风(Slate 低饱和色阶、发丝边框、扁平化共享组件与导航)。
-- 按 300 行约束拆分超大文件(star_trend_chart / ai_news_providers / home_mobile_trending_overview / ai_news_feed_parser),并升级依赖基线。
+- 按 300 行约束拆分超大文件(star_trend_chart / ai_news_providers / home_mobile_trending_overview / ai_news_feed_parser / ai_news_detail_components),并升级依赖基线。
+- GitHub Token 卡的「检查配额」异步状态由页面 `setState` 迁到 `githubRateLimitCheckProvider`;保存或清除 token 后主动作废旧配额结果。
+- 趋势总览页按数据归属迁到 project 特性(`StarGrowthPage`,路由 `/project/growth`),i18n 键由 `trending.overview.*` 改为 `project.star_growth.*`;`repo_detail/domain/entities.dart` 这一只转发 core 的 barrel 删除,改为直接依赖 `core/domain/contributor_entity.dart`。
 - 搜索防抖、启动并行加载与聚类缓存。
 - 共享模型凭据迁入鉴权限额代理,源码不再接触明文凭据。
 - 首页栏目入口、AI 资讯详情、引导页与活动流的强调色统一跟随主题主色(`colors.primary`),清除硬编码品牌青残留;侧边栏头像由渐变改纯色,与扁平化基线一致。
 - 服务端连接默认值(baseUrl / workspaceId / memberId)与资讯保留窗口(2 天)提取为单一常量,消除重复字面量。
+
+### Removed
+
+- 删除全仓库零引用的死代码:`ai_news_grouping.dart`、`core/di/feature_providers.dart`(同时消除 7 条 `core → features` 依赖)、`core/platform/platform_extensions.dart`、`app/home/widgets/home_alerts_panel.dart`。
 
 ### Fixed
 

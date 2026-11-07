@@ -109,9 +109,10 @@ GitHub Actions 直接调用同一个 Harness。当前 Windows 任务运行 `ci-w
   不写探针文件，探针不记录异常原文或用户内容。它不替代页面内容与视觉验收。
 - 目前没有自动采集当前 UI 截图或视频；托盘烟测证明窗口关闭后进程存活，
   不证明通知实际送达。
-- 架构依赖方向已有 `test/core/architecture/layer_imports_test.dart` 固定跨层
-  import 基线，但只覆盖展示层→feature data 与跨 feature 展示层引用；历史遗留
-  的跨 feature import 与更细的领域边界仍依靠目录约定、代码评审和 analyzer。
+- 架构依赖方向由 `test/core/architecture/layer_imports_test.dart` 机械约束：
+  feature 之间互相 import 必须为 0，展示层与组合根都不得触达 feature 的
+  `data/` 层，首页固定在 `lib/app/home/`。更细的领域边界（如 `lib/core/di`
+  与 `lib/core/router` 对 feature 的装配）仍依靠目录约定、代码评审和 analyzer。
 - 文档检查能发现本地断链，但还不能自动判断内容是否陈旧。
 - 仓库可移植性检查会阻止测试重新引用机器本地字体/Flutter 路径，并阻止 Xcode
   工程对象重复定义；它不替代在 macOS 真机上的 Xcode 构建。

@@ -101,6 +101,10 @@ The structure is reusable across projects:
 ## Architecture
 
 - Use the existing feature-first layout:
+  - `lib/app/`: application composition root — `app.dart` (root widget) and
+    `home/` (the dashboard that assembles feature cards). It is the only layer
+    allowed to import several features, and it may only use their
+    `presentation/`, `application/`, and `domain/` layers.
   - `lib/core/`: network, storage, theme, router, platform, errors, config,
     shared domain primitives.
   - `lib/features/<feature>/data`: API clients, DTOs, repository
@@ -113,9 +117,12 @@ The structure is reusable across projects:
   - `lib/shared/widgets/`: reusable UI components.
 - Small display-only features may omit `data/domain/application`; keep them
   under `presentation/` and `widgets/`.
-- Presentation must not directly depend on feature `data` classes.
-- Cross-feature sharing goes through `lib/core/domain/`, `lib/core/config/`, or
-  `lib/shared/`, not direct feature-to-feature imports.
+- Presentation must not directly depend on feature `data` classes; neither may
+  the composition root.
+- Features must not import each other. Cross-feature sharing goes through
+  `lib/core/domain/`, `lib/core/config/`, or `lib/shared/`; composing several
+  features is the job of `lib/app/`. `test/core/architecture/layer_imports_test.dart`
+  enforces this mechanically — do not relax it back to a numeric baseline.
 - Prefer Riverpod providers/notifiers over page-level `setState` for business
   state. `setState` is acceptable for private, short-lived UI state only.
 - Keep repositories focused on orchestration. Move JSON codecs, query builders,
