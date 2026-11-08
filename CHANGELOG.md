@@ -10,6 +10,8 @@
 - 新增 `lib/app/` 组合根:首页迁入 `lib/app/home/`,根 widget 迁入 `lib/app/app.dart`;结构测试从「跨 feature 展示层引用基线 9」升级为「feature 之间互相 import 必须为 0」,并新增「组合根不得触达 feature `data/` 层」与「首页必须留在 `lib/app/home/`」断言。
 - `lib/app/` 组合根补齐 `router/`(路由表与分支)与 `di/`(override 清单);`lib/core/` 不再 import 任何 feature,需要的 feature 能力改为 core 声明占位 provider、由 `lib/app/di/app_overrides.dart` 注入(`repositoryFeedProvider`、`configInvalidationHooksProvider`)。结构测试新增「core 不得反向依赖 feature」与「组合根持有路由与装配」两条断言。
 - `DataFreshness` 新增 `partial`;发现页白名单条目部分拉取失败时降级标注「部分实时」(zh/en),不再把不完整结果标成实时。
+- 多来源新鲜度的合并口径收敛到 `core/domain/data_freshness.dart` 的 `combineFreshness`,由 `FreshnessRole` 的穷举 switch 驱动;新增 `DataFreshness` 成员时编译器会强制补齐角色,不再静默降级成最差档。
+- 组合根装配清单新增守卫测试(`test/app/di/app_overrides_test.dart`):断言每个占位 provider 都被 override、override 指向正确实现、配置失效钩子真的会失效 feature 侧的偏好项。
 - `flutter.changed-format-check` 新增静态契约测试:固定 PowerShell splat 目标的 `[string[]]` 数组类型与 root 路径规范化;单改动文件场景由 CI 自身的真实 diff 直接验证。
 - 设置页主题色预设名称接入 i18n(zh/en 各 10 个 key),英文环境不再显示中文预设名;新增开发者选项页、趋势总览页、看板选择器与监控规则示例文案的完整英译。
 
@@ -35,6 +37,7 @@
 
 ### Fixed
 
+- 多源聚合的资讯列表不再把「部分实时」静默当成实时或最差的种子:聚合仓库原先用手写白名单挑档位,新增的 `partial` 落不到任何分支,`[partial]` 单独出现会被判成 `seed`、`[live, partial]` 会宣称 `live`;现改为 core 层穷举式合并,任一来源缺条目即整体降级为 `partial`。
 - 快照文本损坏时不再把 hydrate 后的占位数据整体写回;观测历史读取失败(非数据损坏)时保留原 payload,避免用空历史覆盖持久化数据。
 - 热榜在 GitHub 限流且无缓存时回退种子数据并标注示例口径,不再继续消耗受限配额或伪装成实时数据。
 - 服务端 feed 缺少或无法解析发布时间时不再用当前时间顶替,避免旧文章排到最前并被 `since` 增量反复返回。
