@@ -135,14 +135,6 @@ class DemoData {
     ),
   ];
 
-  static const List<DemoAlertFixture> alerts = [
-    DemoAlertFixture(repo: 'openai/whisper', metric: '今日新增 Star', value: '+1,280', time: '2 分钟前', severity: alertSeveritySuccess),
-    DemoAlertFixture(repo: 'anthropics/claude-code', metric: '单日 Star 增长', value: '+18.5%', time: '12 分钟前', severity: alertSeveritySuccess),
-    DemoAlertFixture(repo: 'denoland/deno', metric: '监控告警 · Star 增速回落', value: '-2.1%', time: '28 分钟前', severity: alertSeverityWarning),
-    DemoAlertFixture(repo: 'mrdoob/three.js', metric: '讨论热度上升', value: '+322%', time: '1 小时前', severity: alertSeverityInfo),
-    DemoAlertFixture(repo: 'lapce/lapce', metric: '监控告警 · 阈值触发', value: '> 200/天', time: '2 小时前', severity: alertSeverityDanger),
-  ];
-
   static const List<DemoLanguageFixture> languages = [
     DemoLanguageFixture(name: 'TypeScript', percent: 28.5, delta: 18.7, color: AppColors.langTypeScriptValue),
     DemoLanguageFixture(name: 'Python', percent: 22.1, delta: 12.3, color: AppColors.langPythonValue),

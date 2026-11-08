@@ -20,16 +20,6 @@ class DemoRepoFixture {
   final List<double>? trend;
 }
 
-class DemoAlertFixture {
-  const DemoAlertFixture({required this.repo, required this.metric, required this.value, required this.time, required this.severity});
-
-  final String repo;
-  final String metric;
-  final String value;
-  final String time;
-  final int severity;
-}
-
 class DemoLanguageFixture {
   const DemoLanguageFixture({required this.name, required this.percent, required this.delta, required this.color});
 
@@ -46,10 +36,3 @@ class DemoContributorFixture {
   final int contributions;
   final int avatarColor;
 }
-
-// severity 索引:`0=info 1=success 2=warning 3=danger`,
-// 与 `features/monitor/domain/entities.dart#AlertSeverity` 同序。
-const int alertSeverityInfo = 0;
-const int alertSeveritySuccess = 1;
-const int alertSeverityWarning = 2;
-const int alertSeverityDanger = 3;
