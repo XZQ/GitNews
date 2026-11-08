@@ -1,13 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/preferences/startup_tab_controller.dart';
+import '../../core/router/route_error_view.dart';
 import '../../features/webview/presentation/webview_page.dart';
 import '../../shared/widgets/responsive_scaffold.dart';
-import '../preferences/startup_tab_controller.dart';
 import 'app_route_branches.dart';
-import 'route_error_view.dart';
-
-export 'route_specs.dart';
 
 final appRouterProvider = Provider<GoRouter>(buildAppRouter);
 

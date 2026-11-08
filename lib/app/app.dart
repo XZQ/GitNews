@@ -5,12 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/i18n/app_localizations.dart';
 import '../core/preferences/locale_controller.dart';
-import '../core/router/app_router.dart';
+import '../core/router/route_specs.dart';
 import '../core/theme/app_theme.dart';
 import '../core/theme/theme_mode_controller.dart';
 import '../core/theme/theme_preset_controller.dart';
 import '../features/ai_news/application/ai_news_background_host.dart';
 import '../shared/widgets/window_title_bar.dart';
+import 'router/app_router.dart';
 
 // 仅供本地桌面验收构建使用,默认发布构建不启用。
 const bool _uiAuditShortcutsEnabled = bool.fromEnvironment('UI_AUDIT_SHORTCUTS');

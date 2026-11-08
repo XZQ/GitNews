@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/i18n/app_localizations.dart';
-import '../../core/router/app_router.dart';
+import '../../core/router/route_specs.dart';
 import '../../core/utils/breakpoint.dart';
 import 'app_sidebar.dart';
 import 'mobile_double_back_exit.dart';

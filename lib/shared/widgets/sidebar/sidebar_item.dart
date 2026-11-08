@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/i18n/app_localizations.dart';
-import '../../../core/router/app_router.dart';
+import '../../../core/router/route_specs.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';

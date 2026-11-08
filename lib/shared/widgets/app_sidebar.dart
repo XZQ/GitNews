@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
-import '../../core/router/app_router.dart';
+import '../../core/router/route_specs.dart';
 import '../../core/theme/app_spacing.dart';
 import 'sidebar/sidebar_footer.dart';
 import 'sidebar/sidebar_header.dart';

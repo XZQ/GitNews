@@ -1,6 +1,5 @@
 import 'package:go_router/go_router.dart';
 
-import '../../app/home/presentation/home_page.dart';
 import '../../features/ai_news/presentation/ai_hot_daily_page.dart';
 import '../../features/ai_news/presentation/ai_news_detail_page.dart';
 import '../../features/ai_news/presentation/ai_news_page.dart';
@@ -32,6 +31,7 @@ import '../../features/trending/presentation/hot_repos_page.dart';
 import '../../features/trending/presentation/language_trend_page.dart';
 import '../../features/trending/presentation/trending_page.dart';
 import '../../features/webview/presentation/webview_page.dart';
+import '../home/presentation/home_page.dart';
 
 List<StatefulShellBranch> buildAppRouteBranches() => [
   StatefulShellBranch(
