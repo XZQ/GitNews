@@ -101,12 +101,16 @@ The structure is reusable across projects:
 ## Architecture
 
 - Use the existing feature-first layout:
-  - `lib/app/`: application composition root — `app.dart` (root widget) and
-    `home/` (the dashboard that assembles feature cards). It is the only layer
-    allowed to import several features, and it may only use their
-    `presentation/`, `application/`, and `domain/` layers.
-  - `lib/core/`: network, storage, theme, router, platform, errors, config,
-    shared domain primitives.
+  - `lib/app/`: application composition root — `app.dart` (root widget),
+    `home/` (the dashboard that assembles feature cards), `router/` (route table
+    and branches) and `di/` (the override list for core's placeholder
+    providers). It is the only layer allowed to import several features, and it
+    may only use their `presentation/`, `application/`, and `domain/` layers.
+  - `lib/core/`: network, storage, theme, router primitives, platform, errors,
+    config, shared domain primitives. It must **not** import any feature: where
+    core needs feature-provided behaviour (a repository feed, extra config
+    invalidation) it declares a placeholder provider that throws unless
+    overridden, and `lib/app/di/app_overrides.dart` supplies the implementation.
   - `lib/features/<feature>/data`: API clients, DTOs, repository
     implementations, cache codecs.
   - `lib/features/<feature>/domain`: pure Dart entities and repository

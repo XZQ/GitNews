@@ -111,8 +111,10 @@ GitHub Actions 直接调用同一个 Harness。当前 Windows 任务运行 `ci-w
   不证明通知实际送达。
 - 架构依赖方向由 `test/core/architecture/layer_imports_test.dart` 机械约束：
   feature 之间互相 import 必须为 0，展示层与组合根都不得触达 feature 的
-  `data/` 层，首页固定在 `lib/app/home/`。更细的领域边界（如 `lib/core/di`
-  与 `lib/core/router` 对 feature 的装配）仍依靠目录约定、代码评审和 analyzer。
+  `data/` 层，首页固定在 `lib/app/home/`，路由与装配固定在 `lib/app/router/`
+  与 `lib/app/di/`，且 `lib/core/` 不得 import 任何 feature。core 需要 feature
+  能力时改为声明占位 provider（缺省抛错）并交由组合根 override。更细的领域
+  边界（如单个 provider 的职责划分）仍依靠目录约定、代码评审和 analyzer。
 - 文档检查能发现本地断链，但还不能自动判断内容是否陈旧。
 - 仓库可移植性检查会阻止测试重新引用机器本地字体/Flutter 路径，并阻止 Xcode
   工程对象重复定义；它不替代在 macOS 真机上的 Xcode 构建。
