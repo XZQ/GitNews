@@ -72,7 +72,7 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
         hasNext: primaryDigest?.hasNext ?? false,
         nextCursor: primaryDigest?.nextCursor,
       ),
-      freshness: incomplete ? DataFreshness.staleCache : _combinedFreshness(results.map((result) => result.freshness).toList()),
+      freshness: incomplete ? DataFreshness.staleCache : combineFreshness(results.map((result) => result.freshness)),
       validatedAt: !incomplete && times.length == results.length ? times.first : null,
       revalidated: !incomplete && results.every((result) => result.revalidated),
     );
@@ -99,19 +99,6 @@ class AggregatedAiNewsRepository implements AiNewsRepository {
       await _reportFailure(source.id, now, error);
       return _Outcome(error: error);
     }
-  }
-
-  static DataFreshness _combinedFreshness(List<DataFreshness> values) {
-    if (values.contains(DataFreshness.staleCache) || values.contains(DataFreshness.seed)) {
-      return values.every((value) => value == DataFreshness.seed) ? DataFreshness.seed : DataFreshness.staleCache;
-    }
-    if (values.contains(DataFreshness.live)) {
-      return DataFreshness.live;
-    }
-    if (values.contains(DataFreshness.freshCache)) {
-      return DataFreshness.freshCache;
-    }
-    return DataFreshness.seed;
   }
 
   Future<void> _reportSuccess(String sourceId, DateTime at) async {

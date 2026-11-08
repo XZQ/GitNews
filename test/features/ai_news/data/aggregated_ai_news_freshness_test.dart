@@ -48,6 +48,19 @@ void main() {
     });
   }
 
+  test('a partial source cannot be hidden by a live primary', () async {
+    final primary = _Primary();
+    final rss = _Rss();
+    when(() => primary.fetchItems(category: null, since: null, selectedOnly: true, force: false)).thenAnswer((_) async => DataResult(data: digest, freshness: DataFreshness.live, validatedAt: now));
+    when(() => rss.fetchSource(source, now: now, force: false)).thenAnswer((_) async => DataResult(data: const [], freshness: DataFreshness.partial, validatedAt: now));
+    final repository = AggregatedAiNewsRepository(primary, rss, sources: const [source], clock: () => now);
+
+    final result = await repository.fetchItems();
+
+    // 主体实时但有条目缺失,不能整体宣称 live,也不能退化成最差的 seed。
+    expect(result.freshness, DataFreshness.partial);
+  });
+
   test('TTL hits preserve the oldest validation time and do not report another source success', () async {
     final primary = _Primary();
     final rss = _Rss();
