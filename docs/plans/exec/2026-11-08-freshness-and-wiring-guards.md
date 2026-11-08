@@ -1,6 +1,6 @@
 # 新鲜度合并口径归一与组合根装配守卫
 
-状态：Active
+状态：Complete
 
 本计划遵循 `.agent/PLANS.md`，执行期间必须保持内容与实际状态一致。
 承接 `2026-11-08-core-feature-free.md`：那一轮把 core 的反向依赖清零后，
@@ -43,7 +43,10 @@
       均已还原，`git diff` 确认无残留。
 - [x] (2026-11-08 04:02Z) `flutter analyze`：`No issues found!`；`flutter test`
       636 用例全过（上轮 616）；`dart format --set-exit-if-changed` 532 文件 0 changed。
-- [ ] 文档与可移植性检查、提交、推送、读取 CI 双 job 结论。
+- [x] (2026-11-08 04:03Z) `check_markdown_links` / `check_repository_portability` /
+      `git diff --check` 全部通过。
+- [x] (2026-11-08 04:16Z) CI run 42445246307（sha `d4c70c4`，attempt 1）双 job success：
+      `ci-windows` 9/9 步、`server` 9/9 步全 passed。
 
 ## Surprises & Discoveries
 
@@ -99,6 +102,9 @@
 | `flutter analyze` | — | `No issues found!` |
 | `flutter test` | 616 | **636 全过** |
 | `dart format --set-exit-if-changed` | — | 532 文件 0 changed |
+
+CI（run [42445246307](https://github.com/XZQ/GitNews/actions/runs/42445246307)，
+sha `d4c70c4`，attempt 1）：`ci-windows` 与 `server` 均 success，各 9/9 步 passed。
 
 复盘：
 
@@ -158,7 +164,10 @@
 
 - 合并口径的逐条规则见 `test/core/domain/freshness_combine_test.dart`。
 - 装配守卫见 `test/app/di/app_overrides_test.dart`。
-- CI 链接在结论确认后补入。
+- CI：[run 42445246307](https://github.com/XZQ/GitNews/actions/runs/42445246307)，
+  被验证的代码状态 `d4c70c4`，两个 job 均 success，Harness 证据随 run 上传。
+- 提交序列：`c4cd1da`（新鲜度合并修复）、`fffcab6`（装配守卫）、
+  `d4c70c4`（文档与执行计划）。
 
 ## Interfaces and Dependencies
 
