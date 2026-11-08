@@ -71,7 +71,13 @@ void main() {
   test('successful import refreshes all preference providers', () async {
     SharedPreferences.setMockInitialValues({'app_locale': 'zh_CN', 'link_open_mode_migrated_v2': true});
     final prefs = await SharedPreferences.getInstance();
-    final container = ProviderContainer(overrides: [sharedPreferencesProvider.overrideWithValue(prefs)]);
+    // feature 侧偏好项由组合根注册失效钩子（见 lib/app/di/app_overrides.dart）；这里等价装配。
+    final container = ProviderContainer(
+      overrides: [
+        sharedPreferencesProvider.overrideWithValue(prefs),
+        configInvalidationHooksProvider.overrideWithValue([(ref) => ref.invalidate(monitorSettingsControllerProvider)]),
+      ],
+    );
     addTearDown(container.dispose);
 
     expect(container.read(themeModeControllerProvider), ThemeMode.light);

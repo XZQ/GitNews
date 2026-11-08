@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'app/app.dart';
+import 'app/di/app_overrides.dart';
 import 'core/auth/auth_models.dart';
 import 'core/auth/auth_repository.dart';
 import 'core/auth/supabase_auth_repository.dart';
@@ -18,7 +19,6 @@ import 'core/i18n/app_localizations.dart';
 import 'core/platform/startup_probe.dart';
 import 'core/storage/cache_meta_dao.dart';
 import 'core/storage/local_database.dart';
-import 'core/storage/storage_providers.dart';
 import 'core/theme/app_spacing.dart';
 import 'core/theme/app_typography.dart';
 import 'core/utils/app_logger.dart';
@@ -174,11 +174,7 @@ class _BootstrapAppState extends State<BootstrapApp> {
           }
           return ProviderScope(
             retry: noProviderRetry,
-            overrides: [
-              sharedPreferencesProvider.overrideWithValue(result!.preferences!),
-              appDatabaseProvider.overrideWithValue(result.database!),
-              authRepositoryProvider.overrideWithValue(result.authRepository),
-            ],
+            overrides: buildAppOverrides(preferences: result!.preferences!, database: result.database!, authRepository: result.authRepository),
             child: const GitHubNewsApp(),
           );
         }

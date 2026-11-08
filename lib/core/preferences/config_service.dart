@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../features/monitor/application/monitor_settings_controller.dart';
 import '../di/providers.dart';
 import '../router/route_specs.dart';
 import '../shared/local_content_controller.dart';
@@ -60,6 +59,14 @@ class SharedPreferencesConfigStore implements ConfigPreferenceStore {
 final configPreferenceStoreProvider = Provider<ConfigPreferenceStore>((ref) {
   return SharedPreferencesConfigStore(ref.watch(sharedPreferencesProvider));
 });
+
+/*
+ *配置导入/导出契约:`monitor_notification_settings` 是长度固定的开关列表。
+ *
+ *长度由 core 在导入时校验(与 `local_content_monitor_rules` 的 `monitorRuleCount`
+ *同理),具体语义归 monitor feature;core 因此不需要认识该 feature。
+ */
+const int monitorNotificationCount = 1;
 
 class ConfigService {
   ConfigService(this._ref);
@@ -244,9 +251,20 @@ class ConfigService {
       ..invalidate(linkOpenModeControllerProvider)
       ..invalidate(aiNewsSourceControllerProvider)
       ..invalidate(aiNewsReminderPreferencesProvider)
-      ..invalidate(localContentControllerProvider)
-      ..invalidate(monitorSettingsControllerProvider);
+      ..invalidate(localContentControllerProvider);
+    // feature 侧的配置(如 monitor 规则)由组合根注册,core 不认识任何 feature。
+    for (final hook in _ref.read(configInvalidationHooksProvider)) {
+      hook(_ref);
+    }
   }
 }
+
+/*
+ *组合根注册的「额外配置失效」钩子。
+ *
+ *导入配置后会统一 invalidate 一批 core 侧的 provider;feature 自己维护的偏好项
+ *由各自在 `lib/app/di/app_overrides.dart` 注册,避免 core 反向依赖 feature。
+ */
+final configInvalidationHooksProvider = Provider<List<void Function(Ref)>>((ref) => const []);
 
 final configServiceProvider = Provider<ConfigService>(ConfigService.new);

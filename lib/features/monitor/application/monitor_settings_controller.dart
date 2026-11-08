@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/i18n/app_localizations.dart';
 
-const int monitorNotificationCount = 1;
-
 List<String> monitorNotificationLabels(AppLocalizations l10n) => [l10n.tr('monitor.notify.app')];
 
 class MonitorSettingsController extends Notifier<List<bool>> {
