@@ -1,6 +1,6 @@
 # core 层去 feature 化：路由与装配归位组合根
 
-状态：Active
+状态：Complete
 
 本计划遵循 `.agent/PLANS.md`，执行期间必须保持内容与实际状态一致。
 承接 `2026-11-08-architecture-closure.md` 里记入「已知残余边界」的那一条：
@@ -50,8 +50,15 @@ feature」；`flutter analyze` 零问题、`flutter test` 全绿、CI 双 job su
       monitor 的 domain。
 - [x] (2026-11-08 08:57Z) 结构测试新增 3 条断言：core 不得 import feature、
       组合根必须持有 `router/` 与 `di/`、`core/router/app_router.dart` 不得复现。
-- [ ] 本机跑 `dart format` / `flutter analyze` / `flutter test` / 文档与可移植性检查。
-- [ ] 提交、推送、读取 CI 双 job 结论。
+- [x] (2026-11-08 08:58Z) `flutter analyze` 修到 `No issues found!`；期间遇到三处真实问题：
+      `Override` 要从 `flutter_riverpod/misc.dart` 引入、`config_service` 还用了
+      `monitorNotificationCount`（不只 invalidate）、Riverpod 3 异常包装导致契约测试断言失效。
+- [x] (2026-11-08 09:00Z) `flutter test`：616 用例全过；`dart format --set-exit-if-changed`
+      530 文件 0 changed。
+- [x] (2026-11-08 09:01Z) `check_markdown_links` / `check_repository_portability` /
+      `git diff --check` 全部通过。
+- [x] (2026-11-08 09:14Z) CI run 42432458449（sha `02dbd86`，attempt 1）双 job success：
+      `ci-windows` 9/9 步、`server` 9/9 步全 passed。
 
 ## Surprises & Discoveries
 
@@ -105,6 +112,9 @@ feature」；`flutter analyze` 零问题、`flutter test` 全绿、CI 双 job su
 | `flutter analyze` | — | `No issues found!` |
 | `flutter test` | 613 | **616 全过** |
 | `dart format --set-exit-if-changed` | — | 530 文件 0 changed |
+
+CI（run [42432458449](https://github.com/XZQ/GitNews/actions/runs/42432458449)，
+sha `02dbd86`，attempt 1）：`ci-windows` 与 `server` 均 success，各 9/9 步 passed。
 
 复盘：
 
@@ -164,8 +174,11 @@ feature」；`flutter analyze` 零问题、`flutter test` 全绿、CI 双 job su
 ## Artifacts and Notes
 
 - 迁移前的 39 条明细见本文件 Purpose 表格；逐条清单可用
-  `grep -rnE "import '((\.\./)+|package:github_news/)features/" lib/core` 复现。
-- CI 链接在结论确认后补入。
+  `grep -rnE "import '((\.\./)+|package:github_news/)features/" lib/core` 复现（现为 0）。
+- CI：[run 42432458449](https://github.com/XZQ/GitNews/actions/runs/42432458449)，
+  被验证的代码状态 `02dbd86`，两个 job 均 success，Harness 证据随 run 上传。
+- 提交序列：`0eb047f`（路由迁移）、`06918d0`（core 依赖倒置）、`7213cbf`（删死演示数据）、
+  `02dbd86`（结构断言 + 文档）。
 
 ## Interfaces and Dependencies
 
