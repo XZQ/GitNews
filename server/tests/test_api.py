@@ -2,8 +2,60 @@ def test_health_is_public_and_protected_routes_require_token(client, auth_header
     health = client.get("/health")
     assert health.status_code == 200
     assert health.json()["database"]["ok"] is True
+    # The unauthenticated health payload must not leak the filesystem layout.
+    assert "path" not in health.json()["database"]
     assert client.get("/v1/news").status_code == 401
     assert client.get("/v1/news", headers=auth_headers).status_code == 200
+
+
+def test_wrong_and_non_ascii_tokens_are_401_not_500(client, auth_headers):
+    wrong = {**auth_headers, "Authorization": "Bearer not-the-secret"}
+    assert client.get("/v1/news", headers=wrong).status_code == 401
+    # compare_digest on non-ASCII str raises TypeError; headers arrive decoded
+    # latin-1, so raw high bytes must still produce a clean 401, not a 500.
+    non_ascii = {**auth_headers, "Authorization": b"Bearer s\xe9cret-t\xf6k\xe9n"}
+    assert client.get("/v1/news", headers=non_ascii).status_code == 401
+
+
+def test_sync_and_push_payloads_are_size_limited(client, auth_headers):
+    huge = {"blob": "x" * (64 * 1024)}
+    record = {
+        "namespace": "preferences",
+        "record_id": "huge",
+        "payload": huge,
+        "version": 1,
+        "updated_at": 1000,
+    }
+    assert client.post("/v1/sync/push", headers=auth_headers, json={"records": [record]}).status_code == 422
+    event = {"event_type": "news.created", "payload": {"blob": "x" * (1024 * 1024)}}
+    assert client.post("/v1/push/events", headers=auth_headers, json=event).status_code == 422
+
+
+def test_webhook_subscription_rejects_private_targets(client, auth_headers):
+    subscription = {"id": "hook-1", "kind": "webhook", "endpoint": "http://169.254.169.254/meta-data/"}
+    denied = client.put("/v1/push/subscriptions/hook-1", headers=auth_headers, json=subscription)
+    assert denied.status_code == 400
+    assert "public address" in denied.json()["detail"]
+
+
+def test_outbox_exposes_failed_dead_letters(client, auth_headers):
+    subscription = {"id": "device-1", "kind": "fcm", "endpoint": "device-token"}
+    assert (
+        client.put("/v1/push/subscriptions/device-1", headers=auth_headers, json=subscription).status_code
+        == 200
+    )
+    event = {"event_type": "news.created", "payload": {"item_id": "news-1"}}
+    assert client.post("/v1/push/events", headers=auth_headers, json=event).json() == {"enqueued": 1}
+    event_id = client.get("/v1/push/outbox", headers=auth_headers).json()[0]["id"]
+    with client.app.state.database.connection() as connection:
+        connection.execute("UPDATE push_outbox SET status='failed' WHERE id=?", (event_id,))
+    failed = client.get("/v1/push/outbox?status=failed", headers=auth_headers)
+    assert failed.status_code == 200
+    assert failed.json()[0]["id"] == event_id
+    # A dead letter cannot be acknowledged back into delivered.
+    assert client.post(f"/v1/push/outbox/{event_id}/ack", headers=auth_headers).json() == {
+        "acknowledged": False
+    }
 
 
 def test_sync_push_pull_and_conflict(client, auth_headers):

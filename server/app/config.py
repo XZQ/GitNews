@@ -4,6 +4,11 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
+# Placeholder values shipped in .env.example / docs; copying them verbatim
+# must not produce a running server with a publicly known key.
+_PLACEHOLDER_MASTER_KEYS = {"change-me", "replace-with-a-long-random-secret"}
+_MIN_MASTER_KEY_LENGTH = 16
+
 
 @dataclass(frozen=True, slots=True)
 class Settings:
@@ -18,6 +23,8 @@ class Settings:
     supabase_publishable_key: str = field(default="", repr=False)
     ai_user_daily_limit: int = 20
     ai_global_daily_limit: int = 500
+    webhook_allow_private: bool = False
+    cors_origins: list[str] = field(default_factory=lambda: ["*"])
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -25,9 +32,14 @@ class Settings:
         # authenticated endpoint effectively open. Docker compose already
         # enforces this via `${...:?}`; this guards bare `uvicorn` runs.
         master_key = os.getenv("GITHUB_NEWS_MASTER_KEY", "").strip()
-        if not master_key or master_key == "change-me":
+        if (
+            not master_key
+            or master_key in _PLACEHOLDER_MASTER_KEYS
+            or len(master_key) < _MIN_MASTER_KEY_LENGTH
+        ):
             raise RuntimeError(
-                "GITHUB_NEWS_MASTER_KEY must be set to a non-default secret before starting the server"
+                "GITHUB_NEWS_MASTER_KEY must be set to a non-default secret of at least "
+                f"{_MIN_MASTER_KEY_LENGTH} characters before starting the server"
             )
         return cls(
             database_path=Path(os.getenv("GITHUB_NEWS_DB", "data/github_news_server.db")),
@@ -41,6 +53,8 @@ class Settings:
             supabase_publishable_key=os.getenv("SUPABASE_PUBLISHABLE_KEY", "").strip(),
             ai_user_daily_limit=max(1, int(os.getenv("AI_ENRICHMENT_USER_DAILY_LIMIT", "20"))),
             ai_global_daily_limit=max(1, int(os.getenv("AI_ENRICHMENT_GLOBAL_DAILY_LIMIT", "500"))),
+            webhook_allow_private=_bool_env("GITHUB_NEWS_WEBHOOK_ALLOW_PRIVATE", False),
+            cors_origins=_origins_env("GITHUB_NEWS_CORS_ORIGINS"),
         )
 
 
@@ -49,3 +63,12 @@ def _bool_env(key: str, default: bool) -> bool:
     if value is None:
         return default
     return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _origins_env(key: str) -> list[str]:
+    # Comma-separated browser origin allowlist; unset keeps the permissive
+    # default for non-browser (desktop/mobile) clients that ignore CORS.
+    value = os.getenv(key, "").strip()
+    if not value:
+        return ["*"]
+    return [origin.strip() for origin in value.split(",") if origin.strip()]

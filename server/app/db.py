@@ -62,7 +62,9 @@ class Database:
     def health(self) -> dict[str, Any]:
         with self.connection() as connection:
             row = connection.execute("SELECT sqlite_version() AS version").fetchone()
-        return {"ok": True, "sqlite_version": row["version"], "path": str(self.path)}
+        # /health is unauthenticated: report liveness without leaking the
+        # server's filesystem layout.
+        return {"ok": True, "sqlite_version": row["version"]}
 
 
 def json_text(value: Any) -> str:

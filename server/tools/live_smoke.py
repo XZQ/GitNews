@@ -15,7 +15,7 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as directory:
         environment = {
             **os.environ,
-            "GITHUB_NEWS_MASTER_KEY": "smoke-secret",
+            "GITHUB_NEWS_MASTER_KEY": "smoke-secret-0123456789",
             "GITHUB_NEWS_DB": str(Path(directory) / "smoke.db"),
             "GITHUB_NEWS_SCHEDULER_ENABLED": "false",
         }
@@ -43,7 +43,7 @@ def main() -> int:
                 raise TimeoutError("server did not become healthy within 15 seconds")
 
             headers = {
-                "Authorization": "Bearer smoke-secret",
+                "Authorization": "Bearer smoke-secret-0123456789",
                 "X-Workspace-ID": "smoke-workspace",
             }
             sources = _request("/v1/news/sources", headers=headers)

@@ -24,7 +24,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     database = Database(resolved.database_path)
     database.initialize()
     feeds = FeedIngestor(database, resolved.request_timeout_seconds)
-    push_service = PushService(database, resolved.request_timeout_seconds)
+    push_service = PushService(
+        database,
+        resolved.request_timeout_seconds,
+        allow_private_webhooks=resolved.webhook_allow_private,
+    )
     ingestion = IngestionService(database, feeds, push_service)
     scheduler = Scheduler(resolved, ingestion, push_service)
 
@@ -43,7 +47,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=resolved.cors_origins,
         allow_methods=["*"],
         allow_headers=["*"],
     )

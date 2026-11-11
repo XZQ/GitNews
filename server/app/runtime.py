@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 import time
 import uuid
 
@@ -10,18 +11,24 @@ from .feeds import FeedIngestor
 from .models import IngestResult, NewsItem, PushEventInput
 from .push_service import PushService
 
+logger = logging.getLogger(__name__)
+
 
 class IngestionService:
     def __init__(self, database: Database, feeds: FeedIngestor, push: PushService) -> None:
         self.database = database
         self.feeds = feeds
         self.push = push
-        self._lock = asyncio.Lock()
+        # Check-and-set with no await in between is atomic on the event loop;
+        # a locked() check followed by `async with` would let two concurrent
+        # callers both pass the check and run the ingestion twice.
+        self._running = False
 
     async def run_feeds(self) -> IngestResult:
-        if self._lock.locked():
+        if self._running:
             return IngestResult(run_id="already-running", status="partial", item_count=0, errors=["busy"])
-        async with self._lock:
+        self._running = True
+        try:
             run_id = uuid.uuid4().hex
             started = _now()
             try:
@@ -43,6 +50,8 @@ class IngestionService:
                 )
             self._record_run(result, started)
             return result
+        finally:
+            self._running = False
 
     def _persist_and_enqueue(self, items: list[NewsItem]) -> None:
         with self.database.connection() as connection:
@@ -100,6 +109,8 @@ class Scheduler:
             asyncio.create_task(self._feed_loop(), name="feed-ingestion"),
             asyncio.create_task(self._push_loop(), name="push-dispatch"),
         ]
+        for task in self._tasks:
+            task.add_done_callback(self._on_task_done)
 
     async def stop(self) -> None:
         for task in self._tasks:
@@ -107,14 +118,27 @@ class Scheduler:
         await asyncio.gather(*self._tasks, return_exceptions=True)
         self._tasks.clear()
 
+    @staticmethod
+    def _on_task_done(task: asyncio.Task[None]) -> None:
+        # The loops below catch their own errors; a task that still dies is a
+        # bug or cancellation, and operators must not lose that silently.
+        if not task.cancelled() and task.exception() is not None:
+            logger.error("scheduler task %s stopped unexpectedly", task.get_name(), exc_info=task.exception())
+
     async def _feed_loop(self) -> None:
         while True:
-            await self.ingestion.run_feeds()
+            try:
+                await self.ingestion.run_feeds()
+            except Exception:  # noqa: BLE001 - one bad run must not kill the schedule
+                logger.exception("scheduled feed ingestion failed")
             await asyncio.sleep(self.settings.ingest_interval_seconds)
 
     async def _push_loop(self) -> None:
         while True:
-            await self.push.dispatch_webhooks()
+            try:
+                await self.push.dispatch_webhooks()
+            except Exception:  # noqa: BLE001 - one bad dispatch must not kill the schedule
+                logger.exception("scheduled webhook dispatch failed")
             await asyncio.sleep(self.settings.push_interval_seconds)
 
 

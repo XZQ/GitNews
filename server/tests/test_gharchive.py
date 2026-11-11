@@ -1,11 +1,13 @@
 import gzip
+import io
 import json
 
 import httpx
 import pytest
 
+from app import gharchive_service
 from app.db import Database
-from app.gharchive_service import GhArchiveService
+from app.gharchive_service import GhArchivePayloadTooLargeError, GhArchiveService
 
 
 def test_gharchive_aggregation_and_trends(settings):
@@ -89,3 +91,36 @@ async def test_download_uses_unpadded_gharchive_filename(client, monkeypatch):
     )
     assert await client.app.state.gharchive.download_and_ingest("2026-10-12-01") == 1
     assert requests == ["https://data.gharchive.org/2026-10-12-1.json.gz"]
+
+
+def test_decompressed_payload_ceiling_stops_gzip_bombs(client, monkeypatch):
+    monkeypatch.setattr(gharchive_service, "_MAX_DECOMPRESSED_BYTES", 1024)
+    event = {"type": "WatchEvent", "repo": {"name": "owner/repo"}, "actor": {"login": "a"}}
+    bomb = gzip.compress(((json.dumps(event) + "\n") * 100).encode())
+    with pytest.raises(GhArchivePayloadTooLargeError):
+        client.app.state.gharchive.ingest_gzip("2026-10-12-01", io.BytesIO(bomb))
+    # Nothing may be persisted from an aborted ingest.
+    assert client.app.state.gharchive.trends(since_hour="2026-10-12-0", event_type=None, limit=10) == []
+
+
+async def test_download_ceiling_stops_oversized_archives(client, monkeypatch):
+    monkeypatch.setattr(gharchive_service, "_MAX_DOWNLOAD_BYTES", 16)
+
+    def fetch(request):
+        return httpx.Response(200, content=b"x" * 64)
+
+    original = httpx.AsyncClient
+    monkeypatch.setattr(
+        httpx, "AsyncClient", lambda **kwargs: original(transport=httpx.MockTransport(fetch), **kwargs)
+    )
+    with pytest.raises(GhArchivePayloadTooLargeError):
+        await client.app.state.gharchive.download_and_ingest("2026-10-12-01")
+
+
+async def test_api_maps_payload_ceiling_to_413(client, auth_headers, monkeypatch):
+    async def too_large(hour):
+        raise GhArchivePayloadTooLargeError("fixture ceiling")
+
+    monkeypatch.setattr(client.app.state.gharchive, "download_and_ingest", too_large)
+    response = client.post("/v1/gharchive/ingest", headers=auth_headers, json={"hour": "2026-10-12-01"})
+    assert response.status_code == 413

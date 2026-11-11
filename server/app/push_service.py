@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac
 import sqlite3
@@ -10,6 +11,14 @@ import httpx
 
 from .db import Database, json_text, parse_json
 from .models import PushEventInput, PushSubscriptionInput
+from .webhook_security import UnsafeWebhookEndpointError, validate_webhook_endpoint
+
+# Dead-letter after this many attempts instead of retrying dead endpoints forever.
+_MAX_ATTEMPTS = 12
+# Keep delivered rows 7 days for reconciliation and failed rows 30 days for
+# operator inspection, then prune so the outbox cannot grow without bound.
+_DELIVERED_RETENTION_MS = 7 * 24 * 3600 * 1000
+_FAILED_RETENTION_MS = 30 * 24 * 3600 * 1000
 
 
 class SubscriptionOwnershipError(Exception):
@@ -21,11 +30,23 @@ class SubscriptionOwnershipError(Exception):
 
 
 class PushService:
-    def __init__(self, database: Database, timeout_seconds: float = 30) -> None:
+    def __init__(
+        self,
+        database: Database,
+        timeout_seconds: float = 30,
+        *,
+        allow_private_webhooks: bool = False,
+        transport: httpx.AsyncBaseTransport | None = None,
+    ) -> None:
         self.database = database
         self.timeout_seconds = timeout_seconds
+        self.allow_private_webhooks = allow_private_webhooks
+        # Injectable for tests; production uses the default network transport.
+        self.transport = transport
 
     def subscribe(self, workspace_id: str, value: PushSubscriptionInput) -> dict[str, object]:
+        if value.kind == "webhook":
+            validate_webhook_endpoint(value.endpoint, allow_private=self.allow_private_webhooks)
         now = _now()
         with self.database.connection() as connection:
             # Subscription ids are client-supplied: scope the upsert to the
@@ -115,10 +136,12 @@ class PushService:
 
     def acknowledge(self, workspace_id: str, event_id: str) -> bool:
         with self.database.connection() as connection:
+            # Only pending rows may be acknowledged; delivered/failed rows keep
+            # their terminal state so a replayed ack cannot rewrite history.
             changed = connection.execute(
                 """
                 UPDATE push_outbox SET status='delivered',delivered_at=?
-                WHERE id=? AND workspace_id=?
+                WHERE id=? AND workspace_id=? AND status='pending'
                 """,
                 (_now(), event_id, workspace_id),
             ).rowcount
@@ -137,10 +160,28 @@ class PushService:
                 (now,),
             ).fetchall()
         delivered = 0
-        async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+        async with httpx.AsyncClient(timeout=self.timeout_seconds, transport=self.transport) as client:
             for row in rows:
+                # Re-validate at delivery time: DNS may have changed since
+                # subscription (rebinding), and unsafe targets are dead-lettered
+                # instead of retried. getaddrinfo blocks, so keep it off the loop.
+                try:
+                    await asyncio.to_thread(
+                        validate_webhook_endpoint,
+                        row["endpoint"],
+                        allow_private=self.allow_private_webhooks,
+                    )
+                except UnsafeWebhookEndpointError:
+                    self._mark_failed(row["id"])
+                    continue
                 body = row["payload_json"].encode()
-                headers = {"Content-Type": "application/json", "X-GitHub-News-Event": row["event_type"]}
+                headers = {
+                    "Content-Type": "application/json",
+                    "X-GitHub-News-Event": row["event_type"],
+                    # Stable outbox id so receivers can deduplicate at-least-once
+                    # redeliveries (a crash after POST but before _mark).
+                    "X-GitHub-News-Event-Id": row["id"],
+                }
                 if row["secret"]:
                     headers["X-GitHub-News-Signature"] = hmac.new(
                         row["secret"].encode(), body, hashlib.sha256
@@ -152,6 +193,7 @@ class PushService:
                     delivered += 1
                 except Exception:  # noqa: BLE001 - retries are persisted
                     self._mark(row["id"], delivered=False, attempts=row["attempts"] + 1)
+        self._prune()
         return delivered
 
     def _mark(self, event_id: str, *, delivered: bool, attempts: int = 0) -> None:
@@ -161,12 +203,36 @@ class PushService:
                     "UPDATE push_outbox SET status='delivered',delivered_at=? WHERE id=?",
                     (_now(), event_id),
                 )
+            elif attempts >= _MAX_ATTEMPTS:
+                connection.execute(
+                    "UPDATE push_outbox SET status='failed',attempts=?,next_attempt_at=? WHERE id=?",
+                    (attempts, _now(), event_id),
+                )
             else:
                 delay = min(3600, 30 * (2 ** min(attempts, 7))) * 1000
                 connection.execute(
                     "UPDATE push_outbox SET attempts=?,next_attempt_at=? WHERE id=?",
                     (attempts, _now() + delay, event_id),
                 )
+
+    def _mark_failed(self, event_id: str) -> None:
+        with self.database.connection() as connection:
+            connection.execute(
+                "UPDATE push_outbox SET status='failed',next_attempt_at=? WHERE id=?",
+                (_now(), event_id),
+            )
+
+    def _prune(self) -> None:
+        now = _now()
+        with self.database.connection() as connection:
+            connection.execute(
+                "DELETE FROM push_outbox WHERE status='delivered' AND delivered_at<?",
+                (now - _DELIVERED_RETENTION_MS,),
+            )
+            connection.execute(
+                "DELETE FROM push_outbox WHERE status='failed' AND next_attempt_at<?",
+                (now - _FAILED_RETENTION_MS,),
+            )
 
 
 def _now() -> int:

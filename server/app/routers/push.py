@@ -4,6 +4,7 @@ from ..auth import RequestContext, require_context
 from ..deps import push
 from ..models import PushEventInput, PushSubscriptionInput
 from ..push_service import PushService, SubscriptionOwnershipError
+from ..webhook_security import UnsafeWebhookEndpointError
 
 router = APIRouter(prefix="/v1/push", tags=["push"])
 
@@ -21,6 +22,8 @@ def subscribe(
         return service.subscribe(context.workspace_id, value)
     except SubscriptionOwnershipError as error:
         raise HTTPException(status_code=409, detail=str(error)) from error
+    except UnsafeWebhookEndpointError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
 
 
 @router.post("/events")
@@ -34,7 +37,7 @@ def create_event(
 
 @router.get("/outbox")
 def list_outbox(
-    status: str = Query(default="pending", pattern="^(pending|delivered)$"),
+    status: str = Query(default="pending", pattern="^(pending|delivered|failed)$"),
     limit: int = Query(default=100, ge=1, le=1000),
     context: RequestContext = Depends(require_context),
     service: PushService = Depends(push),

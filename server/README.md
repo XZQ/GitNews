@@ -71,16 +71,20 @@ Without `cursor`, the legacy `since` filter and `updated_at, namespace, record_i
 
 Startup upgrades older SQLite databases in place by adding `sync_records.revision` and a single-row `sync_clock` counter, assigning revisions to existing records without changing their payloads, client versions, timestamps or tombstones. Migration and concurrent sync writes are serialized; revisions and checkpoints survive service restart. The sync endpoint returns current record snapshots rather than every historical edit.
 
-Feed ingestion writes article changes and notifications for all subscribed workspaces in one transaction. An outbox failure rolls back those article changes so a later ingestion can retry; concurrent ingestion instances create one notification for a newly persisted article. Webhook delivery remains an at-least-once external boundary, so receivers should handle retries idempotently.
+Feed ingestion writes article changes and notifications for all subscribed workspaces in one transaction. An outbox failure rolls back those article changes so a later ingestion can retry; concurrent ingestion instances create one notification for a newly persisted article. Webhook delivery remains an at-least-once external boundary: every delivery carries a stable `X-GitHub-News-Event-Id` header (the outbox row id), so receivers can deduplicate redeliveries after a crash between POST and acknowledgement.
 
-GH Archive accepts actual calendar hours with one or two hour digits, stores new hours with two digits, and compares hours chronologically. Existing rows with unpadded hours remain readable; when older data contains both representations of the same repository/event/hour, trends use the most recently updated row. Reingestion replaces both representations of the same hour. Downloads keep GH Archive's unpadded filename format.
+Webhook endpoints must be public `http`/`https` URLs. Private, loopback, link-local and reserved targets (including cloud metadata addresses) are rejected at subscription time and re-checked before every delivery to block DNS rebinding; self-hosters deliberately delivering to LAN services can set `GITHUB_NEWS_WEBHOOK_ALLOW_PRIVATE=true`. Failed deliveries back off exponentially and become queryable `failed` dead letters after 12 attempts (`GET /v1/push/outbox?status=failed`); unsafe endpoints are dead-lettered immediately. Delivered rows are pruned after 7 days and failed rows after 30 days. Only `pending` rows can be acknowledged. Sync record payloads are limited to 64 KiB and push event payloads to 1 MiB per record/event.
+
+GH Archive accepts actual calendar hours with one or two hour digits, stores new hours with two digits, and compares hours chronologically. Existing rows with unpadded hours remain readable; when older data contains both representations of the same repository/event/hour, trends use the most recently updated row. Reingestion replaces both representations of the same hour atomically. Downloads keep GH Archive's unpadded filename format and are bounded to 512 MiB compressed / 4 GiB decompressed per hour; oversized archives return HTTP 413 instead of exhausting disk.
 
 ## Security and operations
 
-- Change the default master key before any non-local run.
+- Set `GITHUB_NEWS_MASTER_KEY` to a random secret of at least 16 characters before any non-local run; empty, placeholder and short values are rejected at startup.
 - Use a distinct workspace id for each personal/team data boundary.
 - Back up the SQLite database and its WAL files consistently, or stop the service before copying.
 - Webhook secrets are used for an HMAC-SHA256 `X-GitHub-News-Signature` header.
+- Browser CORS defaults to any origin (desktop/mobile clients ignore CORS); set `GITHUB_NEWS_CORS_ORIGINS` to a comma-separated allowlist when exposing the API to browsers.
+- `/health` is unauthenticated and reports only liveness and the SQLite version, never filesystem paths.
 - GH Archive unique actors are exact per hour and summed across hours in the trend endpoint; the cross-hour value is an activity sample, not a global distinct-user count.
 
 ## AI enrichment proxy

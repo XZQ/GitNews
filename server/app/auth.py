@@ -26,7 +26,11 @@ def require_context(
     workspace_id: str = Header(default="personal", alias="X-Workspace-ID"),
     settings: Settings = Depends(get_settings),
 ) -> RequestContext:
-    if credentials is None or not secrets.compare_digest(credentials.credentials, settings.master_key):
+    # Compare bytes: compare_digest on str raises TypeError for non-ASCII
+    # input, which a crafted Authorization header could turn into a 500.
+    if credentials is None or not secrets.compare_digest(
+        credentials.credentials.encode("utf-8"), settings.master_key.encode("utf-8")
+    ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="invalid bearer token",

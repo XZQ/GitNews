@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from ..auth import RequestContext, require_context
 from ..deps import gharchive
 from ..gharchive_hour import normalize_hour
-from ..gharchive_service import GhArchiveService
+from ..gharchive_service import GhArchivePayloadTooLargeError, GhArchiveService
 from ..models import GhArchiveIngestRequest, GhArchiveTrend
 
 router = APIRouter(prefix="/v1/gharchive", tags=["gharchive"])
@@ -15,7 +15,10 @@ async def ingest_hour(
     _: RequestContext = Depends(require_context),
     service: GhArchiveService = Depends(gharchive),
 ) -> dict[str, object]:
-    count = await service.download_and_ingest(value.hour)
+    try:
+        count = await service.download_and_ingest(value.hour)
+    except GhArchivePayloadTooLargeError as error:
+        raise HTTPException(status_code=413, detail=str(error)) from error
     return {"hour": value.hour, "events": count}
 
 

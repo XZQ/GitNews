@@ -18,6 +18,15 @@ from .models import GhArchiveTrend
 # query time so existing rows remain readable without rewriting their keys.
 _NORMALIZED_HOUR_SQL = "substr(hour,1,11) || printf('%02d',CAST(substr(hour,12) AS INTEGER))"
 
+# Hard ceilings so a hostile or corrupt hour file cannot exhaust disk or memory.
+# Real hourly archives are ~30-150 MiB compressed and ~1-2 GiB decompressed.
+_MAX_DOWNLOAD_BYTES = 512 * 1024 * 1024
+_MAX_DECOMPRESSED_BYTES = 4 * 1024 * 1024 * 1024
+
+
+class GhArchivePayloadTooLargeError(RuntimeError):
+    """Raised when an hour archive exceeds the download or decompression ceiling."""
+
 
 class GhArchiveService:
     def __init__(self, database: Database, timeout_seconds: float = 30) -> None:
@@ -28,18 +37,35 @@ class GhArchiveService:
         hour = normalize_hour(hour)
         url = f"https://data.gharchive.org/{archive_filename_hour(hour)}.json.gz"
         with tempfile.SpooledTemporaryFile(max_size=64 * 1024 * 1024) as buffer:
+            downloaded = 0
             async with httpx.AsyncClient(timeout=self.timeout_seconds, follow_redirects=True) as client:
                 async with client.stream("GET", url) as response:
                     response.raise_for_status()
                     async for chunk in response.aiter_bytes():
+                        downloaded += len(chunk)
+                        if downloaded > _MAX_DOWNLOAD_BYTES:
+                            raise GhArchivePayloadTooLargeError(
+                                "gh archive download exceeds the size ceiling"
+                            )
                         buffer.write(chunk)
             buffer.seek(0)
             return self.ingest_gzip(hour, buffer)
 
     def ingest_gzip(self, hour: str, payload: BinaryIO) -> int:
         with gzip.GzipFile(fileobj=payload, mode="rb") as stream:
-            events = (json.loads(line) for line in stream if line.strip())
-            return self.ingest_events(hour, events)
+            return self.ingest_events(hour, self._bounded_events(stream))
+
+    @staticmethod
+    def _bounded_events(stream: gzip.GzipFile) -> Iterable[dict[str, Any]]:
+        decompressed = 0
+        for line in stream:
+            decompressed += len(line)
+            if decompressed > _MAX_DECOMPRESSED_BYTES:
+                raise GhArchivePayloadTooLargeError(
+                    "gh archive decompressed payload exceeds the size ceiling"
+                )
+            if line.strip():
+                yield json.loads(line)
 
     def ingest_events(self, hour: str, events: Iterable[dict[str, Any]]) -> int:
         hour = normalize_hour(hour)
@@ -59,6 +85,9 @@ class GhArchiveService:
             processed += 1
         now = int(time.time() * 1000)
         with self.database.connection() as connection:
+            # Replace the hour atomically: a crash between DELETE and INSERT
+            # must not leave the hour half-empty until the next re-ingest.
+            connection.execute("BEGIN IMMEDIATE")
             connection.execute(f"DELETE FROM gharchive_stats WHERE {_NORMALIZED_HOUR_SQL}=?", (hour,))
             for (repo, event_type), event_count in counts.items():
                 connection.execute(
