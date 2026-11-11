@@ -6,6 +6,10 @@
 
 ### Added
 
+- 深度审查整改(2026-11-11,详见 `docs/plans/exec/2026-11-11-deep-review-remediation.md`):报告页头新增二级页菜单(探索/活动速览/发现推荐/Star 增长趋势),热榜页头新增语言趋势入口,五个已实现但不可达的页面恢复导航。
+- 「链接打开方式」偏好真正生效:资讯原文与仓库活动按偏好走应用内 WebView 或系统浏览器(新增共享 `openContentLink`);认证流仍固定系统浏览器。
+- 首页预览卡与移动总览雷达话题趋势补齐错误态与重试(共享 `PreviewErrorRow`),失败不再显示与空数据不可区分的空白或永久骨架。
+- 服务端 webhook 投递携带 `X-GitHub-News-Event-Id` 幂等键;outbox 新增 `failed` 死信状态可查询;新增 `GITHUB_NEWS_WEBHOOK_ALLOW_PRIVATE` 与 `GITHUB_NEWS_CORS_ORIGINS` 配置。
 - GitHub OAuth 设备登录入口在注入 `GITHUB_OAUTH_CLIENT_ID` 的构建中接入应用账号登录页;未配置构建仍只提供 Personal Access Token 路径。
 - 新增 `lib/app/` 组合根:首页迁入 `lib/app/home/`,根 widget 迁入 `lib/app/app.dart`;结构测试从「跨 feature 展示层引用基线 9」升级为「feature 之间互相 import 必须为 0」,并新增「组合根不得触达 feature `data/` 层」与「首页必须留在 `lib/app/home/`」断言。
 - `lib/app/` 组合根补齐 `router/`(路由表与分支)与 `di/`(override 清单);`lib/core/` 不再 import 任何 feature,需要的 feature 能力改为 core 声明占位 provider、由 `lib/app/di/app_overrides.dart` 注入(`repositoryFeedProvider`、`configInvalidationHooksProvider`)。结构测试新增「core 不得反向依赖 feature」与「组合根持有路由与装配」两条断言。
@@ -17,6 +21,10 @@
 
 ### Changed
 
+- 深度审查整改(2026-11-11):发现页白名单结果按 kind 落盘共享 TTL,新鲜缓存命中零远端请求(原先每次串行 10 个条件请求),部分失败回退过期白名单并整体标陈旧;热榜同键并发请求合并,刷新链路加 `force` 参数。
+- 快照缓存 payload 与 meta(+ETag/校验器)同事务写入,`CacheMetaDao` 改单条 UPSERT;启动清理联动删除孤儿 payload,豁免观测历史用户数据键,保留仅存 ETag/失败标记的占位行;仓库/主题观测历史按 key 串行化。
+- 服务端 master key 要求 ≥16 字符并拒绝 `.env.example` 占位值;sync payload 64KiB / push payload 1MiB 上限;gharchive 小时重 ingest 原子化并设下载/解压硬上限(超限 413);`/health` 不再泄露数据库路径。
+- AI 雷达 heat 是加权公式,口径由实测改标估算(含旧缓存兜底);search 限定符逐 OR 分支绑定(发现页 skills 与雷达各 topic),不再只约束最后一个分支。
 - 自托管服务请求路径与请求头集中到 `ApiEndpointsConfig` / `SelfHostedApiSupport`;可清理缓存表清单改名为 `_kClearableCacheTables` 并写清用户数据的甄别标准。
 - 桌面托盘与窗口控制、认证初始化、后台资讯刷新、发现白名单、未匹配路由等关键失败路径统一走 `AppLogger` 留痕;修复三处编码损坏的中文注释。
 - 固定 Harness CI 使用 Flutter 3.44.9 / Dart 3.12.2，Flutter 与服务端依赖解析严格使用现有锁文件。
@@ -32,11 +40,14 @@
 
 ### Removed
 
+- 删除零生产者的 `discoverRefreshTickProvider` 死触发器(刷新按钮直接调 `refresh()`);删除设计稿已移除、仅被测试保活的 `HomeMobileRadarTopicList` 及其私有 helper 与对应测试片段。
 - 删除未使用的演示告警数据(`DemoData.alerts`、`DemoAlertFixture` 与 `alertSeverity*` 常量)及其 mapper,`core/demo_data_mappers.dart` 因此不再依赖 monitor 的 domain。
 - 删除全仓库零引用的死代码:`ai_news_grouping.dart`、`core/di/feature_providers.dart`(同时消除 7 条 `core → features` 依赖)、`core/platform/platform_extensions.dart`、`app/home/widgets/home_alerts_panel.dart`。
 
 ### Fixed
 
+- 深度审查整改(2026-11-11)服务端:webhook 订阅与投递双重 SSRF 校验(拒绝内网/回环/link-local/云元数据,含 IPv4-mapped IPv6,DNS rebinding 投递时复查);outbox 12 次重试后置死信、delivered 7 天/failed 30 天清理、ack 仅接受 pending;调度循环异常兜底不再一次 DB 异常永久停摆;`run_feeds` busy 判定原子化;非 ASCII bearer token 不再触发 500。
+- 深度审查整改(2026-11-11)客户端:发现页 profile 缓存解码读回 `enriched/enrichFailed`,修复分页计数失效、补全队列跳过与 0 粉丝当真实值展示;force 刷新不再预删缓存,失败保留过期缓存回退;资讯 DTO 逐条跳过坏 id 条目不毁整页主源;雷达 403 配额耗尽正确触发全局限流闸门;热榜坏缓存行删除自愈、远端失败无缓存回退种子;监控空仓库 `pushed_at=null` 不再误判解析失败;project 最弱环新鲜度补 `partial` 档消除 null 断言地雷;仓库详情种子兜底构造同名 unavailable 占位,不借用无关仓库数据;自托管 pullConfig 跳过坏 version 行不泄漏裸 TypeError。
 - 多源聚合的资讯列表不再把「部分实时」静默当成实时或最差的种子:聚合仓库原先用手写白名单挑档位,新增的 `partial` 落不到任何分支,`[partial]` 单独出现会被判成 `seed`、`[live, partial]` 会宣称 `live`;现改为 core 层穷举式合并,任一来源缺条目即整体降级为 `partial`。
 - 快照文本损坏时不再把 hydrate 后的占位数据整体写回;观测历史读取失败(非数据损坏)时保留原 payload,避免用空历史覆盖持久化数据。
 - 热榜在 GitHub 限流且无缓存时回退种子数据并标注示例口径,不再继续消耗受限配额或伪装成实时数据。
