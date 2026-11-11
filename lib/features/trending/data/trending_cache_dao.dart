@@ -73,19 +73,6 @@ class TrendingCacheDao {
     return action(db);
   }
 
-  /* 批量删除 payload(启动清理联动 meta pruning 用),不触碰 meta。 */
-  Future<void> deleteKeys(Iterable<String> keys) async {
-    final list = keys.toList(growable: false);
-    if (list.isEmpty) {
-      return;
-    }
-    try {
-      final placeholders = List.filled(list.length, '?').join(',');
-      await _db.delete(_table, where: 'cache_key IN ($placeholders)', whereArgs: list);
-    } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.deleteKeys'});
-    }
-  }
 
   Future<bool> isFresh({required TrendingQuery query, String scope = 'anonymous', required Duration ttl, required DateTime now}) async {
     final last = await _meta.lastFetched(cacheKey(query, scope: scope));

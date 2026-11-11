@@ -95,19 +95,6 @@ class JsonSnapshotCacheDao {
     await db.delete('trending_snapshot_cache', where: 'cache_key IN ($placeholders)', whereArgs: keys);
   }
 
-  /* 批量删除 payload(启动清理联动 meta pruning 用),不触碰 meta。 */
-  Future<void> deleteKeys(Iterable<String> keys) async {
-    final list = keys.toList(growable: false);
-    if (list.isEmpty) {
-      return;
-    }
-    try {
-      final placeholders = List.filled(list.length, '?').join(',');
-      await _db.delete(_table, where: 'cache_key IN ($placeholders)', whereArgs: list);
-    } catch (e, st) {
-      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.deleteKeys'});
-    }
-  }
 
   /* 
   *读取 payload 和 ETag(若曾写入)。
