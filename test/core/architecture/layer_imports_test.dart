@@ -42,6 +42,11 @@ void main() {
     expect(violations, isEmpty, reason: 'core 是叶子层,不得反向依赖 feature;装配请放进 lib/app/: $violations');
   });
 
+  test('shared must not import any feature', () {
+    final violations = _collect().sharedToFeature;
+    expect(violations, isEmpty, reason: 'lib/shared 是可复用组件层,不得依赖具体 feature;共享语义请放 core/domain 或 core/config: $violations');
+  });
+
   test('composition root owns the home page', () {
     expect(File('lib/app/app.dart').existsSync(), isTrue, reason: '应用根 widget 应位于 lib/app/app.dart');
     expect(Directory('lib/app/home').existsSync(), isTrue, reason: '首页属于组合根,应位于 lib/app/home/');
@@ -73,6 +78,7 @@ _ArchitectureScan _collect() {
   final crossFeature = <String>[];
   final appToData = <String>[];
   final coreToFeature = <String>[];
+  final sharedToFeature = <String>[];
   for (final file in Directory('lib').listSync(recursive: true).whereType<File>()) {
     if (!file.path.endsWith('.dart')) {
       continue;
@@ -93,6 +99,9 @@ _ArchitectureScan _collect() {
       if (source.startsWith('lib/core/') && _featureOwnedPath.hasMatch(target)) {
         coreToFeature.add('$source -> $target');
       }
+      if (source.startsWith('lib/shared/') && _featureOwnedPath.hasMatch(target)) {
+        sharedToFeature.add('$source -> $target');
+      }
       final fromFeature = _featureOf(source);
       final toFeature = _featureOf(target);
       if (fromFeature != null && toFeature != null && fromFeature != toFeature) {
@@ -100,16 +109,17 @@ _ArchitectureScan _collect() {
       }
     }
   }
-  return _ArchitectureScan(presentationToData: presentationToData, crossFeature: crossFeature, appToData: appToData, coreToFeature: coreToFeature);
+  return _ArchitectureScan(presentationToData: presentationToData, crossFeature: crossFeature, appToData: appToData, coreToFeature: coreToFeature, sharedToFeature: sharedToFeature);
 }
 
 class _ArchitectureScan {
-  const _ArchitectureScan({required this.presentationToData, required this.crossFeature, required this.appToData, required this.coreToFeature});
+  const _ArchitectureScan({required this.presentationToData, required this.crossFeature, required this.appToData, required this.coreToFeature, required this.sharedToFeature});
 
   final List<String> presentationToData;
   final List<String> crossFeature;
   final List<String> appToData;
   final List<String> coreToFeature;
+  final List<String> sharedToFeature;
 }
 
 /* 解析单个 import 目标;SDK 库与包外依赖返回 null。 */
