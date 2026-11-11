@@ -1,6 +1,6 @@
 # 全项目深度审查：35 项发现的核实与分批整改
 
-状态：Active
+状态：Complete
 
 本计划遵循 `.agent/PLANS.md`，执行期间必须保持内容与实际状态一致。
 用户要求：深度 review 当前项目，列出问题、遗漏、不足与改进点，修复完善后
@@ -34,13 +34,27 @@ success、远端 SHA 与本地一致。
 - [x] (2026-11-11 07:10Z) 批次 C（架构 UI）：6 项修复 + 6 个回归，
       全量 `flutter test` 665 全过、analyze 零问题、format 复检通过；
       提交 `678be87` 经 Git Data API 推送。
-- [ ] (2026-11-11 07:20Z) 批次 D：本地 Windows Release 构建**跳过**——
+- [x] (2026-11-11 07:20Z) 批次 D：本地 Windows Release 构建**跳过**——
       本机 Developer Mode 未开启（`AppModelUnlock` 无
       `AllowDevelopmentWithoutDevLicense` 值），插件符号链接创建失败
       （PathExistsException 清理后转为 Developer Mode 提示），进程非管理员；
       用户选择依赖 CI 完整门禁（ci-windows 在 windows-latest 跑 Release 构建）。
       另清理了旧 SDK 遗留的 `windows/flutter/ephemeral`（生成目录）。
-      CHANGELOG 已更新；待 CI 双 job 确认与本计划收尾。
+      CHANGELOG 已更新并提交 `b90be89`。
+- [x] (2026-11-11 07:35Z) 追加 `2836d54`：架构测试补齐审计发现的
+      `lib/shared→feature` 盲区守卫（8 个架构测试全过）。
+- [x] (2026-11-11 08:00Z) 追加 `da45402`：移除本轮引入但零调用的
+      `deleteKeys` 死代码（启动清理统一走静态 pruneSnapshotPayloads）。
+- [x] (2026-11-11 08:20Z) CI run 43046399606（`da45402`）server 绿、
+      ci-windows 挂在 `flutter.changed-format-check`：死代码移除后遗漏
+      两文件格式化。下载 harness artifact 定位后 `dart format` 修复，
+      539 文件复检 0 changed，提交 `3564bcd` 推送。
+- [x] (2026-11-11 08:55Z) CI 确认：run 43049412714（`3564bcd`）双 job
+      均 success——`Flutter and Windows release build`（含完整 Release
+      构建）与 `Self-hosted server`。harness 并发组 cancel-in-progress
+      取消中间推送的运行属正常。
+- [x] (2026-11-11 09:00Z) 本计划标记 Complete；最终代码状态 `3564bcd`，
+      收尾提交仅改本文件并带 `[skip ci]`。
 
 ## Surprises & Discoveries
 
@@ -96,7 +110,27 @@ success、远端 SHA 与本地一致。
 
 ## Outcomes & Retrospective
 
-（完成后填写：最终 SHA、CI 结论、未完成项与后续风险。）
+最终代码状态 `3564bcd`（origin/main 一致）。8 个提交：
+`9073dcb` server 14 项 → `88b980c` 数据层 15 项 → `678be87` 架构 UI 6 项 →
+`b90be89` 计划与 CHANGELOG → `2836d54` shared→feature 架构守卫 →
+`da45402` 移除本轮引入的 deleteKeys 死代码 → `3564bcd` 格式修复 → 收尾。
+
+验证证据：本机 `flutter analyze` 零问题、`flutter test` 665 全过
+（新增 58 个回归）、`dart format` 539 文件 0 差异；server ruff / pytest 74 过 /
+live-smoke 通过；CI run 43049412714 双 job success（ci-windows 含完整
+Windows Release 构建，server 含 ruff/pytest/live-smoke）。
+
+未完成项与后续风险：
+- gharchive 小时表达式规范化使 PK/索引失效（审计第 8 条）：行为正确且有
+  legacy 兼容测试，本轮不做迁移；数据量增长后 trends/ingest 全表扫描会变慢，
+  后续可一次性规范化旧行（需处理同 repo/event/hour 双表示的 PK 冲突，
+  保留 updated_at 最新者）并简化查询。
+- 本地 Windows 构建与烟测未在本机执行（Developer Mode 未开启，用户确认
+  依赖 CI）；开启 Developer Mode 后可按 Concrete Steps 补跑。
+- 服务端单一共享 master key + 自报 workspace 的信任模型未变（README 未承诺
+  角色强制）；公网部署仍应按 README 用 TLS 与账号注册控制。
+- 审计代理的「tick 永久 force」初判被核实推翻（零生产者），提示审计结论
+  必须逐条人工核实后再动手。
 
 ## Context and Orientation
 
@@ -177,9 +211,12 @@ server 74+ 测试通过；CI `ci-windows` 与 `server` 均 success。
 
 ## Artifacts and Notes
 
-- Harness 证据（如运行）：`build/harness/`（git 忽略）。
-- 全量测试日志：会话临时目录 `toolu_726571860d6b41288752ea7c-stdout.log`。
-- 提交：A `9073dcb`（server）、B `88b980c`（数据层）、C/D 待填。
+- CI 证据：run 43049412714（`3564bcd`）双 job success；失败 run
+  43046399606 的 harness artifact 定位为 changed-format-check（已修）。
+- 全量测试：665 过（本机）；server 74 过。
+- 提交：A `9073dcb`（server）、B `88b980c`（数据层）、C `678be87`（UI）、
+  D `b90be89`（docs）、`2836d54`（架构守卫）、`da45402`（死代码）、
+  `3564bcd`（格式）。
 
 ## Interfaces and Dependencies
 
@@ -193,5 +230,5 @@ server 74+ 测试通过；CI `ci-windows` 与 `server` 均 success。
   fetchTrendingResult` / `TrendingRepository.getDigest` 新增 `{bool force}`；
   `CacheMetaDao.pruneStale` 返回 `List<String>` 并支持 `excludePrefixes`；
   新增 `openContentLink`、`PreviewErrorRow`、`JsonSnapshotCacheDao.
-  pruneSnapshotPayloads` / `deleteKeys`、`TrendingCacheDao.deleteKeys`。
+  pruneSnapshotPayloads`。
 - 移除：`discoverRefreshTickProvider`、`HomeMobileRadarTopicList`。
