@@ -95,7 +95,6 @@ class JsonSnapshotCacheDao {
     await db.delete('trending_snapshot_cache', where: 'cache_key IN ($placeholders)', whereArgs: keys);
   }
 
-
   /* 
   *读取 payload 和 ETag(若曾写入)。
   */

@@ -73,7 +73,6 @@ class TrendingCacheDao {
     return action(db);
   }
 
-
   Future<bool> isFresh({required TrendingQuery query, String scope = 'anonymous', required Duration ttl, required DateTime now}) async {
     final last = await _meta.lastFetched(cacheKey(query, scope: scope));
     if (last == null) {
