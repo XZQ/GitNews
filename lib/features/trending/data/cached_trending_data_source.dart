@@ -1,6 +1,7 @@
 import '../../../core/config/cache_ttl_config.dart';
 import '../../../core/domain/data_freshness.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../../core/utils/app_logger.dart';
 import '../domain/trending_repository.dart';
 import 'local_trending_data_source.dart';
 import 'trending_cache_dao.dart';
@@ -10,15 +11,7 @@ import 'trending_data_source.dart';
 *带 SQLite TTL 缓存的趋势数据源包装器。
 */
 class CachedTrendingDataSource implements TrendingDataSource, FreshnessTrendingDataSource {
-  const CachedTrendingDataSource({
-    required this.remote,
-    required this.cache,
-    required this.now,
-    this.cacheScope = 'anonymous',
-    this.ttl = CacheTtlConfig.trending,
-    this.isRateLimited,
-    this.onRateLimited,
-  });
+  CachedTrendingDataSource({required this.remote, required this.cache, required this.now, this.cacheScope = 'anonymous', this.ttl = CacheTtlConfig.trending, this.isRateLimited, this.onRateLimited});
 
   final TrendingDataSource remote;
   final TrendingCacheDao cache;
@@ -28,17 +21,50 @@ class CachedTrendingDataSource implements TrendingDataSource, FreshnessTrendingD
   final bool Function()? isRateLimited;
   final void Function(int retryAfterSeconds)? onRateLimited;
 
+  // 同键并发合并:冷启动时多个 provider 同时 miss 缓存,
+  // 只发一次远端请求,避免重复查询竞写同一快照。
+  final Map<String, Future<DataResult<TrendingDataSnapshot>>> _inFlight = {};
+
   @override
-  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
-    return (await fetchTrendingResult(query)).data;
+  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query, {bool force = false}) async {
+    return (await fetchTrendingResult(query, force: force)).data;
   }
 
   @override
-  Future<DataResult<TrendingDataSnapshot>> fetchTrendingResult(TrendingQuery query) async {
+  Future<DataResult<TrendingDataSnapshot>> fetchTrendingResult(TrendingQuery query, {bool force = false}) {
+    final key = TrendingCacheDao.cacheKey(query, scope: cacheScope);
+    final existing = _inFlight[key];
+    if (existing != null && !force) {
+      return existing;
+    }
+    // 块体返回 void:表达式体会把移除的 Future 返回给 whenComplete 等待,
+    // 形成「等自己完成」的死锁。
+    final future = _fetch(query, force: force).whenComplete(() {
+      _inFlight.remove(key);
+    });
+    _inFlight[key] = future;
+    return future;
+  }
+
+  Future<DataResult<TrendingDataSnapshot>> _fetch(TrendingQuery query, {required bool force}) async {
     final current = now();
-    final cached = await cache.readSnapshot(query, scope: cacheScope);
-    final fresh = await cache.isFresh(query: query, scope: cacheScope, ttl: ttl, now: current);
-    if (cached != null && fresh) {
+    TrendingDataSnapshot? cached;
+    var fresh = false;
+    try {
+      cached = await cache.readSnapshot(query, scope: cacheScope);
+      fresh = await cache.isFresh(query: query, scope: cacheScope, ttl: ttl, now: current);
+    } on AppException catch (e) {
+      // 坏缓存行删除后按无缓存处理:一条损坏 payload 不能让热榜永久报错。
+      AppLogger.warn('trendingCacheRead', meta: {'error': e.kind.name});
+      try {
+        await cache.deleteSnapshot(query, scope: cacheScope);
+      } catch (_) {
+        // 删除失败不阻断远端重试。
+      }
+      cached = null;
+    }
+    // force 只跳过新鲜度检查,不预删缓存:远端失败时仍回退过期缓存。
+    if (cached != null && fresh && !force) {
       return DataResult(data: cached, freshness: DataFreshness.freshCache);
     }
     if (isRateLimited != null && isRateLimited!()) {
@@ -61,7 +87,9 @@ class CachedTrendingDataSource implements TrendingDataSource, FreshnessTrendingD
       if (cached != null) {
         return DataResult(data: cached, freshness: DataFreshness.staleCache);
       }
-      rethrow;
+      // 远端失败且无缓存:与限流分支一致回退种子并标注,不向上抛裸错误。
+      AppLogger.warn('trendingRemoteFallback', meta: {'error': e.runtimeType.toString()});
+      return DataResult(data: await const LocalTrendingDataSource().fetchTrending(query), freshness: DataFreshness.seed);
     }
   }
 }

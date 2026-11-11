@@ -117,5 +117,5 @@ class TrendingDigest {
 *Star 增量,远端实现里的增长值是动量代理值;真实历史趋势需要本地快照累积。
 */
 abstract interface class TrendingRepository {
-  Future<DataResult<TrendingDigest>> getDigest({TrendingQuery query = const TrendingQuery()});
+  Future<DataResult<TrendingDigest>> getDigest({TrendingQuery query = const TrendingQuery(), bool force = false});
 }

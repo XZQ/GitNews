@@ -10,7 +10,9 @@ import '../../../core/storage/repo_snapshot_history_dao.dart';
 import '../domain/trending_repository.dart';
 import 'trending_data_source.dart';
 
-/// GitHub snapshots plus dated local observations; Search itself has no Star delta.
+/*
+ *GitHub 快照 + 本地按日观测;Search 本身不返回 Star 增量。
+ */
 class GithubTrendingDataSource implements TrendingDataSource {
   GithubTrendingDataSource({required Dio dio, String? token, DateTime Function()? now, RepoSnapshotHistoryDao? snapshotHistory})
     : _dio = dio,
@@ -26,7 +28,7 @@ class GithubTrendingDataSource implements TrendingDataSource {
   static const int _perPage = 20;
 
   @override
-  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
+  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query, {bool force = false}) async {
     try {
       final response = await _dio.get<Map<String, Object?>>(
         ApiEndpointsConfig.githubSearchRepositoriesPath,

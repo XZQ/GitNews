@@ -9,8 +9,20 @@ class RepoSnapshotHistoryDao {
 
   final JsonSnapshotCacheDao _cache;
 
-  Future<void> record({required String fullName, required int stars, required int forks, required DateTime capturedAt}) async {
+  // 同仓库的 record 串行执行:trending/monitor/repo_detail 可能并发
+  // 记录同一仓库,读-改-写不串行会互相覆盖观测点。
+  final Map<String, Future<void>> _recordLocks = {};
+
+  Future<void> record({required String fullName, required int stars, required int forks, required DateTime capturedAt}) {
     final key = _cacheKey(fullName);
+    final previous = _recordLocks[key] ?? Future<void>.value();
+    final next = previous.then((_) => _record(key, fullName: fullName, stars: stars, forks: forks, capturedAt: capturedAt));
+    // 链上吞错保持后续记录可用;调用方仍从 next 拿到真实错误。
+    _recordLocks[key] = next.catchError((Object _) {});
+    return next;
+  }
+
+  Future<void> _record(String key, {required String fullName, required int stars, required int forks, required DateTime capturedAt}) async {
     final payload = await _cache.read(key) ?? const <String, Object?>{};
     final points = _pointsFromPayload(payload);
     final dayKey = GitHubApiSupport.formatDate(capturedAt.toUtc());

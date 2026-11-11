@@ -5,10 +5,11 @@ class DiscoverQueries {
   const DiscoverQueries._();
 
   static const String trending = 'stars:>1000';
+  // GitHub 经典搜索的限定符只作用于相邻子句:stars:>10 必须逐 OR 分支重复,
+  // 否则只约束最后一个 topic,其余分支混入低星仓库。
   static const String skills =
-      'topic:agent-skills OR topic:claude-skills OR topic:mcp '
-      'OR topic:ai-agent OR topic:llm-agent OR topic:mcp-server '
-      'stars:>10';
+      'topic:agent-skills stars:>10 OR topic:claude-skills stars:>10 OR topic:mcp stars:>10 '
+      'OR topic:ai-agent stars:>10 OR topic:llm-agent stars:>10 OR topic:mcp-server stars:>10';
 
   // /search/users:官方组织(AI 相关)。
   static const String officialSearchQuery = 'type:org followers:>5000 ai in:name,bio';
@@ -19,6 +20,7 @@ class DiscoverQueries {
   static const String trendingCache = 'discover_trending_repos';
   static const String skillsCache = 'discover_agent_skills';
   static const String profilesCache = 'discover_profiles';
+  static const String profilesWhitelistCache = 'discover_profiles_whitelist';
 
   static const List<String> officialLogins = ['openai', 'anthropics', 'microsoft', 'langchain-ai', 'crewAIInc', 'modelcontextprotocol', 'vercel', 'google', 'meta-llama', 'huggingface'];
 
@@ -72,6 +74,8 @@ class DiscoverQueries {
   }
 
   static String profilesPageKey(DiscoverProfileKind kind, int page, int perPage) => '${DiscoverQueries.profilesCache}:${kind.name}:p$page:n$perPage';
+
+  static String profilesWhitelistKey(DiscoverProfileKind kind) => '${DiscoverQueries.profilesWhitelistCache}:${kind.name}';
 
   static List<T> slice<T>(List<T> items, {required int page, required int perPage}) {
     final start = (page - 1) * perPage;

@@ -52,4 +52,13 @@ void main() {
     expect(trend?.heatValues.length, techHotspotHistoryMaxPoints);
     expect(trend?.heatValues.last, 99);
   });
+
+  test('concurrent records of different days do not overwrite each other', () async {
+    // 并发读-改-写不串行时,后写者会丢掉先写者的观测点。
+    await Future.wait([for (var i = 0; i < 6; i++) dao.record(id: 'github-agent', heat: 40 + i, mentions: 100 + i, relatedRepos: 1000 + i, capturedAt: DateTime.utc(2026, 7, 1 + i, 8))]);
+
+    final trend = await dao.trend('github-agent');
+
+    expect(trend?.heatValues, [40, 41, 42, 43, 44, 45]);
+  });
 }

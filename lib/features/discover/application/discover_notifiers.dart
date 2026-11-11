@@ -14,9 +14,8 @@ class TrendingReposNotifier extends AsyncNotifier<List<RepoEntity>> {
 
   @override
   Future<List<RepoEntity>> build() async {
-    final force = ref.watch(discoverRefreshTickProvider) > 0;
     _page = 1;
-    final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(force: force, page: _page, perPage: discoverPageSize);
+    final result = await ref.read(discoverRepositoryProvider).fetchTrendingRepos(page: _page, perPage: discoverPageSize);
     final repos = result.data;
     if (!ref.mounted) {
       return repos;
@@ -81,9 +80,8 @@ class AgentSkillsNotifier extends AsyncNotifier<List<SkillEntity>> {
 
   @override
   Future<List<SkillEntity>> build() async {
-    final force = ref.watch(discoverRefreshTickProvider) > 0;
     _page = 1;
-    final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(force: force, page: _page, perPage: discoverPageSize);
+    final result = await ref.read(discoverRepositoryProvider).fetchAgentSkills(page: _page, perPage: discoverPageSize);
     final skills = result.data;
     if (!ref.mounted) {
       return skills;
@@ -154,12 +152,11 @@ class ProfilesNotifier extends AsyncNotifier<List<DiscoverProfileEntity>> {
 
   @override
   Future<List<DiscoverProfileEntity>> build() async {
-    final force = ref.watch(discoverRefreshTickProvider) > 0;
     _page = 1;
     _hasMore = true;
     _enrichingLogins.clear();
     _enrichFailedLogins.clear();
-    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, force: force, page: _page, perPage: discoverProfilesPageSize);
+    final result = await ref.read(discoverRepositoryProvider).fetchProfiles(kind: kind, page: _page, perPage: discoverProfilesPageSize);
     final list = result.data;
     if (!ref.mounted) {
       return list;

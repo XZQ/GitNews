@@ -96,7 +96,11 @@ class AiNewsListResponseDto {
       count: (json['count'] as num?)?.toInt() ?? 0,
       hasNext: json['hasNext'] as bool? ?? false,
       nextCursor: json['nextCursor'] as String?,
-      items: list is List ? list.whereType<Map<String, Object?>>().map(AiNewsItemDto.fromJson).toList(growable: false) : const [],
+      // id 是去重与缓存主键,缺失/非字符串的坏条目逐条跳过:
+      // 不能让一条坏数据把整页主源打成解析失败。
+      items: list is List
+          ? list.whereType<Map<String, Object?>>().where((item) => item['id'] is String && (item['id']! as String).isNotEmpty).map(AiNewsItemDto.fromJson).toList(growable: false)
+          : const [],
     );
   }
 

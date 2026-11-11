@@ -16,7 +16,7 @@ class _FakeRemoteTrendingDataSource implements TrendingDataSource {
   int calls = 0;
 
   @override
-  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
+  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query, {bool force = false}) async {
     calls++;
     final e = error;
     if (e != null) {
@@ -226,7 +226,72 @@ void main() {
       expect(result.data.trendingRepos.first.fullName, 'stale/repo');
       expect(remote.calls, 0);
     });
+
+    test('remote failure without cache falls back to seed instead of throwing', () async {
+      const query = TrendingQuery();
+      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'))..error = StateError('network down');
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now, ttl: const Duration(minutes: 5));
+
+      final result = await dataSource.fetchTrendingResult(query);
+
+      expect(result.freshness, DataFreshness.seed);
+      expect(result.data.trendingRepos, isNotEmpty);
+    });
+
+    test('corrupt cache row is deleted and healed by remote', () async {
+      const query = TrendingQuery();
+      await db.executor.insert('trending_snapshot_cache', {'cache_key': TrendingCacheDao.cacheKey(query), 'payload_json': '{broken json', 'cached_at': now.millisecondsSinceEpoch});
+      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'));
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now, ttl: const Duration(minutes: 5));
+
+      final result = await dataSource.fetchTrendingResult(query);
+
+      expect(result.freshness, DataFreshness.live);
+      expect(result.data.trendingRepos.first.fullName, 'remote/repo');
+      expect((await dao.readSnapshot(query))?.trendingRepos.first.fullName, 'remote/repo');
+    });
+
+    test('force bypasses fresh cache but keeps stale fallback on failure', () async {
+      const query = TrendingQuery();
+      await dao.upsertSnapshot(query: query, snapshot: _snapshot('cached/repo'), now: now);
+      final remote = _FakeRemoteTrendingDataSource(_snapshot('remote/repo'));
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now.add(const Duration(minutes: 3)), ttl: const Duration(minutes: 5));
+
+      final live = await dataSource.fetchTrendingResult(query, force: true);
+      expect(live.freshness, DataFreshness.live);
+      expect(remote.calls, 1);
+
+      remote.error = StateError('network down');
+      final failed = await dataSource.fetchTrendingResult(query, force: true);
+      expect(failed.freshness, DataFreshness.staleCache);
+      expect(failed.data.trendingRepos.first.fullName, 'remote/repo');
+    });
+
+    test('concurrent fetches of the same key share one remote call', () async {
+      const query = TrendingQuery();
+      final remote = _SlowRemoteTrendingDataSource(_snapshot('remote/repo'));
+      final dataSource = CachedTrendingDataSource(remote: remote, cache: dao, now: () => now, ttl: const Duration(minutes: 5));
+
+      final results = await Future.wait([dataSource.fetchTrendingResult(query), dataSource.fetchTrendingResult(query)]);
+
+      expect(remote.calls, 1);
+      expect(results.every((r) => r.freshness == DataFreshness.live), isTrue);
+    });
   });
+}
+
+class _SlowRemoteTrendingDataSource implements TrendingDataSource {
+  _SlowRemoteTrendingDataSource(this.snapshot);
+
+  final TrendingDataSnapshot snapshot;
+  int calls = 0;
+
+  @override
+  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query, {bool force = false}) async {
+    calls++;
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+    return snapshot;
+  }
 }
 
 TrendingDataSnapshot _snapshot(String fullName) {

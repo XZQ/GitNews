@@ -40,9 +40,6 @@ final discoverSegmentProvider = StateProvider<String>((ref) => 'repos');
 // 列表搜索关键词。
 final discoverSearchQueryProvider = StateProvider<String>((ref) => '');
 
-// 刷新计数器:自增即触发强制刷新(绕过缓存 TTL)。
-final discoverRefreshTickProvider = StateProvider<int>((ref) => 0);
-
 final discoverReposFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.seed);
 final discoverSkillsFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.seed);
 final discoverOfficialFreshnessProvider = StateProvider<DataFreshness>((ref) => DataFreshness.seed);

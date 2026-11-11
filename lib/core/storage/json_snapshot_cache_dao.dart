@@ -29,19 +29,36 @@ class JsonSnapshotCacheDao {
     }
   }
 
-  /* 更新快照；部分失败仅保存内容和失败状态，不推进成功验证时间。 */
+  /*
+  *更新快照；部分失败仅保存内容和失败状态，不推进成功验证时间。
+  *payload 与 meta 在同一事务内写入:中途失败不会留下
+  *「有 payload 无 meta」或「新 payload 配旧校验器」的不一致状态。
+  */
   Future<void> upsert({required String key, required Map<String, Object?> payload, required DateTime now, bool validated = true}) async {
     try {
       final cachedAt = validated ? now.millisecondsSinceEpoch : (await _meta.lastFetched(key))?.millisecondsSinceEpoch ?? 0;
-      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(payload), 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
-      if (validated) {
-        await _meta.upsert(key, now);
-      } else {
-        await _meta.markValidationFailed(key);
-      }
+      final payloadJson = jsonEncode(payload);
+      await _atomic((txn) async {
+        await txn.insert(_table, {'cache_key': key, 'payload_json': payloadJson, 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
+        final meta = CacheMetaDao(txn);
+        if (validated) {
+          await meta.upsert(key, now);
+        } else {
+          await meta.markValidationFailed(key);
+        }
+      });
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.upsert', 'key': key});
     }
+  }
+
+  /* executor 是完整 Database 时用事务包裹;已是事务内 executor 则直接执行。 */
+  Future<T> _atomic<T>(Future<T> Function(DatabaseExecutor txn) action) {
+    final db = _db;
+    if (db is Database) {
+      return db.transaction(action);
+    }
+    return action(db);
   }
 
   Future<bool> isFresh({required String key, required Duration ttl, required DateTime now}) async {
@@ -56,10 +73,39 @@ class JsonSnapshotCacheDao {
 
   Future<void> delete(String key) async {
     try {
-      await _db.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
-      await _meta.delete(key);
+      await _atomic((txn) async {
+        await txn.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
+        await CacheMetaDao(txn).delete(key);
+      });
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.delete', 'key': key});
+    }
+  }
+
+  /*
+  *启动清理联动:meta 行被 prune 后,同步删除两张快照表里的 payload,
+  *避免孤儿快照只增不减。表名来自 core 统一 schema。
+  */
+  static Future<void> pruneSnapshotPayloads(DatabaseExecutor db, List<String> keys) async {
+    if (keys.isEmpty) {
+      return;
+    }
+    final placeholders = List.filled(keys.length, '?').join(',');
+    await db.delete(_table, where: 'cache_key IN ($placeholders)', whereArgs: keys);
+    await db.delete('trending_snapshot_cache', where: 'cache_key IN ($placeholders)', whereArgs: keys);
+  }
+
+  /* 批量删除 payload(启动清理联动 meta pruning 用),不触碰 meta。 */
+  Future<void> deleteKeys(Iterable<String> keys) async {
+    final list = keys.toList(growable: false);
+    if (list.isEmpty) {
+      return;
+    }
+    try {
+      final placeholders = List.filled(list.length, '?').join(',');
+      await _db.delete(_table, where: 'cache_key IN ($placeholders)', whereArgs: list);
+    } catch (e, st) {
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.deleteKeys'});
     }
   }
 
@@ -72,13 +118,24 @@ class JsonSnapshotCacheDao {
     return EtaggedEntry(payload: payload, etag: etag);
   }
 
-  /* 
+  /*
   *同时写 payload 与 ETag。etag 为 null 时保留既有 etag 不变。
+  *三步在同一事务内,避免新 payload 配旧 ETag。
   */
   Future<void> upsertWithEtag({required String key, required Map<String, Object?> payload, required DateTime now, String? etag}) async {
-    await upsert(key: key, payload: payload, now: now);
-    if (etag != null) {
-      await _meta.writeEtag(key, etag);
+    try {
+      final payloadJson = jsonEncode(payload);
+      final cachedAt = now.millisecondsSinceEpoch;
+      await _atomic((txn) async {
+        await txn.insert(_table, {'cache_key': key, 'payload_json': payloadJson, 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
+        final meta = CacheMetaDao(txn);
+        await meta.upsert(key, now);
+        if (etag != null) {
+          await meta.writeEtag(key, etag);
+        }
+      });
+    } catch (e, st) {
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.upsertWithEtag', 'key': key});
     }
   }
 
@@ -89,10 +146,20 @@ class JsonSnapshotCacheDao {
     return ValidatedCacheEntry(payload: payload, validators: validators, validatedAt: await _meta.lastFetched(key));
   }
 
-  /* 同时写入 payload 与完整 HTTP 校验器。 */
+  /* 同时写入 payload 与完整 HTTP 校验器,同一事务保证一致。 */
   Future<void> upsertWithValidators({required String key, required Map<String, Object?> payload, required DateTime now, required HttpCacheValidators validators}) async {
-    await upsert(key: key, payload: payload, now: now);
-    await _meta.writeValidators(key, validators);
+    try {
+      final payloadJson = jsonEncode(payload);
+      final cachedAt = now.millisecondsSinceEpoch;
+      await _atomic((txn) async {
+        await txn.insert(_table, {'cache_key': key, 'payload_json': payloadJson, 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
+        final meta = CacheMetaDao(txn);
+        await meta.upsert(key, now);
+        await meta.writeValidators(key, validators);
+      });
+    } catch (e, st) {
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'jsonSnapshot.upsertWithValidators', 'key': key});
+    }
   }
 }
 

@@ -13,7 +13,7 @@ class LocalTrendingDataSource implements TrendingDataSource {
   const LocalTrendingDataSource();
 
   @override
-  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
+  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query, {bool force = false}) async {
     final trendingRepos = DemoData.trending.map((e) => e.toEntity()).toList();
     final recentRepos = DemoData.recent.map((e) => e.toEntity()).toList();
 

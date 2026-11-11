@@ -58,6 +58,66 @@ void main() {
     expect(result.freshness, DataFreshness.live);
     expect(digest.heatTrend.map((point) => point.value).toList(), [40, firstTopic.heat]);
   });
+
+  test('配额耗尽的 403 触发全局限流闸门而不是被当成未授权', () async {
+    final retryAfterCalls = <int>[];
+    final limited = GithubTechHotspotRepository(dio: dio, cache: cache, history: history, now: () => DateTime.utc(2026, 7, 4, 12), onRateLimited: retryAfterCalls.add);
+    when(
+      () => dio.get<Map<String, Object?>>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenThrow(
+      DioException(
+        requestOptions: RequestOptions(path: ApiEndpointsConfig.githubSearchRepositoriesPath),
+        response: Response(
+          requestOptions: RequestOptions(path: ApiEndpointsConfig.githubSearchRepositoriesPath),
+          statusCode: 403,
+          headers: Headers.fromMap({
+            'x-ratelimit-remaining': ['0'],
+            'x-ratelimit-reset': ['${DateTime.utc(2026, 7, 4, 12, 5).millisecondsSinceEpoch ~/ 1000}'],
+          }),
+        ),
+      ),
+    );
+
+    final result = await limited.getDigest();
+
+    expect(retryAfterCalls, isNotEmpty);
+    expect(retryAfterCalls.first, greaterThan(0));
+    expect(result.freshness, DataFreshness.seed);
+  });
+
+  test('search 限定符逐 OR 分支绑定,heat 标估算口径', () async {
+    final queries = <String>[];
+    when(
+      () => dio.get<Map<String, Object?>>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer((invocation) async {
+      final params = invocation.namedArguments[#queryParameters] as Map<String, dynamic>;
+      queries.add(params['q'] as String);
+      return _okResponse(_searchBody('x', total: 80));
+    });
+
+    final result = await repository.getDigest();
+
+    expect(queries, hasLength(techHotspotTopicQueries.length));
+    for (var i = 0; i < queries.length; i++) {
+      final branches = queries[i].split(' OR ');
+      expect(branches.length, techHotspotTopicQueries[i].query.split(' OR ').length);
+      for (final branch in branches) {
+        expect(branch, contains('stars:>30'));
+        expect(branch, contains('archived:false'));
+        expect(branch, contains('pushed:>='));
+      }
+    }
+    // heat 是加权公式,不是观测量。
+    expect(result.data.topics.every((topic) => topic.valueBasis == MetricBasis.estimated), isTrue);
+  });
 }
 
 Response<Map<String, Object?>> _okResponse(Map<String, Object?> body) {

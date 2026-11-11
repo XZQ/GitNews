@@ -194,4 +194,107 @@ void main() {
       expect(result.data.followers, 200000);
     });
   });
+
+  group('缓存与刷新回退', () {
+    Dio buildProfilesDio() {
+      final dio = Dio();
+      dio.httpClientAdapter = _StubAdapter((options) {
+        if (options.path.contains('/search/users')) {
+          return {
+            'items': [
+              {'login': 'some-new-org', 'avatar_url': '', 'html_url': '', 'type': 'Organization'},
+            ],
+          };
+        }
+        return {
+          'login': options.path.split('/').last,
+          'name': options.path.split('/').last,
+          'type': 'Organization',
+          'bio': 'bio',
+          'public_repos': 5,
+          'followers': 10,
+          'avatar_url': '',
+          'html_url': '',
+        };
+      });
+      return dio;
+    }
+
+    test('缓存读回保留搜索占位的未补全状态', () async {
+      final repo = buildRepo(buildProfilesDio());
+      await repo.fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+
+      final cached = await repo.fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+
+      expect(cached.freshness, DataFreshness.freshCache);
+      expect(cached.data.last.enriched, isFalse);
+    });
+
+    test('新鲜缓存命中时白名单不再发远端请求', () async {
+      final repo = buildRepo(buildProfilesDio());
+      await repo.fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+
+      final offline = Dio();
+      offline.httpClientAdapter = _StubAdapter((options) {
+        throw StateError('新鲜缓存命中不应触达远端: ${options.path}');
+      });
+      final cached = await buildRepo(offline).fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+
+      expect(cached.freshness, DataFreshness.freshCache);
+      expect(cached.data.length, DiscoverQueries.officialLogins.length + 1);
+    });
+
+    test('force 刷新失败回退过期缓存而不是种子', () async {
+      final repo = buildRepo(buildProfilesDio());
+      final live = await repo.fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+      expect(live.freshness, DataFreshness.live);
+
+      final failing = Dio();
+      failing.httpClientAdapter = _StubAdapter((options) {
+        throw StateError('offline');
+      });
+      final later = DiscoverRepository(dio: failing, cache: cache, now: () => DateTime.utc(2026, 7, 14, 7));
+      final refreshed = await later.fetchProfiles(kind: DiscoverProfileKind.official, force: true, page: 1, perPage: 20);
+
+      expect(refreshed.freshness, DataFreshness.staleCache);
+      expect(refreshed.data.length, live.data.length);
+    });
+
+    test('白名单部分失败时回退过期缓存并整体降级 staleCache', () async {
+      final repo = buildRepo(buildProfilesDio());
+      await repo.fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+
+      final partial = Dio();
+      partial.httpClientAdapter = _PartialFailureAdapter(failingLogin: 'openai');
+      final later = DiscoverRepository(dio: partial, cache: cache, now: () => DateTime.utc(2026, 7, 14, 7));
+      final result = await later.fetchProfiles(kind: DiscoverProfileKind.official, page: 1, perPage: 20);
+
+      expect(result.freshness, DataFreshness.staleCache);
+      expect(result.data.where((p) => p.enriched).length, DiscoverQueries.officialLogins.length);
+    });
+
+    test('force 刷新仓库列表失败保留过期缓存', () async {
+      final dio = Dio();
+      dio.httpClientAdapter = _StubAdapter((options) {
+        return {
+          'items': [
+            {'full_name': 'owner/repo', 'description': 'd', 'language': 'Dart', 'stargazers_count': 100, 'forks_count': 1},
+          ],
+        };
+      });
+      final repo = buildRepo(dio);
+      final live = await repo.fetchTrendingRepos(page: 1, perPage: 20);
+      expect(live.freshness, DataFreshness.live);
+
+      final failing = Dio();
+      failing.httpClientAdapter = _StubAdapter((options) {
+        throw StateError('offline');
+      });
+      final later = DiscoverRepository(dio: failing, cache: cache, now: () => DateTime.utc(2026, 7, 14, 7));
+      final refreshed = await later.fetchTrendingRepos(force: true, page: 1, perPage: 20);
+
+      expect(refreshed.freshness, DataFreshness.staleCache);
+      expect(refreshed.data.single.fullName, 'owner/repo');
+    });
+  });
 }

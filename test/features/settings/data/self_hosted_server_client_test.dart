@@ -115,4 +115,36 @@ void main() {
 
     expect(await client.pullConfig(connection), isNull);
   });
+
+  test('pull config skips rows with missing or non-int version instead of crashing', () async {
+    when(
+      () => dio.get<List<Object?>>(
+        any(),
+        queryParameters: any(named: 'queryParameters'),
+        options: any(named: 'options'),
+      ),
+    ).thenAnswer(
+      (_) async => Response(
+        requestOptions: RequestOptions(path: '/v1/sync/pull'),
+        data: [
+          {
+            'namespace': 'app_config',
+            'record_id': 'shared',
+            'payload': {'app': 'github_news'},
+            'version': 44,
+          },
+          {
+            'namespace': 'app_config',
+            'record_id': 'shared',
+            'payload': {'app': 'broken'},
+            'version': 'not-an-int',
+          },
+        ],
+      ),
+    );
+
+    final record = await client.pullConfig(connection);
+
+    expect(record?.version, 44);
+  });
 }

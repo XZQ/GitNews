@@ -200,7 +200,10 @@ class GithubMonitorRepository implements MonitorRepository {
   GithubMonitorRemoteRepoItem _parseRepo(Map<String, Object?> json, DateTime now) {
     final fullName = GitHubJson.string(json['full_name']);
     final language = GitHubJson.nullableString(json['language']) ?? 'Unknown';
-    final pushedAt = DateTime.tryParse(GitHubJson.string(json['pushed_at']))?.toUtc();
+    // 无提交的空仓库 pushed_at 为 null;实体本就允许缺失,
+    // 不能按必填字符串解析把整个仓库误判为解析失败。
+    final pushedAtRaw = GitHubJson.nullableString(json['pushed_at']);
+    final pushedAt = pushedAtRaw == null ? null : DateTime.tryParse(pushedAtRaw)?.toUtc();
     final stars = GitHubJson.intValue(json['stargazers_count']);
     final forks = GitHubJson.intValue(json['forks_count']);
     final openIssues = GitHubJson.intValue(json['open_issues_count']);

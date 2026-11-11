@@ -121,12 +121,7 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       final cutoff = now.toUtc().subtract(const Duration(days: 30));
       final response = await _dio.get<Map<String, Object?>>(
         ApiEndpointsConfig.githubSearchRepositoriesPath,
-        queryParameters: {
-          'q': '(${query.query}) in:name,description,readme stars:>30 pushed:>=${GitHubApiSupport.formatDate(cutoff)} archived:false',
-          'sort': 'stars',
-          'order': 'desc',
-          'per_page': 10,
-        },
+        queryParameters: {'q': _topicSearchQuery(query, cutoff), 'sort': 'stars', 'order': 'desc', 'per_page': 10},
         options: Options(headers: GitHubApiSupport.headers(token: _token)),
       );
       final data = response.data;
@@ -135,12 +130,29 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
       }
       return _parseTopic(query, data);
     } on DioException catch (e) {
-      throw e.toAppException();
+      // 必须走 GitHub 专用映射:裸 DioException.toAppException 把配额耗尽的
+      // 403 一律当 unauthorized。限流在分类点立即上报:gatherAll 全失败时
+      // 会包成 network 异常,等到外层 catch 再识别就丢了限流信号。
+      final mapped = GitHubApiSupport.toAppException(e, now: _now);
+      _maybeReportRateLimit(mapped);
+      throw mapped;
     } on FormatException catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     } on TypeError catch (e, st) {
       throw AppException(kind: AppExceptionKind.parse, cause: e, stack: st);
     }
+  }
+
+  /*
+  *把限定符逐 OR 分支重复。
+  *
+  *GitHub 经典搜索不支持括号分组,限定符只作用于相邻子句:
+  *`a OR b stars:>30` 的星级/时间/归档门槛只约束 b,a 分支会混入
+  *低星、停更、归档仓库,污染 total_count 与 heat。
+  */
+  static String _topicSearchQuery(TechHotspotTopicQuery query, DateTime cutoff) {
+    final qualifiers = 'in:name,description,readme stars:>30 pushed:>=${GitHubApiSupport.formatDate(cutoff)} archived:false';
+    return query.query.split(' OR ').map((branch) => '$branch $qualifiers').join(' OR ');
   }
 
   GithubTechHotspotTopicResult _parseTopic(TechHotspotTopicQuery query, Map<String, Object?> data) {
@@ -165,7 +177,9 @@ class GithubTechHotspotRepository implements TechHotspotRepository {
         mentions: total,
         relatedRepos: relatedRepos,
         summary: query.summary,
-        valueBasis: MetricBasis.observed,
+        // heat 是 stars/total 的加权公式,不是观测量;mentions/relatedRepos
+        // 虽来自真实计数,但主展示值 heat 必须标估算,不得冒充实测。
+        valueBasis: MetricBasis.estimated,
         growthBasis: MetricBasis.estimated,
       ),
       languages: languages,

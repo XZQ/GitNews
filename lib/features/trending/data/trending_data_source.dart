@@ -33,9 +33,9 @@ class TrendingDataSnapshot {
 *趋势数据源抽象。
 */
 abstract interface class TrendingDataSource {
-  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query);
+  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query, {bool force = false});
 }
 
 abstract interface class FreshnessTrendingDataSource {
-  Future<DataResult<TrendingDataSnapshot>> fetchTrendingResult(TrendingQuery query);
+  Future<DataResult<TrendingDataSnapshot>> fetchTrendingResult(TrendingQuery query, {bool force = false});
 }

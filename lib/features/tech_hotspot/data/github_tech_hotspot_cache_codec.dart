@@ -62,7 +62,8 @@ TechTopic _topicFromJson(Object? raw) {
     mentions: GitHubJson.intValue(json['mentions']),
     relatedRepos: GitHubJson.intValue(json['relatedRepos']),
     summary: GitHubJson.string(json['summary']),
-    valueBasis: _basisFromJson(json['valueBasis'], legacy: json['provenance'], fallback: MetricBasis.observed),
+    // heat 一直是加权公式:缺字段的旧缓存行按估算兜底,不得冒充实测。
+    valueBasis: _basisFromJson(json['valueBasis'], legacy: json['provenance'], fallback: MetricBasis.estimated),
     growthBasis: _basisFromJson(json['growthBasis'], legacy: json['growthProvenance'], fallback: MetricBasis.estimated),
   );
 }

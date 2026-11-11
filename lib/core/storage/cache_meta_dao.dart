@@ -35,27 +35,30 @@ class CacheMetaDao {
     }
   }
 
-  /* 
+  /*
   *写入或更新 cache_key 的 last_fetched_at 为 [at]。
-  *保留已存在的 payload_hash / ext1..ext3 等列。
+  *单条 UPSERT:query+insert/update 两步在并发下会互相覆盖。
+  *成功验证清除 ext2 失败标记,保留 payload_hash / ext1 等列。
   */
   Future<void> upsert(String cacheKey, DateTime at) async {
     try {
-      final existing = await _db.query(_table, columns: ['cache_key'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
-      if (existing.isEmpty) {
-        await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': at.millisecondsSinceEpoch});
-      } else {
-        await _db.update(_table, {'last_fetched_at': at.millisecondsSinceEpoch, 'ext2': null}, where: 'cache_key = ?', whereArgs: [cacheKey]);
-      }
+      await _db.rawInsert(
+        'INSERT INTO $_table(cache_key, last_fetched_at) VALUES(?, ?) '
+        'ON CONFLICT(cache_key) DO UPDATE SET last_fetched_at=excluded.last_fetched_at, ext2=NULL',
+        [cacheKey, at.millisecondsSinceEpoch],
+      );
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'upsert', 'cacheKey': cacheKey});
     }
   }
 
-  /// Failed validation is separate from the last successful fetch timestamp.
+  /* 验证失败独立于最后成功拉取时间;不推进 last_fetched_at。 */
   Future<void> markValidationFailed(String cacheKey) async {
-    await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': 0}, conflictAlgorithm: ConflictAlgorithm.ignore);
-    await _db.update(_table, {'ext2': 'validation_failed'}, where: 'cache_key = ?', whereArgs: [cacheKey]);
+    await _db.rawInsert(
+      'INSERT INTO $_table(cache_key, last_fetched_at, ext2) VALUES(?, 0, ?) '
+      'ON CONFLICT(cache_key) DO UPDATE SET ext2=excluded.ext2',
+      [cacheKey, 'validation_failed'],
+    );
   }
 
   Future<bool> hasFailedValidation(String cacheKey) async {
@@ -106,12 +109,11 @@ class CacheMetaDao {
   */
   Future<void> writeEtag(String cacheKey, String etag) async {
     try {
-      final existing = await _db.query(_table, columns: ['cache_key'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
-      if (existing.isEmpty) {
-        await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': 0, 'payload_hash': etag});
-      } else {
-        await _db.update(_table, {'payload_hash': etag}, where: 'cache_key = ?', whereArgs: [cacheKey]);
-      }
+      await _db.rawInsert(
+        'INSERT INTO $_table(cache_key, last_fetched_at, payload_hash) VALUES(?, 0, ?) '
+        'ON CONFLICT(cache_key) DO UPDATE SET payload_hash=excluded.payload_hash',
+        [cacheKey, etag],
+      );
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'writeEtag', 'cacheKey': cacheKey});
     }
@@ -120,13 +122,11 @@ class CacheMetaDao {
   /* 覆盖保存 HTTP 校验器;传 null 会清理对应旧值。 */
   Future<void> writeValidators(String cacheKey, HttpCacheValidators validators) async {
     try {
-      final existing = await _db.query(_table, columns: ['cache_key'], where: 'cache_key = ?', whereArgs: [cacheKey], limit: 1);
-      final values = <String, Object?>{'payload_hash': validators.etag, 'ext1': validators.lastModified};
-      if (existing.isEmpty) {
-        await _db.insert(_table, {'cache_key': cacheKey, 'last_fetched_at': 0, ...values});
-      } else {
-        await _db.update(_table, values, where: 'cache_key = ?', whereArgs: [cacheKey]);
-      }
+      await _db.rawInsert(
+        'INSERT INTO $_table(cache_key, last_fetched_at, payload_hash, ext1) VALUES(?, 0, ?, ?) '
+        'ON CONFLICT(cache_key) DO UPDATE SET payload_hash=excluded.payload_hash, ext1=excluded.ext1',
+        [cacheKey, validators.etag, validators.lastModified],
+      );
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'writeValidators', 'cacheKey': cacheKey});
     }
@@ -134,15 +134,28 @@ class CacheMetaDao {
 
   /*
   *批量清理超过 [retainFor] 未刷新的 cache_meta 行(最佳努力,失败不抛)。
-  *用于启动时收敛无限增长的 cache_key 元数据;被清理的 key 下次拉取时会重建。
+  *返回被删除的 key,调用方据此联动清理 payload,避免孤儿快照无限增长。
+  *last_fetched_at=0 的占位行(仅存 ETag/失败标记)不清理:它们没有
+  *「上次成功拉取」语义,清掉会丢失条件请求校验器。
+  *excludePrefixes 用于豁免用户数据键(观测历史等),由装配层传入。
   */
-  Future<int> pruneStale({required DateTime now, required Duration retainFor}) async {
+  Future<List<String>> pruneStale({required DateTime now, required Duration retainFor, List<String> excludePrefixes = const []}) async {
     try {
       final threshold = now.toUtc().millisecondsSinceEpoch - retainFor.inMilliseconds;
-      return await _db.delete(_table, where: 'last_fetched_at < ?', whereArgs: [threshold]);
+      final exclusions = [for (var i = 0; i < excludePrefixes.length; i++) 'cache_key NOT LIKE ?'];
+      final where = ['last_fetched_at < ?', 'last_fetched_at > 0', ...exclusions].join(' AND ');
+      final args = <Object?>[threshold, for (final prefix in excludePrefixes) '$prefix%'];
+      final rows = await _db.query(_table, columns: ['cache_key'], where: where, whereArgs: args);
+      final keys = [for (final row in rows) row['cache_key']! as String];
+      if (keys.isEmpty) {
+        return const [];
+      }
+      final placeholders = List.filled(keys.length, '?').join(',');
+      await _db.delete(_table, where: 'cache_key IN ($placeholders)', whereArgs: keys);
+      return keys;
     } catch (e) {
       AppLogger.warn('cacheMetaPrune', meta: {'error': e.runtimeType.toString()});
-      return 0;
+      return const [];
     }
   }
 }

@@ -177,7 +177,21 @@ class GithubProjectRepository implements ProjectRepository {
   }
 }
 
+/*
+ *报告整体新鲜度取最弱一环(与 AI 聚合的 live 优先口径不同):
+ *任一子资源是缓存/种子,整份报告就不能宣称更新鲜的档位。
+ *用穷举 switch 而非手写 Map:新增 DataFreshness 成员时编译器强制补齐,
+ *不会再出现 null 断言地雷。partial 排在 freshCache 与 staleCache 之间,
+ *与 FreshnessRole.vetoSeverity 的严重度顺序一致。
+ */
 DataFreshness _leastFresh(DataFreshness left, DataFreshness right) {
-  const priority = {DataFreshness.live: 0, DataFreshness.freshCache: 1, DataFreshness.staleCache: 2, DataFreshness.seed: 3};
-  return priority[left]! >= priority[right]! ? left : right;
+  return _freshnessRank(left) >= _freshnessRank(right) ? left : right;
 }
+
+int _freshnessRank(DataFreshness value) => switch (value) {
+  DataFreshness.live => 0,
+  DataFreshness.freshCache => 1,
+  DataFreshness.partial => 2,
+  DataFreshness.staleCache => 3,
+  DataFreshness.seed => 4,
+};

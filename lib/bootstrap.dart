@@ -18,6 +18,7 @@ import 'core/di/providers.dart';
 import 'core/i18n/app_localizations.dart';
 import 'core/platform/startup_probe.dart';
 import 'core/storage/cache_meta_dao.dart';
+import 'core/storage/json_snapshot_cache_dao.dart';
 import 'core/storage/local_database.dart';
 import 'core/theme/app_spacing.dart';
 import 'core/theme/app_typography.dart';
@@ -59,7 +60,12 @@ Future<BootstrapResult> initializeApplication({SharedPreferencesLoader? sharedPr
     // 在接受初始化结果前验证主资讯表可读，损坏/不完整迁移进入恢复页。
     await database.executor.rawQuery('SELECT COUNT(*) AS item_count FROM ai_news_item');
     try {
-      await CacheMetaDao(database.executor).pruneStale(now: DateTime.now(), retainFor: CacheTtlConfig.newsRetention);
+      // 观测历史是用户数据,豁免清理;其余过期 meta 连同 payload 一起收敛,
+      // 避免孤儿快照无限增长。占位行(仅 ETag/失败标记)由 pruneStale 保留。
+      final prunedKeys = await CacheMetaDao(
+        database.executor,
+      ).pruneStale(now: DateTime.now(), retainFor: CacheTtlConfig.newsRetention, excludePrefixes: const ['repo_snapshot_history:', 'monitor_observation:']);
+      await JsonSnapshotCacheDao.pruneSnapshotPayloads(database.executor, prunedKeys);
     } catch (_) {
       // 缓存元数据清理是最佳努力，不阻断应用启动。
     }

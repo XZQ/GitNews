@@ -54,10 +54,36 @@ class TrendingCacheDao {
     final key = cacheKey(query, scope: scope);
     final cachedAt = now.millisecondsSinceEpoch;
     try {
-      await _db.insert(_table, {'cache_key': key, 'payload_json': jsonEncode(_snapshotToJson(snapshot)), 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
-      await _meta.upsert(key, now);
+      final payloadJson = jsonEncode(_snapshotToJson(snapshot));
+      // payload 与 meta 同事务:中途失败不留「有 payload 无 meta」的半状态。
+      await _atomic((txn) async {
+        await txn.insert(_table, {'cache_key': key, 'payload_json': payloadJson, 'cached_at': cachedAt}, conflictAlgorithm: ConflictAlgorithm.replace);
+        await CacheMetaDao(txn).upsert(key, now);
+      });
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.upsertSnapshot'});
+    }
+  }
+
+  Future<T> _atomic<T>(Future<T> Function(DatabaseExecutor txn) action) {
+    final db = _db;
+    if (db is Database) {
+      return db.transaction(action);
+    }
+    return action(db);
+  }
+
+  /* 批量删除 payload(启动清理联动 meta pruning 用),不触碰 meta。 */
+  Future<void> deleteKeys(Iterable<String> keys) async {
+    final list = keys.toList(growable: false);
+    if (list.isEmpty) {
+      return;
+    }
+    try {
+      final placeholders = List.filled(list.length, '?').join(',');
+      await _db.delete(_table, where: 'cache_key IN ($placeholders)', whereArgs: list);
+    } catch (e, st) {
+      throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.deleteKeys'});
     }
   }
 
@@ -80,8 +106,10 @@ class TrendingCacheDao {
   Future<void> deleteSnapshot(TrendingQuery query, {String scope = 'anonymous'}) async {
     final key = cacheKey(query, scope: scope);
     try {
-      await _db.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
-      await _meta.delete(key);
+      await _atomic((txn) async {
+        await txn.delete(_table, where: 'cache_key = ?', whereArgs: [key]);
+        await CacheMetaDao(txn).delete(key);
+      });
     } catch (e, st) {
       throw AppException(kind: AppExceptionKind.cache, cause: e, stack: st, meta: {'op': 'trending.deleteSnapshot'});
     }

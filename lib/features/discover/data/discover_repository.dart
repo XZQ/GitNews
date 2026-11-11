@@ -51,9 +51,8 @@ class DiscoverRepository {
   Future<DataResult<List<RepoEntity>>> fetchTrendingRepos({bool force = false, int page = 1, int perPage = 20}) async {
     final now = _now();
     final key = DiscoverQueries.pageKey(DiscoverQueries.trendingCache, page, perPage);
-    if (force) {
-      await _safeDelete(key);
-    }
+    // force 只跳过新鲜度检查,不预删缓存:远端失败时仍要回退过期缓存,
+    // 成功后 upsert 自然覆盖旧值。
     if (!_blocked()) {
       if (!force && await _isFresh(key, CacheTtlConfig.discover, now)) {
         final cached = await _cache.read(key);
@@ -86,9 +85,6 @@ class DiscoverRepository {
   Future<DataResult<List<SkillEntity>>> fetchAgentSkills({bool force = false, int page = 1, int perPage = 20}) async {
     final now = _now();
     final key = DiscoverQueries.pageKey(DiscoverQueries.skillsCache, page, perPage);
-    if (force) {
-      await _safeDelete(key);
-    }
     if (!_blocked()) {
       if (!force && await _isFresh(key, CacheTtlConfig.skills, now)) {
         final cached = await _cache.read(key);
@@ -150,14 +146,6 @@ class DiscoverRepository {
       return await _cache.isFresh(key: key, ttl: ttl, now: now);
     } catch (_) {
       return false;
-    }
-  }
-
-  Future<void> _safeDelete(String key) async {
-    try {
-      await _cache.delete(key);
-    } catch (_) {
-      // 缓存删除失败不应阻断刷新流程。
     }
   }
 

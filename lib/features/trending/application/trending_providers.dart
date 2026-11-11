@@ -162,7 +162,12 @@ final trendingQueryProvider = Provider<TrendingQuery>((ref) {
 Future<void> refreshTrendingDigest(WidgetRef ref) async {
   final mode = ref.read(trendingDataSourceModeControllerProvider);
   if (mode == TrendingDataSourceMode.github) {
-    await ref.read(trendingCacheDaoProvider).deleteSnapshot(ref.read(trendingQueryProvider), scope: ref.read(githubTokenControllerProvider).cacheScope);
+    // force 直调远端:成功覆盖缓存后再失效 provider 读回;
+    // 失败时数据源内部已回退过期缓存/种子,不预删、不重复请求,保留当前展示。
+    final result = await ref.read(trendingRepositoryProvider).getDigest(query: ref.read(trendingQueryProvider), force: true);
+    if (result.freshness != DataFreshness.live) {
+      return;
+    }
   }
   ref.invalidate(trendingDigestProvider);
   ref.invalidate(trendingDigestResultProvider);

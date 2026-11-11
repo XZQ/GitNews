@@ -10,6 +10,15 @@ void main() {
     expect(DiscoverQueries.skills, contains('stars:>10'));
   });
 
+  test('skills query 每个 OR 分支都绑定 stars 门槛', () {
+    // GitHub 经典搜索的限定符只作用于相邻子句:漏绑的分支会混入低星仓库。
+    final branches = DiscoverQueries.skills.split(' OR ');
+    expect(branches.length, 6);
+    for (final branch in branches) {
+      expect(branch, contains('stars:>10'), reason: '分支 "$branch" 缺少 stars 门槛');
+    }
+  });
+
   test('officialSearchQuery 使用 type:org + ai 关键词', () {
     expect(DiscoverQueries.officialSearchQuery, contains('type:org'));
     expect(DiscoverQueries.officialSearchQuery, contains('followers:>5000'));

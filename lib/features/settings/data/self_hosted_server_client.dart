@@ -76,10 +76,12 @@ class SelfHostedServerClient {
           continue;
         }
         final row = raw.cast<String, Object?>();
-        if (row['namespace'] != 'app_config' || row['record_id'] != 'shared' || row['deleted'] == true || row['payload'] is! Map) {
+        // version 是同步契约核心:缺失/非 int 的行不可用,跳过而不是
+        // 让裸 TypeError 泄漏到 presentation。
+        if (row['namespace'] != 'app_config' || row['record_id'] != 'shared' || row['deleted'] == true || row['payload'] is! Map || row['version'] is! int) {
           continue;
         }
-        return RemoteConfigRecord(payload: (row['payload'] as Map).cast<String, Object?>(), version: row['version'] as int);
+        return RemoteConfigRecord(payload: (row['payload'] as Map).cast<String, Object?>(), version: row['version']! as int);
       }
       return null;
     } on DioException catch (error) {

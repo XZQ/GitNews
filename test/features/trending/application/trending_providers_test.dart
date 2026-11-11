@@ -22,7 +22,7 @@ class _FakeTrendingDataSource implements TrendingDataSource {
   const _FakeTrendingDataSource();
 
   @override
-  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query) async {
+  Future<TrendingDataSnapshot> fetchTrending(TrendingQuery query, {bool force = false}) async {
     return const TrendingDataSnapshot(trendingRepos: [], recentRepos: [], languages: [], primaryTrend: [], secondaryTrend: [], tertiaryTrend: []);
   }
 }

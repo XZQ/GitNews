@@ -14,10 +14,13 @@ class TrendingRepositoryImpl implements TrendingRepository {
   final DataFreshness fallbackFreshness;
 
   @override
-  Future<DataResult<TrendingDigest>> getDigest({TrendingQuery query = const TrendingQuery()}) async {
+  Future<DataResult<TrendingDigest>> getDigest({TrendingQuery query = const TrendingQuery(), bool force = false}) async {
     final result = dataSource is FreshnessTrendingDataSource
-        ? await (dataSource as FreshnessTrendingDataSource).fetchTrendingResult(query)
-        : DataResult(data: await dataSource.fetchTrending(query), freshness: fallbackFreshness);
+        ? await (dataSource as FreshnessTrendingDataSource).fetchTrendingResult(query, force: force)
+        : DataResult(
+            data: await dataSource.fetchTrending(query, force: force),
+            freshness: fallbackFreshness,
+          );
     return result.map(
       (snapshot) => TrendingDigest(
         trendingRepos: snapshot.trendingRepos,

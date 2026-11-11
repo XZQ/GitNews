@@ -48,6 +48,11 @@ class DiscoverCacheCodec {
   static DiscoverProfileEntity profileFromJson(Map<String, Object?> json, DiscoverProfileKind kind) {
     final login = GitHubJson.string(json['login']);
     final name = GitHubJson.nullableString(json['name']);
+    // 缓存与远端 /users 响应共用本解码:缓存里存了 enriched/enrichFailed,
+    // 必须读回,否则未补全的搜索占位会被当成已补全(0 粉丝当真实值展示、
+    // 分页计数与补全队列全部失效)。远端响应无这两个字段,默认已补全。
+    final enrichedRaw = json['enriched'];
+    final enrichFailedRaw = json['enrichFailed'];
     return DiscoverProfileEntity(
       login: login,
       name: (name == null || name.isEmpty) ? login : name,
@@ -59,8 +64,8 @@ class DiscoverCacheCodec {
       htmlUrl: GitHubJson.nullableString(json['html_url']) ?? GitHubJson.nullableString(json['htmlUrl']) ?? '${ApiEndpointsConfig.githubWebBaseUrl}/$login',
       featuredRepoFullName: GitHubJson.nullableString(json['featuredRepoFullName']) ?? DiscoverQueries.featuredRepoForLogin(login),
       kind: kind,
-      enriched: true,
-      enrichFailed: false,
+      enriched: enrichedRaw is bool ? enrichedRaw : true,
+      enrichFailed: enrichFailedRaw is bool ? enrichFailedRaw : false,
     );
   }
 

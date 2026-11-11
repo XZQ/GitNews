@@ -9,8 +9,19 @@ class TechHotspotHistoryDao {
 
   final JsonSnapshotCacheDao _cache;
 
-  Future<void> record({required String id, required int heat, required int mentions, required int relatedRepos, required DateTime capturedAt}) async {
+  // 同主题的 record 串行执行,避免并发读-改-写互相覆盖观测点。
+  final Map<String, Future<void>> _recordLocks = {};
+
+  Future<void> record({required String id, required int heat, required int mentions, required int relatedRepos, required DateTime capturedAt}) {
     final key = _cacheKey(id);
+    final previous = _recordLocks[key] ?? Future<void>.value();
+    final next = previous.then((_) => _record(key, id: id, heat: heat, mentions: mentions, relatedRepos: relatedRepos, capturedAt: capturedAt));
+    // 链上吞错保持后续记录可用;调用方仍从 next 拿到真实错误。
+    _recordLocks[key] = next.catchError((Object _) {});
+    return next;
+  }
+
+  Future<void> _record(String key, {required String id, required int heat, required int mentions, required int relatedRepos, required DateTime capturedAt}) async {
     final payload = await _cache.read(key) ?? const <String, Object?>{};
     final points = _pointsFromPayload(payload);
     final dayKey = GitHubApiSupport.formatDate(capturedAt.toUtc());

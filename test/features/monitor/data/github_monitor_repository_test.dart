@@ -81,6 +81,21 @@ void main() {
     expect(result.data.alerts, hasLength(4));
   });
 
+  test('empty repository with null pushed_at parses successfully', () async {
+    final now = DateTime(2026, 7, 2, 12);
+    final response = okResponse(stars: 0, forks: 0, issues: 0);
+    response.data!['pushed_at'] = null;
+    when(() => dio.get<Map<String, Object?>>(any(), options: any(named: 'options'))).thenAnswer((_) async => response);
+    final repository = buildRepository(now: now);
+
+    final result = await repository.getDigest(force: true);
+
+    expect(result.freshness, DataFreshness.live);
+    expect(result.data.repoByFullName('owner/repo'), isNotNull);
+    expect(result.data.checks['owner/repo']?.failure, isNull);
+    expect(result.data.checks['owner/repo']?.validatedAt, isNotNull);
+  });
+
   test('remote failure returns stale cache without creating alerts', () async {
     final cachedAt = DateTime(2026, 7, 1, 10);
     final now = DateTime(2026, 7, 2, 12);
