@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/domain/repo_activity_event.dart';
 import '../../../../core/i18n/app_localizations.dart';
@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../shared/utils/open_content_link.dart';
 import '../../../../shared/widgets/app_card.dart';
 import '../../../../shared/widgets/data_provenance_badge.dart';
 import '../../../../shared/widgets/empty_view.dart';
@@ -69,13 +70,13 @@ class _RepoDetailActivityState extends State<RepoDetailActivity> {
   }
 }
 
-class _ActivityTile extends StatelessWidget {
+class _ActivityTile extends ConsumerWidget {
   const _ActivityTile({required this.activity});
 
   final RepoActivityEvent activity;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final visual = _visualFor(context, activity.type);
     final actor = activity.actorLogin.isEmpty ? '' : '@${activity.actorLogin} · ';
@@ -89,7 +90,7 @@ class _ActivityTile extends StatelessWidget {
       child: ExcludeSemantics(
         child: ListTile(
           contentPadding: EdgeInsets.zero,
-          onTap: activity.htmlUrl == null ? null : () => _open(activity.htmlUrl!),
+          onTap: activity.htmlUrl == null ? null : () => _open(context, ref, activity.htmlUrl!),
           leading: Container(
             width: 32,
             height: 32,
@@ -103,10 +104,10 @@ class _ActivityTile extends StatelessWidget {
     );
   }
 
-  Future<void> _open(String rawUrl) async {
+  Future<void> _open(BuildContext context, WidgetRef ref, String rawUrl) async {
     final uri = Uri.tryParse(rawUrl);
     if (uri != null) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
+      await openContentLink(context: context, ref: ref, uri: uri, title: activity.title);
     }
   }
 }

@@ -18,7 +18,8 @@ class HomeTrendingPreview extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final items = ref.watch(trendingDigestProvider).value?.trendingRepos.take(4).toList() ?? const <RepoEntity>[];
+    final state = ref.watch(trendingDigestProvider);
+    final items = state.value?.trendingRepos.take(4).toList() ?? const <RepoEntity>[];
     return HomeSectionPreviewCard<RepoEntity>(
       title: l10n.tr('home.section.trending.title'),
       subtitle: l10n.tr('home.section.trending.subtitle'),
@@ -26,6 +27,11 @@ class HomeTrendingPreview extends ConsumerWidget {
       icon: Icons.local_fire_department_rounded,
       path: '/trending',
       items: items,
+      hasError: state.hasError,
+      onRetry: () {
+        ref.invalidate(trendingDigestResultProvider);
+        ref.invalidate(trendingDigestProvider);
+      },
       tileBuilder: (_, item, index) => PreviewRow(
         rank: '${index + 1}',
         rankColor: Color(item.accentArgb),

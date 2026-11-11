@@ -6,9 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../../core/domain/repo_entity.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
+import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/utils/breakpoint.dart';
-import '../../../shared/widgets/app_card.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/discover_providers.dart';
@@ -58,22 +58,26 @@ class DiscoverReposSection extends ConsumerWidget {
         }
         final hasMore = query.trim().isEmpty && ref.read(trendingReposNotifierProvider.notifier).hasMore;
         if (Breakpoints.isCompact(context)) {
-          return ListView(
+          // 分页增长的列表必须懒构建:整卡 Column 会随滚动全量重建所有行。
+          // 用分段卡片装饰拼出与 AppCard 一致的共享卡片外观。
+          return ListView.builder(
             padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.xxxl),
-            children: [
-              AppCard(
-                padding: EdgeInsets.zero,
+            itemCount: repos.length + (hasMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index >= repos.length) {
+                return const _CompactCardSegment(isFirst: false, isLast: true, child: DiscoverLoadMoreIndicator());
+              }
+              return _CompactCardSegment(
+                isFirst: index == 0,
+                isLast: !hasMore && index == repos.length - 1,
                 child: Column(
                   children: [
-                    for (var index = 0; index < repos.length; index++) ...[
-                      if (index != 0) const Divider(height: 1, indent: AppSpacing.lg, endIndent: AppSpacing.lg),
-                      DiscoverMonitorRow(repo: repos[index], badge: '#${index + 1}', embedded: true, onTap: () => context.go(discoverRepoDetailLocation(repos[index].fullName))),
-                    ],
-                    if (hasMore) const DiscoverLoadMoreIndicator(),
+                    if (index != 0) const Divider(height: 1, indent: AppSpacing.lg, endIndent: AppSpacing.lg),
+                    DiscoverMonitorRow(repo: repos[index], badge: '#${index + 1}', embedded: true, onTap: () => context.go(discoverRepoDetailLocation(repos[index].fullName))),
                   ],
                 ),
-              ),
-            ],
+              );
+            },
           );
         }
         return _buildDiscoverList(
@@ -83,6 +87,43 @@ class DiscoverReposSection extends ConsumerWidget {
           itemBuilder: (context, i) => DiscoverMonitorRow(repo: repos[i], onTap: () => context.go(discoverRepoDetailLocation(repos[i].fullName))),
         );
       },
+    );
+  }
+}
+
+/*
+ *紧凑仓库列表的卡片分段:首段带顶部圆角与上边框,末段带底部圆角与下边框,
+ *左右边框连续,拼出整卡外观,同时允许 ListView.builder 懒构建每一行。
+ */
+class _CompactCardSegment extends StatelessWidget {
+  const _CompactCardSegment({required this.isFirst, required this.isLast, required this.child});
+
+  final bool isFirst;
+  final bool isLast;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isLight = theme.brightness == Brightness.light;
+    final borderColor = colors.outlineVariant.withValues(alpha: isLight ? 0.72 : 1);
+    final radius = BorderRadius.vertical(top: isFirst ? const Radius.circular(AppRadius.card) : Radius.zero, bottom: isLast ? const Radius.circular(AppRadius.card) : Radius.zero);
+    return Material(
+      color: theme.cardTheme.color ?? colors.surface,
+      borderRadius: radius,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          border: Border(
+            top: isFirst ? BorderSide(color: borderColor) : BorderSide.none,
+            bottom: isLast ? BorderSide(color: borderColor) : BorderSide.none,
+            left: BorderSide(color: borderColor),
+            right: BorderSide(color: borderColor),
+          ),
+        ),
+        child: child,
+      ),
     );
   }
 }

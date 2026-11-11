@@ -30,6 +30,8 @@ class HomeAiNewsPreview extends ConsumerWidget {
       path: '/ai_news',
       trailing: DataFreshnessBadge(freshness: freshness),
       items: items,
+      hasError: async.hasError,
+      onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider),
       tileBuilder: (context, item, index) => PreviewRow(
         rank: '${index + 1}',
         rankColor: aiNewsCategoryColor(item.category),

@@ -11,7 +11,6 @@ import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_agent_s
 import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_heat_chart.dart';
 import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_language_panel.dart';
 import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_tags_cloud.dart';
-import '../../../features/tech_hotspot/presentation/widgets/tech_hotspot_topic_card.dart';
 import '../../../features/trending/application/trending_providers.dart';
 import '../../../features/trending/widgets/trending_topics_panel.dart';
 import '../../../shared/widgets/empty_view.dart';
@@ -74,38 +73,6 @@ class HomeMobileRadarOverview extends ConsumerWidget {
 }
 
 /*
-* 移动总览最底部的 AI 雷达详细主题列表。
-*/
-class HomeMobileRadarTopicList extends ConsumerWidget {
-  const HomeMobileRadarTopicList({super.key});
-
-  /* 构建最多五条主题卡片，并保留进入完整雷达页和详情页的能力。 */
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final state = ref.watch(techHotspotDigestProvider);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        SectionHeader(title: l10n.tr('tech_hotspot.topics'), subtitle: l10n.tr('tech_hotspot.subtitle'), onTap: () => context.push('/tech_hotspot')),
-        const SizedBox(height: AppSpacing.sm),
-        state.when(
-          data: (digest) => _RadarTopicCards(topics: digest.topics),
-          loading: () => const _RadarTopicsSkeleton(),
-          error: (error, stack) => ErrorView(error: error.asAppException(stack), onRetry: () => _retry(ref)),
-        ),
-      ],
-    );
-  }
-
-  /* 重新请求 AI 雷达聚合数据。 */
-  void _retry(WidgetRef ref) {
-    ref.invalidate(techHotspotDigestResultProvider);
-    ref.invalidate(techHotspotDigestProvider);
-  }
-}
-
-/*
 * AI 雷达在移动总览中的五块摘要内容。
 */
 class _RadarSummarySections extends ConsumerWidget {
@@ -133,40 +100,23 @@ class _RadarSummarySections extends ConsumerWidget {
           },
         ),
         const SizedBox(height: AppSpacing.md),
-        if (trending.hasValue) TrendingTopicsPanel(topics: trending.requireValue.topics, onTap: () => context.push('/trending'), compact: true) else const Skeleton(height: 150),
+        // 跨源区块同样要有错误态:失败时只渲染骨架会让用户永远等下去。
+        trending.when(
+          data: (trendingDigest) => TrendingTopicsPanel(topics: trendingDigest.topics, onTap: () => context.push('/trending'), compact: true),
+          loading: () => const Skeleton(height: 150),
+          error: (error, stack) => ErrorView(
+            error: error.asAppException(stack),
+            onRetry: () {
+              ref.invalidate(trendingHomeDigestResultProvider);
+              ref.invalidate(trendingHomeDigestProvider);
+            },
+          ),
+        ),
         const SizedBox(height: AppSpacing.md),
         SizedBox(height: 170, child: TechHotspotHeatChart(values: digest.heatTrend, compact: true)),
         const SizedBox(height: AppSpacing.md),
         // 设计稿的语言占比列到 Top 8,比原先的 5 条多出长尾语言。
         TechHotspotLanguagePanel(languages: digest.languages, maxItems: 8, compact: true),
-      ],
-    );
-  }
-}
-
-/*
-* AI 雷达主题列表的五条详情卡片。
-*/
-class _RadarTopicCards extends StatelessWidget {
-  const _RadarTopicCards({required this.topics});
-
-  // 完整雷达主题集合，移动总览只展示前五条。
-  final List<TechTopic> topics;
-
-  /* 构建空状态或前五条主题卡片。 */
-  @override
-  Widget build(BuildContext context) {
-    final visibleTopics = topics.take(5).toList(growable: false);
-    if (visibleTopics.isEmpty) {
-      return EmptyView(icon: Icons.search_off_rounded, message: AppLocalizations.of(context).tr('tech_hotspot.empty.topics'));
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var index = 0; index < visibleTopics.length; index++) ...[
-          if (index != 0) const SizedBox(height: AppSpacing.sm),
-          TechHotspotTopicCard(topic: visibleTopics[index], compact: true, onTap: () => context.push('/tech_hotspot/detail/${Uri.encodeComponent(visibleTopics[index].id)}')),
-        ],
       ],
     );
   }
@@ -191,28 +141,6 @@ class _RadarSummarySkeleton extends StatelessWidget {
         Skeleton(height: 170),
         SizedBox(height: AppSpacing.lg),
         Skeleton(height: 250),
-      ],
-    );
-  }
-}
-
-/*
-* AI 雷达详细列表加载时的占位内容。
-*/
-class _RadarTopicsSkeleton extends StatelessWidget {
-  const _RadarTopicsSkeleton();
-
-  /* 构建五条主题列表的轻量骨架。 */
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Skeleton(height: 72),
-        SizedBox(height: AppSpacing.sm),
-        Skeleton(height: 72),
-        SizedBox(height: AppSpacing.sm),
-        Skeleton(height: 72),
       ],
     );
   }

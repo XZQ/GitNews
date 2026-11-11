@@ -32,7 +32,10 @@ class TrendingPageHeader extends ConsumerWidget {
         }
         context.go('/trending/repos');
       },
-      actions: [HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => refreshTrendingDigest(ref))],
+      actions: [
+        HeaderAction(icon: Icons.pie_chart_outline_rounded, tooltip: l10n.tr('trending.language_trend.title'), onPressed: () => context.go('/trending/language')),
+        HeaderAction(icon: Icons.refresh_rounded, tooltip: l10n.tr('common.refresh'), onPressed: () => refreshTrendingDigest(ref)),
+      ],
     );
   }
 }

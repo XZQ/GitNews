@@ -3,13 +3,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:github_news/app/home/presentation/home_mobile_body.dart';
-import 'package:github_news/app/home/widgets/home_mobile_radar_overview.dart';
 import 'package:github_news/core/domain/data_freshness.dart';
 import 'package:github_news/core/domain/repo_entity.dart';
 import 'package:github_news/core/i18n/app_localizations.dart';
 import 'package:github_news/features/tech_hotspot/application/tech_hotspot_providers.dart';
 import 'package:github_news/features/tech_hotspot/domain/tech_hotspot_models.dart';
-import 'package:github_news/features/tech_hotspot/presentation/widgets/tech_hotspot_topic_card.dart';
 import 'package:github_news/features/trending/application/trending_providers.dart';
 import 'package:github_news/features/trending/domain/trending_repository.dart';
 import 'package:go_router/go_router.dart';
@@ -60,35 +58,6 @@ const _trendingDigest = TrendingDigest(
 );
 
 void main() {
-  testWidgets('雷达整合页展示四块摘要与五个主题并支持导航', (tester) async {
-    tester.view.devicePixelRatio = 1;
-    tester.view.physicalSize = const Size(390, 844);
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
-
-    final router = _buildRouter();
-    await tester.pumpWidget(_RouterTestApp(router: router));
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('雷达标签'), findsOneWidget);
-    expect(find.text('本周信号热度'), findsOneWidget);
-    expect(find.text('语言占比'), findsOneWidget);
-    expect(find.byType(TechHotspotTopicCard), findsNWidgets(5));
-    expect(find.text('本地推理'), findsWidgets);
-    expect(find.text('不应出现在总览'), findsNothing);
-
-    await tester.tap(find.text('AI雷达'));
-    await tester.pumpAndSettle();
-    expect(find.text('雷达页'), findsOneWidget);
-    router.pop();
-    await tester.pumpAndSettle();
-
-    await tester.ensureVisible(find.text('RAG 工程化'));
-    await tester.tap(find.text('RAG 工程化'));
-    await tester.pumpAndSettle();
-    expect(find.text('雷达详情'), findsOneWidget);
-  });
-
   testWidgets('mobile overview presents eight blocks in reading order', (tester) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(390, 5000);
@@ -114,34 +83,6 @@ void main() {
       expect(verticalPositions[index], greaterThan(verticalPositions[index - 1]), reason: '${orderedLabels[index]} should follow ${orderedLabels[index - 1]}');
     }
   });
-}
-
-/* 构建覆盖总览、AI 雷达和主题详情的测试路由。 */
-GoRouter _buildRouter() {
-  return GoRouter(
-    initialLocation: '/home',
-    routes: [
-      GoRoute(
-        path: '/home',
-        builder: (_, __) => const Scaffold(
-          body: SingleChildScrollView(
-            padding: EdgeInsets.all(16),
-            child: Column(children: [HomeMobileRadarOverview(), SizedBox(height: 16), HomeMobileRadarTopicList()]),
-          ),
-        ),
-      ),
-      GoRoute(
-        path: '/tech_hotspot',
-        builder: (_, __) => const Scaffold(body: Center(child: Text('雷达页'))),
-        routes: [
-          GoRoute(
-            path: 'detail/:id',
-            builder: (_, __) => const Scaffold(body: Text('雷达详情')),
-          ),
-        ],
-      ),
-    ],
-  );
 }
 
 /*

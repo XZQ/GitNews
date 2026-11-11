@@ -7,6 +7,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../features/monitor/application/monitor_providers.dart';
+import '../../../../shared/widgets/home_section_preview_card.dart';
 import '../../../../shared/widgets/repo_growth_chart.dart';
 
 class DevIntelChartCard extends ConsumerStatefulWidget {
@@ -24,7 +25,8 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
     final isLight = Theme.of(context).brightness == Brightness.light;
-    final digest = ref.watch(monitorDigestProvider).value;
+    final monitorAsync = ref.watch(monitorDigestProvider);
+    final digest = monitorAsync.value;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -52,7 +54,10 @@ class _DevIntelChartCardState extends ConsumerState<DevIntelChartCard> {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          RepoGrowthChart(repos: digest?.monitoredRepos ?? const [], days: _window, height: 180),
+          if (monitorAsync.hasError && digest == null)
+            PreviewErrorRow(onRetry: () => ref.invalidate(monitorDigestProvider))
+          else
+            RepoGrowthChart(repos: digest?.monitoredRepos ?? const [], days: _window, height: 180),
         ],
       ),
     );

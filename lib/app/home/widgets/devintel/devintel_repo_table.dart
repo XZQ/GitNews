@@ -8,6 +8,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../features/trending/application/trending_providers.dart';
+import '../../../../shared/widgets/home_section_preview_card.dart';
 import '../../../../shared/widgets/repo_star_change.dart';
 
 class DevIntelRepoTable extends ConsumerWidget {
@@ -17,7 +18,8 @@ class DevIntelRepoTable extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final rows = ref.watch(trendingDigestProvider).maybeWhen(data: (digest) => digest.allRepos.take(6).toList(), orElse: () => const <RepoEntity>[]);
+    final async = ref.watch(trendingDigestProvider);
+    final rows = async.maybeWhen(data: (digest) => digest.allRepos.take(6).toList(), orElse: () => const <RepoEntity>[]);
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -26,10 +28,19 @@ class DevIntelRepoTable extends ConsumerWidget {
         children: [
           Text(l10n.tr('home.repo_table.title'), style: AppTypography.titleMedium.copyWith(color: colors.onSurface)),
           const SizedBox(height: AppSpacing.lg),
-          const _HeaderRow(),
-          const SizedBox(height: AppSpacing.sm),
-          Divider(color: colors.outlineVariant, height: 1),
-          for (var i = 0; i < rows.length; i++) ...[if (i != 0) Divider(color: colors.outlineVariant, height: 1), _RepoRowTile(repo: rows[i], rank: i + 1)],
+          if (async.hasError && rows.isEmpty)
+            PreviewErrorRow(
+              onRetry: () {
+                ref.invalidate(trendingDigestResultProvider);
+                ref.invalidate(trendingDigestProvider);
+              },
+            )
+          else ...[
+            const _HeaderRow(),
+            const SizedBox(height: AppSpacing.sm),
+            Divider(color: colors.outlineVariant, height: 1),
+            for (var i = 0; i < rows.length; i++) ...[if (i != 0) Divider(color: colors.outlineVariant, height: 1), _RepoRowTile(repo: rows[i], rank: i + 1)],
+          ],
         ],
       ),
     );

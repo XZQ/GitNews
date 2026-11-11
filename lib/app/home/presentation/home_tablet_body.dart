@@ -5,6 +5,7 @@ import '../../../core/i18n/app_localizations.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../features/trending/application/trending_providers.dart';
 import '../../../shared/widgets/app_card.dart';
+import '../../../shared/widgets/home_section_preview_card.dart';
 import '../../../shared/widgets/repo_growth_chart.dart';
 import '../../../shared/widgets/section_header.dart';
 import '../widgets/home_ai_hot_topics_card.dart';
@@ -70,7 +71,8 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final digest = ref.watch(trendingDigestProvider).value;
+    final async = ref.watch(trendingDigestProvider);
+    final digest = async.value;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +86,15 @@ class _ChartCardState extends ConsumerState<_ChartCard> {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          RepoGrowthChart(repos: digest?.allRepos ?? const [], days: _chartWindow, height: 180),
+          if (async.hasError && digest == null)
+            PreviewErrorRow(
+              onRetry: () {
+                ref.invalidate(trendingDigestResultProvider);
+                ref.invalidate(trendingDigestProvider);
+              },
+            )
+          else
+            RepoGrowthChart(repos: digest?.allRepos ?? const [], days: _chartWindow, height: 180),
         ],
       ),
     );

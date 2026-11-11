@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/errors/app_exception.dart';
 import '../../../core/i18n/app_localizations.dart';
+import '../../../shared/utils/open_content_link.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/secondary_page_scaffold.dart';
@@ -18,7 +18,8 @@ import 'widgets/ai_news_detail_content.dart';
 /*
 *AI 资讯连续阅读器。
 *
-*保持详情在应用壳内,正文只读取本机缓存;原文通过系统浏览器打开。
+*保持详情在应用壳内,正文只读取本机缓存;原文按「链接打开方式」
+*偏好走应用内 WebView 或系统浏览器。
 */
 class AiNewsDetailPage extends ConsumerWidget {
   const AiNewsDetailPage({required this.id, super.key});
@@ -50,7 +51,7 @@ class AiNewsDetailPage extends ConsumerWidget {
         if (item != null)
           PopupMenuButton<_DetailMenuAction>(
             tooltip: l10n.tr('common.more'),
-            onSelected: (action) => _handleMenuAction(context, item, action),
+            onSelected: (action) => _handleMenuAction(context, ref, item, action),
             itemBuilder: (context) => [
               PopupMenuItem(
                 value: _DetailMenuAction.copyBody,
@@ -75,7 +76,7 @@ class AiNewsDetailPage extends ConsumerWidget {
             ? AiNewsDetailContent(
                 item: value,
                 relatedItems: relatedItems,
-                onOpenOriginal: () => _openOriginal(context, value),
+                onOpenOriginal: () => _openOriginal(context, ref, value),
                 onOpenRelated: (related) => context.pushNamed('ai_news_detail', pathParameters: {'id': related.id}),
                 onViewMore: () => context.go('/ai_news'),
               )
@@ -85,7 +86,7 @@ class AiNewsDetailPage extends ConsumerWidget {
                     child: AiNewsDetailContent(
                       item: value,
                       relatedItems: relatedItems,
-                      onOpenOriginal: () => _openOriginal(context, value),
+                      onOpenOriginal: () => _openOriginal(context, ref, value),
                       onOpenRelated: (related) => context.pushNamed('ai_news_detail', pathParameters: {'id': related.id}),
                       onViewMore: () => context.go('/ai_news'),
                     ),
@@ -111,7 +112,7 @@ class AiNewsDetailPage extends ConsumerWidget {
   }
 
   /* 处理顶部更多菜单。 */
-  Future<void> _handleMenuAction(BuildContext context, AiNewsItem item, _DetailMenuAction action) async {
+  Future<void> _handleMenuAction(BuildContext context, WidgetRef ref, AiNewsItem item, _DetailMenuAction action) async {
     switch (action) {
       case _DetailMenuAction.copyBody:
         await _copyBody(context, item);
@@ -120,7 +121,7 @@ class AiNewsDetailPage extends ConsumerWidget {
         await _copyLink(context, item);
         return;
       case _DetailMenuAction.openOriginal:
-        await _openOriginal(context, item);
+        await _openOriginal(context, ref, item);
         return;
     }
   }
@@ -145,14 +146,14 @@ class AiNewsDetailPage extends ConsumerWidget {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr(sharing ? 'ai_news.detail.link_copied' : 'webview.copied'))));
   }
 
-  /* 在系统浏览器中打开原文。 */
-  Future<void> _openOriginal(BuildContext context, AiNewsItem item) async {
+  /* 按链接打开偏好打开原文。 */
+  Future<void> _openOriginal(BuildContext context, WidgetRef ref, AiNewsItem item) async {
     final target = item.url.isNotEmpty ? item.url : item.permalink;
     final uri = Uri.tryParse(target);
     if (uri == null) {
       return;
     }
-    final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final opened = await openContentLink(context: context, ref: ref, uri: uri, title: item.title);
     if (!opened && context.mounted) {
       final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.tr('ai_news.open_failed'))));

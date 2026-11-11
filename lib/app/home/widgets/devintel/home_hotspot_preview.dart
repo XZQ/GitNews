@@ -26,6 +26,11 @@ class HomeHotspotPreview extends ConsumerWidget {
       icon: Icons.whatshot_rounded,
       path: '/tech_hotspot',
       items: items,
+      hasError: state.hasError,
+      onRetry: () {
+        ref.invalidate(techHotspotDigestResultProvider);
+        ref.invalidate(techHotspotDigestProvider);
+      },
       tileBuilder: (context, item, index) => PreviewRow(
         rank: '${index + 1}',
         rankColor: _heatColor(item.heat),

@@ -7,6 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../features/ai_news/application/ai_news_providers.dart';
 import '../../../../features/ai_news/domain/ai_news_item.dart';
 import '../../../../features/ai_news/presentation/widgets/ai_news_category_style.dart';
+import '../../../../shared/widgets/home_section_preview_card.dart';
 
 class DevIntelSignalsList extends ConsumerWidget {
   const DevIntelSignalsList({super.key});
@@ -15,7 +16,8 @@ class DevIntelSignalsList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final items = ref.watch(aiNewsItemsNotifierProvider).value?.take(4).toList() ?? const <AiNewsItem>[];
+    final async = ref.watch(aiNewsItemsNotifierProvider);
+    final items = async.value?.take(4).toList() ?? const <AiNewsItem>[];
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -24,7 +26,10 @@ class DevIntelSignalsList extends ConsumerWidget {
         children: [
           Text(l10n.tr('devintel.signals.title'), style: AppTypography.titleMedium.copyWith(color: colors.onSurface)),
           const SizedBox(height: AppSpacing.lg),
-          for (var i = 0; i < items.length; i++) ...[_SignalTile(item: items[i]), if (i != items.length - 1) const SizedBox(height: AppSpacing.lg + AppSpacing.xs)],
+          if (async.hasError && items.isEmpty)
+            PreviewErrorRow(onRetry: () => ref.invalidate(aiNewsItemsNotifierProvider))
+          else
+            for (var i = 0; i < items.length; i++) ...[_SignalTile(item: items[i]), if (i != items.length - 1) const SizedBox(height: AppSpacing.lg + AppSpacing.xs)],
         ],
       ),
     );

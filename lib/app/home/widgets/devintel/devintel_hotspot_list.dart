@@ -8,6 +8,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../features/tech_hotspot/application/tech_hotspot_providers.dart';
 import '../../../../features/tech_hotspot/domain/tech_hotspot_models.dart';
+import '../../../../shared/widgets/home_section_preview_card.dart';
 
 class DevIntelHotspotList extends ConsumerWidget {
   const DevIntelHotspotList({super.key});
@@ -16,7 +17,8 @@ class DevIntelHotspotList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final colors = Theme.of(context).colorScheme;
-    final topics = ref.watch(techHotspotDigestProvider).maybeWhen(data: (digest) => digest.topics.take(4).toList(), orElse: () => const <TechTopic>[]);
+    final async = ref.watch(techHotspotDigestProvider);
+    final topics = async.maybeWhen(data: (digest) => digest.topics.take(4).toList(), orElse: () => const <TechTopic>[]);
     return Padding(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -27,7 +29,15 @@ class DevIntelHotspotList extends ConsumerWidget {
           const SizedBox(height: AppSpacing.xs),
           Text(l10n.tr('home.section.hotspot.subtitle'), style: AppTypography.bodySmall.copyWith(color: colors.onSurfaceVariant)),
           const SizedBox(height: AppSpacing.lg),
-          for (var i = 0; i < topics.length; i++) ...[_HotspotTile(topic: topics[i]), if (i != topics.length - 1) const SizedBox(height: AppSpacing.md)],
+          if (async.hasError && topics.isEmpty)
+            PreviewErrorRow(
+              onRetry: () {
+                ref.invalidate(techHotspotDigestResultProvider);
+                ref.invalidate(techHotspotDigestProvider);
+              },
+            )
+          else
+            for (var i = 0; i < topics.length; i++) ...[_HotspotTile(topic: topics[i]), if (i != topics.length - 1) const SizedBox(height: AppSpacing.md)],
         ],
       ),
     );

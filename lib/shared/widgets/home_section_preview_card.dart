@@ -22,6 +22,8 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
     required this.items,
     required this.tileBuilder,
     this.trailing,
+    this.hasError = false,
+    this.onRetry,
     super.key,
   });
 
@@ -33,6 +35,10 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
   final List<T> items;
   final Widget Function(BuildContext, T, int) tileBuilder;
   final Widget? trailing;
+
+  // 数据失败且无可用内容时显示错误行与重试,而不是与空数据不可区分的空白。
+  final bool hasError;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -75,7 +81,36 @@ class HomeSectionPreviewCard<T> extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          for (var i = 0; i < items.length; i++) ...[if (i != 0) const SizedBox(height: AppSpacing.sm), tileBuilder(context, items[i], i)],
+          if (hasError && items.isEmpty)
+            PreviewErrorRow(onRetry: onRetry)
+          else
+            for (var i = 0; i < items.length; i++) ...[if (i != 0) const SizedBox(height: AppSpacing.sm), tileBuilder(context, items[i], i)],
+        ],
+      ),
+    );
+  }
+}
+
+/* 首页预览失败提示行:一行文案 + 重试,保持首页密度;非卡片容器也可复用。 */
+class PreviewErrorRow extends StatelessWidget {
+  const PreviewErrorRow({this.onRetry, super.key});
+
+  final VoidCallback? onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, size: AppSpacing.md, color: colors.error),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(l10n.tr('common.error'), style: AppTypography.labelSmall.copyWith(color: colors.onSurfaceVariant)),
+          ),
+          if (onRetry != null) TextButton(onPressed: onRetry, child: Text(l10n.tr('common.retry'))),
         ],
       ),
     );
